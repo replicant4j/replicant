@@ -31,7 +31,7 @@ public class ReplicantMessageBrokerImplTest
     final List<EntityMessage> messages = Collections.emptyList();
     final ChangeSet changeSet = new ChangeSet();
 
-    broker.queueChangeMessage( session, requestId, etag, messages, changeSet );
+    broker.queueChangeMessage( session, false, requestId, etag, messages, changeSet );
 
     verifyNoSend( broker );
 
@@ -57,14 +57,14 @@ public class ReplicantMessageBrokerImplTest
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
 
-    broker.queueChangeMessage( session, requestId1, etag1, messages1, changeSet1 );
+    broker.queueChangeMessage( session, false, requestId1, etag1, messages1, changeSet1 );
 
     final int requestId2 = ValueUtil.randomInt();
     final String etag2 = ValueUtil.randomString();
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
 
-    broker.queueChangeMessage( session, requestId2, etag2, messages2, changeSet2 );
+    broker.queueChangeMessage( session, false, requestId2, etag2, messages2, changeSet2 );
 
     verifyNoSend( broker );
 
@@ -73,8 +73,6 @@ public class ReplicantMessageBrokerImplTest
     verifySendOnce( broker, session, requestId1, etag1, messages1, changeSet1 );
     verifySendOnce( broker, session, requestId2, etag2, messages2, changeSet2 );
   }
-
-
 
   @Test
   public void multipleSendsToDifferentSession()
@@ -94,14 +92,14 @@ public class ReplicantMessageBrokerImplTest
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
 
-    broker.queueChangeMessage( session1, requestId1, etag1, messages1, changeSet1 );
+    broker.queueChangeMessage( session1, false, requestId1, etag1, messages1, changeSet1 );
 
     final Integer requestId2 = null;
     final String etag2 = null;
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
 
-    broker.queueChangeMessage( session2, requestId2, etag2, messages2, changeSet2 );
+    broker.queueChangeMessage( session2, false, requestId2, etag2, messages2, changeSet2 );
 
     verifyNoSend( broker );
 

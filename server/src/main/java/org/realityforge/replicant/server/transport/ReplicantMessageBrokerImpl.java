@@ -29,12 +29,13 @@ public abstract class ReplicantMessageBrokerImpl
 
   @Override
   public void queueChangeMessage( @Nonnull final ReplicantSession session,
+                                  final boolean altersExplicitSubscriptions,
                                   @Nullable final Integer requestId,
                                   @Nullable final String etag,
                                   @Nonnull final Collection<EntityMessage> messages,
                                   @Nonnull final ChangeSet changeSet )
   {
-    session.queuePacket( new Packet( requestId, etag, messages, changeSet ) );
+    session.queuePacket( new Packet( altersExplicitSubscriptions, requestId, etag, messages, changeSet ) );
     _queue.add( session );
   }
 

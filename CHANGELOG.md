@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix concurrency bug that results from routing a message to a client before the client is aware that they are subscribed to a channel. This can occur if the message is in a packet queued prior to the subscription update packet.
+
 ### [v6.75](https://github.com/replicant4j/replicant/tree/v6.75) (2020-03-04) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.74...v6.75)
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.26.0`.

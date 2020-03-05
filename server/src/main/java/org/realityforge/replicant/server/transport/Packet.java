@@ -17,6 +17,10 @@ final class Packet
   /**
    * The request that resulted in this change when packet is being sent back to the initiator.
    */
+  private final boolean _altersExplicitSubscriptions;
+  /**
+   * The request that resulted in this change when packet is being sent back to the initiator.
+   */
   @Nullable
   private final Integer _requestId;
   /**
@@ -37,17 +41,24 @@ final class Packet
   @Nonnull
   private final ChangeSet _changeSet;
 
-  Packet( @Nullable final Integer requestId,
+  Packet( final boolean altersExplicitSubscriptions,
+          @Nullable final Integer requestId,
           @Nullable final String etag,
           @Nonnull final Collection<EntityMessage> messages,
           @Nonnull final ChangeSet changeSet )
   {
+    _altersExplicitSubscriptions = altersExplicitSubscriptions;
     assert null == etag || null != requestId;
     assert !changeSet.hasContent() || null != requestId;
     _requestId = requestId;
     _etag = etag;
     _messages = Objects.requireNonNull( messages );
     _changeSet = Objects.requireNonNull( changeSet );
+  }
+
+  boolean altersExplicitSubscriptions()
+  {
+    return _altersExplicitSubscriptions;
   }
 
   @Nullable

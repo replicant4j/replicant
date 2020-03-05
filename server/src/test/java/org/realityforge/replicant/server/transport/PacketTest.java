@@ -18,8 +18,9 @@ public class PacketTest
     final List<EntityMessage> messages = new ArrayList<>();
     final ChangeSet changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( requestId, etag, messages, changeSet );
+    final Packet packet = new Packet( true, requestId, etag, messages, changeSet );
 
+    assertTrue( packet.altersExplicitSubscriptions() );
     assertEquals( packet.getRequestId(), (Integer) requestId );
     assertEquals( packet.getEtag(), etag );
     assertSame( packet.getMessages(), messages );
@@ -32,8 +33,9 @@ public class PacketTest
     final List<EntityMessage> messages = new ArrayList<>();
     final ChangeSet changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( null, null, messages, changeSet );
+    final Packet packet = new Packet( false, null, null, messages, changeSet );
 
+    assertFalse( packet.altersExplicitSubscriptions() );
     assertNull( packet.getRequestId() );
     assertNull( packet.getEtag() );
     assertSame( packet.getMessages(), messages );

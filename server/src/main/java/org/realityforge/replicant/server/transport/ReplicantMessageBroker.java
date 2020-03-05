@@ -11,6 +11,7 @@ public interface ReplicantMessageBroker
   void processPendingSessions();
 
   void queueChangeMessage( @Nonnull ReplicantSession session,
+                           boolean altersExplicitSubscriptions,
                            @Nullable Integer requestId,
                            @Nullable String etag,
                            @Nonnull Collection<EntityMessage> messages,

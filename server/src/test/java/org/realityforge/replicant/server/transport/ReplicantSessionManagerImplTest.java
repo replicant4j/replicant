@@ -398,7 +398,7 @@ public class ReplicantSessionManagerImplTest
       assertEntry( entry1, false, 0, 0, null );
 
       verify( sm.getReplicantMessageBroker() )
-        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
+        .queueChangeMessage( eq( session ), eq( true ), eq( null ), eq( "X" ), any(), any() );
     }
   }
 
@@ -512,7 +512,7 @@ public class ReplicantSessionManagerImplTest
     assertEntry( entry1, true, 0, 0, null );
 
     verify( sm.getReplicantMessageBroker() )
-      .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
+      .queueChangeMessage( eq( session ), eq( true ), eq( null ), eq( "X" ), any(), any() );
   }
 
   @Test
@@ -701,7 +701,7 @@ public class ReplicantSessionManagerImplTest
       assertEntry( e1, true, 0, 0, null );
 
       verify( sm.getReplicantMessageBroker() )
-        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
+        .queueChangeMessage( eq( session ), eq( true ), eq( null ), eq( "X" ), any(), any() );
     }
 
     //Not cached locally
@@ -721,7 +721,7 @@ public class ReplicantSessionManagerImplTest
       assertEntry( e1, true, 0, 0, null );
 
       verify( sm.getReplicantMessageBroker() )
-        .queueChangeMessage( eq( session ), eq( null ), eq( "X" ), any(), any() );
+        .queueChangeMessage( eq( session ), eq( true ), eq( null ), eq( "X" ), any(), any() );
     }
 
     //Locally cached but deleted
@@ -748,7 +748,7 @@ public class ReplicantSessionManagerImplTest
 
       // Queue a cached response that contains a delete
       verify( sm.getReplicantMessageBroker() )
-        .queueChangeMessage( eq( session ), eq( null ), eq( null ), eq( Collections.emptyList() ), any() );
+        .queueChangeMessage( eq( session ), eq( true ), eq( null ), eq( null ), eq( Collections.emptyList() ), any() );
     }
   }
 
@@ -1421,7 +1421,12 @@ public class ReplicantSessionManagerImplTest
     with( session, () -> sm.queueCachedChangeSet( session, "X", changeSet ) );
 
     verify( sm.getReplicantMessageBroker() )
-      .queueChangeMessage( eq( session ), eq( 1 ), eq( "X" ), eq( Collections.emptyList() ), eq( changeSet ) );
+      .queueChangeMessage( eq( session ),
+                           eq( true ),
+                           eq( 1 ),
+                           eq( "X" ),
+                           eq( Collections.emptyList() ),
+                           eq( changeSet ) );
   }
 
   @Test

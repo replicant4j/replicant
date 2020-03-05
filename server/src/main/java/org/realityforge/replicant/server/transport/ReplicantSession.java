@@ -32,6 +32,8 @@ public final class ReplicantSession
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
   @Nonnull
+  private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
+  @Nonnull
   private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
   @Nonnull
   private final ReentrantLock _lock = new ReentrantLock( true );
@@ -169,13 +171,30 @@ public final class ReplicantSession
 
   void queuePacket( @Nonnull final Packet packet )
   {
-    _pendingPackets.add( packet );
+    if ( packet.altersExplicitSubscriptions() )
+    {
+      _pendingSubscriptionPackets.add( packet );
+    }
+    else
+    {
+      _pendingPackets.add( packet );
+    }
   }
 
   @Nullable
   Packet popPendingPacket()
   {
-    return _pendingPackets.poll();
+    /*
+     * We prioritize subscription packets ahead of other packets,
+     * as the subscription data on the session object has already been
+     * updated, we need to tell the client that these subscription changes
+     * have occurred before we try and route other messages to the client.
+     *
+     * Only after the client has been updated with all subscription changing
+     * packets do we send other packets.
+     */
+    final Packet packet = _pendingSubscriptionPackets.poll();
+    return null == packet ? _pendingPackets.poll() : packet;
   }
 
   /**

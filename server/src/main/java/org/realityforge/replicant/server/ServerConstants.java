@@ -30,6 +30,11 @@ public final class ServerConstants
    * This means that there should be ZERO changes in session changeset and it should be marked as not required.
    */
   public static final String CACHED_RESULT_SENT_KEY = "CachedResultSent";
+  /**
+   * Key used to flag that an action is subscription.
+   * This means there are ZERO changes in session changeset.
+   */
+  public static final String SUBSCRIPTION_REQUEST_KEY = "SubscriptionRequest";
 
   private ServerConstants()
   {

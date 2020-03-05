@@ -63,6 +63,7 @@ public final class ReplicationRequestUtil
     {
       lock.lockInterruptibly();
       startReplication( registry, invocationKey, session, requestId );
+      registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
       try
       {
         action.run();
@@ -160,6 +161,8 @@ public final class ReplicationRequestUtil
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+      registry.putResource( ServerConstants.CACHED_RESULT_SENT_KEY, null );
+      registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, null );
 
       final boolean isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
       ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );

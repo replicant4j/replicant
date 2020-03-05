@@ -224,7 +224,12 @@ public abstract class ReplicantSessionManagerImpl
     final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
     registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
     registry.putResource( ServerConstants.CACHED_RESULT_SENT_KEY, "1" );
-    getReplicantMessageBroker().queueChangeMessage( session, requestId, etag, Collections.emptyList(), changeSet );
+    getReplicantMessageBroker().queueChangeMessage( session,
+                                                    true,
+                                                    requestId,
+                                                    etag,
+                                                    Collections.emptyList(),
+                                                    changeSet );
   }
 
   /**
@@ -270,7 +275,10 @@ public abstract class ReplicantSessionManagerImpl
           }
           impactsInitiator = true;
         }
+        final boolean altersExplicitSubscriptions =
+          null != getRegistry().getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );
         getReplicantMessageBroker().queueChangeMessage( session,
+                                                        altersExplicitSubscriptions,
                                                         isInitiator ? requestId : null,
                                                         null,
                                                         messages,
