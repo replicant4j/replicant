@@ -32,10 +32,13 @@ abstract class SubscriptionService
   extends ReplicantService
 {
   //SystemId -> ChannelId => Id => Entry
+  @Nonnull
   private final Map<Integer, Map<Integer, Map<Integer, Subscription>>> _instanceSubscriptions = new HashMap<>();
   //SystemId -> ChannelId => Entry
+  @Nonnull
   private final Map<Integer, Map<Integer, Subscription>> _typeSubscriptions = new HashMap<>();
 
+  @Nonnull
   static SubscriptionService create( @Nullable final ReplicantContext context )
   {
     return new Arez_SubscriptionService( context );
