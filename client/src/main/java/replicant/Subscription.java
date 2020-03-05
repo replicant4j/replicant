@@ -33,8 +33,6 @@ public abstract class Subscription
   private final Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
   @Nonnull
   private final ChannelAddress _address;
-  @Nullable
-  private Object _filter;
 
   @Nonnull
   static Subscription create( @Nullable final ReplicantContext context,
@@ -45,13 +43,10 @@ public abstract class Subscription
     return new Arez_Subscription( context, address, filter, explicitSubscription );
   }
 
-  Subscription( @Nullable final ReplicantContext context,
-                @Nonnull final ChannelAddress address,
-                @Nullable final Object filter )
+  Subscription( @Nullable final ReplicantContext context, @Nonnull final ChannelAddress address )
   {
     super( context );
     _address = Objects.requireNonNull( address );
-    _filter = filter;
   }
 
   @Nonnull
@@ -60,17 +55,11 @@ public abstract class Subscription
     return _address;
   }
 
-  @Observable
+  @Observable( initializer = Feature.ENABLE )
   @Nullable
-  public Object getFilter()
-  {
-    return _filter;
-  }
+  public abstract Object getFilter();
 
-  void setFilter( @Nullable final Object filter )
-  {
-    _filter = filter;
-  }
+  abstract void setFilter( @Nullable Object filter );
 
   @Observable( initializer = Feature.ENABLE )
   public abstract boolean isExplicitSubscription();
