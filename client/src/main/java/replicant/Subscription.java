@@ -29,6 +29,7 @@ public abstract class Subscription
   extends ReplicantService
   implements Comparable<Subscription>
 {
+  @Nonnull
   private final Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
   @Nonnull
   private final ChannelAddress _address;
