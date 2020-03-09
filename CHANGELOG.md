@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Simplify some of the test infrastructure by adopting the `org.realityforge.arez.testng:arez-testng` dependency.
+
 ### [v6.76](https://github.com/replicant4j/replicant/tree/v6.76) (2020-03-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.75...v6.76)
 
 * Fix concurrency bug that results from routing a message to a client before the client is aware that they are subscribed to a channel. This can occur if the message is in a packet queued prior to the subscription update packet.

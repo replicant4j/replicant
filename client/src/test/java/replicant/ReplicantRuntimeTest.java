@@ -14,7 +14,7 @@ public class ReplicantRuntimeTest
 {
   @AfterMethod
   @Override
-  protected void afterTest()
+  public void afterTest()
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
     try

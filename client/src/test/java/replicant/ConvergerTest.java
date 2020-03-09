@@ -19,7 +19,7 @@ public class ConvergerTest
 {
   @BeforeMethod
   @Override
-  protected void beforeTest()
+  public void beforeTest()
     throws Exception
   {
     super.beforeTest();

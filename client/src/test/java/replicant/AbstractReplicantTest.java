@@ -1,19 +1,13 @@
 package replicant;
 
-import arez.Arez;
-import arez.ArezTestUtil;
-import arez.Disposable;
-import arez.Observer;
-import arez.ObserverError;
-import arez.Procedure;
-import arez.SafeFunction;
-import arez.SafeProcedure;
+import arez.testng.ActionWrapper;
+import arez.testng.ArezTestSupport;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.braincheck.BrainCheckTestUtil;
 import org.realityforge.guiceyloops.shared.ValueUtil;
+import org.testng.IHookCallBack;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -21,48 +15,24 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @Listeners( MessageCollector.class )
+@ActionWrapper( enable = false )
 public abstract class AbstractReplicantTest
+  implements ArezTestSupport
 {
-  private final ArrayList<String> _observerErrors = new ArrayList<>();
-  private boolean _ignoreObserverErrors;
-  private boolean _printObserverErrors;
-
   @BeforeMethod
-  protected void beforeTest()
+  public void beforeMethod()
     throws Exception
   {
-    BrainCheckTestUtil.resetConfig( false );
-    ArezTestUtil.resetConfig( false );
+    ArezTestSupport.super.beforeMethod();
     ReplicantTestUtil.resetConfig( false );
     getProxyLogger().setLogger( new TestLogger() );
-    _ignoreObserverErrors = false;
-    _printObserverErrors = true;
-    _observerErrors.clear();
-    Arez.context().addObserverErrorHandler( this::onObserverError );
   }
 
-  @Nonnull
-  protected final Disposable pauseScheduler()
+  @AfterMethod
+  public void afterMethod()
   {
-    return Arez.context().pauseScheduler();
-  }
-
-  final void observer( @Nonnull final Procedure procedure )
-  {
-    Arez.context().observer( () -> {
-      Arez.context().observable().reportObserved();
-      procedure.call();
-    } );
-  }
-
-  protected final void safeAction( @Nonnull final SafeProcedure action )
-  {
-    Arez.context().safeAction( action );
-  }
-
-  protected final <T> T safeAction( @Nonnull final SafeFunction<T> action )
-  {
-    return Arez.context().safeAction( action );
+    ReplicantTestUtil.resetConfig( true );
+    ArezTestSupport.super.afterMethod();
   }
 
   @Nonnull
@@ -95,18 +65,6 @@ public abstract class AbstractReplicantTest
       .createSubscription( address, filter, explicitSubscription ) );
   }
 
-  @AfterMethod
-  protected void afterTest()
-  {
-    BrainCheckTestUtil.resetConfig( true );
-    ArezTestUtil.resetConfig( true );
-    ReplicantTestUtil.resetConfig( true );
-    if ( !_ignoreObserverErrors && !_observerErrors.isEmpty() )
-    {
-      fail( "Unexpected Observer Errors: " + String.join( "\n", _observerErrors ) );
-    }
-  }
-
   @Nonnull
   final TestLogger getTestLogger()
   {
@@ -117,25 +75,6 @@ public abstract class AbstractReplicantTest
   private ReplicantLogger.ProxyLogger getProxyLogger()
   {
     return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
-  }
-
-  private void onObserverError( @Nonnull final Observer observer,
-                                @Nonnull final ObserverError error,
-                                @Nullable final Throwable throwable )
-  {
-    if ( !_ignoreObserverErrors )
-    {
-      final String message = "Observer: " + observer.getName() + " Error: " + error + " " + throwable;
-      _observerErrors.add( message );
-      if ( _printObserverErrors )
-      {
-        System.out.println( message );
-        if ( null != throwable )
-        {
-          throwable.printStackTrace();
-        }
-      }
-    }
   }
 
   @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
