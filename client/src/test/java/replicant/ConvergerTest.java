@@ -19,10 +19,10 @@ public class ConvergerTest
 {
   @BeforeMethod
   @Override
-  public void beforeTest()
+  public void preTest()
     throws Exception
   {
-    super.beforeTest();
+    super.preTest();
     // Pause schedule so can manually interact with converger
     pauseScheduler();
   }

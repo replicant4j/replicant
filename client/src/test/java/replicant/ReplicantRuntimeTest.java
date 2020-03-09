@@ -14,7 +14,7 @@ public class ReplicantRuntimeTest
 {
   @AfterMethod
   @Override
-  public void afterTest()
+  public void postTest()
   {
     final Disposable schedulerLock = Arez.context().pauseScheduler();
     try
@@ -31,7 +31,7 @@ public class ReplicantRuntimeTest
     {
       schedulerLock.dispose();
     }
-    super.afterTest();
+    super.postTest();
   }
 
   @Test
