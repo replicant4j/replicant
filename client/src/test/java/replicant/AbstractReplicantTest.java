@@ -18,19 +18,21 @@ public abstract class AbstractReplicantTest
   implements ArezTestSupport
 {
   @BeforeMethod
-  public void beforeMethod()
+  @Override
+  public void preTest()
     throws Exception
   {
-    ArezTestSupport.super.beforeMethod();
+    ArezTestSupport.super.preTest();
     ReplicantTestUtil.resetConfig( false );
     getProxyLogger().setLogger( new TestLogger() );
   }
 
   @AfterMethod
-  public void afterMethod()
+  @Override
+  public void postTest()
   {
     ReplicantTestUtil.resetConfig( true );
-    ArezTestSupport.super.afterMethod();
+    ArezTestSupport.super.postTest();
   }
 
   @Nonnull
