@@ -3,6 +3,7 @@ package replicant;
 import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
+import arez.SchedulerLock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -16,21 +17,19 @@ import static org.realityforge.braincheck.Guards.*;
 public final class ReplicantContext
 {
   @Nonnull
-  private final AreaOfInterestService _areaOfInterestService =
-    AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
+  private final AreaOfInterestService _areaOfInterestService;
   @Nonnull
-  private final EntityService _entityService = EntityService.create( Replicant.areZonesEnabled() ? this : null );
+  private final EntityService _entityService;
   @Nonnull
-  private final SubscriptionService _subscriptionService =
-    SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
+  private final SubscriptionService _subscriptionService;
   @Nonnull
-  private final ReplicantRuntime _runtime = ReplicantRuntime.create();
+  private final ReplicantRuntime _runtime;
   @Nonnull
-  private final Converger _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+  private final Converger _converger;
   @Nonnull
-  private final Validator _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
+  private final Validator _validator;
   @Nonnull
-  private final SchemaService _schemaService = SchemaService.create();
+  private final SchemaService _schemaService;
   @Nonnull
   private final ArezContext _context;
   /**
@@ -42,24 +41,34 @@ public final class ReplicantContext
    * Support infrastructure for spy events.
    */
   @Nullable
-  private final SpyImpl _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
+  private final SpyImpl _spy;
   /**
    * Support infrastructure for application events.
    */
   @Nullable
-  private final ApplicationEventBroker _eventBroker =
-    Replicant.areEventsEnabled() ? new ApplicationEventBroker() : null;
+  private final ApplicationEventBroker _eventBroker;
   /**
    * Support infrastructure for change broker.
    */
   @Nullable
-  private final EntityChangeBroker _changeBroker =
-    Replicant.isChangeBrokerEnabled() ? new EntityChangeBroker() : null;
+  private final EntityChangeBroker _changeBroker;
 
   ReplicantContext()
   {
-    _context = Arez.context();
-    _context.triggerScheduler();
+    final ArezContext context = Arez.context();
+    _context = context;
+    final SchedulerLock lock = context.pauseScheduler();
+    _areaOfInterestService = AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
+    _entityService = EntityService.create( Replicant.areZonesEnabled() ? this : null );
+    _subscriptionService = SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
+    _runtime = ReplicantRuntime.create();
+    _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
+    _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
+    _schemaService = SchemaService.create();
+    _spy  = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
+    _eventBroker = Replicant.areEventsEnabled() ? new ApplicationEventBroker() : null;
+    _changeBroker = Replicant.isChangeBrokerEnabled() ? new EntityChangeBroker() : null;
+    lock.dispose();
   }
 
   public void setAuthToken( @Nullable final String authToken )
