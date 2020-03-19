@@ -49,13 +49,13 @@ public final class ReplicationRequestUtil
     }
   }
 
-  static void sessionUpdateRequest( @Nonnull final TransactionSynchronizationRegistry registry,
-                                    @Nonnull final EntityManager entityManager,
-                                    @Nonnull final EntityMessageEndpoint endpoint,
-                                    @Nonnull final String invocationKey,
-                                    @Nonnull final ReplicantSession session,
-                                    final int requestId,
-                                    @Nonnull final Runnable action )
+  static void sessionLockingRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                     @Nonnull final EntityManager entityManager,
+                                     @Nonnull final EntityMessageEndpoint endpoint,
+                                     @Nonnull final String invocationKey,
+                                     @Nonnull final ReplicantSession session,
+                                     @Nullable final Integer requestId,
+                                     @Nonnull final Runnable action )
     throws InterruptedException
   {
     final ReentrantLock lock = session.getLock();
@@ -63,7 +63,6 @@ public final class ReplicationRequestUtil
     {
       lock.lockInterruptibly();
       startReplication( registry, invocationKey, session, requestId );
-      registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
       try
       {
         action.run();
@@ -77,6 +76,21 @@ public final class ReplicationRequestUtil
     {
       lock.unlock();
     }
+  }
+
+  static void sessionUpdateRequest( @Nonnull final TransactionSynchronizationRegistry registry,
+                                    @Nonnull final EntityManager entityManager,
+                                    @Nonnull final EntityMessageEndpoint endpoint,
+                                    @Nonnull final String invocationKey,
+                                    @Nonnull final ReplicantSession session,
+                                    final int requestId,
+                                    @Nonnull final Runnable action )
+    throws InterruptedException
+  {
+    sessionLockingRequest( registry, entityManager, endpoint, invocationKey, session, requestId, () -> {
+      registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
+      action.run();
+    } );
   }
 
   /**
