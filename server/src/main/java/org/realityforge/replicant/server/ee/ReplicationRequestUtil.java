@@ -175,7 +175,7 @@ public final class ReplicationRequestUtil
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-      registry.putResource( ServerConstants.CACHED_RESULT_SENT_KEY, null );
+      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
       registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, null );
 
       final boolean isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;

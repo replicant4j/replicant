@@ -223,7 +223,7 @@ public abstract class ReplicantSessionManagerImpl
     final TransactionSynchronizationRegistry registry = getRegistry();
     final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
     registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
-    registry.putResource( ServerConstants.CACHED_RESULT_SENT_KEY, "1" );
+    registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
     getReplicantMessageBroker().queueChangeMessage( session,
                                                     true,
                                                     requestId,
@@ -268,7 +268,7 @@ public abstract class ReplicantSessionManagerImpl
            * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
            * at a later stage and move all rpc onto replicant channel.
            */
-          if ( null == getRegistry().getResource( ServerConstants.CACHED_RESULT_SENT_KEY ) )
+          if ( null == getRegistry().getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY ) )
           {
             // We skip scenario when we have already sent a cached result
             changeSet.setRequired( true );
@@ -572,6 +572,9 @@ public abstract class ReplicantSessionManagerImpl
             }
             WebSocketUtil.sendJsonObject( session.getWebSocketSession(), response.build() );
             changeSet.setRequired( false );
+            // We need to mark this as handled otherwise the wrapper will attempt to send
+            // another ok message with same requestId
+            getRegistry().putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
           }
         }
         else
