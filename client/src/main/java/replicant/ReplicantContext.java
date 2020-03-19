@@ -33,11 +33,6 @@ public final class ReplicantContext
   @Nonnull
   private final ArezContext _context;
   /**
-   * Service responsible for caching data to avoid hitting the network during requests.
-   */
-  @Nullable
-  private CacheService _cacheService;
-  /**
    * Support infrastructure for spy events.
    */
   @Nullable
@@ -52,6 +47,11 @@ public final class ReplicantContext
    */
   @Nullable
   private final EntityChangeBroker _changeBroker;
+  /**
+   * Service responsible for caching data to avoid hitting the network during requests.
+   */
+  @Nullable
+  private CacheService _cacheService;
 
   ReplicantContext()
   {
