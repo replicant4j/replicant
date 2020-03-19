@@ -116,7 +116,14 @@ public abstract class AbstractReplicantEndpoint
     //noinspection IfCanBeSwitch
     if ( "etags".equals( type ) )
     {
-      onETags( replicantSession, command );
+      try
+      {
+        onETags( replicantSession, command );
+      }
+      catch ( final InterruptedException ignored )
+      {
+        replicantSession.closeDueToInterrupt();
+      }
     }
     else if ( "ping".equals( type ) )
     {
@@ -230,7 +237,8 @@ public abstract class AbstractReplicantEndpoint
     WebSocketUtil.sendJsonObject( session, builder.build() );
   }
 
-  private void onETags( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+  private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+    throws InterruptedException
   {
     final Map<ChannelAddress, String> etags = new HashMap<>();
     for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( "etags" ).entrySet() )
@@ -239,8 +247,15 @@ public abstract class AbstractReplicantEndpoint
       final String eTag = ( (JsonString) entry.getValue() ).getString();
       etags.put( address, eTag );
     }
-    replicantSession.setETags( etags );
-    sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );
+    ReplicationRequestUtil.sessionLockingRequest( getRegistry(),
+                                                  getEntityManager(),
+                                                  getEndpoint(),
+                                                  "setEtags()",
+                                                  session,
+                                                  null,
+                                                  () -> session.setETags( etags ) );
+
+    sendOk( session.getWebSocketSession(), command.getInt( "requestId" ) );
   }
 
   private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )

@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.171`.
 * Simplify some of the test infrastructure by adopting the `org.realityforge.arez.testng:arez-testng` dependency.
+* Fix an error that occurs as the server was not locking the session when it updated the eTags.
 
 ### [v6.76](https://github.com/replicant4j/replicant/tree/v6.76) (2020-03-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.75...v6.76)
 
