@@ -44,6 +44,7 @@ abstract class Converger
     NO_ACTION
   }
 
+  @Nonnull
   static Converger create( @Nullable final ReplicantContext context )
   {
     return new Arez_Converger( context );
