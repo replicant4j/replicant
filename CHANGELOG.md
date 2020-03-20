@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.arez` artifacts to version `0.172`.
+
 ### [v6.78](https://github.com/replicant4j/replicant/tree/v6.78) (2020-03-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.77...v6.78)
 
 * Rework the initialization sequence in `ReplicantContext` to eliminate the need for the `deferScheduler=true` parameter to be applied to the `@ArezComponent` annotation in `replicant.Converger` and `replicant.ReplicantRuntime`. This produces a more reliable mechanism for deferring observer reactions.
