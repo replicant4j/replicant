@@ -10,6 +10,7 @@ public final class Zone
   /**
    * The underlying context for zone.
    */
+  @Nonnull
   private final ReplicantContext _context = new ReplicantContext();
 
   /**
