@@ -1,7 +1,6 @@
 package replicant;
 
 import arez.Arez;
-import arez.ArezContext;
 import arez.Disposable;
 import arez.SchedulerLock;
 import java.util.Collection;
@@ -30,8 +29,6 @@ public final class ReplicantContext
   private final Validator _validator;
   @Nonnull
   private final SchemaService _schemaService;
-  @Nonnull
-  private final ArezContext _context;
   /**
    * Support infrastructure for spy events.
    */
@@ -55,9 +52,7 @@ public final class ReplicantContext
 
   ReplicantContext()
   {
-    final ArezContext context = Arez.context();
-    _context = context;
-    final SchedulerLock lock = context.pauseScheduler();
+    final SchedulerLock lock = Arez.context().pauseScheduler();
     _areaOfInterestService = AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
     _entityService = EntityService.create( Replicant.areZonesEnabled() ? this : null );
     _subscriptionService = SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
@@ -391,24 +386,15 @@ public final class ReplicantContext
   }
 
   /**
-   * Request a resynchronization with the backend if necessary. This should rarely if ever be used
-   * but can be required when bugs are present in the replicant code and it is not resynchronizing
-   * with the backend.
-   */
-  private void requestSync()
-  {
-    _context.safeAction( () -> getRuntime().getConnectors().forEach( c -> c.getConnector().maybeRequestSync() ) );
-  }
-
-  /**
    * Set the desired state of the context as "active" and start to converge Connectors to being CONNECTED.
    * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
    * context is accessible via {@link #getState()}.
    */
   public void activate()
   {
-    getRuntime().activate();
-    requestSync();
+    final ReplicantRuntime runtime = getRuntime();
+    runtime.activate();
+    runtime.requestSync();
   }
 
   /**

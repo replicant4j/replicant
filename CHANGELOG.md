@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Rework the initialization sequence in `ReplicantContext` to eliminate the need for the `deferScheduler=true` parameter to be applied to the `@ArezComponent` annotation in `replicant.Converger` and `replicant.ReplicantRuntime`. This produces a more reliable mechanism for deferring observer reactions.
+* Remove the need to cache the `ArezContext` in `ReplicantContext` by moving the `requestSync` logic to `replicant.ReplicantRuntime`.
 
 ### [v6.77](https://github.com/replicant4j/replicant/tree/v6.77) (2020-03-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.76...v6.77)
 

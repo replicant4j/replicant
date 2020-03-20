@@ -35,6 +35,17 @@ abstract class ReplicantRuntime
     return new Arez_ReplicantRuntime();
   }
 
+  /**
+   * Request a resynchronization with the backend if necessary. This should rarely if ever be used
+   * but can be required when bugs are present in the replicant code and it is not resynchronizing
+   * with the backend.
+   */
+  @Action
+  void requestSync()
+  {
+    getConnectors().forEach( c -> c.getConnector().maybeRequestSync() );
+  }
+
   @Action( verifyRequired = false, reportParameters = false )
   public void setAuthToken( @Nullable final String authToken )
   {
