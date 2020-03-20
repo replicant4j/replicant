@@ -2,7 +2,6 @@ package replicant;
 
 import arez.Arez;
 import arez.Disposable;
-import arez.SchedulerLock;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,7 @@ public final class ReplicantContext
 
   ReplicantContext()
   {
-    final SchedulerLock lock = Arez.context().pauseScheduler();
+    assert Arez.context().isSchedulerPaused();
     _areaOfInterestService = AreaOfInterestService.create( Replicant.areZonesEnabled() ? this : null );
     _entityService = EntityService.create( Replicant.areZonesEnabled() ? this : null );
     _subscriptionService = SubscriptionService.create( Replicant.areZonesEnabled() ? this : null );
@@ -60,10 +59,9 @@ public final class ReplicantContext
     _converger = Converger.create( Replicant.areZonesEnabled() ? this : null );
     _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
     _schemaService = SchemaService.create();
-    _spy  = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
+    _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
     _eventBroker = Replicant.areEventsEnabled() ? new ApplicationEventBroker() : null;
     _changeBroker = Replicant.isChangeBrokerEnabled() ? new EntityChangeBroker() : null;
-    lock.dispose();
   }
 
   public void setAuthToken( @Nullable final String authToken )

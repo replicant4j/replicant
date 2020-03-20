@@ -1,7 +1,10 @@
 package replicant;
 
+import arez.Arez;
 import arez.Disposable;
+import arez.SchedulerLock;
 import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -17,18 +20,27 @@ final class ReplicantZoneHolder
    * Default zone if zones are enabled.
    */
   @Nullable
-  private static Zone c_defaultZone = Replicant.areZonesEnabled() ? new Zone() : null;
+  private static Zone c_defaultZone;
   /**
    * Default zone if zones are enabled.
    */
   @Nullable
-  private static Zone c_zone = Replicant.areZonesEnabled() ? c_defaultZone : null;
+  private static Zone c_zone;
   /**
    * The zones that were previously active.
    * If there is no zones in the stack and a zone is deactivated then the default zone is made current.
    */
   @Nullable
-  private static ArrayList<Zone> c_zoneStack = Replicant.areZonesEnabled() ? new ArrayList<>() : null;
+  private static List<Zone> c_zoneStack;
+
+  static
+  {
+    final SchedulerLock lock = Arez.context().pauseScheduler();
+    c_defaultZone = Replicant.areZonesEnabled() ? new Zone() : null;
+    c_zone = Replicant.areZonesEnabled() ? c_defaultZone : null;
+    c_zoneStack = Replicant.areZonesEnabled() ? new ArrayList<>() : null;
+    lock.dispose();
+  }
 
   private ReplicantZoneHolder()
   {
@@ -106,6 +118,7 @@ final class ReplicantZoneHolder
    */
   static void reset()
   {
+    final SchedulerLock lock = Arez.context().pauseScheduler();
     if ( null != c_defaultZone )
     {
       Disposable.dispose( c_defaultZone );
@@ -117,6 +130,7 @@ final class ReplicantZoneHolder
     c_defaultZone = new Zone();
     c_zone = c_defaultZone;
     c_zoneStack = new ArrayList<>();
+    lock.dispose();
   }
 
   @Nonnull
@@ -127,7 +141,7 @@ final class ReplicantZoneHolder
   }
 
   @Nonnull
-  static ArrayList<Zone> getZoneStack()
+  static List<Zone> getZoneStack()
   {
     assert null != c_zoneStack;
     return c_zoneStack;

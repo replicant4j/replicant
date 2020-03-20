@@ -1,5 +1,7 @@
 package replicant;
 
+import arez.Arez;
+import arez.SchedulerLock;
 import javax.annotation.Nonnull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
@@ -133,7 +135,10 @@ public final class Replicant
       apiInvariant( Replicant::areZonesEnabled,
                     () -> "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled." );
     }
-    return new Zone();
+    final SchedulerLock lock = Arez.context().pauseScheduler();
+    final Zone zone = new Zone();
+    lock.dispose();
+    return zone;
   }
 
   /**

@@ -1,5 +1,6 @@
 package replicant;
 
+import arez.Arez;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -200,6 +201,7 @@ public class ReplicantTest
   public void activateZone_whenZonesNotEnabled()
   {
     ReplicantTestUtil.disableZones();
+    Arez.context().pauseScheduler();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Replicant.activateZone( new Zone() ) );
@@ -211,6 +213,7 @@ public class ReplicantTest
   public void deactivateZone_whenZonesNotEnabled()
   {
     ReplicantTestUtil.disableZones();
+    Arez.context().pauseScheduler();
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Replicant.deactivateZone( new Zone() ) );
@@ -232,6 +235,7 @@ public class ReplicantTest
   public void deactivateZone_whenNotActive()
   {
     ReplicantTestUtil.enableZones();
+    Arez.context().pauseScheduler();
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Replicant.deactivateZone( new Zone() ) );
     assertEquals( exception.getMessage(), "Replicant-0004: Attempted to deactivate zone that is not active." );
