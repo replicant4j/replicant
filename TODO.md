@@ -18,5 +18,3 @@ Some actions that should occur at some point in the future.
 * Add `ReplicantContext.pause()` that pauses converger and runtime and update all the tests to use that.
 
 * Introduce TransportFactory and pass that into context.
-
-* Generate DebugTool to show client side replicant graph subscriptions
