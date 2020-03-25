@@ -4,17 +4,6 @@ Some actions that should occur at some point in the future.
 
 * Consolidate some of the common code across server and client libraries. i.e.
   - Move ChannelMetaData into common and make domgen generate meta data in shared space.
-* Rework the request system so that all the inputs/outputs are explicit.
-    Inputs include:
-      * SessionID
-      * RequestID
-      * Job Name/Service+method name
-      * Job Parameters
-    Outputs include:
-      * Request Complete Flag
-      * Job Return value
-    This will ultimately allow the jobs and potentially polling results to move to being
-    handled across a WebSocket.
 
 * Move to CBOR or protobuf for serialization.
   - https://www.ietf.org/about/participate/tutorials/technical/cbor/
