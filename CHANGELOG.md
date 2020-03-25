@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.79](https://github.com/replicant4j/replicant/tree/v6.79) (2020-03-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.78...v6.79)
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.172`.
 * Fix a bug exhibited when filtered subscriptions update the filters and the filter methods use traverses across entities to determine whether an entity should be omitted from the updated subscription. If the entities traversed occurred lexicographically earlier than the entity and could be filtered out then they may already be disposed when later entities are attempting to determine whether they should remain in the graph which can cause crashes or unexpected behaviour. This has been fixed by deferring the unlinking till after the set of filtered out entities is determined.
