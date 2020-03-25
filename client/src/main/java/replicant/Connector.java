@@ -750,6 +750,7 @@ abstract class Connector
                        subscription.getAddress() + " but the channel does not have a DYNAMIC filter." );
     }
 
+    final List<Entity> entitiesToDelink = new ArrayList<>();
     for ( final Class<?> entityType : new ArrayList<>( subscription.findAllEntityTypes() ) )
     {
       final List<Entity> entities = subscription.findAllEntitiesByType( entityType );
@@ -763,10 +764,22 @@ abstract class Connector
         {
           if ( !updateFilter.doesEntityMatchFilter( filter, entity ) )
           {
-            entity.delinkFromSubscription( subscription );
+            // We need to collect all the entities into a separate list and delink later.
+            // If we delink immediately and the arez userObject is disposed and a subsequent entity
+            // calls `doesEntityMatchFilter` and tries to traverse across the already disposed
+            // userObject then we get a crash or unexpected behaviour.
+            // i.e. Moving days in planner will match the day first and remove it before attempting
+            // to match RosterEntry but RosterEntry involves walking from RosterEntry->Day->Shift
+            // which will crash
+            entitiesToDelink.add( entity );
           }
         }
       }
+    }
+
+    for ( final Entity entity : entitiesToDelink )
+    {
+      entity.delinkFromSubscription( subscription );
     }
   }
 
