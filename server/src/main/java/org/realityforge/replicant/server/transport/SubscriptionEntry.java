@@ -85,7 +85,7 @@ public final class SubscriptionEntry
     return _filter;
   }
 
-  public void setFilter( @Nullable final Object filter )
+  void setFilter( @Nullable final Object filter )
   {
     _session.ensureLockedByCurrentThread();
     _filter = filter;
@@ -104,7 +104,7 @@ public final class SubscriptionEntry
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
@@ -123,7 +123,7 @@ public final class SubscriptionEntry
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  public ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
@@ -151,7 +151,7 @@ public final class SubscriptionEntry
    * Register the specified channel as inward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
@@ -170,7 +170,7 @@ public final class SubscriptionEntry
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  public ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
