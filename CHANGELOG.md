@@ -4,6 +4,7 @@
 
 * Reduce access levels on several methods on `SubscriptionEntry` as they are not expected to be called outside of the framework.
 * Change the API of `ReplicantSessionManagerImpl.collectDataForSubscriptionUpdate` to accept a session so that the collection process can also inspect session to determine what code managed graph links need to be updated.
+* Expose `ReplicantSession.isSubscriptionEntryPresent(...)`
 
 ### [v6.79](https://github.com/replicant4j/replicant/tree/v6.79) (2020-03-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.78...v6.79)
 
