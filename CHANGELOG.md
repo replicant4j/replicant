@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.81](https://github.com/replicant4j/replicant/tree/v6.81) (2020-03-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.80...v6.81)
 
 * Generate an error in production builds when there is an unexpected error processing a network message.
 
