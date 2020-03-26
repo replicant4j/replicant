@@ -354,6 +354,24 @@ public abstract class ReplicantSessionManagerImpl
       entry.setFilter( filter );
       collectDataForSubscriptionUpdate( session, address, changeSet, originalFilter, filter );
       changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
+      // If collectDataForSubscriptionUpdate indicates that we should unsubscribe from a channel
+      // due to filter omitting entity (i.e. action == REMOVE) then we should explicitly unsubscribe
+      // from the channel. It is expected the applications that use non-auto graph-links can signal
+      // the removal of the target side by adding REMOVE action but it is up to this code to perform
+      // the actual remove
+      for ( final ChannelAction channelAction : changeSet.getChannelActions() )
+      {
+        if ( ChannelAction.Action.REMOVE == channelAction.getAction() )
+        {
+          final SubscriptionEntry other = session.findSubscriptionEntry( channelAction.getAddress() );
+          // It is unclear when other is ever allowed to be null. If it is null then it probably means
+          // that collectDataForSubscriptionUpdate incorrectly added this action.z
+          if ( null != other )
+          {
+            performUnsubscribe( session, other, true, false, changeSet );
+          }
+        }
+      }
     }
   }
 
