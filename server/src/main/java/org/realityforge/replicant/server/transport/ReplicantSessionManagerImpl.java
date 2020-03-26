@@ -352,7 +352,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( doFiltersNotMatch( filter, originalFilter ) )
     {
       entry.setFilter( filter );
-      collectDataForSubscriptionUpdate( address, changeSet, originalFilter, filter );
+      collectDataForSubscriptionUpdate( session, address, changeSet, originalFilter, filter );
       changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
     }
   }
@@ -759,7 +759,8 @@ public abstract class ReplicantSessionManagerImpl
     throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
   }
 
-  protected void collectDataForSubscriptionUpdate( @Nonnull final ChannelAddress address,
+  protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final ChannelAddress address,
                                                    @Nonnull final ChangeSet changeSet,
                                                    @Nullable final Object originalFilter,
                                                    @Nullable final Object filter )
