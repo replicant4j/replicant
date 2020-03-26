@@ -1408,6 +1408,8 @@ abstract class Connector
   @Action( verifyRequired = false )
   protected void onMessageProcessFailure( @Nonnull final Throwable error )
   {
+    final String message = ReplicantUtil.safeGetString( () -> "Exception processing replicant message." );
+    ReplicantLogger.log( message, error );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()

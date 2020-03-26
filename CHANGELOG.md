@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Generate an error in production builds when there is an unexpected error processing a network message.
+
 ### [v6.80](https://github.com/replicant4j/replicant/tree/v6.80) (2020-03-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.79...v6.80)
 
 * Reduce access levels on several methods on `SubscriptionEntry` as they are not expected to be called outside of the framework.
