@@ -39,8 +39,7 @@ public final class SubscriptionEntry
   @Nullable
   private Object _filter;
 
-  public SubscriptionEntry( @Nonnull final ReplicantSession session,
-                            @Nonnull final ChannelAddress address )
+  public SubscriptionEntry( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
   {
     _session = Objects.requireNonNull( session );
     _address = Objects.requireNonNull( address );
