@@ -359,7 +359,7 @@ public abstract class ReplicantSessionManagerImpl
       // from the channel. It is expected the applications that use non-auto graph-links can signal
       // the removal of the target side by adding REMOVE action but it is up to this code to perform
       // the actual remove
-      for ( final ChannelAction channelAction : changeSet.getChannelActions() )
+      for ( final ChannelAction channelAction : new ArrayList<>( changeSet.getChannelActions() ) )
       {
         if ( ChannelAction.Action.REMOVE == channelAction.getAction() )
         {
