@@ -1,8 +1,10 @@
 package org.realityforge.replicant.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -119,12 +121,30 @@ public final class EntityMessage
     }
   }
 
+  @SuppressWarnings( "unchecked" )
   private void mergeRoutingKeys( final EntityMessage message )
   {
     final Map<String, Serializable> routingKeys = message.getRoutingKeys();
     for ( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
     {
-      getRoutingKeys().put( entry.getKey(), entry.getValue() );
+      final Serializable value = entry.getValue();
+      if ( value instanceof List )
+      {
+        final List<Integer> existing =
+          (List<Integer>) getRoutingKeys().computeIfAbsent( entry.getKey(), k -> new ArrayList<Integer>() );
+        final List<Integer> toMerge = (List<Integer>) entry.getValue();
+        for ( final Integer id : toMerge )
+        {
+          if ( !existing.contains( id ) )
+          {
+            existing.add( id );
+          }
+        }
+      }
+      else
+      {
+        getRoutingKeys().put( entry.getKey(), value );
+      }
     }
   }
 

@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
@@ -1038,40 +1039,47 @@ public abstract class ReplicantSessionManagerImpl
     for ( int i = 0; i < channelCount; i++ )
     {
       final ChannelMetaData channel = schema.getChannelMetaData( i );
-      final ChannelAddress address = extractAddressFromMessage( channel, message );
-      if ( null != address )
+      final List<ChannelAddress> addresses = extractChannelAddressesFromMessage( channel, message );
+      if ( null != addresses )
       {
-        if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
+        for ( final ChannelAddress address : addresses )
         {
-          deleteCacheEntry( address );
+          if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
+          {
+            deleteCacheEntry( address );
+          }
+          final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
+          processUpdateMessage( address,
+                                message,
+                                session,
+                                changeSet,
+                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
         }
-        final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
-        processUpdateMessage( address,
-                              message,
-                              session,
-                              changeSet,
-                              isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
       }
     }
   }
 
   @Nullable
-  private ChannelAddress extractAddressFromMessage( @Nonnull final ChannelMetaData channel,
-                                                    @Nonnull final EntityMessage message )
+  private List<ChannelAddress> extractChannelAddressesFromMessage( @Nonnull final ChannelMetaData channel,
+                                                                   @Nonnull final EntityMessage message )
   {
     if ( channel.isInstanceGraph() )
     {
-      final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
-      if ( null != subChannelId )
+      @SuppressWarnings( "unchecked" )
+      final List<Integer> subChannelIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      if ( null != subChannelIds )
       {
-        return new ChannelAddress( channel.getChannelId(), subChannelId );
+        return subChannelIds
+          .stream()
+          .map( subChannelId -> new ChannelAddress( channel.getChannelId(), subChannelId ) )
+          .collect( Collectors.toList() );
       }
     }
     else
     {
       if ( message.getRoutingKeys().containsKey( channel.getName() ) )
       {
-        return new ChannelAddress( channel.getChannelId() );
+        return Collections.singletonList( new ChannelAddress( channel.getChannelId() ) );
       }
     }
     return null;
@@ -1107,17 +1115,21 @@ public abstract class ReplicantSessionManagerImpl
     for ( int i = 0; i < instanceChannelCount; i++ )
     {
       final ChannelMetaData channel = schema.getInstanceChannelByIndex( i );
-      final Integer subChannelId = (Integer) message.getRoutingKeys().get( channel.getName() );
-      if ( null != subChannelId )
+      @SuppressWarnings( "unchecked" )
+      final List<Integer> subChannelIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      if ( null != subChannelIds )
       {
-        final ChannelAddress address = new ChannelAddress( channel.getChannelId(), subChannelId );
-        final boolean isFiltered =
-          ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
-        processDeleteMessage( address,
-                              message,
-                              session,
-                              changeSet,
-                              isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
+        for ( final Integer subChannelId : subChannelIds )
+        {
+          final ChannelAddress address = new ChannelAddress( channel.getChannelId(), subChannelId );
+          final boolean isFiltered =
+            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+          processDeleteMessage( address,
+                                message,
+                                session,
+                                changeSet,
+                                isFiltered ? m -> filterEntityMessage( session, address, m ) : null );
+        }
       }
     }
   }

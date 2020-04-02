@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Change the routing infrastructure so an entity message can be associated with multiple instance graphs of the same type. i.e. An entity can belong to the `Event/1` and `Event/2` channel.
+
 ### [v6.82](https://github.com/replicant4j/replicant/tree/v6.82) (2020-03-31) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.81...v6.82)
 
 * Fix "concurrent modification of collection" bug when removing manually linked graph links.
