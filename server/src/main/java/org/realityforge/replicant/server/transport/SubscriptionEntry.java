@@ -111,7 +111,7 @@ public final class SubscriptionEntry
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
@@ -158,7 +158,7 @@ public final class SubscriptionEntry
    * Register the specified channel as inward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );

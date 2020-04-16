@@ -3,7 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.173`.
-* Change `SubscriptionEntry.setFilter(...)` back to public as it is invoked if an application is implementing a bulk subscription where the bulk subscription includes filtered graphs.
+* Change `setFilter(...)`, `registerInwardSubscriptions(...)` and `registerOutwardSubscriptions(...)` on `SubscriptionEntry` back to public as the methods can be invoked if an application is implementing a bulk subscriptions.
 
 ### [v6.83](https://github.com/replicant4j/replicant/tree/v6.83) (2020-04-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.82...v6.83)
 
