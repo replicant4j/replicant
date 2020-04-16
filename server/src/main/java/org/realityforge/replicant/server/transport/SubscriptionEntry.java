@@ -85,7 +85,14 @@ public final class SubscriptionEntry
     return _filter;
   }
 
-  void setFilter( @Nullable final Object filter )
+  /**
+   * Set the filter.
+   * User code should not invoke this unless they are implementing bulk loading and are propagating
+   * filters between multiple graphs loaded in a single sweep.
+   *
+   * @param filter the filter.
+   */
+  public void setFilter( @Nullable final Object filter )
   {
     _session.ensureLockedByCurrentThread();
     _filter = filter;
