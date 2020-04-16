@@ -373,7 +373,15 @@ public abstract class ReplicantSessionManagerImpl
           }
         }
       }
+      propagateSubscriptionFilterUpdate( session, address, filter, changeSet );
     }
+  }
+
+  protected void propagateSubscriptionFilterUpdate( @Nonnull final ReplicantSession session,
+                                                    @Nonnull final ChannelAddress address,
+                                                    @Nullable final Object filter,
+                                                    @Nonnull final ChangeSet changeSet )
+  {
   }
 
   @Override
