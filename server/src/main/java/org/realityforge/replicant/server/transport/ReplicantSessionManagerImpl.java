@@ -504,11 +504,11 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void subscribe( @Nonnull final ReplicantSession session,
-                  @Nonnull final ChannelAddress address,
-                  final boolean explicitlySubscribe,
-                  @Nullable final Object filter,
-                  @Nonnull final ChangeSet changeSet )
+  protected void subscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelAddress address,
+                            final boolean explicitlySubscribe,
+                            @Nullable final Object filter,
+                            @Nonnull final ChangeSet changeSet )
   {
     if ( session.isSubscriptionEntryPresent( address ) )
     {

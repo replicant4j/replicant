@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.173`.
 * Change `setFilter(...)`, `registerInwardSubscriptions(...)` and `registerOutwardSubscriptions(...)` on `SubscriptionEntry` back to public as the methods can be invoked if an application is implementing a bulk subscriptions.
+* Change `ReplicantSessionManagerImpl.subscribe(...)` to be public access so that propagation of filters on subscription updates can be implemented in downstream projects.
 
 ### [v6.83](https://github.com/replicant4j/replicant/tree/v6.83) (2020-04-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.82...v6.83)
 
