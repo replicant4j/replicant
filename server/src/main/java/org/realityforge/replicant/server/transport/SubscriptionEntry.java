@@ -77,7 +77,7 @@ public final class SubscriptionEntry
 
   /**
    * Return the filter that was applied to this subscription. A particular channel
-   * may or may not have a
+   * may or may not have a filter.
    */
   @Nullable
   public Object getFilter()
