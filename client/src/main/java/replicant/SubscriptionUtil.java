@@ -19,23 +19,6 @@ public class SubscriptionUtil
   }
 
   /**
-   * Convert object subscription to root object (specified object Type+ID) to target channels subscription
-   * based on function. If the root object is not yet present then return an empty stream.
-   * This is typically used by the function passed into the convergeCrossDataSourceSubscriptions() method.
-   */
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  public static <T, O> Stream<O> instanceSubscriptionToValues( @Nonnull final Class<T> type,
-                                                               @Nonnull final Integer id,
-                                                               @Nonnull final Function<T, Stream<O>> rootToStream )
-  {
-    final Entity entity = Replicant.context().findEntityByTypeAndId( type, id );
-    assert null != entity;
-    final T root = (T) entity.getUserObject();
-    return rootToStream.apply( root );
-  }
-
-  /**
    * Converge subscriptions across data sources.
    * All instances of the subscriptions to the source channelType within the scope are collected.
    * The supplied function is used to generate a stream of expected subscriptions to the target channelType
