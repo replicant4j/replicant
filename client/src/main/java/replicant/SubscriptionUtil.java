@@ -30,7 +30,7 @@ public class SubscriptionUtil
                                                            final int targetSystemId,
                                                            final int targetChannelId,
                                                            @Nullable final Object filter,
-                                                           @Nonnull final Function<Object, Stream<Integer>> sourceIDToTargetIDs )
+                                                           @Nonnull final Function<Integer, Stream<Integer>> sourceIdToTargetIds )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions
@@ -50,14 +50,14 @@ public class SubscriptionUtil
       .filter( s -> s.getAddress().getSystemId() == sourceSystemId &&
                     s.getAddress().getChannelId() == sourceChannelId )
       .map( s -> s.getAddress().getId() )
-      .flatMap( sourceIDToTargetIDs )
+      .flatMap( sourceIdToTargetIds )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
       .forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetSystemId, targetChannelId, id ),
                                                             filter ) );
 
     context.getInstanceSubscriptionIds( sourceSystemId, sourceChannelId ).stream().
-      flatMap( sourceIDToTargetIDs ).
+      flatMap( sourceIdToTargetIds ).
       filter( Objects::nonNull ).
       filter( id -> null == existing.remove( id ) ).
       forEach( id -> context.createOrUpdateAreaOfInterest( new ChannelAddress( targetSystemId, targetChannelId, id ),

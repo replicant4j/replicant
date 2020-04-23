@@ -4,6 +4,7 @@
 
 * Correct the return type of `ReplicantContext.getInstanceSubscriptionIds()` to return a set of integer ids rather than a set of object ids.
 * Remove `SubscriptionUtil.instanceSubscriptionToValues()` method as it is not used and no longer useful in the current architecture.
+* Correct the typing of `SubscriptionUtil.convergeCrossDataSourceSubscriptions(...)` method as ids must be integers in replicant v6.
 
 ### [v6.84](https://github.com/replicant4j/replicant/tree/v6.84) (2020-04-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.83...v6.84)
 
