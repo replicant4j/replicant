@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.85](https://github.com/replicant4j/replicant/tree/v6.85) (2020-04-23) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.84...v6.85)
 
 * Correct the return type of `ReplicantContext.getInstanceSubscriptionIds()` to return a set of integer ids rather than a set of object ids.
 * Remove `SubscriptionUtil.instanceSubscriptionToValues()` method as it is not used and no longer useful in the current architecture.
