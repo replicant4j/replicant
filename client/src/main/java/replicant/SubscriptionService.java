@@ -96,7 +96,7 @@ abstract class SubscriptionService
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  Set<Object> getInstanceSubscriptionIds( final int systemId, final int channelId )
+  Set<Integer> getInstanceSubscriptionIds( final int systemId, final int channelId )
   {
     getInstanceSubscriptionsObservableValue().reportObserved();
     final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( systemId );

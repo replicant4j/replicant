@@ -192,7 +192,7 @@ public final class ReplicantContext
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  public Set<Object> getInstanceSubscriptionIds( final int systemId, final int channelId )
+  public Set<Integer> getInstanceSubscriptionIds( final int systemId, final int channelId )
   {
     return getSubscriptionService().getInstanceSubscriptionIds( systemId, channelId );
   }
