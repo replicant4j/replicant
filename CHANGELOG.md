@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.86](https://github.com/replicant4j/replicant/tree/v6.86) (2020-04-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.85...v6.86)
 
 * Make the `AreaOfInterest.getRefCount()` method public. This makes it easier to integrate into systems that used earlier versions of replicant.
 
