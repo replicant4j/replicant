@@ -72,7 +72,7 @@ public abstract class AreaOfInterest
     _refCount++;
   }
 
-  int getRefCount()
+  public int getRefCount()
   {
     return _refCount;
   }
