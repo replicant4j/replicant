@@ -4,6 +4,8 @@
 
 * Upgrade the `org.realityforge.arez` artifacts to version `0.174`.
 * Upgrade the `org.realityforge.arez.testng` artifacts to version `0.06`.
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.154`.
+
 ### [v6.86](https://github.com/replicant4j/replicant/tree/v6.86) (2020-04-27) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.85...v6.86)
 
 * Make the `AreaOfInterest.getRefCount()` method public. This makes it easier to integrate into systems that used earlier versions of replicant.
