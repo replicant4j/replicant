@@ -260,14 +260,16 @@ abstract class Connector
   final void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
+    EntityBrokerLock lock = null;
     if ( Replicant.isChangeBrokerEnabled() )
     {
-      getReplicantContext().getChangeBroker().disable();
+      lock = getReplicantContext().getChangeBroker().disable();
     }
     purgeSubscriptions();
     if ( Replicant.isChangeBrokerEnabled() )
     {
-      getReplicantContext().getChangeBroker().enable();
+      assert null != lock;
+      lock.release();
     }
     // Avoid emitting an event if disconnect resulted in an error
     if ( ConnectorState.ERROR != getState() )

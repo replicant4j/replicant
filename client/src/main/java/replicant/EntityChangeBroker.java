@@ -22,8 +22,14 @@ public final class EntityChangeBroker
   private final EntityChangeEmitter _emitter = new EntityChangeEmitterImpl( this );
   @Nonnull
   private final ListenerEntry[] _emptyListenerSet = new ListenerEntry[ 0 ];
-  @Nullable
-  private EntityBrokerLock _lock;
+  /**
+   * The number of locks that have been acquired to pause broker.
+   */
+  private int _pauseLockCount;
+  /**
+   * The number of locks that have been acquired to disable broker.
+   */
+  private int _disableLockCount;
   private boolean _sending;
   /**
    * List of listeners that we either have to add or removed after message delivery completes.
@@ -48,7 +54,8 @@ public final class EntityChangeBroker
   {
     if ( !ClassMetaDataCheck.isClassMetadataEnabled() )
     {
-      throw new IllegalStateException( "Attempting to compile replicant with replicant.enable_change_broker set to true but the compiler was passed -XdisableClassMetadata that strips the metadata required for this functionality" );
+      throw new IllegalStateException(
+        "Attempting to compile replicant with replicant.enable_change_broker set to true but the compiler was passed -XdisableClassMetadata that strips the metadata required for this functionality" );
     }
   }
 
@@ -262,14 +269,14 @@ public final class EntityChangeBroker
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> null != _lock,
-                    () -> "Replicant-0110: EntityChangeBroker.resume invoked but no lock is present." );
-      assert null != _lock;
-      apiInvariant( () -> _lock.isPauseAction(),
-                    () -> "Replicant-0111: EntityChangeBroker.resume invoked but lock is of the incorrect type." );
+      apiInvariant( () -> _pauseLockCount > 0,
+                    () -> "Replicant-0110: EntityChangeBroker.resume invoked but broker is not paused." );
     }
-    _lock = null;
-    deliverDeferredEvents();
+    _pauseLockCount--;
+    if ( 0 == _pauseLockCount )
+    {
+      deliverDeferredEvents();
+    }
   }
 
   /**
@@ -277,18 +284,13 @@ public final class EntityChangeBroker
    *
    * <p>Changes sent to the broker while it is paused will be cached and transmitted when it is resumed.</p>
    *
-   * @return the transaction created by action.
+   * @return the lock that must be released to resume broker.
    */
   @Nonnull
   public EntityBrokerLock pause()
   {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> null == _lock,
-                    () -> "Replicant-0112: EntityChangeBroker.pause invoked but lock is present." );
-    }
-    _lock = new EntityBrokerLock( this, false );
-    return _lock;
+    _pauseLockCount++;
+    return new EntityBrokerLock( this::resume );
   }
 
   /**
@@ -296,7 +298,7 @@ public final class EntityChangeBroker
    */
   public boolean isPaused()
   {
-    return null != _lock && _lock.isPauseAction();
+    return 0 != _pauseLockCount;
   }
 
   /**
@@ -304,18 +306,13 @@ public final class EntityChangeBroker
    *
    * <p>Changes sent to the broker while it is disabled will be discarded.</p>
    *
-   * @return the transaction created by action.
+   * @return the lock that must be released to re-enable broker.
    */
   @Nonnull
   EntityBrokerLock disable()
   {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> null == _lock,
-                    () -> "Replicant-0112: EntityChangeBroker.disable invoked but lock is present." );
-    }
-    _lock = new EntityBrokerLock( this, true );
-    return _lock;
+    _disableLockCount++;
+    return new EntityBrokerLock( this::enable );
   }
 
   /**
@@ -325,13 +322,10 @@ public final class EntityChangeBroker
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      apiInvariant( () -> null != _lock,
-                    () -> "Replicant-0110: EntityChangeBroker.enable invoked but no lock is present." );
-      assert null != _lock;
-      apiInvariant( () -> _lock.isDisableAction(),
-                    () -> "Replicant-0111: EntityChangeBroker.enable invoked but lock is of the incorrect type." );
+      apiInvariant( () -> _disableLockCount > 0,
+                    () -> "Replicant-0110: EntityChangeBroker.enable invoked but broker is not disabled." );
     }
-    _lock = null;
+    _disableLockCount--;
   }
 
   /**
@@ -339,7 +333,7 @@ public final class EntityChangeBroker
    */
   public boolean isEnabled()
   {
-    return null == _lock || !_lock.isDisableAction();
+    return 0 == _disableLockCount;
   }
 
   /**

@@ -1,18 +1,17 @@
 package replicant;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 
 public final class EntityBrokerLock
 {
   @Nonnull
-  private final EntityChangeBroker _changeBroker;
-  private final boolean _disable;
+  private final SafeProcedure _action;
   private boolean _released;
 
-  EntityBrokerLock( @Nonnull final EntityChangeBroker changeBroker, final boolean disable )
+  EntityBrokerLock( @Nonnull final SafeProcedure action )
   {
-    _changeBroker = changeBroker;
-    _disable = disable;
+    _action = Objects.requireNonNull( action );
   }
 
   public void release()
@@ -20,24 +19,7 @@ public final class EntityBrokerLock
     if ( !_released )
     {
       _released = true;
-      if ( _disable )
-      {
-        _changeBroker.enable();
-      }
-      else
-      {
-        _changeBroker.resume();
-      }
+      _action.call();
     }
-  }
-
-  public boolean isDisableAction()
-  {
-    return _disable;
-  }
-
-  public boolean isPauseAction()
-  {
-    return !isDisableAction();
   }
 }

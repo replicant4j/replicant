@@ -280,7 +280,7 @@ public class EntityChangeBrokerTest
 
     assertBrokerNotLocked( broker );
 
-    assertLockMatches( broker.pause(), false );
+    assertLockMatches( broker.pause() );
 
     emitter.attributeChanged( entity, ATTR_KEY, 42 );
 
@@ -299,7 +299,7 @@ public class EntityChangeBrokerTest
     //Entity Removed
     assertEntityRemovedEventCount( globalListener, 0 );
 
-    assertLockMatches( broker.pause(), false );
+    assertLockMatches( broker.pause() );
 
     emitter.entityRemoved( entity );
 
@@ -316,7 +316,7 @@ public class EntityChangeBrokerTest
     //Related Added
     assertRelatedAddedEventCount( globalListener, 0 );
 
-    assertLockMatches( broker.pause(), false );
+    assertLockMatches( broker.pause() );
 
     emitter.relatedAdded( entity, REL_KEY, other );
 
@@ -333,7 +333,7 @@ public class EntityChangeBrokerTest
     //Related Removed
     assertRelatedRemovedEventCount( globalListener, 0 );
 
-    assertLockMatches( broker.pause(), false );
+    assertLockMatches( broker.pause() );
 
     emitter.relatedRemoved( entity, REL_KEY, other );
 
@@ -363,7 +363,7 @@ public class EntityChangeBrokerTest
 
     assertBrokerNotLocked( broker );
 
-    assertLockMatches( broker.disable(), true );
+    assertLockMatches( broker.disable() );
 
     assertBrokerLocked( broker );
 
@@ -867,11 +867,9 @@ public class EntityChangeBrokerTest
   {
   }
 
-  private void assertLockMatches( @Nonnull final EntityBrokerLock transaction, final boolean disabled )
+  private void assertLockMatches( @Nonnull final EntityBrokerLock transaction )
   {
     assertNotNull( transaction );
-    assertEquals( transaction.isDisableAction(), disabled );
-    assertEquals( transaction.isPauseAction(), !disabled );
   }
 
   private void assertBrokerNotLocked( @Nonnull final EntityChangeBroker broker )
