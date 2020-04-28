@@ -270,7 +270,7 @@ public final class EntityChangeBroker
     if ( Replicant.shouldCheckApiInvariants() )
     {
       apiInvariant( () -> _pauseLockCount > 0,
-                    () -> "Replicant-0110: EntityChangeBroker.resume invoked but broker is not paused." );
+                    () -> "Replicant-0109: EntityChangeBroker.resume invoked but broker is not paused." );
     }
     _pauseLockCount--;
     if ( 0 == _pauseLockCount )

@@ -170,11 +170,6 @@
     "messagePattern":"Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=%s Address=%s]"
   },
   {
-    "code":35,
-    "type":"API_INVARIANT",
-    "messagePattern":"ReplicantContext.newRequest() invoked for schema %s but the connection has not been established"
-  },
-  {
     "code":36,
     "type":"API_INVARIANT",
     "messagePattern":"Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class %s but an existing processor already exists for type"
@@ -445,18 +440,13 @@
     "messagePattern":"Called attach() passing an areaOfInterest that is already attached to the container. AreaOfInterest: AreaOfInterest[%s]"
   },
   {
+    "code":109,
+    "type":"API_INVARIANT",
+    "messagePattern":"EntityChangeBroker.resume invoked but broker is not paused."
+  },
+  {
     "code":110,
     "type":"API_INVARIANT",
-    "messagePattern":"EntityChangeBroker.%s invoked but no lock is present."
-  },
-  {
-    "code":111,
-    "type":"API_INVARIANT",
-    "messagePattern":"EntityChangeBroker.%s invoked but lock is of the incorrect type."
-  },
-  {
-    "code":112,
-    "type":"API_INVARIANT",
-    "messagePattern":"EntityChangeBroker.%s invoked but lock is present."
+    "messagePattern":"EntityChangeBroker.enable invoked but broker is not disabled."
   }
 ]
