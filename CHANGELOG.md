@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Upgrade the `org.realityforge.arez` artifacts to version `0.174`.
+* Upgrade the `org.realityforge.arez` artifacts to version `0.175`.
 * Upgrade the `org.realityforge.arez.testng` artifacts to version `0.06`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.154`.
 * Rework the way `EntityBrokerLock` so that multiple locks can be acquired by different connectors simultaneously. Only when all locks are released will the broker re-enable or resume.
