@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.28.0`.
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.156`.
 
 ### [v6.87](https://github.com/replicant4j/replicant/tree/v6.87) (2020-04-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.86...v6.87)
 
