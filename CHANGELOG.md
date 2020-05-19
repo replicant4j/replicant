@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.arez.testng` artifact to version `0.10`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.178`.
 
 ### [v6.88](https://github.com/replicant4j/replicant/tree/v6.88) (2020-05-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.87...v6.88)
