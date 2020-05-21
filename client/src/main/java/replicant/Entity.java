@@ -67,7 +67,7 @@ public abstract class Entity
    * @return the name of the Entity.
    */
   @Nonnull
-  public final String getName()
+  public String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -79,12 +79,12 @@ public abstract class Entity
   }
 
   @Nonnull
-  public final Class<?> getType()
+  public Class<?> getType()
   {
     return _type;
   }
 
-  public final int getId()
+  public int getId()
   {
     return _id;
   }
@@ -133,7 +133,7 @@ public abstract class Entity
   /**
    * Link to subscription if not already subscribed, ignore otherwise.
    */
-  final void tryLinkToSubscription( @Nonnull final Subscription subscription )
+  void tryLinkToSubscription( @Nonnull final Subscription subscription )
   {
     if ( !_subscriptions.containsKey( subscription.getAddress() ) )
     {
@@ -146,7 +146,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  final void linkToSubscription( @Nonnull final Subscription subscription )
+  void linkToSubscription( @Nonnull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -175,7 +175,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  final void delinkFromSubscription( @Nonnull final Subscription subscription )
+  void delinkFromSubscription( @Nonnull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -196,7 +196,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  final void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
+  void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
   {
     delinkSubscriptionFromEntity( subscription, true );
   }
@@ -219,7 +219,7 @@ public abstract class Entity
     }
   }
 
-  final void disposeIfNoSubscriptions()
+  void disposeIfNoSubscriptions()
   {
     if ( _subscriptions.isEmpty() )
     {
@@ -228,7 +228,7 @@ public abstract class Entity
   }
 
   @PreDispose
-  final void preDispose()
+  void preDispose()
   {
     if ( null != _userObject )
     {
@@ -243,7 +243,7 @@ public abstract class Entity
   }
 
   @Override
-  public final String toString()
+  public String toString()
   {
     if ( Replicant.areNamesEnabled() )
     {
@@ -255,7 +255,7 @@ public abstract class Entity
     }
   }
 
-  final Map<ChannelAddress, Subscription> subscriptions()
+  Map<ChannelAddress, Subscription> subscriptions()
   {
     return _subscriptions;
   }

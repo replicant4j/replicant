@@ -169,7 +169,7 @@ public abstract class Subscription
     return getAddress().compareTo( o.getAddress() );
   }
 
-  final void linkSubscriptionToEntity( @Nonnull final Entity entity )
+  void linkSubscriptionToEntity( @Nonnull final Entity entity )
   {
     getEntitiesObservableValue().preReportChanged();
     final Class<?> type = entity.getType();
@@ -191,7 +191,7 @@ public abstract class Subscription
     getEntitiesObservableValue().reportChanged();
   }
 
-  final void delinkEntityFromSubscription( @Nonnull final Entity entity,
+  void delinkEntityFromSubscription( @Nonnull final Entity entity,
                                            final boolean disposeEntityIfNoSubscriptions )
   {
     getEntitiesObservableValue().preReportChanged();
@@ -230,7 +230,7 @@ public abstract class Subscription
   }
 
   @PreDispose
-  final void preDispose()
+  void preDispose()
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {

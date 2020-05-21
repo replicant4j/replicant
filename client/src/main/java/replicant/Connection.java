@@ -54,7 +54,7 @@ abstract class Connection
    * are candidates for bulk actions.
    */
   @Nonnull
-  private List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
+  private final List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
 
   @Nonnull
   static Connection create( @Nonnull final Connector connector )
@@ -172,7 +172,7 @@ abstract class Connection
   }
 
   @Nonnull
-  final RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
+  RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
   {
     final int requestId = getLastTxRequestId() + 1;
     setLastTxRequestId( requestId );
@@ -191,7 +191,7 @@ abstract class Connection
     return request;
   }
 
-  final void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )
+  void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )
   {
     if ( request.isExpectingResults() && !request.haveResultsArrived() )
     {
@@ -349,8 +349,8 @@ abstract class Connection
    * Return true if the match request can be grouped with the template request and sent to the backend using a
    * single network message.
    */
-  final boolean canGroupRequests( @Nonnull final AreaOfInterestRequest template,
-                                  @Nonnull final AreaOfInterestRequest match )
+  boolean canGroupRequests( @Nonnull final AreaOfInterestRequest template,
+                            @Nonnull final AreaOfInterestRequest match )
   {
     final CacheService cacheService = _connector.getReplicantContext().getCacheService();
     return null != template.getAddress().getId() &&

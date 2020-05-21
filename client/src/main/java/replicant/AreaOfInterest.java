@@ -96,7 +96,7 @@ public abstract class AreaOfInterest
   }
 
   @PreDispose
-  final void preDispose()
+  void preDispose()
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -105,7 +105,7 @@ public abstract class AreaOfInterest
   }
 
   @Nonnull
-  public final ChannelAddress getAddress()
+  public ChannelAddress getAddress()
   {
     return _address;
   }

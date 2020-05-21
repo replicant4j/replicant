@@ -43,7 +43,7 @@ abstract class EntitySubscriptionEntry
    * @return the entity the entry represents.
    */
   @Nonnull
-  final Entity getEntity()
+  Entity getEntity()
   {
     return _entity;
   }

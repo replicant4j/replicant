@@ -92,7 +92,7 @@ abstract class ReplicantRuntime
     getConnectorsObservableValue().reportChanged();
   }
 
-  final void deregisterConnector( @Nonnull final Connector connector )
+  void deregisterConnector( @Nonnull final Connector connector )
   {
     getConnectorsObservableValue().preReportChanged();
     detachConnector( connector );

@@ -121,7 +121,7 @@ abstract class SubscriptionService
    * @return the subscription.
    */
   @Nonnull
-  final Subscription createSubscription( @Nonnull final ChannelAddress address,
+  Subscription createSubscription( @Nonnull final ChannelAddress address,
                                          @Nullable final Object filter,
                                          final boolean explicitSubscription )
   {
@@ -191,7 +191,7 @@ abstract class SubscriptionService
    * @return the subscription if it exists, null otherwise.
    */
   @Nullable
-  final Subscription findSubscription( @Nonnull final ChannelAddress address )
+  Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
     final int systemId = address.getSystemId();
     final int channelId = address.getChannelId();
@@ -271,7 +271,7 @@ abstract class SubscriptionService
    * @return the subscription.
    */
   @Nonnull
-  final Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
+  Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
   {
     final int systemId = address.getSystemId();
     final int channelId = address.getChannelId();
@@ -330,7 +330,7 @@ abstract class SubscriptionService
   }
 
   @PreDispose
-  final void preDispose()
+  void preDispose()
   {
     _typeSubscriptions
       .values()

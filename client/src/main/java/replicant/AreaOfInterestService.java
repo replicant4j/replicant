@@ -121,7 +121,7 @@ abstract class AreaOfInterestService
    *
    * @param areaOfInterest the areaOfInterest to register.
    */
-  protected void attach( @Nonnull final AreaOfInterest areaOfInterest )
+  void attach( @Nonnull final AreaOfInterest areaOfInterest )
   {
     if ( Arez.shouldCheckApiInvariants() )
     {
@@ -154,7 +154,7 @@ abstract class AreaOfInterestService
    * @param areaOfInterest the areaOfInterest.
    * @return true if the specified areaOfInterest is contained in the container, false otherwise.
    */
-  protected boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
+  boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
   {
     getAreasOfInterestObservableValue().reportObserved();
     return _areasOfInterest.contains( areaOfInterest );
