@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.89](https://github.com/replicant4j/replicant/tree/v6.89) (2020-05-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.88...v6.89)
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.157`.
 * Upgrade the `org.realityforge.arez.testng` artifact to version `0.11`.
