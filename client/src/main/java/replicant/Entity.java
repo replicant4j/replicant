@@ -22,6 +22,7 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Entity
   extends ReplicantService
 {
+  @Nonnull
   private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
   /**
    * A human consumable name for Entity. It should be non-null if {@link Replicant#areNamesEnabled()} returns
