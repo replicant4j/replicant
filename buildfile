@@ -21,7 +21,9 @@ define 'replicant' do
   project.group = 'org.realityforge.replicant'
   compile.options.source = '1.8'
   compile.options.target = '1.8'
-  compile.options.lint = 'all'
+  compile.options.lint = 'all,-processing,-serial'
+  project.compile.options.warnings = true
+  project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000)
 
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
@@ -134,7 +136,7 @@ define 'replicant' do
   ipr.add_component_from_artifact(:idea_codestyle)
 
   ipr.add_component('JavacSettings') do |xml|
-    xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial')
+    xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
   end
 
   iml.add_jruby_facet
