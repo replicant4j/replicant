@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.90](https://github.com/replicant4j/replicant/tree/v6.90) (2020-05-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.89...v6.90)
 
 * Avoid crash then `Connector` callback triggers to process messages but the connection is in the process of disconnecting.
 
