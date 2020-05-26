@@ -494,7 +494,7 @@ abstract class Connector
     }
     try
     {
-      if ( null != _connection )
+      if ( null != _connection && ConnectorState.DISCONNECTING != _state )
       {
         final boolean step1 = progressAreaOfInterestRequestProcessing();
         final boolean step2 = progressResponseProcessing();
