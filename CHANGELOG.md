@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.158`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.180`.
 * Upgrade the `org.realityforge.arez.testng` artifact to version `0.12`.
 
