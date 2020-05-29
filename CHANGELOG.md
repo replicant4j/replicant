@@ -3,7 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.158`.
-* Upgrade the `org.realityforge.arez` artifacts to version `0.180`.
+* Upgrade the `org.realityforge.arez` artifacts to version `0.181`.
 * Upgrade the `org.realityforge.arez.testng` artifact to version `0.12`.
 * Explicitly specify `requireId = Feature.DISABLE` parameter on `@ArezComponent` annotations as the default behaviour will change in the next version of arez.
 
