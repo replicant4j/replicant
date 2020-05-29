@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( disposeNotifier = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
   @Nonnull

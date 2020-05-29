@@ -27,7 +27,7 @@ import static org.realityforge.braincheck.Guards.*;
  * and the {@link Converger} converges
  * the actual state towards the desired state.
  */
-@ArezComponent( disposeNotifier = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class AreaOfInterestService
   extends ReplicantService
 {

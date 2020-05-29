@@ -27,7 +27,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A class that records the subscriptions within the system.
  */
-@ArezComponent( disposeNotifier = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class SubscriptionService
   extends ReplicantService
 {
@@ -122,8 +122,8 @@ abstract class SubscriptionService
    */
   @Nonnull
   Subscription createSubscription( @Nonnull final ChannelAddress address,
-                                         @Nullable final Object filter,
-                                         final boolean explicitSubscription )
+                                   @Nullable final Object filter,
+                                   final boolean explicitSubscription )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {

@@ -2,6 +2,7 @@ package replicant;
 
 import arez.annotations.ArezComponent;
 import arez.annotations.ComponentDependency;
+import arez.annotations.Feature;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
  * <p>This is used so we can observe it in finder and thus finder will be rescheduled once the entry
  * is removed from subscription, even if entity is not removed altogether.</p>
  */
-@ArezComponent
+@ArezComponent( requireId = Feature.DISABLE )
 abstract class EntitySubscriptionEntry
 {
   /**

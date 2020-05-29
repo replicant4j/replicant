@@ -20,7 +20,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The container of Entity instances within replicant system.
  */
-@ArezComponent( disposeNotifier = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class EntityService
   extends ReplicantService
 {

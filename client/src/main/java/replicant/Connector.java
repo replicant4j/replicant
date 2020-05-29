@@ -56,7 +56,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * The Connector is responsible for managing a Connection to a backend datasource.
  */
-@ArezComponent( observable = Feature.ENABLE )
+@ArezComponent( observable = Feature.ENABLE, requireId = Feature.DISABLE )
 abstract class Connector
   extends ReplicantService
 {

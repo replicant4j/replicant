@@ -18,7 +18,7 @@ import static org.realityforge.braincheck.Guards.*;
 /**
  * A representation of an entity within the replicant system.
  */
-@ArezComponent( observable = Feature.ENABLE )
+@ArezComponent( observable = Feature.ENABLE, requireId = Feature.DISABLE )
 public abstract class Entity
   extends ReplicantService
 {

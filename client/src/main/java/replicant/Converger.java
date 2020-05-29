@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
-@ArezComponent( disposeNotifier = Feature.DISABLE )
+@ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class Converger
   extends ReplicantService
 {

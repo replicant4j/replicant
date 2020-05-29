@@ -23,7 +23,7 @@ import static org.realityforge.braincheck.Guards.*;
  * This includes a list of pending requests, pending messages that needs to be applied
  * to the local state etc.
  */
-@ArezComponent
+@ArezComponent( requireId = Feature.DISABLE )
 abstract class Connection
 {
   /**
