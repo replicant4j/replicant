@@ -861,7 +861,7 @@ abstract class Connector
 
   // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in AreaOfInterest
   @Action( reportParameters = false )
-  void completeAreaOfInterestRequests( final List<AreaOfInterestRequest> requests )
+  void completeAreaOfInterestRequests( @Nonnull final List<AreaOfInterestRequest> requests )
   {
     requests.forEach( areaOfInterestRequest -> {
       final ChannelAddress address = areaOfInterestRequest.getAddress();
