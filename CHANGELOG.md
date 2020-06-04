@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Avoid reporting the parameters for the action `Connector.completeAreaOfInterestRequests(...)` to the spy subsystem.
+
 ### [v6.92](https://github.com/replicant4j/replicant/tree/v6.92) (2020-06-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.91...v6.92)
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.160`.

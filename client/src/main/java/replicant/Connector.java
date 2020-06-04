@@ -860,7 +860,7 @@ abstract class Connector
   }
 
   // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in AreaOfInterest
-  @Action
+  @Action( reportParameters = false )
   void completeAreaOfInterestRequests( final List<AreaOfInterestRequest> requests )
   {
     requests.forEach( areaOfInterestRequest -> {
