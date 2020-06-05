@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.93](https://github.com/replicant4j/replicant/tree/v6.93) (2020-06-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.92...v6.93)
 
 * Avoid reporting the parameters for the action `Connector.completeAreaOfInterestRequests(...)` to the spy subsystem.
 * Pause in the debugger when superdevmode is enabled and an error is generated in the `ApplicationEventBroker` when invoking `onApplicationEvent(...)` method for any `ApplicationEventHandler` listener.
