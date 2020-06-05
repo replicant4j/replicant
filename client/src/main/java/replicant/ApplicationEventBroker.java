@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import jsinterop.base.Js;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -76,9 +77,19 @@ public final class ApplicationEventBroker
           ReplicantUtil.safeGetString( () -> "Exception when notifying application handler '" + handler +
                                              "' of '" + event + "' event." );
         ReplicantLogger.log( message, error );
+        if ( isSuperDevMode() )
+        {
+          Js.debugger();
+        }
       }
     }
   }
+
+  private boolean isSuperDevMode()
+  {
+    return "on".equals( System.getProperty( "superdevmode" ) );
+  }
+
 
   /**
    * Return true if application events will be propagated.
