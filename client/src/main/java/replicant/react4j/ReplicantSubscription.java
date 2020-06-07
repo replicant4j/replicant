@@ -9,9 +9,9 @@ import arez.annotations.SuppressArezWarnings;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import react4j.Component;
 import react4j.ReactNode;
 import react4j.annotations.PostMountOrUpdate;
+import react4j.annotations.Render;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
@@ -22,7 +22,6 @@ import replicant.Subscription;
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
 public abstract class ReplicantSubscription<T>
-  extends Component
 {
   //The warning is suppressed as reference is managed on method.
   // We can not convert this field into abstract observable because of some surgery do to work between
@@ -219,9 +218,9 @@ public abstract class ReplicantSubscription<T>
   @Nonnull
   protected abstract ChannelAddress getAddress();
 
+  @Render
   @SuppressWarnings( "unchecked" )
   @Nullable
-  @Override
   protected ReactNode render()
   {
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
