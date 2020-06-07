@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.arez` artifacts to version `0.182`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.29.0`.
 
 ### [v6.93](https://github.com/replicant4j/replicant/tree/v6.93) (2020-06-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.92...v6.93)
