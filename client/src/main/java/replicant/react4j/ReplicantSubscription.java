@@ -219,7 +219,6 @@ public abstract class ReplicantSubscription<T>
   protected abstract ChannelAddress getAddress();
 
   @Render
-  @SuppressWarnings( "unchecked" )
   @Nullable
   protected ReactNode render()
   {
@@ -247,7 +246,7 @@ public abstract class ReplicantSubscription<T>
       {
         final Subscription subscription = Objects.requireNonNull( areaOfInterest.getSubscription() );
         return isInstanceChannel ?
-               getOnInstanceSubscriptionLoaded().render( subscription, (T) subscription.getInstanceRoot() ) :
+               getOnInstanceSubscriptionLoaded().render( subscription, getInstanceRoot( subscription ) ) :
                getOnTypeSubscriptionLoaded().render( subscription );
       }
       else if ( AreaOfInterest.Status.LOAD_FAILED == status )
@@ -258,14 +257,14 @@ public abstract class ReplicantSubscription<T>
       {
         final Subscription subscription = Objects.requireNonNull( areaOfInterest.getSubscription() );
         return isInstanceChannel ?
-               getOnInstanceSubscriptionUpdating().render( subscription, (T) subscription.getInstanceRoot() ) :
+               getOnInstanceSubscriptionUpdating().render( subscription, getInstanceRoot( subscription ) ) :
                getOnTypeSubscriptionUpdating().render( subscription );
       }
       else if ( AreaOfInterest.Status.UPDATED == status )
       {
         final Subscription subscription = Objects.requireNonNull( areaOfInterest.getSubscription() );
         return isInstanceChannel ?
-               getOnInstanceSubscriptionUpdated().render( subscription, (T) subscription.getInstanceRoot() ) :
+               getOnInstanceSubscriptionUpdated().render( subscription, getInstanceRoot( subscription ) ) :
                getOnTypeSubscriptionUpdated().render( subscription );
       }
       else if ( AreaOfInterest.Status.UPDATE_FAILED == status )
@@ -274,7 +273,7 @@ public abstract class ReplicantSubscription<T>
         final Throwable error = Objects.requireNonNull( areaOfInterest.getError() );
         return isInstanceChannel ?
                getOnInstanceSubscriptionUpdateFailed().render( subscription,
-                                                               (T) subscription.getInstanceRoot(),
+                                                               getInstanceRoot( subscription ),
                                                                error ) :
                getOnTypeSubscriptionUpdateFailed().render( subscription, error );
       }
@@ -282,7 +281,7 @@ public abstract class ReplicantSubscription<T>
       {
         final Subscription subscription = Objects.requireNonNull( areaOfInterest.getSubscription() );
         return isInstanceChannel ?
-               getOnInstanceSubscriptionUnloading().render( subscription, (T) subscription.getInstanceRoot() ) :
+               getOnInstanceSubscriptionUnloading().render( subscription, getInstanceRoot( subscription ) ) :
                getOnTypeSubscriptionUnloading().render( subscription );
       }
       else if ( AreaOfInterest.Status.UNLOADED == status )
@@ -295,6 +294,13 @@ public abstract class ReplicantSubscription<T>
         return getOnDeleted().render();
       }
     }
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Nonnull
+  private T getInstanceRoot( @Nonnull final Subscription subscription )
+  {
+    return (T) subscription.getInstanceRoot();
   }
 
   @Memoize
