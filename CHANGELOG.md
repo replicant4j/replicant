@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.164`.
+
 ### [v6.94](https://github.com/replicant4j/replicant/tree/v6.94) (2020-06-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.93...v6.94)
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.162`.
