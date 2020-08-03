@@ -308,26 +308,34 @@ public abstract class ReplicantSubscription<T>
   protected AreaOfInterest.Status getStatus()
   {
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
-    assert null != areaOfInterest;
-    final AreaOfInterest.Status status = areaOfInterest.getStatus();
-    final Subscription subscription = areaOfInterest.getSubscription();
-
-    // Update the status field to pretend that subscription is at an earlier stage if
-    // subscription data has not arrived
-    if ( null == subscription )
+    if ( null == areaOfInterest )
     {
-      if ( AreaOfInterest.Status.LOADED == status ||
-           AreaOfInterest.Status.UPDATING == status ||
-           AreaOfInterest.Status.UPDATED == status ||
-           AreaOfInterest.Status.UNLOADING == status )
-      {
-        return AreaOfInterest.Status.LOADING;
-      }
-      else if ( AreaOfInterest.Status.UPDATE_FAILED == status )
-      {
-        return AreaOfInterest.Status.LOAD_FAILED;
-      }
+      // This can happen when the AreaOfInterest has been removed but
+      // the react4j view has not been removed from view tree
+      return AreaOfInterest.Status.NOT_ASKED;
     }
-    return status;
+    else
+    {
+      final AreaOfInterest.Status status = areaOfInterest.getStatus();
+      final Subscription subscription = areaOfInterest.getSubscription();
+
+      // Update the status field to pretend that subscription is at an earlier stage if
+      // subscription data has not arrived
+      if ( null == subscription )
+      {
+        if ( AreaOfInterest.Status.LOADED == status ||
+             AreaOfInterest.Status.UPDATING == status ||
+             AreaOfInterest.Status.UPDATED == status ||
+             AreaOfInterest.Status.UNLOADING == status )
+        {
+          return AreaOfInterest.Status.LOADING;
+        }
+        else if ( AreaOfInterest.Status.UPDATE_FAILED == status )
+        {
+          return AreaOfInterest.Status.LOAD_FAILED;
+        }
+      }
+      return status;
+    }
   }
 }

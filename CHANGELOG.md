@@ -5,6 +5,7 @@
 * Upgrade the `org.realityforge.arez.testng` artifact to version `0.15`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.183`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.167`.
+* Update `ReplicantSubscription.getStatus()` implementation to avoid exception when an `AreaOfInterest` is disposed before the associated view has been removed from the react component hierarchy.
 
 ### [v6.94](https://github.com/replicant4j/replicant/tree/v6.94) (2020-06-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.93...v6.94)
 
