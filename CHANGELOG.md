@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.96](https://github.com/replicant4j/replicant/tree/v6.96) (2020-08-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.95...v6.96)
 
 * Ensure that the rest endpoints in `AbstractSessionRestService` acquire the session lock prior to accessing session data.
