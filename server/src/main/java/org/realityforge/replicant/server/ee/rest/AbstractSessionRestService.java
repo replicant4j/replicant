@@ -3,7 +3,9 @@ package org.realityforge.replicant.server.ee.rest;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.json.Json;
@@ -134,17 +136,19 @@ public abstract class AbstractSessionRestService
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionId );
-    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
-    if ( null == entry )
-    {
-      return standardResponse( Response.Status.NOT_FOUND, "No such channel" );
-    }
-    else
-    {
-      final String content =
-        json( g -> Encoder.emitChannel( getSystemMetaData(), session, g, entry, uri ) );
-      return buildResponse( Response.ok(), content );
-    }
+    return respondInSessionLock( session, () -> {
+      final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+      if ( null == entry )
+      {
+        return standardResponse( Response.Status.NOT_FOUND, "No such channel" );
+      }
+      else
+      {
+        final String content =
+          json( g -> Encoder.emitChannel( getSystemMetaData(), session, g, entry, uri ) );
+        return buildResponse( Response.ok(), content );
+      }
+    } );
   }
 
   @Nonnull
@@ -152,9 +156,31 @@ public abstract class AbstractSessionRestService
                                     @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionId );
-    final String content =
-      json( g -> Encoder.emitChannelsList( getSystemMetaData(), session, g, uri ) );
-    return buildResponse( Response.ok(), content );
+    return respondInSessionLock( session, () -> {
+      final String content =
+        json( g -> Encoder.emitChannelsList( getSystemMetaData(), session, g, uri ) );
+      return buildResponse( Response.ok(), content );
+    } );
+  }
+
+  @Nonnull
+  private Response respondInSessionLock( @Nonnull final ReplicantSession session,
+                                         @Nonnull final Supplier<Response> action )
+  {
+    final ReentrantLock lock = session.getLock();
+    try
+    {
+      lock.lockInterruptibly();
+      return action.get();
+    }
+    catch ( final InterruptedException ie )
+    {
+      return standardResponse( Response.Status.SERVICE_UNAVAILABLE, "Error acquiring session" );
+    }
+    finally
+    {
+      lock.unlock();
+    }
   }
 
   @Nonnull
@@ -164,9 +190,11 @@ public abstract class AbstractSessionRestService
   {
     final SystemMetaData systemMetaData = getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionId );
-    final String content =
-      json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelId, session, g, uri ) );
-    return buildResponse( Response.ok(), content );
+    return respondInSessionLock( session, () -> {
+      final String content =
+        json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelId, session, g, uri ) );
+      return buildResponse( Response.ok(), content );
+    } );
   }
 
   @Nonnull
@@ -196,9 +224,11 @@ public abstract class AbstractSessionRestService
                                    @Nonnull final UriInfo uri )
   {
     final ReplicantSession session = ensureSession( sessionId );
-    final String content =
-      json( g -> Encoder.emitSession( getSystemMetaData(), session, g, uri, true ) );
-    return buildResponse( Response.ok(), content );
+    return respondInSessionLock( session, () -> {
+      final String content =
+        json( g -> Encoder.emitSession( getSystemMetaData(), session, g, uri, true ) );
+      return buildResponse( Response.ok(), content );
+    } );
   }
 
   @Nonnull
