@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.6.0`.
 * Upgrade the `javax` artifact to version `8.0`.
+* Add `final` modifer to the `SecuredReplicantRpcRequestBuilder` class.
 
 ### [v6.96](https://github.com/replicant4j/replicant/tree/v6.96) (2020-08-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.95...v6.96)
 

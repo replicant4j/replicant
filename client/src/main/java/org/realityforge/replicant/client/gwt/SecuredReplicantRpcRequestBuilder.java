@@ -5,7 +5,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import org.realityforge.gwt.keycloak.Keycloak;
 
-public class SecuredReplicantRpcRequestBuilder
+public final class SecuredReplicantRpcRequestBuilder
   extends ReplicantRpcRequestBuilder
 {
   @Nonnull
