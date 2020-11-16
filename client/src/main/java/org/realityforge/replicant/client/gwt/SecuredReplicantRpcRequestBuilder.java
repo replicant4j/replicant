@@ -22,7 +22,15 @@ public final class SecuredReplicantRpcRequestBuilder
   @Override
   protected void doFinish( final RequestBuilder rb )
   {
-    rb.setHeader( "Authorization", "Bearer " + _keycloak.getToken() );
-    super.doFinish( rb );
+    final String token = _keycloak.getToken();
+    if( null == token )
+    {
+      throw new IllegalStateException( "Missing token" );
+    }
+    else
+    {
+      rb.setHeader( "Authorization", "Bearer " + _keycloak.getToken() );
+      super.doFinish( rb );
+    }
   }
 }
