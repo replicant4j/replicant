@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,8 +18,6 @@ public abstract class ReplicantMessageBrokerImpl
   @Nonnull
   private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
   private static final long QUEUE_TIMEOUT = 10L;
-  @Nonnull
-  private final Lock _lock = new ReentrantLock();
   @Nonnull
   private final BlockingQueue<ReplicantSession> _queue = new LinkedBlockingDeque<>();
 
@@ -42,23 +39,16 @@ public abstract class ReplicantMessageBrokerImpl
   @Override
   public void processPendingSessions()
   {
-    if ( _lock.tryLock() )
+    try
     {
-      try
+      ReplicantSession session;
+      while ( null != ( session = _queue.poll( QUEUE_TIMEOUT, TimeUnit.MILLISECONDS ) ) )
       {
-        ReplicantSession session;
-        while ( null != ( session = _queue.poll( QUEUE_TIMEOUT, TimeUnit.MILLISECONDS ) ) )
-        {
-          processPendingSession( session );
-        }
+        processPendingSession( session );
       }
-      catch ( final InterruptedException ignored )
-      {
-      }
-      finally
-      {
-        _lock.unlock();
-      }
+    }
+    catch ( final InterruptedException ignored )
+    {
     }
   }
 

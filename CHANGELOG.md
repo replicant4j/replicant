@@ -5,6 +5,7 @@
 * Add `ReplicantSessionManager.deleteAllCacheEntries()` so that bulk change operations that are done without using JPA entities can trigger a cache reset.
 * Ensure that a deletion of an entity will result in any caches that contain the entity as being reset. Previously only entity changes caused cache resets.
 * Abort the `subscribe`/`unsubscribe`/`bulkSubscribe`/`bulkUnsubscribe` actions if the associated session is closed.
+* Support arbitrary degrees of concurrency in `ReplicantMessageBroker.processPendingSessions()` so that if a session is taking a long time in `expandLinks()`, other sessions can make progress.
 
 ### [v6.97](https://github.com/replicant4j/replicant/tree/v6.97) (2020-11-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.96...v6.97)
 
