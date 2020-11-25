@@ -393,15 +393,18 @@ public abstract class ReplicantSessionManagerImpl
                              @Nullable final Object filter )
     throws InterruptedException
   {
-    final ReentrantLock lock = session.getLock();
-    lock.lockInterruptibly();
-    try
+    if ( session.isOpen() )
     {
-      doBulkSubscribe( session, channelId, subChannelIds, filter );
-    }
-    finally
-    {
-      lock.unlock();
+      final ReentrantLock lock = session.getLock();
+      lock.lockInterruptibly();
+      try
+      {
+        doBulkSubscribe( session, channelId, subChannelIds, filter );
+      }
+      finally
+      {
+        lock.unlock();
+      }
     }
   }
 
@@ -502,15 +505,18 @@ public abstract class ReplicantSessionManagerImpl
                          @Nullable final Object filter )
     throws InterruptedException
   {
-    final ReentrantLock lock = session.getLock();
-    lock.lockInterruptibly();
-    try
+    if ( session.isOpen() )
     {
-      subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
-    }
-    finally
-    {
-      lock.unlock();
+      final ReentrantLock lock = session.getLock();
+      lock.lockInterruptibly();
+      try
+      {
+        subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
+      }
+      finally
+      {
+        lock.unlock();
+      }
     }
   }
 
@@ -816,15 +822,18 @@ public abstract class ReplicantSessionManagerImpl
   public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
     throws InterruptedException
   {
-    final ReentrantLock lock = session.getLock();
-    lock.lockInterruptibly();
-    try
+    if ( session.isOpen() )
     {
-      unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
-    }
-    finally
-    {
-      lock.unlock();
+      final ReentrantLock lock = session.getLock();
+      lock.lockInterruptibly();
+      try
+      {
+        unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
+      }
+      finally
+      {
+        lock.unlock();
+      }
     }
   }
 
@@ -852,15 +861,18 @@ public abstract class ReplicantSessionManagerImpl
                                @Nonnull final Collection<Integer> subChannelIds )
     throws InterruptedException
   {
-    final ReentrantLock lock = session.getLock();
-    lock.lockInterruptibly();
-    try
+    if ( session.isOpen() )
     {
-      doBulkUnsubscribe( session, channelId, subChannelIds );
-    }
-    finally
-    {
-      lock.unlock();
+      final ReentrantLock lock = session.getLock();
+      lock.lockInterruptibly();
+      try
+      {
+        doBulkUnsubscribe( session, channelId, subChannelIds );
+      }
+      finally
+      {
+        lock.unlock();
+      }
     }
   }
 
