@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.98](https://github.com/replicant4j/replicant/tree/v6.98) (2020-11-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.97...v6.98)
 
 * Add `ReplicantSessionManager.deleteAllCacheEntries()` so that bulk change operations that are done without using JPA entities can trigger a cache reset.
