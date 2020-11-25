@@ -39,7 +39,7 @@ public final class ChannelMetaData
      */
     INTERNAL,
     /**
-     * Application code is responsible for managing the cache and expiring data when it is stale..
+     * Application code is responsible for managing the cache and expiring data when it is stale.
      */
     EXTERNAL
   }
