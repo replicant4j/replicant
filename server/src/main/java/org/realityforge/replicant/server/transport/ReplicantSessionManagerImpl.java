@@ -330,6 +330,7 @@ public abstract class ReplicantSessionManagerImpl
   {
     for ( final EntityMessage message : messages )
     {
+      processCachePurge( message );
       processDeleteMessages( message, session, changeSet );
     }
 
@@ -1039,6 +1040,27 @@ public abstract class ReplicantSessionManagerImpl
     throw new IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
   }
 
+  private void processCachePurge( @Nonnull final EntityMessage message )
+  {
+    final SystemMetaData schema = getSystemMetaData();
+    final int channelCount = schema.getChannelCount();
+    for ( int i = 0; i < channelCount; i++ )
+    {
+      final ChannelMetaData channel = schema.getChannelMetaData( i );
+      if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
+      {
+        final List<ChannelAddress> addresses = extractChannelAddressesFromMessage( channel, message );
+        if ( null != addresses )
+        {
+          for ( final ChannelAddress address : addresses )
+          {
+            deleteCacheEntry( address );
+          }
+        }
+      }
+    }
+  }
+
   private void processUpdateMessages( @Nonnull final EntityMessage message,
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
@@ -1053,10 +1075,6 @@ public abstract class ReplicantSessionManagerImpl
       {
         for ( final ChannelAddress address : addresses )
         {
-          if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
-          {
-            deleteCacheEntry( address );
-          }
           final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
           processUpdateMessage( address,
                                 message,
