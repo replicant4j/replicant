@@ -695,7 +695,7 @@ public abstract class ReplicantSessionManagerImpl
     entry.getLock().writeLock().lock();
     try
     {
-      //Make sure check again once we re-aquire the lock
+      //Make sure check again once we re-acquire the lock
       if ( entry.isInitialized() )
       {
         return entry;
