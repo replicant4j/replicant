@@ -378,6 +378,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
+  @SuppressWarnings( "unused" )
   protected void propagateSubscriptionFilterUpdate( @Nonnull final ReplicantSession session,
                                                     @Nonnull final ChannelAddress address,
                                                     @Nullable final Object filter,
