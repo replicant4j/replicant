@@ -657,7 +657,8 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  void deleteAllCacheEntries()
+  @Override
+  public void deleteAllCacheEntries()
   {
     _cacheLock.writeLock().lock();
     try

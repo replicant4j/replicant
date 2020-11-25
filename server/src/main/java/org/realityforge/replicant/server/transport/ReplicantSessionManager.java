@@ -72,4 +72,9 @@ public interface ReplicantSessionManager
                           @Nullable String etag,
                           @Nonnull Collection<EntityMessage> messages,
                           @Nonnull ChangeSet changeSet );
+
+  /**
+   * Exposed so that bulk changes can reset Cache.
+   */
+  void deleteAllCacheEntries();
 }

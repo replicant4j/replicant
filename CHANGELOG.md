@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add `ReplicantSessionManager.deleteAllCacheEntries()` so that bulk change operations that are done without using JPA entities can trigger a cache reset.
+
 ### [v6.97](https://github.com/replicant4j/replicant/tree/v6.97) (2020-11-16) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.96...v6.97)
 
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.6.0`.
