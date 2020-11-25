@@ -614,7 +614,6 @@ public abstract class ReplicantSessionManagerImpl
           queueCachedChangeSet( session, eTag, cacheChangeSet );
           changeSet.setRequired( false );
         }
-        return;
       }
       else
       {
@@ -625,21 +624,22 @@ public abstract class ReplicantSessionManagerImpl
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         queueCachedChangeSet( session, null, cacheChangeSet );
         changeSet.setRequired( false );
-        return;
       }
-    }
-
-    final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
-    if ( result.isChannelRootDeleted() )
-    {
-      changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
     }
     else
     {
-      changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-      if ( explicitSubscribe )
+      final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
+      if ( result.isChannelRootDeleted() )
       {
-        entry.setExplicitlySubscribed( true );
+        changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
+      }
+      else
+      {
+        changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
+        if ( explicitSubscribe )
+        {
+          entry.setExplicitlySubscribed( true );
+        }
       }
     }
   }
