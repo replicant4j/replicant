@@ -131,6 +131,7 @@ public class ReplicantMessageBrokerImplTest
   {
     final Session session = mock( Session.class );
     when( session.isOpen() ).thenReturn( Boolean.TRUE );
+    when( session.getId() ).thenReturn( ValueUtil.randomString() );
     return new ReplicantSession( session );
   }
 
