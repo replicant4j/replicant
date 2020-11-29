@@ -2,6 +2,7 @@ package org.realityforge.replicant.server.transport;
 
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -20,6 +21,13 @@ public abstract class ReplicantMessageBrokerImpl
   private static final long QUEUE_TIMEOUT = 10L;
   @Nonnull
   private final BlockingQueue<ReplicantSession> _queue = new LinkedBlockingDeque<>();
+  /**
+   * In progress is used because a single session with a long running load can queue up other requests
+   * and will eventually consume up all the active processors. If we guarantee that there is at most
+   * one thread per session then we can allow sessions to keep making progress.
+   */
+  @Nonnull
+  private final ConcurrentHashMap<String, ReplicantSession> _inProgress = new ConcurrentHashMap<>();
 
   @Nonnull
   protected abstract ReplicantSessionManager getReplicantSessionManager();
@@ -54,13 +62,15 @@ public abstract class ReplicantMessageBrokerImpl
 
   private void processPendingSession( @Nonnull final ReplicantSession session )
   {
+    final String id = session.getId();
     LOG.log( Level.FINEST, () -> "Processing pending ChangeSets for session " + session.getId() );
-    if ( session.isOpen() )
+    if ( session.isOpen() && !_inProgress.containsKey( id ) )
     {
       final ReentrantLock lock = session.getLock();
       try
       {
         lock.lockInterruptibly();
+        _inProgress.put( id, session );
         Packet packet;
         while ( null != ( packet = session.popPendingPacket() ) )
         {
@@ -80,6 +90,7 @@ public abstract class ReplicantMessageBrokerImpl
       }
       finally
       {
+        _inProgress.remove( id );
         lock.unlock();
       }
     }
