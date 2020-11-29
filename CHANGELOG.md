@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.99](https://github.com/replicant4j/replicant/tree/v6.99) (2020-11-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.98...v6.99)
 
 * Workaround concurrency bug in Payara/Tyrus/Catalina by catching `NullPointerException` in `WebSocketUtil` and ignoring the exception. This change just removes the logging of these exceptions to production logs and lets Payara/Tyrus/Catalina fail silently and recover normally.
 * Avoid processing the same session multiple times within `ReplicantMessageBrokerImpl` across multiple calls to `processPendingSessions()`. This stops a single blocked session from locking the entire thread pool responsible for invoking `processPendingSessions()`.
