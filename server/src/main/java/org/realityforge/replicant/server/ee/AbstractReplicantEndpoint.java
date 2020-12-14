@@ -574,6 +574,23 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
+  @Nullable
+  private ReplicantSession findReplicantSession( @Nonnull final Session session )
+  {
+    try
+    {
+      return getSessionManager().getSession( session.getId() );
+    }
+    catch ( final Throwable ignored )
+    {
+      // This is sometimes called from onClose after the application has already been
+      // un-deployed but the websockets have not completed closing. In this scenario
+      // the toolkit would generate an exception. We just capture the exception and
+      // return null to allow normal shutdown to occur without a log storm.
+      return null;
+    }
+  }
+
   @Nonnull
   private ReplicantSession getReplicantSession( @Nonnull final Session session )
   {
@@ -626,13 +643,20 @@ public abstract class AbstractReplicantEndpoint
   @OnClose
   public void onClose( @Nonnull final Session session )
   {
-    if ( LOG.isLoggable( Level.FINE ) )
+    final ReplicantSession replicantSession = findReplicantSession( session );
+    if ( null == replicantSession )
+    {
+      LOG.log( Level.WARNING,
+               "Closing WebSocket Session " + session.getId() +
+               " but no replicant session found. This should not occur except during application undeploy" );
+    }
+    else
     {
       LOG.log( Level.FINE,
-               "Closing WebSocket Session " + session.getId() +
-               " for replicant session " + getReplicantSession( session ).getId() );
+               () -> "Closing WebSocket Session " + session.getId() +
+                     " for replicant session " + replicantSession.getId() );
+      closeSession( replicantSession );
     }
-    closeSession( getReplicantSession( session ) );
   }
 
   @Nullable
