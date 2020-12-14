@@ -1,6 +1,6 @@
 # Change Log
 
-### Unreleased
+### [v6.100](https://github.com/replicant4j/replicant/tree/v6.100) (2020-12-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.99...v6.100)
 
 * Avoid log spam when WebSocket connections are closed after the application has undeployed.
 
