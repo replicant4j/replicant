@@ -626,13 +626,16 @@ public abstract class AbstractReplicantEndpoint
   private void sendErrorAndClose( @Nonnull final Session session, @Nonnull final String message )
     throws IOException
   {
-    WebSocketUtil.sendJsonObject( session,
-                                  Json
-                                    .createObjectBuilder()
-                                    .add( "type", "error" )
-                                    .add( "message", message )
-                                    .build() );
-    session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unexpected error" ) );
+    if( session.isOpen() )
+    {
+      WebSocketUtil.sendJsonObject( session,
+                                    Json
+                                      .createObjectBuilder()
+                                      .add( "type", "error" )
+                                      .add( "message", message )
+                                      .build() );
+      session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unexpected error" ) );
+    }
     final ReplicantSession replicantSession = getSessionManager().getSession( session.getId() );
     if ( null != replicantSession )
     {
