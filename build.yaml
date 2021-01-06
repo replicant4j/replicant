@@ -49,7 +49,7 @@ artifacts:
 
   gwt_keycloak: org.realityforge.gwt.keycloak:gwt-keycloak:jar:0.7
 
-  jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.6.0
+  jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0
 
   #
   # Mocking library
