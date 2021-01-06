@@ -1,6 +1,7 @@
 <module>
   <inherits name='arez.component.Component'/>
   <inherits name='org.realityforge.braincheck.BrainCheck'/>
+  <inherits name='zemeckis.Zemeckis'/>
 
   <!-- This is required while the browser ConsoleSpyEvent is present -->
   <inherits name='elemental2.dom.Dom'/>

@@ -1,6 +1,7 @@
 <module>
   <inherits name='replicant.Replicant'/>
   <inherits name='org.realityforge.braincheck.BrainCheckDev'/>
+  <inherits name='zemeckis.ZemeckisDev'/>
 
   <source path='ignored'/>
 

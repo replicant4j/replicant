@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import replicant.react4j.ReplicantSubscription;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
+import zemeckis.Zemeckis;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -83,7 +84,7 @@ public abstract class AreaOfInterest
     _refCount--;
     if ( 0 >= _refCount )
     {
-      TemporalScheduler.schedule( this::tryDispose, 5 );
+      Zemeckis.delayedTask( this::tryDispose, 5 );
     }
   }
 

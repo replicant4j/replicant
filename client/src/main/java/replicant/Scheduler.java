@@ -1,9 +1,7 @@
 package replicant;
 
-import elemental2.dom.DomGlobal;
-import java.util.Timer;
-import java.util.TimerTask;
 import javax.annotation.Nonnull;
+import zemeckis.Zemeckis;
 
 /**
  * A thin abstraction for scheduling callbacks that works in JVM and GWT environments.
@@ -15,11 +13,6 @@ final class Scheduler
   static void schedule( @Nonnull final SafeFunction<Boolean> command )
   {
     c_support.schedule( command );
-  }
-
-  static void scheduleOnceOff( @Nonnull final SafeProcedure command, final int delay )
-  {
-    c_support.scheduleOnceOff( command, delay );
   }
 
   /**
@@ -37,31 +30,10 @@ final class Scheduler
       {
       }
     }
-
-    @GwtIncompatible
-    @Override
-    void scheduleOnceOff( @Nonnull final SafeProcedure command, final int delay )
-    {
-      final TimerTask timerTask = new TimerTask()
-      {
-        @Override
-        public void run()
-        {
-          command.call();
-        }
-      };
-      final Timer timer = new Timer();
-      timer.schedule( timerTask, delay );
-    }
   }
 
   private static abstract class AbstractSchedulerSupport
   {
-    void scheduleOnceOff( @Nonnull final SafeProcedure command, final int delay )
-    {
-      DomGlobal.setTimeout( v -> command.call(), delay );
-    }
-
     void schedule( @Nonnull final SafeFunction<Boolean> command )
     {
       final long end = System.currentTimeMillis() + 14;
@@ -72,7 +44,7 @@ final class Scheduler
           return;
         }
       }
-      DomGlobal.setTimeout( v -> schedule( command ) );
+      Zemeckis.delayedTask( () -> schedule( command ), 0 );
     }
   }
 

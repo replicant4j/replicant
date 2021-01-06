@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import zemeckis.Zemeckis;
 import static org.realityforge.braincheck.Guards.*;
 
 @ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
@@ -317,7 +318,9 @@ abstract class ReplicantRuntime
           if ( !entry.attemptAction( Connector::connect ) )
           {
             final int delay = ( ConnectorEntry.REGEN_TIME_IN_SECONDS * 1000 ) + 50;
-            Scheduler.scheduleOnceOff( this::incrementRetryGeneration, delay );
+            Zemeckis.delayedTask( Zemeckis.areNamesEnabled() ? "reflectActiveState" : null,
+                                  this::incrementRetryGeneration,
+                                  delay );
           }
         }
         else if ( !active && ConnectorState.DISCONNECTED != state && ConnectorState.ERROR != state )

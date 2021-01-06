@@ -76,6 +76,7 @@ define 'replicant' do
     pom.include_transitive_dependencies << artifact(:react4j_core)
     pom.include_transitive_dependencies << artifact(:arez_core)
     pom.include_transitive_dependencies << artifact(:gwt_user)
+    pom.include_transitive_dependencies << artifact(:zemeckis)
 
     pom.provided_dependencies.concat [:gwt_user]
     pom.dependency_filter = Proc.new do |dep|
@@ -101,6 +102,7 @@ define 'replicant' do
                  :gwt_keycloak,
                  :braincheck,
                  :grim_annotations,
+                 :zemeckis,
                  :arez_core
 
     gwt_enhance(project)

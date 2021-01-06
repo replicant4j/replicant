@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Adopt the `org.realityforge.zemeckis:zemeckis-core` artifact to provide scheduling primitives.
+
 ### [v6.101](https://github.com/replicant4j/replicant/tree/v6.101) (2020-12-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.100...v6.101)
 
 * Avoid error when attempting to close and already closed websocket in `AbstractReplicantEndpoint`.
