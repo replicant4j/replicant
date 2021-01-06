@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.zemeckis` artifact to version `0.05`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.7.0`.
 
 ### [v6.102](https://github.com/replicant4j/replicant/tree/v6.102) (2021-01-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.101...v6.102)
