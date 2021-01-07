@@ -4,6 +4,7 @@
 
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.179`.
 * Upgrade the `org.realityforge.org.jetbrains.annotations` artifact to version `1.7.0`.
+* Upgrade the `org.realityforge.arez.testng` artifact to version `0.24`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.192`.
 
 ### [v6.102](https://github.com/replicant4j/replicant/tree/v6.102) (2021-01-06) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.101...v6.102)
