@@ -44,7 +44,9 @@ final class Scheduler
           return;
         }
       }
-      Zemeckis.delayedTask( () -> schedule( command ), 0 );
+      Zemeckis.delayedTask( Zemeckis.areNamesEnabled() ? "ReplicantIncrementalTask" : null,
+                            () -> schedule( command ),
+                            0 );
     }
   }
 

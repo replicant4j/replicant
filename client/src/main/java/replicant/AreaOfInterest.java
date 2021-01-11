@@ -84,7 +84,7 @@ public abstract class AreaOfInterest
     _refCount--;
     if ( 0 >= _refCount )
     {
-      Zemeckis.delayedTask( this::tryDispose, 5 );
+      Zemeckis.delayedTask( Zemeckis.areNamesEnabled() ? "TryDispose-" + this : null, this::tryDispose, 5 );
     }
   }
 
