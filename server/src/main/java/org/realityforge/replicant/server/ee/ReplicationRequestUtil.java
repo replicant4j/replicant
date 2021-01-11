@@ -125,14 +125,7 @@ public final class ReplicationRequestUtil
     {
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
     }
-    if ( null != requestId )
-    {
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-    }
-    else
-    {
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-    }
+    registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
     if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.fine( "Starting invocation of " + invocationKey + " Thread: " + Thread.currentThread().getId() );
