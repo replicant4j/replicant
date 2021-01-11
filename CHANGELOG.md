@@ -2,7 +2,6 @@
 
 ### Unreleased
 
-* Upgrade the `org.realityforge.zemeckis` artifact to version `0.06`.
 * Change the way `ReplicantSessionManagerImpl` determines whether a message was initiated by a session so that it takes into account sessions that have been closed.
 * Upgrade the `org.realityforge.zemeckis` artifact to version `0.07`.
 
