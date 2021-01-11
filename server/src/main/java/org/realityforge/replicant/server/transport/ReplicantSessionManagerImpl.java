@@ -249,19 +249,25 @@ public abstract class ReplicantSessionManagerImpl
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     for ( final ReplicantSession session : getSessions() )
     {
+      final boolean isInitiator = Objects.equals( session.getId(), sessionId );
+      if ( isInitiator )
+      {
+        // The initiator has been impacted, even if the underlying session has been closed
+        // so bring this logic outside of the session.isOpen() guard.
+        impactsInitiator = true;
+      }
       if ( session.isOpen() )
       {
         final ChangeSet changeSet = new ChangeSet();
-        final boolean isInitiator = Objects.equals( session.getId(), sessionId );
-        if ( isInitiator && null != sessionChanges )
-        {
-          changeSet.setRequired( sessionChanges.isRequired() );
-          changeSet.merge( sessionChanges.getChanges() );
-          changeSet.mergeActions( sessionChanges.getChannelActions() );
-        }
-
         if ( isInitiator )
         {
+          if ( null != sessionChanges )
+          {
+            changeSet.setRequired( sessionChanges.isRequired() );
+            changeSet.merge( sessionChanges.getChanges() );
+            changeSet.mergeActions( sessionChanges.getChannelActions() );
+          }
+
           /*
            * We mark this as required and as impacting the initiator because we no longer know whether the
            * action did result in a message that needs to be sent to the client as routing occurs in a separate
@@ -274,7 +280,6 @@ public abstract class ReplicantSessionManagerImpl
             // We skip scenario when we have already sent a cached result
             changeSet.setRequired( true );
           }
-          impactsInitiator = true;
         }
         final boolean altersExplicitSubscriptions =
           null != getRegistry().getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );

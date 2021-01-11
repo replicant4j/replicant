@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Upgrade the `org.realityforge.zemeckis` artifact to version `0.06`.
+* Change the way `ReplicantSessionManagerImpl` determines whether a message was initiated by a session so that it takes into account sessions that have been closed.
 
 ### [v6.103](https://github.com/replicant4j/replicant/tree/v6.103) (2021-01-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.102...v6.103)
 
