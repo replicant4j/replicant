@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Avoid crashes in `AbstractReplicantEndpoint.sendErrorAndClose(...)` and `AbstractReplicantEndpoint.getReplicantSession(...)` that can occur when the application is being un-deployed.
+
 ### [v6.104](https://github.com/replicant4j/replicant/tree/v6.104) (2021-01-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.103...v6.104)
 
 * Change the way `ReplicantSessionManagerImpl` determines whether a message was initiated by a session so that it takes into account sessions that have been closed.

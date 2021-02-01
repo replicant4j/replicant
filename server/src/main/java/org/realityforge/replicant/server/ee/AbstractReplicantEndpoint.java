@@ -594,7 +594,7 @@ public abstract class AbstractReplicantEndpoint
   @Nonnull
   private ReplicantSession getReplicantSession( @Nonnull final Session session )
   {
-    final ReplicantSession replicantSession = getSessionManager().getSession( session.getId() );
+    final ReplicantSession replicantSession = findReplicantSession( session );
     if ( null != replicantSession )
     {
       return replicantSession;
@@ -636,7 +636,7 @@ public abstract class AbstractReplicantEndpoint
                                       .build() );
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unexpected error" ) );
     }
-    final ReplicantSession replicantSession = getSessionManager().getSession( session.getId() );
+    final ReplicantSession replicantSession = findReplicantSession( session );
     if ( null != replicantSession )
     {
       closeReplicantSession( replicantSession );
