@@ -649,9 +649,10 @@ public abstract class AbstractReplicantEndpoint
     final ReplicantSession replicantSession = findReplicantSession( session );
     if ( null == replicantSession )
     {
-      LOG.log( Level.WARNING,
-               "Closing WebSocket Session " + session.getId() +
-               " but no replicant session found. This should not occur except during application undeploy" );
+      LOG.log( Level.FINE,
+               () -> "Closing WebSocket Session " + session.getId() +
+                     " but no replicant session found. This can occur except during " +
+                     "application undeploy or when the session has errored." );
     }
     else
     {

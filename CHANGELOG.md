@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Avoid crashes in `AbstractReplicantEndpoint.sendErrorAndClose(...)` and `AbstractReplicantEndpoint.getReplicantSession(...)` that can occur when the application is being un-deployed.
+* Reduce log message from WARNING to FINE in `AbstractReplicantEndpoint.onClose(...)` when unable to locate replicant session associated with websocket session as this scenario can occur during normal operation of the service when the replicant session had previously aborted/errored (likely due to authentication errors).
 
 ### [v6.104](https://github.com/replicant4j/replicant/tree/v6.104) (2021-01-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.103...v6.104)
 
