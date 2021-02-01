@@ -626,7 +626,7 @@ public abstract class AbstractReplicantEndpoint
   private void sendErrorAndClose( @Nonnull final Session session, @Nonnull final String message )
     throws IOException
   {
-    if( session.isOpen() )
+    if ( session.isOpen() )
     {
       WebSocketUtil.sendJsonObject( session,
                                     Json
