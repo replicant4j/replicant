@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.17`.
+
 ### [v6.105](https://github.com/replicant4j/replicant/tree/v6.105) (2021-02-01) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.104...v6.105)
 
 * Avoid crashes in `AbstractReplicantEndpoint.sendErrorAndClose(...)` and `AbstractReplicantEndpoint.getReplicantSession(...)` that can occur when the application is being un-deployed.

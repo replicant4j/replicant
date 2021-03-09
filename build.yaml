@@ -5,7 +5,7 @@ repositories:
    - https://stocksoftware.jfrog.io/stocksoftware/staging
 
 artifacts:
-  idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.14
+  idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.17
 
   javax_annotation: org.realityforge.javax.annotation:javax.annotation:jar:1.0.1
   javax_javaee: javax:javaee-api:jar:8.0
