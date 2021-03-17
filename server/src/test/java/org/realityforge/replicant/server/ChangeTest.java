@@ -35,7 +35,8 @@ public class ChangeTest
     assertEquals( duplicate.getEntityMessage().getId(), change.getEntityMessage().getId() );
     assertNotSame( duplicate.getEntityMessage(), change.getEntityMessage() );
     assertEquals( duplicate.getChannels(), change.getChannels() );
-    assertNotSame( duplicate.getChannels(), change.getChannels() );
+    //noinspection SimplifiableAssertion
+    assertFalse( duplicate.getChannels() == change.getChannels() );
   }
 
   @SuppressWarnings( "ConstantConditions" )

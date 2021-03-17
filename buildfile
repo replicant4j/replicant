@@ -141,8 +141,6 @@ define 'replicant' do
     xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
   end
 
-  iml.add_jruby_facet
-
   ([project] + projects).each do |p|
     p.enable_annotation_processor = false if p.processorpath.empty?
   end
