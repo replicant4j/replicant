@@ -85,11 +85,6 @@
     "messagePattern":"Invoked updateAreaOfInterest for channel at address %s with status %s and supplied an unexpected error."
   },
   {
-    "code":18,
-    "type":"API_INVARIANT",
-    "messagePattern":"TemporalScheduler.schedule(...) passed a negative delay. Actual value passed is %s"
-  },
-  {
     "code":19,
     "type":"API_INVARIANT",
     "messagePattern":"Invoked updateAreaOfInterest for channel at address %s with status %s and found unexpected subscription in the context."
