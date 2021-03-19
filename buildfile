@@ -90,10 +90,6 @@ define 'replicant' do
         dep[:group].to_s != 'org.realityforge.braincheck'
     end
 
-    project.processorpath << :react4j_processor
-    project.processorpath << :arez_processor
-    project.processorpath << artifacts(:grim_processor, :javax_json)
-
     compile.with project('shared').package(:jar),
                  project('shared').compile.dependencies,
                  :jetbrains_annotations,
@@ -104,6 +100,8 @@ define 'replicant' do
                  :grim_annotations,
                  :zemeckis,
                  :arez_core
+
+    compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
 
     gwt_enhance(project)
 
@@ -135,15 +133,7 @@ define 'replicant' do
   iml.excluded_directories << project._('tmp')
 
   ipr.add_default_testng_configuration(:jvm_args => '-ea -Dbraincheck.environment=development -Darez.environment=development -Dreplicant.environment=development')
-  ipr.add_component_from_artifact(:idea_codestyle)
 
-  ipr.add_component('JavacSettings') do |xml|
-    xml.option(:name => 'ADDITIONAL_OPTIONS_STRING', :value => '-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
-  end
-
-  ([project] + projects).each do |p|
-    p.enable_annotation_processor = false if p.processorpath.empty?
-  end
   project('shared').task('upload').actions.clear
 
   ipr.add_testng_configuration('client',
@@ -156,33 +146,8 @@ define 'replicant' do
                                :module => 'server',
                                :jvm_args => '-ea')
 
-  ipr.add_component('JavaProjectCodeInsightSettings') do |xml|
-    xml.tag!('excluded-names') do
-      xml << '<name>com.sun.istack.internal.NotNull</name>'
-      xml << '<name>com.sun.istack.internal.Nullable</name>'
-      xml << '<name>org.jetbrains.annotations.Nullable</name>'
-      xml << '<name>org.jetbrains.annotations.NotNull</name>'
-      xml << '<name>org.testng.AssertJUnit</name>'
-    end
-  end
-  ipr.add_component('NullableNotNullManager') do |component|
-    component.option :name => 'myDefaultNullable', :value => 'javax.annotation.Nullable'
-    component.option :name => 'myDefaultNotNull', :value => 'javax.annotation.Nonnull'
-    component.option :name => 'myNullables' do |option|
-      option.value do |value|
-        value.list :size => '2' do |list|
-          list.item :index => '0', :class => 'java.lang.String', :itemvalue => 'org.jetbrains.annotations.Nullable'
-          list.item :index => '1', :class => 'java.lang.String', :itemvalue => 'javax.annotation.Nullable'
-        end
-      end
-    end
-    component.option :name => 'myNotNulls' do |option|
-      option.value do |value|
-        value.list :size => '2' do |list|
-          list.item :index => '0', :class => 'java.lang.String', :itemvalue => 'org.jetbrains.annotations.NotNull'
-          list.item :index => '1', :class => 'java.lang.String', :itemvalue => 'javax.annotation.Nonnull'
-        end
-      end
-    end
-  end
+  ipr.add_component_from_artifact(:idea_codestyle)
+  ipr.add_code_insight_settings
+  ipr.add_nullable_manager
+  ipr.add_javac_settings('-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
 end
