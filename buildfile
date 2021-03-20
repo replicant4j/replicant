@@ -4,6 +4,8 @@ require 'buildr/gwt'
 require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
+Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
+
 GWT_DEPS = [:elemental2_core, :elemental2_promise, :elemental2_dom, :elemental2_webstorage, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
