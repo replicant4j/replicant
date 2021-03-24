@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade the `org.realityforge.react4j` artifacts to version `0.181`.
 * Upgrade the `org.realityforge.zemeckis` artifact to version `0.09`.
 * Upgrade the `org.realityforge.grim` artifacts to version `0.05`.
 * Upgrade the `au.com.stocksoftware.idea.codestyle` artifact to version `1.17`.
