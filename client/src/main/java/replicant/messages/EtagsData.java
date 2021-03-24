@@ -1,13 +1,13 @@
 package replicant.messages;
 
-import elemental2.core.JsArray;
-import elemental2.core.JsObject;
+import akasha.lang.JsArray;
 import javax.annotation.Nonnull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
+import replicant.JsObject;
 
 /**
  * A simple abstraction for key-value etag pairs.

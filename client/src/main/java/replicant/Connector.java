@@ -1,5 +1,6 @@
 package replicant;
 
+import akasha.core.JSON;
 import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
@@ -12,7 +13,6 @@ import arez.annotations.Observable;
 import arez.annotations.PostConstruct;
 import arez.annotations.PreDispose;
 import arez.component.Linkable;
-import elemental2.core.Global;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jsinterop.base.Js;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
@@ -994,7 +993,7 @@ abstract class Connector
            getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
-        cacheService.store( address, eTag, Global.JSON.stringify( changeSet ) );
+        cacheService.store( address, eTag, JSON.stringify( changeSet ) );
         candidate = true;
       }
     }
@@ -1372,7 +1371,7 @@ abstract class Connector
                             "'." );
       }
       assert null != entry;
-      messageToQueue = Js.cast( Global.JSON.parse( entry.getContent() ) );
+      messageToQueue = Objects.requireNonNull( JSON.parse( entry.getContent() ) ).cast();
       messageToQueue.setRequestId( requestId );
     }
     else

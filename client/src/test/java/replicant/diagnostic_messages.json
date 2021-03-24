@@ -120,11 +120,6 @@
     "messagePattern":"Connection.isAreaOfInterestRequestPending passed a REMOVE request for address '%s' with a non-null filter '%s'."
   },
   {
-    "code":26,
-    "type":"INVARIANT",
-    "messagePattern":"Attempted to create WebStorageCacheService on window that does not support WebStorage"
-  },
-  {
     "code":27,
     "type":"INVARIANT",
     "messagePattern":"AreaOfInterestRequest constructor passed a REMOVE request for address '%s' with a non-null filter '%s'."

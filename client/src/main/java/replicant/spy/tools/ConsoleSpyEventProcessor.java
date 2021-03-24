@@ -1,6 +1,6 @@
 package replicant.spy.tools;
 
-import elemental2.dom.DomGlobal;
+import akasha.Console;
 import javax.annotation.Nonnull;
 import replicant.AreaOfInterest;
 import replicant.FilterUtil;
@@ -425,12 +425,12 @@ public class ConsoleSpyEventProcessor
   protected void log( @Nonnull final String message,
                       @CssRules @Nonnull final String styling )
   {
-    DomGlobal.console.log( message, styling );
+    Console.log( message, styling );
   }
 
   @Override
   protected void handleUnhandledEvent( @Nonnull final Object event )
   {
-    DomGlobal.console.log( event );
+    Console.log( event );
   }
 }

@@ -3,11 +3,7 @@
   <inherits name='org.realityforge.braincheck.BrainCheck'/>
   <inherits name='zemeckis.Zemeckis'/>
 
-  <!-- This is required while the browser ConsoleSpyEvent is present -->
-  <inherits name='elemental2.dom.Dom'/>
-
-  <!-- This is required while the browser WebStorageCacheService is present -->
-  <inherits name='elemental2.webstorage.WebStorage'/>
+  <inherits name='akasha.Akasha'/>
 
   <!-- This is required while Keycloak usage is present -->
   <inherits name='org.realityforge.gwt.keycloak.Keycloak'/>

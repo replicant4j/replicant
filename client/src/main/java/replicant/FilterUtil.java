@@ -1,6 +1,6 @@
 package replicant;
 
-import elemental2.core.Global;
+import akasha.core.JSON;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public final class FilterUtil
     @Nonnull
     String filterToString( @Nullable final Object filter )
     {
-      return null == filter ? "" : Global.JSON.stringify( filter );
+      return null == filter ? "" : JSON.stringify( filter );
     }
   }
 

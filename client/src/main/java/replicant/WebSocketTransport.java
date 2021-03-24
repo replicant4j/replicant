@@ -1,10 +1,9 @@
 package replicant;
 
-import elemental2.core.Global;
-import elemental2.dom.WebSocket;
+import akasha.WebSocket;
+import akasha.core.JSON;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import jsinterop.base.Js;
 
 public class WebSocketTransport
   extends AbstractTransport
@@ -23,7 +22,7 @@ public class WebSocketTransport
   {
     _webSocket = new WebSocket( _config.getUrl() );
 
-    _webSocket.onmessage = e -> onMessageReceived( Js.cast( Global.JSON.parse( e.data.asString() ) ) );
+    _webSocket.onmessage = e -> onMessageReceived( Objects.requireNonNull( JSON.parse( e.data().asString() ) ).cast() );
     _webSocket.onerror = e -> onError();
     _webSocket.onclose = e -> onDisconnect();
   }
@@ -33,11 +32,12 @@ public class WebSocketTransport
   {
     if ( null != _webSocket )
     {
-      if ( WebSocket.OPEN == _webSocket.readyState )
+      final int readyState = _webSocket.readyState();
+      if ( WebSocket.OPEN == readyState )
       {
         _webSocket.close();
       }
-      else if ( WebSocket.CONNECTING == _webSocket.readyState )
+      else if ( WebSocket.CONNECTING == readyState )
       {
         // It is an error to invoke close() on a socket that is not open, so defer the close until the
         // socket has opened.
@@ -54,9 +54,9 @@ public class WebSocketTransport
     _config.remote( () -> {
       // Attempts to perform a send can occur when there is no connection.
       // This typically happens when a previous request fails.
-      if ( null != _webSocket && WebSocket.OPEN == _webSocket.readyState )
+      if ( null != _webSocket && WebSocket.OPEN == _webSocket.readyState() )
       {
-        _webSocket.send( Global.JSON.stringify( message ) );
+        _webSocket.send( JSON.stringify( message ) );
       }
     } );
   }

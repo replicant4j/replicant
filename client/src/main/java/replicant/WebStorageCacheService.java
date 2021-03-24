@@ -1,11 +1,8 @@
 package replicant;
 
-import elemental2.core.Global;
-import elemental2.core.JsObject;
-import elemental2.dom.DomGlobal;
-import elemental2.dom.Window;
-import elemental2.webstorage.Storage;
-import elemental2.webstorage.WebStorageWindow;
+import akasha.Global;
+import akasha.Storage;
+import akasha.core.JSON;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -13,7 +10,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
-import static org.realityforge.braincheck.Guards.*;
 
 /**
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
@@ -25,28 +21,6 @@ public class WebStorageCacheService
   static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
   @Nonnull
   private final Storage _storage;
-
-  /**
-   * Return true if WebStorageCacheService is supported in the current environment.
-   *
-   * @return true if WebStorageCacheService is supported in the current environment.
-   */
-  public static boolean isSupported()
-  {
-    return isSupported( DomGlobal.window );
-  }
-
-  /**
-   * Return true if WebStorageCacheService is supported for the specified window.
-   *
-   * @param window the window on which to lookup storage.
-   * @return true if WebStorageCacheService is supported for the specified window.
-   */
-  public static boolean isSupported( @Nonnull final Window window )
-  {
-    final WebStorageWindow wsWindow = WebStorageWindow.of( Objects.requireNonNull( window ) );
-    return null != wsWindow.localStorage || null != wsWindow.sessionStorage;
-  }
 
   /**
    * Install CacheService into the default context where persistence occurs in storage attached to root window.
@@ -65,40 +39,7 @@ public class WebStorageCacheService
    */
   public static void install( @Nonnull final ReplicantContext context )
   {
-    install( context, DomGlobal.window );
-  }
-
-  /**
-   * Install CacheService into the default context where persistence occurs in storage attached to specified window.
-   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
-   *
-   * @param window the window to use to lookup stores.
-   */
-  public static void install( @Nonnull final Window window )
-  {
-    install( Replicant.context(), lookupStorage( window ) );
-  }
-
-  /**
-   * Install CacheService into specified context where persistence occurs in storage attached to specified window.
-   * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
-   *
-   * @param context the replicant context.
-   * @param window  the window to use to lookup stores.
-   */
-  public static void install( @Nonnull final ReplicantContext context, @Nonnull final Window window )
-  {
-    install( context, lookupStorage( window ) );
-  }
-
-  /**
-   * Install CacheService into the current context where persistence occurs in specified storage.
-   *
-   * @param storage the store used to cache data.
-   */
-  public static void install( @Nonnull final Storage storage )
-  {
-    install( Replicant.context(), storage );
+    install( context, Global.localStorage() );
   }
 
   /**
@@ -185,7 +126,7 @@ public class WebStorageCacheService
     }
     else
     {
-      storage.setItem( key, Global.JSON.stringify( index ) );
+      storage.setItem( key, JSON.stringify( index ) );
     }
   }
 
@@ -210,25 +151,6 @@ public class WebStorageCacheService
   }
 
   @Nonnull
-  static Storage lookupStorage( @Nonnull final Window window )
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( () -> isSupported( window ),
-                 () -> "Replicant-0026: Attempted to create WebStorageCacheService on window that does not support WebStorage" );
-    }
-    final WebStorageWindow wsWindow = WebStorageWindow.of( Objects.requireNonNull( window ) );
-    if ( null != wsWindow.localStorage )
-    {
-      return wsWindow.localStorage;
-    }
-    else
-    {
-      return wsWindow.sessionStorage;
-    }
-  }
-
-  @Nonnull
   final Storage getStorage()
   {
     return _storage;
@@ -245,7 +167,7 @@ public class WebStorageCacheService
   private JsPropertyMap<String> findIndex( final int systemId )
   {
     final String indexData = _storage.getItem( indexKey( systemId ) );
-    return null == indexData ? null : Js.uncheckedCast( Global.JSON.parse( indexData ) );
+    return null == indexData ? null : Js.uncheckedCast( JSON.parse( indexData ) );
   }
 
   @Nonnull
