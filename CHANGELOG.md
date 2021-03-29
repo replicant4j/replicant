@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Upgrade the `org.realityforge.akasha` artifact to version `0.04`.
+* Upgrade the `org.realityforge.akasha` artifact to version `0.05`.
 * Upgrade the `org.realityforge.arez` artifacts to version `0.193`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.181`.
 * Upgrade the `org.realityforge.zemeckis` artifact to version `0.09`.

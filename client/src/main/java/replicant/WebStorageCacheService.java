@@ -3,6 +3,7 @@ package replicant;
 import akasha.Global;
 import akasha.Storage;
 import akasha.core.JSON;
+import akasha.core.JsObject;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
