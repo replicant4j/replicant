@@ -35,7 +35,7 @@ artifacts:
 
   jsinterop_base: com.google.jsinterop:base:jar:1.0.0
 
-  akasha: org.realityforge.akasha:akasha-java:jar:0.03
+  akasha: org.realityforge.akasha:akasha-java:jar:0.04
 
   braincheck: org.realityforge.braincheck:braincheck:jar:1.29.0
 
