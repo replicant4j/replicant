@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.106](https://github.com/replicant4j/replicant/tree/v6.106) (2021-03-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.105...v6.106)
 
 * Upgrade the `org.realityforge.akasha` artifact to version `0.05`.
