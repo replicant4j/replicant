@@ -1,7 +1,6 @@
-require File.expand_path(File.dirname(__FILE__) + '/util')
-
 def load_diagnostic_messages
-  JSON.load(IO.read("#{WORKSPACE_DIR}/client/src/test/java/replicant/diagnostic_messages.json"))
+  workspace_dir = File.expand_path(File.dirname(__FILE__) + '/..')
+  JSON.load(IO.read("#{workspace_dir}/client/src/test/java/replicant/diagnostic_messages.json"))
 end
 
 desc 'Print out a list of all error codes unused used in codebase'
