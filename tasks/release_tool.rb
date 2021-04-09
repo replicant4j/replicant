@@ -39,20 +39,14 @@ module Buildr
       end
 
       def derive_versions_from_changelog(options = {})
-        next_version_action = options[:next_version_action]
-        changelog = IO.read('CHANGELOG.md')
-        ENV['PREVIOUS_PRODUCT_VERSION'] ||= changelog[/^### \[v(\d+\.\d+(\.\d+)?)\]/, 1] || '0.00'
+        ENV['PREVIOUS_PRODUCT_VERSION'] ||= IO.read('CHANGELOG.md')[/^### \[v(\d+\.\d+(\.\d+)?)\]/, 1] || '0.00'
+        ENV['PRODUCT_VERSION'] ||= derive_next_version(ENV['PREVIOUS_PRODUCT_VERSION'], options)
+      end
 
-        next_version = ENV['PRODUCT_VERSION']
-        unless next_version
-          if next_version_action
-            next_version = next_version_action.call
-          else
-            version_parts = ENV['PREVIOUS_PRODUCT_VERSION'].split('.')
-            next_version = "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}#{version_parts.length > 2 ? ".#{version_parts[2]}" : ''}"
-          end
-          ENV['PRODUCT_VERSION'] = next_version
-        end
+      def derive_next_version(current_version, options = {})
+        return options[:next_version_action].call(current_version) if options[:next_version_action]
+        version_parts = current_version.split('.')
+        next_version = "#{version_parts[0]}.#{sprintf('%02d', version_parts[1].to_i + 1)}#{version_parts.length > 2 ? ".#{version_parts[2]}" : ''}"
       end
 
       private
@@ -108,14 +102,58 @@ module Buildr
       end
     end
 
-    def patch_changelog(repository_name)
+    def patch_changelog(repository_name, options = {})
       stage('PatchChangelog', 'Patch the changelog to update from previous release') do
         changelog = IO.read('CHANGELOG.md')
         from = '0.00' == ENV['PREVIOUS_PRODUCT_VERSION'] ? `git rev-list --max-parents=0 HEAD`.strip : "v#{ENV['PREVIOUS_PRODUCT_VERSION']}"
-        changelog = changelog.gsub("### Unreleased\n", <<HEADER)
-### [v#{ENV['PRODUCT_VERSION']}](https://github.com/#{repository_name}/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/#{repository_name}/compare/#{from}...v#{ENV['PRODUCT_VERSION']})
-HEADER
-        IO.write('CHANGELOG.md', changelog)
+
+        header = "### [v#{ENV['PRODUCT_VERSION']}](https://github.com/#{repository_name}/tree/v#{ENV['PRODUCT_VERSION']}) (#{ENV['RELEASE_DATE']}) · [Full Changelog](https://github.com/spritz/spritz/compare/#{from}...v#{ENV['PRODUCT_VERSION']})"
+
+        sub_header_text = ''
+
+        api_diff_directory = options[:api_diff_directory]
+        api_diff_filename = api_diff_directory ? "#{api_diff_directory}/#{ENV['PREVIOUS_PRODUCT_VERSION']}-#{ENV['PRODUCT_VERSION']}.json" : nil
+        if api_diff_filename && File.exist?(api_diff_filename)
+
+          api_diff_site = options[:api_diff_website]
+          if api_diff_site
+            header += " · [API Differences](#{api_diff_site}old=#{ENV['PREVIOUS_PRODUCT_VERSION']}&new=#{ENV['PRODUCT_VERSION']})"
+          end
+
+          changes = JSON.parse(IO.read(api_diff_filename))
+          non_breaking_changes = changes.select { |j| j['classification']['SOURCE'] == 'NON_BREAKING' }.size
+          potentially_breaking_changes = changes.select { |j| j['classification']['SOURCE'] == 'POTENTIALLY_BREAKING' }.size
+          breaking_changes = changes.select { |j| j['classification']['SOURCE'] == 'BREAKING' }.size
+          change_descriptions = []
+          change_descriptions << "#{non_breaking_changes} non breaking API change#{1 == non_breaking_changes ? '' : 's'}" unless 0 == non_breaking_changes
+          change_descriptions << "#{potentially_breaking_changes} potentially breaking API change#{1 == potentially_breaking_changes ? '' : 's'}" unless 0 == potentially_breaking_changes
+          change_descriptions << "#{breaking_changes} breaking API change#{1 == breaking_changes ? '' : 's'}" unless 0 == breaking_changes
+
+          if change_descriptions.size > 0
+            description = "The release includes "
+            if 1 == change_descriptions.size
+              description += "#{change_descriptions[0]}"
+            elsif 2 == change_descriptions.size
+              description += "#{change_descriptions[0]} and #{change_descriptions[1]}"
+            else
+              description += "#{change_descriptions[0]}, #{change_descriptions[1]} and #{change_descriptions[2]}"
+            end
+
+            sub_header_text = description
+          end
+        end
+
+        header_suffix = options[:header_suffix]
+        header += header_suffix if header_suffix
+        header += "\n\n#{sub_header_text}" unless sub_header_text.empty?
+        header += "\n"
+
+        header += <<CONTENT
+
+Changes in this release:
+CONTENT
+
+        IO.write('CHANGELOG.md', changelog.gsub("### Unreleased\n", header))
 
         sh 'git reset 2>&1 1> /dev/null'
         sh 'git add CHANGELOG.md'
