@@ -37,7 +37,7 @@ artifacts:
 
   akasha: org.realityforge.akasha:akasha-java:jar:0.05
 
-  braincheck: org.realityforge.braincheck:braincheck:jar:1.30.0
+  braincheck: org.realityforge.braincheck:braincheck-core:jar:1.30.0
 
   grim_annotations: org.realityforge.grim:grim-annotations:jar:0.05
   grim_processor: org.realityforge.grim:grim-processor:jar:0.05
