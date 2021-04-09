@@ -126,6 +126,7 @@ define 'replicant' do
 
     test.using :testng
     test.compile.with :mockito,
+                      :braincheck_testng,
                       :arez_testng,
                       :guiceyloops,
                       # javax_javaee is provided so that JSON parsing can occur for JRE variant.
