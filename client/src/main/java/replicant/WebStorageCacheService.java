@@ -1,7 +1,7 @@
 package replicant;
 
-import akasha.Global;
 import akasha.Storage;
+import akasha.WindowGlobal;
 import akasha.core.JSON;
 import akasha.core.JsObject;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ public class WebStorageCacheService
    */
   public static void install( @Nonnull final ReplicantContext context )
   {
-    install( context, Global.localStorage() );
+    install( context, WindowGlobal.localStorage() );
   }
 
   /**
