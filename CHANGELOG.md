@@ -6,7 +6,7 @@
 * Upgrade the `org.realityforge.akasha` artifact to version `0.07`.
 * Upgrade the `org.realityforge.zemeckis` artifact to version `0.11`.
 * Upgrade the `org.realityforge.arez.testng` artifact to version `0.29`.
-* Upgrade the `org.realityforge.arez` artifacts to version `0.196`.
+* Upgrade the `org.realityforge.arez` artifacts to version `0.197`.
 * Upgrade the `org.realityforge.braincheck` artifact to version `1.31.0`.
 
 ### [v6.107](https://github.com/replicant4j/replicant/tree/v6.107) (2021-03-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.106...v6.107)
