@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.react4j` artifacts to version `0.183`.
 * Upgrade the `org.realityforge.akasha` artifacts to version `0.15`.
 * Upgrade the `org.realityforge.react4j` artifacts to version `0.182`.
 * Upgrade the `org.realityforge.braincheck` artifacts to version `1.31.0`.
