@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.108](https://github.com/replicant4j/replicant/tree/v6.108) (2021-07-27) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.107...v6.108)
+
+Changes in this release:
 
 * Update the `org.realityforge.react4j` artifacts to version `0.183`.
 * Upgrade the `org.realityforge.akasha` artifacts to version `0.15`.
