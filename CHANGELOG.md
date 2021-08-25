@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.109](https://github.com/replicant4j/replicant/tree/v6.109) (2021-08-25) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.108...v6.109)
+
+Changes in this release:
 
 * Update the `org.realityforge.akasha` artifacts to version `0.21`.
 * Update the `org.realityforge.arez` artifacts to version `0.199`.
