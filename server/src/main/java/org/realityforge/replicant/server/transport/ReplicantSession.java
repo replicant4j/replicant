@@ -39,10 +39,23 @@ public final class ReplicantSession
   private final ReentrantLock _lock = new ReentrantLock( true );
   @Nullable
   private String _authToken;
+  @Nullable
+  private Object _userObject;
 
   public ReplicantSession( @Nonnull final Session webSocketSession )
   {
     _webSocketSession = Objects.requireNonNull( webSocketSession );
+  }
+
+  @Nullable
+  public Object getUserObject()
+  {
+    return _userObject;
+  }
+
+  public void setUserObject( @Nullable final Object userObject )
+  {
+    _userObject = userObject;
   }
 
   public void closeDueToInterrupt()
