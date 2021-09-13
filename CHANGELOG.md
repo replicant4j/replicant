@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Update the `org.realityforge.akasha` artifacts to version `0.22`.
+* Update the `org.realityforge.akasha` artifacts to version `0.24`.
 
 ### [v6.109](https://github.com/replicant4j/replicant/tree/v6.109) (2021-08-25) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.108...v6.109)
 
