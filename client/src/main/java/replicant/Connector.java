@@ -1044,7 +1044,6 @@ abstract class Connector
           entity = getReplicantContext().getEntityService().findOrCreateEntity( name, type, entityId );
           final Object userObject = entitySchema.getCreator().createEntity( entityId, data );
           entity.setUserObject( userObject );
-
         }
         else
         {
