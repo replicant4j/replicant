@@ -234,11 +234,6 @@ final class MessageResponse
     }
   }
 
-  int getSchemaId()
-  {
-    return _schemaId;
-  }
-
   @Nonnull
   ServerToClientMessage getMessage()
   {
