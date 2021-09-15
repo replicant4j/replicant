@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,7 +37,7 @@ public final class EntityMessage
     _id = id;
     _typeId = typeId;
     _timestamp = timestamp;
-    _routingKeys = routingKeys;
+    _routingKeys = Objects.requireNonNull( routingKeys );
     _attributeValues = attributeValues;
     _links = links;
   }
@@ -93,6 +94,7 @@ public final class EntityMessage
     return message;
   }
 
+  @Nonnull
   @Override
   public String toString()
   {
@@ -105,7 +107,7 @@ public final class EntityMessage
            ")";
   }
 
-  public void merge( final EntityMessage message )
+  public void merge( @Nonnull final EntityMessage message )
   {
     mergeTimestamp( message );
     mergeRoutingKeys( message );
@@ -113,7 +115,7 @@ public final class EntityMessage
     mergeLinks( message );
   }
 
-  private void mergeTimestamp( final EntityMessage message )
+  private void mergeTimestamp( @Nonnull final EntityMessage message )
   {
     if ( message.getTimestamp() > getTimestamp() )
     {
@@ -122,7 +124,7 @@ public final class EntityMessage
   }
 
   @SuppressWarnings( "unchecked" )
-  private void mergeRoutingKeys( final EntityMessage message )
+  private void mergeRoutingKeys( @Nonnull final EntityMessage message )
   {
     final Map<String, Serializable> routingKeys = message.getRoutingKeys();
     for ( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
@@ -148,7 +150,7 @@ public final class EntityMessage
     }
   }
 
-  private void mergeAttributeValues( final EntityMessage message )
+  private void mergeAttributeValues( @Nonnull final EntityMessage message )
   {
     final Map<String, Serializable> attributeValues = message.getAttributeValues();
     if ( null == attributeValues )
@@ -165,7 +167,7 @@ public final class EntityMessage
     }
   }
 
-  private void mergeLinks( final EntityMessage message )
+  private void mergeLinks( @Nonnull final EntityMessage message )
   {
     final Set<ChannelLink> links = message.getLinks();
     if ( null != links )
