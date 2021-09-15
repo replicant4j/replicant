@@ -31,7 +31,7 @@ final class MessageResponse
    * The current index into changes.
    */
   private int _entityChangeIndex;
-  private LinkedList<Linkable> _updatedEntities = new LinkedList<>();
+  private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
   private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
@@ -211,25 +211,25 @@ final class MessageResponse
   {
     if ( entity instanceof Linkable )
     {
-      _updatedEntities.add( (Linkable) entity );
+      _entitiesToLink.add( (Linkable) entity );
     }
   }
 
   boolean areEntityLinksPending()
   {
-    return null != _updatedEntities && !_updatedEntities.isEmpty();
+    return null != _entitiesToLink && !_entitiesToLink.isEmpty();
   }
 
   Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
     {
-      assert null != _updatedEntities;
-      return _updatedEntities.remove();
+      assert null != _entitiesToLink;
+      return _entitiesToLink.remove();
     }
     else
     {
-      _updatedEntities = null;
+      _entitiesToLink = null;
       return null;
     }
   }
@@ -294,7 +294,7 @@ final class MessageResponse
              ",RequestId=" + _message.getRequestId() +
              ",ChangeIndex=" + _entityChangeIndex +
              ",CompletionAction.null?=" + ( null == getCompletionAction() ) +
-             ",UpdatedEntities.size=" + ( null == _updatedEntities ? 0 : _updatedEntities.size() ) +
+             ",EntitiesToLink.size=" + ( null == _entitiesToLink ? 0 : _entitiesToLink.size() ) +
              "]";
     }
     else
