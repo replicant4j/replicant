@@ -161,10 +161,7 @@ public final class EntityMessage
       {
         _attributeValues = new HashMap<>();
       }
-      for ( final Map.Entry<String, Serializable> entry : attributeValues.entrySet() )
-      {
-        _attributeValues.put( entry.getKey(), entry.getValue() );
-      }
+      _attributeValues.putAll( attributeValues );
     }
   }
 
