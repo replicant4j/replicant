@@ -22,6 +22,7 @@ public final class EntityMessage
    * the path to the root of the instance graph. The map will also contain the
    * the id of any instance roots for graphs that graph_link to this entity.
    */
+  @Nonnull
   private final Map<String, Serializable> _routingKeys;
   private Set<ChannelLink> _links;
   private Map<String, Serializable> _attributeValues;
