@@ -1,5 +1,6 @@
 package org.realityforge.replicant.server;
 
+import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -108,5 +109,37 @@ public class EntityMessageTest
     assertFalse( deleteMessage.toString().matches( ".*Data=.*" ) );
     assertFalse( deleteMessage.isUpdate() );
     assertTrue( deleteMessage.isDelete() );
+  }
+
+  @Test
+  public void toDelete()
+  {
+    final int id = ValueUtil.randomInt();
+    final int typeId = ValueUtil.randomInt();
+    final int timestamp = ValueUtil.randomInt();
+    final EntityMessage message = MessageTestUtil.createMessage( id, typeId, timestamp, "r1", "r2", "a1", "a2" );
+
+    assertEquals( message.getId(), id );
+    assertEquals( message.getTypeId(), typeId );
+    assertEquals( message.getTimestamp(), timestamp );
+    assertNull( message.getLinks() );
+    assertTrue( message.isUpdate() );
+    assertFalse( message.isDelete() );
+    MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a1" );
+    MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a2" );
+    MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r1" );
+    MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY2, "r2" );
+
+    final EntityMessage message2 = message.toDelete();
+
+    assertEquals( message2.getId(), id );
+    assertEquals( message2.getTypeId(), typeId );
+    assertEquals( message2.getTimestamp(), timestamp );
+    assertNull( message2.getLinks() );
+    assertNull( message2.getAttributeValues() );
+    assertFalse( message.isUpdate() );
+    assertTrue( message2.isDelete() );
+    MessageTestUtil.assertRouteValue( message2, MessageTestUtil.ROUTING_KEY1, "r1" );
+    MessageTestUtil.assertRouteValue( message2, MessageTestUtil.ROUTING_KEY2, "r2" );
   }
 }

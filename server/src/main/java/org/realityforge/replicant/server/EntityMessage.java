@@ -96,6 +96,15 @@ public final class EntityMessage
   }
 
   @Nonnull
+  public EntityMessage toDelete()
+  {
+    final EntityMessage message = duplicate();
+    message.merge( this );
+    message._attributeValues = null;
+    return message;
+  }
+
+  @Nonnull
   @Override
   public String toString()
   {
