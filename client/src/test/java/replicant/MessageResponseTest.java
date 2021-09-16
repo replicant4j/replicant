@@ -99,13 +99,13 @@ public class MessageResponseTest
       ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
-                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
 
     // Null out Entities
     action.nextEntityToLink();
 
     assertEquals( action.toString(),
-                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,UpdatedEntities.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
 
     ReplicantTestUtil.disableNames();
 
