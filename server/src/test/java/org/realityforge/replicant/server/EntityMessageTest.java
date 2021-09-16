@@ -137,7 +137,7 @@ public class EntityMessageTest
     assertEquals( message2.getTimestamp(), timestamp );
     assertNull( message2.getLinks() );
     assertNull( message2.getAttributeValues() );
-    assertFalse( message.isUpdate() );
+    assertFalse( message2.isUpdate() );
     assertTrue( message2.isDelete() );
     MessageTestUtil.assertRouteValue( message2, MessageTestUtil.ROUTING_KEY1, "r1" );
     MessageTestUtil.assertRouteValue( message2, MessageTestUtil.ROUTING_KEY2, "r2" );
