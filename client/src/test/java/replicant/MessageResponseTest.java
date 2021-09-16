@@ -53,7 +53,7 @@ public class MessageResponseTest
 
     final DataLoadStatus status = action.toStatus();
 
-    assertEquals( status.getRequestId(), null );
+    assertNull( status.getRequestId() );
     assertEquals( status.getChannelAddCount(), 2 );
     assertEquals( status.getChannelUpdateCount(), 1 );
     assertEquals( status.getChannelRemoveCount(), 3 );
