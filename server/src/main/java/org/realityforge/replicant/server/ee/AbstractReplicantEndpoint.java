@@ -670,8 +670,7 @@ public abstract class AbstractReplicantEndpoint
   }
 
   @Nonnull
-  private Object parseFilter( @Nonnull final ChannelMetaData channelMetaData,
-                              @Nonnull final JsonObject filterContent )
+  private Object parseFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject filterContent )
   {
     try
     {
