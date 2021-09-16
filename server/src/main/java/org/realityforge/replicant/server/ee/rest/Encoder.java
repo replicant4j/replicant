@@ -187,14 +187,14 @@ final class Encoder
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
     if ( channelMetaData.hasFilterParameter() )
     {
-      final Object f = entry.getFilter();
-      if ( null == f )
+      final Object filter = entry.getFilter();
+      if ( null == filter )
       {
         g.writeNull( "filter" );
       }
       else
       {
-        g.write( "filter", JsonUtil.toJsonObject( f ) );
+        g.write( "filter", JsonUtil.toJsonObject( filter ) );
       }
     }
 
