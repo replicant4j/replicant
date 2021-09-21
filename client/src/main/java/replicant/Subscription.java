@@ -191,8 +191,7 @@ public abstract class Subscription
     getEntitiesObservableValue().reportChanged();
   }
 
-  void delinkEntityFromSubscription( @Nonnull final Entity entity,
-                                           final boolean disposeEntityIfNoSubscriptions )
+  void delinkEntityFromSubscription( @Nonnull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
   {
     getEntitiesObservableValue().preReportChanged();
     detachEntity( entity, disposeEntityIfNoSubscriptions );
