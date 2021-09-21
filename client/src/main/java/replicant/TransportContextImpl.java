@@ -1,5 +1,6 @@
 package replicant;
 
+import akasha.VisibilityState;
 import akasha.WindowGlobal;
 import arez.Disposable;
 import java.util.Objects;
@@ -56,7 +57,7 @@ final class TransportContextImpl
          * If the browser page is not visible then do all processing within the message handler callback
          * to avoid suffering under the vagaries of the background timer throttling.
          */
-        if ( !active && !paused && !"visible".equals( WindowGlobal.document().visibilityState() ) )
+        if ( !active && !paused && !VisibilityState.visible.equals( WindowGlobal.document().visibilityState() ) )
         {
           //noinspection StatementWithEmptyBody
           while ( _connector.progressMessages() )
