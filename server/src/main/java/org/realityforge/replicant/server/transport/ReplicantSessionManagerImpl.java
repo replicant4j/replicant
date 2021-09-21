@@ -246,6 +246,13 @@ public abstract class ReplicantSessionManagerImpl
                                      @Nullable final ChangeSet sessionChanges )
   {
     boolean impactsInitiator = false;
+
+    // Make sure if the message relates to an existing cache message then the cache is busted
+    for ( final EntityMessage message : messages )
+    {
+      processCachePurge( message );
+    }
+
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     for ( final ReplicantSession session : getSessions() )
     {
@@ -335,7 +342,6 @@ public abstract class ReplicantSessionManagerImpl
   {
     for ( final EntityMessage message : messages )
     {
-      processCachePurge( message );
       processDeleteMessages( message, session, changeSet );
     }
 
