@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Add an `OnEntityUpdateAction` hook to the `SystemSchema` that will be invoked for every update received from the server. The intent is to support `INTERNAL` filtering using mutable routing parameters.
+* Add a `Entity.delinkFromInternalFilteringSubscription(Subscription)` method to help support mutable routing parameter management.
 
 ### [v6.111](https://github.com/replicant4j/replicant/tree/v6.111) (2021-09-21) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.110...v6.111)
 

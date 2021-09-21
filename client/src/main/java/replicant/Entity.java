@@ -173,6 +173,24 @@ public abstract class Entity
 
   /**
    * Remove the specified subscription.
+   * This is invoked on the client-side by user code when data changes and is now filtered out from the graph.
+   *
+   * @param subscription the subscription.
+   */
+  public void delinkFromInternalFilteringSubscription( @Nonnull final Subscription subscription )
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( () -> ChannelSchema.FilterType.INTERNAL == subscription.getChannelSchema().getFilterType(),
+                 () -> "Replicant-0018: Entity.delinkFromInternalFilteringSubscription invoked on Entity " + this +
+                       " passing subscription " + subscription.getAddress() + " but subscription is " +
+                       "not filtered using internal subscription." );
+    }
+    delinkFromSubscription( subscription );
+  }
+
+  /**
+   * Remove the specified subscription.
    *
    * @param subscription the subscription.
    */
