@@ -6,7 +6,6 @@ require 'buildr/single_intermediate_layout'
 
 Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
 
-GWT_DEPS = [:akasha, :jsinterop_base, :jsinterop_annotations, :gwt_user]
 PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 
@@ -72,36 +71,26 @@ define 'replicant' do
   end
 
   define 'client' do
-    pom.include_transitive_dependencies << artifact(:jetbrains_annotations)
-    pom.include_transitive_dependencies << artifact(:akasha)
-    pom.include_transitive_dependencies << artifact(:react4j_core)
-    pom.include_transitive_dependencies << artifact(:arez_core)
-    pom.include_transitive_dependencies << artifact(:gwt_user)
-    pom.include_transitive_dependencies << artifact(:zemeckis)
+    client_deps =
+      artifacts(:jetbrains_annotations,
+                :akasha,
+                :react4j_core,
+                :arez_core,
+                :gwt_user,
+                :grim_annotations,
+                :zemeckis,
+                :javax_annotation,
+                :jsinterop_base,
+                :jsinterop_annotations,
+                :gwt_keycloak,
+                :braincheck_core,
+                :braincheck_jre) + [project('shared').package(:jar)]
+    pom.include_transitive_dependencies << client_deps
 
     pom.provided_dependencies.concat [:gwt_user]
-    pom.dependency_filter = Proc.new do |dep|
-      dep[:scope].to_s != 'test' &&
-        !project('shared').compile.dependencies.include?(dep[:artifact]) &&
-        project('shared').package(:jar) != dep[:artifact] &&
-        (dep[:group].to_s != 'org.realityforge.akasha' || %w(akasha-java).include?(dep[:id].to_s)) &&
-        (dep[:group].to_s != 'org.realityforge.react4j' || %w(react4j-core).include?(dep[:id].to_s)) &&
-        dep[:group].to_s != 'com.google.jsinterop' &&
-        dep[:group].to_s != 'org.realityforge.grim' &&
-        dep[:group].to_s != 'org.realityforge.braincheck'
-    end
+    pom.dependency_filter = Proc.new {|dep| dep[:scope].to_s != 'test' && client_deps.include?(dep[:artifact]) }
 
-    compile.with project('shared').package(:jar),
-                 project('shared').compile.dependencies,
-                 :jetbrains_annotations,
-                 GWT_DEPS,
-                 :react4j_core,
-                 :gwt_keycloak,
-                 :braincheck_core,
-                 :braincheck_jre,
-                 :grim_annotations,
-                 :zemeckis,
-                 :arez_core
+    compile.with client_deps
 
     compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
 
