@@ -21,6 +21,8 @@ public final class SystemSchema
    */
   @Nullable
   private final String _name;
+  @Nullable
+  private final OnEntityUpdateAction _onEntityUpdateAction;
   /**
    * The entities within the system.
    */
@@ -34,6 +36,15 @@ public final class SystemSchema
 
   public SystemSchema( final int id,
                        @Nullable final String name,
+                       @Nonnull final ChannelSchema[] channels,
+                       @Nonnull final EntitySchema[] entities )
+  {
+    this( id, name, null, channels, entities );
+  }
+
+  public SystemSchema( final int id,
+                       @Nullable final String name,
+                       @Nullable final OnEntityUpdateAction onEntityUpdateAction,
                        @Nonnull final ChannelSchema[] channels,
                        @Nonnull final EntitySchema[] entities )
   {
@@ -67,6 +78,7 @@ public final class SystemSchema
     }
     _id = id;
     _name = Replicant.areNamesEnabled() ? Objects.requireNonNull( name ) : null;
+    _onEntityUpdateAction = onEntityUpdateAction;
     _entities = Objects.requireNonNull( entities );
     _channels = Objects.requireNonNull( channels );
   }
@@ -98,6 +110,12 @@ public final class SystemSchema
     }
     assert null != _name;
     return _name;
+  }
+
+  @Nullable
+  public OnEntityUpdateAction getOnEntityUpdateAction()
+  {
+    return _onEntityUpdateAction;
   }
 
   /**

@@ -32,6 +32,12 @@ final class MessageResponse
    */
   private int _entityChangeIndex;
   private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
+  /**
+   * The list of entities that have been changed during processing.
+   * Used to provide a hook to perform local internal filtered subscription management.
+   */
+  @Nonnull
+  private final LinkedList<Object> _entitiesChanged = new LinkedList<>();
   private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
@@ -213,6 +219,7 @@ final class MessageResponse
     {
       _entitiesToLink.add( (Linkable) entity );
     }
+    _entitiesChanged.add( entity );
   }
 
   boolean areEntityLinksPending()
@@ -232,6 +239,28 @@ final class MessageResponse
       _entitiesToLink = null;
       return null;
     }
+  }
+
+  boolean areEntityUpdateActionsPending()
+  {
+    return !_entitiesChanged.isEmpty();
+  }
+
+  Object nextEntityToPostAction()
+  {
+    if ( areEntityUpdateActionsPending() )
+    {
+      return _entitiesChanged.remove();
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  void completePostActions()
+  {
+    _entitiesChanged.clear();
   }
 
   @Nonnull

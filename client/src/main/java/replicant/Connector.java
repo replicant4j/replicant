@@ -585,6 +585,12 @@ abstract class Connector
       processEntityLinks();
       return true;
     }
+    else if ( response.areEntityUpdateActionsPending() )
+    {
+      // Process all update actions. The presumption is that they do not do much
+      processEntityUpdateActions();
+      return true;
+    }
     else if ( !response.hasWorldBeenValidated() )
     {
       releaseSchedulerLock();
@@ -730,6 +736,25 @@ abstract class Connector
     {
       linkable.link();
       response.incEntityLinkCount();
+    }
+  }
+
+  @Action( verifyRequired = false )
+  void processEntityUpdateActions()
+  {
+    final MessageResponse response = ensureCurrentMessageResponse();
+    final OnEntityUpdateAction action = getSchema().getOnEntityUpdateAction();
+    if ( null != action )
+    {
+      Object entity;
+      while ( null != ( entity = response.nextEntityToPostAction() ) )
+      {
+        action.onEntityUpdate( getReplicantContext(), entity );
+      }
+    }
+    else
+    {
+      response.completePostActions();
     }
   }
 

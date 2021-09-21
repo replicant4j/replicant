@@ -2593,6 +2593,15 @@ public class ConnectorTest
     }
 
     {
+      assertTrue( response.areEntityUpdateActionsPending() );
+
+      // EntityUpdateActions processed
+      assertTrue( connector.progressResponseProcessing() );
+
+      assertFalse( response.areEntityUpdateActionsPending() );
+    }
+
+    {
       assertFalse( response.hasWorldBeenValidated() );
 
       // Validate World
