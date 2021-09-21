@@ -67,7 +67,7 @@ final class SchemaService
    *
    * @param schema the schema to register.
    */
-  final void registerSchema( @Nonnull final SystemSchema schema )
+  void registerSchema( @Nonnull final SystemSchema schema )
   {
     final int schemaId = schema.getId();
     if ( Replicant.shouldCheckInvariants() )
@@ -79,7 +79,7 @@ final class SchemaService
     _schemas.put( schemaId, schema );
   }
 
-  final void deregisterSchema( @Nonnull final SystemSchema schema )
+  void deregisterSchema( @Nonnull final SystemSchema schema )
   {
     final int schemaId = schema.getId();
     if ( Replicant.shouldCheckInvariants() )

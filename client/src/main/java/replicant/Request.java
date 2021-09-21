@@ -28,7 +28,7 @@ public final class Request
     return _entry.getRequestId();
   }
 
-  public final void onSuccess( final boolean messageComplete, @Nonnull final SafeProcedure onSuccess )
+  public void onSuccess( final boolean messageComplete, @Nonnull final SafeProcedure onSuccess )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
