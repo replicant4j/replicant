@@ -174,17 +174,20 @@ public abstract class Entity
   /**
    * Remove the specified subscription.
    * This is invoked on the client-side by user code when data changes and is now filtered out from the graph.
+   * This is only intended to be invoked when changes in data can change a graphs subscription. This occurs when
+   * the graph has a mutable routing key or the graph with a filter tpye of INTERNAL has rules that are
+   * data dependent. This means that the client has to be responsible for removing subscriptions on the client.
    *
    * @param subscription the subscription.
    */
-  public void delinkFromInternalFilteringSubscription( @Nonnull final Subscription subscription )
+  public void delinkFromFilteringSubscription( @Nonnull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> ChannelSchema.FilterType.INTERNAL == subscription.getChannelSchema().getFilterType(),
-                 () -> "Replicant-0018: Entity.delinkFromInternalFilteringSubscription invoked on Entity " + this +
+      invariant( () -> ChannelSchema.FilterType.NONE != subscription.getChannelSchema().getFilterType(),
+                 () -> "Replicant-0018: Entity.delinkFromFilteringSubscription invoked on Entity " + this +
                        " passing subscription " + subscription.getAddress() + " but subscription is " +
-                       "not filtered using internal subscription." );
+                       "not filtered." );
     }
     delinkFromSubscription( subscription );
   }
