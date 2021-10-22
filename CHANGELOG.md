@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.zemeckis` artifact to version `0.13`.
 * Update the `org.realityforge.akasha` artifacts to version `0.28`.
 
 ### [v6.113](https://github.com/replicant4j/replicant/tree/v6.113) (2021-09-24) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.112...v6.113)
