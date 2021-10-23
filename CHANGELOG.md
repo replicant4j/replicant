@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.114](https://github.com/replicant4j/replicant/tree/v6.114) (2021-10-23) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.113...v6.114)
 
 Changes in this release:
