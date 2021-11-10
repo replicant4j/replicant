@@ -41,8 +41,8 @@ artifacts:
   braincheck_jre: org.realityforge.braincheck:braincheck-jre:jar:1.31.0
   braincheck_testng: org.realityforge.braincheck:braincheck-testng:jar:1.31.0
 
-  grim_annotations: org.realityforge.grim:grim-annotations:jar:0.05
-  grim_processor: org.realityforge.grim:grim-processor:jar:0.05
+  grim_annotations: org.realityforge.grim:grim-annotations:jar:0.06
+  grim_processor: org.realityforge.grim:grim-processor:jar:0.06
 
   zemeckis: org.realityforge.zemeckis:zemeckis-core:jar:0.13
 
