@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` artifacts to version `0.203`.
 * Update the `org.realityforge.guiceyloops` artifact to version `0.110`.
 * Update the `org.realityforge.grim` artifacts to version `0.06`.
 * Update the `org.realityforge.akasha` artifacts to version `0.29`.
