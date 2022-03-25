@@ -6,7 +6,7 @@ require 'buildr/single_intermediate_layout'
 
 Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
 
-PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded]
+PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded, :jetbrains_annotations]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 
 # JDK options passed to test environment. Essentially turns assertions on.
