@@ -16,7 +16,7 @@ artifacts:
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
 
-  glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:4.1.1.164
+  glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:5.2020.3
   javax_json: org.glassfish:javax.json:jar:1.1
 
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.110
