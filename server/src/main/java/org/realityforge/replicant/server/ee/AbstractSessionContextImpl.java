@@ -70,7 +70,6 @@ public abstract class AbstractSessionContextImpl
 
   @Language( "TSQL" )
   protected String generateTempIdTable( @Nonnull final List<ChannelAddress> addresses )
-    throws SQLException
   {
     return
       "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
@@ -137,4 +136,37 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
+  protected void updateLinksToTargetGraph( @Nonnull final ReplicantSession session,
+                                           @Nonnull final ChangeSet changeSet,
+                                           @Nonnull final Object filter,
+                                           final int targetGraph,
+                                           @Nonnull final String targetGraphColumnName,
+                                           @Language( "TSQL" ) @Nonnull final String sql )
+    throws SQLException
+  {
+    try ( Statement statement = connection().createStatement() )
+    {
+      try ( ResultSet resultSet = statement.executeQuery( sql ) )
+      {
+        updateLinksToTargetGraph( session, changeSet, filter, targetGraphColumnName, targetGraph, resultSet );
+      }
+    }
+  }
+
+  protected void updateLinksToTargetGraph( @Nonnull final ReplicantSession session,
+                                           @Nonnull final ChangeSet changeSet,
+                                           @Nullable final Object filter,
+                                           final String targetGraphColumnName,
+                                           final int targetGraph,
+                                           @Nonnull final ResultSet resultSet )
+    throws SQLException
+  {
+    while ( resultSet.next() )
+    {
+      final int targetId = resultSet.getInt( targetGraphColumnName );
+      final ChannelAddress address = new ChannelAddress( targetGraph, targetId );
+      changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
+      session.getSubscriptionEntry( address ).setFilter( filter );
+    }
+  }
 }
