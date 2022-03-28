@@ -536,6 +536,8 @@ public abstract class ReplicantSessionManagerImpl
                             @Nullable final Object filter,
                             @Nonnull final ChangeSet changeSet )
   {
+    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+
     if ( session.isSubscriptionEntryPresent( address ) )
     {
       final SubscriptionEntry entry = session.getSubscriptionEntry( address );
@@ -543,7 +545,6 @@ public abstract class ReplicantSessionManagerImpl
       {
         entry.setExplicitlySubscribed( true );
       }
-      final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
       if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
       {
         updateSubscription( session, address, filter, changeSet );
