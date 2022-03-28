@@ -547,7 +547,17 @@ public abstract class ReplicantSessionManagerImpl
       }
       if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
       {
-        updateSubscription( session, address, filter, changeSet );
+        if ( channelMetaData.areBulkLoadsSupported() )
+        {
+          doBulkSubscribe( session,
+                           address.getChannelId(),
+                           Collections.singletonList( address.getSubChannelId() ),
+                           filter );
+        }
+        else
+        {
+          updateSubscription( session, address, filter, changeSet );
+        }
       }
       else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
@@ -563,15 +573,25 @@ public abstract class ReplicantSessionManagerImpl
     }
     else
     {
-      final SubscriptionEntry entry = session.createSubscriptionEntry( address );
-      try
+      if ( channelMetaData.areBulkLoadsSupported() )
       {
-        performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
+        doBulkSubscribe( session,
+                         address.getChannelId(),
+                         Collections.singletonList( address.getSubChannelId() ),
+                         filter );
       }
-      catch ( final Throwable e )
+      else
       {
-        session.deleteSubscriptionEntry( entry );
-        throw e;
+        final SubscriptionEntry entry = session.createSubscriptionEntry( address );
+        try
+        {
+          performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
+        }
+        catch ( final Throwable e )
+        {
+          session.deleteSubscriptionEntry( entry );
+          throw e;
+        }
       }
     }
   }

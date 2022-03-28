@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Ensure that graphs that support bulk loads always go through the bulk loads path even when the client subscribes or updates the filter of a single instance of the graph.
+
 ### [v6.115](https://github.com/replicant4j/replicant/tree/v6.115) (2022-03-25) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.114...v6.115)
 
 Changes in this release:
