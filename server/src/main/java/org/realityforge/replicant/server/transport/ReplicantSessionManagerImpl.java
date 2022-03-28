@@ -318,8 +318,7 @@ public abstract class ReplicantSessionManagerImpl
     }
   }
 
-  private void completeMessageProcessing( @Nonnull final ReplicantSession session,
-                                          @Nonnull final ChangeSet changeSet )
+  private void completeMessageProcessing( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
     try
     {
