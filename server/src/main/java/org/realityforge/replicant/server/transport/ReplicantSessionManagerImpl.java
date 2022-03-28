@@ -577,8 +577,7 @@ public abstract class ReplicantSessionManagerImpl
 
   private boolean doFiltersNotMatch( final Object filter1, final Object filter2 )
   {
-    return ( null != filter2 || null != filter1 ) &&
-           ( null == filter2 || !filter2.equals( filter1 ) );
+    return ( null != filter2 || null != filter1 ) && ( null == filter2 || !filter2.equals( filter1 ) );
   }
 
   void performSubscribe( @Nonnull final ReplicantSession session,
