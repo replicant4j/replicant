@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.117](https://github.com/replicant4j/replicant/tree/v6.117) (2022-03-29) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.116...v6.117)
+
+Changes in this release:
 
 * Pass the ChangeSet when performing bulk subscribe except on the outermost call where locks are acquired as the bulk subscribe methods may be invoked when expanding links outside the initial transaction.
 
