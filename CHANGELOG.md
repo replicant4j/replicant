@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Pass the ChangeSet when performing bulk subscribe except on the outermost call where locks are acquired as the bulk subscribe methods may be invoked when expanding links outside the initial transaction.
+
 ### [v6.116](https://github.com/replicant4j/replicant/tree/v6.116) (2022-03-28) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.115...v6.116)
 
 Changes in this release:

@@ -1925,7 +1925,8 @@ public class ReplicantSessionManagerImplTest
     protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
                                                             @Nonnull final List<ChannelAddress> addresses,
                                                             @Nullable final Object originalFilter,
-                                                            @Nullable final Object filter )
+                                                            @Nullable final Object filter,
+                                                            @Nonnull final ChangeSet changeSet )
     {
       _bulkCollectDataForSubscriptionUpdateCallCount += 1;
       return _bulkCollectDataForSubscriptionUpdate;
