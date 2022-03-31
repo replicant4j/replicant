@@ -1920,14 +1920,14 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    protected boolean bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                            @Nonnull final List<ChannelAddress> addresses,
-                                                            @Nullable final Object originalFilter,
-                                                            @Nullable final Object filter,
-                                                            @Nonnull final ChangeSet changeSet )
+    protected void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                         @Nonnull final List<ChannelAddress> addresses,
+                                                         @Nullable final Object originalFilter,
+                                                         @Nullable final Object filter,
+                                                         @Nonnull final ChangeSet changeSet )
     {
       _bulkCollectDataForSubscriptionUpdateCallCount += 1;
-      return true;
+      super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
     }
 
     @Nonnull

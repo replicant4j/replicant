@@ -5,6 +5,8 @@
 * Introduce `ChannelLinkSchema` entities that are not used at runtime but are a placeholder to store additional data about a channel/graph.
 * Add `EntityMessage.safeGetLinks()` helper method that initializes a links field if not present.
 * Rename `linkSourceGraphToTargetGraph(...)` to `bulkLinkFromSourceGraphToTargetGraph(...)` in `AbstractSessionContextImpl` to match conventions present in domgen generated code.
+* Add initial support for "bulk" loading of type graphs. While "bulk" loading is a bit of a misnomer given that type graphs have at most 1 subscription, the term is synonymous with loading using SQL queries in domgen generated code.
+* Remove return value from bulk loading methods as implementations never return false, they generate an exception or perform the bulk load.
 
 ### [v6.117](https://github.com/replicant4j/replicant/tree/v6.117) (2022-03-29) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.116...v6.117)
 

@@ -57,7 +57,7 @@ public interface ReplicantSessionManager
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
-                      @Nonnull Collection<Integer> subChannelIds,
+                      @Nullable Collection<Integer> subChannelIds,
                       @Nullable Object filter )
     throws InterruptedException;
 
