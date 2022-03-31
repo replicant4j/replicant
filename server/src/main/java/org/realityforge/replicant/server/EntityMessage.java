@@ -87,6 +87,16 @@ public final class EntityMessage
   }
 
   @Nonnull
+  public Set<ChannelLink> safeGetLinks()
+  {
+    if ( null == _links )
+    {
+      _links = new HashSet<>();
+    }
+    return _links;
+  }
+
+  @Nonnull
   public EntityMessage duplicate()
   {
     final EntityMessage message =
