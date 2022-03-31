@@ -1868,7 +1868,6 @@ public class ReplicantSessionManagerImplTest
     private final ReplicantMessageBroker _broker = mock( ReplicantMessageBroker.class );
     private ChannelAddress _followSource;
     private String _cacheKey;
-    private boolean _bulkCollectDataForSubscriptionUpdate;
     private int _bulkCollectDataForSubscriptionUpdateCallCount;
     private boolean _channelRootDeleted;
 
@@ -1894,7 +1893,6 @@ public class ReplicantSessionManagerImplTest
 
     void markAsBulkCollectDataForSubscriptionUpdate()
     {
-      _bulkCollectDataForSubscriptionUpdate = true;
     }
 
     void markChannelRootAsDeleted()
@@ -1929,7 +1927,7 @@ public class ReplicantSessionManagerImplTest
                                                             @Nonnull final ChangeSet changeSet )
     {
       _bulkCollectDataForSubscriptionUpdateCallCount += 1;
-      return _bulkCollectDataForSubscriptionUpdate;
+      return true;
     }
 
     @Nonnull
