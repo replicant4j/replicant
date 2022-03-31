@@ -13,7 +13,12 @@ public class ChannelSchemaTest
   public void findEntityById()
   {
     final EntitySchema entity =
-      new EntitySchema( 1, "MyObject", Object.class, ( i, d ) -> 1, ( o, d ) -> d.notify() );
+      new EntitySchema( 1,
+                        "MyObject",
+                        Object.class,
+                        ( i, d ) -> 1,
+                        ( o, d ) -> d.notify(),
+                        new ChannelLinkSchema[ 0 ] );
     final ChannelSchema channelSchema =
       new ChannelSchema( ValueUtil.randomInt(),
                          ValueUtil.randomString(),
@@ -33,7 +38,12 @@ public class ChannelSchemaTest
   public void typeGraph()
   {
     final EntitySchema entity =
-      new EntitySchema( 1, "MyObject", Object.class, ( i, d ) -> 1, ( o, d ) -> d.notify() );
+      new EntitySchema( 1,
+                        "MyObject",
+                        Object.class,
+                        ( i, d ) -> 1,
+                        ( o, d ) -> d.notify(),
+                        new ChannelLinkSchema[ 0 ] );
     final ChannelSchema channelSchema =
       new ChannelSchema( 1,
                          "MetaData",

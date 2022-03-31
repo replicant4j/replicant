@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Introduce `ChannelLinkSchema` entities that are not used at runtime but are a placeholder to store additional data about a channel/graph.
+
 ### [v6.117](https://github.com/replicant4j/replicant/tree/v6.117) (2022-03-29) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.116...v6.117)
 
 Changes in this release:

@@ -72,12 +72,24 @@ public final class EntitySchema
    */
   @Nullable
   private final Updater<?> _updater;
+  @Nonnull
+  private final ChannelLinkSchema[] _channelLinks;
 
   public <T> EntitySchema( final int id,
                            @Nullable final String name,
                            @Nonnull final Class<T> type,
                            @Nonnull final Creator<T> creator,
                            @Nullable final Updater<T> updater )
+  {
+    this(id, name, type, creator, updater, new ChannelLinkSchema[0] );
+  }
+
+  public <T> EntitySchema( final int id,
+                           @Nullable final String name,
+                           @Nonnull final Class<T> type,
+                           @Nonnull final Creator<T> creator,
+                           @Nullable final Updater<T> updater,
+                           @Nonnull final ChannelLinkSchema[] channelLinks )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -90,6 +102,7 @@ public final class EntitySchema
     _type = Objects.requireNonNull( type );
     _creator = Objects.requireNonNull( creator );
     _updater = updater;
+    _channelLinks = Objects.requireNonNull( channelLinks );
   }
 
   /**
@@ -152,6 +165,12 @@ public final class EntitySchema
   public Updater<?> getUpdater()
   {
     return _updater;
+  }
+
+  @Nonnull
+  public ChannelLinkSchema[] getChannelLinks()
+  {
+    return _channelLinks;
   }
 
   @Override

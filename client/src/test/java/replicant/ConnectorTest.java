@@ -1390,7 +1390,7 @@ public class ConnectorTest
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
-      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1478,7 +1478,7 @@ public class ConnectorTest
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
-      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1521,7 +1521,12 @@ public class ConnectorTest
                          false, true,
                          Collections.emptyList() );
     final EntitySchema entitySchema =
-      new EntitySchema( 0, ValueUtil.randomString(), MyEntity.class, ( i, d ) -> new MyEntity(), null );
+      new EntitySchema( 0,
+                        ValueUtil.randomString(),
+                        MyEntity.class,
+                        ( i, d ) -> new MyEntity(),
+                        null,
+                        new ChannelLinkSchema[ 0 ] );
     final SystemSchema schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
@@ -1956,7 +1961,7 @@ public class ConnectorTest
                          true, true,
                          Collections.emptyList() );
     final EntitySchema entitySchema =
-      new EntitySchema( 0, ValueUtil.randomString(), String.class, ( i, d ) -> "", null );
+      new EntitySchema( 0, ValueUtil.randomString(), String.class, ( i, d ) -> "", null, new ChannelLinkSchema[ 0 ] );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
@@ -2532,7 +2537,7 @@ public class ConnectorTest
     final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
     final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
     final EntitySchema entitySchema =
-      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater );
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
     final SystemSchema schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),

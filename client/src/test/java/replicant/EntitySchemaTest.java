@@ -12,7 +12,8 @@ public class EntitySchemaTest
   {
     final EntitySchema.Creator<Object> creator = ( i, d ) -> 1;
     final EntitySchema.Updater<Object> updater = ( o, d ) -> d.notify();
-    final EntitySchema entitySchema = new EntitySchema( 1, "MyObject", Object.class, creator, updater );
+    final EntitySchema entitySchema =
+      new EntitySchema( 1, "MyObject", Object.class, creator, updater, new ChannelLinkSchema[ 0 ] );
     assertEquals( entitySchema.getId(), 1 );
     assertEquals( entitySchema.getName(), "MyObject" );
     assertEquals( entitySchema.getType(), Object.class );
@@ -26,7 +27,7 @@ public class EntitySchemaTest
   {
     ReplicantTestUtil.disableNames();
     final EntitySchema entitySchema =
-      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null );
+      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null, new ChannelLinkSchema[ 0 ] );
     final IllegalStateException exception = expectThrows( IllegalStateException.class, entitySchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0050: EntitySchema.getName() invoked when Replicant.areNamesEnabled() is false" );
@@ -37,7 +38,7 @@ public class EntitySchemaTest
   {
     ReplicantTestUtil.disableNames();
     final EntitySchema entitySchema =
-      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null );
+      new EntitySchema( ValueUtil.randomInt(), null, Object.class, ( i, d ) -> 1, null, new ChannelLinkSchema[ 0 ] );
     assertEquals( entitySchema.toString(), "replicant.EntitySchema@" + Integer.toHexString( entitySchema.hashCode() ) );
   }
 
@@ -47,7 +48,12 @@ public class EntitySchemaTest
     ReplicantTestUtil.disableNames();
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
-                    () -> new EntitySchema( ValueUtil.randomInt(), "MyEntity", Object.class, ( i, d ) -> 1, null ) );
+                    () -> new EntitySchema( ValueUtil.randomInt(),
+                                            "MyEntity",
+                                            Object.class,
+                                            ( i, d ) -> 1,
+                                            null,
+                                            new ChannelLinkSchema[ 0 ] ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0049: EntitySchema passed a name 'MyEntity' but Replicant.areNamesEnabled() is false" );
   }
