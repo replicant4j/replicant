@@ -118,16 +118,13 @@ public abstract class AbstractSessionContextImpl
   {
     while ( resultSet.next() )
     {
-      final int calendarId = resultSet.getInt( sourceColumnName );
-      final int resourceId = resultSet.getInt( targetColumnName );
-      final ChannelAddress targetAddress =
-        new ChannelAddress( targetGraph, calendarId );
+      final int sourceId = resultSet.getInt( sourceColumnName );
+      final int targetId = resultSet.getInt( targetColumnName );
+      final ChannelAddress targetAddress = new ChannelAddress( targetGraph, targetId );
       if ( !session.isSubscriptionEntryPresent( targetAddress ) )
       {
-        final ChannelAddress sourceAddress =
-          new ChannelAddress( sourceGraph, resourceId );
-        final SubscriptionEntry sourceEntry =
-          session.getSubscriptionEntry( sourceAddress );
+        final ChannelAddress sourceAddress = new ChannelAddress( sourceGraph, sourceId );
+        final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( sourceAddress );
         sourceEntry.registerOutwardSubscriptions( targetAddress );
         final SubscriptionEntry targetEntry =
           recordSubscription( session, changeSet, targetAddress, filter, false );
