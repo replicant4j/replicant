@@ -408,7 +408,8 @@ public abstract class AbstractReplicantEndpoint
 
   private void doBulkSubscribe( @Nonnull final ReplicantSession session,
                                 final int channelId,
-                                final List<Integer> subChannelIds, final Object filter )
+                                @Nullable final List<Integer> subChannelIds,
+                                @Nullable final Object filter )
   {
     EntityMessageCacheUtil.getSessionChanges().setRequired( true );
     try
