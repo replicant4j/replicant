@@ -75,6 +75,7 @@ public final class EntitySchema
   @Nonnull
   private final ChannelLinkSchema[] _channelLinks;
 
+  // TODO: Delete me once everything is up to date...
   public <T> EntitySchema( final int id,
                            @Nullable final String name,
                            @Nonnull final Class<T> type,
