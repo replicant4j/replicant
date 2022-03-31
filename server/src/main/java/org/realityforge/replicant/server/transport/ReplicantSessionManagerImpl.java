@@ -484,7 +484,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       throw (Error) t;
     }
-    else if ( t != null )
+    else if ( null != t )
     {
       throw (RuntimeException) t;
     }
