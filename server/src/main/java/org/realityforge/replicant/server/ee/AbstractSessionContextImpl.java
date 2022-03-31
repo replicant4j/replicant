@@ -80,40 +80,40 @@ public abstract class AbstractSessionContextImpl
       "\n";
   }
 
-  protected void linkSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
-                                               @Nullable final Object filter,
-                                               @Nonnull final ChangeSet changeSet,
-                                               final int sourceGraph,
-                                               @Nonnull final String sourceColumnName,
-                                               final int targetGraph,
-                                               @Nonnull final String targetColumnName,
-                                               @Language( "TSQL" ) @Nonnull final String sql )
+  protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
+                                                       @Nullable final Object filter,
+                                                       @Nonnull final ChangeSet changeSet,
+                                                       final int sourceGraph,
+                                                       @Nonnull final String sourceColumnName,
+                                                       final int targetGraph,
+                                                       @Nonnull final String targetColumnName,
+                                                       @Language( "TSQL" ) @Nonnull final String sql )
     throws SQLException
   {
     try ( Statement statement = connection().createStatement() )
     {
       try ( ResultSet resultSet = statement.executeQuery( sql ) )
       {
-        linkSourceGraphToTargetGraph( session,
-                                      filter,
-                                      changeSet,
-                                      sourceGraph,
-                                      sourceColumnName,
-                                      targetGraph,
-                                      targetColumnName,
-                                      resultSet );
+        bulkLinkFromSourceGraphToTargetGraph( session,
+                                              filter,
+                                              changeSet,
+                                              sourceGraph,
+                                              sourceColumnName,
+                                              targetGraph,
+                                              targetColumnName,
+                                              resultSet );
       }
     }
   }
 
-  protected void linkSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
-                                               @Nullable final Object filter,
-                                               @Nonnull final ChangeSet changeSet,
-                                               final int sourceGraph,
-                                               @Nonnull final String sourceColumnName,
-                                               final int targetGraph,
-                                               @Nonnull final String targetColumnName,
-                                               @Nonnull final ResultSet resultSet )
+  protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
+                                                       @Nullable final Object filter,
+                                                       @Nonnull final ChangeSet changeSet,
+                                                       final int sourceGraph,
+                                                       @Nonnull final String sourceColumnName,
+                                                       final int targetGraph,
+                                                       @Nonnull final String targetColumnName,
+                                                       @Nonnull final ResultSet resultSet )
     throws SQLException
   {
     while ( resultSet.next() )
