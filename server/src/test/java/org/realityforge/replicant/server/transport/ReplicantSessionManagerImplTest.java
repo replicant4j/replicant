@@ -1307,8 +1307,6 @@ public class ReplicantSessionManagerImplTest
     // Attempt to update both channels
     sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter );
 
-    //    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 1 );
-
     // the original filter is still set as it is expected that the hook method does the magic
     assertEntry( e1, false, 0, 0, originalFilter );
     assertEntry( e2, false, 0, 0, originalFilter );
@@ -1927,7 +1925,6 @@ public class ReplicantSessionManagerImplTest
                                                          @Nonnull final ChangeSet changeSet )
     {
       _bulkCollectDataForSubscriptionUpdateCallCount += 1;
-      super.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
     }
 
     @Nonnull
