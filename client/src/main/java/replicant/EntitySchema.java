@@ -174,6 +174,16 @@ public final class EntitySchema
     return _channelLinks;
   }
 
+  @Nonnull
+  public List<ChannelLinkSchema> getOutwardChannelLinks( final int channelId )
+  {
+    return
+      Stream
+        .of( getChannelLinks() )
+        .filter( l -> l.getSourceChannelId() == channelId )
+        .collect( Collectors.toList() );
+  }
+
   @Override
   public String toString()
   {
