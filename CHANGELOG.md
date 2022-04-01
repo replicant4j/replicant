@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Expose the "productionMode" compilation time parameter using `Replicant.isProductionMode()`. 
+
 ### [v6.119](https://github.com/replicant4j/replicant/tree/v6.119) (2022-04-01) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.118...v6.119)
 
 Changes in this release:

@@ -16,6 +16,18 @@ public final class Replicant
   }
 
   /**
+   * Return true if replicant is in production mode.
+   * Production mode means that certain development only features are present and it
+   * changes the defaults of some other settings.
+   *
+   * @return true if replicant is in production mode.
+   */
+  public static boolean isProductionMode()
+  {
+    return ReplicantConfig.isProductionMode();
+  }
+
+  /**
    * Return true if user should pass names into API methods, false if should pass null.
    *
    * @return true if user should pass names into API methods, false if should pass null.

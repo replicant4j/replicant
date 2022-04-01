@@ -21,13 +21,13 @@ public final class ReplicantTestUtil
    */
   public static void resetConfig( final boolean productionMode )
   {
-    if ( ReplicantConfig.isProductionMode() )
+    if ( Replicant.isProductionMode() )
     {
       /*
        * This should really never happen but if it does add assertion (so code stops in debugger) or
        * failing that throw an exception.
        */
-      assert !ReplicantConfig.isProductionMode();
+      assert !Replicant.isProductionMode();
       throw new IllegalStateException( "Unable to reset config as Replicant is in production mode" );
     }
 
@@ -306,7 +306,7 @@ public final class ReplicantTestUtil
   @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
   private static void setConstant( @Nonnull final String fieldName, final boolean value )
   {
-    if ( !ReplicantConfig.isProductionMode() )
+    if ( !Replicant.isProductionMode() )
     {
       try
       {
@@ -324,7 +324,7 @@ public final class ReplicantTestUtil
       /*
        * This should not happen but if it does then just fail with an assertion or error.
        */
-      assert !ReplicantConfig.isProductionMode();
+      assert !Replicant.isProductionMode();
       throw new IllegalStateException( "Unable to change constant " + fieldName +
                                        " as Replicant is in production mode" );
     }
