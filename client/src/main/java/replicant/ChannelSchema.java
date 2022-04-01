@@ -2,6 +2,8 @@ package replicant;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -221,6 +223,16 @@ public final class ChannelSchema
   public EntitySchema findEntityById( final int entityId )
   {
     return _entities.stream().filter( e -> e.getId() == entityId ).findAny().orElse( null );
+  }
+
+  @Nonnull
+  public List<ChannelLinkSchema> getOutwardChannelLinks()
+  {
+    return
+      getEntities()
+        .stream()
+        .flatMap( e -> Stream.of( e.getChannelLinks() ).filter( l -> l.getSourceChannelId() == getId() ) )
+        .collect( Collectors.toList() );
   }
 
   @Override
