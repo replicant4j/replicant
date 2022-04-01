@@ -82,7 +82,7 @@ public final class EntitySchema
                            @Nonnull final Creator<T> creator,
                            @Nullable final Updater<T> updater )
   {
-    this(id, name, type, creator, updater, new ChannelLinkSchema[0] );
+    this( id, name, type, creator, updater, new ChannelLinkSchema[ 0 ] );
   }
 
   public <T> EntitySchema( final int id,
