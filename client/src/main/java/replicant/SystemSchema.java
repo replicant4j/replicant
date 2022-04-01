@@ -178,6 +178,25 @@ public final class SystemSchema
   }
 
   @Nonnull
+  public List<ChannelLinkSchema> getInwardChannelLinks( final int channelId, final int entityId )
+  {
+    return
+      Stream
+        .of( _channels )
+        .flatMap( channelSchema ->
+                    channelSchema
+                      .getEntities()
+                      .stream()
+                      .filter( e -> e.getId() == entityId )
+                      .flatMap( entity ->
+                                  Stream
+                                    .of( entity.getChannelLinks() )
+                                    .filter( l -> l.getTargetChannelId() == channelId ) ) )
+        .distinct()
+        .collect( Collectors.toList() );
+  }
+
+  @Nonnull
   public List<ChannelLinkSchema> getInwardChannelLinks( final int channelId )
   {
     return
