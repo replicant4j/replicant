@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.120](https://github.com/replicant4j/replicant/tree/v6.120) (2022-04-01) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.119...v6.120)
+
+Changes in this release:
 
 * Expose the "productionMode" compilation time parameter using `Replicant.isProductionMode()`.
 * Add `SystemSchema.getInwardChannelLinks(int)`, `SystemSchema.getOutwardChannelLinks(int)`, `EntitySchema.getOutwardChannelLinks()` and `ChannelSchema.getOutwardChannelLinks()` helper methods. These are not used at runtime but are primarily intended for usage in supporting tooling and testing infrastructure
