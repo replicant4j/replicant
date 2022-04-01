@@ -1,7 +1,10 @@
 package replicant;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static org.realityforge.braincheck.Guards.*;
@@ -172,6 +175,35 @@ public final class SystemSchema
                     () -> "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range." );
     }
     return _channels[ channelId ];
+  }
+
+  @Nonnull
+  public List<ChannelLinkSchema> getInwardChannelLinks( final int channelId )
+  {
+    return
+      Stream
+        .of( _channels )
+        .flatMap( channelSchema ->
+                    channelSchema
+                      .getEntities()
+                      .stream()
+                      .flatMap( entity ->
+                                  Stream
+                                    .of( entity.getChannelLinks() )
+                                    .filter( l -> l.getTargetChannelId() == channelId ) ) )
+        .distinct()
+        .collect( Collectors.toList() );
+  }
+
+  @Nonnull
+  public List<ChannelLinkSchema> getOutwardChannelLinks( final int channelId )
+  {
+    return
+      getChannel( channelId )
+        .getEntities()
+        .stream()
+        .flatMap( e -> e.getOutwardChannelLinks( channelId ).stream() )
+        .collect( Collectors.toList() );
   }
 
   @Override
