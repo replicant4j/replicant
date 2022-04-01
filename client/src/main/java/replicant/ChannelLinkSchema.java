@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Arrays;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 
@@ -64,5 +65,20 @@ public final class ChannelLinkSchema
   public String[] getPath()
   {
     return _path;
+  }
+
+  @Override
+  public String toString()
+  {
+    if ( Replicant.areNamesEnabled() )
+    {
+      return "ChannelLink[" +
+             getSourceChannelId() + "->" + getTargetChannelId() + " via " + Arrays.asList( getPath() ) +
+             "]";
+    }
+    else
+    {
+      return super.toString();
+    }
   }
 }
