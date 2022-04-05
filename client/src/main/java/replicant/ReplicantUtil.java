@@ -54,7 +54,7 @@ final class ReplicantUtil
     while ( null != t )
     {
       addCausedByPrefix( sb );
-      sb.append( t.toString() );
+      sb.append( t );
       for ( final StackTraceElement element : t.getStackTrace() )
       {
         sb.append( "\n  at " ).append( element );

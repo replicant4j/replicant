@@ -57,6 +57,6 @@ public final class ChannelLink
   @Override
   public String toString()
   {
-    return "[" + _sourceChannel.toString() + "=>" + _targetChannel.toString() + "]";
+    return "[" + _sourceChannel + "=>" + _targetChannel + "]";
   }
 }

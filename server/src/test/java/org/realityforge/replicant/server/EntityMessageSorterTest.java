@@ -181,11 +181,11 @@ public class EntityMessageSorterTest
 
   private void assertDeletion( final EntityMessage message )
   {
-    assertTrue( message.isDelete(), "Expected " + message.toString() + " to be a deletion" );
+    assertTrue( message.isDelete(), "Expected " + message + " to be a deletion" );
   }
 
   private void assertUpdate( final EntityMessage message )
   {
-    assertTrue( message.isUpdate(), "Expected " + message.toString() + " to be an update" );
+    assertTrue( message.isUpdate(), "Expected " + message + " to be an update" );
   }
 }
