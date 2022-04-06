@@ -147,21 +147,23 @@ public abstract class ReplicantSessionManagerImpl
   @SuppressWarnings( { "WeakerAccess", "unused" } )
   public void pingSessions()
   {
-    _lock.readLock().lock();
-    try
+    if ( _lock.readLock().tryLock() )
     {
-      for ( final ReplicantSession session : _sessions.values() )
+      try
       {
-        if ( LOG.isLoggable( Level.FINEST ) )
+        for ( final ReplicantSession session : _sessions.values() )
         {
-          LOG.finest( "Pinging websocket for session " + session.getId() );
+          if ( LOG.isLoggable( Level.FINEST ) )
+          {
+            LOG.finest( "Pinging websocket for session " + session.getId() );
+          }
+          session.pingTransport();
         }
-        session.pingTransport();
       }
-    }
-    finally
-    {
-      _lock.readLock().unlock();
+      finally
+      {
+        _lock.readLock().unlock();
+      }
     }
   }
 
@@ -171,15 +173,17 @@ public abstract class ReplicantSessionManagerImpl
   @SuppressWarnings( "WeakerAccess" )
   public void removeAllSessions()
   {
-    _lock.writeLock().lock();
-    try
+    if ( _lock.writeLock().tryLock() )
     {
-      new ArrayList<>( _sessions.values() ).forEach( ReplicantSession::close );
-      _sessions.clear();
-    }
-    finally
-    {
-      _lock.writeLock().unlock();
+      try
+      {
+        new ArrayList<>( _sessions.values() ).forEach( ReplicantSession::close );
+        _sessions.clear();
+      }
+      finally
+      {
+        _lock.writeLock().unlock();
+      }
     }
   }
 
@@ -189,22 +193,24 @@ public abstract class ReplicantSessionManagerImpl
   @SuppressWarnings( "WeakerAccess" )
   public void removeClosedSessions()
   {
-    _lock.writeLock().lock();
-    try
+    if ( _lock.writeLock().tryLock() )
     {
-      final Iterator<Map.Entry<String, ReplicantSession>> iterator = _sessions.entrySet().iterator();
-      while ( iterator.hasNext() )
+      try
       {
-        final ReplicantSession session = iterator.next().getValue();
-        if ( !session.getWebSocketSession().isOpen() )
+        final Iterator<Map.Entry<String, ReplicantSession>> iterator = _sessions.entrySet().iterator();
+        while ( iterator.hasNext() )
         {
-          iterator.remove();
+          final ReplicantSession session = iterator.next().getValue();
+          if ( !session.getWebSocketSession().isOpen() )
+          {
+            iterator.remove();
+          }
         }
       }
-    }
-    finally
-    {
-      _lock.writeLock().unlock();
+      finally
+      {
+        _lock.writeLock().unlock();
+      }
     }
   }
 
