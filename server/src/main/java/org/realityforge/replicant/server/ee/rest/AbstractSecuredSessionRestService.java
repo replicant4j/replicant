@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.realityforge.keycloak.sks.SimpleAuthService;
 import org.realityforge.replicant.server.ChannelAddress;
 
 @SuppressWarnings( "unused" )

@@ -1,7 +1,6 @@
 package replicant;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Interface invoked after processing a MessageResponse.
