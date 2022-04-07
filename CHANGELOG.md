@@ -4,6 +4,7 @@
 
 * Use `tryLock()` rather than lock in implementation of `removeClosedSessions()`, `pingSessions()`, `removeAllSessions()` in `ReplicantSessionManagerImpl` to avoid deadlocks. These actions will just be skipped if they would otherwise cause blocking.
 * Avoid attempting bulk subscribe attempts submitted to the server for an existing subscription a matching filter.
+* Generate a `AttemptedToUpdateStaticFilterException` exception when attempting to update a channel with a static filter.
 
 ### [v6.120](https://github.com/replicant4j/replicant/tree/v6.120) (2022-04-01) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.119...v6.120)
 

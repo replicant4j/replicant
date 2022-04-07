@@ -502,7 +502,10 @@ public abstract class ReplicantSessionManagerImpl
           }
           else
           {
-            bulkCollectDataForSubscribe( session, addresses, filter, changeSet );
+            final String message =
+              "Attempted to update filter on channel " + channel.getName() + " to " + filter + " but the " +
+              "channel that has a static filter. Unsubscribe and resubscribe to channel.";
+            throw new AttemptedToUpdateStaticFilterException( message );
           }
         }
         else
