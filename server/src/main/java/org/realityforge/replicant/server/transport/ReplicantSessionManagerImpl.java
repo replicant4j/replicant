@@ -3,6 +3,7 @@ package org.realityforge.replicant.server.transport;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -328,7 +329,76 @@ public abstract class ReplicantSessionManagerImpl
   {
     try
     {
-      expandLinks( session, changeSet );
+      final Set<ChannelLinkEntry> pending = new HashSet<>();
+      final Set<ChannelLinkEntry> subscribed = new HashSet<>();
+
+      while ( true )
+      {
+        collectChannelLinksToFollow( session, changeSet, pending, subscribed );
+        if ( pending.isEmpty() )
+        {
+          break;
+        }
+        final ChannelLinkEntry entry =
+          pending
+            .stream()
+            .min( Comparator.comparing( ChannelLinkEntry::getTarget ) )
+            .orElse( null );
+        final List<ChannelLinkEntry> toSubscribe;
+        final ChannelAddress target = entry.getTarget();
+        if ( target.hasSubChannelId() )
+        {
+          toSubscribe =
+            pending
+              .stream()
+              .filter( a -> a.getTarget().getChannelId() == target.getChannelId() &&
+                            Objects.equals( a.getFilter(), entry.getFilter() ) )
+              .collect( Collectors.toList() );
+        }
+        else
+        {
+          toSubscribe = Collections.singletonList( entry );
+        }
+        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( target.getChannelId() );
+        if ( channelMetaData.areBulkLoadsSupported() )
+        {
+          doBulkSubscribe( session,
+                           target.getChannelId(),
+                           channelMetaData.isTypeGraph() ?
+                           null :
+                           toSubscribe
+                             .stream()
+                             .map( ChannelLinkEntry::getTarget )
+                             .map( ChannelAddress::getSubChannelId )
+                             .collect( Collectors.toList() ),
+                           entry.getFilter(),
+                           changeSet );
+        }
+        else
+        {
+          for ( final ChannelLinkEntry e : toSubscribe )
+          {
+            final SubscriptionEntry targetEntry = session.createSubscriptionEntry( e.getTarget() );
+            try
+            {
+              performSubscribe( session, targetEntry, false, entry.getFilter(), changeSet );
+            }
+            catch ( final Throwable t )
+            {
+              session.deleteSubscriptionEntry( targetEntry );
+              throw t;
+            }
+          }
+        }
+        toSubscribe.forEach( pending::remove );
+        subscribed.addAll( toSubscribe );
+        for ( final ChannelLinkEntry e : toSubscribe )
+        {
+          final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( e.getSource() );
+          final SubscriptionEntry targetEntry = session.getSubscriptionEntry( e.getTarget() );
+          linkSubscriptionEntries( sourceEntry, targetEntry );
+        }
+      }
     }
     catch ( final Exception e )
     {
@@ -339,6 +409,76 @@ public abstract class ReplicantSessionManagerImpl
       }
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding links failed" ) );
     }
+  }
+
+  /**
+   * Collect a list of ChannelLinks in change set that may need to be followed.
+   */
+  void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
+                                    @Nonnull final ChangeSet changeSet,
+                                    @Nonnull final Set<ChannelLinkEntry> targets,
+                                    @Nonnull final Set<ChannelLinkEntry> subscribed )
+  {
+    for ( final Change change : changeSet.getChanges() )
+    {
+      final EntityMessage entityMessage = change.getEntityMessage();
+      if ( entityMessage.isUpdate() )
+      {
+        final Set<ChannelLink> links = entityMessage.getLinks();
+        if ( null != links )
+        {
+          for ( final ChannelLink link : links )
+          {
+            final boolean alreadyCollected =
+              subscribed.stream()
+                .anyMatch( s -> s.getSource().equals( link.getSourceChannel() ) &&
+                                s.getTarget().equals( link.getTargetChannel() ) );
+            if ( !alreadyCollected )
+            {
+              final ChannelLinkEntry entry = createChannelLinkEntryIfRequired( session, link );
+              if ( null != entry )
+              {
+                targets.add( entry );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Determine if the specified ChannelLink needs to be follows and link channels if required. A ChannelLink
+   * needs to befollowed if the session is subscribed to the source channel and shouldFollowLink returns true.
+   * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
+   * is always followed. If a link should be followed the source graph and target graph are linked.
+   *
+   * This method does not perform the actual subscription and this is deferred to a separate process.
+   */
+  @Nullable
+  ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final ReplicantSession session,
+                                                     @Nonnull final ChannelLink link )
+  {
+    final ChannelAddress source = link.getSourceChannel();
+    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
+    if ( null != sourceEntry )
+    {
+      final ChannelAddress target = link.getTargetChannel();
+      if ( !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter() ||
+           shouldFollowLink( sourceEntry, target ) )
+      {
+        final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
+        if ( null == targetEntry )
+        {
+          return new ChannelLinkEntry( source, link.getTargetChannel(), sourceEntry.getFilter() );
+        }
+        else
+        {
+          linkSubscriptionEntries( sourceEntry, targetEntry );
+        }
+      }
+    }
+    return null;
   }
 
   private void processMessages( @Nonnull final Collection<EntityMessage> messages,
@@ -1035,81 +1175,6 @@ public abstract class ReplicantSessionManagerImpl
   {
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.getAddress() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.getAddress() );
-  }
-
-  @SuppressWarnings( { "PMD.WhileLoopsMustUseBraces", "StatementWithEmptyBody" } )
-  void expandLinks( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
-  {
-    while ( expandLink( session, changeSet ) )
-    {
-      //Ignore.
-    }
-  }
-
-  /**
-   * Iterate over all the ChannelLinks in change set attempting to "expand" them if they have to be
-   * subscribed. The expand involves subscribing to the target graph. As soon as one is expanded
-   * terminate search and return true, otherwise return false.
-   */
-  boolean expandLink( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
-  {
-    for ( final Change change : changeSet.getChanges() )
-    {
-      final EntityMessage entityMessage = change.getEntityMessage();
-      if ( entityMessage.isUpdate() )
-      {
-        final Set<ChannelLink> links = entityMessage.getLinks();
-        if ( null != links )
-        {
-          for ( final ChannelLink link : links )
-          {
-            if ( expandLinkIfRequired( session, link, changeSet ) )
-            {
-              return true;
-            }
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Determine if the specified ChannelLink needs to be expanded and do so. A ChannelLink needs to be
-   * expanded if the session is subscribed to the source channel and shouldFollowLink returns true.
-   * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
-   * is always followed. If a link should be followed the source graph and target graph are linked.
-   *
-   * If a subscription occurs then this method will immediately return false. This occurs as the changes
-   * in the ChangeSet may have been modified as a result of the subscription and thus scanning of changeSet
-   * needs to start again.
-   */
-  boolean expandLinkIfRequired( @Nonnull final ReplicantSession session,
-                                @Nonnull final ChannelLink link,
-                                @Nonnull final ChangeSet changeSet )
-  {
-    final ChannelAddress source = link.getSourceChannel();
-    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
-    if ( null != sourceEntry )
-    {
-      final ChannelAddress target = link.getTargetChannel();
-      final boolean linkingConditional = !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
-      if ( linkingConditional || shouldFollowLink( sourceEntry, target ) )
-      {
-        final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
-        if ( null == targetEntry )
-        {
-          subscribe( session, target, false, linkingConditional ? null : sourceEntry.getFilter(), changeSet );
-          linkSubscriptionEntries( sourceEntry, session.getSubscriptionEntry( target ) );
-          return true;
-        }
-        else
-        {
-          linkSubscriptionEntries( sourceEntry, targetEntry );
-        }
-      }
-    }
-    return false;
   }
 
   protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
