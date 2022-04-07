@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.121](https://github.com/replicant4j/replicant/tree/v6.121) (2022-04-07) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.120...v6.121)
+
+Changes in this release:
 
 * Use `tryLock()` rather than lock in implementation of `removeClosedSessions()`, `pingSessions()`, `removeAllSessions()` in `ReplicantSessionManagerImpl` to avoid deadlocks. These actions will just be skipped if they would otherwise cause blocking.
 * Avoid attempting bulk subscribe attempts submitted to the server for an existing subscription a matching filter.
