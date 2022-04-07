@@ -372,7 +372,8 @@ public abstract class ReplicantSessionManagerImpl
                              .map( ChannelAddress::getSubChannelId )
                              .collect( Collectors.toList() ),
                            entry.getFilter(),
-                           changeSet );
+                           changeSet,
+                           false );
         }
         else
         {
@@ -555,7 +556,7 @@ public abstract class ReplicantSessionManagerImpl
       lock.lockInterruptibly();
       try
       {
-        doBulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges() );
+        doBulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges(), true );
       }
       finally
       {
@@ -568,7 +569,8 @@ public abstract class ReplicantSessionManagerImpl
                                 final int channelId,
                                 @Nullable final Collection<Integer> subChannelIds,
                                 @Nullable final Object filter,
-                                @Nonnull final ChangeSet changeSet )
+                                @Nonnull final ChangeSet changeSet,
+                                final boolean isExplicitSubscribe )
   {
     final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
     assert ( channel.isInstanceGraph() && null != subChannelIds ) || ( channel.isTypeGraph() && null == subChannelIds );
@@ -638,7 +640,12 @@ public abstract class ReplicantSessionManagerImpl
         {
           if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
           {
-            bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
+            bulkCollectDataForSubscriptionUpdate( session,
+                                                  addresses,
+                                                  originalFilter,
+                                                  filter,
+                                                  changeSet,
+                                                  isExplicitSubscribe );
           }
           else
           {
@@ -735,7 +742,8 @@ public abstract class ReplicantSessionManagerImpl
                            null :
                            Collections.singletonList( address.getSubChannelId() ),
                            filter,
-                           changeSet );
+                           changeSet,
+                           true );
         }
         else
         {
@@ -764,7 +772,7 @@ public abstract class ReplicantSessionManagerImpl
                          null :
                          Collections.singletonList( address.getSubChannelId() ),
                          filter,
-                         changeSet );
+                         changeSet, true );
       }
       else
       {
@@ -1028,7 +1036,8 @@ public abstract class ReplicantSessionManagerImpl
                                                        @Nonnull final List<ChannelAddress> addresses,
                                                        @Nullable final Object originalFilter,
                                                        @Nullable final Object filter,
-                                                       @Nonnull final ChangeSet changeSet )
+                                                       @Nonnull final ChangeSet changeSet,
+                                                       final boolean isExplicitSubscribe )
   {
     final ChannelAddress address = addresses.get( 0 );
     throw new IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + address );
