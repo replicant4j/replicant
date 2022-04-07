@@ -9,7 +9,7 @@
   - collect pending channel links
   - select the highest priority channel with pending links
   - select the channel links for the selected channel and perform a bulk subscribe for all channel links with the same channel id
-* Add `isExplicitSubscribe` parameter to `ReplicantSessionManagerImpl.bulkCollectDataForSubscriptionUpdate(...)` to enable controlling the behaviour in generated domgen code.
+* Add `isExplicitSubscribe` parameter to `bulkCollectDataForSubscribe(...)` and  `bulkCollectDataForSubscriptionUpdate(...)` on `ReplicantSessionManagerImpl` to enable controlling the behaviour in generated domgen code.
 
 ### [v6.120](https://github.com/replicant4j/replicant/tree/v6.120) (2022-04-01) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.119...v6.120)
 

@@ -622,7 +622,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       if ( channel.areBulkLoadsSupported() )
       {
-        bulkCollectDataForSubscribe( session, newChannels, filter, changeSet );
+        bulkCollectDataForSubscribe( session, newChannels, filter, changeSet, isExplicitSubscribe );
       }
       else
       {
@@ -1012,7 +1012,8 @@ public abstract class ReplicantSessionManagerImpl
   protected void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
                                               @Nonnull final List<ChannelAddress> addresses,
                                               @Nullable final Object filter,
-                                              @Nonnull final ChangeSet changeSet )
+                                              @Nonnull final ChangeSet changeSet,
+                                              final boolean isExplicitSubscribe )
   {
     final ChannelAddress address = addresses.get( 0 );
     throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
