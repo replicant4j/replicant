@@ -447,9 +447,12 @@ public abstract class ReplicantSessionManagerImpl
       }
       else
       {
-        channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() ).add( address );
+        final Object existingFilter = entry.getFilter();
+        if ( doFiltersNotMatch( filter, existingFilter ) )
+        {
+          channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
+        }
       }
-
     }
     else
     {
@@ -463,7 +466,11 @@ public abstract class ReplicantSessionManagerImpl
         }
         else
         {
-          channelsToUpdate.computeIfAbsent( entry.getFilter(), k -> new ArrayList<>() ).add( address );
+          final Object existingFilter = entry.getFilter();
+          if ( doFiltersNotMatch( filter, existingFilter ) )
+          {
+            channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
+          }
         }
       }
     }
