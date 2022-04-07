@@ -613,6 +613,10 @@ public abstract class ReplicantSessionManagerImpl
           {
             channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
           }
+          else if ( !entry.isExplicitlySubscribed() && isExplicitSubscribe )
+          {
+            entry.setExplicitlySubscribed( true );
+          }
         }
       }
     }
