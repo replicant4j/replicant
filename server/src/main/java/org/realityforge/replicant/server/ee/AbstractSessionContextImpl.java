@@ -6,7 +6,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
@@ -73,11 +76,24 @@ public abstract class AbstractSessionContextImpl
   {
     return
       "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
-      "INSERT INTO @Ids VALUES " +
-      addresses.stream()
-        .map( a -> "(" + a.getSubChannelId() + ")" )
-        .collect( Collectors.joining( "," ) ) +
+      chunked( addresses.stream().map( ChannelAddress::getSubChannelId ), 900 )
+        .map( ids ->
+                "INSERT INTO @Ids VALUES " +
+                ids.stream().map( id -> "(" + id + ")" ).collect( Collectors.joining( "," ) ) ).
+        collect( Collectors.joining( "\n" ) ) +
       "\n";
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private static <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
+  {
+    final AtomicInteger index = new AtomicInteger( 0 );
+
+    return stream
+      .collect( Collectors.groupingBy( x -> index.getAndIncrement() / chunkSize ) )
+      .entrySet().stream()
+      .sorted( Map.Entry.comparingByKey() )
+      .map( Map.Entry::getValue );
   }
 
   protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
