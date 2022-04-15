@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.122](https://github.com/replicant4j/replicant/tree/v6.122) (2022-04-15) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.121...v6.122)
+
+Changes in this release:
 
 * Modify `AbstractSessionContextImpl.generateTempIdTable(...)` so that it chunks the insertions into the temp id table to work around limitations in some versions of SQL server of a maximum of 1000 rows in an INSERT statement.
 
