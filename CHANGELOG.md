@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.react4j` artifacts to version `0.189`.
 * Update the `org.realityforge.arez` artifacts to version `0.204`.
 * Update the `org.realityforge.grim` artifacts to version `0.09`.
 
