@@ -19,8 +19,8 @@ TEST_OPTIONS =
 desc 'Replicant: Client-side state representation infrastructure'
 define 'replicant' do
   project.group = 'org.realityforge.replicant'
-  compile.options.source = '1.8'
-  compile.options.target = '1.8'
+  compile.options.source = '17'
+  compile.options.target = '17'
   compile.options.lint = 'all,-processing,-serial'
   project.compile.options.warnings = true
   project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000)
