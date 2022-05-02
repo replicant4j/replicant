@@ -3,7 +3,7 @@
 ### Unreleased
 
 * Update the `org.realityforge.zemeckis` artifact to version `0.14`.
-* Update the `org.realityforge.react4j` artifacts to version `0.189`.
+* Update the `org.realityforge.react4j` artifacts to version `0.190`.
 * Update the `org.realityforge.arez` artifacts to version `0.205`.
 * Update the `org.realityforge.grim` artifacts to version `0.09`.
 
