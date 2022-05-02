@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.123](https://github.com/replicant4j/replicant/tree/v6.123) (2022-05-02) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.122...v6.123)
+
+Changes in this release:
 
 * Update the `org.realityforge.zemeckis` artifact to version `0.14`.
 * Update the `org.realityforge.react4j` artifacts to version `0.190`.
