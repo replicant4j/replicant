@@ -6,6 +6,7 @@
 * Update the `org.realityforge.react4j` artifacts to version `0.190`.
 * Update the `org.realityforge.arez` artifacts to version `0.205`.
 * Update the `org.realityforge.grim` artifacts to version `0.09`.
+* Upgrade to require JDK 17 as a baseline.
 
 ### [v6.122](https://github.com/replicant4j/replicant/tree/v6.122) (2022-04-15) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.121...v6.122)
 
