@@ -1,7 +1,6 @@
 require 'buildr/git_auto_version'
 require 'buildr/gpg'
 require 'buildr/gwt'
-require 'buildr/jacoco'
 require 'buildr/single_intermediate_layout'
 
 Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
