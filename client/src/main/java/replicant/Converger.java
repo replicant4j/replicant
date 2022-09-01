@@ -134,7 +134,7 @@ abstract class Converger
       areaOfInterest.getFilter();
 
       // Make sure we observe the status so that converger will re-run when status updates. Usually not needed
-      // except when multiple areaOfInterest are queued up simultaneously and the the later can not be grouped
+      // except when multiple areaOfInterest are queued up simultaneously and the later can not be grouped
       // into first AreaOfInterest. If this is not here then the converger will not re-run.
       areaOfInterest.getStatus();
 
