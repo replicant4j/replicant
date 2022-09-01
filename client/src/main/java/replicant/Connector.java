@@ -265,11 +265,6 @@ abstract class Connector
       lock = getReplicantContext().getChangeBroker().disable();
     }
     purgeSubscriptions();
-    if ( Replicant.isChangeBrokerEnabled() )
-    {
-      assert null != lock;
-      lock.release();
-    }
     // Avoid emitting an event if disconnect resulted in an error
     if ( ConnectorState.ERROR != getState() )
     {
@@ -284,6 +279,11 @@ abstract class Connector
       {
         onDisconnected();
       }
+    }
+    if ( Replicant.isChangeBrokerEnabled() )
+    {
+      assert null != lock;
+      lock.release();
     }
   }
 
