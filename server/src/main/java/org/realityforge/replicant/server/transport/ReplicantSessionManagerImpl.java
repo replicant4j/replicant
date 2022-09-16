@@ -56,6 +56,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract ReplicantMessageBroker getReplicantMessageBroker();
 
+  @SuppressWarnings( "resource" )
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
   {
