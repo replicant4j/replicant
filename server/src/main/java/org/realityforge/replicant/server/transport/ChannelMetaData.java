@@ -63,6 +63,8 @@ public final class ChannelMetaData
    * i.e. Can this be explicitly subscribed.
    */
   private final boolean _external;
+  @Nonnull
+  private final ChannelMetaData[] _requiredTypeChannels;
 
   public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
@@ -71,7 +73,8 @@ public final class ChannelMetaData
                           @Nullable final Class<?> filterParameterType,
                           @Nonnull final CacheType cacheType,
                           final boolean bulkLoadsSupported,
-                          final boolean external )
+                          final boolean external,
+                          @Nonnull final ChannelMetaData... requiredTypeGraphs )
   {
     _channelId = channelId;
     _name = Objects.requireNonNull( name );
@@ -80,6 +83,8 @@ public final class ChannelMetaData
     _filterParameterType = filterParameterType;
     _cacheType = Objects.requireNonNull( cacheType );
     _bulkLoadsSupported = bulkLoadsSupported;
+    _external = external;
+    _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
     if ( !hasFilterParameter() && null != filterParameterType )
     {
       throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
@@ -88,7 +93,14 @@ public final class ChannelMetaData
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
-    _external = external;
+    for ( final ChannelMetaData requiredTypeChannel : _requiredTypeChannels )
+    {
+      if ( requiredTypeChannel.isInstanceGraph() )
+      {
+        throw new IllegalArgumentException( "Specified RequiredTypeChannel " + requiredTypeChannel.getName() +
+                                            " is not a type channel" );
+      }
+    }
   }
 
   public int getChannelId()
@@ -156,5 +168,11 @@ public final class ChannelMetaData
   public boolean isExternal()
   {
     return _external;
+  }
+
+  @Nonnull
+  public ChannelMetaData[] getRequiredTypeChannels()
+  {
+    return _requiredTypeChannels;
   }
 }
