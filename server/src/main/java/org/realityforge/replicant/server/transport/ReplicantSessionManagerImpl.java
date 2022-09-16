@@ -454,7 +454,7 @@ public abstract class ReplicantSessionManagerImpl
    * needs to befollowed if the session is subscribed to the source channel and shouldFollowLink returns true.
    * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
    * is always followed. If a link should be followed the source graph and target graph are linked.
-   *
+   * <p>
    * This method does not perform the actual subscription and this is deferred to a separate process.
    */
   @Nullable
