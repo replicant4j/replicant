@@ -59,7 +59,7 @@ public final class ChannelMetaData
    */
   private final boolean _bulkLoadsSupported;
   /**
-   * Flag indicating whether the channel should able to be subscribed to externally.
+   * Flag indicating whether the channel can be subscribed to, externally.
    * i.e. Can this be explicitly subscribed.
    */
   private final boolean _external;
