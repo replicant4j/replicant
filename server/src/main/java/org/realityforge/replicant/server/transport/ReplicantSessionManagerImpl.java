@@ -916,7 +916,8 @@ public abstract class ReplicantSessionManagerImpl
   @Nullable
   ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
-    assert getSystemMetaData().getChannelMetaData( address ).isCacheable();
+    final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+    assert metaData.isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( address );
     entry.getLock().readLock().lock();
     try
@@ -939,6 +940,8 @@ public abstract class ReplicantSessionManagerImpl
         return entry;
       }
       final ChangeSet changeSet = new ChangeSet();
+      // TODO: At some point we should add support for bulk loads here
+      assert !metaData.areBulkLoadsSupported();
       final SubscribeResult result = collectDataForSubscribe( address, changeSet, null );
       if ( result.isChannelRootDeleted() )
       {
