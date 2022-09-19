@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [v6.124](https://github.com/replicant4j/replicant/tree/v6.124) (2022-09-19) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.122...v6.124)
+
+Changes in this release:
+
 * Update the `org.realityforge.react4j` artifacts to version `0.191`.
 
 ### [v6.123](https://github.com/replicant4j/replicant/tree/v6.123) (2022-05-02) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.122...v6.123)
@@ -9,7 +13,7 @@
 Changes in this release:
 
 * Update the `org.realityforge.zemeckis` artifact to version `0.14`.
-* Update the `org.realityforge.react4j` artifacts to version `0.190`.
+* Update the `org.realityforge.react4j` artifacts to version `0.191`.
 * Update the `org.realityforge.arez` artifacts to version `0.205`.
 * Update the `org.realityforge.grim` artifacts to version `0.09`.
 * Upgrade to require JDK 17 as a baseline.

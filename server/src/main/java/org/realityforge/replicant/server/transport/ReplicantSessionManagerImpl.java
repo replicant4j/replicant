@@ -1,6 +1,7 @@
 package org.realityforge.replicant.server.transport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,6 +57,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nonnull
   protected abstract ReplicantMessageBroker getReplicantMessageBroker();
 
+  @SuppressWarnings( "resource" )
   @Override
   public boolean invalidateSession( @Nonnull final ReplicantSession session )
   {
@@ -453,7 +455,7 @@ public abstract class ReplicantSessionManagerImpl
    * needs to befollowed if the session is subscribed to the source channel and shouldFollowLink returns true.
    * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
    * is always followed. If a link should be followed the source graph and target graph are linked.
-   *
+   * <p>
    * This method does not perform the actual subscription and this is deferred to a separate process.
    */
   @Nullable
@@ -574,6 +576,8 @@ public abstract class ReplicantSessionManagerImpl
   {
     final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
     assert ( channel.isInstanceGraph() && null != subChannelIds ) || ( channel.isTypeGraph() && null == subChannelIds );
+
+    subscribeToRequiredTypeChannels( session, channel );
 
     final List<ChannelAddress> newChannels = new ArrayList<>();
     //OriginalFilter => Channels
@@ -776,7 +780,8 @@ public abstract class ReplicantSessionManagerImpl
                          null :
                          Collections.singletonList( address.getSubChannelId() ),
                          filter,
-                         changeSet, true );
+                         changeSet,
+                         true );
       }
       else
       {
@@ -808,6 +813,9 @@ public abstract class ReplicantSessionManagerImpl
     entry.setFilter( filter );
     final ChannelAddress address = entry.getAddress();
     final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+
+    subscribeToRequiredTypeChannels( session, channelMetaData );
+
     if ( channelMetaData.isCacheable() )
     {
       final ChannelCacheEntry cacheEntry = tryGetCacheEntry( address );
@@ -863,19 +871,72 @@ public abstract class ReplicantSessionManagerImpl
     }
     else
     {
-      final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
-      if ( result.isChannelRootDeleted() )
+      if ( channelMetaData.areBulkLoadsSupported() )
       {
-        changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
+        final ChannelAddress channelAddress =
+          new ChannelAddress( address.getChannelId(),
+                              channelMetaData.isTypeGraph() ? null : address.getSubChannelId() );
+        bulkCollectDataForSubscribe( session,
+                                     Collections.singletonList( channelAddress ),
+                                     filter,
+                                     changeSet,
+                                     explicitSubscribe );
       }
       else
       {
-        changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-        if ( explicitSubscribe )
+        final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
+        if ( result.isChannelRootDeleted() )
         {
-          entry.setExplicitlySubscribed( true );
+          changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
+        }
+        else
+        {
+          changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
+          if ( explicitSubscribe )
+          {
+            entry.setExplicitlySubscribed( true );
+          }
         }
       }
+    }
+  }
+
+  private void subscribeToRequiredTypeChannels( @Nonnull final ReplicantSession session,
+                                                @Nonnull final ChannelMetaData channelMetaData )
+  {
+    final ChannelMetaData[] requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
+    if ( LOG.isLoggable( Level.INFO ) && requiredTypeChannels.length > 0 )
+    {
+      LOG.log( Level.INFO, "Subscribing to " +
+                           channelMetaData.getName() +
+                           " which has " +
+                           requiredTypeChannels.length +
+                           " required channels. " +
+                           Arrays.stream( requiredTypeChannels )
+                             .map( ChannelMetaData::getName )
+                             .collect( Collectors.joining( "," ) ) );
+    }
+    for ( final ChannelMetaData requiredTypeChannel : requiredTypeChannels )
+    {
+      assert requiredTypeChannel.isTypeGraph();
+      // At the moment we propagate no filters ... which is fine
+      assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.getFilterType();
+
+      final TransactionSynchronizationRegistry registry = getRegistry();
+      final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+      final String requestCachedResultHandled =
+        (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
+
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
+      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
+
+      subscribe( session, new ChannelAddress( requiredTypeChannel.getChannelId() ), false, null, new ChangeSet() );
+
+      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
+      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
+      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
     }
   }
 
@@ -915,7 +976,8 @@ public abstract class ReplicantSessionManagerImpl
   @Nullable
   ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
-    assert getSystemMetaData().getChannelMetaData( address ).isCacheable();
+    final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+    assert metaData.isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( address );
     entry.getLock().readLock().lock();
     try
@@ -938,6 +1000,8 @@ public abstract class ReplicantSessionManagerImpl
         return entry;
       }
       final ChangeSet changeSet = new ChangeSet();
+      // TODO: At some point we should add support for bulk loads here
+      assert !metaData.areBulkLoadsSupported();
       final SubscribeResult result = collectDataForSubscribe( address, changeSet, null );
       if ( result.isChannelRootDeleted() )
       {
