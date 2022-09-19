@@ -23,11 +23,7 @@ final class ChannelChangeDescriptor
   @Nonnull
   static ChannelChangeDescriptor from( final int schema, @Nonnull final String channelAction )
   {
-    final char commandCode = channelAction.charAt( 0 );
-    final Type type =
-      SharedConstants.CHANNEL_ACTION_ADD == commandCode ?
-      Type.ADD :
-      SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE : Type.DELETE;
+    final Type type = actionToType( channelAction );
     final ChannelAddress address = ChannelAddress.parse( schema, channelAction.substring( 1 ) );
     return new ChannelChangeDescriptor( type, address, null );
   }
@@ -36,15 +32,19 @@ final class ChannelChangeDescriptor
   static ChannelChangeDescriptor from( final int schema, @Nonnull final ChannelChange channelChange )
   {
     final String channelAction = channelChange.getChannel();
-    final char commandCode = channelAction.charAt( 0 );
-    final Type type =
-      SharedConstants.CHANNEL_ACTION_ADD == commandCode ?
-      Type.ADD :
-      SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ?
-      Type.REMOVE :
-      SharedConstants.CHANNEL_ACTION_DELETE == commandCode ? Type.DELETE : Type.UPDATE;
+    final Type type = actionToType( channelAction );
     final ChannelAddress address = ChannelAddress.parse( schema, channelAction.substring( 1 ) );
     return new ChannelChangeDescriptor( type, address, channelChange.getFilter() );
+  }
+
+  @Nonnull
+  private static Type actionToType( final String channelAction )
+  {
+    final char commandCode = channelAction.charAt( 0 );
+    return SharedConstants.CHANNEL_ACTION_ADD == commandCode ? Type.ADD :
+           SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE :
+           SharedConstants.CHANNEL_ACTION_UPDATE == commandCode ? Type.UPDATE :
+           Type.DELETE;
   }
 
   private ChannelChangeDescriptor( @Nonnull final Type type,
