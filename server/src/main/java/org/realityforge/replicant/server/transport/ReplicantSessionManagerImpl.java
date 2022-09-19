@@ -777,7 +777,8 @@ public abstract class ReplicantSessionManagerImpl
                          null :
                          Collections.singletonList( address.getSubChannelId() ),
                          filter,
-                         changeSet, true );
+                         changeSet,
+                         true );
       }
       else
       {
