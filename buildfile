@@ -114,8 +114,6 @@ define 'replicant' do
 
     test.using :testng
     test.compile.with :mockito,
-                      :byte_buddy,
-                      :objenesis,
                       :braincheck_testng,
                       :arez_testng,
                       :guiceyloops,
