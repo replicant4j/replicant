@@ -48,8 +48,6 @@ final class Packet
           @Nonnull final ChangeSet changeSet )
   {
     _altersExplicitSubscriptions = altersExplicitSubscriptions;
-    assert null == etag || null != requestId;
-    assert !changeSet.hasContent() || null != requestId;
     _requestId = requestId;
     _etag = etag;
     _messages = Objects.requireNonNull( messages );
