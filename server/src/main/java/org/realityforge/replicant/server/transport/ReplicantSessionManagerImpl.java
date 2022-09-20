@@ -932,7 +932,14 @@ public abstract class ReplicantSessionManagerImpl
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
       registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
 
-      subscribe( session, new ChannelAddress( requiredTypeChannel.getChannelId() ), false, null, new ChangeSet() );
+      final ChangeSet changeSet = new ChangeSet();
+      subscribe( session, new ChannelAddress( requiredTypeChannel.getChannelId() ), false, null, changeSet );
+      if ( changeSet.hasContent() )
+      {
+        // In this scenario we have a non-cached changeset, so we send it along
+        getReplicantMessageBroker().
+          queueChangeMessage( session, true, null, null, Collections.emptyList(), changeSet );
+      }
 
       registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
