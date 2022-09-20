@@ -1,6 +1,7 @@
 package replicant;
 
 import akasha.core.JSON;
+import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
@@ -264,6 +265,9 @@ abstract class Connector
     {
       lock = getReplicantContext().getChangeBroker().disable();
     }
+    // Lock arez otherwise the purgeSubscriptions will trigger a converge when
+    // _connection is null but State may be CONNECTED
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
     purgeSubscriptions();
     // Avoid emitting an event if disconnect resulted in an error
     if ( ConnectorState.ERROR != getState() )
@@ -280,6 +284,7 @@ abstract class Connector
         onDisconnected();
       }
     }
+    schedulerLock.dispose();
     if ( Replicant.isChangeBrokerEnabled() )
     {
       assert null != lock;
