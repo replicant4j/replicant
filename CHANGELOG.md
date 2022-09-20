@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.125](https://github.com/replicant4j/replicant/tree/v6.125) (2022-09-20) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.124...v6.125)
+
+Changes in this release:
 
 * Pause arez when changing the replicant connection, otherwise if the server initiates a close and the client has pending requests then the code will react during subscription purge and generate an error while the connection is null but the state has yet to be updated.
 * Ensure non-cached required type graphs are transmitted to the client.
