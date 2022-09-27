@@ -921,29 +921,34 @@ public abstract class ReplicantSessionManagerImpl
       assert requiredTypeChannel.isTypeGraph();
       // At the moment we propagate no filters ... which is fine
       assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.getFilterType();
+      final ChannelAddress address = new ChannelAddress( requiredTypeChannel.getChannelId() );
 
-      final TransactionSynchronizationRegistry registry = getRegistry();
-      final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
-      final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
-      final String requestCachedResultHandled =
-        (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
-
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
-
-      final ChangeSet changeSet = new ChangeSet();
-      subscribe( session, new ChannelAddress( requiredTypeChannel.getChannelId() ), false, null, changeSet );
-      if ( changeSet.hasContent() )
+      // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
+      if ( !session.isSubscriptionEntryPresent( address ) )
       {
-        // In this scenario we have a non-cached changeset, so we send it along
-        getReplicantMessageBroker().
-          queueChangeMessage( session, true, null, null, Collections.emptyList(), changeSet );
-      }
+        final TransactionSynchronizationRegistry registry = getRegistry();
+        final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+        final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+        final String requestCachedResultHandled =
+          (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
 
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
-      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
+        registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
+        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
+
+        final ChangeSet changeSet = new ChangeSet();
+        subscribe( session, address, false, null, changeSet );
+        if ( changeSet.hasContent() )
+        {
+          // In this scenario we have a non-cached changeset, so we send it along
+          getReplicantMessageBroker().
+            queueChangeMessage( session, true, null, null, Collections.emptyList(), changeSet );
+        }
+
+        registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
+        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
+        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
+      }
     }
   }
 
