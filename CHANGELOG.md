@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.126](https://github.com/replicant4j/replicant/tree/v6.126) (2022-09-27) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.125...v6.126)
+
+Changes in this release:
 
 * Reduce debug logging level around subscribing to "required channels".
 * Avoid attempting to subscribe to required type channel if already subscribed.
