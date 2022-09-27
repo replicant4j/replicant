@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Reduce debug logging level around subscribing to "required channels".
+
 ### [v6.125](https://github.com/replicant4j/replicant/tree/v6.125) (2022-09-20) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.124...v6.125)
 
 Changes in this release:

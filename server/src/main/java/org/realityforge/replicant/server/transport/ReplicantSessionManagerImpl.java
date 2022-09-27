@@ -905,9 +905,9 @@ public abstract class ReplicantSessionManagerImpl
                                                 @Nonnull final ChannelMetaData channelMetaData )
   {
     final ChannelMetaData[] requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
-    if ( LOG.isLoggable( Level.INFO ) && requiredTypeChannels.length > 0 )
+    if ( LOG.isLoggable( Level.FINE ) && requiredTypeChannels.length > 0 )
     {
-      LOG.log( Level.INFO, "Subscribing to " +
+      LOG.log( Level.FINE, "Subscribing to " +
                            channelMetaData.getName() +
                            " which has " +
                            requiredTypeChannels.length +
