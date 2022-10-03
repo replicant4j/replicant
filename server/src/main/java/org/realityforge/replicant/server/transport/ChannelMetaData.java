@@ -37,11 +37,7 @@ public final class ChannelMetaData
      * Caching is managed internally by replicant. If a change arrives for an entity in the graph then the
      * cache is expired.
      */
-    INTERNAL,
-    /**
-     * Application code is responsible for managing the cache and expiring data when it is stale.
-     */
-    EXTERNAL
+    INTERNAL
   }
 
   private final int _channelId;
