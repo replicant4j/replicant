@@ -47,6 +47,7 @@ public final class ChannelMetaData
   private final Integer _instanceRootEntityTypeId;
   @Nonnull
   private final FilterType _filterType;
+  @Nullable
   private final Class<?> _filterParameterType;
   @Nonnull
   private final CacheType _cacheType;
