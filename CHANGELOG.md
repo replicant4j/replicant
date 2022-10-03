@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.127](https://github.com/replicant4j/replicant/tree/v6.127) (2022-10-03) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.126...v6.127)
+
+Changes in this release:
 
 * Remove `CacheType.EXTERNAL` as no longer in use.
 * Cascade cache invalidations to dependent cached type graphs to avoid failure scenario when a chain of cached graphs as an invalidation in internal node of chain.
