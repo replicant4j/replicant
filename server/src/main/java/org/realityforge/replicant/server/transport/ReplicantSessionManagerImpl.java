@@ -958,7 +958,27 @@ public abstract class ReplicantSessionManagerImpl
     _cacheLock.writeLock().lock();
     try
     {
-      return null != _cache.remove( address );
+      final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+      final boolean cacheRemoved = null != _cache.remove( address );
+      if ( cacheRemoved )
+      {
+        // If we expire the cache then any dependent type graphs must also be expired. This is
+        // required as when a cache is on a client then we send back a "use-cache" message immediately
+        // whereas if a message for a cached has to be loaded and sent back then we queue it on
+        // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
+        // up required graphs when sending cached results this may cause the later "use-cached" to arrive
+        // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
+        // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
+        // invalidate all dependent cached type graphs to avoid this scenario.
+        for ( final ChannelMetaData channel : metaData.getDependentChannels() )
+        {
+          if( channel.isTypeGraph() && channel.isCacheable() )
+          {
+            _cache.remove( new ChannelAddress( channel.getChannelId() ) );
+          }
+        }
+      }
+      return cacheRemoved;
     }
     finally
     {
