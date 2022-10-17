@@ -188,16 +188,6 @@ abstract class Connector
   }
 
   /**
-   * Transport has disconnected so now we need to trigger a disconnect of Connector.
-   */
-  @Action
-  void transportDisconnect()
-  {
-    //Wrap the underlying disconnect in an action
-    disconnect();
-  }
-
-  /**
    * Disconnect from underlying data source.
    */
   void disconnect()
