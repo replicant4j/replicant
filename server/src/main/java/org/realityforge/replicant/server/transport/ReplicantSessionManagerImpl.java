@@ -468,13 +468,13 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelAddress target = link.getTargetChannel();
-      if ( !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter() ||
-           shouldFollowLink( sourceEntry, target ) )
+      final boolean targetHasFilter = getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
+      if ( !targetHasFilter || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          return new ChannelLinkEntry( source, link.getTargetChannel(), sourceEntry.getFilter() );
+          return new ChannelLinkEntry( source, link.getTargetChannel(), targetHasFilter ? sourceEntry.getFilter() : null );
         }
         else
         {
