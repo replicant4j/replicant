@@ -433,7 +433,8 @@ public abstract class ReplicantSessionManagerImpl
           for ( final ChannelLink link : links )
           {
             final boolean alreadyCollected =
-              subscribed.stream()
+              subscribed
+                .stream()
                 .anyMatch( s -> s.getSource().equals( link.getSourceChannel() ) &&
                                 s.getTarget().equals( link.getTargetChannel() ) );
             if ( !alreadyCollected )
