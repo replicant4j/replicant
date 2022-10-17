@@ -266,9 +266,7 @@ public abstract class AbstractReplicantEndpoint
       Json.createObjectBuilder()
         .add( "type", "malformed-message" )
         .add( "message", message );
-    closeWithError( replicantSession,
-                    "Malformed message",
-                    builder.build() );
+    closeWithError( replicantSession, "Malformed message", builder.build() );
   }
 
   private void onUnknownCommand( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
