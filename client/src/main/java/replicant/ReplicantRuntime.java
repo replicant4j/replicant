@@ -304,7 +304,7 @@ abstract class ReplicantRuntime
   @Observe( mutation = true )
   void reflectActiveState()
   {
-    // Need to watch retryGeneration so that observer is retriggered when it is changed
+    // Need to watch retryGeneration so that observer is re-triggered when it is changed
     retryGeneration();
     final boolean active = isActive();
     for ( final ConnectorEntry entry : getConnectors() )
