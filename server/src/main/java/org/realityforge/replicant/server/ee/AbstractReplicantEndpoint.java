@@ -111,7 +111,7 @@ public abstract class AbstractReplicantEndpoint
     }
     if ( !"auth".equals( type ) && !isAuthorized( replicantSession ) )
     {
-      sendErrorAndClose( session, "Replicant session not authroized" );
+      sendErrorAndClose( session, "Replicant session not authorized" );
       return;
     }
     beforeCommand( replicantSession, type, command );
