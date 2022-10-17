@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.128](https://github.com/replicant4j/replicant/tree/v6.128) (2022-10-17) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.127...v6.128)
+
+Changes in this release:
 
 * Stop passing the filter from the source graph to a target graph during a traversal of an internal subscription graph link if the target graph expects no filter parameter. Otherwise, when a non-bulk subscription occurs, the filter is added to target and will not match the same graph when multiple graph links points at the same target graph and the client will crash with an error like: "Attempt to update channel 1.45.X but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed.".
 
