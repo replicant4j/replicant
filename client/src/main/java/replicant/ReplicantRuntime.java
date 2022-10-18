@@ -167,6 +167,8 @@ abstract class ReplicantRuntime
     boolean disconnecting = false;
     // Are any required disconnecting?
     boolean disconnected = false;
+    // Are any required in fatal error?
+    boolean fatalError = false;
     // Are any required in error?
     boolean error = false;
 
@@ -207,10 +209,18 @@ abstract class ReplicantRuntime
           {
             error = true;
           }
+          else if ( ConnectorState.FATAL_ERROR == state )
+          {
+            fatalError = true;
+          }
         }
       }
     }
-    if ( error )
+    if ( fatalError )
+    {
+      return RuntimeState.FATAL_ERROR;
+    }
+    else if ( error )
     {
       return RuntimeState.ERROR;
     }
@@ -311,7 +321,7 @@ abstract class ReplicantRuntime
     {
       final Connector connector = entry.getConnector();
       final ConnectorState state = connector.getState();
-      if ( !ConnectorState.isTransitionState( state ) )
+      if ( ConnectorState.FATAL_ERROR != state && !ConnectorState.isTransitionState( state ) )
       {
         if ( active && ConnectorState.CONNECTED != state )
         {
