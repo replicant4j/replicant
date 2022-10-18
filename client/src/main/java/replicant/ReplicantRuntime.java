@@ -167,6 +167,8 @@ abstract class ReplicantRuntime
     boolean disconnecting = false;
     // Are any required disconnecting?
     boolean disconnected = false;
+    // Are any required in fatal error?
+    boolean fatalError = false;
     // Are any required in error?
     boolean error = false;
 
@@ -207,10 +209,18 @@ abstract class ReplicantRuntime
           {
             error = true;
           }
+          else if ( ConnectorState.FATAL_ERROR == state )
+          {
+            fatalError = true;
+          }
         }
       }
     }
-    if ( error )
+    if ( fatalError )
+    {
+      return RuntimeState.FATAL_ERROR;
+    }
+    else if ( error )
     {
       return RuntimeState.ERROR;
     }
@@ -304,14 +314,14 @@ abstract class ReplicantRuntime
   @Observe( mutation = true )
   void reflectActiveState()
   {
-    // Need to watch retryGeneration so that observer is retriggered when it is changed
+    // Need to watch retryGeneration so that observer is re-triggered when it is changed
     retryGeneration();
     final boolean active = isActive();
     for ( final ConnectorEntry entry : getConnectors() )
     {
       final Connector connector = entry.getConnector();
       final ConnectorState state = connector.getState();
-      if ( !ConnectorState.isTransitionState( state ) )
+      if ( ConnectorState.FATAL_ERROR != state && !ConnectorState.isTransitionState( state ) )
       {
         if ( active && ConnectorState.CONNECTED != state )
         {

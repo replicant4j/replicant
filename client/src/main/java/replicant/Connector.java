@@ -1,6 +1,7 @@
 package replicant;
 
 import akasha.core.JSON;
+import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
 import arez.annotations.Action;
@@ -27,6 +28,7 @@ import javax.annotation.Nullable;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
+import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UseCacheMessage;
@@ -187,16 +189,6 @@ abstract class Connector
   }
 
   /**
-   * Transport has disconnected so now we need to trigger a disconnect of Connector.
-   */
-  @Action
-  void transportDisconnect()
-  {
-    //Wrap the underlying disconnect in an action
-    disconnect();
-  }
-
-  /**
    * Disconnect from underlying data source.
    */
   void disconnect()
@@ -264,9 +256,12 @@ abstract class Connector
     {
       lock = getReplicantContext().getChangeBroker().disable();
     }
+    // Lock arez otherwise the purgeSubscriptions will trigger a converge when
+    // _connection is null but State may be CONNECTED
+    final Disposable schedulerLock = Arez.context().pauseScheduler();
     purgeSubscriptions();
     // Avoid emitting an event if disconnect resulted in an error
-    if ( ConnectorState.ERROR != getState() )
+    if ( ConnectorState.ERROR != getState() && ConnectorState.FATAL_ERROR != getState() )
     {
       if ( null != _connection )
       {
@@ -280,6 +275,7 @@ abstract class Connector
         onDisconnected();
       }
     }
+    schedulerLock.dispose();
     if ( Replicant.isChangeBrokerEnabled() )
     {
       assert null != lock;
@@ -642,7 +638,9 @@ abstract class Connector
   void setState( @Nonnull final ConnectorState state )
   {
     _state = Objects.requireNonNull( state );
-    if ( ConnectorState.ERROR == _state || ConnectorState.DISCONNECTED == _state )
+    if ( ConnectorState.ERROR == _state ||
+         ConnectorState.FATAL_ERROR == _state ||
+         ConnectorState.DISCONNECTED == _state )
     {
       _transport.unbind();
     }
@@ -881,6 +879,22 @@ abstract class Connector
         cacheMessageIfPossible( response, changeSetMessage );
       }
     }
+    else if ( ErrorMessage.TYPE.equals( message.getType() ) )
+    {
+      final ErrorMessage errorMessage = (ErrorMessage) message;
+      final String m = errorMessage.getMessage();
+      final String text = null == m ? "" : m;
+      if ( text.startsWith( "java.lang.SecurityException:" ) )
+      {
+        fatalError();
+      }
+    }
+  }
+
+  @Action
+  void fatalError()
+  {
+    setState( ConnectorState.FATAL_ERROR );
   }
 
   // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in AreaOfInterest

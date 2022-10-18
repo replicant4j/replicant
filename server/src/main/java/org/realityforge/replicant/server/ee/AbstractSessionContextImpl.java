@@ -54,10 +54,8 @@ public abstract class AbstractSessionContextImpl
                                                   @Nullable final Object filter,
                                                   final boolean explicitSubscribe )
   {
-    final SubscriptionEntry existing =
-      session.findSubscriptionEntry( address );
-    final SubscriptionEntry entry =
-      null == existing ? session.createSubscriptionEntry( address ) : existing;
+    final SubscriptionEntry existing = session.findSubscriptionEntry( address );
+    final SubscriptionEntry entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
     if ( explicitSubscribe )
     {
       entry.setExplicitlySubscribed( explicitSubscribe );

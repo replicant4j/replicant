@@ -2,6 +2,35 @@
 
 ### Unreleased
 
+* Introduce the concept of the `FATAL_ERROR` state for connectors where no attempts to reconnect accor. This state is set when we get an error message that starts with the string `"java.lang.SecurityException:"` under the assumption that a user will not recover until given appropriate permissions.
+
+### [v6.128](https://github.com/replicant4j/replicant/tree/v6.128) (2022-10-17) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.127...v6.128)
+
+Changes in this release:
+
+* Stop passing the filter from the source graph to a target graph during a traversal of an internal subscription graph link if the target graph expects no filter parameter. Otherwise, when a non-bulk subscription occurs, the filter is added to target and will not match the same graph when multiple graph links points at the same target graph and the client will crash with an error like: "Attempt to update channel 1.45.X but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed.".
+
+### [v6.127](https://github.com/replicant4j/replicant/tree/v6.127) (2022-10-03) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.126...v6.127)
+
+Changes in this release:
+
+* Remove `CacheType.EXTERNAL` as no longer in use.
+* Cascade cache invalidations to dependent cached type graphs to avoid failure scenario when a chain of cached graphs as an invalidation in internal node of chain.
+
+### [v6.126](https://github.com/replicant4j/replicant/tree/v6.126) (2022-09-27) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.125...v6.126)
+
+Changes in this release:
+
+* Reduce debug logging level around subscribing to "required channels".
+* Avoid attempting to subscribe to required type channel if already subscribed.
+
+### [v6.125](https://github.com/replicant4j/replicant/tree/v6.125) (2022-09-20) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.124...v6.125)
+
+Changes in this release:
+
+* Pause arez when changing the replicant connection, otherwise if the server initiates a close and the client has pending requests then the code will react during subscription purge and generate an error while the connection is null but the state has yet to be updated.
+* Ensure non-cached required type graphs are transmitted to the client.
+
 ### [v6.124](https://github.com/replicant4j/replicant/tree/v6.124) (2022-09-19) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.122...v6.124)
 
 Changes in this release:

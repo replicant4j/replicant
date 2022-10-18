@@ -24,5 +24,10 @@ public enum RuntimeState
   /**
    * The service is in error state. This error may occur during connection, disconnection or in normal operation.
    */
-  ERROR
+  ERROR,
+  /**
+   * The service is in a fatal error state. The client should not attempt a retry
+   * until the error has been addressed. This often indicates a security error.
+   */
+  FATAL_ERROR
 }

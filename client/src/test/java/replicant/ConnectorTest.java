@@ -192,23 +192,6 @@ public class ConnectorTest
   }
 
   @Test
-  public void transportDisconnect()
-  {
-    pauseScheduler();
-
-    final Connector connector = createConnector();
-    newConnection( connector );
-
-    safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
-
-    connector.transportDisconnect();
-
-    verify( connector.getTransport() ).requestDisconnect();
-
-    assertEquals( connector.getState(), ConnectorState.DISCONNECTING );
-  }
-
-  @Test
   public void disconnect()
   {
     pauseScheduler();

@@ -67,16 +67,14 @@ public final class ReplicantSession
   {
     if ( isOpen() )
     {
-      LOG.log( Level.FINE,
-               () -> "Closing websocket for replicant session " + getId() + " with " + closeReason );
+      LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() + " with " + closeReason );
       try
       {
         _webSocketSession.close( closeReason );
       }
       catch ( final IOException ioe )
       {
-        LOG.log( Level.FINE,
-                 () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
+        LOG.log( Level.FINE, () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
       }
     }
     else
@@ -99,8 +97,7 @@ public final class ReplicantSession
       }
       catch ( final IOException ioe )
       {
-        LOG.log( Level.FINE,
-                 () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
+        LOG.log( Level.FINE, () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
       }
     }
     else
@@ -129,8 +126,7 @@ public final class ReplicantSession
       catch ( final IOException ioe )
       {
         // All scenarios we can envision imply the session is shutting down, and thus can be ignored
-        LOG.log( Level.FINER,
-                 () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe );
+        LOG.log( Level.FINER, () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe );
       }
     }
     else
@@ -223,8 +219,7 @@ public final class ReplicantSession
   {
     ensureLockedByCurrentThread();
     final String message = JsonEncoder.encodeChangeSet( requestId, etag, changeSet );
-    LOG.log( Level.FINE,
-             () -> "Sending text message for replicant session " + getId() + " with payload " + message );
+    LOG.log( Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message );
     if ( !WebSocketUtil.sendText( getWebSocketSession(), message ) )
     {
       LOG.log( Level.FINE,

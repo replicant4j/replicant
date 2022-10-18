@@ -1,8 +1,13 @@
 package org.realityforge.replicant.server.transport;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.UnmodifiableView;
 
 @SuppressWarnings( "WeakerAccess" )
 public final class ChannelMetaData
@@ -37,11 +42,7 @@ public final class ChannelMetaData
      * Caching is managed internally by replicant. If a change arrives for an entity in the graph then the
      * cache is expired.
      */
-    INTERNAL,
-    /**
-     * Application code is responsible for managing the cache and expiring data when it is stale.
-     */
-    EXTERNAL
+    INTERNAL
   }
 
   private final int _channelId;
@@ -51,6 +52,7 @@ public final class ChannelMetaData
   private final Integer _instanceRootEntityTypeId;
   @Nonnull
   private final FilterType _filterType;
+  @Nullable
   private final Class<?> _filterParameterType;
   @Nonnull
   private final CacheType _cacheType;
@@ -65,6 +67,8 @@ public final class ChannelMetaData
   private final boolean _external;
   @Nonnull
   private final ChannelMetaData[] _requiredTypeChannels;
+  @Nonnull
+  private final Set<ChannelMetaData> _dependentChannels = new HashSet<>();
 
   public ChannelMetaData( final int channelId,
                           @Nonnull final String name,
@@ -100,6 +104,7 @@ public final class ChannelMetaData
         throw new IllegalArgumentException( "Specified RequiredTypeChannel " + requiredTypeChannel.getName() +
                                             " is not a type channel" );
       }
+      requiredTypeChannel._dependentChannels.add( this );
     }
   }
 
@@ -174,5 +179,13 @@ public final class ChannelMetaData
   public ChannelMetaData[] getRequiredTypeChannels()
   {
     return _requiredTypeChannels;
+  }
+
+  @Contract( pure = true )
+  @Nonnull
+  @UnmodifiableView
+  public Set<ChannelMetaData> getDependentChannels()
+  {
+    return Collections.unmodifiableSet( _dependentChannels );
   }
 }

@@ -433,7 +433,8 @@ public abstract class ReplicantSessionManagerImpl
           for ( final ChannelLink link : links )
           {
             final boolean alreadyCollected =
-              subscribed.stream()
+              subscribed
+                .stream()
                 .anyMatch( s -> s.getSource().equals( link.getSourceChannel() ) &&
                                 s.getTarget().equals( link.getTargetChannel() ) );
             if ( !alreadyCollected )
@@ -467,13 +468,13 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelAddress target = link.getTargetChannel();
-      if ( !getSystemMetaData().getChannelMetaData( target ).hasFilterParameter() ||
-           shouldFollowLink( sourceEntry, target ) )
+      final boolean targetHasFilter = getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
+      if ( !targetHasFilter || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          return new ChannelLinkEntry( source, link.getTargetChannel(), sourceEntry.getFilter() );
+          return new ChannelLinkEntry( source, link.getTargetChannel(), targetHasFilter ? sourceEntry.getFilter() : null );
         }
         else
         {
@@ -905,9 +906,9 @@ public abstract class ReplicantSessionManagerImpl
                                                 @Nonnull final ChannelMetaData channelMetaData )
   {
     final ChannelMetaData[] requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
-    if ( LOG.isLoggable( Level.INFO ) && requiredTypeChannels.length > 0 )
+    if ( LOG.isLoggable( Level.FINE ) && requiredTypeChannels.length > 0 )
     {
-      LOG.log( Level.INFO, "Subscribing to " +
+      LOG.log( Level.FINE, "Subscribing to " +
                            channelMetaData.getName() +
                            " which has " +
                            requiredTypeChannels.length +
@@ -921,22 +922,34 @@ public abstract class ReplicantSessionManagerImpl
       assert requiredTypeChannel.isTypeGraph();
       // At the moment we propagate no filters ... which is fine
       assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.getFilterType();
+      final ChannelAddress address = new ChannelAddress( requiredTypeChannel.getChannelId() );
 
-      final TransactionSynchronizationRegistry registry = getRegistry();
-      final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
-      final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
-      final String requestCachedResultHandled =
-        (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
+      // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
+      if ( !session.isSubscriptionEntryPresent( address ) )
+      {
+        final TransactionSynchronizationRegistry registry = getRegistry();
+        final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+        final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+        final String requestCachedResultHandled =
+          (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
 
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
+        registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
+        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
 
-      subscribe( session, new ChannelAddress( requiredTypeChannel.getChannelId() ), false, null, new ChangeSet() );
+        final ChangeSet changeSet = new ChangeSet();
+        subscribe( session, address, false, null, changeSet );
+        if ( changeSet.hasContent() )
+        {
+          // In this scenario we have a non-cached changeset, so we send it along
+          getReplicantMessageBroker().
+            queueChangeMessage( session, true, null, null, Collections.emptyList(), changeSet );
+        }
 
-      registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-      registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
-      registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
+        registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
+        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
+        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
+      }
     }
   }
 
@@ -946,7 +959,27 @@ public abstract class ReplicantSessionManagerImpl
     _cacheLock.writeLock().lock();
     try
     {
-      return null != _cache.remove( address );
+      final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+      final boolean cacheRemoved = null != _cache.remove( address );
+      if ( cacheRemoved )
+      {
+        // If we expire the cache then any dependent type graphs must also be expired. This is
+        // required as when a cache is on a client then we send back a "use-cache" message immediately
+        // whereas if a message for a cached has to be loaded and sent back then we queue it on
+        // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
+        // up required graphs when sending cached results this may cause the later "use-cached" to arrive
+        // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
+        // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
+        // invalidate all dependent cached type graphs to avoid this scenario.
+        for ( final ChannelMetaData channel : metaData.getDependentChannels() )
+        {
+          if( channel.isTypeGraph() && channel.isCacheable() )
+          {
+            _cache.remove( new ChannelAddress( channel.getChannelId() ) );
+          }
+        }
+      }
+      return cacheRemoved;
     }
     finally
     {
