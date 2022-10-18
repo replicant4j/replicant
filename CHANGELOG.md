@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.129](https://github.com/replicant4j/replicant/tree/v6.129) (2022-10-18) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.128...v6.129)
+
+Changes in this release:
 
 * Introduce the concept of the `FATAL_ERROR` state for connectors where no attempts to reconnect accor. This state is set when we get an error message that starts with the string `"java.lang.SecurityException:"` under the assumption that a user will not recover until given appropriate permissions.
 
