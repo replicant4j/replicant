@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.130](https://github.com/replicant4j/replicant/tree/v6.130) (2022-10-20) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.129...v6.130)
+
+Changes in this release:
 
 * Explicitly catch SecurityException when processing WebSocket messages to avoid emitting stack traces in the logs.
 
