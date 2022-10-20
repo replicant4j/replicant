@@ -114,76 +114,83 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( session, "Replicant session not authorized" );
       return;
     }
-    beforeCommand( replicantSession, type, command );
-    //noinspection IfCanBeSwitch
-    if ( "etags".equals( type ) )
+    try
     {
-      try
+      beforeCommand( replicantSession, type, command );
+      //noinspection IfCanBeSwitch
+      if ( "etags".equals( type ) )
       {
-        onETags( replicantSession, command );
+        try
+        {
+          onETags( replicantSession, command );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
       }
-      catch ( final InterruptedException ignored )
+      else if ( "ping".equals( type ) )
       {
-        replicantSession.closeDueToInterrupt();
+        sendOk( session, requestId );
       }
+      else if ( "sub".equals( type ) )
+      {
+        try
+        {
+          onSubscribe( replicantSession, command );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
+      }
+      else if ( "bulk-sub".equals( type ) )
+      {
+        try
+        {
+          onBulkSubscribe( replicantSession, command );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
+      }
+      else if ( "unsub".equals( type ) )
+      {
+        try
+        {
+          onUnsubscribe( replicantSession, command );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
+      }
+      else if ( "bulk-unsub".equals( type ) )
+      {
+        try
+        {
+          onBulkUnsubscribe( replicantSession, command );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
+      }
+      else if ( "auth".equals( type ) )
+      {
+        onAuthorize( replicantSession, command );
+      }
+      else
+      {
+        onUnknownCommand( replicantSession, command );
+      }
+      afterCommand( replicantSession, type, command );
     }
-    else if ( "ping".equals( type ) )
+    catch ( final SecurityException ignored )
     {
-      sendOk( session, requestId );
+      sendErrorAndClose( replicantSession, "Security constraints violated" );
     }
-    else if ( "sub".equals( type ) )
-    {
-      try
-      {
-        onSubscribe( replicantSession, command );
-      }
-      catch ( final InterruptedException ignored )
-      {
-        replicantSession.closeDueToInterrupt();
-      }
-    }
-    else if ( "bulk-sub".equals( type ) )
-    {
-      try
-      {
-        onBulkSubscribe( replicantSession, command );
-      }
-      catch ( final InterruptedException ignored )
-      {
-        replicantSession.closeDueToInterrupt();
-      }
-    }
-    else if ( "unsub".equals( type ) )
-    {
-      try
-      {
-        onUnsubscribe( replicantSession, command );
-      }
-      catch ( final InterruptedException ignored )
-      {
-        replicantSession.closeDueToInterrupt();
-      }
-    }
-    else if ( "bulk-unsub".equals( type ) )
-    {
-      try
-      {
-        onBulkUnsubscribe( replicantSession, command );
-      }
-      catch ( final InterruptedException ignored )
-      {
-        replicantSession.closeDueToInterrupt();
-      }
-    }
-    else if ( "auth".equals( type ) )
-    {
-      onAuthorize( replicantSession, command );
-    }
-    else
-    {
-      onUnknownCommand( replicantSession, command );
-    }
-    afterCommand( replicantSession, type, command );
   }
 
   /**
