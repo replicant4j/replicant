@@ -57,5 +57,3 @@ artifacts:
   keycloak_adapter_spi: org.keycloak:keycloak-adapter-spi:jar:2.0.0.Final
 
   simple_keycloak_service: org.realityforge.keycloak.sks:simple-keycloak-service:jar:0.1
-
-  graphql_java: com.graphql-java:graphql-java:jar:13.0

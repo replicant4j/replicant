@@ -49,7 +49,6 @@ define 'replicant' do
 
     compile.with PROVIDED_DEPS,
                  KEYCLOAK_DEPS,
-                 :graphql_java,
                  project('shared').package(:jar)
 
     package(:jar).enhance do |jar|
