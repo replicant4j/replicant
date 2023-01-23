@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` artifacts to version `0.206`.
 * Remove the `org.realityforge.replicant.server.graphql` package and related infrastructure.
 * Upgrade to require JDK 17 as a baseline.
 
