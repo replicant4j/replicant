@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.131](https://github.com/replicant4j/replicant/tree/v6.131) (2023-01-23) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.130...v6.131)
+
+Changes in this release:
 
 * Update the `org.realityforge.react4j` artifacts to version `0.192`.
 * Update the `org.realityforge.arez` artifacts to version `0.206`.
