@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Remove the `org.realityforge.replicant.server.graphql` package and related infrastructure.
+* Upgrade to require JDK 17 as a baseline.
 
 ### [v6.130](https://github.com/replicant4j/replicant/tree/v6.130) (2022-10-20) · [Full Changelog](https://github.com/spritz/spritz/compare/v6.129...v6.130)
 
