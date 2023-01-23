@@ -2839,7 +2839,7 @@ public class ConnectorTest
       assertTrue( addresses.contains( address3 ) );
       return null;
     } )
-      .when( connector.getTransport() ).requestBulkSubscribe( anyListOf( ChannelAddress.class ), eq( filter ) );
+      .when( connector.getTransport() ).requestBulkSubscribe( any(), eq( filter ) );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3018,7 +3018,7 @@ public class ConnectorTest
       assertTrue( addresses.contains( address3 ) );
       return null;
     } )
-      .when( connector.getTransport() ).requestBulkSubscribe( anyListOf( ChannelAddress.class ), eq( filter ) );
+      .when( connector.getTransport() ).requestBulkSubscribe( any(), eq( filter ) );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
@@ -3195,7 +3195,7 @@ public class ConnectorTest
       assertTrue( addresses.contains( address3 ) );
       return null;
     } )
-      .when( connector.getTransport() ).requestBulkUnsubscribe( anyListOf( ChannelAddress.class ) );
+      .when( connector.getTransport() ).requestBulkUnsubscribe( any() );
 
     assertEquals( callCount.get(), 0 );
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
