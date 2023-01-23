@@ -25,8 +25,8 @@ artifacts:
   arez_processor: org.realityforge.arez:arez-processor:jar:0.206
   arez_testng: org.realityforge.arez:arez-extras-testng:jar:0.206
 
-  react4j_core: org.realityforge.react4j:react4j-core:jar:0.191
-  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.191
+  react4j_core: org.realityforge.react4j:react4j-core:jar:0.192
+  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.192
 
   jsinterop_annotations: com.google.jsinterop:jsinterop-annotations:jar:2.0.0
 
