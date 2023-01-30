@@ -19,7 +19,7 @@ artifacts:
   glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:5.2020.3
   javax_json: org.glassfish:javax.json:jar:1.1
 
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.110
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.112
 
   arez_core: org.realityforge.arez:arez-core:jar:0.208
   arez_processor: org.realityforge.arez:arez-processor:jar:0.208
