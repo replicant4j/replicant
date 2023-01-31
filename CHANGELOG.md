@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Update the `org.realityforge.guiceyloops` artifact to version `0.112`.
+* Update the `org.realityforge.guiceyloops` artifact to version `0.113`.
 * Update the `org.realityforge.react4j` artifacts to version `0.194`.
 * Update the `org.realityforge.arez` artifacts to version `0.208`.
 
