@@ -19,14 +19,14 @@ artifacts:
   glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:5.2020.3
   javax_json: org.glassfish:javax.json:jar:1.1
 
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.110
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.113
 
-  arez_core: org.realityforge.arez:arez-core:jar:0.207
-  arez_processor: org.realityforge.arez:arez-processor:jar:0.207
-  arez_testng: org.realityforge.arez:arez-extras-testng:jar:0.207
+  arez_core: org.realityforge.arez:arez-core:jar:0.208
+  arez_processor: org.realityforge.arez:arez-processor:jar:0.208
+  arez_testng: org.realityforge.arez:arez-extras-testng:jar:0.208
 
-  react4j_core: org.realityforge.react4j:react4j-core:jar:0.193
-  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.193
+  react4j_core: org.realityforge.react4j:react4j-core:jar:0.194
+  react4j_processor: org.realityforge.react4j:react4j-processor:jar:0.194
 
   jsinterop_annotations: com.google.jsinterop:jsinterop-annotations:jar:2.0.0
 
