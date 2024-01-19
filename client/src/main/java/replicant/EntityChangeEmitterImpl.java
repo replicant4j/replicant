@@ -2,6 +2,7 @@ package replicant;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 final class EntityChangeEmitterImpl
   implements EntityChangeEmitter
@@ -21,7 +22,7 @@ final class EntityChangeEmitterImpl
   }
 
   @Override
-  public void attributeChanged( @Nonnull final Object entity, @Nonnull final String name, @Nonnull final Object value )
+  public void attributeChanged( @Nonnull final Object entity, @Nonnull final String name, @Nullable final Object value )
   {
     _broker.sendEvent( new EntityChangeEvent( EntityChangeEvent.Type.ATTRIBUTE_CHANGED, entity, name, value ) );
   }

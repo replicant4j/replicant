@@ -1,6 +1,7 @@
 package replicant;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The interface through which entities generate events.
@@ -19,7 +20,7 @@ public interface EntityChangeEmitter
    * @param name   the key used to identify the property that changed.
    * @param value  the value that the property changed to.
    */
-  void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nonnull Object value );
+  void attributeChanged( @Nonnull Object entity, @Nonnull String name, @Nullable Object value );
 
   /**
    * Notify listeners that an entity was added.
