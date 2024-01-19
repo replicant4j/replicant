@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.133](https://github.com/replicant4j/replicant/tree/v6.133) (2024-01-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.132...v6.133)
+
+Changes in this release:
 
 * Fix nullability annotation on `EntityChangeEmitter.attributeChanged#value`
 * Update the `org.realityforge.guiceyloops` artifact to version `0.113`.
