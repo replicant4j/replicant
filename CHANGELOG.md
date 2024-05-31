@@ -2,7 +2,7 @@
 
 ### Unreleased
 
-* Update the `org.realityforge.react4j` artifacts to version `0.195`.
+* Update the `org.realityforge.react4j` artifacts to version `0.196`.
 * Update the `org.realityforge.arez` artifacts to version `0.209`.
 
 ### [v6.133](https://github.com/replicant4j/replicant/tree/v6.133) (2024-01-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.132...v6.133)
