@@ -48,7 +48,22 @@ public abstract class AreaOfInterest
      * The server has unsubscribed from a subscription without being requested.
      * This is usually in response to the root object of an instance graph being deleted.
      * */
-    DELETED
+    DELETED;
+
+    /**
+     * Return true if data for the subscription should be present in this state.
+     *
+     * @return true if data for the subscription should be present in this state, false otherwise.
+     */
+    public boolean shouldDataBePresent()
+    {
+      return this == LOADED || this == UPDATING || this == UPDATED || this == UNLOADING;
+    }
+
+    public boolean isErrorState()
+    {
+      return this == LOAD_FAILED || this == UPDATE_FAILED;
+    }
   }
 
   @Nonnull
@@ -170,7 +185,7 @@ public abstract class AreaOfInterest
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
-      final boolean expectError = Status.LOAD_FAILED == status || Status.UPDATE_FAILED == status;
+      final boolean expectError = status.isErrorState();
 
       final ChannelAddress address = getAddress();
       apiInvariant( () -> !expectError || null != error,

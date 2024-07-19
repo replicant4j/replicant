@@ -323,10 +323,7 @@ public abstract class ReplicantSubscription<T>
       // subscription data has not arrived
       if ( null == subscription )
       {
-        if ( AreaOfInterest.Status.LOADED == status ||
-             AreaOfInterest.Status.UPDATING == status ||
-             AreaOfInterest.Status.UPDATED == status ||
-             AreaOfInterest.Status.UNLOADING == status )
+        if ( status.shouldDataBePresent() )
         {
           return AreaOfInterest.Status.LOADING;
         }

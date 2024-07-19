@@ -13,6 +13,37 @@ public class AreaOfInterestTest
   extends AbstractReplicantTest
 {
   @Test
+  public void shouldDataBePresent()
+  {
+    assertFalse( AreaOfInterest.Status.NOT_ASKED.shouldDataBePresent() );
+    assertFalse( AreaOfInterest.Status.LOADING.shouldDataBePresent() );
+    assertFalse( AreaOfInterest.Status.LOAD_FAILED.shouldDataBePresent() );
+    assertTrue( AreaOfInterest.Status.LOADED.shouldDataBePresent() );
+    assertTrue( AreaOfInterest.Status.UPDATING.shouldDataBePresent() );
+    assertFalse( AreaOfInterest.Status.UPDATE_FAILED.shouldDataBePresent() );
+    assertTrue( AreaOfInterest.Status.UPDATED.shouldDataBePresent() );
+    assertTrue( AreaOfInterest.Status.UNLOADING.shouldDataBePresent() );
+    assertFalse( AreaOfInterest.Status.UNLOADED.shouldDataBePresent() );
+    assertFalse( AreaOfInterest.Status.DELETED.shouldDataBePresent() );
+  }
+
+  @Test
+  public void isErrorState()
+  {
+    assertFalse( AreaOfInterest.Status.NOT_ASKED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.LOADING.isErrorState() );
+    assertTrue( AreaOfInterest.Status.LOAD_FAILED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.LOADED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.UPDATING.isErrorState() );
+    assertTrue( AreaOfInterest.Status.UPDATE_FAILED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.UPDATED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.UNLOADING.isErrorState() );
+    assertFalse( AreaOfInterest.Status.UNLOADED.isErrorState() );
+    assertFalse( AreaOfInterest.Status.DELETED.isErrorState() );
+  }
+
+
+  @Test
   public void onConstruct()
   {
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
