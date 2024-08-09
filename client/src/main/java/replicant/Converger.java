@@ -328,7 +328,7 @@ abstract class Converger
       // Subscription should not be one of expected
       .map( Subscription::getAddress )
       .filter( address -> !expected.contains( address ) )
-      // Subscription should not already have a remove pending
+      // Subscription should not have a remove pending
       .filter( address -> !isRemovePending( address ) )
       .forEachOrdered( this::removeOrphanSubscription );
   }
