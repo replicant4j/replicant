@@ -67,6 +67,8 @@ public abstract class AbstractReplicantEndpoint
                " for replicant session " + getReplicantSession( session ).getId() );
     }
 
+    onSessionOpen( newReplicantSession );
+
     final JsonObjectBuilder builder =
       Json.createObjectBuilder()
         .add( "type", "session-created" )
@@ -191,6 +193,16 @@ public abstract class AbstractReplicantEndpoint
     {
       sendErrorAndClose( replicantSession, "Security constraints violated" );
     }
+  }
+
+  /**
+   * A hook method invoked as a session is opened.
+   *
+   * @param session the session.
+   */
+  @SuppressWarnings( "unused" )
+  protected void onSessionOpen( @Nonnull final ReplicantSession session )
+  {
   }
 
   /**
