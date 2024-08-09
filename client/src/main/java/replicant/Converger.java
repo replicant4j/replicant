@@ -8,6 +8,7 @@ import arez.annotations.Observable;
 import arez.annotations.Observe;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
@@ -319,7 +320,7 @@ abstract class Converger
   }
 
   private void removeOrphanSubscriptions( @Nonnull final Collection<Subscription> subscriptions,
-                                          @Nonnull final HashSet<ChannelAddress> expected )
+                                          @Nonnull final Set<ChannelAddress> expected )
   {
     subscriptions
       .stream()
