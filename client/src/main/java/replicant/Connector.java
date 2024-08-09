@@ -1378,7 +1378,6 @@ abstract class Connector
     final Integer requestId = message.getRequestId();
     final RequestEntry request = null != requestId ? connection.getRequest( requestId ) : null;
 
-    @Nonnull
     final ServerToClientMessage messageToQueue;
     if ( UseCacheMessage.TYPE.equals( message.getType() ) )
     {
