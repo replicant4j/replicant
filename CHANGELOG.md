@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Update the `org.realityforge.javax.annotation` artifact to version `1.1.1`.
+* When an entity is removed from replicant then forcibly unsubscribe from any subscriptions where that entity is the root instance. Historically this would be cleaned up in removeOrphanedSubscriptions but may take a brief time to do so. This change avoids potential crashes when downstream code directly observes replicant Subscription objects and attempts to access instance root. 
 
 ### [v6.135](https://github.com/replicant4j/replicant/tree/v6.135) (2024-08-09) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.134...v6.135)
 

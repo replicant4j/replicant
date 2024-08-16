@@ -7,6 +7,7 @@ import arez.annotations.Feature;
 import arez.annotations.Observable;
 import arez.annotations.ObservableValueRef;
 import arez.annotations.PreDispose;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -254,9 +255,27 @@ public abstract class Entity
   {
     if ( null != _userObject )
     {
+      for ( final Subscription subscription : new ArrayList<>( _subscriptions.values() ) )
+      {
+        subscription.delinkEntityFromSubscription( this, false );
+
+        final ChannelSchema schema = subscription.getChannelSchema();
+        if ( schema.isInstanceChannel() &&
+             ( schema.getInstanceType() == getType() ) &&
+             ( Objects.equals( subscription.getAddress().getId(), getId() ) ) )
+        {
+          // If there is any subscription that this entity is the instance root of, then explicitly dispose it.
+          // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but now
+          // downstream code is directly subscribing to subscription objects which may be briefly invalid. when
+          // the instance root has been removed but the subscription has not been cleaned up then the Subscription
+          // is in a zombie state and accessing methods like getInstanceRoot will cause crashes at best and assertions
+          // in development mode. Explicitly unsubscribing from subscriptions will cause any result in almost all that
+          // code being skipped as Subscription is no longer observable.
+          Disposable.dispose( subscription );
+        }
+      }
       Disposable.dispose( _userObject );
     }
-    _subscriptions.values().forEach( subscription -> subscription.delinkEntityFromSubscription( this, false ) );
     if ( Replicant.shouldCheckInvariants() )
     {
       // This is not needed but we do it to make it easier to understand behaviour during debugging
