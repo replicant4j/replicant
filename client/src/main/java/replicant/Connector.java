@@ -1006,6 +1006,9 @@ abstract class Connector
       // in development mode to help us track down these scenarios
       if ( null == subscription || !subscription.isExplicitSubscription() )
       {
+        // We were getting here if we had a instant root deleted that sent DELETED to client which
+        // explicitly unsubscribes which gets sent back a successful unsubscribe, even though it had already
+        // been orphaned/deleted on client
         request.markAsComplete();
         return true;
       }
