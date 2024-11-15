@@ -15,7 +15,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.TreeMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.spy.SubscriptionDisposedEvent;
@@ -30,7 +32,7 @@ public abstract class Subscription
   implements Comparable<Subscription>
 {
   @Nonnull
-  private final Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
+  private final Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
   @Nonnull
   private final ChannelAddress _address;
 
@@ -68,7 +70,7 @@ public abstract class Subscription
 
   @Nonnull
   @Observable( expectSetter = false )
-  Map<Class<?>, Map<Integer, EntitySubscriptionEntry>> getEntities()
+  Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> getEntities()
   {
     return _entities;
   }
@@ -174,7 +176,7 @@ public abstract class Subscription
     getEntitiesObservableValue().preReportChanged();
     final Class<?> type = entity.getType();
     final int id = entity.getId();
-    final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type, t -> new HashMap<>() );
+    final NavigableMap<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type, t -> new TreeMap<>() );
     if ( !typeMap.containsKey( id ) )
     {
       createSubscriptionEntry( typeMap, entity );
