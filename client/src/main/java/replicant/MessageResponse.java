@@ -41,6 +41,7 @@ final class MessageResponse
   private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
+  private boolean _orphanSubscriptionRemoved;
   private int _channelAddCount;
   private int _channelUpdateCount;
   private int _channelRemoveCount;
@@ -347,5 +348,15 @@ final class MessageResponse
       }
     }
     return changes;
+  }
+
+  boolean areOrphanSubscriptionsRemoved()
+  {
+    return _orphanSubscriptionRemoved;
+  }
+
+  void markOrphanSubscriptionsRemoved()
+  {
+    _orphanSubscriptionRemoved = true;
   }
 }

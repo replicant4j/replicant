@@ -587,6 +587,15 @@ abstract class Connector
       processEntityUpdateActions();
       return true;
     }
+    else if ( response.areOrphanSubscriptionsRemoved() )
+    {
+      // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
+      // incoming change and queries the repository and accesses orphaned and potentially invalid entities.
+      // This MUST be done prior to validateWorld()
+      getReplicantContext().getConverger().removeOrphanSubscriptions();
+      response.markOrphanSubscriptionsRemoved();
+      return true;
+    }
     else if ( !response.hasWorldBeenValidated() )
     {
       releaseSchedulerLock();
