@@ -30,6 +30,30 @@ import org.realityforge.replicant.shared.SharedConstants;
  */
 public final class JsonEncoder
 {
+  @Nonnull
+  static final String CHANNEL_FILTER = "filter";
+  @Nonnull
+  static final String CHANNELS = "channels";
+  @Nonnull
+  static final String CHANNEL = "channel";
+  @Nonnull
+  static final String FILTERED_CHANNEL_ACTIONS = "fchannels";
+  @Nonnull
+  static final String CHANNEL_ACTIONS = "channels";
+  @Nonnull
+  static final String DATA = "data";
+  @Nonnull
+  static final String ENTITY_ID = "id";
+  @Nonnull
+  static final String CHANGES = "changes";
+  @Nonnull
+  static final String ETAG = "etag";
+  @Nonnull
+  static final String REQUEST_ID = "requestId";
+  @Nonnull
+  static final String UPDATE_TYPE = "update";
+  @Nonnull
+  static final String TYPE = "type";
   // Use constant to avoid slow filesystem access when serializing a message.
   @Nonnull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
@@ -56,21 +80,21 @@ public final class JsonEncoder
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject();
-    generator.write( TransportConstants.TYPE, TransportConstants.UPDATE_TYPE );
+    generator.write( TYPE, UPDATE_TYPE );
     if ( null != requestId )
     {
-      generator.write( TransportConstants.REQUEST_ID, requestId );
+      generator.write( REQUEST_ID, requestId );
     }
     if ( null != etag )
     {
-      generator.write( TransportConstants.ETAG, etag );
+      generator.write( ETAG, etag );
     }
 
     final List<ChannelAction> actions =
       changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).collect( Collectors.toList() );
     if ( !actions.isEmpty() )
     {
-      generator.writeStartArray( TransportConstants.CHANNEL_ACTIONS );
+      generator.writeStartArray( CHANNEL_ACTIONS );
       actions.stream().map( JsonEncoder::toDescriptor ).forEach( generator::write );
       generator.writeEnd();
     }
@@ -79,11 +103,11 @@ public final class JsonEncoder
       changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).collect( Collectors.toList() );
     if ( !filteredActions.isEmpty() )
     {
-      generator.writeStartArray( TransportConstants.FILTERED_CHANNEL_ACTIONS );
+      generator.writeStartArray( FILTERED_CHANNEL_ACTIONS );
       filteredActions.forEach( a -> {
         generator.writeStartObject();
-        generator.write( TransportConstants.CHANNEL, toDescriptor( a ) );
-        generator.write( TransportConstants.CHANNEL_FILTER, a.getFilter() );
+        generator.write( CHANNEL, toDescriptor( a ) );
+        generator.write( CHANNEL_FILTER, a.getFilter() );
         generator.writeEnd();
       } );
       generator.writeEnd();
@@ -92,19 +116,19 @@ public final class JsonEncoder
     final Collection<Change> changes = changeSet.getChanges();
     if ( 0 != changes.size() )
     {
-      generator.writeStartArray( TransportConstants.CHANGES );
+      generator.writeStartArray( CHANGES );
 
       for ( final Change change : changes )
       {
         final EntityMessage entityMessage = change.getEntityMessage();
 
         generator.writeStartObject();
-        generator.write( TransportConstants.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
+        generator.write( ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
 
         final Map<Integer, Integer> channels = change.getChannels();
         if ( channels.size() > 0 )
         {
-          generator.writeStartArray( TransportConstants.CHANNELS );
+          generator.writeStartArray( CHANNELS );
           for ( final Entry<Integer, Integer> entry : channels.entrySet() )
           {
             final Integer cid = entry.getKey();
@@ -116,7 +140,7 @@ public final class JsonEncoder
 
         if ( entityMessage.isUpdate() )
         {
-          generator.writeStartObject( TransportConstants.DATA );
+          generator.writeStartObject( DATA );
           final Map<String, Serializable> values = entityMessage.getAttributeValues();
           assert null != values;
           for ( final Entry<String, Serializable> entry : values.entrySet() )

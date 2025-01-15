@@ -63,24 +63,24 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getInt( TransportConstants.REQUEST_ID ), requestId );
-    assertEquals( changeSet.getString( TransportConstants.ETAG ), etag );
+    assertEquals( changeSet.getInt( JsonEncoder.REQUEST_ID ), requestId );
+    assertEquals( changeSet.getString( JsonEncoder.ETAG ), etag );
 
-    final JsonObject action = changeSet.getJsonArray( TransportConstants.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
-    assertEquals( action.getString( TransportConstants.CHANNEL ), "=45.77" );
-    assertEquals( action.getJsonObject( TransportConstants.CHANNEL_FILTER ).toString(), filter.toString() );
+    final JsonObject action = changeSet.getJsonArray( JsonEncoder.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
+    assertEquals( action.getString( JsonEncoder.CHANNEL ), "=45.77" );
+    assertEquals( action.getJsonObject( JsonEncoder.CHANNEL_FILTER ).toString(), filter.toString() );
 
-    final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( JsonEncoder.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), "42.17" );
+    assertEquals( object.getString( JsonEncoder.ENTITY_ID ), "42.17" );
 
-    final JsonObject data = object.getJsonObject( TransportConstants.DATA );
+    final JsonObject data = object.getJsonObject( JsonEncoder.DATA );
     assertNotNull( data );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
     assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
 
-    final JsonArray channels = object.getJsonArray( TransportConstants.CHANNELS );
+    final JsonArray channels = object.getJsonArray( JsonEncoder.CHANNELS );
     assertNotNull( channels );
     assertEquals( channels.size(), 3 );
     final String channel1 = channels.getString( 0 );
@@ -110,11 +110,11 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    final JsonObject object = changeSet.getJsonArray( TransportConstants.CHANGES ).getJsonObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( JsonEncoder.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( TransportConstants.ENTITY_ID ), "42.17" );
+    assertEquals( object.getString( JsonEncoder.ENTITY_ID ), "42.17" );
 
-    assertFalse( object.containsKey( TransportConstants.DATA ) );
+    assertFalse( object.containsKey( JsonEncoder.DATA ) );
   }
 
   private JsonObject toJsonObject( final String encoded )
@@ -130,7 +130,7 @@ public final class JsonEncoderTest
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, cs ) );
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
+    assertEquals( changeSet.getJsonArray( JsonEncoder.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
   }
 
   @Test
@@ -141,7 +141,7 @@ public final class JsonEncoderTest
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, cs ) );
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getJsonArray( TransportConstants.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
+    assertEquals( changeSet.getJsonArray( JsonEncoder.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
   }
 
   @Test
@@ -161,9 +161,9 @@ public final class JsonEncoderTest
 
     final String value =
       toJsonObject( encoded ).
-        getJsonArray( TransportConstants.CHANGES ).
+        getJsonArray( JsonEncoder.CHANGES ).
         getJsonObject( 0 ).
-        getJsonObject( TransportConstants.DATA ).
+        getJsonObject( JsonEncoder.DATA ).
         getString( "X" );
     assertNotNull( value );
     assertEquals( value, "1392061102056" );
