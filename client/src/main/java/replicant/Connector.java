@@ -853,6 +853,7 @@ abstract class Connector
         }
       }
     }
+    //noinspection IfCanBeSwitch
     if ( OkMessage.TYPE.equals( message.getType() ) )
     {
       if ( null != requestId && connection.getLastRxSyncRequestId() == requestId )
