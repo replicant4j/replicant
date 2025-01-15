@@ -31,6 +31,7 @@ import org.realityforge.replicant.shared.SharedConstants;
 public final class JsonEncoder
 {
   // Use constant to avoid slow filesystem access when serializing a message.
+  @Nonnull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
 
   private JsonEncoder()
