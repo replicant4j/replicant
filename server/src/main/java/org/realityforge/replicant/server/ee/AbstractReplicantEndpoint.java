@@ -99,15 +99,15 @@ public abstract class AbstractReplicantEndpoint
     try
     {
       command = Json.createReader( new StringReader( message ) ).readObject();
-      type = command.getString( "type" );
-      requestId = command.getInt( "requestId" );
+      type = command.getString( JsonEncoder.TYPE );
+      requestId = command.getInt( JsonEncoder.REQUEST_ID );
     }
     catch ( final Throwable ignored )
     {
       onMalformedMessage( replicantSession, message );
       return;
     }
-    if ( !"auth".equals( type ) && !isAuthorized( replicantSession ) )
+    if ( !JsonEncoder.C2S_Type.AUTH.equals( type ) && !isAuthorized( replicantSession ) )
     {
       sendErrorAndClose( session, "Replicant session not authorized" );
       return;
@@ -116,7 +116,7 @@ public abstract class AbstractReplicantEndpoint
     {
       beforeCommand( replicantSession, type, command );
       //noinspection IfCanBeSwitch
-      if ( "etags".equals( type ) )
+      if ( JsonEncoder.C2S_Type.ETAGS.equals( type ) )
       {
         try
         {
@@ -127,11 +127,11 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( "ping".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.PING.equals( type ) )
       {
         sendOk( session, requestId );
       }
-      else if ( "sub".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.SUB.equals( type ) )
       {
         try
         {
@@ -142,7 +142,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( "bulk-sub".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.BULK_SUB.equals( type ) )
       {
         try
         {
@@ -153,7 +153,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( "unsub".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.UNSUB.equals( type ) )
       {
         try
         {
@@ -164,7 +164,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( "bulk-unsub".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.BULK_UNSUB.equals( type ) )
       {
         try
         {
@@ -175,7 +175,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( "auth".equals( type ) )
+      else if ( JsonEncoder.C2S_Type.AUTH.equals( type ) )
       {
         onAuthorize( replicantSession, command );
       }
@@ -268,7 +268,7 @@ public abstract class AbstractReplicantEndpoint
                                                   null,
                                                   () -> session.setETags( etags ) );
 
-    sendOk( session.getWebSocketSession(), command.getInt( "requestId" ) );
+    sendOk( session.getWebSocketSession(), command.getInt( JsonEncoder.REQUEST_ID ) );
   }
 
   private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )
@@ -284,7 +284,7 @@ public abstract class AbstractReplicantEndpoint
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
     replicantSession.setAuthToken( command.getString( "token" ) );
-    sendOk( replicantSession.getWebSocketSession(), command.getInt( "requestId" ) );
+    sendOk( replicantSession.getWebSocketSession(), command.getInt( JsonEncoder.REQUEST_ID ) );
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
@@ -294,7 +294,10 @@ public abstract class AbstractReplicantEndpoint
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      subscribe( replicantSession, command.getInt( "requestId" ), address, extractFilter( channelMetaData, command ) );
+      subscribe( replicantSession,
+                 command.getInt( JsonEncoder.REQUEST_ID ),
+                 address,
+                 extractFilter( channelMetaData, command ) );
     }
   }
 
@@ -379,8 +382,7 @@ public abstract class AbstractReplicantEndpoint
       }
       else if ( !address.hasSubChannelId() )
       {
-        sendErrorAndClose( session,
-                           "Bulk channel subscribe included addresses channel without sub-channel ids" );
+        sendErrorAndClose( session, "Bulk channel subscribe included addresses channel without sub-channel ids" );
         return;
       }
       else
@@ -389,7 +391,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final int requestId = command.getInt( "requestId" );
+    final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
     final Object filter = extractFilter( channelMetaData, command );
     if ( 1 == addresses.length )
     {
@@ -447,11 +449,11 @@ public abstract class AbstractReplicantEndpoint
   private void onUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
-    final ChannelAddress address = ChannelAddress.parse( command.getString( "channel" ) );
+    final ChannelAddress address = ChannelAddress.parse( command.getString( JsonEncoder.CHANNEL ) );
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      final int requestId = command.getInt( "requestId" );
+      final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
       unsubscribe( replicantSession, requestId, address );
     }
   }
@@ -491,7 +493,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final int requestId = command.getInt( "requestId" );
+    final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
     if ( 1 == addresses.length )
     {
       unsubscribe( session, requestId, addresses[ 0 ] );
