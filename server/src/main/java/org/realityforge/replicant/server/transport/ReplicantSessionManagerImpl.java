@@ -473,7 +473,9 @@ public abstract class ReplicantSessionManagerImpl
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          return new ChannelLinkEntry( source, link.getTargetChannel(), targetHasFilter ? sourceEntry.getFilter() : null );
+          return new ChannelLinkEntry( source,
+                                       link.getTargetChannel(),
+                                       targetHasFilter ? sourceEntry.getFilter() : null );
         }
         else
         {
@@ -964,7 +966,7 @@ public abstract class ReplicantSessionManagerImpl
         // invalidate all dependent cached type graphs to avoid this scenario.
         for ( final ChannelMetaData channel : metaData.getDependentChannels() )
         {
-          if( channel.isTypeGraph() && channel.isCacheable() )
+          if ( channel.isTypeGraph() && channel.isCacheable() )
           {
             _cache.remove( new ChannelAddress( channel.getChannelId() ) );
           }
