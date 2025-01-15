@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
@@ -54,6 +55,8 @@ public final class JsonEncoder
   static final String UPDATE_TYPE = "update";
   @Nonnull
   static final String TYPE = "type";
+  @Nonnull
+  static final String SESSION_ID = "sessionId";
   // Use constant to avoid slow filesystem access when serializing a message.
   @Nonnull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
@@ -214,7 +217,75 @@ public final class JsonEncoder
   }
 
   @Nonnull
-  public static String asString( @Nonnull final JsonObject message )
+  public static String encodeUseCacheMessage( @Nonnull final ChannelAddress address,
+                                              @Nonnull final String eTag,
+                                              @Nullable final Integer requestId )
+  {
+    final JsonObjectBuilder response =
+      Json
+        .createObjectBuilder()
+        .add( TYPE, "use-cache" )
+        .add( CHANNEL, address.toString() )
+        .add( ETAG, eTag );
+    if ( null != requestId )
+    {
+      response.add( REQUEST_ID, requestId );
+    }
+    return asString( response.build() );
+  }
+
+  @Nonnull
+  public static String encodeSessionCreatedMessage( @Nonnull final String sessionId )
+  {
+    return asString( Json
+                       .createObjectBuilder()
+                       .add( TYPE, "session-created" )
+                       .add( SESSION_ID, sessionId )
+                       .build() );
+  }
+
+  @Nonnull
+  public static String encodeOkMessage( final int requestId )
+  {
+    return asString( Json
+                       .createObjectBuilder()
+                       .add( TYPE, "ok" )
+                       .add( REQUEST_ID, requestId )
+                       .build() );
+  }
+
+  @Nonnull
+  public static String encodeMalformedMessageMessage( @Nonnull final String message )
+  {
+    return asString( Json
+                       .createObjectBuilder()
+                       .add( TYPE, "malformed-message" )
+                       .add( "message", message )
+                       .build() );
+  }
+
+  @Nonnull
+  public static String encodeUnknownCommandMessage( @Nonnull final JsonObject command )
+  {
+    return asString( Json
+                       .createObjectBuilder()
+                       .add( TYPE, "unknown-command" )
+                       .add( "command", command )
+                       .build() );
+  }
+
+  @Nonnull
+  public static String encodeErrorMessage( @Nonnull final String message )
+  {
+    return asString( Json
+                       .createObjectBuilder()
+                       .add( TYPE, "error" )
+                       .add( "message", message )
+                       .build() );
+  }
+
+  @Nonnull
+  private static String asString( @Nonnull final JsonObject message )
   {
     final StringWriter writer = new StringWriter();
     final JsonWriter jsonWriter = Json.createWriter( writer );

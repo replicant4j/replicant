@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
@@ -36,6 +34,7 @@ import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
 import org.realityforge.replicant.server.ServerConstants;
 import org.realityforge.replicant.server.ee.EntityMessageCacheUtil;
+import org.realityforge.replicant.server.json.JsonEncoder;
 
 /**
  * Base class for session managers.
@@ -832,17 +831,9 @@ public abstract class ReplicantSessionManagerImpl
         {
           if ( session.getWebSocketSession().isOpen() )
           {
-            final JsonObjectBuilder response = Json
-              .createObjectBuilder()
-              .add( "type", "use-cache" )
-              .add( "channel", address.toString() )
-              .add( "etag", eTag );
             final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
-            if ( null != requestId )
-            {
-              response.add( "requestId", requestId );
-            }
-            WebSocketUtil.sendJsonObject( session.getWebSocketSession(), response.build() );
+            WebSocketUtil.sendText( session.getWebSocketSession(),
+                                    JsonEncoder.encodeUseCacheMessage( address, eTag, requestId ) );
             changeSet.setRequired( false );
             // We need to mark this as handled otherwise the wrapper will attempt to send
             // another ok message with same requestId

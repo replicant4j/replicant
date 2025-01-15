@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 import javax.persistence.EntityManager;
@@ -28,6 +27,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessageEndpoint;
+import org.realityforge.replicant.server.json.JsonEncoder;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
@@ -69,11 +69,7 @@ public abstract class AbstractReplicantEndpoint
 
     onSessionOpen( newReplicantSession );
 
-    final JsonObjectBuilder builder =
-      Json.createObjectBuilder()
-        .add( "type", "session-created" )
-        .add( "sessionId", newReplicantSession.getId() );
-    WebSocketUtil.sendJsonObject( session, builder.build() );
+    WebSocketUtil.sendText( session, JsonEncoder.encodeSessionCreatedMessage( newReplicantSession.getId() ) );
   }
 
   @OnMessage
@@ -251,11 +247,7 @@ public abstract class AbstractReplicantEndpoint
 
   private void sendOk( @Nonnull final Session session, final int requestId )
   {
-    final JsonObjectBuilder builder =
-      Json.createObjectBuilder()
-        .add( "type", "ok" )
-        .add( "requestId", requestId );
-    WebSocketUtil.sendJsonObject( session, builder.build() );
+    WebSocketUtil.sendText( session, JsonEncoder.encodeOkMessage( requestId ) );
   }
 
   private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
@@ -281,20 +273,12 @@ public abstract class AbstractReplicantEndpoint
 
   private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )
   {
-    final JsonObjectBuilder builder =
-      Json.createObjectBuilder()
-        .add( "type", "malformed-message" )
-        .add( "message", message );
-    closeWithError( replicantSession, "Malformed message", builder.build() );
+    closeWithError( replicantSession, "Malformed message", JsonEncoder.encodeMalformedMessageMessage( message ) );
   }
 
   private void onUnknownCommand( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
-    final JsonObjectBuilder builder =
-      Json.createObjectBuilder()
-        .add( "type", "unknown-command" )
-        .add( "command", command );
-    closeWithError( replicantSession, "Unknown command", builder.build() );
+    closeWithError( replicantSession, "Unknown command", JsonEncoder.encodeUnknownCommandMessage( command ) );
   }
 
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
@@ -646,12 +630,7 @@ public abstract class AbstractReplicantEndpoint
   {
     if ( session.isOpen() )
     {
-      WebSocketUtil.sendJsonObject( session,
-                                    Json
-                                      .createObjectBuilder()
-                                      .add( "type", "error" )
-                                      .add( "message", message )
-                                      .build() );
+      WebSocketUtil.sendText( session, JsonEncoder.encodeErrorMessage( message ) );
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unexpected error" ) );
     }
     final ReplicantSession replicantSession = findReplicantSession( session );
@@ -708,9 +687,9 @@ public abstract class AbstractReplicantEndpoint
 
   private void closeWithError( @Nonnull final ReplicantSession replicantSession,
                                @Nonnull final String reason,
-                               @Nonnull final JsonObject object )
+                               @Nonnull final String message )
   {
-    WebSocketUtil.sendJsonObject( replicantSession.getWebSocketSession(), object );
+    WebSocketUtil.sendText( replicantSession.getWebSocketSession(), message );
     replicantSession.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason ) );
     closeReplicantSession( replicantSession );
   }
