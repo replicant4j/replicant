@@ -117,7 +117,7 @@ public final class JsonEncoder
     }
 
     final Collection<Change> changes = changeSet.getChanges();
-    if ( 0 != changes.size() )
+    if ( !changes.isEmpty() )
     {
       generator.writeStartArray( CHANGES );
 
@@ -129,7 +129,7 @@ public final class JsonEncoder
         generator.write( ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
 
         final Map<Integer, Integer> channels = change.getChannels();
-        if ( channels.size() > 0 )
+        if ( !channels.isEmpty() )
         {
           generator.writeStartArray( CHANNELS );
           for ( final Entry<Integer, Integer> entry : channels.entrySet() )
