@@ -67,7 +67,6 @@ public final class JsonEncoder
   {
     @Nonnull
     public static final String AUTH = "auth";
-    @SuppressWarnings( "SpellCheckingInspection" )
     @Nonnull
     public static final String ETAGS = "etags";
     @Nonnull
