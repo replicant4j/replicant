@@ -14,14 +14,16 @@ public class PacketTest
   public void packetFromInitiator()
   {
     final int requestId = ValueUtil.randomInt();
+    final String response = "[]";
     final String etag = ValueUtil.randomString();
     final List<EntityMessage> messages = new ArrayList<>();
     final ChangeSet changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( true, requestId, etag, messages, changeSet );
+    final Packet packet = new Packet( true, requestId, response, etag, messages, changeSet );
 
     assertTrue( packet.altersExplicitSubscriptions() );
     assertEquals( packet.getRequestId(), (Integer) requestId );
+    assertEquals( packet.getResponse(), response );
     assertEquals( packet.getEtag(), etag );
     assertSame( packet.getMessages(), messages );
     assertSame( packet.getChangeSet(), changeSet );
@@ -33,7 +35,7 @@ public class PacketTest
     final List<EntityMessage> messages = new ArrayList<>();
     final ChangeSet changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( false, null, null, messages, changeSet );
+    final Packet packet = new Packet( false, null, null, null, messages, changeSet );
 
     assertFalse( packet.altersExplicitSubscriptions() );
     assertNull( packet.getRequestId() );

@@ -24,6 +24,11 @@ final class Packet
   @Nullable
   private final Integer _requestId;
   /**
+   * The response to the request that resulted in this change when the packet is being sent back to the initiator.
+   */
+  @Nullable
+  private final String _response;
+  /**
    * If the request was a subscription and this subscription is a single cacheable graph then this
    * etag will contain the cache constant.
    */
@@ -43,12 +48,15 @@ final class Packet
 
   Packet( final boolean altersExplicitSubscriptions,
           @Nullable final Integer requestId,
+          @Nullable final String response,
           @Nullable final String etag,
           @Nonnull final Collection<EntityMessage> messages,
           @Nonnull final ChangeSet changeSet )
   {
+    assert null == response || null != requestId;
     _altersExplicitSubscriptions = altersExplicitSubscriptions;
     _requestId = requestId;
+    _response = response;
     _etag = etag;
     _messages = Objects.requireNonNull( messages );
     _changeSet = Objects.requireNonNull( changeSet );
@@ -63,6 +71,12 @@ final class Packet
   Integer getRequestId()
   {
     return _requestId;
+  }
+
+  @Nullable
+  public String getResponse()
+  {
+    return _response;
   }
 
   @Nullable
