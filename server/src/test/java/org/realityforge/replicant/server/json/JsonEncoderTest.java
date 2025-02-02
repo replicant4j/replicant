@@ -68,7 +68,7 @@ public final class JsonEncoderTest
     final JsonArray jsonResponse = changeSet.getJsonArray( JsonEncoder.RESPONSE );
     assertEquals( jsonResponse.size(), 2 );
     assertEquals( jsonResponse.getInt( 0 ), 17 );
-    assertEquals( jsonResponse.getInt( 2 ), 42 );
+    assertEquals( jsonResponse.getInt( 1 ), 42 );
     assertEquals( changeSet.getString( JsonEncoder.ETAG ), etag );
 
     final JsonObject action = changeSet.getJsonArray( JsonEncoder.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
