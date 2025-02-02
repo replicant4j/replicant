@@ -67,6 +67,18 @@ public interface ReplicantSessionManager
   void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds )
     throws InterruptedException;
 
+  /**
+   * Send the "Change" message to the client.
+   * This change is (most likely) the result of a request.
+   * If the session that initiated the request is the specified session,
+   * then the requestId and response parameters will be present.
+   *
+   * @param session   the session
+   * @param requestId the requestId if the change is in response to a request and the request was initiated by the session.
+   * @param etag      the etag associated with the data. Unique identifier used during caching.
+   * @param messages  the changes to send to the session.
+   * @param changeSet the changeSet associated with the session
+   */
   void sendChangeMessage( @Nonnull ReplicantSession session,
                           @Nullable Integer requestId,
                           @Nullable String etag,
