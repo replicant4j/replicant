@@ -157,7 +157,7 @@ public final class ReplicationRequestUtil
       {
         final Collection<EntityMessage> messages =
           null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
-        if ( null != changeSet || messages.size() > 0 )
+        if ( null != changeSet || !messages.isEmpty() )
         {
           requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, messages, changeSet );
         }
