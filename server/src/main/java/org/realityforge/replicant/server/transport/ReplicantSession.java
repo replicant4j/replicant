@@ -111,8 +111,8 @@ public final class ReplicantSession
   /**
    * Send a ping at the network level to ensure the connection is kept alive.
    *
-   * This is required to keep connection alove when passing through some load balancers
-   * that proxy non-ssl websockets and close the socket after an idle period.
+   * <p>This is required to keep connection alive when passing through some load balancers
+   * that proxy non-ssl websockets and close the socket after an idle period.</p>
    */
   public void pingTransport()
   {
