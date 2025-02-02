@@ -236,6 +236,7 @@ public abstract class ReplicantSessionManagerImpl
     getReplicantMessageBroker().queueChangeMessage( session,
                                                     true,
                                                     requestId,
+                                                    null,
                                                     etag,
                                                     Collections.emptyList(),
                                                     changeSet );
@@ -250,6 +251,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
                                      @Nullable final Integer requestId,
+                                     @Nullable final String response,
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
   {
@@ -301,6 +303,7 @@ public abstract class ReplicantSessionManagerImpl
         getReplicantMessageBroker().queueChangeMessage( session,
                                                         altersExplicitSubscriptions,
                                                         isInitiator ? requestId : null,
+                                                        isInitiator ? response : null,
                                                         null,
                                                         messages,
                                                         changeSet );
@@ -313,16 +316,18 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void sendChangeMessage( @Nonnull final ReplicantSession session,
                                  @Nullable final Integer requestId,
+                                 @Nullable final String response,
                                  @Nullable final String etag,
                                  @Nonnull final Collection<EntityMessage> messages,
                                  @Nonnull final ChangeSet changeSet )
   {
+    assert null == response || null != requestId;
     processMessages( messages, session, changeSet );
 
-    if ( changeSet.hasContent() )
+    if ( changeSet.hasContent() || null != requestId )
     {
       completeMessageProcessing( session, changeSet );
-      session.sendPacket( requestId, etag, changeSet );
+      session.sendPacket( requestId, response, etag, changeSet );
     }
   }
 
@@ -923,11 +928,13 @@ public abstract class ReplicantSessionManagerImpl
         final TransactionSynchronizationRegistry registry = getRegistry();
         final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
         final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+        final String requestResponse = (String) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
         final String requestCachedResultHandled =
           (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
 
         registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
         registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+        registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
         registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
 
         final ChangeSet changeSet = new ChangeSet();
@@ -936,11 +943,12 @@ public abstract class ReplicantSessionManagerImpl
         {
           // In this scenario we have a non-cached changeset, so we send it along
           getReplicantMessageBroker().
-            queueChangeMessage( session, true, null, null, Collections.emptyList(), changeSet );
+            queueChangeMessage( session, true, null, null, null, Collections.emptyList(), changeSet );
         }
 
         registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
         registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
+        registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, requestResponse );
         registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
       }
     }

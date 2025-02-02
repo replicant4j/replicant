@@ -36,11 +36,12 @@ public abstract class ReplicantMessageBrokerImpl
   public void queueChangeMessage( @Nonnull final ReplicantSession session,
                                   final boolean altersExplicitSubscriptions,
                                   @Nullable final Integer requestId,
+                                  @Nullable final String response,
                                   @Nullable final String etag,
                                   @Nonnull final Collection<EntityMessage> messages,
                                   @Nonnull final ChangeSet changeSet )
   {
-    session.queuePacket( new Packet( altersExplicitSubscriptions, requestId, etag, messages, changeSet ) );
+    session.queuePacket( new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet ) );
     _queue.add( session );
   }
 
@@ -77,6 +78,7 @@ public abstract class ReplicantMessageBrokerImpl
           getReplicantSessionManager()
             .sendChangeMessage( session,
                                 packet.getRequestId(),
+                                packet.getResponse(),
                                 packet.getEtag(),
                                 packet.getMessages(),
                                 packet.getChangeSet() );

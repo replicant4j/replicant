@@ -26,6 +26,11 @@ public final class ServerConstants
    */
   public static final String REQUEST_COMPLETE_KEY = "RequestComplete";
   /**
+   * Key used to retrieve the encoded response for the request relevant for the initiating session.
+   * Used to pass data from the EJB to the servlet.
+   */
+  public static final String REQUEST_RESPONSE_KEY = "RequestResponse";
+  /**
    * Key used to flag that a cached result has been sent or that we send a use-cache message.
    * This means that there should be ZERO changes in session changeset and it should be marked as not required.
    */

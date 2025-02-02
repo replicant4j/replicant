@@ -75,12 +75,15 @@ public interface ReplicantSessionManager
    *
    * @param session   the session
    * @param requestId the requestId if the change is in response to a request and the request was initiated by the session.
+   * @param response  the response message if a response exists,
+   *                  and the change is in response to a request and the request was initiated by the session.
    * @param etag      the etag associated with the data. Unique identifier used during caching.
    * @param messages  the changes to send to the session.
    * @param changeSet the changeSet associated with the session
    */
   void sendChangeMessage( @Nonnull ReplicantSession session,
                           @Nullable Integer requestId,
+                          @Nullable final String response,
                           @Nullable String etag,
                           @Nonnull Collection<EntityMessage> messages,
                           @Nonnull ChangeSet changeSet );

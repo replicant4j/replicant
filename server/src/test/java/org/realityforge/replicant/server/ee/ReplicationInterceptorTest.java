@@ -149,6 +149,13 @@ public class ReplicationInterceptorTest
     when( interceptor.getEntityManager().isOpen() ).thenReturn( true );
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
+
+    final String response = "{}";
+    context.setRunnable( () ->
+                           interceptor
+                             .getRegistry()
+                             .putResource( ServerConstants.REQUEST_RESPONSE_KEY, response ) );
+
     final Object result = interceptor.businessIntercept( context );
     verify( interceptor.getEntityManager() ).flush();
 
@@ -159,6 +166,7 @@ public class ReplicationInterceptorTest
     assertEquals( result, TestInvocationContext.RESULT );
     assertEquals( interceptor._sessionId, sessionId );
     assertEquals( interceptor._requestId, (Integer) 1 );
+    assertEquals( interceptor._response, response );
     assertNotNull( interceptor._messages );
     assertEquals( interceptor._changeSet.getChanges().size(), 1 );
     final Change change = interceptor._changeSet.getChanges().iterator().next();
@@ -259,6 +267,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
+    assertNull( interceptor._response );
     assertNotNull( interceptor._messages );
     assertTrue( interceptor._messages.contains( message ) );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "0" );
@@ -290,6 +299,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
+    assertNull( interceptor._response );
     assertNull( interceptor._messages );
     assertEquals( result, TestInvocationContext.RESULT );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
@@ -315,6 +325,7 @@ public class ReplicationInterceptorTest
     assertTrue( context.isInvoked() );
     assertNull( interceptor._sessionId );
     assertNull( interceptor._requestId );
+    assertNull( interceptor._response );
     assertNull( interceptor._messages );
     assertEquals( ReplicantContextHolder.get( ServerConstants.REQUEST_COMPLETE_KEY ), "1" );
     assertEquals( result, TestInvocationContext.RESULT );
@@ -353,6 +364,7 @@ public class ReplicationInterceptorTest
     private final ReplicantSessionManager _sessionManager;
     private String _sessionId;
     private Integer _requestId;
+    private String _response;
     private Collection<EntityMessage> _messages;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
@@ -376,6 +388,7 @@ public class ReplicationInterceptorTest
     @Override
     public boolean saveEntityMessages( @Nullable final String sessionId,
                                        @Nullable final Integer requestId,
+                                       @Nullable final String response,
                                        @Nonnull final Collection<EntityMessage> messages,
                                        @Nullable final ChangeSet changeSet )
     {
@@ -385,6 +398,7 @@ public class ReplicationInterceptorTest
       }
       _sessionId = sessionId;
       _requestId = requestId;
+      _response = response;
       _messages = messages;
       _changeSet = changeSet;
       return _routeToSession;

@@ -210,15 +210,19 @@ public final class ReplicantSession
    * Send a packet to the client.
    *
    * @param requestId the request id that caused these changes if this session requested the changes.
+   * @param response  the response message if the packet is the result of a request that has a response,
+   *                  and the request was initiated by the session.
    * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
    * @param changeSet the changeSet to create packet from.
    */
   public void sendPacket( @Nullable final Integer requestId,
+                          @Nullable final String response,
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {
+    assert null == response || null != requestId;
     ensureLockedByCurrentThread();
-    final String message = JsonEncoder.encodeChangeSet( requestId, etag, changeSet );
+    final String message = JsonEncoder.encodeChangeSet( requestId, response, etag, changeSet );
     LOG.log( Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message );
     if ( !WebSocketUtil.sendText( getWebSocketSession(), message ) )
     {

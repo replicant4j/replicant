@@ -13,6 +13,7 @@ public interface ReplicantMessageBroker
   void queueChangeMessage( @Nonnull ReplicantSession session,
                            boolean altersExplicitSubscriptions,
                            @Nullable Integer requestId,
+                           @Nullable String response,
                            @Nullable String etag,
                            @Nonnull Collection<EntityMessage> messages,
                            @Nonnull ChangeSet changeSet );

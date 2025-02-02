@@ -27,17 +27,18 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final int requestId = ValueUtil.randomInt();
+    final String response = ValueUtil.randomString();
     final String etag = ValueUtil.randomString();
     final List<EntityMessage> messages = Collections.emptyList();
     final ChangeSet changeSet = new ChangeSet();
 
-    broker.queueChangeMessage( session, false, requestId, etag, messages, changeSet );
+    broker.queueChangeMessage( session, false, requestId, response, etag, messages, changeSet );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session, requestId, etag, messages, changeSet );
+    verifySendOnce( broker, session, requestId, response, etag, messages, changeSet );
   }
 
   @Test
@@ -53,25 +54,27 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final int requestId1 = ValueUtil.randomInt();
+    final String responseId1 = ValueUtil.randomString();
     final String etag1 = ValueUtil.randomString();
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
 
-    broker.queueChangeMessage( session, false, requestId1, etag1, messages1, changeSet1 );
+    broker.queueChangeMessage( session, false, requestId1, responseId1, etag1, messages1, changeSet1 );
 
     final int requestId2 = ValueUtil.randomInt();
+    final String responseId2 = ValueUtil.randomString();
     final String etag2 = ValueUtil.randomString();
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
 
-    broker.queueChangeMessage( session, false, requestId2, etag2, messages2, changeSet2 );
+    broker.queueChangeMessage( session, false, requestId2, responseId2, etag2, messages2, changeSet2 );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session, requestId1, etag1, messages1, changeSet1 );
-    verifySendOnce( broker, session, requestId2, etag2, messages2, changeSet2 );
+    verifySendOnce( broker, session, requestId1, responseId1, etag1, messages1, changeSet1 );
+    verifySendOnce( broker, session, requestId2, responseId2, etag2, messages2, changeSet2 );
   }
 
   @Test
@@ -88,42 +91,45 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final Integer requestId1 = null;
+    final String responseId1 = null;
     final String etag1 = null;
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
 
-    broker.queueChangeMessage( session1, false, requestId1, etag1, messages1, changeSet1 );
+    broker.queueChangeMessage( session1, false, requestId1, responseId1, etag1, messages1, changeSet1 );
 
     final Integer requestId2 = null;
+    final String responseId2 = null;
     final String etag2 = null;
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
 
-    broker.queueChangeMessage( session2, false, requestId2, etag2, messages2, changeSet2 );
+    broker.queueChangeMessage( session2, false, requestId2, responseId2, etag2, messages2, changeSet2 );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session1, requestId1, etag1, messages1, changeSet1 );
-    verifySendOnce( broker, session2, requestId2, etag2, messages2, changeSet2 );
+    verifySendOnce( broker, session1, requestId1, responseId1, etag1, messages1, changeSet1 );
+    verifySendOnce( broker, session2, requestId2, responseId2, etag2, messages2, changeSet2 );
   }
 
   private void verifySendOnce( @Nonnull final ReplicantMessageBroker broker,
                                @Nonnull final ReplicantSession session,
                                @Nullable final Integer requestId,
+                               @Nullable final String response,
                                @Nullable final String etag,
                                @Nonnull final Collection<EntityMessage> messages,
                                @Nonnull final ChangeSet changeSet )
   {
     verify( ( (TestReplicantMessageBrokerImpl) broker ).getReplicantSessionManager(), times( 1 ) )
-      .sendChangeMessage( eq( session ), eq( requestId ), eq( etag ), eq( messages ), eq( changeSet ) );
+      .sendChangeMessage( eq( session ), eq( requestId ), eq( response ), eq( etag ), eq( messages ), eq( changeSet ) );
   }
 
   private void verifyNoSend( @Nonnull final ReplicantMessageBroker broker )
   {
     verify( ( (TestReplicantMessageBrokerImpl) broker ).getReplicantSessionManager(), never() )
-      .sendChangeMessage( any(), any(), any(), any(), any() );
+      .sendChangeMessage( any(), any(), any(), any(), any(), any() );
   }
 
   @Nonnull

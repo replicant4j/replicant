@@ -149,6 +149,7 @@ public final class ReplicationRequestUtil
     {
       final String sessionId = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
       final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final String response = (String) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
@@ -159,7 +160,7 @@ public final class ReplicationRequestUtil
           null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
         if ( null != changeSet || !messages.isEmpty() )
         {
-          requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, messages, changeSet );
+          requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, response, messages, changeSet );
         }
       }
       final String complete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
@@ -168,15 +169,18 @@ public final class ReplicationRequestUtil
       registry.putResource( ServerConstants.SESSION_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
       registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+      registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
       registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
       registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, null );
 
       final boolean isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
       ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
+      ReplicantContextHolder.put( ServerConstants.REQUEST_RESPONSE_KEY, response );
     }
     else
     {
       ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, "1" );
+      ReplicantContextHolder.put( ServerConstants.REQUEST_RESPONSE_KEY, null );
     }
     if ( LOG.isLoggable( Level.FINE ) )
     {
