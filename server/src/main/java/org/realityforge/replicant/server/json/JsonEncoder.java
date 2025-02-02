@@ -24,6 +24,7 @@ import org.realityforge.replicant.server.ChannelAction;
 import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
+import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.shared.SharedConstants;
 
 /**
@@ -52,6 +53,8 @@ public final class JsonEncoder
   @Nonnull
   public static final String REQUEST_ID = "requestId";
   @Nonnull
+  public static final String RESPONSE = "response";
+  @Nonnull
   public static final String TYPE = "type";
   @Nonnull
   public static final String SESSION_ID = "sessionId";
@@ -79,6 +82,8 @@ public final class JsonEncoder
     public static final String BULK_SUB = "bulk-sub";
     @Nonnull
     public static final String BULK_UNSUB = "bulk-unsub";
+    @Nonnull
+    public static final String EXEC = "exec";
 
     private C2S_Type()
     {
@@ -122,12 +127,15 @@ public final class JsonEncoder
    * Encode the change set with the EntityMessages.
    *
    * @param requestId the requestId that initiated the change. Only set if packet is destined for originating session.
+   * @param response  the response message if the packet is the result of a request that has a response,
+   *                  and the request was initiated by the session.
    * @param etag      the associated etag.
    * @param changeSet the changeSet being encoded.
    * @return the encoded change set.
    */
   @Nonnull
   public static String encodeChangeSet( @Nullable final Integer requestId,
+                                        @Nullable final String response,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
@@ -140,6 +148,10 @@ public final class JsonEncoder
     if ( null != requestId )
     {
       generator.write( REQUEST_ID, requestId );
+    }
+    if ( null != response )
+    {
+      generator.write( RESPONSE, JsonUtil.toJsonValue( response ) );
     }
     if ( null != etag )
     {
