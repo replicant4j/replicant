@@ -19,12 +19,12 @@ final class Packet
    */
   private final boolean _altersExplicitSubscriptions;
   /**
-   * The request that resulted in this change when packet is being sent back to the initiator.
+   * The request that resulted in this change when the packet is being sent back to the initiator.
    */
   @Nullable
   private final Integer _requestId;
   /**
-   * If request was a subscription and this subscription is a single graph that is cacheable then this
+   * If the request was a subscription and this subscription is a single cacheable graph then this
    * etag will contain the cache constant.
    */
   @Nullable
