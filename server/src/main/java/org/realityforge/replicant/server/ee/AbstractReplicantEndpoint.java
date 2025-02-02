@@ -36,7 +36,7 @@ import org.realityforge.replicant.server.transport.WebSocketUtil;
 public abstract class AbstractReplicantEndpoint
 {
   @Nonnull
-  protected static final Logger LOG = Logger.getLogger( AbstractEeReplicantEndpoint.class.getName() );
+  protected static final Logger LOG = Logger.getLogger( AbstractReplicantEndpoint.class.getName() );
   @Nonnull
   private transient final ObjectMapper _jsonMapper = new ObjectMapper();
 
