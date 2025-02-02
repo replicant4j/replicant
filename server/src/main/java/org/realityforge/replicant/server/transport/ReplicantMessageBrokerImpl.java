@@ -90,6 +90,7 @@ public abstract class ReplicantMessageBrokerImpl
       }
       finally
       {
+        //noinspection resource
         _inProgress.remove( id );
         lock.unlock();
       }
