@@ -12,7 +12,9 @@ import javax.json.JsonReaderFactory;
 
 public final class JsonUtil
 {
+  @Nonnull
   private static final ObjectMapper c_jsonMapper = new ObjectMapper();
+  @Nonnull
   private static final JsonReaderFactory c_readerFactory = Json.createReaderFactory( null );
 
   private JsonUtil()
