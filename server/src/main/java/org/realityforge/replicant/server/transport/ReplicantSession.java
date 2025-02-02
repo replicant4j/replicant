@@ -194,8 +194,8 @@ public final class ReplicantSession
   Packet popPendingPacket()
   {
     /*
-     * We prioritize subscription packets ahead of other packets,
-     * as the subscription data on the session object has already been
+     * We prioritize subscription packets ahead of other packets.
+     * As the subscription data on the session object has already been
      * updated, we need to tell the client that these subscription changes
      * have occurred before we try and route other messages to the client.
      *
