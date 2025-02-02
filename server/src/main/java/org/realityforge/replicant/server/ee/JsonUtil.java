@@ -9,6 +9,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonReaderFactory;
+import javax.json.JsonValue;
 
 public final class JsonUtil
 {
@@ -28,6 +29,16 @@ public final class JsonUtil
     try ( final JsonReader reader = c_readerFactory.createReader( stringReader ) )
     {
       return reader.readObject();
+    }
+  }
+
+  @Nonnull
+  public static JsonValue toJsonValue( @Nonnull final String content )
+  {
+    final StringReader stringReader = new StringReader( content );
+    try ( final JsonReader reader = c_readerFactory.createReader( stringReader ) )
+    {
+      return reader.readValue();
     }
   }
 
