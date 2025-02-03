@@ -50,6 +50,8 @@ public final class JsonEncoder
   @Nonnull
   public static final String ETAG = "etag";
   @Nonnull
+  public static final String ETAGS = "etags";
+  @Nonnull
   public static final String REQUEST_ID = "requestId";
   @Nonnull
   public static final String RESPONSE = "response";
@@ -107,7 +109,7 @@ public final class JsonEncoder
     @Nonnull
     public static final String MALFORMED_MESSAGE = "malformed-message";
     @Nonnull
-    public static final String UNKNOWN_COMMAND = "unknown-command";
+    public static final String UNKNOWN_REQUEST_TYPE = "unknown-request-type";
     @Nonnull
     public static final String ERROR = "error";
 
@@ -331,11 +333,11 @@ public final class JsonEncoder
   }
 
   @Nonnull
-  public static String encodeUnknownCommandMessage( @Nonnull final JsonObject command )
+  public static String encodeUnknownRequestType( @Nonnull final JsonObject command )
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.UNKNOWN_COMMAND )
+                       .add( TYPE, S2C_Type.UNKNOWN_REQUEST_TYPE )
                        .add( COMMAND, command )
                        .build() );
   }

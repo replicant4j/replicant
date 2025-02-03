@@ -195,7 +195,7 @@ public abstract class AbstractReplicantEndpoint
       }
       else
       {
-        onUnknownCommand( replicantSession, command );
+        onUnknownType( replicantSession, command );
       }
       afterCommand( replicantSession, type, command );
     }
@@ -296,9 +296,9 @@ public abstract class AbstractReplicantEndpoint
     closeWithError( replicantSession, "Malformed message", JsonEncoder.encodeMalformedMessageMessage( message ) );
   }
 
-  private void onUnknownCommand( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+  private void onUnknownType( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
-    closeWithError( replicantSession, "Unknown command", JsonEncoder.encodeUnknownCommandMessage( command ) );
+    closeWithError( replicantSession, "Unknown request type", JsonEncoder.encodeUnknownRequestType( command ) );
   }
 
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
