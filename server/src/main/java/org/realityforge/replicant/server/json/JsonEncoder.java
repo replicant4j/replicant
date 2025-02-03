@@ -159,7 +159,7 @@ public final class JsonEncoder
     }
 
     final List<ChannelAction> actions =
-      changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).collect( Collectors.toList() );
+      changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).toList();
     if ( !actions.isEmpty() )
     {
       generator.writeStartArray( CHANNEL_ACTIONS );
@@ -168,7 +168,7 @@ public final class JsonEncoder
     }
 
     final List<ChannelAction> filteredActions =
-      changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).collect( Collectors.toList() );
+      changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).toList();
     if ( !filteredActions.isEmpty() )
     {
       generator.writeStartArray( FILTERED_CHANNEL_ACTIONS );
