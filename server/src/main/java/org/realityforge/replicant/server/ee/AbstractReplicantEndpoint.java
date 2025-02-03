@@ -254,7 +254,7 @@ public abstract class AbstractReplicantEndpoint
     throws InterruptedException
   {
     final Map<ChannelAddress, String> etags = new HashMap<>();
-    for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( "etags" ).entrySet() )
+    for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( JsonEncoder.ETAGS ).entrySet() )
     {
       final ChannelAddress address = ChannelAddress.parse( entry.getKey() );
       final String eTag = ( (JsonString) entry.getValue() ).getString();
