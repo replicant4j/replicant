@@ -116,7 +116,21 @@ public abstract class AbstractReplicantEndpoint
     {
       beforeCommand( replicantSession, type, command );
       //noinspection IfCanBeSwitch
-      if ( JsonEncoder.C2S_Type.ETAGS.equals( type ) )
+      if ( JsonEncoder.C2S_Type.EXEC.equals( type ) )
+      {
+        try
+        {
+          onExec( replicantSession,
+                  command.getString( JsonEncoder.COMMAND ),
+                  command.getInt( JsonEncoder.REQUEST_ID ),
+                  command.containsKey( JsonEncoder.PAYLOAD ) ? command.getJsonObject( JsonEncoder.PAYLOAD ) : null );
+        }
+        catch ( final InterruptedException ignored )
+        {
+          replicantSession.closeDueToInterrupt();
+        }
+      }
+      else if ( JsonEncoder.C2S_Type.ETAGS.equals( type ) )
       {
         try
         {
@@ -249,6 +263,12 @@ public abstract class AbstractReplicantEndpoint
   {
     WebSocketUtil.sendText( session, JsonEncoder.encodeOkMessage( requestId ) );
   }
+
+  protected abstract void onExec( @Nonnull final ReplicantSession session,
+                                  @Nonnull final String command,
+                                  final int requestId,
+                                  @Nullable final JsonObject payload )
+    throws InterruptedException;
 
   private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
     throws InterruptedException

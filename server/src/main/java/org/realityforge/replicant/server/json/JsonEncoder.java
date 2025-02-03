@@ -61,6 +61,8 @@ public final class JsonEncoder
   public static final String MESSAGE = "message";
   @Nonnull
   public static final String COMMAND = "command";
+  @Nonnull
+  public static final String PAYLOAD = "payload";
 
   /**
    * Types of Client to Server messages.
