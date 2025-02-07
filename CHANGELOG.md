@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.138](https://github.com/replicant4j/replicant/tree/v6.138) (2025-02-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.137...v6.138)
+
+Changes in this release:
 
 * Update the `org.realityforge.arez` artifacts to version `0.214`.
 * Inline the removal of orphaned subscriptions as part of the response processing pipeline.
