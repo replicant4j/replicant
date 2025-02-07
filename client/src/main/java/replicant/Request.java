@@ -11,7 +11,7 @@ public final class Request
   @Nonnull
   private final RequestEntry _entry;
 
-  public Request( @Nonnull final Connection connection, @Nonnull final RequestEntry entry )
+  Request( @Nonnull final Connection connection, @Nonnull final RequestEntry entry )
   {
     _connection = Objects.requireNonNull( connection );
     _entry = Objects.requireNonNull( entry );
