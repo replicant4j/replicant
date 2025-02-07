@@ -22,7 +22,7 @@ final class ReplicantRequestCallback
   }
 
   @Override
-  public void onResponseReceived( final Request request, final Response response )
+  public void onResponseReceived( @Nonnull final Request request, @Nonnull final Response response )
   {
     final int statusCode = response.getStatusCode();
     if ( Response.SC_OK == statusCode )
@@ -37,7 +37,7 @@ final class ReplicantRequestCallback
   }
 
   @Override
-  public void onError( final Request request, final Throwable exception )
+  public void onError( @Nonnull final Request request, @Nonnull final Throwable exception )
   {
     _replicantRequest.onFailure( () -> _callback.onError( request, exception ) );
   }
