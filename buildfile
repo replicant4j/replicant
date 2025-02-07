@@ -140,7 +140,6 @@ define 'replicant' do
                                :module => 'server',
                                :jvm_args => '-ea')
 
-  ipr.add_component_from_artifact(:idea_codestyle)
   ipr.add_code_insight_settings
   ipr.add_nullable_manager
   ipr.add_javac_settings('-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')

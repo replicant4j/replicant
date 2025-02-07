@@ -3,8 +3,6 @@ repositories:
     - https://repo.maven.apache.org/maven2
 
 artifacts:
-  idea_codestyle: au.com.stocksoftware.idea.codestyle:idea-codestyle:xml:1.17
-
   javax_annotation: org.realityforge.javax.annotation:javax.annotation:jar:1.1.1
   javax_javaee: javax:javaee-api:jar:8.0
 
