@@ -459,7 +459,7 @@ public final class ReplicantContext
    * {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
    * when the request completes.
    *
-   * @param schemaId the id of the schema of connector where request created.
+   * @param schemaId the id of the schema of the connector where the request should be created.
    * @param name     the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
    */
   public void request( final int schemaId, @Nullable final String name, @Nonnull final SafeProcedure callback )
