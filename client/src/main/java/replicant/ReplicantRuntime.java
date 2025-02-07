@@ -158,6 +158,7 @@ abstract class ReplicantRuntime
    *
    * @return the state of the runtime.
    */
+  @Nonnull
   @Memoize( readOutsideTransaction = Feature.ENABLE )
   RuntimeState getState()
   {

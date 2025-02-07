@@ -421,6 +421,7 @@ public final class ReplicantContext
    *
    * @return the actual state of the context.
    */
+  @Nonnull
   public RuntimeState getState()
   {
     return getRuntime().getState();
