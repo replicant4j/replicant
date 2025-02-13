@@ -324,6 +324,9 @@ public abstract class ReplicantSessionManagerImpl
     assert null == response || null != requestId;
     processMessages( messages, session, changeSet );
 
+    // ChangeSets that occur during a subscription that result in a use-cache message
+    // being sent to the client will still come through here. The hasContent() should
+    // return false as there are no changes for in ChangeSet and the _required flag is unset.
     if ( changeSet.hasContent() )
     {
       completeMessageProcessing( session, changeSet );
