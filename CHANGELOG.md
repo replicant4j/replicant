@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Avoid double sending change message when a subscribe request returns a cached graph.
+
 ### [v6.138](https://github.com/replicant4j/replicant/tree/v6.138) (2025-02-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.137...v6.138)
 
 Changes in this release:

@@ -324,7 +324,7 @@ public abstract class ReplicantSessionManagerImpl
     assert null == response || null != requestId;
     processMessages( messages, session, changeSet );
 
-    if ( changeSet.hasContent() || null != requestId )
+    if ( changeSet.hasContent() )
     {
       completeMessageProcessing( session, changeSet );
       session.sendPacket( requestId, response, etag, changeSet );
