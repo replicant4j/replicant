@@ -55,4 +55,17 @@ public final class Messages
     {
     }
   }
+
+  public static final class Update
+  {
+    public static final char CHANNEL_ACTION_ADD = '+';
+    public static final char CHANNEL_ACTION_REMOVE = '-';
+    public static final char CHANNEL_ACTION_UPDATE = '=';
+    // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+    public static final char CHANNEL_ACTION_DELETE = '!';
+
+    private Update()
+    {
+    }
+  }
 }

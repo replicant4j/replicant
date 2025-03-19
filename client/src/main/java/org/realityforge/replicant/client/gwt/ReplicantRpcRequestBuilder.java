@@ -5,7 +5,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.user.client.rpc.RpcRequestBuilder;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.shared.GwtRpcConstants;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 import replicant.Request;
@@ -44,8 +44,8 @@ public class ReplicantRpcRequestBuilder
     if ( context.hasCurrentRequest( _schemaId ) )
     {
       final Request request = context.currentRequest( _schemaId );
-      rb.setHeader( SharedConstants.CONNECTION_ID_HEADER, request.getConnectionId() );
-      rb.setHeader( SharedConstants.REQUEST_ID_HEADER, String.valueOf( request.getRequestId() ) );
+      rb.setHeader( GwtRpcConstants.CONNECTION_ID_HEADER, request.getConnectionId() );
+      rb.setHeader( GwtRpcConstants.REQUEST_ID_HEADER, String.valueOf( request.getRequestId() ) );
       rb.setCallback( new ReplicantRequestCallback( request, callback ) );
     }
     else

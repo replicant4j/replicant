@@ -25,7 +25,6 @@ import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.shared.Messages;
-import org.realityforge.replicant.shared.SharedConstants;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.
@@ -182,10 +181,10 @@ public final class JsonEncoder
   {
     final Action action = channelAction.getAction();
     final char actionValue =
-      Action.ADD == action ? SharedConstants.CHANNEL_ACTION_ADD :
-      Action.REMOVE == action ? SharedConstants.CHANNEL_ACTION_REMOVE :
-      Action.UPDATE == action ? SharedConstants.CHANNEL_ACTION_UPDATE :
-      SharedConstants.CHANNEL_ACTION_DELETE;
+      Action.ADD == action ? Messages.Update.CHANNEL_ACTION_ADD :
+      Action.REMOVE == action ? Messages.Update.CHANNEL_ACTION_REMOVE :
+      Action.UPDATE == action ? Messages.Update.CHANNEL_ACTION_UPDATE :
+      Messages.Update.CHANNEL_ACTION_DELETE;
 
     final ChannelAddress address = channelAction.getAddress();
 

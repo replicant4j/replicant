@@ -4,7 +4,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.shared.GwtRpcConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
@@ -32,7 +32,7 @@ public class ReplicantRequestCallbackTest
       final Response response = mock( Response.class );
 
       when( response.getStatusCode() ).thenReturn( 200 );
-      when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "1" );
+      when( response.getHeader( GwtRpcConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "1" );
 
       final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -65,7 +65,7 @@ public class ReplicantRequestCallbackTest
       final Response response = mock( Response.class );
 
       when( response.getStatusCode() ).thenReturn( 200 );
-      when( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "0" );
+      when( response.getHeader( GwtRpcConstants.REQUEST_COMPLETE_HEADER ) ).thenReturn( "0" );
 
       final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

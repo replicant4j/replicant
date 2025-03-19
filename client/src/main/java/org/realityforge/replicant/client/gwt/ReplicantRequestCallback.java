@@ -5,7 +5,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.shared.GwtRpcConstants;
 
 final class ReplicantRequestCallback
   implements RequestCallback
@@ -27,7 +27,7 @@ final class ReplicantRequestCallback
     final int statusCode = response.getStatusCode();
     if ( Response.SC_OK == statusCode )
     {
-      final boolean messageComplete = "1".equals( response.getHeader( SharedConstants.REQUEST_COMPLETE_HEADER ) );
+      final boolean messageComplete = "1".equals( response.getHeader( GwtRpcConstants.REQUEST_COMPLETE_HEADER ) );
       _replicantRequest.onSuccess( messageComplete, () -> _callback.onResponseReceived( request, response ) );
     }
     else

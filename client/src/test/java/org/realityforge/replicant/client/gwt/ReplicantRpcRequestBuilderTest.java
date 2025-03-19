@@ -3,7 +3,7 @@ package org.realityforge.replicant.client.gwt;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import org.realityforge.guiceyloops.shared.ValueUtil;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.shared.GwtRpcConstants;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.Replicant;
@@ -32,8 +32,8 @@ public class ReplicantRpcRequestBuilderTest
       new ReplicantRpcRequestBuilder( ValueUtil.randomString(), schemaId ).doSetCallback( rb, chainedCallback );
 
       verify( rb ).setCallback( any( ReplicantRequestCallback.class ) );
-      verify( rb ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
-      verify( rb ).setHeader( eq( SharedConstants.REQUEST_ID_HEADER ), eq( String.valueOf( r.getRequestId() ) ) );
+      verify( rb ).setHeader( eq( GwtRpcConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
+      verify( rb ).setHeader( eq( GwtRpcConstants.REQUEST_ID_HEADER ), eq( String.valueOf( r.getRequestId() ) ) );
     } );
   }
 
@@ -48,7 +48,7 @@ public class ReplicantRpcRequestBuilderTest
     new ReplicantRpcRequestBuilder( ValueUtil.randomString(), schema.getId() ).doSetCallback( rb, callback );
 
     verify( rb ).setCallback( eq( callback ) );
-    verify( rb, never() ).setHeader( eq( SharedConstants.CONNECTION_ID_HEADER ), anyString() );
-    verify( rb, never() ).setHeader( eq( SharedConstants.REQUEST_ID_HEADER ), anyString() );
+    verify( rb, never() ).setHeader( eq( GwtRpcConstants.CONNECTION_ID_HEADER ), anyString() );
+    verify( rb, never() ).setHeader( eq( GwtRpcConstants.REQUEST_ID_HEADER ), anyString() );
   }
 }

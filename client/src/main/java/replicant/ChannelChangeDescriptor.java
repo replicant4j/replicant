@@ -3,7 +3,7 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.shared.SharedConstants;
+import org.realityforge.replicant.shared.Messages;
 import replicant.messages.ChannelChange;
 
 final class ChannelChangeDescriptor
@@ -38,12 +38,12 @@ final class ChannelChangeDescriptor
   }
 
   @Nonnull
-  private static Type actionToType( final String channelAction )
+  private static Type actionToType( @Nonnull final String channelAction )
   {
     final char commandCode = channelAction.charAt( 0 );
-    return SharedConstants.CHANNEL_ACTION_ADD == commandCode ? Type.ADD :
-           SharedConstants.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE :
-           SharedConstants.CHANNEL_ACTION_UPDATE == commandCode ? Type.UPDATE :
+    return Messages.Update.CHANNEL_ACTION_ADD == commandCode ? Type.ADD :
+           Messages.Update.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE :
+           Messages.Update.CHANNEL_ACTION_UPDATE == commandCode ? Type.UPDATE :
            Type.DELETE;
   }
 
