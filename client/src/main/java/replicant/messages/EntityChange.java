@@ -42,9 +42,7 @@ public class EntityChange
                                      @Nonnull final String[] channels,
                                      @Nullable final EntityChangeData data )
   {
-    final EntityChange change = new EntityChange();
-    change.id = type + "." + id;
-    change.channels = channels;
+    final EntityChange change = create(type, id, channels );
     change.data = data;
     return change;
   }
