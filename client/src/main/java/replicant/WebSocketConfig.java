@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.realityforge.gwt.keycloak.Keycloak;
-import org.realityforge.replicant.shared.SharedConstants;
+import replicant.shared.SharedConstants;
 
 public final class WebSocketConfig
 {

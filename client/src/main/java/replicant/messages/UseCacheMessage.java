@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
-import org.realityforge.replicant.shared.Messages;
+import replicant.shared.Messages;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.

@@ -32,7 +32,7 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.WebSocketUtil;
-import org.realityforge.replicant.shared.Messages;
+import replicant.shared.Messages;
 
 public abstract class AbstractReplicantEndpoint
 {

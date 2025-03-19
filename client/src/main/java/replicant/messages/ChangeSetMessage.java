@@ -6,8 +6,8 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
-import org.realityforge.replicant.shared.Messages;
 import replicant.Replicant;
+import replicant.shared.Messages;
 import static org.realityforge.braincheck.Guards.*;
 
 /**

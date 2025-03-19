@@ -16,7 +16,7 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
 import org.realityforge.replicant.server.transport.SystemMetaData;
-import org.realityforge.replicant.shared.SharedConstants;
+import replicant.shared.SharedConstants;
 
 final class Encoder
 {

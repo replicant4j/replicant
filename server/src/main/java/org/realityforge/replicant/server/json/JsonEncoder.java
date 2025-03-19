@@ -24,7 +24,7 @@ import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ee.JsonUtil;
-import org.realityforge.replicant.shared.Messages;
+import replicant.shared.Messages;
 
 /**
  * Utility class used when encoding EntityMessage into JSON payload.

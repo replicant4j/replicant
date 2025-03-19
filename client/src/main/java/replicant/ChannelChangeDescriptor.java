@@ -3,8 +3,8 @@ package replicant;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.replicant.shared.Messages;
 import replicant.messages.ChannelChange;
+import replicant.shared.Messages;
 
 final class ChannelChangeDescriptor
 {
