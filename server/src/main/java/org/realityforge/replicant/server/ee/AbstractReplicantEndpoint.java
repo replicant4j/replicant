@@ -380,6 +380,7 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
+  @SuppressWarnings( "DuplicatedCode" )
   private void onBulkSubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
@@ -481,6 +482,7 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
+  @SuppressWarnings( "DuplicatedCode" )
   private void onBulkUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
