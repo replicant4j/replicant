@@ -23,6 +23,7 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
+  @Nonnull
   public static EntityChange create( final int type, final int id, @Nonnull final String[] channels )
   {
     final EntityChange change = new EntityChange();
@@ -37,6 +38,7 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
+  @Nonnull
   public static EntityChange create( final int type,
                                      final int id,
                                      @Nonnull final String[] channels,
