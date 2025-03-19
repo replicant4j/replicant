@@ -86,13 +86,6 @@ public final class Messages
     }
   }
 
-  public static final class C2S_Common
-  {
-    private C2S_Common()
-    {
-    }
-  }
-
   public static final class Update
   {
     public static final char CHANNEL_ACTION_ADD = '+';
