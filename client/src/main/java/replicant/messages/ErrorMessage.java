@@ -1,14 +1,10 @@
 package replicant.messages;
 
-import java.util.HashSet;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import org.realityforge.replicant.shared.Messages;
-import replicant.Replicant;
-import static org.realityforge.braincheck.Guards.*;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
