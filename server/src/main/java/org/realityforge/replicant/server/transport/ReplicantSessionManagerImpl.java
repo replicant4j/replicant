@@ -483,7 +483,9 @@ public abstract class ReplicantSessionManagerImpl
         {
           return new ChannelLinkEntry( source,
                                        link.getTargetChannel(),
-                                       targetHasFilter ? sourceEntry.getFilter() : null );
+                                       targetHasFilter ?
+                                       deriveFilterToPropagateFromSourceToTarget( sourceEntry ) :
+                                       null );
         }
         else
         {
@@ -492,6 +494,12 @@ public abstract class ReplicantSessionManagerImpl
       }
     }
     return null;
+  }
+
+  @Nullable
+  protected Object deriveFilterToPropagateFromSourceToTarget( @Nonnull final SubscriptionEntry sourceEntry )
+  {
+    return sourceEntry.getFilter();
   }
 
   private void processMessages( @Nonnull final Collection<EntityMessage> messages,
