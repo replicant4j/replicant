@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import org.realityforge.replicant.shared.Messages;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
@@ -16,7 +17,8 @@ public class SessionCreatedMessage
   extends ServerToClientMessage
 {
   @JsOverlay
-  public static final String TYPE = "session-created";
+  public static final String TYPE = Messages.S2C_Type.SESSION_CREATED;
+
   @Nonnull
   private String sessionId;
 

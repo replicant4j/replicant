@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import org.realityforge.replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 @SuppressWarnings( { "unused" } )
@@ -11,7 +12,7 @@ public final class OkMessage
   extends ServerToClientMessage
 {
   @JsOverlay
-  public static final String TYPE = "ok";
+  public static final String TYPE = Messages.S2C_Type.OK;
 
   @GwtIncompatible
   @Nonnull

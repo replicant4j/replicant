@@ -5,12 +5,16 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import org.realityforge.replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 @SuppressWarnings( { "unused" } )
 public final class AuthTokenMessage
   extends ClientToServerMessage
 {
+  @JsOverlay
+  public static final String TYPE = Messages.C2S_Type.AUTH;
+
   @Nullable
   private String token;
 
@@ -19,7 +23,7 @@ public final class AuthTokenMessage
   public static AuthTokenMessage create( final int req, @Nullable final String token )
   {
     final AuthTokenMessage message = new AuthTokenMessage();
-    message.type = "auth";
+    message.type = TYPE;
     message.requestId = req;
     message.token = token;
     return message;

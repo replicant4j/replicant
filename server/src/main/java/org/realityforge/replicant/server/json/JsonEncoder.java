@@ -24,6 +24,7 @@ import org.realityforge.replicant.server.ChannelAction.Action;
 import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.ee.JsonUtil;
+import org.realityforge.replicant.shared.Messages;
 import org.realityforge.replicant.shared.SharedConstants;
 
 /**
@@ -65,59 +66,6 @@ public final class JsonEncoder
   public static final String COMMAND = "command";
   @Nonnull
   public static final String PAYLOAD = "payload";
-
-  /**
-   * Types of Client to Server messages.
-   */
-  public static final class C2S_Type
-  {
-    @Nonnull
-    public static final String AUTH = "auth";
-    @Nonnull
-    public static final String ETAGS = "etags";
-    @Nonnull
-    public static final String PING = "ping";
-    @Nonnull
-    public static final String SUB = "sub";
-    @Nonnull
-    public static final String UNSUB = "unsub";
-    @Nonnull
-    public static final String BULK_SUB = "bulk-sub";
-    @Nonnull
-    public static final String BULK_UNSUB = "bulk-unsub";
-    @Nonnull
-    public static final String EXEC = "exec";
-
-    private C2S_Type()
-    {
-    }
-  }
-
-  /**
-   * Types of Server to Client messages.
-   */
-  public static final class S2C_Type
-  {
-    @Nonnull
-    public static final String UPDATE = "update";
-    @Nonnull
-    public static final String USE_CACHE = "use-cache";
-    @Nonnull
-    public static final String SESSION_CREATED = "session-created";
-    @Nonnull
-    public static final String OK = "ok";
-    @Nonnull
-    public static final String MALFORMED_MESSAGE = "malformed-message";
-    @Nonnull
-    public static final String UNKNOWN_REQUEST_TYPE = "unknown-request-type";
-    @Nonnull
-    public static final String ERROR = "error";
-
-    private S2C_Type()
-    {
-    }
-  }
-
   // Use constant to avoid slow filesystem access when serializing a message.
   @Nonnull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
@@ -147,7 +95,7 @@ public final class JsonEncoder
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject();
-    generator.write( TYPE, S2C_Type.UPDATE );
+    generator.write( TYPE, Messages.S2C_Type.UPDATE );
     if ( null != requestId )
     {
       generator.write( REQUEST_ID, requestId );
@@ -292,7 +240,7 @@ public final class JsonEncoder
     final JsonObjectBuilder response =
       Json
         .createObjectBuilder()
-        .add( TYPE, S2C_Type.USE_CACHE )
+        .add( TYPE, Messages.S2C_Type.USE_CACHE )
         .add( CHANNEL, address.toString() )
         .add( ETAG, eTag );
     if ( null != requestId )
@@ -307,7 +255,7 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.SESSION_CREATED )
+                       .add( TYPE, Messages.S2C_Type.SESSION_CREATED )
                        .add( SESSION_ID, sessionId )
                        .build() );
   }
@@ -317,7 +265,7 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.OK )
+                       .add( TYPE, Messages.S2C_Type.OK )
                        .add( REQUEST_ID, requestId )
                        .build() );
   }
@@ -327,7 +275,7 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.MALFORMED_MESSAGE )
+                       .add( TYPE, Messages.S2C_Type.MALFORMED_MESSAGE )
                        .add( MESSAGE, message )
                        .build() );
   }
@@ -337,7 +285,7 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.UNKNOWN_REQUEST_TYPE )
+                       .add( TYPE, Messages.S2C_Type.UNKNOWN_REQUEST_TYPE )
                        .add( COMMAND, command )
                        .build() );
   }
@@ -347,7 +295,7 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, S2C_Type.ERROR )
+                       .add( TYPE, Messages.S2C_Type.ERROR )
                        .add( MESSAGE, message )
                        .build() );
   }

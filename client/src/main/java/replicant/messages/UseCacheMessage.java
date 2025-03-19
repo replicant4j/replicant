@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import org.realityforge.replicant.shared.Messages;
 
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
@@ -17,7 +18,8 @@ public class UseCacheMessage
   extends ServerToClientMessage
 {
   @JsOverlay
-  public static final String TYPE = "use-cache";
+  public static final String TYPE = Messages.S2C_Type.USE_CACHE;
+
   @Nonnull
   private String channel;
   @Nonnull

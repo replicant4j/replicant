@@ -32,6 +32,7 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.WebSocketUtil;
+import org.realityforge.replicant.shared.Messages;
 
 public abstract class AbstractReplicantEndpoint
 {
@@ -107,7 +108,7 @@ public abstract class AbstractReplicantEndpoint
       onMalformedMessage( replicantSession, message );
       return;
     }
-    if ( !JsonEncoder.C2S_Type.AUTH.equals( type ) && !isAuthorized( replicantSession ) )
+    if ( !Messages.C2S_Type.AUTH.equals( type ) && !isAuthorized( replicantSession ) )
     {
       sendErrorAndClose( session, "Replicant session not authorized" );
       return;
@@ -116,7 +117,7 @@ public abstract class AbstractReplicantEndpoint
     {
       beforeCommand( replicantSession, type, command );
       //noinspection IfCanBeSwitch
-      if ( JsonEncoder.C2S_Type.EXEC.equals( type ) )
+      if ( Messages.C2S_Type.EXEC.equals( type ) )
       {
         try
         {
@@ -130,7 +131,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.ETAGS.equals( type ) )
+      else if ( Messages.C2S_Type.ETAGS.equals( type ) )
       {
         try
         {
@@ -141,11 +142,11 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.PING.equals( type ) )
+      else if ( Messages.C2S_Type.PING.equals( type ) )
       {
         sendOk( session, requestId );
       }
-      else if ( JsonEncoder.C2S_Type.SUB.equals( type ) )
+      else if ( Messages.C2S_Type.SUB.equals( type ) )
       {
         try
         {
@@ -156,7 +157,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.BULK_SUB.equals( type ) )
+      else if ( Messages.C2S_Type.BULK_SUB.equals( type ) )
       {
         try
         {
@@ -167,7 +168,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.UNSUB.equals( type ) )
+      else if ( Messages.C2S_Type.UNSUB.equals( type ) )
       {
         try
         {
@@ -178,7 +179,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.BULK_UNSUB.equals( type ) )
+      else if ( Messages.C2S_Type.BULK_UNSUB.equals( type ) )
       {
         try
         {
@@ -189,7 +190,7 @@ public abstract class AbstractReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( JsonEncoder.C2S_Type.AUTH.equals( type ) )
+      else if ( Messages.C2S_Type.AUTH.equals( type ) )
       {
         onAuthorize( replicantSession, command );
       }
