@@ -313,7 +313,7 @@ public abstract class AbstractReplicantEndpoint
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
-    final ChannelAddress address = ChannelAddress.parse( command.getString( "channel" ) );
+    final ChannelAddress address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
@@ -452,7 +452,7 @@ public abstract class AbstractReplicantEndpoint
   @Nonnull
   private ChannelAddress[] extractChannels( @Nonnull final JsonObject command )
   {
-    final JsonArray channels = command.getJsonArray( "channels" );
+    final JsonArray channels = command.getJsonArray( Messages.Update.CHANNELS );
     final int channelCount = channels.size();
     final ChannelAddress[] addresses = new ChannelAddress[ channelCount ];
     for ( int i = 0; i < channelCount; i++ )
