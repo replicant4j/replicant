@@ -91,7 +91,7 @@ public final class JsonEncoder
       filteredActions.forEach( a -> {
         generator.writeStartObject();
         generator.write( Messages.Common.CHANNEL, toDescriptor( a ) );
-        generator.write( Messages.Update.CHANNEL_FILTER, a.getFilter() );
+        generator.write( Messages.Update.FILTER, a.getFilter() );
         generator.writeEnd();
       } );
       generator.writeEnd();

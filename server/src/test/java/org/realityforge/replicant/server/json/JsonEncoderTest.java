@@ -74,7 +74,7 @@ public final class JsonEncoderTest
 
     final JsonObject action = changeSet.getJsonArray( Messages.Update.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
     assertEquals( action.getString( Messages.Common.CHANNEL ), "=45.77" );
-    assertEquals( action.getJsonObject( Messages.Update.CHANNEL_FILTER ).toString(), filter.toString() );
+    assertEquals( action.getJsonObject( Messages.Update.FILTER ).toString(), filter.toString() );
 
     final JsonObject object = changeSet.getJsonArray( Messages.Update.CHANGES ).getJsonObject( 0 );
 

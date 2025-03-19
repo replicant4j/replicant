@@ -115,7 +115,7 @@ public final class Messages
     @Nonnull
     public static final String CHANNELS = "channels";
     @Nonnull
-    public static final String CHANNEL_FILTER = "filter";
+    public static final String FILTER = "filter";
 
     private Update()
     {
