@@ -125,6 +125,15 @@ public final class Messages
     }
   }
 
+  public static final class Auth
+  {
+    @Nonnull
+    public static final String TOKEN = "token";
+
+    private Auth()
+    {
+    }
+  }
 
   public static final  class Exec
   {

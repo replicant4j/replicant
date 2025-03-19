@@ -306,7 +306,7 @@ public abstract class AbstractReplicantEndpoint
 
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
-    replicantSession.setAuthToken( command.getString( "token" ) );
+    replicantSession.setAuthToken( command.getString( Messages.Auth.TOKEN ) );
     sendOk( replicantSession.getWebSocketSession(), command.getInt( Messages.Common.REQUEST_ID ) );
   }
 
