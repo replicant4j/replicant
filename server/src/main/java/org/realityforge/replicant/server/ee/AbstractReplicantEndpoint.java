@@ -100,8 +100,8 @@ public abstract class AbstractReplicantEndpoint
     try
     {
       command = Json.createReader( new StringReader( message ) ).readObject();
-      type = command.getString( JsonEncoder.TYPE );
-      requestId = command.getInt( JsonEncoder.REQUEST_ID );
+      type = command.getString( Messages.Common.TYPE );
+      requestId = command.getInt( Messages.Common.REQUEST_ID );
     }
     catch ( final Throwable ignored )
     {
@@ -122,9 +122,11 @@ public abstract class AbstractReplicantEndpoint
         try
         {
           onExec( replicantSession,
-                  command.getString( JsonEncoder.COMMAND ),
-                  command.getInt( JsonEncoder.REQUEST_ID ),
-                  command.containsKey( JsonEncoder.PAYLOAD ) ? command.getJsonObject( JsonEncoder.PAYLOAD ) : null );
+                  command.getString( Messages.Common.COMMAND ),
+                  command.getInt( Messages.Common.REQUEST_ID ),
+                  command.containsKey( Messages.Exec.PAYLOAD ) ?
+                  command.getJsonObject( Messages.Exec.PAYLOAD ) :
+                  null );
         }
         catch ( final InterruptedException ignored )
         {
@@ -275,7 +277,7 @@ public abstract class AbstractReplicantEndpoint
     throws InterruptedException
   {
     final Map<ChannelAddress, String> etags = new HashMap<>();
-    for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( JsonEncoder.ETAGS ).entrySet() )
+    for ( final Map.Entry<String, JsonValue> entry : command.getJsonObject( Messages.Etags.ETAGS ).entrySet() )
     {
       final ChannelAddress address = ChannelAddress.parse( entry.getKey() );
       final String eTag = ( (JsonString) entry.getValue() ).getString();
@@ -289,7 +291,7 @@ public abstract class AbstractReplicantEndpoint
                                                   null,
                                                   () -> session.setETags( etags ) );
 
-    sendOk( session.getWebSocketSession(), command.getInt( JsonEncoder.REQUEST_ID ) );
+    sendOk( session.getWebSocketSession(), command.getInt( Messages.Common.REQUEST_ID ) );
   }
 
   private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )
@@ -305,7 +307,7 @@ public abstract class AbstractReplicantEndpoint
   private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
     replicantSession.setAuthToken( command.getString( "token" ) );
-    sendOk( replicantSession.getWebSocketSession(), command.getInt( JsonEncoder.REQUEST_ID ) );
+    sendOk( replicantSession.getWebSocketSession(), command.getInt( Messages.Common.REQUEST_ID ) );
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
@@ -316,7 +318,7 @@ public abstract class AbstractReplicantEndpoint
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
       subscribe( replicantSession,
-                 command.getInt( JsonEncoder.REQUEST_ID ),
+                 command.getInt( Messages.Common.REQUEST_ID ),
                  address,
                  extractFilter( channelMetaData, command ) );
     }
@@ -412,7 +414,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
+    final int requestId = command.getInt( Messages.Common.REQUEST_ID );
     final Object filter = extractFilter( channelMetaData, command );
     if ( 1 == addresses.length )
     {
@@ -470,11 +472,11 @@ public abstract class AbstractReplicantEndpoint
   private void onUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
-    final ChannelAddress address = ChannelAddress.parse( command.getString( JsonEncoder.CHANNEL ) );
+    final ChannelAddress address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
     final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
+      final int requestId = command.getInt( Messages.Common.REQUEST_ID );
       unsubscribe( replicantSession, requestId, address );
     }
   }
@@ -514,7 +516,7 @@ public abstract class AbstractReplicantEndpoint
       }
     }
 
-    final int requestId = command.getInt( JsonEncoder.REQUEST_ID );
+    final int requestId = command.getInt( Messages.Common.REQUEST_ID );
     if ( 1 == addresses.length )
     {
       unsubscribe( session, requestId, addresses[ 0 ] );

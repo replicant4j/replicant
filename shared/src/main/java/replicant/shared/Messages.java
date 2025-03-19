@@ -56,6 +56,43 @@ public final class Messages
     }
   }
 
+  public static final class Common
+  {
+    @Nonnull
+    public static final String TYPE = "type";
+    @Nonnull
+    public static final String REQUEST_ID = "requestId";
+    @Nonnull
+    public static final String CHANNEL = "channel";
+    @Nonnull
+    public static final String COMMAND = "command";
+
+    private Common()
+    {
+    }
+  }
+
+  public static final class S2C_Common
+  {
+    @Nonnull
+    public static final String SESSION_ID = "sessionId";
+    @Nonnull
+    public static final String ETAG = "etag";
+    @Nonnull
+    public static final String MESSAGE = "message";
+
+    private S2C_Common()
+    {
+    }
+  }
+
+  public static final class C2S_Common
+  {
+    private C2S_Common()
+    {
+    }
+  }
+
   public static final class Update
   {
     public static final char CHANNEL_ACTION_ADD = '+';
@@ -63,8 +100,45 @@ public final class Messages
     public static final char CHANNEL_ACTION_UPDATE = '=';
     // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
     public static final char CHANNEL_ACTION_DELETE = '!';
+    @Nonnull
+    public static final String CHANGES = "changes";
+    @Nonnull
+    public static final String ENTITY_ID = "id";
+    @Nonnull
+    public static final String DATA = "data";
+    @Nonnull
+    public static final String FILTERED_CHANNEL_ACTIONS = "fchannels";
+    @Nonnull
+    public static final String CHANNEL_ACTIONS = "channels";
+    @Nonnull
+    public static final String RESPONSE = "response";
+    @Nonnull
+    public static final String CHANNELS = "channels";
+    @Nonnull
+    public static final String CHANNEL_FILTER = "filter";
 
     private Update()
+    {
+    }
+  }
+
+  public static final class Etags
+  {
+    @Nonnull
+    public static final String ETAGS = "etags";
+
+    private Etags()
+    {
+    }
+  }
+
+
+  public static final  class Exec
+  {
+    @Nonnull
+    public static final String PAYLOAD = "payload";
+
+    private Exec()
     {
     }
   }

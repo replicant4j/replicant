@@ -31,40 +31,6 @@ import replicant.shared.Messages;
  */
 public final class JsonEncoder
 {
-  @Nonnull
-  static final String CHANNEL_FILTER = "filter";
-  @Nonnull
-  static final String CHANNELS = "channels";
-  @Nonnull
-  public static final String CHANNEL = "channel";
-  @Nonnull
-  static final String FILTERED_CHANNEL_ACTIONS = "fchannels";
-  @Nonnull
-  static final String CHANNEL_ACTIONS = "channels";
-  @Nonnull
-  static final String DATA = "data";
-  @Nonnull
-  static final String ENTITY_ID = "id";
-  @Nonnull
-  static final String CHANGES = "changes";
-  @Nonnull
-  public static final String ETAG = "etag";
-  @Nonnull
-  public static final String ETAGS = "etags";
-  @Nonnull
-  public static final String REQUEST_ID = "requestId";
-  @Nonnull
-  public static final String RESPONSE = "response";
-  @Nonnull
-  public static final String TYPE = "type";
-  @Nonnull
-  public static final String SESSION_ID = "sessionId";
-  @Nonnull
-  public static final String MESSAGE = "message";
-  @Nonnull
-  public static final String COMMAND = "command";
-  @Nonnull
-  public static final String PAYLOAD = "payload";
   // Use constant to avoid slow filesystem access when serializing a message.
   @Nonnull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
@@ -94,25 +60,25 @@ public final class JsonEncoder
     final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject();
-    generator.write( TYPE, Messages.S2C_Type.UPDATE );
+    generator.write( Messages.Common.TYPE, Messages.S2C_Type.UPDATE );
     if ( null != requestId )
     {
-      generator.write( REQUEST_ID, requestId );
+      generator.write( Messages.Common.REQUEST_ID, requestId );
     }
     if ( null != response )
     {
-      generator.write( RESPONSE, JsonUtil.toJsonValue( response ) );
+      generator.write( Messages.Update.RESPONSE, JsonUtil.toJsonValue( response ) );
     }
     if ( null != etag )
     {
-      generator.write( ETAG, etag );
+      generator.write( Messages.S2C_Common.ETAG, etag );
     }
 
     final List<ChannelAction> actions =
       changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).toList();
     if ( !actions.isEmpty() )
     {
-      generator.writeStartArray( CHANNEL_ACTIONS );
+      generator.writeStartArray( Messages.Update.CHANNEL_ACTIONS );
       actions.stream().map( JsonEncoder::toDescriptor ).forEach( generator::write );
       generator.writeEnd();
     }
@@ -121,11 +87,11 @@ public final class JsonEncoder
       changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).toList();
     if ( !filteredActions.isEmpty() )
     {
-      generator.writeStartArray( FILTERED_CHANNEL_ACTIONS );
+      generator.writeStartArray( Messages.Update.FILTERED_CHANNEL_ACTIONS );
       filteredActions.forEach( a -> {
         generator.writeStartObject();
-        generator.write( CHANNEL, toDescriptor( a ) );
-        generator.write( CHANNEL_FILTER, a.getFilter() );
+        generator.write( Messages.Common.CHANNEL, toDescriptor( a ) );
+        generator.write( Messages.Update.CHANNEL_FILTER, a.getFilter() );
         generator.writeEnd();
       } );
       generator.writeEnd();
@@ -134,19 +100,19 @@ public final class JsonEncoder
     final Collection<Change> changes = changeSet.getChanges();
     if ( !changes.isEmpty() )
     {
-      generator.writeStartArray( CHANGES );
+      generator.writeStartArray( Messages.Update.CHANGES );
 
       for ( final Change change : changes )
       {
         final EntityMessage entityMessage = change.getEntityMessage();
 
         generator.writeStartObject();
-        generator.write( ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
+        generator.write( Messages.Update.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
 
         final Map<Integer, Integer> channels = change.getChannels();
         if ( !channels.isEmpty() )
         {
-          generator.writeStartArray( CHANNELS );
+          generator.writeStartArray( Messages.Update.CHANNELS );
           for ( final Entry<Integer, Integer> entry : channels.entrySet() )
           {
             final Integer cid = entry.getKey();
@@ -158,7 +124,7 @@ public final class JsonEncoder
 
         if ( entityMessage.isUpdate() )
         {
-          generator.writeStartObject( DATA );
+          generator.writeStartObject( Messages.Update.DATA );
           final Map<String, Serializable> values = entityMessage.getAttributeValues();
           assert null != values;
           for ( final Entry<String, Serializable> entry : values.entrySet() )
@@ -239,12 +205,12 @@ public final class JsonEncoder
     final JsonObjectBuilder response =
       Json
         .createObjectBuilder()
-        .add( TYPE, Messages.S2C_Type.USE_CACHE )
-        .add( CHANNEL, address.toString() )
-        .add( ETAG, eTag );
+        .add( Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE )
+        .add( Messages.Common.CHANNEL, address.toString() )
+        .add( Messages.S2C_Common.ETAG, eTag );
     if ( null != requestId )
     {
-      response.add( REQUEST_ID, requestId );
+      response.add( Messages.Common.REQUEST_ID, requestId );
     }
     return asString( response.build() );
   }
@@ -254,8 +220,8 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, Messages.S2C_Type.SESSION_CREATED )
-                       .add( SESSION_ID, sessionId )
+                       .add( Messages.Common.TYPE, Messages.S2C_Type.SESSION_CREATED )
+                       .add( Messages.S2C_Common.SESSION_ID, sessionId )
                        .build() );
   }
 
@@ -264,8 +230,8 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, Messages.S2C_Type.OK )
-                       .add( REQUEST_ID, requestId )
+                       .add( Messages.Common.TYPE, Messages.S2C_Type.OK )
+                       .add( Messages.Common.REQUEST_ID, requestId )
                        .build() );
   }
 
@@ -274,8 +240,8 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, Messages.S2C_Type.MALFORMED_MESSAGE )
-                       .add( MESSAGE, message )
+                       .add( Messages.Common.TYPE, Messages.S2C_Type.MALFORMED_MESSAGE )
+                       .add( Messages.S2C_Common.MESSAGE, message )
                        .build() );
   }
 
@@ -284,8 +250,8 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, Messages.S2C_Type.UNKNOWN_REQUEST_TYPE )
-                       .add( COMMAND, command )
+                       .add( Messages.Common.TYPE, Messages.S2C_Type.UNKNOWN_REQUEST_TYPE )
+                       .add( Messages.Common.COMMAND, command )
                        .build() );
   }
 
@@ -294,8 +260,8 @@ public final class JsonEncoder
   {
     return asString( Json
                        .createObjectBuilder()
-                       .add( TYPE, Messages.S2C_Type.ERROR )
-                       .add( MESSAGE, message )
+                       .add( Messages.Common.TYPE, Messages.S2C_Type.ERROR )
+                       .add( Messages.S2C_Common.MESSAGE, message )
                        .build() );
   }
 

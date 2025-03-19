@@ -18,6 +18,7 @@ import org.realityforge.replicant.server.ChannelAddress;
 import org.realityforge.replicant.server.EntityMessage;
 import org.realityforge.replicant.server.MessageTestUtil;
 import org.testng.annotations.Test;
+import replicant.shared.Messages;
 import static org.testng.Assert.*;
 
 /**
@@ -64,28 +65,28 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getInt( JsonEncoder.REQUEST_ID ), requestId );
-    final JsonArray jsonResponse = changeSet.getJsonArray( JsonEncoder.RESPONSE );
+    assertEquals( changeSet.getInt( Messages.Common.REQUEST_ID ), requestId );
+    final JsonArray jsonResponse = changeSet.getJsonArray( Messages.Update.RESPONSE );
     assertEquals( jsonResponse.size(), 2 );
     assertEquals( jsonResponse.getInt( 0 ), 17 );
     assertEquals( jsonResponse.getInt( 1 ), 42 );
-    assertEquals( changeSet.getString( JsonEncoder.ETAG ), etag );
+    assertEquals( changeSet.getString( Messages.S2C_Common.ETAG ), etag );
 
-    final JsonObject action = changeSet.getJsonArray( JsonEncoder.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
-    assertEquals( action.getString( JsonEncoder.CHANNEL ), "=45.77" );
-    assertEquals( action.getJsonObject( JsonEncoder.CHANNEL_FILTER ).toString(), filter.toString() );
+    final JsonObject action = changeSet.getJsonArray( Messages.Update.FILTERED_CHANNEL_ACTIONS ).getJsonObject( 0 );
+    assertEquals( action.getString( Messages.Common.CHANNEL ), "=45.77" );
+    assertEquals( action.getJsonObject( Messages.Update.CHANNEL_FILTER ).toString(), filter.toString() );
 
-    final JsonObject object = changeSet.getJsonArray( JsonEncoder.CHANGES ).getJsonObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( Messages.Update.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( JsonEncoder.ENTITY_ID ), "42.17" );
+    assertEquals( object.getString( Messages.Update.ENTITY_ID ), "42.17" );
 
-    final JsonObject data = object.getJsonObject( JsonEncoder.DATA );
+    final JsonObject data = object.getJsonObject( Messages.Update.DATA );
     assertNotNull( data );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
     assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
 
-    final JsonArray channels = object.getJsonArray( JsonEncoder.CHANNELS );
+    final JsonArray channels = object.getJsonArray( Messages.Update.CHANNELS );
     assertNotNull( channels );
     assertEquals( channels.size(), 3 );
     final String channel1 = channels.getString( 0 );
@@ -115,11 +116,11 @@ public final class JsonEncoderTest
 
     assertNotNull( changeSet );
 
-    final JsonObject object = changeSet.getJsonArray( JsonEncoder.CHANGES ).getJsonObject( 0 );
+    final JsonObject object = changeSet.getJsonArray( Messages.Update.CHANGES ).getJsonObject( 0 );
 
-    assertEquals( object.getString( JsonEncoder.ENTITY_ID ), "42.17" );
+    assertEquals( object.getString( Messages.Update.ENTITY_ID ), "42.17" );
 
-    assertFalse( object.containsKey( JsonEncoder.DATA ) );
+    assertFalse( object.containsKey( Messages.Update.DATA ) );
   }
 
   private JsonObject toJsonObject( final String encoded )
@@ -135,7 +136,7 @@ public final class JsonEncoderTest
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getJsonArray( JsonEncoder.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
+    assertEquals( changeSet.getJsonArray( Messages.Update.CHANNEL_ACTIONS ).getString( 0 ), "+45" );
   }
 
   @Test
@@ -146,7 +147,7 @@ public final class JsonEncoderTest
     final JsonObject changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
-    assertEquals( changeSet.getJsonArray( JsonEncoder.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
+    assertEquals( changeSet.getJsonArray( Messages.Update.CHANNEL_ACTIONS ).getString( 0 ), "!45" );
   }
 
   @Test
@@ -166,9 +167,9 @@ public final class JsonEncoderTest
 
     final String value =
       toJsonObject( encoded ).
-        getJsonArray( JsonEncoder.CHANGES ).
+        getJsonArray( Messages.Update.CHANGES ).
         getJsonObject( 0 ).
-        getJsonObject( JsonEncoder.DATA ).
+        getJsonObject( Messages.Update.DATA ).
         getString( "X" );
     assertNotNull( value );
     assertEquals( value, "1392061102056" );
