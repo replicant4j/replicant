@@ -40,6 +40,8 @@ public interface Transport
 
   void updateEtagsSync( @Nonnull Map<String, String> channelToEtagMap );
 
+  void requestExec( @Nonnull String command, @Nullable Object payload );
+
   void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
 
   void requestUnsubscribe( @Nonnull ChannelAddress address );

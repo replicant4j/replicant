@@ -12,6 +12,7 @@ import replicant.messages.AuthTokenMessage;
 import replicant.messages.BulkSubscribeMessage;
 import replicant.messages.BulkUnsubscribeMessage;
 import replicant.messages.EtagsMessage;
+import replicant.messages.ExecMessage;
 import replicant.messages.PingMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscribeMessage;
@@ -51,6 +52,13 @@ public abstract class AbstractTransport
     final JsPropertyMap<Object> map = JsPropertyMap.of();
     channelToEtagMap.forEach( map::set );
     sendRemoteMessage( EtagsMessage.create( newRequestId( "Sync", true ), Js.uncheckedCast( map ) ) );
+  }
+
+  @Override
+  public void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  {
+    final int requestId = newRequestId( "Exec-" + command );
+    sendRemoteMessage( ExecMessage.create( requestId, command, payload ) );
   }
 
   @Override
