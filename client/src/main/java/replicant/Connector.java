@@ -834,6 +834,8 @@ abstract class Connector
     {
       request.markResultsAsArrived();
     }
+    final ServerToClientMessage message = response.getMessage();
+    final Integer requestId = message.getRequestId();
     /*
      * An action will be returned if the message is an answer to a request.
      */
@@ -843,8 +845,6 @@ abstract class Connector
       action.call();
     }
     // We can remove the request because this side ran second and the RPC channel has already returned.
-    final ServerToClientMessage message = response.getMessage();
-    final Integer requestId = message.getRequestId();
     if ( null != requestId )
     {
       connection.removeRequest( requestId );
