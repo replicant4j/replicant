@@ -36,6 +36,8 @@ import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.ExecCompletedEvent;
+import replicant.spy.ExecStartedEvent;
 import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
