@@ -1454,6 +1454,34 @@ abstract class Connector
   }
 
   /**
+   * Invoked when an exec has been sent to the server.
+   *
+   * @param command the exec request command.
+   */
+  void onExecStarted( @Nonnull final String command )
+  {
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new ExecStartedEvent( getSchema().getId(), getSchema().getName(), command ) );
+    }
+  }
+
+  /**
+   * Invoked when an exec has been sent to the server.
+   *
+   * @param command the exec request command.
+   */
+  void onExecCompleted( @Nonnull final String command )
+  {
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext().getSpy()
+        .reportSpyEvent( new ExecCompletedEvent( getSchema().getId(), getSchema().getName(), command ) );
+    }
+  }
+
+  /**
    * Called when a data load has resulted in a failure.
    */
   @Action( verifyRequired = false )

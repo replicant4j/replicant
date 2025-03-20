@@ -26,6 +26,8 @@ import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.ExecCompletedEvent;
+import replicant.spy.ExecStartedEvent;
 import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
@@ -3650,6 +3652,41 @@ public final class ConnectorTest
     verify( connector.getTransport() ).requestSync();
   }
 
+  @Test
+  public void onExecStarted()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final String command = ValueUtil.randomString();
+    connector.onExecStarted( command );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( ExecStartedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getCommand(), command );
+    } );
+  }
+
+  @Test
+  public void onExecCompleted()
+  {
+    final Connector connector = createConnector();
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final String command = ValueUtil.randomString();
+    connector.onExecCompleted( command );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( ExecCompletedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getCommand(), command );
+    } );
+  }
   @Nonnull
   private RequestEntry newRequest( @Nonnull final Connection connection )
   {
