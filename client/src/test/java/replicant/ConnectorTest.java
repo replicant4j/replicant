@@ -48,7 +48,7 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 @SuppressWarnings( { "NonJREEmulationClassesInClientCode" } )
-public class ConnectorTest
+public final class ConnectorTest
   extends AbstractReplicantTest
 {
   @Test
