@@ -13,6 +13,9 @@ import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
+import replicant.spy.ExecCompletedEvent;
+import replicant.spy.ExecRequestQueuedEvent;
+import replicant.spy.ExecStartedEvent;
 import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
@@ -50,6 +53,8 @@ public class ConsoleSpyEventProcessor
   @CssRules
   private static final String AREA_OF_INTEREST_COLOR = "color: #006AEB; font-weight: normal;";
   @CssRules
+  private static final String EXEC_COLOR = "color: orangered; font-weight: normal;";
+  @CssRules
   private static final String ERROR_COLOR = "color: #A10001; font-weight: normal;";
 
   /**
@@ -65,6 +70,10 @@ public class ConsoleSpyEventProcessor
     on( SubscriptionCreatedEvent.class, this::onSubscriptionCreated );
     on( SubscriptionDisposedEvent.class, this::onSubscriptionDisposed );
     on( SubscriptionOrphanedEvent.class, this::onSubscriptionOrphaned );
+
+    on( ExecStartedEvent.class, this::onExecStarted );
+    on( ExecCompletedEvent.class, this::onExecCompleted );
+    on( ExecRequestQueuedEvent.class, this::onExecRequestQueued );
 
     on( ConnectedEvent.class, this::onConnected );
     on( ConnectFailureEvent.class, this::onConnectFailure );
@@ -417,13 +426,42 @@ public class ConsoleSpyEventProcessor
   }
 
   /**
+   * Handle the ExecStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onExecStarted( @Nonnull final ExecStartedEvent e )
+  {
+    log( "%cExec Started " + e.getCommand(), EXEC_COLOR );
+  }
+
+  /**
+   * Handle the ExecStartedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onExecCompleted( @Nonnull final ExecCompletedEvent e )
+  {
+    log( "%cExec Completed " + e.getCommand(), EXEC_COLOR );
+  }
+
+  /**
+   * Handle the ExecRequestQueuedEvent.
+   *
+   * @param e the event.
+   */
+  protected void onExecRequestQueued( @Nonnull final ExecRequestQueuedEvent e )
+  {
+    log( "%cExec Request Queued  " + e.getCommand(), EXEC_COLOR );
+  }
+
+  /**
    * Log specified message with parameters
    *
    * @param message the message.
    * @param styling the styling parameter. It is assumed that the message has a %c somewhere in it to identify the start of the styling.
    */
-  protected void log( @Nonnull final String message,
-                      @CssRules @Nonnull final String styling )
+  protected void log( @Nonnull final String message, @CssRules @Nonnull final String styling )
   {
     Console.log( message, styling );
   }
