@@ -34,11 +34,6 @@ public final class ReplicantContext
   @Nullable
   private final SpyImpl _spy;
   /**
-   * Support infrastructure for change broker.
-   */
-  @Nullable
-  private final EntityChangeBroker _changeBroker;
-  /**
    * Service responsible for caching data to avoid hitting the network during requests.
    */
   @Nullable
@@ -55,7 +50,6 @@ public final class ReplicantContext
     _validator = Validator.create( Replicant.areZonesEnabled() ? this : null );
     _schemaService = SchemaService.create();
     _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
-    _changeBroker = Replicant.isChangeBrokerEnabled() ? new EntityChangeBroker() : null;
   }
 
   public void setAuthToken( @Nullable final String authToken )
@@ -269,36 +263,6 @@ public final class ReplicantContext
     }
     assert null != _spy;
     return _spy;
-  }
-
-  /**
-   * Return the EntityChangeBroker associated with the context.
-   * This method should not be invoked unless {@link Replicant#isChangeBrokerEnabled()} ()} returns true.
-   *
-   * @return the EntityChangeBroker associated with the context.
-   */
-  @Nonnull
-  public EntityChangeBroker getChangeBroker()
-  {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( Replicant::isChangeBrokerEnabled,
-                    () -> "Replicant-0042: Attempting to get the ChangeBroker but the change broker is not enabled." );
-    }
-    assert null != _changeBroker;
-    return _changeBroker;
-  }
-
-  /**
-   * Return the EntityChangeEmitter associated with the context.
-   * This method should not be invoked unless {@link Replicant#isChangeBrokerEnabled()} ()} returns true.
-   *
-   * @return the EntityChangeEmitter associated with the context.
-   */
-  @Nonnull
-  public EntityChangeEmitter getChangeEmitter()
-  {
-    return getChangeBroker().getEmitter();
   }
 
   /**

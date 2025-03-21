@@ -216,52 +216,6 @@ public class ReplicantContextTest
   }
 
   @Test
-  public void getChangeBroker_whenChangeBrokerDisabled()
-  {
-    ReplicantTestUtil.disableChangeBroker();
-    ReplicantTestUtil.resetState();
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, Replicant.context()::getChangeBroker );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0042: Attempting to get the ChangeBroker but the change broker is not enabled." );
-  }
-
-  @Test
-  public void getChangeBroker()
-  {
-    ReplicantTestUtil.enableChangeBroker();
-    ReplicantTestUtil.resetState();
-
-    final ReplicantContext context = Replicant.context();
-
-    assertNotNull( context.getChangeBroker() );
-  }
-
-  @Test
-  public void getChangeEmitter_whenChangeBrokerDisabled()
-  {
-    ReplicantTestUtil.disableChangeBroker();
-    ReplicantTestUtil.resetState();
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, Replicant.context()::getChangeEmitter );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0042: Attempting to get the ChangeBroker but the change broker is not enabled." );
-  }
-
-  @Test
-  public void getChangeEmitter()
-  {
-    ReplicantTestUtil.enableChangeBroker();
-    ReplicantTestUtil.resetState();
-
-    final ReplicantContext context = Replicant.context();
-
-    assertNotNull( context.getChangeEmitter() );
-  }
-
-  @Test
   public void getSpy_whenSpiesDisabled()
   {
     ReplicantTestUtil.disableSpies();

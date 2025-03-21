@@ -102,11 +102,6 @@ abstract class Connector
   @Nullable
   private Disposable _schedulerLock;
   /**
-   * This lock is acquired and released when _schedulerLock is acquired and released but only if the broker is enabled.
-   */
-  @Nullable
-  private EntityBrokerLock _brokerLock;
-  /**
    * Maximum number of entity links to attempt in a single tick of the scheduler. After this many links have
    * been processed then return and any remaining links can occur in a later tick.
    */
@@ -254,11 +249,6 @@ abstract class Connector
   void setConnection( @Nullable final Connection connection )
   {
     _connection = connection;
-    EntityBrokerLock lock = null;
-    if ( Replicant.isChangeBrokerEnabled() )
-    {
-      lock = getReplicantContext().getChangeBroker().disable();
-    }
     // Lock arez otherwise the purgeSubscriptions will trigger a converge when
     // _connection is null but State may be CONNECTED
     final Disposable schedulerLock = Arez.context().pauseScheduler();
@@ -279,11 +269,6 @@ abstract class Connector
       }
     }
     schedulerLock.dispose();
-    if ( Replicant.isChangeBrokerEnabled() )
-    {
-      assert null != lock;
-      lock.release();
-    }
   }
 
   private void sendAuthTokenIfAny()
@@ -497,10 +482,6 @@ abstract class Connector
     if ( null == _schedulerLock )
     {
       _schedulerLock = context().pauseScheduler();
-      if ( Replicant.isChangeBrokerEnabled() )
-      {
-        _brokerLock = getReplicantContext().getChangeBroker().pause();
-      }
     }
     try
     {
@@ -543,13 +524,6 @@ abstract class Connector
   {
     if ( null != _schedulerLock )
     {
-      if ( Replicant.isChangeBrokerEnabled() )
-      {
-        assert null != _brokerLock;
-        _brokerLock.release();
-        _brokerLock = null;
-      }
-
       _schedulerLock.dispose();
       _schedulerLock = null;
     }

@@ -38,17 +38,6 @@ public final class Replicant
   }
 
   /**
-   * Return true if the {@link EntityChangeBroker} infrastructure is enabled, false otherwise.
-   * This functionality should only be enabled to support legacy systems as it will be removed in the future.
-   *
-   * @return true if the entity change broker is enabled, false otherwise.
-   */
-  public static boolean isChangeBrokerEnabled()
-  {
-    return ReplicantConfig.isChangeBrokerEnabled();
-  }
-
-  /**
    * Return true if zones are enabled, false otherwise.
    *
    * @return true if zones are enabled, false otherwise.
