@@ -1,9 +1,12 @@
 package replicant;
 
+import akasha.MessageEvent;
 import akasha.WebSocket;
 import akasha.core.JSON;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import jsinterop.base.Any;
+import replicant.messages.ServerToClientMessage;
 
 public class WebSocketTransport
   extends AbstractTransport
@@ -22,9 +25,19 @@ public class WebSocketTransport
   {
     _webSocket = new WebSocket( _config.getUrl() );
 
-    _webSocket.onmessage = e -> onMessageReceived( Objects.requireNonNull( JSON.parse( e.data().asString() ) ).cast() );
+    _webSocket.onmessage = e -> onMessageReceived( toServerToClientMessage( e ) );
     _webSocket.onerror = e -> onError();
     _webSocket.onclose = e -> onDisconnect();
+  }
+
+  @Nonnull
+  private static ServerToClientMessage toServerToClientMessage( @Nonnull final MessageEvent e )
+  {
+    final Any data = e.data();
+    assert null != data;
+    final Any parsedData = JSON.parse( data.asString() );
+    assert null != parsedData;
+    return parsedData.cast();
   }
 
   @Override
