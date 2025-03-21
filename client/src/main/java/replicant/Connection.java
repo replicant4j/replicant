@@ -336,7 +336,7 @@ abstract class Connection
     {
       final AreaOfInterestRequest first = _pendingAreaOfInterestRequests.removeFirst();
       _currentAreaOfInterestRequests.add( first );
-      while ( _pendingAreaOfInterestRequests.size() > 0 &&
+      while ( !_pendingAreaOfInterestRequests.isEmpty() &&
               canGroupRequests( first, _pendingAreaOfInterestRequests.get( 0 ) ) )
       {
         _currentAreaOfInterestRequests.add( _pendingAreaOfInterestRequests.removeFirst() );
