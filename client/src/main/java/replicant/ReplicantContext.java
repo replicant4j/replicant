@@ -479,6 +479,7 @@ public final class ReplicantContext
    */
   public void request( final int schemaId, @Nullable final String name, @Nonnull final SafeProcedure callback )
   {
+    // TODO: Once GWT-RPC has been removed, this can be removed....
     getRuntime().getConnector( schemaId ).request( name, callback );
   }
 
