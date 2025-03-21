@@ -507,8 +507,9 @@ abstract class Connector
       if ( null != _connection && ConnectorState.DISCONNECTING != _state )
       {
         final boolean step1 = progressAreaOfInterestRequestProcessing();
-        final boolean step2 = progressResponseProcessing();
-        _schedulerActive = step1 || step2;
+        final boolean step2 = progressExecRequestProcessing();
+        final boolean step3 = progressResponseProcessing();
+        _schedulerActive = step1 || step2 || step3;
       }
       else
       {
@@ -849,6 +850,9 @@ abstract class Connector
     }
     final ServerToClientMessage message = response.getMessage();
     final Integer requestId = message.getRequestId();
+
+    final ExecRequest execRequest =
+      null != requestId ? ensureConnection().getActiveExecRequest( requestId ) : null;
     /*
      * An action will be returned if the message is an answer to a request.
      */
@@ -863,6 +867,11 @@ abstract class Connector
       connection.removeRequest( requestId );
     }
     connection.setCurrentMessageResponse( null );
+    if ( null != execRequest )
+    {
+      connection.markExecRequestAsComplete( requestId );
+      onExecCompleted( execRequest.getCommand() );
+    }
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
 
@@ -1193,6 +1202,24 @@ abstract class Connector
       {
         progressAreaOfInterestUpdateRequests( requests );
       }
+      return true;
+    }
+  }
+
+  boolean progressExecRequestProcessing()
+  {
+    final ExecRequest request = ensureConnection().nextExecRequest();
+    if ( null == request )
+    {
+      return false;
+    }
+    else
+    {
+      onExecStarted( request.getCommand() );
+
+      _transport.requestExec( request.getCommand(), request.getPayload() );
+      request.markAsInProgress( ensureConnection().getLastTxRequestId() );
+      ensureConnection().recordActiveExecRequest( request );
       return true;
     }
   }
