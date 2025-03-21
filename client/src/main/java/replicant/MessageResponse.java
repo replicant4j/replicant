@@ -26,6 +26,7 @@ final class MessageResponse
    */
   @Nonnull
   private final ServerToClientMessage _message;
+  @Nullable
   private final RequestEntry _request;
   /**
    * The current index into changes.
@@ -144,6 +145,7 @@ final class MessageResponse
     }
   }
 
+  @Nullable
   RequestEntry getRequest()
   {
     return _request;
@@ -183,6 +185,7 @@ final class MessageResponse
     _parsedChannelChanges = Objects.requireNonNull( parsedChannelChanges );
   }
 
+  @Nonnull
   List<ChannelChangeDescriptor> getChannelChanges()
   {
     assert ChangeSetMessage.TYPE.equals( _message.getType() );
@@ -200,6 +203,7 @@ final class MessageResponse
     _channelActionsProcessed = true;
   }
 
+  @Nullable
   EntityChange nextEntityChange()
   {
     if ( areEntityChangesPending() )
@@ -228,6 +232,7 @@ final class MessageResponse
     return null != _entitiesToLink && !_entitiesToLink.isEmpty();
   }
 
+  @Nullable
   Linkable nextEntityToLink()
   {
     if ( areEntityLinksPending() )
@@ -247,6 +252,7 @@ final class MessageResponse
     return !_entitiesChanged.isEmpty();
   }
 
+  @Nullable
   Object nextEntityToPostAction()
   {
     if ( areEntityUpdateActionsPending() )
