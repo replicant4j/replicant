@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import java.util.List;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -390,6 +391,25 @@ public class ReplicantContextTest
     context.setCacheService( null );
 
     assertNull( context.getCacheService() );
+  }
+
+  @Test
+  public void exec()
+  {
+    final Connector connector = createConnector();
+    connector.pauseMessageScheduler();
+    final Connection connection = newConnection( connector );
+
+    final String command = ValueUtil.randomString();
+    final Object payload = new Object();
+
+    Replicant.context().exec( connector.getSchema().getId(), command, payload );
+
+    final List<ExecRequest> requests = connection.getPendingExecRequests();
+    assertEquals( requests.size(), 1 );
+    final ExecRequest request = requests.get( 0 );
+    assertEquals( request.getCommand(), command );
+    assertEquals( request.getPayload(), payload );
   }
 
   @Test

@@ -453,6 +453,21 @@ public final class ReplicantContext
   }
 
   /**
+   * Schedule an "Exec" request to the server.
+   * The request is identified by a command and a payload (a.k.a. parameters) and may return a result.
+   * The mapping of the command and payload to behaviour is abstracted away by server and is outside
+   * the scope of this api.
+   *
+   * @param schemaId the id of the schema.
+   * @param command the command string. It uniquely identifies a call.
+   * @param payload the payload or parameters of the payload.
+   */
+  public void exec( final int schemaId, @Nonnull final String command, @Nullable final Object payload )
+  {
+    getRuntime().getConnector( schemaId ).requestExec( command, payload );
+  }
+
+  /**
    * Perform a request when the connection has been established.
    * This call waits till a connection is established and then invokes the callback with a new Request.
    * It is the responsibility of the callback to perform the actual request and invoke the
