@@ -18,7 +18,6 @@ final class ReplicantConfig
     "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
   private static boolean ENABLE_CHANGE_BROKER =
     "true".equals( System.getProperty( "replicant.enable_change_broker", "false" ) );
-  private static boolean ENABLE_EVENTS = "true".equals( System.getProperty( "replicant.enable_events", "false" ) );
   private static boolean ENABLE_ZONES = "true".equals( System.getProperty( "replicant.enable_zones", "false" ) );
   private static boolean VALIDATE_CHANGE_SET_ON_READ =
     "true".equals( System.getProperty( "replicant.validateChangeSetOnRead",
@@ -51,11 +50,6 @@ final class ReplicantConfig
   static boolean isChangeBrokerEnabled()
   {
     return ENABLE_CHANGE_BROKER;
-  }
-
-  static boolean areEventsEnabled()
-  {
-    return ENABLE_EVENTS;
   }
 
   static boolean checkInvariants()

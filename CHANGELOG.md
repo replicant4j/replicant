@@ -4,6 +4,7 @@
 
 * Split GwtRpc specific parts of `SharedConstants` into `GwtRpcConstants`.
 * Start to centralize constants used in json messages into `Messages` constants class.
+* Remove `ApplicationEventBroker` and all realted infrastructure as it is no longer required.
 
 ### [v6.139](https://github.com/replicant4j/replicant/tree/v6.139) (2025-02-13) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.138...v6.139)
 

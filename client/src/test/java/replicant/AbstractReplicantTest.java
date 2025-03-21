@@ -112,15 +112,6 @@ public abstract class AbstractReplicantTest
       throw new AssertionError( t );
     }
   }
-
-  @Nonnull
-  protected final TestApplicationEventHandler registerTestApplicationEventHandler()
-  {
-    final TestApplicationEventHandler handler = new TestApplicationEventHandler();
-    Replicant.context().getEventBroker().addApplicationEventHandler( handler );
-    return handler;
-  }
-
   @Nonnull
   protected final TestSpyEventHandler registerTestSpyEventHandler()
   {

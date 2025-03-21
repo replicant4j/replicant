@@ -37,9 +37,6 @@
   <define-property name='replicant.enable_change_broker' values='true,false'/>
   <set-property name='replicant.enable_change_broker' value='false'/>
 
-  <define-property name='replicant.enable_events' values='true,false'/>
-  <set-property name='replicant.enable_events' value='false'/>
-
   <define-property name='replicant.logger' values='console,proxy,none'/>
   <set-property name='replicant.logger' value='console'/>
 </module>

@@ -436,33 +436,6 @@ public final class ConnectorTest
   }
 
   @Test
-  public void onMessageProcessed_EventsEnabled()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final Connector connector = createConnector();
-
-    safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
-
-    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
-    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
-
-    final MessageResponse response =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, null, null ), null );
-    connector.onMessageProcessed( response );
-
-    spyHandler.assertEventCount( 1 );
-
-    spyHandler.assertNextEvent( MessageProcessedEvent.class,
-                                e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
-    appHandler.assertEventCount( 1 );
-
-    appHandler.assertNextEvent( replicant.events.MessageProcessedEvent.class,
-                                e -> assertEquals( e.getSchemaId(), connector.getSchema().getId() ) );
-  }
-
-  @Test
   public void onMessageProcessFailure()
   {
     final Connector connector = createConnector();
@@ -608,46 +581,6 @@ public final class ConnectorTest
   }
 
   @Test
-  public void onSubscribeStarted_EventsEnabled()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
-    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
-
-    connector.onSubscribeStarted( address );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    appHandler.assertEventCount( 1 );
-    appHandler.assertNextEvent( replicant.events.SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    spyHandler.assertEventCount( 2 );
-    spyHandler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                                e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    spyHandler.assertNextEvent( SubscribeStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
   public void onSubscribeCompleted()
   {
     final Connector connector = createConnector();
@@ -674,47 +607,6 @@ public final class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
-  public void onSubscribeCompleted_EventsEnabled()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
-    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
-
-    connector.onSubscribeCompleted( address );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    appHandler.assertEventCount( 1 );
-    appHandler.assertNextEvent( replicant.events.SubscribeCompletedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-    spyHandler.assertEventCount( 2 );
-    spyHandler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                                e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    spyHandler.assertNextEvent( SubscribeCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
@@ -841,48 +733,6 @@ public final class ConnectorTest
   }
 
   @Test
-  public void onSubscriptionUpdateStarted_EventsEnabled()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
-    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
-
-    connector.onSubscriptionUpdateStarted( address );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    appHandler.assertEventCount( 1 );
-    appHandler.assertNextEvent( replicant.events.SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    spyHandler.assertEventCount( 2 );
-    spyHandler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                                e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    spyHandler.assertNextEvent( SubscriptionUpdateStartedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
   public void onSubscriptionUpdateCompleted()
   {
     final Connector connector = createConnector();
@@ -909,48 +759,6 @@ public final class ConnectorTest
     handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
     handler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-  }
-
-  @Test
-  public void onSubscriptionUpdateCompleted_EventsEnabled()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final Connector connector = createConnector();
-
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
-    safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    final Subscription subscription = createSubscription( address, null, true );
-
-    final TestSpyEventHandler spyHandler = registerTestSpyEventHandler();
-    final TestApplicationEventHandler appHandler = registerTestApplicationEventHandler();
-
-    connector.onSubscriptionUpdateCompleted( address );
-
-    assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED );
-    safeAction( () -> assertEquals( areaOfInterest.getSubscription(), subscription ) );
-    safeAction( () -> assertNull( areaOfInterest.getError() ) );
-
-    appHandler.assertEventCount( 1 );
-    appHandler.assertNextEvent( replicant.events.SubscriptionUpdateCompletedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getAddress(), address );
-    } );
-
-    spyHandler.assertEventCount( 2 );
-    spyHandler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class,
-                                e -> assertEquals( e.getAreaOfInterest(), areaOfInterest ) );
-    spyHandler.assertNextEvent( SubscriptionUpdateCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getAddress(), address );
     } );
@@ -3694,7 +3502,7 @@ public final class ConnectorTest
   {
     final Connector connector = createConnector();
     connector.pauseMessageScheduler();
-    final Connection connection = newConnection( connector );
+    newConnection( connector );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

@@ -292,36 +292,6 @@ public class ReplicantContextTest
   }
 
   @Test
-  public void getEventBroker_whenEventsDisabled()
-  {
-    assertEquals( expectThrows( IllegalStateException.class, Replicant.context()::getEventBroker ).getMessage(),
-                  "Replicant-0092: Attempting to get ApplicationEventBroker but events are not enabled." );
-  }
-
-  @Test
-  public void getEventBroker()
-  {
-    ReplicantTestUtil.enableEvents();
-    ReplicantTestUtil.resetState();
-
-    final ReplicantContext context = Replicant.context();
-
-    assertFalse( context.willPropagateApplicationEvents() );
-
-    final ApplicationEventBroker broker = context.getEventBroker();
-
-    broker.addApplicationEventHandler( new TestApplicationEventHandler() );
-
-    assertTrue( broker.willPropagateApplicationEvents() );
-    assertTrue( context.willPropagateApplicationEvents() );
-
-    ReplicantTestUtil.disableEvents();
-
-    assertFalse( broker.willPropagateApplicationEvents() );
-    assertFalse( context.willPropagateApplicationEvents() );
-  }
-
-  @Test
   public void preConvergeAction()
   {
     safeAction( () -> {
