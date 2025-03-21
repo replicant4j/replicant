@@ -37,6 +37,7 @@ import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.ExecCompletedEvent;
+import replicant.spy.ExecRequestQueuedEvent;
 import replicant.spy.ExecStartedEvent;
 import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
@@ -383,6 +384,18 @@ abstract class Connector
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
     }
     _transport.requestSync();
+    triggerMessageScheduler();
+  }
+
+  void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  {
+    if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
+    {
+      getReplicantContext()
+        .getSpy()
+        .reportSpyEvent( new ExecRequestQueuedEvent( getSchema().getId(), getSchema().getName(), command ) );
+    }
+    ensureConnection().requestExec( command, payload );
     triggerMessageScheduler();
   }
 

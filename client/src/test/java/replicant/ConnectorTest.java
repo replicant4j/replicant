@@ -27,6 +27,7 @@ import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
 import replicant.spy.ExecCompletedEvent;
+import replicant.spy.ExecRequestQueuedEvent;
 import replicant.spy.ExecStartedEvent;
 import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
@@ -3687,6 +3688,34 @@ public final class ConnectorTest
       assertEquals( e.getCommand(), command );
     } );
   }
+
+  @Test
+  public void requestExec()
+  {
+    final Connector connector = createConnector();
+    connector.pauseMessageScheduler();
+    final Connection connection = newConnection( connector );
+
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+
+    final String command = ValueUtil.randomString();
+    final Object payload = new Object();
+    connector.requestExec( command, payload );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( ExecRequestQueuedEvent.class, e -> {
+      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
+      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
+      assertEquals( e.getCommand(), command );
+    } );
+
+    final List<ExecRequest> requests = connector.ensureConnection().getPendingExecRequests();
+    assertEquals( requests.size(), 1 );
+    final ExecRequest request = requests.get( 0 );
+    assertEquals( request.getCommand(), command );
+    assertEquals( request.getPayload(), payload );
+  }
+
   @Nonnull
   private RequestEntry newRequest( @Nonnull final Connection connection )
   {
