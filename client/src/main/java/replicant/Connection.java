@@ -41,6 +41,10 @@ abstract class Connection
    */
   private final LinkedList<AreaOfInterestRequest> _pendingAreaOfInterestRequests = new LinkedList<>();
   /**
+   * Pending exec actions.
+   */
+  private final LinkedList<ExecRequest> _pendingExecRequests = new LinkedList<>();
+  /**
    * This list contains the messages from the server.
    */
   private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
@@ -88,6 +92,11 @@ abstract class Connection
   Connector getConnector()
   {
     return _connector;
+  }
+
+  void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  {
+    _pendingExecRequests.add( new ExecRequest( command, payload ) );
   }
 
   void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -343,6 +352,12 @@ abstract class Connection
       }
     }
     return CollectionsUtil.wrap( _currentAreaOfInterestRequests );
+  }
+
+  @Nonnull
+  List<ExecRequest> getPendingExecRequests()
+  {
+    return _pendingExecRequests;
   }
 
   /**

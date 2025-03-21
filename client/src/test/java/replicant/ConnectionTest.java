@@ -68,6 +68,24 @@ public class ConnectionTest
   }
 
   @Test
+  public void requestExec()
+  {
+    final Connection connection = createConnection();
+
+    assertEquals( connection.getPendingExecRequests().size(), 0 );
+
+    final String command = ValueUtil.randomString();
+    final Object payload = new Object();
+    connection.requestExec( command, payload );
+
+    final List<ExecRequest> requests = connection.getPendingExecRequests();
+    assertEquals( requests.size(), 1 );
+    final ExecRequest request = requests.get( 0 );
+    assertEquals( request.getCommand(), command );
+    assertEquals( request.getPayload(), payload );
+  }
+
+  @Test
   public void requestSubscribe()
   {
     final Connection connection = createConnection();
