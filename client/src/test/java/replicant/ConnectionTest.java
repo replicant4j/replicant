@@ -236,6 +236,66 @@ public class ConnectionTest
   }
 
   @Test
+  public void execLifecycle()
+  {
+    final Connection connection = createConnection();
+
+    assertEquals( connection.getActiveExecRequests().size(), 0 );
+    assertEquals( connection.getPendingExecRequests().size(), 0 );
+
+    final String command = ValueUtil.randomString();
+    final Object payload = new Object();
+
+    // Request Exec
+    {
+      connection.requestExec( command, payload );
+
+      assertEquals( connection.getActiveExecRequests().size(), 0 );
+      final List<ExecRequest> requests = connection.getPendingExecRequests();
+      assertEquals( requests.size(), 1 );
+      final ExecRequest request = requests.get( 0 );
+      assertEquals( request.getCommand(), command );
+      assertEquals( request.getPayload(), payload );
+    }
+
+    {
+      final ExecRequest request = connection.nextExecRequest();
+      assertNotNull( request );
+      assertEquals( request.getCommand(), command );
+      assertEquals( request.getPayload(), payload );
+      assertEquals( request.getRequestId(), -1 );
+
+      assertEquals( connection.getPendingExecRequests().size(), 0 );
+      assertEquals( connection.getActiveExecRequests().size(), 0 );
+
+      final int requestId = ValueUtil.randomInt();
+      request.markAsInProgress( requestId );
+
+      assertEquals( request.getRequestId(), requestId );
+
+      connection.recordActiveExecRequest( request );
+
+      assertEquals( connection.getPendingExecRequests().size(), 0 );
+      assertEquals( connection.getActiveExecRequests().size(), 1 );
+      assertEquals( connection.getActiveExecRequest( requestId ), request );
+      assertTrue( request.isInProgress() );
+      assertEquals( request.getRequestId(), requestId );
+
+      connection.markExecRequestAsComplete( requestId );
+
+      assertEquals( connection.getPendingExecRequests().size(), 0 );
+      assertEquals( connection.getActiveExecRequests().size(), 0 );
+      assertNull( connection.getActiveExecRequest( requestId ) );
+      assertFalse( request.isInProgress() );
+      assertEquals( request.getRequestId(), -1 );
+    }
+
+    {
+      assertNull( connection.nextExecRequest() );
+    }
+  }
+
+  @Test
   public void removeRequestWhenNoRequest()
   {
     final Connection connection = createConnection();

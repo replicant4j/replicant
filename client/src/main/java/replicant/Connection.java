@@ -59,6 +59,11 @@ abstract class Connection
    */
   @Nonnull
   private final List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
+  /**
+   * The exec requests that have been sent to server and we are waiting for a return.
+   */
+  @Nonnull
+  private final Map<Integer, ExecRequest> _activeExecRequests = new HashMap<>();
 
   @Nonnull
   static Connection create( @Nonnull final Connector connector )
@@ -354,10 +359,41 @@ abstract class Connection
     return CollectionsUtil.wrap( _currentAreaOfInterestRequests );
   }
 
+  @Nullable
+  ExecRequest nextExecRequest()
+  {
+    return _pendingExecRequests.isEmpty() ? null : _pendingExecRequests.removeFirst();
+  }
+
   @Nonnull
   List<ExecRequest> getPendingExecRequests()
   {
     return _pendingExecRequests;
+  }
+
+  void recordActiveExecRequest( @Nonnull final ExecRequest execRequest )
+  {
+    assert execRequest.isInProgress();
+    _activeExecRequests.put( execRequest.getRequestId(), execRequest );
+  }
+
+  @Nonnull
+  Map<Integer, ExecRequest> getActiveExecRequests()
+  {
+    return _activeExecRequests;
+  }
+
+  @Nullable
+  ExecRequest getActiveExecRequest( final int requestId )
+  {
+    return _activeExecRequests.get( requestId );
+  }
+
+  void markExecRequestAsComplete( final int requestId )
+  {
+    final ExecRequest request = _activeExecRequests.remove( requestId );
+    assert null != request;
+    request.markAsComplete();
   }
 
   /**
