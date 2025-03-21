@@ -269,13 +269,13 @@ public class ConnectionTest
     request2.markAsInProgress( 2 );
 
     assertTrue( request1.isInProgress() );
-    assertTrue( request1.isInProgress() );
+    assertTrue( request2.isInProgress() );
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 2 );
 
     connection.completeAreaOfInterestRequest();
 
     assertFalse( request1.isInProgress() );
-    assertFalse( request1.isInProgress() );
+    assertFalse( request2.isInProgress() );
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
   }
 
