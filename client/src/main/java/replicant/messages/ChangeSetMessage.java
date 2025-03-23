@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import jsinterop.base.Any;
 import replicant.Replicant;
 import replicant.shared.Messages;
 import static org.realityforge.braincheck.Guards.*;
@@ -29,6 +30,7 @@ public class ChangeSetMessage
   private ChannelChange[] fchannels;
   @Nullable
   private EntityChange[] changes;
+  private Any response;
 
   @GwtIncompatible
   @Nonnull
@@ -56,6 +58,16 @@ public class ChangeSetMessage
   public final String getETag()
   {
     return etag;
+  }
+
+  /**
+   * @return the exec response associated with the message, if any
+   */
+  @Nullable
+  @JsOverlay
+  public Any getResponse()
+  {
+    return response;
   }
 
   /**
