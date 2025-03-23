@@ -31,6 +31,7 @@ public class ChangeSetMessage
   private EntityChange[] changes;
 
   @GwtIncompatible
+  @Nonnull
   public static ChangeSetMessage create( @Nullable final Integer requestId,
                                          @Nullable final String eTag,
                                          @Nullable final String[] channels,
