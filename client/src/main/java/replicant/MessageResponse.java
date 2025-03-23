@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.messages.ChangeSetMessage;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -153,9 +153,9 @@ final class MessageResponse
 
   boolean areEntityChangesPending()
   {
-    if ( ChangeSetMessage.TYPE.equals( _message.getType() ) )
+    if ( UpdateMessage.TYPE.equals( _message.getType() ) )
     {
-      final ChangeSetMessage message = (ChangeSetMessage) _message;
+      final UpdateMessage message = (UpdateMessage) _message;
       return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
     }
     else
@@ -166,9 +166,9 @@ final class MessageResponse
 
   boolean needsChannelChangesProcessed()
   {
-    if ( ChangeSetMessage.TYPE.equals( _message.getType() ) )
+    if ( UpdateMessage.TYPE.equals( _message.getType() ) )
     {
-      final ChangeSetMessage message = (ChangeSetMessage) _message;
+      final UpdateMessage message = (UpdateMessage) _message;
       return !_channelActionsProcessed && (
         message.hasChannels() && 0 != message.getChannels().length ||
         message.hasFilteredChannels() && 0 != message.getFilteredChannels().length
@@ -188,8 +188,8 @@ final class MessageResponse
   @Nonnull
   List<ChannelChangeDescriptor> getChannelChanges()
   {
-    assert ChangeSetMessage.TYPE.equals( _message.getType() );
-    final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
+    assert UpdateMessage.TYPE.equals( _message.getType() );
+    final UpdateMessage changeSet = (UpdateMessage) _message;
     assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
     if ( null == _parsedChannelChanges )
     {
@@ -208,7 +208,7 @@ final class MessageResponse
   {
     if ( areEntityChangesPending() )
     {
-      final EntityChange change = ( (ChangeSetMessage) _message ).getEntityChanges()[ _entityChangeIndex ];
+      final EntityChange change = ( (UpdateMessage) _message ).getEntityChanges()[ _entityChangeIndex ];
       _entityChangeIndex++;
       return change;
     }
@@ -335,7 +335,7 @@ final class MessageResponse
   }
 
   @Nonnull
-  private List<ChannelChangeDescriptor> toChannelChanges( @Nonnull final ChangeSetMessage changeSet )
+  private List<ChannelChangeDescriptor> toChannelChanges( @Nonnull final UpdateMessage changeSet )
   {
     final List<ChannelChangeDescriptor> changes = new ArrayList<>();
 

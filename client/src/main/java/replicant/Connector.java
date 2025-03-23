@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.UpdateMessage;
 import replicant.messages.UseCacheMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -877,14 +877,14 @@ abstract class Connector
         triggerMessageScheduler();
       }
     }
-    else if ( ChangeSetMessage.TYPE.equals( message.getType() ) )
+    else if ( UpdateMessage.TYPE.equals( message.getType() ) )
     {
       // If message is not a ping response then try to perform sync
       maybeRequestSync();
-      final ChangeSetMessage changeSetMessage = (ChangeSetMessage) message;
-      if ( null != changeSetMessage.getETag() )
+      final UpdateMessage updateMessage = (UpdateMessage) message;
+      if ( null != updateMessage.getETag() )
       {
-        cacheMessageIfPossible( response, changeSetMessage );
+        cacheMessageIfPossible( response, updateMessage );
       }
     }
     else if ( ErrorMessage.TYPE.equals( message.getType() ) )
@@ -1028,7 +1028,7 @@ abstract class Connector
   }
 
   private void cacheMessageIfPossible( @Nonnull final MessageResponse response,
-                                       @Nonnull final ChangeSetMessage changeSet )
+                                       @Nonnull final UpdateMessage changeSet )
   {
     final String eTag = changeSet.getETag();
     final CacheService cacheService = getReplicantContext().getCacheService();
@@ -1118,7 +1118,7 @@ abstract class Connector
           if ( Replicant.shouldCheckInvariants() )
           {
             invariant( () -> null != subscription,
-                       () -> "Replicant-0069: ChangeSet contained an EntityChange message referencing channel " +
+                       () -> "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel " +
                              address + " but no such subscription exists locally." );
           }
           assert null != subscription;

@@ -52,17 +52,17 @@
   {
     "code": 12,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet.getEntityChanges() invoked when no changes are present. Should guard call with ChangeSet.hasEntityChanges()."
+    "messagePattern": "UpdateMessage.getEntityChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasEntityChanges()."
   },
   {
     "code": 13,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet.getChannels() invoked when no changes are present. Should guard call with ChangeSet.hasChannels()."
+    "messagePattern": "UpdateMessage.getChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasChannels()."
   },
   {
     "code": 14,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet contains multiple EntityChange messages with the id '%s'."
+    "messagePattern": "UpdateMessage contains multiple EntityChange messages with the id '%s'."
   },
   {
     "code": 15,
@@ -97,7 +97,7 @@
   {
     "code": 22,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet contains multiple ChannelChange messages for the channel %s."
+    "messagePattern": "UpdateMessage contains multiple ChannelChange messages for the channel %s."
   },
   {
     "code": 23,
@@ -122,7 +122,7 @@
   {
     "code": 28,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet contains multiple ChannelChange messages for the channel %s."
+    "messagePattern": "UpdateMessage contains multiple ChannelChange messages for the channel %s."
   },
   {
     "code": 29,
@@ -132,7 +132,7 @@
   {
     "code": 30,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSet.getFilteredChannels() invoked when no changes are present. Should guard call with ChangeSet.hasFilteredChannels()."
+    "messagePattern": "UpdateMessage.getFilteredChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasFilteredChannels()."
   },
   {
     "code": 31,
@@ -312,7 +312,7 @@
   {
     "code": 69,
     "type": "INVARIANT",
-    "messagePattern": "ChangeSet contained an EntityChange message referencing channel %s but no such subscription exists locally."
+    "messagePattern": "UpdateMessage contained an EntityChange message referencing channel %s but no such subscription exists locally."
   },
   {
     "code": 70,

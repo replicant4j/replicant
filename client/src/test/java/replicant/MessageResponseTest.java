@@ -3,10 +3,10 @@ package replicant;
 import arez.component.Linkable;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
-import replicant.messages.ChangeSetMessage;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -18,7 +18,7 @@ public class MessageResponseTest
   public void construct()
   {
     final MessageResponse action =
-      new MessageResponse( 1, ChangeSetMessage.create( null, null, null, null, null ), null );
+      new MessageResponse( 1, UpdateMessage.create( null, null, null, null, null ), null );
 
     assertFalse( action.areEntityLinksPending() );
     assertFalse( action.areEntityChangesPending() );
@@ -35,8 +35,8 @@ public class MessageResponseTest
   @Test
   public void toStatus()
   {
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final UpdateMessage changeSet =
+      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
 
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
 
@@ -67,7 +67,7 @@ public class MessageResponseTest
   {
     ReplicantTestUtil.disableSpies();
 
-    final MessageResponse action = new MessageResponse( 1, new ChangeSetMessage(), null );
+    final MessageResponse action = new MessageResponse( 1, new UpdateMessage(), null );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -95,8 +95,8 @@ public class MessageResponseTest
   @Test
   public void testToString()
   {
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+    final UpdateMessage changeSet =
+      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
                   "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
@@ -143,8 +143,8 @@ public class MessageResponseTest
 
     final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
 
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( requestId, null, null, channelChanges, entityChanges );
+    final UpdateMessage changeSet =
+      UpdateMessage.create( requestId, null, null, channelChanges, entityChanges );
 
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, false );
@@ -236,8 +236,8 @@ public class MessageResponseTest
 
     final EntityChange[] entityChanges = new EntityChange[ 0 ];
 
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
+    final UpdateMessage changeSet =
+      UpdateMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, false );
 
@@ -270,8 +270,8 @@ public class MessageResponseTest
   @Test
   public void setChangeSet_mismatchedRequestId()
   {
-    final ChangeSetMessage changeSet =
-      ChangeSetMessage.create( 1234, null, null, null, null );
+    final UpdateMessage changeSet =
+      UpdateMessage.create( 1234, null, null, null, null );
     final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false );
 
     final IllegalStateException exception =
