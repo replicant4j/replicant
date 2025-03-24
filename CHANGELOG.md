@@ -7,6 +7,7 @@
 * Remove `ApplicationEventBroker` and all related infrastructure as it is no longer required.
 * Remove `EntityChangeListener` and all related infrastructure as it is no longer required.
 * Rename `ChangeSetMessage` to `UpdateMessage`.
+* Add `AreaOfInterest.Status.isDeleted()` helper method.
 
 ### [v6.139](https://github.com/replicant4j/replicant/tree/v6.139) (2025-02-13) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.138...v6.139)
 

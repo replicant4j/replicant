@@ -64,6 +64,11 @@ public abstract class AreaOfInterest
     {
       return this == LOAD_FAILED || this == UPDATE_FAILED;
     }
+
+    public boolean isDeleted()
+    {
+      return this == DELETED;
+    }
   }
 
   @Nonnull

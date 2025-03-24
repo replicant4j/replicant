@@ -42,6 +42,20 @@ public class AreaOfInterestTest
     assertFalse( AreaOfInterest.Status.DELETED.isErrorState() );
   }
 
+  @Test
+  public void isDeleted()
+  {
+    assertFalse( AreaOfInterest.Status.NOT_ASKED.isDeleted() );
+    assertFalse( AreaOfInterest.Status.LOADING.isDeleted() );
+    assertFalse( AreaOfInterest.Status.LOAD_FAILED.isDeleted() );
+    assertFalse( AreaOfInterest.Status.LOADED.isDeleted() );
+    assertFalse( AreaOfInterest.Status.UPDATING.isDeleted() );
+    assertFalse( AreaOfInterest.Status.UPDATE_FAILED.isDeleted() );
+    assertFalse( AreaOfInterest.Status.UPDATED.isDeleted() );
+    assertFalse( AreaOfInterest.Status.UNLOADING.isDeleted() );
+    assertFalse( AreaOfInterest.Status.UNLOADED.isDeleted() );
+    assertTrue( AreaOfInterest.Status.DELETED.isDeleted() );
+  }
 
   @Test
   public void onConstruct()
