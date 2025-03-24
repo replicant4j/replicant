@@ -3,6 +3,7 @@ package replicant;
 /**
  * Location of all compile time configuration settings for framework.
  */
+@SuppressWarnings( "FieldMayBeFinal" )
 final class ReplicantConfig
 {
   /**
