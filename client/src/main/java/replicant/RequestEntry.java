@@ -16,8 +16,11 @@ final class RequestEntry
   private final boolean _syncRequest;
   @Nullable
   private final ResponseHandler _responseHandler;
+  // TODO: We can remove _expectingResults field once we remove gwt-rpc
   private Boolean _expectingResults;
+  // TODO: We can remove _resultsArrived field once we remove gwt-rpc
   private boolean _resultsArrived;
+  // TODO: We can remove _completionAction field once we remove gwt-rpc (replaced by response handler)
   private SafeProcedure _completionAction;
 
   RequestEntry( final int requestId, @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler )
