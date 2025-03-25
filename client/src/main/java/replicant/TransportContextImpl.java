@@ -33,10 +33,12 @@ final class TransportContextImpl
   }
 
   @Override
-  public int newRequestId( @Nullable final String name, final boolean syncRequest )
+  public int newRequestId( @Nullable final String name,
+                           final boolean syncRequest,
+                           @Nullable final ResponseHandler responseHandler )
   {
     assert isNotDisposed();
-    return _connector.ensureConnection().newRequest( name, syncRequest ).getRequestId();
+    return _connector.ensureConnection().newRequest( name, syncRequest, responseHandler ).getRequestId();
   }
 
   @Override

@@ -147,7 +147,7 @@ public class MessageResponseTest
       UpdateMessage.create( requestId, null, null, channelChanges, entityChanges );
 
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, false );
+    final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
 
     final SafeProcedure completionAction = mock( SafeProcedure.class );
     final MessageResponse action = new MessageResponse( 1, changeSet, request );
@@ -239,7 +239,7 @@ public class MessageResponseTest
     final UpdateMessage changeSet =
       UpdateMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
     final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, false );
+    final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
 
     final MessageResponse action = new MessageResponse( 1, changeSet, request );
 
@@ -272,7 +272,7 @@ public class MessageResponseTest
   {
     final UpdateMessage changeSet =
       UpdateMessage.create( 1234, null, null, null, null );
-    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false );
+    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> new MessageResponse( 1, changeSet, request ) );

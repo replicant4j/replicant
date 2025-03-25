@@ -34,7 +34,7 @@ public class ReplicantRpcRequestBuilderTest
       verify( rb ).setCallback( any( ReplicantRequestCallback.class ) );
       verify( rb ).setHeader( eq( GwtRpcConstants.CONNECTION_ID_HEADER ), eq( r.getConnectionId() ) );
       verify( rb ).setHeader( eq( GwtRpcConstants.REQUEST_ID_HEADER ), eq( String.valueOf( r.getRequestId() ) ) );
-    } );
+    }, null );
   }
 
   @Test

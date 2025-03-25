@@ -261,7 +261,7 @@ abstract class Connector
         sendAuthTokenIfAny();
         sendEtagsIfAny();
         onConnected();
-        _pendingRequests.forEach( p -> doRequest( p.getName(), p.getCallback() ) );
+        _pendingRequests.forEach( p -> doRequest( p.getName(), p.getCallback(), p.getResponseHandler() ) );
       }
       else
       {
@@ -372,7 +372,9 @@ abstract class Connector
     triggerMessageScheduler();
   }
 
-  void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  void requestExec( @Nonnull final String command,
+                    @Nullable final Object payload,
+                    @Nullable final ResponseHandler responseHandler )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -380,7 +382,7 @@ abstract class Connector
         .getSpy()
         .reportSpyEvent( new ExecRequestQueuedEvent( getSchema().getId(), getSchema().getName(), command ) );
     }
-    ensureConnection().requestExec( command, payload );
+    ensureConnection().requestExec( command, payload, responseHandler );
     triggerMessageScheduler();
   }
 
@@ -1189,9 +1191,10 @@ abstract class Connector
     }
     else
     {
-      onExecStarted( request.getCommand() );
+      final String command = request.getCommand();
+      onExecStarted( command );
 
-      _transport.requestExec( request.getCommand(), request.getPayload() );
+      _transport.requestExec( command, request.getPayload(), request.getResponseHandler() );
       request.markAsInProgress( ensureConnection().getLastTxRequestId() );
       ensureConnection().recordActiveExecRequest( request );
       return true;
@@ -1670,15 +1673,17 @@ abstract class Connector
     return _transport;
   }
 
-  void request( @Nullable final String name, @Nonnull final SafeProcedure callback )
+  void request( @Nullable final String name,
+                @Nonnull final SafeProcedure callback,
+                @Nullable final ResponseHandler responseHandler )
   {
     if ( ConnectorState.CONNECTED == getState() )
     {
-      doRequest( name, callback );
+      doRequest( name, callback, responseHandler );
     }
     else
     {
-      enqueueRequest( name, callback );
+      enqueueRequest( name, callback, responseHandler );
     }
   }
 
@@ -1694,10 +1699,12 @@ abstract class Connector
     return null != _currentRequest;
   }
 
-  private void doRequest( @Nullable final String name, @Nonnull final SafeProcedure callback )
+  private void doRequest( @Nullable final String name,
+                          @Nonnull final SafeProcedure callback,
+                          @Nullable final ResponseHandler responseHandler )
   {
     final Connection connection = ensureConnection();
-    final RequestEntry entry = connection.newRequest( name, false );
+    final RequestEntry entry = connection.newRequest( name, false, responseHandler );
     try
     {
       assert null == _currentRequest;
@@ -1712,9 +1719,11 @@ abstract class Connector
     }
   }
 
-  void enqueueRequest( @Nullable final String name, @Nonnull final SafeProcedure callback )
+  void enqueueRequest( @Nullable final String name,
+                       @Nonnull final SafeProcedure callback,
+                       @Nullable final ResponseHandler responseHandler )
   {
-    _pendingRequests.add( new PendingRequest( name, callback ) );
+    _pendingRequests.add( new PendingRequest( name, callback, responseHandler ) );
   }
 
   @Nonnull

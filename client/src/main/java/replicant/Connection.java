@@ -99,9 +99,11 @@ abstract class Connection
     return _connector;
   }
 
-  void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  void requestExec( @Nonnull final String command,
+                    @Nullable final Object payload,
+                    @Nullable final ResponseHandler responseHandler )
   {
-    _pendingExecRequests.add( new ExecRequest( command, payload ) );
+    _pendingExecRequests.add( new ExecRequest( command, payload, responseHandler ) );
   }
 
   void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -186,11 +188,13 @@ abstract class Connection
   }
 
   @Nonnull
-  RequestEntry newRequest( @Nullable final String name, final boolean syncRequest )
+  RequestEntry newRequest( @Nullable final String name,
+                           final boolean syncRequest,
+                           @Nullable final ResponseHandler responseHandler )
   {
     final int requestId = getLastTxRequestId() + 1;
     setLastTxRequestId( requestId );
-    final RequestEntry request = new RequestEntry( requestId, name, syncRequest );
+    final RequestEntry request = new RequestEntry( requestId, name, syncRequest, responseHandler );
     _requests.put( requestId, request );
     if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
     {

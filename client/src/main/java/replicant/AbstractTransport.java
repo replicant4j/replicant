@@ -35,14 +35,14 @@ public abstract class AbstractTransport
   public final void requestSync()
   {
     assert null != _transportContext;
-    final int requestId = newRequestId( "Sync", true );
+    final int requestId = newRequestId( "Sync", true, null );
     sendRemoteMessage( PingMessage.create( requestId ) );
   }
 
   @Override
   public final void updateAuthToken( @Nullable final String authToken )
   {
-    final int requestId = newRequestId( "Auth", true );
+    final int requestId = newRequestId( "Auth", true, null );
     sendRemoteMessage( AuthTokenMessage.create( requestId, authToken ) );
   }
 
@@ -51,27 +51,30 @@ public abstract class AbstractTransport
   {
     final JsPropertyMap<Object> map = JsPropertyMap.of();
     channelToEtagMap.forEach( map::set );
-    sendRemoteMessage( EtagsMessage.create( newRequestId( "Sync", true ), Js.uncheckedCast( map ) ) );
+    final int requestId = newRequestId( "Sync", true, null );
+    sendRemoteMessage( EtagsMessage.create( requestId, Js.uncheckedCast( map ) ) );
   }
 
   @Override
-  public void requestExec( @Nonnull final String command, @Nullable final Object payload )
+  public void requestExec( @Nonnull final String command,
+                           @Nullable final Object payload,
+                           @Nullable final ResponseHandler responseHandler )
   {
-    final int requestId = newRequestId( "Exec-" + command );
+    final int requestId = newRequestId( "Exec-" + command, responseHandler );
     sendRemoteMessage( ExecMessage.create( requestId, command, payload ) );
   }
 
   @Override
   public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
-    final int requestId = newRequestId( toRequestKey( "Subscribe", address ) );
+    final int requestId = newRequestId( toRequestKey( "Subscribe", address ), null );
     sendRemoteMessage( SubscribeMessage.create( requestId, address.asChannelDescriptor(), filter ) );
   }
 
   @Override
   public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
-    final int requestId = newRequestId( toRequestKey( "Unsubscribe", address ) );
+    final int requestId = newRequestId( toRequestKey( "Unsubscribe", address ), null );
     sendRemoteMessage( UnsubscribeMessage.create( requestId, address.asChannelDescriptor() ) );
   }
 
@@ -79,7 +82,7 @@ public abstract class AbstractTransport
   public final void requestBulkSubscribe( @Nonnull final List<ChannelAddress> addresses,
                                           @Nullable final Object filter )
   {
-    final int requestId = newRequestId( toRequestKey( "BulkSubscribe", addresses ) );
+    final int requestId = newRequestId( toRequestKey( "BulkSubscribe", addresses ), null );
     final String[] channels = addresses.stream().map( ChannelAddress::asChannelDescriptor ).toArray( String[]::new );
     sendRemoteMessage( BulkSubscribeMessage.create( requestId, channels, filter ) );
   }
@@ -87,7 +90,7 @@ public abstract class AbstractTransport
   @Override
   public final void requestBulkUnsubscribe( @Nonnull final List<ChannelAddress> addresses )
   {
-    final int requestId = newRequestId( toRequestKey( "BulkUnsubscribe", addresses ) );
+    final int requestId = newRequestId( toRequestKey( "BulkUnsubscribe", addresses ), null );
     final String[] channels = addresses.stream().map( ChannelAddress::asChannelDescriptor ).toArray( String[]::new );
     sendRemoteMessage( BulkUnsubscribeMessage.create( requestId, channels ) );
   }
@@ -155,15 +158,17 @@ public abstract class AbstractTransport
            null;
   }
 
-  private int newRequestId( @Nullable final String name )
+  private int newRequestId( @Nullable final String name, @Nullable ResponseHandler responseHandler )
   {
-    return newRequestId( name, false );
+    return newRequestId( name, false, responseHandler );
   }
 
-  private int newRequestId( @Nullable final String name, final boolean syncRequest )
+  private int newRequestId( @Nullable final String name,
+                            final boolean syncRequest,
+                            @Nullable ResponseHandler responseHandler )
   {
     assert null != _transportContext;
-    return _transportContext.newRequestId( name, syncRequest );
+    return _transportContext.newRequestId( name, syncRequest, responseHandler );
   }
 
   protected abstract void doConnect();

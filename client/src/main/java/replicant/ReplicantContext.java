@@ -387,13 +387,17 @@ public final class ReplicantContext
    * The mapping of the command and payload to behaviour is abstracted away by server and is outside
    * the scope of this api.
    *
-   * @param schemaId the id of the schema.
-   * @param command the command string. It uniquely identifies a call.
-   * @param payload the payload or parameters of the payload.
+   * @param schemaId        the id of the schema.
+   * @param command         the command string. It uniquely identifies a call.
+   * @param payload         the payload or parameters of the payload.
+   * @param responseHandler the ResponseHandler invoked when a response is received.
    */
-  public void exec( final int schemaId, @Nonnull final String command, @Nullable final Object payload )
+  public void exec( final int schemaId,
+                    @Nonnull final String command,
+                    @Nullable final Object payload,
+                    @Nullable final ResponseHandler responseHandler )
   {
-    getRuntime().getConnector( schemaId ).requestExec( command, payload );
+    getRuntime().getConnector( schemaId ).requestExec( command, payload, responseHandler );
   }
 
   /**
@@ -403,13 +407,16 @@ public final class ReplicantContext
    * {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
    * when the request completes.
    *
-   * @param schemaId the id of the schema of the connector where the request should be created.
-   * @param name     the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
+   * @param schemaId        the id of the schema of the connector where the request should be created.
+   * @param name            the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
+   * @param responseHandler the request handler.
    */
-  public void request( final int schemaId, @Nullable final String name, @Nonnull final SafeProcedure callback )
+  public void request( final int schemaId, @Nullable final String name,
+                       @Nonnull final SafeProcedure callback,
+                       @Nullable final ResponseHandler responseHandler )
   {
     // TODO: Once GWT-RPC has been removed, this can be removed....
-    getRuntime().getConnector( schemaId ).request( name, callback );
+    getRuntime().getConnector( schemaId ).request( name, callback, responseHandler );
   }
 
   /**

@@ -13,7 +13,7 @@ public class RequestTest
   {
     final Connection connection = createConnection();
     final String name = ValueUtil.randomString();
-    final RequestEntry entry = connection.newRequest( name, false );
+    final RequestEntry entry = connection.newRequest( name, false, null );
     final Request request = new Request( connection, entry );
 
     assertEquals( request.getConnectionId(), connection.getConnectionId() );
@@ -25,7 +25,7 @@ public class RequestTest
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false, null );
     final Request request = new Request( connection, entry );
 
     assertNull( entry.getCompletionAction() );
@@ -45,7 +45,7 @@ public class RequestTest
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false, null );
     final Request request = new Request( connection, entry );
 
     assertNull( entry.getCompletionAction() );
@@ -66,7 +66,7 @@ public class RequestTest
   public void onSuccess_alreadyCompleted()
   {
     final Connection connection = createConnection();
-    final RequestEntry entry = connection.newRequest( "DoStuff", false );
+    final RequestEntry entry = connection.newRequest( "DoStuff", false, null );
     final Request request = new Request( connection, entry );
 
     final SafeProcedure onSuccess = () -> {
@@ -85,7 +85,7 @@ public class RequestTest
   {
     final AtomicReference<Object> result = new AtomicReference<>();
     final Connection connection = createConnection();
-    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), false, null );
     final Request request = new Request( connection, entry );
 
     assertNull( request.getEntry().getCompletionAction() );
@@ -105,7 +105,7 @@ public class RequestTest
   public void onFailure_alreadyCompleted()
   {
     final Connection connection = createConnection();
-    final RequestEntry entry = connection.newRequest( "DoStuff", false );
+    final RequestEntry entry = connection.newRequest( "DoStuff", false, null );
     final Request request = new Request( connection, entry );
 
     final SafeProcedure onFailure = () -> {

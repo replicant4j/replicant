@@ -327,7 +327,7 @@ public class ReplicantContextTest
     final String command = ValueUtil.randomString();
     final Object payload = new Object();
 
-    Replicant.context().exec( connector.getSchema().getId(), command, payload );
+    Replicant.context().exec( connector.getSchema().getId(), command, payload, null );
 
     final List<ExecRequest> requests = connection.getPendingExecRequests();
     assertEquals( requests.size(), 1 );
@@ -347,7 +347,7 @@ public class ReplicantContextTest
 
       assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
       assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
-    } );
+    }, null );
   }
 
   @Test
@@ -358,7 +358,7 @@ public class ReplicantContextTest
 
     assertEquals( connector.getPendingRequests().size(), 0 );
     Replicant.context().request( schemaId, "MyAction", () -> {
-    } );
+    }, null );
     assertEquals( connector.getPendingRequests().size(), 1 );
   }
 

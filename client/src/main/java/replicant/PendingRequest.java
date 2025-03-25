@@ -10,11 +10,16 @@ final class PendingRequest
   private final String _name;
   @Nonnull
   private final SafeProcedure _callback;
+  @Nullable
+  private final ResponseHandler _responseHandler;
 
-  PendingRequest( @Nullable final String name, @Nonnull final SafeProcedure callback )
+  PendingRequest( @Nullable final String name,
+                  @Nonnull final SafeProcedure callback,
+                  @Nullable final ResponseHandler responseHandler )
   {
     _name = name;
     _callback = Objects.requireNonNull( callback );
+    _responseHandler = responseHandler;
   }
 
   @Nullable
@@ -27,5 +32,11 @@ final class PendingRequest
   SafeProcedure getCallback()
   {
     return _callback;
+  }
+
+  @Nullable
+  ResponseHandler getResponseHandler()
+  {
+    return _responseHandler;
   }
 }

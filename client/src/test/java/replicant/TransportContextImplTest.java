@@ -21,7 +21,7 @@ public class TransportContextImplTest
     final Connection connection = newConnection( connector );
     final TransportContextImpl context = new TransportContextImpl( connector );
 
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null);
     assertEquals( connection.getPendingResponses().size(), 0 );
     context.onMessageReceived( OkMessage.create( request.getRequestId() ) );
     assertEquals( connection.getPendingResponses().size(), 1 );

@@ -14,13 +14,16 @@ final class RequestEntry
   @Nullable
   private final String _name;
   private final boolean _syncRequest;
+  @Nullable
+  private final ResponseHandler _responseHandler;
   private Boolean _normalCompletion;
   private boolean _expectingResults;
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
-  RequestEntry( final int requestId, @Nullable final String name, final boolean syncRequest )
+  RequestEntry( final int requestId, @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler )
   {
+    _responseHandler = responseHandler;
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> Replicant.areNamesEnabled() || null == name,

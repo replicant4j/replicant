@@ -10,12 +10,17 @@ final class ExecRequest
   private final String _command;
   @Nullable
   private final Object _payload;
+  @Nullable
+  private final ResponseHandler _responseHandler;
   private int _requestId;
 
-  ExecRequest( @Nonnull final String command, @Nullable final Object payload )
+  ExecRequest( @Nonnull final String command,
+               @Nullable final Object payload,
+               @Nullable final ResponseHandler responseHandler )
   {
     _command = Objects.requireNonNull( command );
     _payload = payload;
+    _responseHandler = responseHandler;
     _requestId = -1;
   }
 
@@ -29,6 +34,12 @@ final class ExecRequest
   Object getPayload()
   {
     return _payload;
+  }
+
+  @Nullable
+  ResponseHandler getResponseHandler()
+  {
+    return _responseHandler;
   }
 
   boolean isInProgress()

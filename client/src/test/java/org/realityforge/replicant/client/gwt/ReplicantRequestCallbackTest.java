@@ -47,7 +47,7 @@ public class ReplicantRequestCallbackTest
       } );
 
       verify( chainedCallback ).onResponseReceived( request, response );
-    } );
+    }, null );
   }
 
   @Test
@@ -80,7 +80,7 @@ public class ReplicantRequestCallbackTest
       } );
 
       verify( chainedCallback, never() ).onResponseReceived( request, response );
-    } );
+    }, null );
   }
 
   @Test
@@ -111,7 +111,7 @@ public class ReplicantRequestCallbackTest
       } );
 
       verify( chainedCallback ).onError( eq( request ), any( InvalidHttpResponseException.class ) );
-    } );
+    }, null );
   }
 
   @Test
@@ -143,6 +143,6 @@ public class ReplicantRequestCallbackTest
       } );
 
       verify( chainedCallback ).onError( eq( request ), eq( exception ) );
-    } );
+    }, null );
   }
 }

@@ -3378,7 +3378,8 @@ public final class ConnectorTest
     final Connection connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      connection.removeRequest( connection.newRequest( ValueUtil.randomString(), true ).getRequestId() );
+      final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), true, null );
+      connection.removeRequest( entry.getRequestId() );
       assertFalse( connector.shouldRequestSync() );
     } );
   }
@@ -3508,7 +3509,7 @@ public final class ConnectorTest
 
     final String command = ValueUtil.randomString();
     final Object payload = new Object();
-    connector.requestExec( command, payload );
+    connector.requestExec( command, payload, null );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ExecRequestQueuedEvent.class, e -> {
@@ -3527,7 +3528,7 @@ public final class ConnectorTest
   @Nonnull
   private RequestEntry newRequest( @Nonnull final Connection connection )
   {
-    return connection.newRequest( ValueUtil.randomString(), false );
+    return connection.newRequest( ValueUtil.randomString(), false, null );
   }
 
   @Nonnull

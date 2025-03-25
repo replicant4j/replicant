@@ -27,7 +27,7 @@ public class ConnectionTest
     assertNull( connection.getCurrentMessageResponse() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
     final MessageResponse response =
       new MessageResponse( 1, OkMessage.create( request.getRequestId() ), request );
     connection.setCurrentMessageResponse( response );
@@ -76,7 +76,7 @@ public class ConnectionTest
 
     final String command = ValueUtil.randomString();
     final Object payload = new Object();
-    connection.requestExec( command, payload );
+    connection.requestExec( command, payload, null );
 
     final List<ExecRequest> requests = connection.getPendingExecRequests();
     assertEquals( requests.size(), 1 );
@@ -215,7 +215,7 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final RequestEntry request = connection.newRequest( requestName, false );
+    final RequestEntry request = connection.newRequest( requestName, false, null );
 
     assertEquals( request.getName(), requestName );
 
@@ -248,7 +248,7 @@ public class ConnectionTest
 
     // Request Exec
     {
-      connection.requestExec( command, payload );
+      connection.requestExec( command, payload, null );
 
       assertEquals( connection.getActiveExecRequests().size(), 0 );
       final List<ExecRequest> requests = connection.getPendingExecRequests();
@@ -354,7 +354,7 @@ public class ConnectionTest
   public void completeRequest()
   {
     final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -381,7 +381,7 @@ public class ConnectionTest
   public void completeRequest_expectingResults()
   {
     final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
     final SafeProcedure action = mock( SafeProcedure.class );
 
     request.setNormalCompletion( true );
@@ -410,7 +410,7 @@ public class ConnectionTest
   public void completeRequest_resultsArrived()
   {
     final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false );
+    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
 
     // Remove request as it will be removed when the response arrived and was processed
     connection.removeRequest( request.getRequestId() );

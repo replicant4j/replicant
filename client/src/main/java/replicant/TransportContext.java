@@ -12,7 +12,7 @@ public interface TransportContext
    * @param name        the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
    * @param syncRequest is request a sync request.
    */
-  int newRequestId( @Nullable String name, final boolean syncRequest );
+  int newRequestId( @Nullable String name, boolean syncRequest, @Nullable ResponseHandler responseHandler );
 
   /**
    * Notify the Connector that a message was received.
@@ -23,7 +23,6 @@ public interface TransportContext
 
   /**
    * Notify the Connector that there was an error from the Transport.
-   *
    */
   void onError();
 
