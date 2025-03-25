@@ -156,7 +156,7 @@ public class MessageResponseTest
 
     request.setCompletionAction( completionAction );
 
-    request.setNormalCompletion( true );
+    request.setExpectingResults( false );
 
     assertEquals( action.getCompletionAction(), completionAction );
     assertEquals( request.getCompletionAction(), completionAction );

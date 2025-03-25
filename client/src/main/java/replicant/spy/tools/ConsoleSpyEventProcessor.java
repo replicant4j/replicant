@@ -154,8 +154,7 @@ public class ConsoleSpyEventProcessor
       e.haveResultsArrived() ? "Change set has already arrived." :
       "Change set has not arrived.";
 
-    log( "%cRequest completed " + ( e.isNormalCompletion() ? " normally" : "with an exception" ) +
-         ". System: " + e.getSchemaName() + " Request: " + e.getName() +
+    log( "%cRequest completed. System: " + e.getSchemaName() + " Request: " + e.getName() +
          " RequestId: " + e.getRequestId() + " - " + changeSetDescription, CONNECTOR_COLOR );
   }
 

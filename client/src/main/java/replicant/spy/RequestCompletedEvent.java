@@ -17,7 +17,6 @@ public final class RequestCompletedEvent
   private final int _requestId;
   @Nonnull
   private final String _name;
-  private final boolean _normalCompletion;
   private final boolean _expectingResults;
   private final boolean _resultsArrived;
 
@@ -25,7 +24,6 @@ public final class RequestCompletedEvent
                                 @Nonnull final String schemaName,
                                 final int requestId,
                                 @Nonnull final String name,
-                                final boolean normalCompletion,
                                 final boolean expectingResults,
                                 final boolean resultsArrived )
   {
@@ -33,7 +31,6 @@ public final class RequestCompletedEvent
     _schemaName = Objects.requireNonNull( schemaName );
     _requestId = requestId;
     _name = Objects.requireNonNull( name );
-    _normalCompletion = normalCompletion;
     _expectingResults = expectingResults;
     _resultsArrived = resultsArrived;
   }
@@ -60,11 +57,6 @@ public final class RequestCompletedEvent
     return _name;
   }
 
-  public boolean isNormalCompletion()
-  {
-    return _normalCompletion;
-  }
-
   public boolean isExpectingResults()
   {
     return _expectingResults;
@@ -83,7 +75,6 @@ public final class RequestCompletedEvent
     map.put( "schema.name", getSchemaName() );
     map.put( "requestId", getRequestId() );
     map.put( "name", getName() );
-    map.put( "normalCompletion", isNormalCompletion() );
     map.put( "expectingResults", isExpectingResults() );
     map.put( "resultsArrived", haveResultsArrived() );
   }

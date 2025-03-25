@@ -42,7 +42,6 @@ public class ReplicantRequestCallbackTest
       handler.assertEventCount( 1 );
       handler.assertNextEvent( RequestCompletedEvent.class, e -> {
         assertEquals( e.getRequestId(), r.getRequestId() );
-        assertTrue( e.isNormalCompletion() );
         assertFalse( e.isExpectingResults() );
       } );
 
@@ -75,7 +74,6 @@ public class ReplicantRequestCallbackTest
       handler.assertEventCount( 1 );
       handler.assertNextEvent( RequestCompletedEvent.class, e -> {
         assertEquals( e.getRequestId(), r.getRequestId() );
-        assertTrue( e.isNormalCompletion() );
         assertTrue( e.isExpectingResults() );
       } );
 
@@ -107,7 +105,6 @@ public class ReplicantRequestCallbackTest
       handler.assertEventCount( 1 );
       handler.assertNextEvent( RequestCompletedEvent.class, e -> {
         assertEquals( e.getRequestId(), r.getRequestId() );
-        assertFalse( e.isNormalCompletion() );
       } );
 
       verify( chainedCallback ).onError( eq( request ), any( InvalidHttpResponseException.class ) );
@@ -139,7 +136,6 @@ public class ReplicantRequestCallbackTest
       handler.assertEventCount( 1 );
       handler.assertNextEvent( RequestCompletedEvent.class, e -> {
         assertEquals( e.getRequestId(), r.getRequestId() );
-        assertFalse( e.isNormalCompletion() );
       } );
 
       verify( chainedCallback ).onError( eq( request ), eq( exception ) );

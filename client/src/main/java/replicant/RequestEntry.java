@@ -16,8 +16,7 @@ final class RequestEntry
   private final boolean _syncRequest;
   @Nullable
   private final ResponseHandler _responseHandler;
-  private Boolean _normalCompletion;
-  private boolean _expectingResults;
+  private Boolean _expectingResults;
   private boolean _resultsArrived;
   private SafeProcedure _completionAction;
 
@@ -68,28 +67,18 @@ final class RequestEntry
     _completionAction = completionAction;
   }
 
-  void setNormalCompletion( final boolean normalCompletion )
-  {
-    _normalCompletion = normalCompletion;
-  }
-
   boolean hasCompleted()
   {
-    return null != _normalCompletion;
-  }
-
-  boolean isNormalCompletion()
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( this::hasCompleted,
-                 () -> "Replicant-0008: isNormalCompletion invoked before completion data specified." );
-    }
-    return _normalCompletion;
+    return null != _expectingResults;
   }
 
   boolean isExpectingResults()
   {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      invariant( this::hasCompleted,
+                 () -> "Replicant-0010: isExpectingResults invoked before completion data specified." );
+    }
     return _expectingResults;
   }
 

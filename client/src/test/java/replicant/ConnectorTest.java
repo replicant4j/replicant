@@ -2253,7 +2253,7 @@ public final class ConnectorTest
 
     final AtomicInteger completionCalled = new AtomicInteger();
     final int requestId = request.getRequestId();
-    request.setNormalCompletion( true );
+    request.setExpectingResults( false );
     request.setCompletionAction( completionCalled::incrementAndGet );
 
     setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );

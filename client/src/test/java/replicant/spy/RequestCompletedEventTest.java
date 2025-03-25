@@ -14,15 +14,13 @@ public class RequestCompletedEventTest
   {
     final int requestId = ValueUtil.randomInt();
     final String name = ValueUtil.randomString();
-    final boolean normalCompletion = ValueUtil.randomBoolean();
     final boolean expectingResults = ValueUtil.randomBoolean();
     final boolean resultsArrived = ValueUtil.randomBoolean();
     final RequestCompletedEvent event =
-      new RequestCompletedEvent( 23, "Rose", requestId, name, normalCompletion, expectingResults, resultsArrived );
+      new RequestCompletedEvent( 23, "Rose", requestId, name, expectingResults, resultsArrived );
 
     assertEquals( event.getRequestId(), requestId );
     assertEquals( event.getName(), name );
-    assertEquals( event.isNormalCompletion(), normalCompletion );
     assertEquals( event.isExpectingResults(), expectingResults );
     assertEquals( event.haveResultsArrived(), resultsArrived );
 
@@ -34,10 +32,9 @@ public class RequestCompletedEventTest
     assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "requestId" ), requestId );
     assertEquals( data.get( "name" ), name );
-    assertEquals( data.get( "normalCompletion" ), normalCompletion );
     assertEquals( data.get( "expectingResults" ), expectingResults );
     assertEquals( data.get( "resultsArrived" ), resultsArrived );
 
-    assertEquals( data.size(), 8 );
+    assertEquals( data.size(), 7 );
   }
 }

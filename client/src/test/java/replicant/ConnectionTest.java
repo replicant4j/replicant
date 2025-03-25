@@ -359,7 +359,7 @@ public class ConnectionTest
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    request.setNormalCompletion( false );
+    request.setExpectingResults( false );
 
     connection.completeRequest( request, action );
 
@@ -371,7 +371,6 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), request.getName() );
-      assertFalse( ev.isNormalCompletion() );
       assertFalse( ev.isExpectingResults() );
       assertFalse( ev.haveResultsArrived() );
     } );
@@ -384,7 +383,6 @@ public class ConnectionTest
     final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    request.setNormalCompletion( true );
     request.setExpectingResults( true );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -400,7 +398,6 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), request.getName() );
-      assertTrue( ev.isNormalCompletion() );
       assertTrue( ev.isExpectingResults() );
       assertFalse( ev.haveResultsArrived() );
     } );
@@ -417,7 +414,6 @@ public class ConnectionTest
 
     final SafeProcedure action = mock( SafeProcedure.class );
 
-    request.setNormalCompletion( true );
     request.setExpectingResults( true );
     request.markResultsAsArrived();
 
@@ -434,7 +430,6 @@ public class ConnectionTest
       assertEquals( ev.getSchemaId(), 1 );
       assertEquals( ev.getRequestId(), request.getRequestId() );
       assertEquals( ev.getName(), request.getName() );
-      assertTrue( ev.isNormalCompletion() );
       assertTrue( ev.isExpectingResults() );
       assertTrue( ev.haveResultsArrived() );
     } );

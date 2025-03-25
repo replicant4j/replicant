@@ -36,7 +36,6 @@ public class RequestTest
     assertNull( result.get() );
     assertTrue( entry.hasCompleted() );
     assertNotNull( entry.getCompletionAction() );
-    assertTrue( entry.isNormalCompletion() );
     assertTrue( entry.isExpectingResults() );
   }
 
@@ -58,7 +57,6 @@ public class RequestTest
 
     // Completion action is null as it has already run
     assertNull( entry.getCompletionAction() );
-    assertTrue( entry.isNormalCompletion() );
     assertFalse( entry.isExpectingResults() );
   }
 
@@ -97,7 +95,6 @@ public class RequestTest
     assertTrue( request.getEntry().hasCompleted() );
 
     // Completion action is null as it has already run
-    assertFalse( request.getEntry().isNormalCompletion() );
     assertFalse( request.getEntry().isExpectingResults() );
   }
 

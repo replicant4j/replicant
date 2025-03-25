@@ -232,7 +232,6 @@ abstract class Connection
                                                     _connector.getSchema().getName(),
                                                     request.getRequestId(),
                                                     request.getName(),
-                                                    request.isNormalCompletion(),
                                                     request.isExpectingResults(),
                                                     request.haveResultsArrived() ) );
     }

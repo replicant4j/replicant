@@ -17,7 +17,7 @@ public class RequestEntryTest
 
     assertEquals( e.getRequestId(), requestId );
     assertEquals( e.getName(), requestKey );
-    assertFalse( e.isExpectingResults() );
+    assertFalse( e.hasCompleted() );
     assertEquals( e.toString(), "Request(ABC.go)[Id=321]" );
   }
 
@@ -67,15 +67,6 @@ public class RequestEntryTest
                   "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );
   }
 
-  @Test
-  public void isExpectingResults()
-  {
-    final RequestEntry e = newRequestEntry();
-    assertFalse( e.isExpectingResults() );
-    e.setExpectingResults( true );
-    assertTrue( e.isExpectingResults() );
-  }
-
   @Nonnull
   private static RequestEntry newRequestEntry()
   {
@@ -83,29 +74,29 @@ public class RequestEntryTest
   }
 
   @Test
-  public void setNormalCompletionAction()
+  public void setExpectingResultsToTrue()
   {
     final RequestEntry e = newRequestEntry();
 
     assertFalse( e.hasCompleted() );
 
-    e.setNormalCompletion( true );
+    e.setExpectingResults( true );
 
     assertTrue( e.hasCompleted() );
-    assertTrue( e.isNormalCompletion() );
+    assertTrue( e.isExpectingResults() );
   }
 
   @Test
-  public void setNonNormalCompletionAction()
+  public void isExpectingResultsToFalse()
   {
     final RequestEntry e = newRequestEntry();
 
     assertFalse( e.hasCompleted() );
 
-    e.setNormalCompletion( false );
+    e.setExpectingResults( false );
 
     assertTrue( e.hasCompleted() );
-    assertFalse( e.isNormalCompletion() );
+    assertFalse( e.isExpectingResults() );
   }
 
   @Test
@@ -119,12 +110,12 @@ public class RequestEntryTest
   }
 
   @Test
-  public void isNormalCompletion_beforeCompletionDataSpecified()
+  public void isExpectingResults_beforeCompletionDataSpecified()
   {
     final RequestEntry e = newRequestEntry();
 
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, e::isNormalCompletion );
+    final IllegalStateException exception = expectThrows( IllegalStateException.class, e::isExpectingResults );
     assertEquals( exception.getMessage(),
-                  "Replicant-0008: isNormalCompletion invoked before completion data specified." );
+                  "Replicant-0010: isExpectingResults invoked before completion data specified." );
   }
 }
