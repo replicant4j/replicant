@@ -23,7 +23,10 @@ final class RequestEntry
   // TODO: We can remove _completionAction field once we remove gwt-rpc (replaced by response handler)
   private SafeProcedure _completionAction;
 
-  RequestEntry( final int requestId, @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler )
+  RequestEntry( final int requestId,
+                @Nullable final String name,
+                final boolean syncRequest,
+                @Nullable final ResponseHandler responseHandler )
   {
     _responseHandler = responseHandler;
     if ( Replicant.shouldCheckInvariants() )
@@ -57,6 +60,12 @@ final class RequestEntry
     }
     assert null != _name;
     return _name;
+  }
+
+  @Nullable
+  ResponseHandler getResponseHandler()
+  {
+    return _responseHandler;
   }
 
   @Nullable

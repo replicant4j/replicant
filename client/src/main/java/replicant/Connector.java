@@ -837,6 +837,17 @@ abstract class Connector
     {
       action.call();
     }
+    if ( null != execRequest && null != request && message instanceof UpdateMessage )
+    {
+      @SuppressWarnings( "PatternVariableCanBeUsed" )
+      final UpdateMessage updateMessage = (UpdateMessage) message;
+      final ResponseHandler responseHandler = request.getResponseHandler();
+      if ( null != responseHandler )
+      {
+        responseHandler.onResponse( updateMessage.getResponse() );
+      }
+    }
+
     // We can remove the request because this side ran second and the RPC channel has already returned.
     if ( null != requestId )
     {
