@@ -35,14 +35,14 @@
     "messagePattern": "Unable to locate Connector by schemaId %s"
   },
   {
-    "code": 8,
-    "type": "INVARIANT",
-    "messagePattern": "isNormalCompletion invoked before completion data specified."
-  },
-  {
     "code": 9,
     "type": "API_INVARIANT",
     "messagePattern": "Entity.getName() invoked when Replicant.areNamesEnabled() is false"
+  },
+  {
+    "code": 10,
+    "type": "INVARIANT",
+    "messagePattern": "isExpectingResults invoked before completion data specified."
   },
   {
     "code": 11,
