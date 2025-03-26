@@ -155,11 +155,11 @@ public final class ReplicationRequestUtil
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );
       final ChangeSet changeSet = EntityMessageCacheUtil.removeSessionChanges( registry );
-      if ( null != messageSet || null != changeSet )
+      if ( null != messageSet || null != changeSet || null != requestId )
       {
         final Collection<EntityMessage> messages =
           null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
-        if ( null != changeSet || !messages.isEmpty() )
+        if ( null != changeSet || !messages.isEmpty() || null != requestId )
         {
           requestComplete = !endpoint.saveEntityMessages( sessionId, requestId, response, messages, changeSet );
         }
