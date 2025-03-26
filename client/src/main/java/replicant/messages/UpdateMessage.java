@@ -66,7 +66,7 @@ public class UpdateMessage
    */
   @Nullable
   @JsOverlay
-  public Any getResponse()
+  public final Any getResponse()
   {
     return response;
   }
