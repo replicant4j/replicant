@@ -415,7 +415,7 @@ public final class ReplicantContext
                        @Nonnull final SafeProcedure callback,
                        @Nullable final ResponseHandler responseHandler )
   {
-    // TODO: Once GWT-RPC has been removed, this can be removed....
+    // TODO(stocksoftware/rose#3564): Once GWT-RPC has been removed, this can be removed....
     getRuntime().getConnector( schemaId ).request( name, callback, responseHandler );
   }
 
