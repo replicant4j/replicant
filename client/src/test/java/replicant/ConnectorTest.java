@@ -3470,13 +3470,15 @@ public final class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final String command = ValueUtil.randomString();
-    connector.onExecStarted( command );
+    final int requestId = ValueUtil.randomInt();
+    connector.onExecStarted( command, requestId );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ExecStartedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getSchemaName(), connector.getSchema().getName() );
       assertEquals( e.getCommand(), command );
+      assertEquals( e.getRequestId(), requestId );
     } );
   }
 
@@ -3488,13 +3490,15 @@ public final class ConnectorTest
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     final String command = ValueUtil.randomString();
-    connector.onExecCompleted( command );
+    final int requestId = ValueUtil.randomInt();
+    connector.onExecCompleted( command, requestId );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( ExecCompletedEvent.class, e -> {
       assertEquals( e.getSchemaId(), connector.getSchema().getId() );
       assertEquals( e.getSchemaName(), connector.getSchema().getName() );
       assertEquals( e.getCommand(), command );
+      assertEquals( e.getRequestId(), requestId );
     } );
   }
 

@@ -16,14 +16,17 @@ public final class ExecCompletedEvent
   private final String _schemaName;
   @Nonnull
   private final String _command;
+  private final int _requestId;
 
   public ExecCompletedEvent( final int schemaId,
                              @Nonnull final String schemaName,
-                             @Nonnull final String command )
+                             @Nonnull final String command,
+                             final int requestId )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
     _command = Objects.requireNonNull( command );
+    _requestId = requestId;
   }
 
   public int getSchemaId()
@@ -43,6 +46,11 @@ public final class ExecCompletedEvent
     return _command;
   }
 
+  public int getRequestId()
+  {
+    return _requestId;
+  }
+
   @Override
   public void toMap( @Nonnull final Map<String, Object> map )
   {
@@ -50,5 +58,6 @@ public final class ExecCompletedEvent
     map.put( "schema.id", getSchemaId() );
     map.put( "schema.name", getSchemaName() );
     map.put( "command", getCommand() );
+    map.put( "requestId", getRequestId() );
   }
 }

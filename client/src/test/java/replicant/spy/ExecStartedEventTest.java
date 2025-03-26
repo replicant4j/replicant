@@ -15,11 +15,13 @@ public final class ExecStartedEventTest
     final String command = ValueUtil.randomString();
     final int schemaId = ValueUtil.randomInt();
     final String schemaName = ValueUtil.randomString();
-    final ExecStartedEvent event = new ExecStartedEvent( schemaId, schemaName, command );
+    final int requestId = ValueUtil.randomInt();
+    final ExecStartedEvent event = new ExecStartedEvent( schemaId, schemaName, command, requestId );
 
     assertEquals( event.getSchemaId(), schemaId );
     assertEquals( event.getSchemaName(), schemaName );
     assertEquals( event.getCommand(), command );
+    assertEquals( event.getRequestId(), requestId );
 
     final HashMap<String, Object> data = new HashMap<>();
     event.toMap( data );
@@ -28,7 +30,8 @@ public final class ExecStartedEventTest
     assertEquals( data.get( "schema.id" ), schemaId );
     assertEquals( data.get( "schema.name" ), schemaName );
     assertEquals( data.get( "command" ), command );
+    assertEquals( data.get( "requestId" ), requestId );
 
-    assertEquals( data.size(), 4 );
+    assertEquals( data.size(), 5 );
   }
 }

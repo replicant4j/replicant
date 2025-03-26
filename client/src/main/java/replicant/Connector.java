@@ -846,7 +846,7 @@ abstract class Connector
     if ( null != execRequest )
     {
       connection.markExecRequestAsComplete( requestId );
-      onExecCompleted( execRequest.getCommand() );
+      onExecCompleted( execRequest.getCommand(), requestId );
     }
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
@@ -1192,11 +1192,12 @@ abstract class Connector
     else
     {
       final String command = request.getCommand();
-      onExecStarted( command );
 
       _transport.requestExec( command, request.getPayload(), request.getResponseHandler() );
       request.markAsInProgress( ensureConnection().getLastTxRequestId() );
       ensureConnection().recordActiveExecRequest( request );
+
+      onExecStarted( command, request.getRequestId() );
       return true;
     }
   }
@@ -1471,12 +1472,12 @@ abstract class Connector
    *
    * @param command the exec request command.
    */
-  void onExecStarted( @Nonnull final String command )
+  void onExecStarted( @Nonnull final String command, final int requestId )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new ExecStartedEvent( getSchema().getId(), getSchema().getName(), command ) );
+        .reportSpyEvent( new ExecStartedEvent( getSchema().getId(), getSchema().getName(), command, requestId ) );
     }
   }
 
@@ -1485,12 +1486,12 @@ abstract class Connector
    *
    * @param command the exec request command.
    */
-  void onExecCompleted( @Nonnull final String command )
+  void onExecCompleted( @Nonnull final String command, final int requestId )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy()
-        .reportSpyEvent( new ExecCompletedEvent( getSchema().getId(), getSchema().getName(), command ) );
+        .reportSpyEvent( new ExecCompletedEvent( getSchema().getId(), getSchema().getName(), command, requestId ) );
     }
   }
 
