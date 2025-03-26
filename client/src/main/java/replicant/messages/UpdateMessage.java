@@ -30,6 +30,7 @@ public class UpdateMessage
   private ChannelChange[] fchannels;
   @Nullable
   private EntityChange[] changes;
+  @Nullable
   private Any response;
 
   @GwtIncompatible
