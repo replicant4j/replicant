@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.140](https://github.com/replicant4j/replicant/tree/v6.140) (2025-03-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.139...v6.140)
+
+Changes in this release:
 
 * Split GwtRpc specific parts of `SharedConstants` into `GwtRpcConstants`.
 * Start to centralize constants used in json messages into `Messages` constants class.
