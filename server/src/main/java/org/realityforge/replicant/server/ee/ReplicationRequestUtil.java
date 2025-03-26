@@ -23,6 +23,7 @@ import org.realityforge.replicant.server.transport.ReplicantSession;
  */
 public final class ReplicationRequestUtil
 {
+  @Nonnull
   private static final Logger LOG = Logger.getLogger( ReplicationRequestUtil.class.getName() );
 
   private ReplicationRequestUtil()
