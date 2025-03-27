@@ -20,6 +20,7 @@ public abstract class AbstractSpyEventProcessor
   /**
    * The processors that can be delegated to.
    */
+  @Nonnull
   private final Map<Class<?>, Consumer<?>> _processors = new HashMap<>();
 
   /**
