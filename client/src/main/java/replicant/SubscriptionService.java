@@ -147,7 +147,7 @@ abstract class SubscriptionService
                            explicitSubscription );
     DisposeNotifier
       .asDisposeNotifier( subscription )
-      .addOnDisposeListener( this, () -> destroy( subscription ) );
+      .addOnDisposeListener( this, () -> destroy( subscription ), true );
     if ( null == id )
     {
       _typeSubscriptions
@@ -178,7 +178,7 @@ abstract class SubscriptionService
 
   private void detachSubscription( @Nonnull final Subscription subscription )
   {
-    DisposeNotifier.asDisposeNotifier( subscription ).removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( subscription ).removeOnDisposeListener( this, true );
   }
 
   /**

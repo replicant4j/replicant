@@ -175,7 +175,7 @@ abstract class EntityService
     final Entity entity = Entity.create( Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id );
     DisposeNotifier
       .asDisposeNotifier( entity )
-      .addOnDisposeListener( this, () -> destroy( entity ) );
+      .addOnDisposeListener( this, () -> destroy( entity ), true );
     typeMap.put( id, entity );
     getEntitiesObservableValue().reportChanged();
     ComponentObservable.observe( entity );
@@ -189,6 +189,6 @@ abstract class EntityService
 
   private void detachEntity( @Nonnull final Entity entity )
   {
-    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this, true );
   }
 }
