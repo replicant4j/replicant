@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.139-arez_0.218](https://github.com/replicant4j/replicant/tree/v6.139-arez_0.218) (2025-04-01) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.139...v6.139-arez_0.218)
 
 Changes in this release:
