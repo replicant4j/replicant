@@ -89,7 +89,7 @@ abstract class ReplicantRuntime
     _connectors.add( entry );
     DisposeNotifier
       .asDisposeNotifier( connector )
-      .addOnDisposeListener( this, () -> deregisterConnector( connector ) );
+      .addOnDisposeListener( this, () -> deregisterConnector( connector ), true );
     getConnectorsObservableValue().reportChanged();
   }
 
@@ -112,7 +112,7 @@ abstract class ReplicantRuntime
     _connectors.removeIf( e -> e.getConnector().getSchema().getId() == connector.getSchema().getId() );
     DisposeNotifier
       .asDisposeNotifier( connector )
-      .removeOnDisposeListener( this );
+      .removeOnDisposeListener( this, true );
   }
 
   @Observable( expectSetter = false )

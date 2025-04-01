@@ -13,6 +13,12 @@ Changes in this release:
 * Rename `ChangeSetMessage` to `UpdateMessage`.
 * Add `AreaOfInterest.Status.isDeleted()` helper method.
 
+### [v6.139-arez_0.218](https://github.com/replicant4j/replicant/tree/v6.139-arez_0.218) (2025-04-01) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.139...v6.139-arez_0.218)
+
+Changes in this release:
+
+* Update the `org.realityforge.react4j` artifacts to version `0.197`.
+
 ### [v6.139](https://github.com/replicant4j/replicant/tree/v6.139) (2025-02-13) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.138...v6.139)
 
 Changes in this release:

@@ -189,7 +189,7 @@ public abstract class Subscription
     typeMap.put( entity.getId(), EntitySubscriptionEntry.create( entity ) );
     DisposeNotifier
       .asDisposeNotifier( entity )
-      .addOnDisposeListener( this, () -> detachEntity( entity, false ) );
+      .addOnDisposeListener( this, () -> detachEntity( entity, false ), true );
     getEntitiesObservableValue().reportChanged();
   }
 
@@ -218,7 +218,7 @@ public abstract class Subscription
       invariant( () -> null != removed,
                  () -> "Entity instance " + entity + " not present in subscription to channel " + address );
     }
-    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this, true );
     Disposable.dispose( removed );
     if ( disposeEntityIfNoSubscriptions )
     {

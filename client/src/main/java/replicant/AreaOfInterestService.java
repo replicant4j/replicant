@@ -206,12 +206,12 @@ abstract class AreaOfInterestService
         getAreasOfInterestObservableValue().preReportChanged();
         detach( areaOfInterest );
         getAreasOfInterestObservableValue().reportChanged();
-      } );
+      }, true );
   }
 
   private void doDetach( @Nonnull final AreaOfInterest areaOfInterest, final boolean disposeOnDetach )
   {
-    DisposeNotifier.asDisposeNotifier( areaOfInterest ).removeOnDisposeListener( this );
+    DisposeNotifier.asDisposeNotifier( areaOfInterest ).removeOnDisposeListener( this, true );
     if ( disposeOnDetach )
     {
       Disposable.dispose( areaOfInterest );
