@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.144](https://github.com/replicant4j/replicant/tree/v6.144) (2025-05-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.143...v6.144)
+
+Changes in this release:
 
 * Add `AreaOfInterest.Status.isLoading()` helper method.
 
