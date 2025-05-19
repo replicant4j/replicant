@@ -58,6 +58,21 @@ public class AreaOfInterestTest
   }
 
   @Test
+  public void isInProgress()
+  {
+    assertTrue( AreaOfInterest.Status.NOT_ASKED.isInProgress() );
+    assertTrue( AreaOfInterest.Status.LOADING.isInProgress() );
+    assertFalse( AreaOfInterest.Status.LOAD_FAILED.isInProgress() );
+    assertFalse( AreaOfInterest.Status.LOADED.isInProgress() );
+    assertFalse( AreaOfInterest.Status.UPDATING.isInProgress() );
+    assertFalse( AreaOfInterest.Status.UPDATE_FAILED.isInProgress() );
+    assertFalse( AreaOfInterest.Status.UPDATED.isInProgress() );
+    assertFalse( AreaOfInterest.Status.UNLOADING.isInProgress() );
+    assertTrue( AreaOfInterest.Status.UNLOADED.isInProgress() );
+    assertFalse( AreaOfInterest.Status.DELETED.isInProgress() );
+  }
+
+  @Test
   public void onConstruct()
   {
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );

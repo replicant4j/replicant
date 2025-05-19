@@ -69,6 +69,16 @@ public abstract class AreaOfInterest
     {
       return this == DELETED;
     }
+
+    /**
+     * Return true if the subscription has not reached a terminal state and data is not present.
+     *
+     * @return true if the subscription has not reached a terminal state and data is not present.
+     */
+    public boolean isInProgress()
+    {
+      return this == NOT_ASKED || this == LOADING || this == UNLOADED;
+    }
   }
 
   @Nonnull
