@@ -61,11 +61,7 @@ public abstract class AbstractSessionContextImpl
       entry.setExplicitlySubscribed( explicitSubscribe );
     }
     entry.setFilter( filter );
-    changeSet.mergeAction( address,
-                           null == existing ?
-                           ChannelAction.Action.ADD :
-                           ChannelAction.Action.UPDATE,
-                           filter );
+    changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
     return entry;
   }
 
