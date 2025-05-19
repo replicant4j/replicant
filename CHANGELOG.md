@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.143](https://github.com/replicant4j/replicant/tree/v6.143) (2025-05-19) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.142...v6.143)
+
+Changes in this release:
 
 * Add `AreaOfInterest.Status.isInProgress()` helper method.
 
