@@ -463,7 +463,7 @@ public abstract class AbstractReplicantEndpoint
   }
 
   @Nullable
-  private Object extractFilter( final ChannelMetaData channelMetaData, final @Nonnull JsonObject command )
+  private Object extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
   {
     return command.containsKey( Messages.Update.FILTER ) && !command.isNull( Messages.Update.FILTER ) ?
            toFilter( channelMetaData, command.getJsonObject( Messages.Update.FILTER ) ) :
