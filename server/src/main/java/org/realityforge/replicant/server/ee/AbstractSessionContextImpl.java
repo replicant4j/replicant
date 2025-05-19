@@ -58,7 +58,7 @@ public abstract class AbstractSessionContextImpl
     final SubscriptionEntry entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
     if ( explicitSubscribe )
     {
-      entry.setExplicitlySubscribed( explicitSubscribe );
+      entry.setExplicitlySubscribed( true );
     }
     entry.setFilter( filter );
     changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
