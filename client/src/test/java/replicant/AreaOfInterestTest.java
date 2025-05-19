@@ -73,6 +73,21 @@ public class AreaOfInterestTest
   }
 
   @Test
+  public void isLoading()
+  {
+    assertTrue( AreaOfInterest.Status.NOT_ASKED.isLoading() );
+    assertTrue( AreaOfInterest.Status.LOADING.isLoading() );
+    assertFalse( AreaOfInterest.Status.LOAD_FAILED.isLoading() );
+    assertFalse( AreaOfInterest.Status.LOADED.isLoading() );
+    assertFalse( AreaOfInterest.Status.UPDATING.isLoading() );
+    assertFalse( AreaOfInterest.Status.UPDATE_FAILED.isLoading() );
+    assertFalse( AreaOfInterest.Status.UPDATED.isLoading() );
+    assertFalse( AreaOfInterest.Status.UNLOADING.isLoading() );
+    assertFalse( AreaOfInterest.Status.UNLOADED.isLoading() );
+    assertFalse( AreaOfInterest.Status.DELETED.isLoading() );
+  }
+
+  @Test
   public void onConstruct()
   {
     final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );

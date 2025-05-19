@@ -89,6 +89,15 @@ public abstract class AreaOfInterest
     }
 
     /**
+     * Return true if the subscription is loading or the server has yet to be requested.
+     *
+     * @return true if the subscription is loading or the server has yet to be requested.
+     */
+    public boolean isLoading()
+    {
+      return this == NOT_ASKED || this == LOADING;
+    }
+    /**
      * Return true if the subscription has not reached a terminal state and data is not present.
      *
      * @return true if the subscription has not reached a terminal state and data is not present.
