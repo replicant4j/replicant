@@ -26,28 +26,46 @@ public abstract class AreaOfInterest
 {
   public enum Status
   {
-    /** No request has been made to the server to subscribe to the AreaOfInterest. */
+    /**
+     * No request has been made to the server to subscribe to the AreaOfInterest.
+     */
     NOT_ASKED,
-    /** The process of asking the server to subscribe to the AreaOfInterest has started. */
+    /**
+     * The process of asking the server to subscribe to the AreaOfInterest has started.
+     */
     LOADING,
-    /** The server has subscribed to the AreaOfInterest for the client and the data is present. */
+    /**
+     * The server has subscribed to the AreaOfInterest for the client and the data is present.
+     */
     LOADED,
-    /** The process of asking the server to subscribe to the AreaOfInterest has failed. */
+    /**
+     * The process of asking the server to subscribe to the AreaOfInterest has failed.
+     */
     LOAD_FAILED,
-    /** The process of asking the server to update the filter for an existing subscription has started. */
+    /**
+     * The process of asking the server to update the filter for an existing subscription has started.
+     */
     UPDATING,
-    /** The server has updated the filter for an existing subscription and the data is present. */
+    /**
+     * The server has updated the filter for an existing subscription and the data is present.
+     */
     UPDATED,
-    /** The process of asking the server to update the filter for an existing subscription has failed. */
+    /**
+     * The process of asking the server to update the filter for an existing subscription has failed.
+     */
     UPDATE_FAILED,
-    /** The process of asking the server to unsubscribe from the AreaOfInterest has started. */
+    /**
+     * The process of asking the server to unsubscribe from the AreaOfInterest has started.
+     */
     UNLOADING,
-    /** The server has unsubscribed from a subscription. */
+    /**
+     * The server has unsubscribed from a subscription.
+     */
     UNLOADED,
     /**
      * The server has unsubscribed from a subscription without being requested.
      * This is usually in response to the root object of an instance graph being deleted.
-     * */
+     */
     DELETED;
 
     /**
