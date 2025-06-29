@@ -411,7 +411,8 @@ public final class ReplicantContext
    * @param name            the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
    * @param responseHandler the request handler.
    */
-  public void request( final int schemaId, @Nullable final String name,
+  public void request( final int schemaId,
+                       @Nullable final String name,
                        @Nonnull final SafeProcedure callback,
                        @Nullable final ResponseHandler responseHandler )
   {
