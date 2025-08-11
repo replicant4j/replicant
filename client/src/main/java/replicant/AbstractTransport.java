@@ -158,14 +158,14 @@ public abstract class AbstractTransport
            null;
   }
 
-  private int newRequestId( @Nullable final String name, @Nullable ResponseHandler responseHandler )
+  private int newRequestId( @Nullable final String name, @Nullable final ResponseHandler responseHandler )
   {
     return newRequestId( name, false, responseHandler );
   }
 
   private int newRequestId( @Nullable final String name,
                             final boolean syncRequest,
-                            @Nullable ResponseHandler responseHandler )
+                            @Nullable final ResponseHandler responseHandler )
   {
     assert null != _transportContext;
     return _transportContext.newRequestId( name, syncRequest, responseHandler );
