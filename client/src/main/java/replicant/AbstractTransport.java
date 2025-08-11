@@ -171,6 +171,12 @@ public abstract class AbstractTransport
     return _transportContext.newRequestId( name, syncRequest, responseHandler );
   }
 
+  @Nullable
+  protected final TransportContext getTransportContext()
+  {
+    return _transportContext;
+  }
+
   protected abstract void doConnect();
 
   protected abstract void sendRemoteMessage( @Nonnull Object message );
