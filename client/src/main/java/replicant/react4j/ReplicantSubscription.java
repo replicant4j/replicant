@@ -304,7 +304,7 @@ public abstract class ReplicantSubscription<T>
   }
 
   @Memoize
-  @Nullable
+  @Nonnull
   protected AreaOfInterest.Status getStatus()
   {
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
