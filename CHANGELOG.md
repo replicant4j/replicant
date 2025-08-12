@@ -6,6 +6,7 @@
 * Make the response field settable from the create method and make sure it is an Object not an Any for JVM compatibility.
 * Mark `WebSocketTransport` and `WebStorageCacheService` classes as final.
 * Avoid accessing javascript API in `TransportContextImpl` when in JVM mode.
+* Upgrade the `org.realityforge.arez` artifacts to version `0.221`.
 
 ### [v6.146](https://github.com/replicant4j/replicant/tree/v6.146) (2025-08-12) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.145...v6.146)
 
