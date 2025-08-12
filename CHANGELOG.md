@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.145](https://github.com/replicant4j/replicant/tree/v6.145) (2025-08-12) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.144...v6.145)
+
+Changes in this release:
 
 * Fix nullability annotation on `ReplicantSubscription.getStatus()`
 * Add protected access `AbstractTransport.getTransportContext()` method to give subclasses access to transport context.
