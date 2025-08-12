@@ -8,8 +8,11 @@ import javax.annotation.Nonnull;
  */
 public final class CacheEntry
 {
+  @Nonnull
   private final ChannelAddress _address;
+  @Nonnull
   private final String _eTag;
+  @Nonnull
   private final String _content;
 
   public CacheEntry( @Nonnull final ChannelAddress address, @Nonnull final String eTag, @Nonnull final String content )
