@@ -401,43 +401,6 @@ public final class ReplicantContext
   }
 
   /**
-   * Perform a request when the connection has been established.
-   * This call waits till a connection is established and then invokes the callback with a new Request.
-   * It is the responsibility of the callback to perform the actual request and invoke the
-   * {@link Request#onSuccess(boolean, SafeProcedure)} or {@link Request#onFailure(SafeProcedure)} method
-   * when the request completes.
-   *
-   * @param schemaId        the id of the schema of the connector where the request should be created.
-   * @param name            the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
-   * @param responseHandler the request handler.
-   */
-  public void request( final int schemaId,
-                       @Nullable final String name,
-                       @Nonnull final SafeProcedure callback,
-                       @Nullable final ResponseHandler responseHandler )
-  {
-    // TODO(stocksoftware/rose#3564): Once GWT-RPC has been removed, this can be removed....
-    getRuntime().getConnector( schemaId ).request( name, callback, responseHandler );
-  }
-
-  /**
-   * Get the request that is currently being called.
-   *
-   * @param schemaId the id of the schema of connector where request created.
-   * @return the current request being invoked.
-   */
-  @Nonnull
-  public Request currentRequest( final int schemaId )
-  {
-    return getRuntime().getConnector( schemaId ).currentRequest();
-  }
-
-  public boolean hasCurrentRequest( final int schemaId )
-  {
-    return getRuntime().getConnector( schemaId ).hasCurrentRequest();
-  }
-
-  /**
    * Return the CacheService associated with context if any.
    *
    * @return the CacheService associated with context if any.

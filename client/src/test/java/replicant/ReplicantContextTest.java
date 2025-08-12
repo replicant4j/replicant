@@ -338,32 +338,6 @@ public class ReplicantContextTest
   }
 
   @Test
-  public void newRequest()
-  {
-    final Connector connector = createConnector();
-    newConnection( connector );
-
-    Replicant.context().request( connector.getSchema().getId(), "MyAction", () -> {
-      final replicant.Request request = Replicant.context().currentRequest( connector.getSchema().getId() );
-
-      assertEquals( request.getConnectionId(), connector.ensureConnection().getConnectionId() );
-      assertEquals( request.getRequestId(), request.getEntry().getRequestId() );
-    }, null );
-  }
-
-  @Test
-  public void newRequest_noConnection()
-  {
-    final Connector connector = createConnector();
-    final int schemaId = connector.getSchema().getId();
-
-    assertEquals( connector.getPendingRequests().size(), 0 );
-    Replicant.context().request( schemaId, "MyAction", () -> {
-    }, null );
-    assertEquals( connector.getPendingRequests().size(), 1 );
-  }
-
-  @Test
   public void findConnectionId()
   {
     final Connector connector = createConnector();

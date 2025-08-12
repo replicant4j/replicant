@@ -119,16 +119,6 @@ abstract class Connector
   private SafeProcedure _postMessageResponseAction;
   @Nullable
   private TransportContextImpl _context;
-  /**
-   * Requests that are waiting till a connection has been established.
-   */
-  @Nonnull
-  private final List<PendingRequest> _pendingRequests = new ArrayList<>();
-  /**
-   * The request that is currently being called.
-   */
-  @Nullable
-  private Request _currentRequest;
 
   @Nonnull
   static Connector create( @Nullable final ReplicantContext context,
@@ -261,7 +251,6 @@ abstract class Connector
         sendAuthTokenIfAny();
         sendEtagsIfAny();
         onConnected();
-        _pendingRequests.forEach( p -> doRequest( p.getName(), p.getCallback(), p.getResponseHandler() ) );
       }
       else
       {
@@ -1683,64 +1672,5 @@ abstract class Connector
   Transport getTransport()
   {
     return _transport;
-  }
-
-  void request( @Nullable final String name,
-                @Nonnull final SafeProcedure callback,
-                @Nullable final ResponseHandler responseHandler )
-  {
-    if ( ConnectorState.CONNECTED == getState() )
-    {
-      doRequest( name, callback, responseHandler );
-    }
-    else
-    {
-      enqueueRequest( name, callback, responseHandler );
-    }
-  }
-
-  @Nonnull
-  Request currentRequest()
-  {
-    assert null != _currentRequest;
-    return _currentRequest;
-  }
-
-  boolean hasCurrentRequest()
-  {
-    return null != _currentRequest;
-  }
-
-  private void doRequest( @Nullable final String name,
-                          @Nonnull final SafeProcedure callback,
-                          @Nullable final ResponseHandler responseHandler )
-  {
-    final Connection connection = ensureConnection();
-    final RequestEntry entry = connection.newRequest( name, false, responseHandler );
-    try
-    {
-      assert null == _currentRequest;
-      _currentRequest = new Request( connection, entry );
-
-      callback.call();
-    }
-    finally
-    {
-      assert null != _currentRequest;
-      _currentRequest = null;
-    }
-  }
-
-  void enqueueRequest( @Nullable final String name,
-                       @Nonnull final SafeProcedure callback,
-                       @Nullable final ResponseHandler responseHandler )
-  {
-    _pendingRequests.add( new PendingRequest( name, callback, responseHandler ) );
-  }
-
-  @Nonnull
-  List<PendingRequest> getPendingRequests()
-  {
-    return _pendingRequests;
   }
 }

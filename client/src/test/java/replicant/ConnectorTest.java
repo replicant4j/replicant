@@ -2278,40 +2278,6 @@ public final class ConnectorTest
     } );
   }
 
-  @Test
-  public void completeMessageResponse_MessageWithRequest_RPCNotComplete()
-  {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
-
-    final RequestEntry request = newRequest( connection );
-
-    final AtomicInteger completionCalled = new AtomicInteger();
-    final int requestId = request.getRequestId();
-    request.setCompletionAction( completionCalled::incrementAndGet );
-
-    setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    assertFalse( request.haveResultsArrived() );
-    assertEquals( completionCalled.get(), 0 );
-    assertEquals( connection.getRequest( requestId ), request );
-
-    connector.completeMessageResponse();
-
-    assertTrue( request.haveResultsArrived() );
-    assertNull( connection.getCurrentMessageResponse() );
-    assertEquals( completionCalled.get(), 0 );
-    assertNull( connection.getRequests().get( requestId ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( MessageProcessedEvent.class, e -> {
-      assertEquals( e.getSchemaId(), connector.getSchema().getId() );
-      assertEquals( e.getSchemaName(), connector.getSchema().getName() );
-    } );
-  }
-
   @SuppressWarnings( { "unchecked" } )
   @Test
   public void progressResponseProcessing()
