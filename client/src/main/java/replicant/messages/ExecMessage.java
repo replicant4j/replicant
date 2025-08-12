@@ -41,4 +41,11 @@ public final class ExecMessage
   {
     return command;
   }
+
+  @JsOverlay
+  @Nullable
+  public Object getPayload()
+  {
+    return payload;
+  }
 }
