@@ -1,6 +1,0 @@
-<module>
-  <inherits name='replicant.Replicant'/>
-  <inherits name='com.google.gwt.user.RemoteService'/>
-
-  <source path='client'/>
-</module>

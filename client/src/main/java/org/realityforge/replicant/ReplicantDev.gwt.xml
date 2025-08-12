@@ -1,6 +1,0 @@
-<module>
-  <inherits name='org.realityforge.replicant.Replicant'/>
-  <inherits name='replicant.ReplicantDev'/>
-
-  <source path='ignored'/>
-</module>
