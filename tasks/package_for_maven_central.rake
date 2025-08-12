@@ -94,5 +94,5 @@ end
 
 desc 'Create Package and deploy to Maven Central'
 task 'upload_to_maven_central' do
-  release_to_maven_central('replicant', %w(replicant:shared replicant:client replicant:server))
+  release_to_maven_central('replicant', %w(replicant:client replicant:server))
 end
