@@ -60,7 +60,7 @@ final class TransportContextImpl
          * If the browser page is not visible then do all processing within the message handler callback
          * to avoid suffering under the vagaries of the background timer throttling.
          */
-        if ( !active && !paused && !VisibilityState.visible.equals( WindowGlobal.document().visibilityState() ) )
+        if ( !active && !paused && shouldProcessImmediatelyOnReceive() )
         {
           //noinspection StatementWithEmptyBody
           while ( _connector.progressMessages() )
@@ -70,6 +70,11 @@ final class TransportContextImpl
         }
       }
     }
+  }
+
+  private static boolean shouldProcessImmediatelyOnReceive()
+  {
+    return ReplicantConfig.isJvm() || !VisibilityState.visible.equals( WindowGlobal.document().visibilityState() );
   }
 
   @Override
