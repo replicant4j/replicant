@@ -36,7 +36,7 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final Connection newConnection( @Nonnull final Connector connector )
+  final Connection newConnection( @Nonnull final Connector connector )
   {
     connector.onConnection( ValueUtil.randomString() );
     final Connection connection = connector.ensureConnection();
@@ -112,6 +112,7 @@ public abstract class AbstractReplicantTest
       throw new AssertionError( t );
     }
   }
+
   @Nonnull
   protected final TestSpyEventHandler registerTestSpyEventHandler()
   {
@@ -138,13 +139,13 @@ public abstract class AbstractReplicantTest
   }
 
   @Nonnull
-  protected final Connector createConnector()
+  final Connector createConnector()
   {
     return createConnector( newSchema( 1 ) );
   }
 
   @Nonnull
-  protected final Connector createConnector( @Nonnull final SystemSchema schema )
+  final Connector createConnector( @Nonnull final SystemSchema schema )
   {
     return (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) );
   }
