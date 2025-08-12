@@ -152,7 +152,7 @@ public final class WebStorageCacheService
   }
 
   @Nonnull
-  final Storage getStorage()
+  Storage getStorage()
   {
     return _storage;
   }
