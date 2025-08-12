@@ -2,7 +2,6 @@ package replicant;
 
 import java.util.Objects;
 import javax.annotation.Nonnull;
-import static org.realityforge.braincheck.Guards.*;
 
 public final class Request
 {
@@ -26,33 +25,5 @@ public final class Request
   public int getRequestId()
   {
     return _entry.getRequestId();
-  }
-
-  public void onSuccess( final boolean messageComplete, @Nonnull final SafeProcedure onSuccess )
-  {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> !_entry.hasCompleted(),
-                    () -> "Replicant-0073: Request.onSuccess invoked on completed request " + _entry + "." );
-    }
-    _entry.setExpectingResults( !messageComplete );
-    _connection.completeRequest( _entry, Objects.requireNonNull( onSuccess ) );
-  }
-
-  public void onFailure( @Nonnull final SafeProcedure onError )
-  {
-    if ( Replicant.shouldCheckApiInvariants() )
-    {
-      apiInvariant( () -> !_entry.hasCompleted(),
-                    () -> "Replicant-0074: Request.onFailure invoked on completed request " + _entry + "." );
-    }
-    _entry.setExpectingResults( false );
-    _connection.completeRequest( _entry, Objects.requireNonNull( onError ) );
-  }
-
-  @Nonnull
-  RequestEntry getEntry()
-  {
-    return _entry;
   }
 }

@@ -99,13 +99,13 @@ public class MessageResponseTest
       UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ], null );
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
-                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,EntitiesToLink.size=0]" );
 
     // Null out Entities
     action.nextEntityToLink();
 
     assertEquals( action.toString(),
-                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
+                  "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,EntitiesToLink.size=0]" );
 
     ReplicantTestUtil.disableNames();
 
@@ -149,17 +149,8 @@ public class MessageResponseTest
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
 
-    final SafeProcedure completionAction = mock( SafeProcedure.class );
     final MessageResponse action = new MessageResponse( 1, changeSet, request );
 
-    assertNull( action.getCompletionAction() );
-
-    request.setCompletionAction( completionAction );
-
-    request.setExpectingResults( false );
-
-    assertEquals( action.getCompletionAction(), completionAction );
-    assertEquals( request.getCompletionAction(), completionAction );
     assertEquals( action.getMessage(), changeSet );
     assertEquals( action.getRequest(), request );
 

@@ -325,16 +325,6 @@
     "messagePattern": "Entity.getUserObject() invoked when no userObject present"
   },
   {
-    "code": 73,
-    "type": "API_INVARIANT",
-    "messagePattern": "Request.onSuccess invoked on completed request Request(%s)[Id=%s]."
-  },
-  {
-    "code": 74,
-    "type": "API_INVARIANT",
-    "messagePattern": "Request.onFailure invoked on completed request Request(%s)[Id=%s]."
-  },
-  {
     "code": 76,
     "type": "API_INVARIANT",
     "messagePattern": "ChannelSchema %s has a DYNAMIC filterType but has supplied no filter."

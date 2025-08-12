@@ -818,14 +818,6 @@ abstract class Connector
 
     final ExecRequest execRequest =
       null != requestId ? ensureConnection().getActiveExecRequest( requestId ) : null;
-    /*
-     * An action will be returned if the message is an answer to a request.
-     */
-    final SafeProcedure action = response.getCompletionAction();
-    if ( null != action )
-    {
-      action.call();
-    }
     if ( null != execRequest && null != request && message instanceof UpdateMessage )
     {
       @SuppressWarnings( "PatternVariableCanBeUsed" )

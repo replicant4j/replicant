@@ -14,7 +14,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.messages.ServerToClientMessage;
-import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -207,34 +206,6 @@ abstract class Connection
                                                   request.getName() ) );
     }
     return request;
-  }
-
-  void completeRequest( @Nonnull final RequestEntry request, @Nonnull final SafeProcedure completionAction )
-  {
-    if ( request.isExpectingResults() && !request.haveResultsArrived() )
-    {
-      request.setCompletionAction( completionAction );
-    }
-    else
-    {
-      if ( !request.isExpectingResults() )
-      {
-        removeRequest( request.getRequestId() );
-      }
-      completionAction.call();
-    }
-    if ( Replicant.areSpiesEnabled() && _connector.getReplicantContext().getSpy().willPropagateSpyEvents() )
-    {
-      _connector
-        .getReplicantContext()
-        .getSpy()
-        .reportSpyEvent( new RequestCompletedEvent( _connector.getSchema().getId(),
-                                                    _connector.getSchema().getName(),
-                                                    request.getRequestId(),
-                                                    request.getName(),
-                                                    request.isExpectingResults(),
-                                                    request.haveResultsArrived() ) );
-    }
   }
 
   @Nonnull

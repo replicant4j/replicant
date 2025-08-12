@@ -11,9 +11,7 @@ import org.testng.annotations.Test;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UseCacheMessage;
-import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
-import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 public class ConnectionTest
@@ -348,91 +346,6 @@ public class ConnectionTest
       expectThrows( IllegalStateException.class, connection::completeAreaOfInterestRequest );
     assertEquals( exception.getMessage(),
                   "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no current AreaOfInterest requests." );
-  }
-
-  @Test
-  public void completeRequest()
-  {
-    final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    request.setExpectingResults( false );
-
-    connection.completeRequest( request, action );
-
-    verify( action ).call();
-    assertNull( connection.getRequests().get( request.getRequestId() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), 1 );
-      assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), request.getName() );
-      assertFalse( ev.isExpectingResults() );
-      assertFalse( ev.haveResultsArrived() );
-    } );
-  }
-
-  @Test
-  public void completeRequest_expectingResults()
-  {
-    final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    request.setExpectingResults( true );
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    connection.completeRequest( request, action );
-
-    verify( action, never() ).call();
-    assertEquals( request.getCompletionAction(), action );
-    assertNotNull( connection.getRequest( request.getRequestId() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), 1 );
-      assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), request.getName() );
-      assertTrue( ev.isExpectingResults() );
-      assertFalse( ev.haveResultsArrived() );
-    } );
-  }
-
-  @Test
-  public void completeRequest_resultsArrived()
-  {
-    final Connection connection = createConnection();
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
-
-    // Remove request as it will be removed when the response arrived and was processed
-    connection.removeRequest( request.getRequestId() );
-
-    final SafeProcedure action = mock( SafeProcedure.class );
-
-    request.setExpectingResults( true );
-    request.markResultsAsArrived();
-
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-    connection.completeRequest( request, action );
-
-    verify( action ).call();
-    assertNull( request.getCompletionAction() );
-    assertNull( connection.getRequests().get( request.getRequestId() ) );
-
-    handler.assertEventCount( 1 );
-    handler.assertNextEvent( RequestCompletedEvent.class, ev -> {
-      assertEquals( ev.getSchemaId(), 1 );
-      assertEquals( ev.getRequestId(), request.getRequestId() );
-      assertEquals( ev.getName(), request.getName() );
-      assertTrue( ev.isExpectingResults() );
-      assertTrue( ev.haveResultsArrived() );
-    } );
   }
 
   @Test

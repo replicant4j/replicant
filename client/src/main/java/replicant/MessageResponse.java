@@ -276,19 +276,6 @@ final class MessageResponse
     return _message;
   }
 
-  @Nullable
-  SafeProcedure getCompletionAction()
-  {
-    if ( null == _request || !_request.hasCompleted() )
-    {
-      return null;
-    }
-    else
-    {
-      return _request.getCompletionAction();
-    }
-  }
-
   void markWorldAsValidated()
   {
     if ( Replicant.shouldValidateEntitiesOnLoad() )
@@ -324,7 +311,6 @@ final class MessageResponse
              "Type=" + _message.getType() +
              ",RequestId=" + _message.getRequestId() +
              ",ChangeIndex=" + _entityChangeIndex +
-             ",CompletionAction.null?=" + ( null == getCompletionAction() ) +
              ",EntitiesToLink.size=" + ( null == _entitiesToLink ? 0 : _entitiesToLink.size() ) +
              "]";
     }

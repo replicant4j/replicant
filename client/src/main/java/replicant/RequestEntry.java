@@ -20,8 +20,6 @@ final class RequestEntry
   private Boolean _expectingResults;
   // TODO(stocksoftware/rose#3564): We can remove _resultsArrived field once we remove gwt-rpc
   private boolean _resultsArrived;
-  // TODO(stocksoftware/rose#3564): We can remove _completionAction field once we remove gwt-rpc (replaced by response handler)
-  private SafeProcedure _completionAction;
 
   RequestEntry( final int requestId,
                 @Nullable final String name,
@@ -66,17 +64,6 @@ final class RequestEntry
   ResponseHandler getResponseHandler()
   {
     return _responseHandler;
-  }
-
-  @Nullable
-  SafeProcedure getCompletionAction()
-  {
-    return _completionAction;
-  }
-
-  void setCompletionAction( @Nonnull final SafeProcedure completionAction )
-  {
-    _completionAction = completionAction;
   }
 
   boolean hasCompleted()
