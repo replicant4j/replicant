@@ -18,7 +18,7 @@ public class MessageResponseTest
   public void construct()
   {
     final MessageResponse action =
-      new MessageResponse( 1, UpdateMessage.create( null, null, null, null, null ), null );
+      new MessageResponse( 1, UpdateMessage.create( null, null, null, null, null, null ), null );
 
     assertFalse( action.areEntityLinksPending() );
     assertFalse( action.areEntityChangesPending() );
@@ -36,7 +36,7 @@ public class MessageResponseTest
   public void toStatus()
   {
     final UpdateMessage changeSet =
-      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ], null );
 
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
 
@@ -96,7 +96,7 @@ public class MessageResponseTest
   public void testToString()
   {
     final UpdateMessage changeSet =
-      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ] );
+      UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ], null );
     final MessageResponse action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
                   "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,CompletionAction.null?=true,EntitiesToLink.size=0]" );
@@ -144,7 +144,7 @@ public class MessageResponseTest
     final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
 
     final UpdateMessage changeSet =
-      UpdateMessage.create( requestId, null, null, channelChanges, entityChanges );
+      UpdateMessage.create( requestId, null, null, channelChanges, entityChanges, null );
 
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
@@ -237,7 +237,7 @@ public class MessageResponseTest
     final EntityChange[] entityChanges = new EntityChange[ 0 ];
 
     final UpdateMessage changeSet =
-      UpdateMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges );
+      UpdateMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges, null );
     final String requestKey = ValueUtil.randomString();
     final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
 
@@ -271,7 +271,7 @@ public class MessageResponseTest
   public void setChangeSet_mismatchedRequestId()
   {
     final UpdateMessage changeSet =
-      UpdateMessage.create( 1234, null, null, null, null );
+      UpdateMessage.create( 1234, null, null, null, null, null );
     final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false, null );
 
     final IllegalStateException exception =

@@ -19,7 +19,7 @@ public class UpdateMessageTest
     final String eTag = ValueUtil.randomString();
 
     final UpdateMessage updateMessage =
-      UpdateMessage.create( requestId, eTag, channelChanges, fchannels, entityChanges );
+      UpdateMessage.create( requestId, eTag, channelChanges, fchannels, entityChanges, null );
 
     assertEquals( updateMessage.getRequestId(), (Integer) requestId );
     assertEquals( updateMessage.getETag(), eTag );
@@ -37,7 +37,7 @@ public class UpdateMessageTest
   public void construct_NoChanges()
   {
     final UpdateMessage updateMessage =
-      UpdateMessage.create( null, null, null, null, null );
+      UpdateMessage.create( null, null, null, null, null, null );
 
     assertNull( updateMessage.getRequestId() );
     assertNull( updateMessage.getETag() );
@@ -63,7 +63,7 @@ public class UpdateMessageTest
     };
 
     final UpdateMessage updateMessage =
-      UpdateMessage.create( null, null, channelChanges, null, entityChanges );
+      UpdateMessage.create( null, null, channelChanges, null, entityChanges, null );
 
     updateMessage.validate();
   }
@@ -74,7 +74,7 @@ public class UpdateMessageTest
     final String[] channelChanges = new String[]{ "+1", "+2.50", "+3.50", "+4.23", "+1" };
 
     final UpdateMessage updateMessage =
-      UpdateMessage.create( null, null, channelChanges, null, null );
+      UpdateMessage.create( null, null, channelChanges, null, null, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, updateMessage::validate );
@@ -91,7 +91,7 @@ public class UpdateMessageTest
     };
 
     final UpdateMessage updateMessage =
-      UpdateMessage.create( null, null, new String[]{ "+1", "+4.23" }, channelChanges, null );
+      UpdateMessage.create( null, null, new String[]{ "+1", "+4.23" }, channelChanges, null, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, updateMessage::validate );
@@ -113,7 +113,7 @@ public class UpdateMessageTest
     };
 
     final UpdateMessage updateMessage =
-      UpdateMessage.create( null, null, null, null, entityChanges );
+      UpdateMessage.create( null, null, null, null, entityChanges, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, updateMessage::validate );
@@ -124,7 +124,7 @@ public class UpdateMessageTest
   @Test
   public void getChannels_WhenNone()
   {
-    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null );
+    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null, null );
 
     final IllegalStateException exception = expectThrows( IllegalStateException.class, updateMessage::getChannels );
     assertEquals( exception.getMessage(),
@@ -134,7 +134,7 @@ public class UpdateMessageTest
   @Test
   public void getFilteredChannels_WhenNone()
   {
-    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null );
+    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, updateMessage::getFilteredChannels );
@@ -145,7 +145,7 @@ public class UpdateMessageTest
   @Test
   public void getEntityChanges_WhenNone()
   {
-    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null );
+    final UpdateMessage updateMessage = UpdateMessage.create( null, null, null, null, null, null );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class, updateMessage::getEntityChanges );

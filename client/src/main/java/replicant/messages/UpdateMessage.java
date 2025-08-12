@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
-import jsinterop.base.Any;
 import replicant.Replicant;
 import replicant.shared.Messages;
 import static org.realityforge.braincheck.Guards.*;
@@ -31,7 +30,7 @@ public class UpdateMessage
   @Nullable
   private EntityChange[] changes;
   @Nullable
-  private Any response;
+  private Object response;
 
   @GwtIncompatible
   @Nonnull
@@ -39,7 +38,8 @@ public class UpdateMessage
                                       @Nullable final String eTag,
                                       @Nullable final String[] channels,
                                       @Nullable final ChannelChange[] fchannels,
-                                      @Nullable final EntityChange[] entityChanges )
+                                      @Nullable final EntityChange[] entityChanges,
+                                      @Nullable final Object response )
   {
     final UpdateMessage updateMessage = new UpdateMessage();
     updateMessage.type = TYPE;
@@ -48,6 +48,7 @@ public class UpdateMessage
     updateMessage.channels = channels;
     updateMessage.fchannels = fchannels;
     updateMessage.changes = entityChanges;
+    updateMessage.response = response;
     return updateMessage;
   }
 
@@ -66,7 +67,7 @@ public class UpdateMessage
    */
   @Nullable
   @JsOverlay
-  public final Any getResponse()
+  public final Object getResponse()
   {
     return response;
   }
