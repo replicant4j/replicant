@@ -1,7 +1,5 @@
 package replicant;
 
-import javax.annotation.Nonnull;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -17,7 +15,6 @@ public class RequestEntryTest
 
     assertEquals( e.getRequestId(), requestId );
     assertEquals( e.getName(), requestKey );
-    assertFalse( e.hasCompleted() );
     assertEquals( e.toString(), "Request(ABC.go)[Id=321]" );
   }
 
@@ -65,57 +62,5 @@ public class RequestEntryTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );
-  }
-
-  @Nonnull
-  private static RequestEntry newRequestEntry()
-  {
-    return new RequestEntry( ValueUtil.randomInt(), ValueUtil.randomString(), false, null );
-  }
-
-  @Test
-  public void setExpectingResultsToTrue()
-  {
-    final RequestEntry e = newRequestEntry();
-
-    assertFalse( e.hasCompleted() );
-
-    e.setExpectingResults( true );
-
-    assertTrue( e.hasCompleted() );
-    assertTrue( e.isExpectingResults() );
-  }
-
-  @Test
-  public void isExpectingResultsToFalse()
-  {
-    final RequestEntry e = newRequestEntry();
-
-    assertFalse( e.hasCompleted() );
-
-    e.setExpectingResults( false );
-
-    assertTrue( e.hasCompleted() );
-    assertFalse( e.isExpectingResults() );
-  }
-
-  @Test
-  public void markResultsAsArrived()
-  {
-    final RequestEntry e = newRequestEntry();
-
-    assertFalse( e.haveResultsArrived() );
-    e.markResultsAsArrived();
-    assertTrue( e.haveResultsArrived() );
-  }
-
-  @Test
-  public void isExpectingResults_beforeCompletionDataSpecified()
-  {
-    final RequestEntry e = newRequestEntry();
-
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, e::isExpectingResults );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0010: isExpectingResults invoked before completion data specified." );
   }
 }

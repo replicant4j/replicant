@@ -40,11 +40,6 @@
     "messagePattern": "Entity.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
-    "code": 10,
-    "type": "INVARIANT",
-    "messagePattern": "isExpectingResults invoked before completion data specified."
-  },
-  {
     "code": 11,
     "type": "INVARIANT",
     "messagePattern": "Response message specified requestId '%s' but request specified requestId '%s'."

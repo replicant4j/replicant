@@ -809,10 +809,6 @@ abstract class Connector
 
     //Step: Run the post actions
     final RequestEntry request = response.getRequest();
-    if ( null != request )
-    {
-      request.markResultsAsArrived();
-    }
     final ServerToClientMessage message = response.getMessage();
     final Integer requestId = message.getRequestId();
 

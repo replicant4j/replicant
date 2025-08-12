@@ -16,10 +16,6 @@ final class RequestEntry
   private final boolean _syncRequest;
   @Nullable
   private final ResponseHandler _responseHandler;
-  // TODO(stocksoftware/rose#3564): We can remove _expectingResults field once we remove gwt-rpc
-  private Boolean _expectingResults;
-  // TODO(stocksoftware/rose#3564): We can remove _resultsArrived field once we remove gwt-rpc
-  private boolean _resultsArrived;
 
   RequestEntry( final int requestId,
                 @Nullable final String name,
@@ -64,36 +60,6 @@ final class RequestEntry
   ResponseHandler getResponseHandler()
   {
     return _responseHandler;
-  }
-
-  boolean hasCompleted()
-  {
-    return null != _expectingResults;
-  }
-
-  boolean isExpectingResults()
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( this::hasCompleted,
-                 () -> "Replicant-0010: isExpectingResults invoked before completion data specified." );
-    }
-    return _expectingResults;
-  }
-
-  void setExpectingResults( final boolean expectingResults )
-  {
-    _expectingResults = expectingResults;
-  }
-
-  boolean haveResultsArrived()
-  {
-    return _resultsArrived;
-  }
-
-  void markResultsAsArrived()
-  {
-    _resultsArrived = true;
   }
 
   @Override

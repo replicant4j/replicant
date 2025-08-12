@@ -2252,18 +2252,15 @@ public final class ConnectorTest
     final RequestEntry request = newRequest( connection );
 
     final int requestId = request.getRequestId();
-    request.setExpectingResults( false );
 
     setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );
 
     final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    assertFalse( request.haveResultsArrived() );
     assertEquals( connection.getRequest( requestId ), request );
 
     connector.completeMessageResponse();
 
-    assertTrue( request.haveResultsArrived() );
     assertNull( connection.getCurrentMessageResponse() );
     assertNull( connection.getRequests().get( requestId ) );
 
