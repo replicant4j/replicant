@@ -298,6 +298,7 @@ public class ReplicantContextTest
     assertFalse( context.getRuntime().getConnectorEntryBySchemaId( schemaId ).isRequired() );
   }
 
+  @SuppressWarnings( "ConstantValue" )
   @Test
   public void setCacheService()
   {
