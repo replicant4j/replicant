@@ -16,7 +16,7 @@ import jsinterop.base.JsPropertyMap;
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
  * The implementation will preferentially use local storage and then session storage.
  */
-public class WebStorageCacheService
+public final class WebStorageCacheService
   implements CacheService
 {
   static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
