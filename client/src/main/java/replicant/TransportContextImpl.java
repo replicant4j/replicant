@@ -12,6 +12,7 @@ import replicant.messages.SessionCreatedMessage;
 final class TransportContextImpl
   implements TransportContext, Disposable
 {
+  @Nonnull
   private final Connector _connector;
   private boolean _disposed;
 
