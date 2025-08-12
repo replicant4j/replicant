@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 public class TestCacheService
   implements CacheService
 {
+  @Nonnull
   private final Map<Integer, Map<ChannelAddress, CacheEntry>> _data = new HashMap<>();
 
   @Nonnull
