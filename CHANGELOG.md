@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.146](https://github.com/replicant4j/replicant/tree/v6.146) (2025-08-12) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.145...v6.146)
+
+Changes in this release:
 
 * Add `ExecMessage.getPayload()` support method to simplify automated testing.
 
