@@ -1056,7 +1056,7 @@ abstract class Connector
            getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
-        cacheService.store( address, eTag, JSON.stringify( changeSet ) );
+        cacheService.store( address, eTag, changeSet );
         candidate = true;
       }
     }

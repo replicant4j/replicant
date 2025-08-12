@@ -43,9 +43,9 @@ public class TestCacheService
   @Override
   public boolean store( @Nonnull final ChannelAddress address,
                         @Nonnull final String eTag,
-                        @Nonnull final String content )
+                        @Nonnull final Object content )
   {
-    getSystemCache( address.getSystemId() ).put( address, new CacheEntry( address, eTag, content ) );
+    getSystemCache( address.getSystemId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content) ) );
     return true;
   }
 

@@ -38,7 +38,7 @@ public interface CacheService
    * @param content the content of resource.
    * @return true if successfully cached, false otherwise.
    */
-  boolean store( @Nonnull ChannelAddress address, @Nonnull String eTag, @Nonnull String content );
+  boolean store( @Nonnull ChannelAddress address, @Nonnull String eTag, @Nonnull Object content );
 
   /**
    * Remove and invalidate cached resource.

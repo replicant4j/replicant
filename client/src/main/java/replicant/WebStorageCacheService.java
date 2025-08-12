@@ -95,7 +95,7 @@ public final class WebStorageCacheService
   @Override
   public boolean store( @Nonnull final ChannelAddress address,
                         @Nonnull final String eTag,
-                        @Nonnull final String content )
+                        @Nonnull final Object content )
   {
     Objects.requireNonNull( address );
     Objects.requireNonNull( eTag );
@@ -106,7 +106,7 @@ public final class WebStorageCacheService
       final JsPropertyMap<String> index = getIndex( systemId );
       index.set( address.asChannelDescriptor(), eTag );
       saveIndex( systemId, index );
-      getStorage().setItem( address.getCacheKey(), content );
+      getStorage().setItem( address.getCacheKey(), JSON.stringify( content ) );
       return true;
     }
     catch ( final Throwable e )
