@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import jsinterop.base.Any;
 import replicant.messages.ServerToClientMessage;
 
-public class WebSocketTransport
+public final class WebSocketTransport
   extends AbstractTransport
 {
   @Nonnull
