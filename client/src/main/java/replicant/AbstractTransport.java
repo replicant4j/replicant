@@ -153,9 +153,7 @@ public abstract class AbstractTransport
   @Nullable
   private String toRequestKey( @Nonnull final String requestType, @Nonnull final ChannelAddress address )
   {
-    return Replicant.areNamesEnabled() ?
-           requestType + ":" + address :
-           null;
+    return Replicant.areNamesEnabled() ? requestType + ":" + address : null;
   }
 
   private int newRequestId( @Nullable final String name, @Nullable final ResponseHandler responseHandler )
