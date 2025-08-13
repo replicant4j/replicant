@@ -1,5 +1,7 @@
 # Change Log
 
+### Unreleased
+
 ### [v6.150](https://github.com/replicant4j/replicant/tree/v6.150) (2025-08-13) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.149...v6.150)
 
 Changes in this release:
