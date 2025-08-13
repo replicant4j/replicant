@@ -92,7 +92,7 @@ final class ReplicantConfig
     @Override
     boolean areNamesEnabled()
     {
-      return "true".equals( System.getProperty( "replicant.enable_names", isProductionMode() ? "false" : "true" ) );
+      return "true".equals( System.getProperty( "replicant.enable_names", PRODUCTION_MODE ? "false" : "true" ) );
     }
 
     @GwtIncompatible
