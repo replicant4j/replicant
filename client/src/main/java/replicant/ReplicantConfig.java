@@ -161,10 +161,7 @@ final class ReplicantConfig
   {
     boolean isProductionMode()
     {
-      /*
-       * Valid values are: "production" and "development".
-       */
-      return "production" == System.getProperty( "replicant.environment" );
+      return true;
     }
 
     boolean areNamesEnabled()

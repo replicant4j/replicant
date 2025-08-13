@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Avoid accessing replicant.environment in javascript mode as no variant is defined
+
 ### [v6.149](https://github.com/replicant4j/replicant/tree/v6.149) (2025-08-13) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.148...v6.149)
 
 Changes in this release:
