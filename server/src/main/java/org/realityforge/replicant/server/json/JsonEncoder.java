@@ -158,10 +158,10 @@ public final class JsonEncoder
     return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
   }
 
-  private static void writeField( final JsonGenerator generator,
-                                  final String key,
-                                  final Serializable serializable,
-                                  final SimpleDateFormat dateFormat )
+  private static void writeField( @Nonnull final JsonGenerator generator,
+                                  @Nonnull final String key,
+                                  @Nullable final Serializable serializable,
+                                  @Nonnull final SimpleDateFormat dateFormat )
   {
     if ( serializable instanceof String )
     {

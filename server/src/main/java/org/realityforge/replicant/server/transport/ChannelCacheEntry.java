@@ -9,14 +9,16 @@ import org.realityforge.replicant.server.ChannelAddress;
 
 final class ChannelCacheEntry
 {
+  @Nonnull
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
+  @Nonnull
   private final ChannelAddress _descriptor;
   private String _cacheKey;
   private ChangeSet _changeSet;
 
   ChannelCacheEntry( @Nonnull final ChannelAddress address )
   {
-    _descriptor = address;
+    _descriptor = Objects.requireNonNull( address );
   }
 
   @Nonnull
