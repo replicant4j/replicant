@@ -158,6 +158,7 @@ public final class JsonEncoder
     return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
   }
 
+  @SuppressWarnings( "StatementWithEmptyBody" )
   private static void writeField( @Nonnull final JsonGenerator generator,
                                   @Nonnull final String key,
                                   @Nullable final Serializable serializable,
@@ -177,7 +178,7 @@ public final class JsonEncoder
     }
     else if ( null == serializable )
     {
-      generator.writeNull( key );
+      // No need to write anything as the client code will treat missing field as null
     }
     else if ( serializable instanceof Float )
     {
