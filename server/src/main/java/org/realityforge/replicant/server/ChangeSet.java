@@ -55,30 +55,30 @@ public final class ChangeSet
      * that action and avoid adding this action. This avoids scenario where there
      * are multiple actions for the same address in ChangeSet.
      */
-    if ( ChannelAction.Action.ADD == action.getAction() )
+    if ( ChannelAction.Action.ADD == action.action() )
     {
-      if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.getAction() &&
-                                          a.getAddress().equals( action.getAddress() ) &&
-                                          null == action.getFilter() ) )
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.action() &&
+                                          a.address().equals( action.address() ) &&
+                                          null == action.filter() ) )
       {
         return;
       }
     }
-    else if ( ChannelAction.Action.REMOVE == action.getAction() )
+    else if ( ChannelAction.Action.REMOVE == action.action() )
     {
-      if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
-                                          a.getAddress().equals( action.getAddress() ) &&
-                                          null == a.getFilter() ) )
+      if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
+                                          a.address().equals( action.address() ) &&
+                                          null == a.filter() ) )
       {
         return;
       }
     }
-    else if ( ChannelAction.Action.DELETE == action.getAction() )
+    else if ( ChannelAction.Action.DELETE == action.action() )
     {
       final boolean removedAdd =
-        _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.getAction() &&
-                                       a.getAddress().equals( action.getAddress() ) );
-      _channelActions.removeIf( a -> a.getAddress().equals( action.getAddress() ) );
+        _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
+                                       a.address().equals( action.address() ) );
+      _channelActions.removeIf( a -> a.address().equals( action.address() ) );
       if ( removedAdd )
       {
         return;
@@ -138,7 +138,7 @@ public final class ChangeSet
 
   public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
-    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.getChannelId(), address.getRootId() ) );
+    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.channelId(), address.rootId() ) );
   }
 
   @Nonnull

@@ -47,7 +47,7 @@ public final class SchemaMetaData
   @Nonnull
   public ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
   {
-    return getChannelMetaData( address.getChannelId() );
+    return getChannelMetaData( address.channelId() );
   }
 
   /**

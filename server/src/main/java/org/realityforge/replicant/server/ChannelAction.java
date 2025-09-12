@@ -7,7 +7,7 @@ import javax.json.JsonObject;
 /**
  * A record of a change in channel subscriptions.
  */
-public final class ChannelAction
+public record ChannelAction(@Nonnull ChannelAddress address, @Nonnull Action action, @Nullable JsonObject filter)
 {
   public enum Action
   {
@@ -20,39 +20,5 @@ public final class ChannelAction
     UPDATE,
     // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
     DELETE
-  }
-
-  @Nonnull
-  private final ChannelAddress _address;
-  @Nonnull
-  private final Action _action;
-  @Nullable
-  private final JsonObject _filter;
-
-  public ChannelAction( @Nonnull final ChannelAddress address,
-                        @Nonnull final Action action,
-                        @Nullable final JsonObject filter )
-  {
-    _address = address;
-    _action = action;
-    _filter = filter;
-  }
-
-  @Nonnull
-  public ChannelAddress getAddress()
-  {
-    return _address;
-  }
-
-  @Nonnull
-  public Action getAction()
-  {
-    return _action;
-  }
-
-  @Nullable
-  public JsonObject getFilter()
-  {
-    return _filter;
   }
 }

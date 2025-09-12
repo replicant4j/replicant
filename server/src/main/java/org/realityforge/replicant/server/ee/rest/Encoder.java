@@ -80,7 +80,7 @@ final class Encoder
   {
     g.write( "url", getInstanceChannelURL( session, channeID, uri ) );
     final Collection<SubscriptionEntry> entries =
-      session.getSubscriptions().values().stream().filter( s -> s.getAddress().getChannelId() == channeID ).
+      session.getSubscriptions().values().stream().filter( s -> s.getAddress().channelId() == channeID ).
         collect( Collectors.toList() );
     emitSubscriptions( schemaMetaData, session, g, entries, uri );
   }
@@ -110,10 +110,10 @@ final class Encoder
                                        @Nonnull final ChannelAddress address,
                                        @Nonnull final UriInfo uri )
   {
-    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + address.getChannelId();
-    if ( null != address.getRootId() )
+    final String baseURL = getSubscriptionsURL( session, uri ) + '/' + address.channelId();
+    if ( null != address.rootId() )
     {
-      return baseURL + '.' + address.getRootId();
+      return baseURL + '.' + address.rootId();
     }
     else
     {
@@ -184,9 +184,9 @@ final class Encoder
                                              @Nonnull final JsonGenerator g,
                                              @Nonnull final ChannelAddress address )
   {
-    g.write( "name", schemaMetaData.getChannelMetaData( address.getChannelId() ).getName() );
-    g.write( "channelId", address.getChannelId() );
-    final Integer rootId = address.getRootId();
+    g.write( "name", schemaMetaData.getChannelMetaData( address.channelId() ).getName() );
+    g.write( "channelId", address.channelId() );
+    final Integer rootId = address.rootId();
     if ( null != rootId )
     {
       g.write( "rootId", rootId );

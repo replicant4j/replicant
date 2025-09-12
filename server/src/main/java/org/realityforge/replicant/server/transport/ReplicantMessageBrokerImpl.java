@@ -77,11 +77,11 @@ public abstract class ReplicantMessageBrokerImpl
         {
           getReplicantSessionManager()
             .sendChangeMessage( session,
-                                packet.getRequestId(),
-                                packet.getResponse(),
-                                packet.getEtag(),
-                                packet.getMessages(),
-                                packet.getChangeSet() );
+                                packet.requestId(),
+                                packet.response(),
+                                packet.etag(),
+                                packet.messages(),
+                                packet.changeSet() );
         }
       }
       catch ( final InterruptedException ignored )

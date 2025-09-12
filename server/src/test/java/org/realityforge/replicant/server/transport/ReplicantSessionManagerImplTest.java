@@ -908,7 +908,7 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 5 );
       for ( final ChannelAction action : getChannelActions() )
       {
-        assertEquals( action.getAction(), ChannelAction.Action.REMOVE );
+        assertEquals( action.action(), ChannelAction.Action.REMOVE );
       }
 
       with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
@@ -1050,12 +1050,12 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
 
       final ArrayList<Integer> rootIds = new ArrayList<>();
-      rootIds.add( address1.getRootId() );
-      rootIds.add( address2.getRootId() );
+      rootIds.add( address1.rootId() );
+      rootIds.add( address2.rootId() );
       //This next one is not subscribed
-      rootIds.add( address3.getRootId() );
+      rootIds.add( address3.rootId() );
       // This next one is for wrong channel so should be no-op
-      rootIds.add( address4.getRootId() );
+      rootIds.add( address4.rootId() );
       sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
 
       assertChannelActionCount( 2 );
@@ -1112,12 +1112,12 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
 
       final ArrayList<Integer> rootIds = new ArrayList<>();
-      rootIds.add( address1.getRootId() );
-      rootIds.add( address2.getRootId() );
+      rootIds.add( address1.rootId() );
+      rootIds.add( address2.rootId() );
       //This next one is not subscribed
-      rootIds.add( address3.getRootId() );
+      rootIds.add( address3.rootId() );
       // This next one is for wrong channel so should be no-op
-      rootIds.add( address4.getRootId() );
+      rootIds.add( address4.rootId() );
       //sm.setupRegistryContext( sessionId );
       sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
 
@@ -1207,8 +1207,8 @@ public class ReplicantSessionManagerImplTest
     with( session, () -> e2.setFilter( originalFilter ) );
 
     final ArrayList<Integer> rootIds = new ArrayList<>();
-    rootIds.add( address1.getRootId() );
-    rootIds.add( address2.getRootId() );
+    rootIds.add( address1.rootId() );
+    rootIds.add( address2.rootId() );
 
     TransactionSynchronizationRegistryUtil.lookup()
       .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
@@ -1294,8 +1294,8 @@ public class ReplicantSessionManagerImplTest
     with( session, () -> e2.setFilter( originalFilter ) );
 
     final ArrayList<Integer> rootIds = new ArrayList<>();
-    rootIds.add( address1.getRootId() );
-    rootIds.add( address2.getRootId() );
+    rootIds.add( address1.rootId() );
+    rootIds.add( address2.rootId() );
 
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1553,16 +1553,16 @@ public class ReplicantSessionManagerImplTest
                                     @Nonnull final ChannelAction.Action action,
                                     @Nullable final String filterAsString )
   {
-    assertEquals( channelAction.getAction(), action );
-    assertEquals( channelAction.getAddress(), address );
+    assertEquals( channelAction.action(), action );
+    assertEquals( channelAction.address(), address );
     if ( null == filterAsString )
     {
-      assertNull( channelAction.getFilter() );
+      assertNull( channelAction.filter() );
     }
     else
     {
-      assertNotNull( channelAction.getFilter() );
-      assertEquals( channelAction.getFilter().toString(), filterAsString );
+      assertNotNull( channelAction.filter() );
+      assertEquals( channelAction.filter().toString(), filterAsString );
     }
   }
 
@@ -1653,7 +1653,7 @@ public class ReplicantSessionManagerImplTest
         final HashMap<String, Serializable> attributes = new HashMap<>();
         attributes.put( "ID", 79 );
         final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
-        changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getRootId() ) );
+        changeSet.merge( new Change( message, descriptor.channelId(), descriptor.rootId() ) );
         return new SubscribeResult( false, _cacheKey );
       }
       else
@@ -1676,7 +1676,7 @@ public class ReplicantSessionManagerImplTest
       attributes.put( "OriginalFilter", (Serializable) originalFilter );
       attributes.put( "Filter", (Serializable) filter );
       final EntityMessage message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
-      changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getRootId() ) );
+      changeSet.merge( new Change( message, descriptor.channelId(), descriptor.rootId() ) );
     }
 
     private void setFollowSource( final ChannelAddress followSource )

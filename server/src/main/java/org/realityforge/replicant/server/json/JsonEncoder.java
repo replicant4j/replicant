@@ -75,7 +75,7 @@ public final class JsonEncoder
     }
 
     final List<ChannelAction> actions =
-      changeSet.getChannelActions().stream().filter( c -> null == c.getFilter() ).toList();
+      changeSet.getChannelActions().stream().filter( c -> null == c.filter() ).toList();
     if ( !actions.isEmpty() )
     {
       generator.writeStartArray( Messages.Update.CHANNEL_ACTIONS );
@@ -84,14 +84,14 @@ public final class JsonEncoder
     }
 
     final List<ChannelAction> filteredActions =
-      changeSet.getChannelActions().stream().filter( c -> null != c.getFilter() ).toList();
+      changeSet.getChannelActions().stream().filter( c -> null != c.filter() ).toList();
     if ( !filteredActions.isEmpty() )
     {
       generator.writeStartArray( Messages.Update.FILTERED_CHANNEL_ACTIONS );
       filteredActions.forEach( a -> {
         generator.writeStartObject();
         generator.write( Messages.Common.CHANNEL, toDescriptor( a ) );
-        generator.write( Messages.Update.FILTER, a.getFilter() );
+        generator.write( Messages.Update.FILTER, a.filter() );
         generator.writeEnd();
       } );
       generator.writeEnd();
@@ -145,17 +145,17 @@ public final class JsonEncoder
   @Nonnull
   private static String toDescriptor( @Nonnull final ChannelAction channelAction )
   {
-    final Action action = channelAction.getAction();
+    final Action action = channelAction.action();
     final char actionValue =
       Action.ADD == action ? Messages.Update.CHANNEL_ACTION_ADD :
       Action.REMOVE == action ? Messages.Update.CHANNEL_ACTION_REMOVE :
       Action.UPDATE == action ? Messages.Update.CHANNEL_ACTION_UPDATE :
       Messages.Update.CHANNEL_ACTION_DELETE;
 
-    final ChannelAddress address = channelAction.getAddress();
+    final ChannelAddress address = channelAction.address();
 
-    final Integer scid = address.getRootId();
-    return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
+    final Integer scid = address.rootId();
+    return String.valueOf( actionValue ) + address.channelId() + ( null == scid ? "" : "." + scid );
   }
 
   @SuppressWarnings( "StatementWithEmptyBody" )

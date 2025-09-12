@@ -22,11 +22,11 @@ public class PacketTest
     final Packet packet = new Packet( true, requestId, response, etag, messages, changeSet );
 
     assertTrue( packet.altersExplicitSubscriptions() );
-    assertEquals( packet.getRequestId(), (Integer) requestId );
-    assertEquals( packet.getResponse(), response );
-    assertEquals( packet.getEtag(), etag );
-    assertSame( packet.getMessages(), messages );
-    assertSame( packet.getChangeSet(), changeSet );
+    assertEquals( packet.requestId(), (Integer) requestId );
+    assertEquals( packet.response(), response );
+    assertEquals( packet.etag(), etag );
+    assertSame( packet.messages(), messages );
+    assertSame( packet.changeSet(), changeSet );
   }
 
   @Test
@@ -38,9 +38,9 @@ public class PacketTest
     final Packet packet = new Packet( false, null, null, null, messages, changeSet );
 
     assertFalse( packet.altersExplicitSubscriptions() );
-    assertNull( packet.getRequestId() );
-    assertNull( packet.getEtag() );
-    assertSame( packet.getMessages(), messages );
-    assertSame( packet.getChangeSet(), changeSet );
+    assertNull( packet.requestId() );
+    assertNull( packet.etag() );
+    assertSame( packet.messages(), messages );
+    assertSame( packet.changeSet(), changeSet );
   }
 }

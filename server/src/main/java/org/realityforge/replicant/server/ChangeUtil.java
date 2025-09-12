@@ -16,7 +16,7 @@ public final class ChangeUtil
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         @Nonnull final ChannelAddress address )
   {
-    return toChanges( messages, address.getChannelId(), address.getRootId() );
+    return toChanges( messages, address.channelId(), address.rootId() );
   }
 
   @Nonnull

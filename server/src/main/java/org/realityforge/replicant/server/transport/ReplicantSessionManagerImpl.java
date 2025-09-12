@@ -351,36 +351,36 @@ public abstract class ReplicantSessionManagerImpl
         final ChannelLinkEntry entry =
           pending
             .stream()
-            .min( Comparator.comparing( ChannelLinkEntry::getTarget ) )
+            .min( Comparator.comparing( ChannelLinkEntry::target ) )
             .orElse( null );
         final List<ChannelLinkEntry> toSubscribe;
-        final ChannelAddress target = entry.getTarget();
-        if ( target.hasSubChannelId() )
+        final ChannelAddress target = entry.target();
+        if ( target.hasRootId() )
         {
           toSubscribe =
             pending
               .stream()
-              .filter( a -> a.getTarget().getChannelId() == target.getChannelId() &&
-                            Objects.equals( a.getFilter(), entry.getFilter() ) )
+              .filter( a -> a.target().channelId() == target.channelId() &&
+                            Objects.equals( a.filter(), entry.filter() ) )
               .collect( Collectors.toList() );
         }
         else
         {
           toSubscribe = Collections.singletonList( entry );
         }
-        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( target.getChannelId() );
+        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( target.channelId() );
         if ( channelMetaData.areBulkLoadsSupported() )
         {
           doBulkSubscribe( session,
-                           target.getChannelId(),
+                           target.channelId(),
                            channelMetaData.isTypeGraph() ?
                            null :
                            toSubscribe
                              .stream()
-                             .map( ChannelLinkEntry::getTarget )
-                             .map( ChannelAddress::getRootId )
+                             .map( ChannelLinkEntry::target )
+                             .map( ChannelAddress::rootId )
                              .collect( Collectors.toList() ),
-                           entry.getFilter(),
+                           entry.filter(),
                            changeSet,
                            false );
         }
@@ -388,10 +388,10 @@ public abstract class ReplicantSessionManagerImpl
         {
           for ( final ChannelLinkEntry e : toSubscribe )
           {
-            final SubscriptionEntry targetEntry = session.createSubscriptionEntry( e.getTarget() );
+            final SubscriptionEntry targetEntry = session.createSubscriptionEntry( e.target() );
             try
             {
-              performSubscribe( session, targetEntry, false, entry.getFilter(), changeSet );
+              performSubscribe( session, targetEntry, false, entry.filter(), changeSet );
             }
             catch ( final Throwable t )
             {
@@ -404,8 +404,8 @@ public abstract class ReplicantSessionManagerImpl
         subscribed.addAll( toSubscribe );
         for ( final ChannelLinkEntry e : toSubscribe )
         {
-          final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( e.getSource() );
-          final SubscriptionEntry targetEntry = session.getSubscriptionEntry( e.getTarget() );
+          final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( e.source() );
+          final SubscriptionEntry targetEntry = session.getSubscriptionEntry( e.target() );
           linkSubscriptionEntries( sourceEntry, targetEntry );
         }
       }
@@ -442,8 +442,8 @@ public abstract class ReplicantSessionManagerImpl
             final boolean alreadyCollected =
               subscribed
                 .stream()
-                .anyMatch( s -> s.getSource().equals( link.getSourceChannel() ) &&
-                                s.getTarget().equals( link.getTargetChannel() ) );
+                .anyMatch( s -> s.source().equals( link.source() ) &&
+                                s.target().equals( link.target() ) );
             if ( !alreadyCollected )
             {
               final ChannelLinkEntry entry = createChannelLinkEntryIfRequired( session, link );
@@ -470,11 +470,11 @@ public abstract class ReplicantSessionManagerImpl
   ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final ReplicantSession session,
                                                      @Nonnull final ChannelLink link )
   {
-    final ChannelAddress source = link.getSourceChannel();
+    final ChannelAddress source = link.source();
     final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
     if ( null != sourceEntry )
     {
-      final ChannelAddress target = link.getTargetChannel();
+      final ChannelAddress target = link.target();
       final boolean targetHasFilter = getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
       if ( !targetHasFilter || shouldFollowLink( sourceEntry, target ) )
       {
@@ -482,7 +482,7 @@ public abstract class ReplicantSessionManagerImpl
         if ( null == targetEntry )
         {
           return new ChannelLinkEntry( source,
-                                       link.getTargetChannel(),
+                                       link.target(),
                                        targetHasFilter ?
                                        deriveFilterToPropagateFromSourceToTarget( sourceEntry ) :
                                        null );
@@ -540,9 +540,9 @@ public abstract class ReplicantSessionManagerImpl
       // the actual remove
       for ( final ChannelAction channelAction : new ArrayList<>( changeSet.getChannelActions() ) )
       {
-        if ( ChannelAction.Action.REMOVE == channelAction.getAction() )
+        if ( ChannelAction.Action.REMOVE == channelAction.action() )
         {
-          final SubscriptionEntry other = session.findSubscriptionEntry( channelAction.getAddress() );
+          final SubscriptionEntry other = session.findSubscriptionEntry( channelAction.address() );
           // It is unclear when other is ever allowed to be null. If it is null then it probably means
           // that collectDataForSubscriptionUpdate incorrectly added this action.z
           if ( null != other )
@@ -763,10 +763,10 @@ public abstract class ReplicantSessionManagerImpl
         if ( channelMetaData.areBulkLoadsSupported() )
         {
           doBulkSubscribe( session,
-                           address.getChannelId(),
+                           address.channelId(),
                            channelMetaData.isTypeGraph() ?
                            null :
-                           Collections.singletonList( address.getRootId() ),
+                           Collections.singletonList( address.rootId() ),
                            filter,
                            changeSet,
                            true );
@@ -793,10 +793,10 @@ public abstract class ReplicantSessionManagerImpl
       if ( channelMetaData.areBulkLoadsSupported() )
       {
         doBulkSubscribe( session,
-                         address.getChannelId(),
+                         address.channelId(),
                          channelMetaData.isTypeGraph() ?
                          null :
-                         Collections.singletonList( address.getRootId() ),
+                         Collections.singletonList( address.rootId() ),
                          filter,
                          changeSet,
                          true );
@@ -872,7 +872,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         // If we get here then we have requested a cacheable instance channel
         // where the root has been removed
-        assert address.hasSubChannelId();
+        assert address.hasRootId();
         final ChangeSet cacheChangeSet = new ChangeSet();
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         queueCachedChangeSet( session, null, cacheChangeSet );
@@ -884,8 +884,8 @@ public abstract class ReplicantSessionManagerImpl
       if ( channelMetaData.areBulkLoadsSupported() )
       {
         final ChannelAddress channelAddress =
-          new ChannelAddress( address.getChannelId(),
-                              channelMetaData.isTypeGraph() ? null : address.getRootId() );
+          new ChannelAddress( address.channelId(),
+                              channelMetaData.isTypeGraph() ? null : address.rootId() );
         bulkCollectDataForSubscribe( session,
                                      Collections.singletonList( channelAddress ),
                                      filter,
@@ -895,7 +895,7 @@ public abstract class ReplicantSessionManagerImpl
       else
       {
         final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
-        if ( result.isChannelRootDeleted() )
+        if ( result.channelRootDeleted() )
         {
           changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         }
@@ -1048,13 +1048,13 @@ public abstract class ReplicantSessionManagerImpl
       // TODO: At some point we should add support for bulk loads here
       assert !metaData.areBulkLoadsSupported();
       final SubscribeResult result = collectDataForSubscribe( address, changeSet, null );
-      if ( result.isChannelRootDeleted() )
+      if ( result.channelRootDeleted() )
       {
         return null;
       }
       else
       {
-        final String cacheKey = result.getCacheKey();
+        final String cacheKey = result.cacheKey();
         assert null != cacheKey;
         entry.init( cacheKey, changeSet );
         return entry;
@@ -1275,7 +1275,7 @@ public abstract class ReplicantSessionManagerImpl
     {
       for ( final ChannelLink link : links )
       {
-        delinkDownstreamSubscription( session, entry, link.getTargetChannel(), changeSet );
+        delinkDownstreamSubscription( session, entry, link.target(), changeSet );
       }
     }
   }
@@ -1405,7 +1405,7 @@ public abstract class ReplicantSessionManagerImpl
       // Process any  messages that are in scope for session
       if ( null != m )
       {
-        changeSet.merge( new Change( message, address.getChannelId(), address.getRootId() ) );
+        changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
       }
     }
   }

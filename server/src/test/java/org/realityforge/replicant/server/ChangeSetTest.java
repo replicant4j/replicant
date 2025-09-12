@@ -69,10 +69,10 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
-    assertEquals( action.getAction(), Action.ADD );
-    assertEquals( action.getFilter(), filter );
+    assertEquals( action.address().channelId(), 1 );
+    assertEquals( action.address().rootId(), (Integer) 2 );
+    assertEquals( action.action(), Action.ADD );
+    assertEquals( action.filter(), filter );
   }
 
   @Test
@@ -88,13 +88,13 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
-    assertEquals( action.getAction(), Action.ADD );
+    assertEquals( action.address().channelId(), 1 );
+    assertEquals( action.address().rootId(), (Integer) 2 );
+    assertEquals( action.action(), Action.ADD );
 
     final JsonObject filter =
       Json.createBuilderFactory( null ).createObjectBuilder().add( "myField", 23 ).build();
-    assertEquals( action.getFilter(), filter );
+    assertEquals( action.filter(), filter );
   }
 
   @Test
@@ -147,10 +147,10 @@ public class ChangeSetTest
     assertEquals( actions.size(), 1 );
 
     final ChannelAction action = actions.get( 0 );
-    assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
-    assertEquals( action.getAction(), Action.ADD );
-    assertEquals( action.getFilter(), filter );
+    assertEquals( action.address().channelId(), 1 );
+    assertEquals( action.address().rootId(), (Integer) 2 );
+    assertEquals( action.action(), Action.ADD );
+    assertEquals( action.filter(), filter );
   }
 
   @Test
@@ -228,6 +228,6 @@ public class ChangeSetTest
   {
     assertTrue( changeSet.getChannelActions()
                   .stream()
-                  .anyMatch( a -> a.getAddress().equals( address ) && a.getAction() == action ) );
+                  .anyMatch( a -> a.address().equals( address ) && a.action() == action ) );
   }
 }

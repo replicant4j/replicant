@@ -314,7 +314,7 @@ public abstract class AbstractReplicantEndpoint
     throws IOException, InterruptedException
   {
     final ChannelAddress address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
-    final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
+    final ChannelMetaData channelMetaData = getChannelMetaData( address.channelId() );
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
       subscribe( replicantSession,
@@ -334,12 +334,12 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( replicantSession, "Attempted to subscribe to internal-only channel" );
       return false;
     }
-    else if ( address.hasSubChannelId() && channelMetaData.isTypeGraph() )
+    else if ( address.hasRootId() && channelMetaData.isTypeGraph() )
     {
       sendErrorAndClose( replicantSession, "Attempted to subscribe to type channel with instance data" );
       return false;
     }
-    else if ( !address.hasSubChannelId() && channelMetaData.isInstanceGraph() )
+    else if ( !address.hasRootId() && channelMetaData.isInstanceGraph() )
     {
       sendErrorAndClose( replicantSession, "Attempted to subscribe to instance channel without instance data" );
       return false;
@@ -389,7 +389,7 @@ public abstract class AbstractReplicantEndpoint
     {
       return;
     }
-    final int channelId = addresses[ 0 ].getChannelId();
+    final int channelId = addresses[ 0 ].channelId();
 
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     final List<Integer> rootIds = new ArrayList<>();
@@ -399,19 +399,19 @@ public abstract class AbstractReplicantEndpoint
       {
         return;
       }
-      if ( address.getChannelId() != channelId )
+      if ( address.channelId() != channelId )
       {
         sendErrorAndClose( session, "Bulk channel subscribe included addresses from multiple channels" );
         return;
       }
-      else if ( !address.hasSubChannelId() )
+      else if ( !address.hasRootId() )
       {
         sendErrorAndClose( session, "Bulk channel subscribe included addresses channel without sub-channel ids" );
         return;
       }
       else
       {
-        rootIds.add( address.getRootId() );
+        rootIds.add( address.rootId() );
       }
     }
 
@@ -474,7 +474,7 @@ public abstract class AbstractReplicantEndpoint
     throws IOException, InterruptedException
   {
     final ChannelAddress address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
-    final ChannelMetaData channelMetaData = getChannelMetaData( address.getChannelId() );
+    final ChannelMetaData channelMetaData = getChannelMetaData( address.channelId() );
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
       final int requestId = command.getInt( Messages.Common.REQUEST_ID );
@@ -491,7 +491,7 @@ public abstract class AbstractReplicantEndpoint
     {
       return;
     }
-    final int channelId = addresses[ 0 ].getChannelId();
+    final int channelId = addresses[ 0 ].channelId();
 
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     final List<Integer> rootIds = new ArrayList<>();
@@ -501,12 +501,12 @@ public abstract class AbstractReplicantEndpoint
       {
         return;
       }
-      if ( address.getChannelId() != channelId )
+      if ( address.channelId() != channelId )
       {
         sendErrorAndClose( session, "Bulk channel unsubscribe included addresses from multiple channels" );
         return;
       }
-      else if ( !address.hasSubChannelId() )
+      else if ( !address.hasRootId() )
       {
         sendErrorAndClose( session,
                            "Bulk channel unsubscribe included addresses channel without sub-channel ids" );
@@ -514,7 +514,7 @@ public abstract class AbstractReplicantEndpoint
       }
       else
       {
-        rootIds.add( address.getRootId() );
+        rootIds.add( address.rootId() );
       }
     }
 
@@ -587,12 +587,12 @@ public abstract class AbstractReplicantEndpoint
       sendErrorAndClose( replicantSession, "Attempted to unsubscribe from internal-only channel" );
       return false;
     }
-    else if ( address.hasSubChannelId() && channelMetaData.isTypeGraph() )
+    else if ( address.hasRootId() && channelMetaData.isTypeGraph() )
     {
       sendErrorAndClose( replicantSession, "Attempted to unsubscribe from type channel with instance data" );
       return false;
     }
-    else if ( !address.hasSubChannelId() && channelMetaData.isInstanceGraph() )
+    else if ( !address.hasRootId() && channelMetaData.isInstanceGraph() )
     {
       sendErrorAndClose( replicantSession, "Attempted to unsubscribe from instance channel without instance data" );
       return false;
