@@ -48,14 +48,7 @@ public final class ChannelAddress
   @Override
   public String toString()
   {
-    if ( Replicant.areNamesEnabled() )
-    {
-      return getName();
-    }
-    else
-    {
-      return super.toString();
-    }
+    return Replicant.areNamesEnabled() ? getName() : super.toString();
   }
 
   @Nonnull
