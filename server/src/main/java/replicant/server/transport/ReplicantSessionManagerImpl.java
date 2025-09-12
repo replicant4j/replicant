@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
@@ -251,7 +253,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
                                      @Nullable final Integer requestId,
-                                     @Nullable final String response,
+                                     @Nullable final JsonValue response,
                                      @Nonnull final Collection<EntityMessage> messages,
                                      @Nullable final ChangeSet sessionChanges )
   {
@@ -316,7 +318,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void sendChangeMessage( @Nonnull final ReplicantSession session,
                                  @Nullable final Integer requestId,
-                                 @Nullable final String response,
+                                 @Nullable final JsonValue response,
                                  @Nullable final String etag,
                                  @Nonnull final Collection<EntityMessage> messages,
                                  @Nonnull final ChangeSet changeSet )

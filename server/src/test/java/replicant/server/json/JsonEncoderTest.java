@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.Change;
@@ -49,7 +50,9 @@ public final class JsonEncoderTest
     values.put( "key3", date );
 
     final int requestId = 1;
-    final String response = "[17, 42]";
+    final JsonValue response =
+      Json.createArrayBuilder().add( 17 ).add( 42 ).build();
+
     final String etag = "#1";
     final JsonObject filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 

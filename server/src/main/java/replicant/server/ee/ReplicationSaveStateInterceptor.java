@@ -1,6 +1,5 @@
 package replicant.server.ee;
 
-import java.io.Serializable;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Priority;
@@ -21,7 +20,7 @@ public class ReplicationSaveStateInterceptor
   public Object businessIntercept( @Nonnull final InvocationContext context )
     throws Exception
   {
-    final Map<String, Serializable> rc = ReplicantContextHolder.getContext();
+    final Map<String, Object> rc = ReplicantContextHolder.getContext();
     ReplicantContextHolder.clean();
     try
     {

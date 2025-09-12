@@ -1,6 +1,5 @@
 package replicant.server.ee;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -38,8 +37,6 @@ public abstract class AbstractReplicantEndpoint
 {
   @Nonnull
   protected static final Logger LOG = Logger.getLogger( AbstractReplicantEndpoint.class.getName() );
-  @Nonnull
-  private transient final ObjectMapper _jsonMapper = new ObjectMapper();
 
   @SuppressWarnings( "WeakerAccess" )
   @Nonnull
@@ -465,8 +462,10 @@ public abstract class AbstractReplicantEndpoint
   @Nullable
   private Object extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
   {
-    return command.containsKey( Messages.Update.FILTER ) && !command.isNull( Messages.Update.FILTER ) ?
-           toFilter( channelMetaData, command.getJsonObject( Messages.Update.FILTER ) ) :
+    return channelMetaData.hasFilterParameter() &&
+           command.containsKey( Messages.Update.FILTER ) &&
+           !command.isNull( Messages.Update.FILTER ) ?
+           parseFilter( channelMetaData, command.getJsonObject( Messages.Update.FILTER ) ) :
            null;
   }
 
@@ -687,24 +686,8 @@ public abstract class AbstractReplicantEndpoint
     }
   }
 
-  @Nullable
-  private Object toFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject filterContent )
-  {
-    return channelMetaData.hasFilterParameter() ? parseFilter( channelMetaData, filterContent ) : null;
-  }
-
   @Nonnull
-  private Object parseFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject filterContent )
-  {
-    try
-    {
-      return _jsonMapper.readValue( filterContent.toString(), channelMetaData.getFilterParameterType() );
-    }
-    catch ( final IOException ioe )
-    {
-      throw new IllegalArgumentException( "Unable to parse filter: " + filterContent, ioe );
-    }
-  }
+  protected abstract Object parseFilter( @Nonnull ChannelMetaData channelMetaData, @Nonnull JsonObject filterContent );
 
   @Nonnull
   private ChannelMetaData getChannelMetaData( final int channelId )

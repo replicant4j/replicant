@@ -1,6 +1,5 @@
 package replicant.server.ee;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -16,7 +15,7 @@ import javax.annotation.Nullable;
 public final class ReplicantContextHolder
 {
   @Nonnull
-  private static final ThreadLocal<Map<String, Serializable>> c_context = new ThreadLocal<>();
+  private static final ThreadLocal<Map<String, Object>> c_context = new ThreadLocal<>();
 
   private ReplicantContextHolder()
   {
@@ -28,7 +27,7 @@ public final class ReplicantContextHolder
    * @param key  the key.
    * @param data the data.
    */
-  public static void put( @Nonnull final String key, @Nullable final Serializable data )
+  public static void put( @Nonnull final String key, @Nullable final Object data )
   {
     if ( null == data )
     {
@@ -45,7 +44,7 @@ public final class ReplicantContextHolder
    *
    * @param data the data.
    */
-  static void putAll( @Nonnull final Map<String, Serializable> data )
+  static void putAll( @Nonnull final Map<String, Object> data )
   {
     getRawContext().putAll( data );
   }
@@ -54,7 +53,7 @@ public final class ReplicantContextHolder
    * Return a copy of the current ReplicantContext.
    */
   @Nonnull
-  public static Map<String, Serializable> getContext()
+  public static Map<String, Object> getContext()
   {
     return new HashMap<>( getRawContext() );
   }
@@ -62,7 +61,7 @@ public final class ReplicantContextHolder
   /**
    * Return the underlying ReplicantContext without copying.
    */
-  private static Map<String, Serializable> getRawContext()
+  private static Map<String, Object> getRawContext()
   {
     if ( null == c_context.get() )
     {
@@ -81,7 +80,7 @@ public final class ReplicantContextHolder
   @Nullable
   public static Object remove( @Nonnull final String key )
   {
-    final Map<String, Serializable> map = c_context.get();
+    final Map<String, Object> map = c_context.get();
     return null != map ? map.remove( key ) : null;
   }
 
@@ -92,9 +91,9 @@ public final class ReplicantContextHolder
    * @return the context data if any, else null.
    */
   @Nullable
-  public static Serializable get( @Nonnull final String key )
+  public static Object get( @Nonnull final String key )
   {
-    final Map<String, Serializable> map = c_context.get();
+    final Map<String, Object> map = c_context.get();
     if ( null == map )
     {
       return null;

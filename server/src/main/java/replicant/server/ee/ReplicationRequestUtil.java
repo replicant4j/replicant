@@ -8,6 +8,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.persistence.EntityManager;
 import javax.transaction.Status;
 import javax.transaction.TransactionSynchronizationRegistry;
@@ -150,7 +152,7 @@ public final class ReplicationRequestUtil
     {
       final String sessionId = (String) registry.getResource( ServerConstants.SESSION_ID_KEY );
       final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
-      final String response = (String) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
+      final JsonValue response = (JsonValue) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
       boolean requestComplete = true;
       entityManager.flush();
       final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( registry );

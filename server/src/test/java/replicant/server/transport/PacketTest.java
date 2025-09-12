@@ -2,6 +2,8 @@ package replicant.server.transport;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.json.Json;
+import javax.json.JsonValue;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
@@ -14,7 +16,7 @@ public class PacketTest
   public void packetFromInitiator()
   {
     final int requestId = ValueUtil.randomInt();
-    final String response = "[]";
+    final JsonValue response = Json.createArrayBuilder().build();
     final String etag = ValueUtil.randomString();
     final List<EntityMessage> messages = new ArrayList<>();
     final ChangeSet changeSet = new ChangeSet();

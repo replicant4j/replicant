@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
 
@@ -36,7 +38,7 @@ public abstract class ReplicantMessageBrokerImpl
   public void queueChangeMessage( @Nonnull final ReplicantSession session,
                                   final boolean altersExplicitSubscriptions,
                                   @Nullable final Integer requestId,
-                                  @Nullable final String response,
+                                  @Nullable final JsonValue response,
                                   @Nullable final String etag,
                                   @Nonnull final Collection<EntityMessage> messages,
                                   @Nonnull final ChangeSet changeSet )

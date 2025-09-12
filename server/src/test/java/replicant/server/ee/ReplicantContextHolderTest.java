@@ -16,19 +16,12 @@ public class ReplicantContextHolderTest
     ReplicantContextHolder.clean();
     assertNull( ReplicantContextHolder.get( key ) );
     ReplicantContextHolder.put( key, value );
-    final Serializable v2 = ReplicantContextHolder.get( key );
+    final Object v2 = ReplicantContextHolder.get( key );
     assertEquals( v2, value );
 
-    final Serializable[] result = new Serializable[ 1 ];
+    final Object[] result = new Object[ 1 ];
 
-    final Thread thread = new Thread()
-    {
-      @Override
-      public void run()
-      {
-        result[ 0 ] = ReplicantContextHolder.get( key );
-      }
-    };
+    final Thread thread = new Thread( () -> result[ 0 ] = ReplicantContextHolder.get( key ) );
     thread.start();
     thread.join();
 

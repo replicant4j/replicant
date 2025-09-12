@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonValue;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import replicant.server.ChangeSet;
@@ -216,7 +217,7 @@ public final class ReplicantSession
    * @param changeSet the changeSet to create packet from.
    */
   public void sendPacket( @Nullable final Integer requestId,
-                          @Nullable final String response,
+                          @Nullable final JsonValue response,
                           @Nullable final String etag,
                           @Nonnull final ChangeSet changeSet )
   {

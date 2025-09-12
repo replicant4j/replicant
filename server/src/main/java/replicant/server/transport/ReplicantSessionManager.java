@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonValue;
 import javax.websocket.Session;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
@@ -83,7 +84,7 @@ public interface ReplicantSessionManager
    */
   void sendChangeMessage( @Nonnull ReplicantSession session,
                           @Nullable Integer requestId,
-                          @Nullable final String response,
+                          @Nullable JsonValue response,
                           @Nullable String etag,
                           @Nonnull Collection<EntityMessage> messages,
                           @Nonnull ChangeSet changeSet );

@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
@@ -23,7 +24,6 @@ import replicant.server.ChannelAction;
 import replicant.server.ChannelAction.Action;
 import replicant.server.ChannelAddress;
 import replicant.server.EntityMessage;
-import replicant.server.ee.JsonUtil;
 import replicant.shared.Messages;
 
 /**
@@ -51,7 +51,7 @@ public final class JsonEncoder
    */
   @Nonnull
   public static String encodeChangeSet( @Nullable final Integer requestId,
-                                        @Nullable final String response,
+                                        @Nullable final JsonValue response,
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
@@ -67,7 +67,7 @@ public final class JsonEncoder
     }
     if ( null != response )
     {
-      generator.write( Messages.Update.RESPONSE, JsonUtil.toJsonValue( response ) );
+      generator.write( Messages.Update.RESPONSE, response );
     }
     if ( null != etag )
     {

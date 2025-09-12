@@ -3,6 +3,8 @@ package replicant.server;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 public interface EntityMessageEndpoint
 {
@@ -18,7 +20,7 @@ public interface EntityMessageEndpoint
    */
   boolean saveEntityMessages( @Nullable String sessionId,
                               @Nullable Integer requestId,
-                              @Nullable String response,
+                              @Nullable JsonValue response,
                               @Nonnull Collection<EntityMessage> messages,
                               @Nullable ChangeSet sessionChanges );
 }

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.Session;
@@ -150,7 +152,7 @@ public class ReplicationInterceptorTest
     ReplicantContextHolder.put( ServerConstants.SESSION_ID_KEY, sessionId );
     ReplicantContextHolder.put( ServerConstants.REQUEST_ID_KEY, 1 );
 
-    final String response = "{}";
+    final JsonObject response = JsonObject.EMPTY_JSON_OBJECT;
     context.setRunnable( () ->
                            interceptor
                              .getRegistry()
@@ -364,7 +366,7 @@ public class ReplicationInterceptorTest
     private final ReplicantSessionManager _sessionManager;
     private String _sessionId;
     private Integer _requestId;
-    private String _response;
+    private JsonValue _response;
     private Collection<EntityMessage> _messages;
     private final boolean _routeToSession;
     private ChangeSet _changeSet;
@@ -388,7 +390,7 @@ public class ReplicationInterceptorTest
     @Override
     public boolean saveEntityMessages( @Nullable final String sessionId,
                                        @Nullable final Integer requestId,
-                                       @Nullable final String response,
+                                       @Nullable final JsonValue response,
                                        @Nonnull final Collection<EntityMessage> messages,
                                        @Nullable final ChangeSet changeSet )
     {

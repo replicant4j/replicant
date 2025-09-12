@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.websocket.Session;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
@@ -27,7 +29,8 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final int requestId = ValueUtil.randomInt();
-    final String response = ValueUtil.randomString();
+    final JsonObject response =
+      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
     final String etag = ValueUtil.randomString();
     final List<EntityMessage> messages = Collections.emptyList();
     final ChangeSet changeSet = new ChangeSet();
@@ -54,27 +57,29 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final int requestId1 = ValueUtil.randomInt();
-    final String responseId1 = ValueUtil.randomString();
+    final JsonObject response1 =
+      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
     final String etag1 = ValueUtil.randomString();
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
 
-    broker.queueChangeMessage( session, false, requestId1, responseId1, etag1, messages1, changeSet1 );
+    broker.queueChangeMessage( session, false, requestId1, response1, etag1, messages1, changeSet1 );
 
     final int requestId2 = ValueUtil.randomInt();
-    final String responseId2 = ValueUtil.randomString();
+    final JsonObject response2 =
+      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
     final String etag2 = ValueUtil.randomString();
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
 
-    broker.queueChangeMessage( session, false, requestId2, responseId2, etag2, messages2, changeSet2 );
+    broker.queueChangeMessage( session, false, requestId2, response2, etag2, messages2, changeSet2 );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session, requestId1, responseId1, etag1, messages1, changeSet1 );
-    verifySendOnce( broker, session, requestId2, responseId2, etag2, messages2, changeSet2 );
+    verifySendOnce( broker, session, requestId1, response1, etag1, messages1, changeSet1 );
+    verifySendOnce( broker, session, requestId2, response2, etag2, messages2, changeSet2 );
   }
 
   @Test
@@ -91,7 +96,7 @@ public class ReplicantMessageBrokerImplTest
     verifyNoSend( broker );
 
     final Integer requestId1 = null;
-    final String responseId1 = null;
+    final JsonObject responseId1 = null;
     final String etag1 = null;
     final List<EntityMessage> messages1 = Collections.emptyList();
     final ChangeSet changeSet1 = new ChangeSet();
@@ -99,7 +104,7 @@ public class ReplicantMessageBrokerImplTest
     broker.queueChangeMessage( session1, false, requestId1, responseId1, etag1, messages1, changeSet1 );
 
     final Integer requestId2 = null;
-    final String responseId2 = null;
+    final JsonObject responseId2 = null;
     final String etag2 = null;
     final List<EntityMessage> messages2 = Collections.emptyList();
     final ChangeSet changeSet2 = new ChangeSet();
@@ -117,7 +122,7 @@ public class ReplicantMessageBrokerImplTest
   private void verifySendOnce( @Nonnull final ReplicantMessageBroker broker,
                                @Nonnull final ReplicantSession session,
                                @Nullable final Integer requestId,
-                               @Nullable final String response,
+                               @Nullable final JsonObject response,
                                @Nullable final String etag,
                                @Nonnull final Collection<EntityMessage> messages,
                                @Nonnull final ChangeSet changeSet )
