@@ -41,38 +41,20 @@ public final class EntityMessageSorter
       {
         return -1;
       }
-      final int typeComparison = o2.getTypeId() - o1.getTypeId();
-      if ( 0 != typeComparison )
+      else
       {
-        return typeComparison;
+        final int typeComparison = o2.getTypeId() - o1.getTypeId();
+        return 0 != typeComparison ? typeComparison : Long.compare( o2.getTimestamp(), o1.getTimestamp() );
       }
-      if ( o2.getTimestamp() < o1.getTimestamp() )
-      {
-        return -1;
-      }
-      if ( o2.getTimestamp() > o1.getTimestamp() )
-      {
-        return 1;
-      }
-      return 0;
     }
-    if ( o2.isDelete() )
+    else if ( o2.isDelete() )
     {
       return 1;
     }
-    final int typeComparison = o1.getTypeId() - o2.getTypeId();
-    if ( 0 != typeComparison )
+    else
     {
-      return typeComparison;
+      final int typeComparison = o1.getTypeId() - o2.getTypeId();
+      return 0 != typeComparison ? typeComparison : Long.compare( o1.getTimestamp(), o2.getTimestamp() );
     }
-    if ( o1.getTimestamp() < o2.getTimestamp() )
-    {
-      return -1;
-    }
-    if ( o1.getTimestamp() > o2.getTimestamp() )
-    {
-      return 1;
-    }
-    return 0;
   }
 }
