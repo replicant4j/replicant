@@ -15,7 +15,7 @@ import org.realityforge.replicant.server.ee.JsonUtil;
 import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
-import org.realityforge.replicant.server.transport.SystemMetaData;
+import org.realityforge.replicant.server.transport.SchemaMetaData;
 import replicant.shared.SharedConstants;
 
 final class Encoder
@@ -24,7 +24,7 @@ final class Encoder
   {
   }
 
-  static void emitSession( @Nonnull final SystemMetaData systemMetaData,
+  static void emitSession( @Nonnull final SchemaMetaData schemaMetaData,
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
                            @Nonnull final UriInfo uri,
@@ -37,44 +37,44 @@ final class Encoder
     if ( emitNetworkData )
     {
       g.writeStartObject( "channels" );
-      emitChannels( systemMetaData, session, g, uri );
+      emitChannels( schemaMetaData, session, g, uri );
       g.writeEnd();
     }
 
     g.writeEnd();
   }
 
-  static void emitChannelsList( @Nonnull final SystemMetaData systemMetaData,
+  static void emitChannelsList( @Nonnull final SchemaMetaData schemaMetaData,
                                 @Nonnull final ReplicantSession session,
                                 @Nonnull final JsonGenerator g,
                                 @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    emitChannels( systemMetaData, session, g, uri );
+    emitChannels( schemaMetaData, session, g, uri );
     g.writeEnd();
   }
 
-  private static void emitChannels( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitChannels( @Nonnull final SchemaMetaData schemaMetaData,
                                     @Nonnull final ReplicantSession session,
                                     @Nonnull final JsonGenerator g,
                                     @Nonnull final UriInfo uri )
   {
     g.write( "url", getSubscriptionsURL( session, uri ) );
-    emitSubscriptions( systemMetaData, session, g, session.getSubscriptions().values(), uri );
+    emitSubscriptions( schemaMetaData, session, g, session.getSubscriptions().values(), uri );
   }
 
-  static void emitInstanceChannelList( @Nonnull final SystemMetaData systemMetaData,
+  static void emitInstanceChannelList( @Nonnull final SchemaMetaData schemaMetaData,
                                        final int channeID,
                                        @Nonnull final ReplicantSession session,
                                        @Nonnull final JsonGenerator g,
                                        @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    emitInstanceChannels( systemMetaData, channeID, session, g, uri );
+    emitInstanceChannels( schemaMetaData, channeID, session, g, uri );
     g.writeEnd();
   }
 
-  private static void emitInstanceChannels( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitInstanceChannels( @Nonnull final SchemaMetaData schemaMetaData,
                                             final int channeID,
                                             @Nonnull final ReplicantSession session,
                                             @Nonnull final JsonGenerator g,
@@ -84,7 +84,7 @@ final class Encoder
     final Collection<SubscriptionEntry> entries =
       session.getSubscriptions().values().stream().filter( s -> s.getAddress().getChannelId() == channeID ).
         collect( Collectors.toList() );
-    emitSubscriptions( systemMetaData, session, g, entries, uri );
+    emitSubscriptions( schemaMetaData, session, g, entries, uri );
   }
 
   @Nonnull
@@ -123,7 +123,7 @@ final class Encoder
     }
   }
 
-  private static void emitSubscriptions( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitSubscriptions( @Nonnull final SchemaMetaData schemaMetaData,
                                          @Nonnull final ReplicantSession session,
                                          @Nonnull final JsonGenerator g,
                                          @Nonnull final Collection<SubscriptionEntry> subscriptionEntries,
@@ -136,7 +136,7 @@ final class Encoder
 
     for ( final SubscriptionEntry subscription : subscriptions )
     {
-      emitChannel( systemMetaData, session, g, subscription, uri );
+      emitChannel( schemaMetaData, session, g, subscription, uri );
     }
     g.writeEnd();
   }
@@ -162,28 +162,28 @@ final class Encoder
     }
   }
 
-  private static void emitChannelDescriptors( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitChannelDescriptors( @Nonnull final SchemaMetaData schemaMetaData,
                                               @Nonnull final JsonGenerator g,
                                               @Nonnull final Set<ChannelAddress> addresses )
   {
     for ( final ChannelAddress address : addresses )
     {
       g.writeStartObject();
-      emitChannelDescriptor( systemMetaData, g, address );
+      emitChannelDescriptor( schemaMetaData, g, address );
       g.writeEnd();
     }
   }
 
-  static void emitChannel( @Nonnull final SystemMetaData systemMetaData,
+  static void emitChannel( @Nonnull final SchemaMetaData schemaMetaData,
                            @Nonnull final ReplicantSession session,
                            @Nonnull final JsonGenerator g,
                            @Nonnull final SubscriptionEntry entry,
                            @Nonnull final UriInfo uri )
   {
     g.writeStartObject();
-    final ChannelMetaData channelMetaData = systemMetaData.getChannelMetaData( entry.getAddress() );
+    final ChannelMetaData channelMetaData = schemaMetaData.getChannelMetaData( entry.getAddress() );
     g.write( "url", getChannelURL( session, entry.getAddress(), uri ) );
-    emitChannelDescriptor( systemMetaData, g, entry.getAddress() );
+    emitChannelDescriptor( schemaMetaData, g, entry.getAddress() );
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
     if ( channelMetaData.hasFilterParameter() )
     {
@@ -198,21 +198,21 @@ final class Encoder
       }
     }
 
-    emitChannelDescriptors( systemMetaData, g, "inwardSubscriptions", entry.getInwardSubscriptions() );
-    emitChannelDescriptors( systemMetaData, g, "outwardSubscriptions", entry.getOutwardSubscriptions() );
+    emitChannelDescriptors( schemaMetaData, g, "inwardSubscriptions", entry.getInwardSubscriptions() );
+    emitChannelDescriptors( schemaMetaData, g, "outwardSubscriptions", entry.getOutwardSubscriptions() );
     g.writeEnd();
   }
 
-  private static void emitChannelDescriptor( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitChannelDescriptor( @Nonnull final SchemaMetaData schemaMetaData,
                                              @Nonnull final JsonGenerator g,
                                              @Nonnull final ChannelAddress address )
   {
-    g.write( "name", systemMetaData.getChannelMetaData( address.getChannelId() ).getName() );
+    g.write( "name", schemaMetaData.getChannelMetaData( address.getChannelId() ).getName() );
     emitChannelId( g, address.getChannelId() );
     emitSubChannelId( g, address.getSubChannelId() );
   }
 
-  private static void emitChannelDescriptors( @Nonnull final SystemMetaData systemMetaData,
+  private static void emitChannelDescriptors( @Nonnull final SchemaMetaData schemaMetaData,
                                               @Nonnull final JsonGenerator g,
                                               @Nonnull final String key,
                                               @Nonnull final Set<ChannelAddress> addresses )
@@ -220,7 +220,7 @@ final class Encoder
     if ( !addresses.isEmpty() )
     {
       g.writeStartArray( key );
-      emitChannelDescriptors( systemMetaData, g, addresses );
+      emitChannelDescriptors( schemaMetaData, g, addresses );
       g.writeEnd();
     }
   }

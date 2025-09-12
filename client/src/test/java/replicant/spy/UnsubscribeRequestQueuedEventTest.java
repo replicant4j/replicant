@@ -22,7 +22,7 @@ public class UnsubscribeRequestQueuedEventTest
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestQueued" );
-    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
     assertNull( data.get( "channel.id" ) );
     assertEquals( data.size(), 4 );

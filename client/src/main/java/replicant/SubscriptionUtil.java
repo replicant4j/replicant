@@ -39,7 +39,7 @@ public class SubscriptionUtil
       context
         .getAreasOfInterest()
         .stream()
-        .filter( s -> s.getAddress().getSystemId() == targetSystemId &&
+        .filter( s -> s.getAddress().getSchemaId() == targetSystemId &&
                       s.getAddress().getChannelId() == targetChannelId )
         .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
         .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
@@ -47,7 +47,7 @@ public class SubscriptionUtil
     context
       .getAreasOfInterest()
       .stream()
-      .filter( s -> s.getAddress().getSystemId() == sourceSystemId &&
+      .filter( s -> s.getAddress().getSchemaId() == sourceSystemId &&
                     s.getAddress().getChannelId() == sourceChannelId )
       .map( s -> s.getAddress().getId() )
       .flatMap( sourceIdToTargetIds )

@@ -187,7 +187,7 @@ abstract class Converger
                  () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest." );
     }
     final ChannelAddress address = areaOfInterest.getAddress();
-    final Connector connector = getReplicantRuntime().getConnector( address.getSystemId() );
+    final Connector connector = getReplicantRuntime().getConnector( address.getSchemaId() );
     // service can be disconnected if it is not a required service and will converge later when it connects
     if ( ConnectorState.CONNECTED == connector.getState() )
     {
@@ -231,7 +231,7 @@ abstract class Converger
 
         if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
         {
-          final SystemSchema schema = getReplicantContext().getSchemaService().getById( address.getSystemId() );
+          final SystemSchema schema = getReplicantContext().getSchemaService().getById( address.getSchemaId() );
           final ChannelSchema.FilterType filterType = schema.getChannel( address.getChannelId() ).getFilterType();
           if ( null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType )
           {
@@ -299,7 +299,7 @@ abstract class Converger
     else
     {
       final boolean sameChannel =
-        groupTemplate.getAddress().getSystemId() == areaOfInterest.getAddress().getSystemId() &&
+        groupTemplate.getAddress().getSchemaId() == areaOfInterest.getAddress().getSchemaId() &&
         groupTemplate.getAddress().getChannelId() == areaOfInterest.getAddress().getChannelId();
 
       return sameChannel &&
@@ -342,7 +342,7 @@ abstract class Converger
       assert null != subscription;
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
     }
-    getReplicantRuntime().getConnector( address.getSystemId() ).requestUnsubscribe( address );
+    getReplicantRuntime().getConnector( address.getSchemaId() ).requestUnsubscribe( address );
   }
 
   /**
@@ -352,7 +352,7 @@ abstract class Converger
    */
   private boolean isRemovePending( @Nonnull final ChannelAddress address )
   {
-    final Connector connector = getReplicantRuntime().getConnector( address.getSystemId() );
+    final Connector connector = getReplicantRuntime().getConnector( address.getSchemaId() );
     return ConnectorState.CONNECTED != connector.getState() ||
            connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null );
   }

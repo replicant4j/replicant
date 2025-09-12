@@ -25,7 +25,7 @@ public class SubscribeRequestQueuedEventTest
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.SubscribeRequestQueued" );
-    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
     assertNull( data.get( "channel.id" ) );
     assertEquals( data.get( "channel.filter" ), filter );

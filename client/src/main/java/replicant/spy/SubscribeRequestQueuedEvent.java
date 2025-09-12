@@ -41,7 +41,7 @@ public final class SubscribeRequestQueuedEvent
   {
     map.put( "type", "Connector.SubscribeRequestQueued" );
     final ChannelAddress address = getAddress();
-    map.put( "channel.systemId", address.getSystemId() );
+    map.put( "channel.schemaId", address.getSchemaId() );
     map.put( "channel.channelId", address.getChannelId() );
     map.put( "channel.id", address.getId() );
     map.put( "channel.filter", getFilter() );

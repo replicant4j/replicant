@@ -91,15 +91,15 @@ abstract class SubscriptionService
   /**
    * Return the collection of instance subscriptions for channel.
    *
-   * @param systemId  the system id.
+   * @param schemaId  the schema id.
    * @param channelId the channel id.
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
   @Nonnull
-  Set<Integer> getInstanceSubscriptionIds( final int systemId, final int channelId )
+  Set<Integer> getInstanceSubscriptionIds( final int schemaId, final int channelId )
   {
     getInstanceSubscriptionsObservableValue().reportObserved();
-    final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( systemId );
+    final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( schemaId );
     final Map<Integer, Subscription> map = null == channelMaps ? null : channelMaps.get( channelId );
     if ( null == map )
     {
@@ -151,14 +151,14 @@ abstract class SubscriptionService
     if ( null == id )
     {
       _typeSubscriptions
-        .computeIfAbsent( address.getSystemId(), HashMap::new )
+        .computeIfAbsent( address.getSchemaId(), HashMap::new )
         .put( address.getChannelId(), subscription );
       getTypeSubscriptionsObservableValue().reportChanged();
     }
     else
     {
       _instanceSubscriptions
-        .computeIfAbsent( address.getSystemId(), HashMap::new )
+        .computeIfAbsent( address.getSchemaId(), HashMap::new )
         .computeIfAbsent( address.getChannelId(), HashMap::new )
         .put( id, subscription );
       getInstanceSubscriptionsObservableValue().reportChanged();
@@ -193,12 +193,12 @@ abstract class SubscriptionService
   @Nullable
   Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
-    final int systemId = address.getSystemId();
+    final int schemaId = address.getSchemaId();
     final int channelId = address.getChannelId();
     final Integer id = address.getId();
     return null == id ?
-           findTypeSubscription( systemId, channelId ) :
-           findInstanceSubscription( systemId, channelId, id );
+           findTypeSubscription( schemaId, channelId ) :
+           findInstanceSubscription( schemaId, channelId, id );
   }
 
   /**
@@ -207,14 +207,14 @@ abstract class SubscriptionService
    * found and the result {@link Subscription} if found. This ensures that if an observer
    * invokes this method then the observer will be rescheduled when the result changes.
    *
-   * @param systemId  the system id.
+   * @param schemaId  the schema id.
    * @param channelId the channel id.
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findTypeSubscription( final int systemId, final int channelId )
+  private Subscription findTypeSubscription( final int schemaId, final int channelId )
   {
-    final Map<Integer, Subscription> channelMap = _typeSubscriptions.get( systemId );
+    final Map<Integer, Subscription> channelMap = _typeSubscriptions.get( schemaId );
     final Subscription subscription = null == channelMap ? null : channelMap.get( channelId );
     if ( null == subscription )
     {
@@ -237,15 +237,15 @@ abstract class SubscriptionService
    * found and the result {@link Subscription} if found. This ensures that if an observer
    * invokes this method then the observer will be rescheduled when the result changes.
    *
-   * @param systemId  the system id.
+   * @param schemaId  the schema id.
    * @param channelId the channel id.
    * @param id        the channel id.
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findInstanceSubscription( final int systemId, final int channelId, final int id )
+  private Subscription findInstanceSubscription( final int schemaId, final int channelId, final int id )
   {
-    final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( systemId );
+    final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( schemaId );
     final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
     final Subscription subscription = null == instanceMap ? null : instanceMap.get( id );
     if ( null == subscription || Disposable.isDisposed( subscription ) )
@@ -273,17 +273,17 @@ abstract class SubscriptionService
   @Nonnull
   Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
   {
-    final int systemId = address.getSystemId();
+    final int schemaId = address.getSchemaId();
     final int channelId = address.getChannelId();
     final Integer id = address.getId();
     if ( null == id )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
-      final Map<Integer, Subscription> map = _typeSubscriptions.get( systemId );
+      final Map<Integer, Subscription> map = _typeSubscriptions.get( schemaId );
       final Subscription subscription = null == map ? null : map.remove( channelId );
       if ( null != subscription && map.isEmpty() )
       {
-        _typeSubscriptions.remove( systemId );
+        _typeSubscriptions.remove( schemaId );
       }
       if ( Replicant.shouldCheckInvariants() )
       {
@@ -302,7 +302,7 @@ abstract class SubscriptionService
     else
     {
       getInstanceSubscriptionsObservableValue().preReportChanged();
-      final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( systemId );
+      final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( schemaId );
       final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
       final Subscription subscription = null == instanceMap ? null : instanceMap.remove( id );
       if ( null != subscription && instanceMap.isEmpty() )
@@ -310,7 +310,7 @@ abstract class SubscriptionService
         channelMap.remove( channelId );
         if ( channelMap.isEmpty() )
         {
-          _instanceSubscriptions.remove( systemId );
+          _instanceSubscriptions.remove( schemaId );
         }
       }
       if ( Replicant.shouldCheckInvariants() )

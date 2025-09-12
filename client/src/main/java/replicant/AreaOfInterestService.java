@@ -223,7 +223,7 @@ abstract class AreaOfInterestService
       final Subscription subscription = context.findSubscription( address );
       if ( null != subscription )
       {
-        context.getRuntime().getConnector( address.getSystemId() ).requestSync();
+        context.getRuntime().getConnector( address.getSchemaId() ).requestSync();
       }
     }
   }

@@ -314,7 +314,7 @@ abstract class Connector
     Stream.concat( subscriptionService.getTypeSubscriptions().stream(),
                    subscriptionService.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
-      .filter( s -> s.getAddress().getSystemId() == getSchema().getId() )
+      .filter( s -> s.getAddress().getSchemaId() == getSchema().getId() )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );

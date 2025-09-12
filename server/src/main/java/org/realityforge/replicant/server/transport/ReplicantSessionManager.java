@@ -50,7 +50,7 @@ public interface ReplicantSessionManager
    * @return the metadata for replicant system.
    */
   @Nonnull
-  SystemMetaData getSystemMetaData();
+  SchemaMetaData getSystemMetaData();
 
   void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter )
     throws InterruptedException;

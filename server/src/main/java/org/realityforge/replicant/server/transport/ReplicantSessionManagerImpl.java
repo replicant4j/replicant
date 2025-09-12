@@ -1319,7 +1319,7 @@ public abstract class ReplicantSessionManagerImpl
 
   private void processCachePurge( @Nonnull final EntityMessage message )
   {
-    final SystemMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSystemMetaData();
     final int channelCount = schema.getChannelCount();
     for ( int i = 0; i < channelCount; i++ )
     {
@@ -1342,7 +1342,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SystemMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSystemMetaData();
     final int channelCount = schema.getChannelCount();
     for ( int i = 0; i < channelCount; i++ )
     {
@@ -1414,7 +1414,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SystemMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSystemMetaData();
     final int instanceChannelCount = schema.getInstanceChannelCount();
     for ( int i = 0; i < instanceChannelCount; i++ )
     {

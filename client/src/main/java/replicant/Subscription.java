@@ -158,7 +158,7 @@ public abstract class Subscription
   {
     return getReplicantContext()
       .getSchemaService()
-      .getById( _address.getSystemId() )
+      .getById( _address.getSchemaId() )
       .getChannel( _address.getChannelId() );
   }
 

@@ -51,7 +51,7 @@ public final class SubscribeCompletedEvent
     map.put( "schema.id", getSchemaId() );
     map.put( "schema.name", getSchemaName() );
     final ChannelAddress address = getAddress();
-    map.put( "channel.systemId", address.getSystemId() );
+    map.put( "channel.schemaId", address.getSchemaId() );
     map.put( "channel.channelId", address.getChannelId() );
     map.put( "channel.id", address.getId() );
   }

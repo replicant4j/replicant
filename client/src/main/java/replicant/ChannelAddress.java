@@ -12,26 +12,26 @@ import javax.annotation.Nullable;
 public final class ChannelAddress
   implements Comparable<ChannelAddress>
 {
-  private final int _systemId;
+  private final int _schemaId;
   private final int _channelId;
   @Nullable
   private final Integer _id;
 
-  public ChannelAddress( final int systemId, final int channelId )
+  public ChannelAddress( final int schemaId, final int channelId )
   {
-    this( systemId, channelId, null );
+    this( schemaId, channelId, null );
   }
 
-  public ChannelAddress( final int systemId, final int channelId, @Nullable final Integer id )
+  public ChannelAddress( final int schemaId, final int channelId, @Nullable final Integer id )
   {
-    _systemId = systemId;
+    _schemaId = schemaId;
     _channelId = channelId;
     _id = id;
   }
 
-  public int getSystemId()
+  public int getSchemaId()
   {
-    return _systemId;
+    return _schemaId;
   }
 
   public int getChannelId()
@@ -54,7 +54,7 @@ public final class ChannelAddress
   @Nonnull
   public String getName()
   {
-    return getSystemId() + "." + asChannelDescriptor();
+    return getSchemaId() + "." + asChannelDescriptor();
   }
 
   @Nonnull
@@ -93,7 +93,7 @@ public final class ChannelAddress
     else
     {
       final ChannelAddress that = (ChannelAddress) o;
-      return Objects.equals( _systemId, that._systemId ) &&
+      return Objects.equals( _schemaId, that._schemaId ) &&
              Objects.equals( _channelId, that._channelId ) &&
              Objects.equals( _id, that._id );
     }
@@ -102,7 +102,7 @@ public final class ChannelAddress
   @Override
   public int hashCode()
   {
-    int result = _systemId;
+    int result = _schemaId;
     result = 17 * result + _channelId;
     result = 31 * result + ( _id != null ? _id.hashCode() : 0 );
     return result;
@@ -111,7 +111,7 @@ public final class ChannelAddress
   @Override
   public int compareTo( @Nonnull final ChannelAddress o )
   {
-    final int systemDiff = Integer.compare( getSystemId(), o.getSystemId() );
+    final int systemDiff = Integer.compare( getSchemaId(), o.getSchemaId() );
     return 0 == systemDiff ? Integer.compare( getChannelId(), o.getChannelId() ) : systemDiff;
   }
 }

@@ -234,7 +234,7 @@ public abstract class ReplicantSubscription<T>
       final ChannelAddress address = areaOfInterest.getAddress();
       final boolean isInstanceChannel =
         Replicant.context()
-          .getSchemaById( address.getSystemId() )
+          .getSchemaById( address.getSchemaId() )
           .getChannel( address.getChannelId() )
           .isInstanceChannel();
 

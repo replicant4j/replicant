@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 public interface CacheService
 {
   @Nonnull
-  Set<ChannelAddress> keySet( int systemId );
+  Set<ChannelAddress> keySet( int schemaId );
 
   /**
    * Lookup etag for specified address.

@@ -1574,7 +1574,7 @@ public class ReplicantSessionManagerImplTest
   static class TestReplicantSessionManager
     extends ReplicantSessionManagerImpl
   {
-    private final SystemMetaData _systemMetaData;
+    private final SchemaMetaData _schemaMetaData;
     @Nonnull
     private final ReplicantMessageBroker _broker = mock( ReplicantMessageBroker.class );
     private ChannelAddress _followSource;
@@ -1584,17 +1584,17 @@ public class ReplicantSessionManagerImplTest
 
     private TestReplicantSessionManager()
     {
-      this( new SystemMetaData( ValueUtil.randomString() ) );
+      this( new SchemaMetaData( ValueUtil.randomString() ) );
     }
 
     private TestReplicantSessionManager( final ChannelMetaData[] channels )
     {
-      this( new SystemMetaData( ValueUtil.randomString(), channels ) );
+      this( new SchemaMetaData( ValueUtil.randomString(), channels ) );
     }
 
-    private TestReplicantSessionManager( final SystemMetaData systemMetaData )
+    private TestReplicantSessionManager( final SchemaMetaData schemaMetaData )
     {
-      _systemMetaData = systemMetaData;
+      _schemaMetaData = schemaMetaData;
     }
 
     int getBulkCollectDataForSubscriptionUpdateCallCount()
@@ -1618,9 +1618,9 @@ public class ReplicantSessionManagerImplTest
 
     @Nonnull
     @Override
-    public SystemMetaData getSystemMetaData()
+    public SchemaMetaData getSystemMetaData()
     {
-      return _systemMetaData;
+      return _schemaMetaData;
     }
 
     @Nonnull

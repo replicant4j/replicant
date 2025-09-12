@@ -24,7 +24,7 @@ import org.realityforge.replicant.server.transport.ChannelMetaData;
 import org.realityforge.replicant.server.transport.ReplicantSession;
 import org.realityforge.replicant.server.transport.ReplicantSessionManager;
 import org.realityforge.replicant.server.transport.SubscriptionEntry;
-import org.realityforge.replicant.server.transport.SystemMetaData;
+import org.realityforge.replicant.server.transport.SchemaMetaData;
 
 /**
  * The session management rest resource.
@@ -188,11 +188,11 @@ public abstract class AbstractSessionRestService
                                             final int channelId,
                                             @Nonnull final UriInfo uri )
   {
-    final SystemMetaData systemMetaData = getSystemMetaData();
+    final SchemaMetaData schemaMetaData = getSystemMetaData();
     final ReplicantSession session = ensureSession( sessionId );
     return respondInSessionLock( session, () -> {
       final String content =
-        json( g -> Encoder.emitInstanceChannelList( systemMetaData, channelId, session, g, uri ) );
+        json( g -> Encoder.emitInstanceChannelList( schemaMetaData, channelId, session, g, uri ) );
       return buildResponse( Response.ok(), content );
     } );
   }
@@ -288,7 +288,7 @@ public abstract class AbstractSessionRestService
   }
 
   @Nonnull
-  private SystemMetaData getSystemMetaData()
+  private SchemaMetaData getSystemMetaData()
   {
     return getSessionManager().getSystemMetaData();
   }

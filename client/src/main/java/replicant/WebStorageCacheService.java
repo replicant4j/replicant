@@ -61,10 +61,10 @@ public final class WebStorageCacheService
 
   @Nonnull
   @Override
-  public Set<ChannelAddress> keySet( final int systemId )
+  public Set<ChannelAddress> keySet( final int schemaId )
   {
     final Set<ChannelAddress> keys = new HashSet<>();
-    getIndex( systemId ).forEach( v -> keys.add( ChannelAddress.parse( systemId, v ) ) );
+    getIndex( schemaId ).forEach( v -> keys.add( ChannelAddress.parse( schemaId, v ) ) );
     return CollectionsUtil.wrap( keys );
   }
 
@@ -72,7 +72,7 @@ public final class WebStorageCacheService
   @Override
   public String lookupEtag( @Nonnull final ChannelAddress address )
   {
-    return getIndex( address.getSystemId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
+    return getIndex( address.getSchemaId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
   }
 
   @Nullable
@@ -80,7 +80,7 @@ public final class WebStorageCacheService
   public CacheEntry lookup( @Nonnull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
-    final String eTag = getIndex( address.getSystemId() ).get( address.asChannelDescriptor() );
+    final String eTag = getIndex( address.getSchemaId() ).get( address.asChannelDescriptor() );
     final String content = _storage.getItem( address.getCacheKey() );
     if ( null != eTag && null != content )
     {
@@ -102,10 +102,10 @@ public final class WebStorageCacheService
     Objects.requireNonNull( content );
     try
     {
-      final int systemId = address.getSystemId();
-      final JsPropertyMap<String> index = getIndex( systemId );
+      final int schemaId = address.getSchemaId();
+      final JsPropertyMap<String> index = getIndex( schemaId );
       index.set( address.asChannelDescriptor(), eTag );
-      saveIndex( systemId, index );
+      saveIndex( schemaId, index );
       getStorage().setItem( address.getCacheKey(), JSON.stringify( content ) );
       return true;
     }
@@ -117,10 +117,10 @@ public final class WebStorageCacheService
     }
   }
 
-  private void saveIndex( final int systemId, @Nonnull final JsPropertyMap<String> index )
+  private void saveIndex( final int schemaId, @Nonnull final JsPropertyMap<String> index )
   {
     final Storage storage = getStorage();
-    final String key = indexKey( systemId );
+    final String key = indexKey( schemaId );
     if ( 0 == JsObject.keys( index ).length )
     {
       storage.removeItem( key );
@@ -135,8 +135,8 @@ public final class WebStorageCacheService
   public boolean invalidate( @Nonnull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
-    final int systemId = address.getSystemId();
-    final JsPropertyMap<String> index = findIndex( systemId );
+    final int schemaId = address.getSchemaId();
+    final JsPropertyMap<String> index = findIndex( schemaId );
     final String key = address.asChannelDescriptor();
     if ( null == index || null == index.get( key ) )
     {
@@ -145,7 +145,7 @@ public final class WebStorageCacheService
     else
     {
       index.delete( key );
-      saveIndex( systemId, index );
+      saveIndex( schemaId, index );
       getStorage().removeItem( address.getCacheKey() );
       return true;
     }
@@ -158,22 +158,22 @@ public final class WebStorageCacheService
   }
 
   @Nonnull
-  private JsPropertyMap<String> getIndex( final int systemId )
+  private JsPropertyMap<String> getIndex( final int schemaId )
   {
-    final JsPropertyMap<String> index = findIndex( systemId );
+    final JsPropertyMap<String> index = findIndex( schemaId );
     return null == index ? Js.uncheckedCast( JsPropertyMap.of() ) : index;
   }
 
   @Nullable
-  private JsPropertyMap<String> findIndex( final int systemId )
+  private JsPropertyMap<String> findIndex( final int schemaId )
   {
-    final String indexData = _storage.getItem( indexKey( systemId ) );
+    final String indexData = _storage.getItem( indexKey( schemaId ) );
     return null == indexData ? null : Js.uncheckedCast( JSON.parse( indexData ) );
   }
 
   @Nonnull
-  private String indexKey( final int systemId )
+  private String indexKey( final int schemaId )
   {
-    return ETAG_INDEX + '-' + systemId;
+    return ETAG_INDEX + '-' + schemaId;
   }
 }

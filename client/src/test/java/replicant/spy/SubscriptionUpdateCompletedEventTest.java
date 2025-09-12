@@ -28,7 +28,7 @@ public class SubscriptionUpdateCompletedEventTest
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateCompleted" );
     assertEquals( data.get( "schema.id" ), 23 );
     assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "channel.systemId" ), 1 );
+    assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
     assertEquals( data.get( "channel.id" ), address.getId() );
     assertEquals( data.size(), 6 );
