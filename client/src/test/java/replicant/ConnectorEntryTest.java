@@ -48,6 +48,7 @@ public class ConnectorEntryTest
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_SECOND );
   }
 
+  @SuppressWarnings( "ConstantValue" )
   @Test
   public void flipRequiredState()
   {
