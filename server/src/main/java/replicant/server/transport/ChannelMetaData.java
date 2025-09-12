@@ -4,8 +4,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -53,7 +55,7 @@ public final class ChannelMetaData
   @Nonnull
   private final FilterType _filterType;
   @Nullable
-  private final Class<?> _filterParameterType;
+  private final Function<JsonObject, Object> _filterParameterFactory;
   @Nonnull
   private final CacheType _cacheType;
   /**
@@ -74,7 +76,7 @@ public final class ChannelMetaData
                           @Nonnull final String name,
                           @Nullable final Integer instanceRootEntityTypeId,
                           @Nonnull final FilterType filterType,
-                          @Nullable final Class<?> filterParameterType,
+                          @Nullable final Function<JsonObject, Object> filterParameterFactory,
                           @Nonnull final CacheType cacheType,
                           final boolean bulkLoadsSupported,
                           final boolean external,
@@ -84,16 +86,16 @@ public final class ChannelMetaData
     _name = Objects.requireNonNull( name );
     _instanceRootEntityTypeId = instanceRootEntityTypeId;
     _filterType = Objects.requireNonNull( filterType );
-    _filterParameterType = filterParameterType;
+    _filterParameterFactory = filterParameterFactory;
     _cacheType = Objects.requireNonNull( cacheType );
     _bulkLoadsSupported = bulkLoadsSupported;
     _external = external;
     _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
-    if ( !hasFilterParameter() && null != filterParameterType )
+    if ( !hasFilterParameter() && null != filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
     }
-    else if ( hasFilterParameter() && null == filterParameterType )
+    else if ( hasFilterParameter() && null == filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
@@ -148,10 +150,10 @@ public final class ChannelMetaData
   }
 
   @Nonnull
-  public Class<?> getFilterParameterType()
+  public Function<JsonObject, Object> getFilterParameterFactory()
   {
-    assert null != _filterParameterType;
-    return _filterParameterType;
+    assert null != _filterParameterFactory;
+    return _filterParameterFactory;
   }
 
   public boolean isCacheable()

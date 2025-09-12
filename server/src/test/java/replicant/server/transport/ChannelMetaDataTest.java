@@ -1,5 +1,7 @@
 package replicant.server.transport;
 
+import java.util.function.Function;
+import javax.json.JsonObject;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -29,7 +31,7 @@ public class ChannelMetaDataTest
     assertFalse( metaData.areBulkLoadsSupported() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
-    assertThrows( metaData::getFilterParameterType );
+    assertThrows( metaData::getFilterParameterFactory );
   }
 
   @Test
@@ -58,12 +60,13 @@ public class ChannelMetaDataTest
   @Test
   public void filteredGraph()
   {
+    final Function<JsonObject, Object> filterParameterFactory = e -> null;
     final ChannelMetaData metaData =
       new ChannelMetaData( 1,
                            "MetaData",
                            22,
                            ChannelMetaData.FilterType.STATIC,
-                           String.class,
+                           filterParameterFactory,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -72,7 +75,7 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isTypeGraph() );
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC );
-    assertEquals( metaData.getFilterParameterType(), String.class );
+    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.hasFilterParameter() );
     assertTrue( metaData.isExternal() );
@@ -101,7 +104,7 @@ public class ChannelMetaDataTest
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.NONE,
-                                             String.class,
+                                             j -> null,
                                              ChannelMetaData.CacheType.NONE,
                                              false,
                                              true ) );

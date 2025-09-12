@@ -220,7 +220,7 @@ public class ReplicantSessionManagerImplTest
                            "C2",
                            null,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -229,7 +229,7 @@ public class ReplicantSessionManagerImplTest
                            "C3",
                            null,
                            ChannelMetaData.FilterType.STATIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -530,7 +530,7 @@ public class ReplicantSessionManagerImplTest
                            "C2",
                            null,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -1139,7 +1139,7 @@ public class ReplicantSessionManagerImplTest
                            "C2",
                            null,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -1186,7 +1186,7 @@ public class ReplicantSessionManagerImplTest
                            "C1",
                            42,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
@@ -1273,7 +1273,7 @@ public class ReplicantSessionManagerImplTest
                            "C1",
                            42,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            true,
                            true );
@@ -1328,7 +1328,7 @@ public class ReplicantSessionManagerImplTest
                            "Roster",
                            null,
                            ChannelMetaData.FilterType.DYNAMIC,
-                           String.class,
+                           j -> null,
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );

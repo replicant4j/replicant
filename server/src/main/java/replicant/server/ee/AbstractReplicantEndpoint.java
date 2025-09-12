@@ -465,7 +465,7 @@ public abstract class AbstractReplicantEndpoint
     return channelMetaData.hasFilterParameter() &&
            command.containsKey( Messages.Update.FILTER ) &&
            !command.isNull( Messages.Update.FILTER ) ?
-           parseFilter( channelMetaData, command.getJsonObject( Messages.Update.FILTER ) ) :
+           channelMetaData.getFilterParameterFactory().apply( command.getJsonObject( Messages.Update.FILTER ) ) :
            null;
   }
 
@@ -685,9 +685,6 @@ public abstract class AbstractReplicantEndpoint
       closeReplicantSession( replicantSession );
     }
   }
-
-  @Nonnull
-  protected abstract Object parseFilter( @Nonnull ChannelMetaData channelMetaData, @Nonnull JsonObject filterContent );
 
   @Nonnull
   private ChannelMetaData getChannelMetaData( final int channelId )
