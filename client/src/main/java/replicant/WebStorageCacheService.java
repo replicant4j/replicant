@@ -20,6 +20,7 @@ import jsinterop.base.JsPropertyMap;
 public final class WebStorageCacheService
   implements CacheService
 {
+  @Nonnull
   static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
   @Nonnull
   private final Storage _storage;
