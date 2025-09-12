@@ -327,7 +327,7 @@ abstract class Converger
       // Subscription must be explicit
       .filter( Subscription::isExplicitSubscription )
       // Subscription should not be one of expected
-      .map( Subscription::getAddress )
+      .map( Subscription::address )
       .filter( address -> !expected.contains( address ) )
       // Subscription should not have a remove pending
       .filter( address -> !isRemovePending( address ) )

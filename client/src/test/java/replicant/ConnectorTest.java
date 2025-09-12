@@ -1441,13 +1441,13 @@ public final class ConnectorTest
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
-    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.address(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
     safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
-      assertEquals( e.getSubscription().getAddress(), address );
+      assertEquals( e.getSubscription().address(), address );
       safeAction( () -> assertEquals( e.getSubscription().getFilter(), filter ) );
     } );
   }
@@ -1478,13 +1478,13 @@ public final class ConnectorTest
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
-    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.address(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
     safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
-      assertEquals( e.getSubscription().getAddress(), address );
+      assertEquals( e.getSubscription().address(), address );
       safeAction( () -> assertEquals( e.getSubscription().getFilter(), filter ) );
     } );
   }
@@ -1518,13 +1518,13 @@ public final class ConnectorTest
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
-    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.address(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
-      assertEquals( e.getSubscription().getAddress(), address );
+      assertEquals( e.getSubscription().address(), address );
       safeAction( () -> assertNull( e.getSubscription().getFilter() ) );
     } );
   }
@@ -1563,13 +1563,13 @@ public final class ConnectorTest
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
-    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.address(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionCreatedEvent.class, e -> {
-      assertEquals( e.getSubscription().getAddress(), address );
+      assertEquals( e.getSubscription().address(), address );
       safeAction( () -> assertNull( e.getSubscription().getFilter() ) );
     } );
   }
@@ -1608,7 +1608,7 @@ public final class ConnectorTest
 
     handler.assertEventCount( 1 );
     handler.assertNextEvent( SubscriptionDisposedEvent.class,
-                             e -> assertEquals( e.getSubscription().getAddress(), address ) );
+                             e -> assertEquals( e.getSubscription().address(), address ) );
   }
 
   @Test
@@ -1649,7 +1649,7 @@ public final class ConnectorTest
 
     handler.assertEventCount( 2 );
     handler.assertNextEvent( SubscriptionDisposedEvent.class,
-                             e -> assertEquals( e.getSubscription().getAddress(), address ) );
+                             e -> assertEquals( e.getSubscription().address(), address ) );
     handler.assertNextEvent( AreaOfInterestDisposedEvent.class,
                              e -> assertEquals( e.getAreaOfInterest().getAddress(), address ) );
   }

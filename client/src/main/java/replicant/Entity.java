@@ -137,7 +137,7 @@ public abstract class Entity
    */
   void tryLinkToSubscription( @Nonnull final Subscription subscription )
   {
-    if ( !_subscriptions.containsKey( subscription.getAddress() ) )
+    if ( !_subscriptions.containsKey( subscription.address() ) )
     {
       linkToSubscription( subscription );
     }
@@ -154,7 +154,7 @@ public abstract class Entity
     {
       invariant( () -> null == subscription.findEntityByTypeAndId( getType(), getId() ),
                  () -> "Replicant-0080: Entity.linkToSubscription invoked on Entity " + this +
-                       " passing subscription " + subscription.getAddress() + " but entity is " +
+                       " passing subscription " + subscription.address() + " but entity is " +
                        "already linked to subscription." );
     }
     linkEntityToSubscription( subscription );
@@ -164,7 +164,7 @@ public abstract class Entity
   private void linkEntityToSubscription( @Nonnull final Subscription subscription )
   {
     getSubscriptionsObservableValue().preReportChanged();
-    final ChannelAddress address = subscription.getAddress();
+    final ChannelAddress address = subscription.address();
     if ( !_subscriptions.containsKey( address ) )
     {
       _subscriptions.put( address, subscription );
@@ -187,7 +187,7 @@ public abstract class Entity
     {
       invariant( () -> ChannelSchema.FilterType.NONE != subscription.getChannelSchema().getFilterType(),
                  () -> "Replicant-0018: Entity.delinkFromFilteringSubscription invoked on Entity " + this +
-                       " passing subscription " + subscription.getAddress() + " but subscription is " +
+                       " passing subscription " + subscription.address() + " but subscription is " +
                        "not filtered." );
     }
     delinkFromSubscription( subscription );
@@ -204,7 +204,7 @@ public abstract class Entity
     {
       invariant( () -> null != subscription.findEntityByTypeAndId( getType(), getId() ),
                  () -> "Replicant-0081: Entity.delinkFromSubscription invoked on Entity " + this +
-                       " passing subscription " + subscription.getAddress() + " but entity is " +
+                       " passing subscription " + subscription.address() + " but entity is " +
                        "not linked to subscription." );
     }
     delinkSubscriptionFromEntity( subscription, false );
@@ -228,7 +228,7 @@ public abstract class Entity
                                              final boolean disposeEntityIfNoSubscriptions )
   {
     getSubscriptionsObservableValue().preReportChanged();
-    final ChannelAddress address = subscription.getAddress();
+    final ChannelAddress address = subscription.address();
     final Subscription candidate = _subscriptions.remove( address );
     getSubscriptionsObservableValue().reportChanged();
     if ( Replicant.shouldCheckApiInvariants() )
@@ -262,7 +262,7 @@ public abstract class Entity
         final ChannelSchema schema = subscription.getChannelSchema();
         if ( schema.isInstanceChannel() &&
              ( schema.getInstanceType() == getType() ) &&
-             ( Objects.equals( subscription.getAddress().rootId(), getId() ) ) )
+             ( Objects.equals( subscription.address().rootId(), getId() ) ) )
         {
           // If there is any subscription that this entity is the instance root of, then explicitly dispose it.
           // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but now

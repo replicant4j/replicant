@@ -16,7 +16,7 @@ public class SubscriptionTest
     final Object filter = ValueUtil.randomString();
     final Subscription subscription = Subscription.create( null, address, filter, true );
 
-    assertEquals( subscription.getAddress(), address );
+    assertEquals( subscription.address(), address );
 
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
     safeAction( () -> assertEquals( subscription.getEntities().size(), 0 ) );
@@ -139,7 +139,7 @@ public class SubscriptionTest
     final Subscription subscription1 =
       Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
 
-    entity.subscriptions().put( subscription1.getAddress(), subscription1 );
+    entity.subscriptions().put( subscription1.address(), subscription1 );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
     final IllegalStateException exception =
@@ -164,7 +164,7 @@ public class SubscriptionTest
 
     safeAction( () -> entity2.linkToSubscription( subscription1 ) );
 
-    entity.subscriptions().put( subscription1.getAddress(), subscription1 );
+    entity.subscriptions().put( subscription1.address(), subscription1 );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
     final IllegalStateException exception =

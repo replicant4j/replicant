@@ -166,7 +166,7 @@ public class ReplicantContextTest
 
       final Subscription subscription1 = createSubscription( address1, filter1, explicitSubscription1 );
 
-      assertEquals( subscription1.getAddress(), address1 );
+      assertEquals( subscription1.address(), address1 );
       assertEquals( subscription1.getFilter(), filter1 );
       assertEquals( subscription1.isExplicitSubscription(), explicitSubscription1 );
 
@@ -179,7 +179,7 @@ public class ReplicantContextTest
 
       final Subscription subscription2 = createSubscription( address2, filter2, explicitSubscription2 );
 
-      assertEquals( subscription2.getAddress(), address2 );
+      assertEquals( subscription2.address(), address2 );
       assertEquals( subscription2.getFilter(), filter2 );
       assertEquals( subscription2.isExplicitSubscription(), explicitSubscription2 );
 
@@ -192,7 +192,7 @@ public class ReplicantContextTest
 
       final Subscription subscription3 = createSubscription( address3, filter3, explicitSubscription3 );
 
-      assertEquals( subscription3.getAddress(), address3 );
+      assertEquals( subscription3.address(), address3 );
       assertEquals( subscription3.getFilter(), filter3 );
       assertEquals( subscription3.isExplicitSubscription(), explicitSubscription3 );
 

@@ -31,7 +31,7 @@ public final class SubscriptionCreatedEvent
   public void toMap( @Nonnull final Map<String, Object> map )
   {
     map.put( "type", "Subscription.Created" );
-    final ChannelAddress address = getSubscription().getAddress();
+    final ChannelAddress address = getSubscription().address();
     map.put( "channel.schemaId", address.schemaId() );
     map.put( "channel.channelId", address.channelId() );
     map.put( "channel.rootId", address.rootId() );

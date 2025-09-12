@@ -173,7 +173,7 @@ abstract class SubscriptionService
   private void destroy( @Nonnull final Subscription subscription )
   {
     detachSubscription( subscription );
-    unlinkSubscription( subscription.getAddress() );
+    unlinkSubscription( subscription.address() );
   }
 
   private void detachSubscription( @Nonnull final Subscription subscription )

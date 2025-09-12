@@ -52,7 +52,7 @@ public abstract class Subscription
   }
 
   @Nonnull
-  public ChannelAddress getAddress()
+  public ChannelAddress address()
   {
     return _address;
   }
@@ -168,7 +168,7 @@ public abstract class Subscription
   @Override
   public int compareTo( @Nonnull final Subscription o )
   {
-    return getAddress().compareTo( o.getAddress() );
+    return address().compareTo( o.address() );
   }
 
   void linkSubscriptionToEntity( @Nonnull final Entity entity )
@@ -204,7 +204,7 @@ public abstract class Subscription
   {
     final Class<?> entityType = entity.getType();
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( entityType );
-    final ChannelAddress address = getAddress();
+    final ChannelAddress address = address();
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != typeMap,

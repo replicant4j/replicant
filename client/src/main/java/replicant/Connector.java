@@ -314,7 +314,7 @@ abstract class Connector
     Stream.concat( subscriptionService.getTypeSubscriptions().stream(),
                    subscriptionService.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
-      .filter( s -> s.getAddress().schemaId() == getSchema().getId() )
+      .filter( s -> s.address().schemaId() == getSchema().getId() )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
@@ -755,13 +755,13 @@ abstract class Connector
   @SuppressWarnings( "unchecked" )
   void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
   {
-    final ChannelAddress address = subscription.getAddress();
+    final ChannelAddress address = subscription.address();
     final ChannelSchema channel = getSchema().getChannel( address.channelId() );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
                  () -> "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address " +
-                       subscription.getAddress() + " but the channel does not have a DYNAMIC filter." );
+                       subscription.address() + " but the channel does not have a DYNAMIC filter." );
     }
 
     final List<Entity> entitiesToDelink = new ArrayList<>();

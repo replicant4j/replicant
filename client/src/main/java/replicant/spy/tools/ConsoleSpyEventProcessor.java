@@ -401,7 +401,7 @@ public class ConsoleSpyEventProcessor
     final Subscription subscription = e.getSubscription();
     final Object filter = subscription.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
-    log( "%cSubscription Created " + subscription.getAddress() + filterString, SUBSCRIPTION_COLOR );
+    log( "%cSubscription Created " + subscription.address() + filterString, SUBSCRIPTION_COLOR );
   }
 
   /**
@@ -411,7 +411,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionDisposed( @Nonnull final SubscriptionDisposedEvent e )
   {
-    log( "%cSubscription Disposed " + e.getSubscription().getAddress(), SUBSCRIPTION_COLOR );
+    log( "%cSubscription Disposed " + e.getSubscription().address(), SUBSCRIPTION_COLOR );
   }
 
   /**
@@ -421,7 +421,7 @@ public class ConsoleSpyEventProcessor
    */
   protected void onSubscriptionOrphaned( @Nonnull final SubscriptionOrphanedEvent e )
   {
-    log( "%cSubscription Orphaned " + e.getSubscription().getAddress(), SUBSCRIPTION_COLOR );
+    log( "%cSubscription Orphaned " + e.getSubscription().address(), SUBSCRIPTION_COLOR );
   }
 
   /**

@@ -339,7 +339,7 @@ public class SubscriptionServiceTest
     // instance channel, no filter, explicit subscription
     safeAction( () -> {
       final Subscription subscription = service.createSubscription( address, null, true );
-      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.address(), address );
       assertNull( subscription.getFilter() );
       assertTrue( subscription.isExplicitSubscription() );
     } );
@@ -357,7 +357,7 @@ public class SubscriptionServiceTest
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );
@@ -375,7 +375,7 @@ public class SubscriptionServiceTest
       final String filter = null;
       final boolean explicitSubscription = false;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );
@@ -393,7 +393,7 @@ public class SubscriptionServiceTest
       final String filter = ValueUtil.randomString();
       final boolean explicitSubscription = true;
       final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
-      assertEquals( subscription.getAddress(), address );
+      assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
     } );

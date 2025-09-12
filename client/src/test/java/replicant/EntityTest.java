@@ -371,7 +371,7 @@ public class EntityTest
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
-    entity.subscriptions().remove( subscription1.getAddress() );
+    entity.subscriptions().remove( subscription1.address() );
 
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
