@@ -74,7 +74,7 @@ public final class WebStorageCacheService
   @Override
   public String lookupEtag( @Nonnull final ChannelAddress address )
   {
-    return getIndex( address.getSchemaId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
+    return getIndex( address.schemaId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
   }
 
   @Nullable
@@ -82,7 +82,7 @@ public final class WebStorageCacheService
   public CacheEntry lookup( @Nonnull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
-    final String eTag = getIndex( address.getSchemaId() ).get( address.asChannelDescriptor() );
+    final String eTag = getIndex( address.schemaId() ).get( address.asChannelDescriptor() );
     final String content = _storage.getItem( address.getCacheKey() );
     if ( null != eTag && null != content )
     {
@@ -104,7 +104,7 @@ public final class WebStorageCacheService
     Objects.requireNonNull( content );
     try
     {
-      final int schemaId = address.getSchemaId();
+      final int schemaId = address.schemaId();
       final JsPropertyMap<String> index = getIndex( schemaId );
       index.set( address.asChannelDescriptor(), eTag );
       saveIndex( schemaId, index );
@@ -137,7 +137,7 @@ public final class WebStorageCacheService
   public boolean invalidate( @Nonnull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
-    final int schemaId = address.getSchemaId();
+    final int schemaId = address.schemaId();
     final JsPropertyMap<String> index = findIndex( schemaId );
     final String key = address.asChannelDescriptor();
     if ( null == index || null == index.get( key ) )

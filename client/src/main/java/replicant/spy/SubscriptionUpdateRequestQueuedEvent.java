@@ -41,9 +41,9 @@ public final class SubscriptionUpdateRequestQueuedEvent
   {
     map.put( "type", "Connector.SubscriptionUpdateRequestQueued" );
     final ChannelAddress address = getAddress();
-    map.put( "channel.schemaId", address.getSchemaId() );
-    map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.rootId", address.getRootId() );
+    map.put( "channel.schemaId", address.schemaId() );
+    map.put( "channel.channelId", address.channelId() );
+    map.put( "channel.rootId", address.rootId() );
     map.put( "channel.filter", getFilter() );
   }
 }

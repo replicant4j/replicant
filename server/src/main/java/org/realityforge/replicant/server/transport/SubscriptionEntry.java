@@ -46,7 +46,7 @@ public final class SubscriptionEntry
   }
 
   @Nonnull
-  public ChannelAddress getAddress()
+  public ChannelAddress address()
   {
     return _address;
   }
@@ -195,6 +195,6 @@ public final class SubscriptionEntry
   @Override
   public int compareTo( @Nonnull final SubscriptionEntry o )
   {
-    return getAddress().compareTo( o.getAddress() );
+    return address().compareTo( o.address() );
   }
 }

@@ -29,18 +29,18 @@ public final class ChannelAddress
     _rootId = rootId;
   }
 
-  public int getSchemaId()
+  public int schemaId()
   {
     return _schemaId;
   }
 
-  public int getChannelId()
+  public int channelId()
   {
     return _channelId;
   }
 
   @Nullable
-  public Integer getRootId()
+  public Integer rootId()
   {
     return _rootId;
   }
@@ -54,13 +54,13 @@ public final class ChannelAddress
   @Nonnull
   public String getName()
   {
-    return getSchemaId() + "." + asChannelDescriptor();
+    return schemaId() + "." + asChannelDescriptor();
   }
 
   @Nonnull
   public String asChannelDescriptor()
   {
-    return getChannelId() + ( null != _rootId ? "." + _rootId : "" );
+    return channelId() + ( null != _rootId ? "." + _rootId : "" );
   }
 
   @Nonnull
@@ -111,7 +111,7 @@ public final class ChannelAddress
   @Override
   public int compareTo( @Nonnull final ChannelAddress o )
   {
-    final int systemDiff = Integer.compare( getSchemaId(), o.getSchemaId() );
-    return 0 == systemDiff ? Integer.compare( getChannelId(), o.getChannelId() ) : systemDiff;
+    final int systemDiff = Integer.compare( schemaId(), o.schemaId() );
+    return 0 == systemDiff ? Integer.compare( channelId(), o.channelId() ) : systemDiff;
   }
 }

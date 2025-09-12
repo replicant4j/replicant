@@ -262,7 +262,7 @@ public abstract class Entity
         final ChannelSchema schema = subscription.getChannelSchema();
         if ( schema.isInstanceChannel() &&
              ( schema.getInstanceType() == getType() ) &&
-             ( Objects.equals( subscription.getAddress().getRootId(), getId() ) ) )
+             ( Objects.equals( subscription.getAddress().rootId(), getId() ) ) )
         {
           // If there is any subscription that this entity is the instance root of, then explicitly dispose it.
           // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but now

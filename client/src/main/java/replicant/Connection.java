@@ -378,12 +378,12 @@ abstract class Connection
                             @Nonnull final AreaOfInterestRequest match )
   {
     final CacheService cacheService = _connector.getReplicantContext().getCacheService();
-    return null != template.getAddress().getRootId() &&
-           null != match.getAddress().getRootId() &&
+    return null != template.getAddress().rootId() &&
+           null != match.getAddress().rootId() &&
            ( null == cacheService || null == cacheService.lookup( template.getAddress() ) ) &&
            ( null == cacheService || null == cacheService.lookup( match.getAddress() ) ) &&
            template.getType().equals( match.getType() ) &&
-           template.getAddress().getChannelId() == match.getAddress().getChannelId() &&
+           template.getAddress().channelId() == match.getAddress().channelId() &&
            ( AreaOfInterestRequest.Type.REMOVE == match.getType() ||
              FilterUtil.filtersEqual( match.getFilter(), template.getFilter() ) );
   }

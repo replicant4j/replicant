@@ -314,7 +314,7 @@ abstract class Connector
     Stream.concat( subscriptionService.getTypeSubscriptions().stream(),
                    subscriptionService.getInstanceSubscriptions().stream() )
       // Only purge subscriptions for current system
-      .filter( s -> s.getAddress().getSchemaId() == getSchema().getId() )
+      .filter( s -> s.getAddress().schemaId() == getSchema().getId() )
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
@@ -391,7 +391,7 @@ abstract class Connector
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
-                       getSchema().getChannel( address.getChannelId() ).getFilterType(),
+                       getSchema().getChannel( address.channelId() ).getFilterType(),
                  () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel " + address +
                        " but channel does not have a dynamic filter." );
     }
@@ -701,7 +701,7 @@ abstract class Connector
           if ( Replicant.shouldCheckInvariants() )
           {
             invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
-                             getSchema().getChannel( address.getChannelId() ).getFilterType(),
+                             getSchema().getChannel( address.channelId() ).getFilterType(),
                        () -> "Replicant-0078: Received ChannelChange of type UPDATE for address " + address +
                              " but the channel does not have a DYNAMIC filter." );
           }
@@ -756,7 +756,7 @@ abstract class Connector
   void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
   {
     final ChannelAddress address = subscription.getAddress();
-    final ChannelSchema channel = getSchema().getChannel( address.getChannelId() );
+    final ChannelSchema channel = getSchema().getChannel( address.channelId() );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
@@ -1030,7 +1030,7 @@ abstract class Connector
 
       if ( 1 == channelChanges.size() &&
            ChannelChangeDescriptor.Type.ADD == channelChanges.get( 0 ).getType() &&
-           getSchema().getChannel( channelChanges.get( 0 ).getAddress().getChannelId() ).isCacheable() )
+           getSchema().getChannel( channelChanges.get( 0 ).getAddress().channelId() ).isCacheable() )
       {
         final ChannelAddress address = channelChanges.get( 0 ).getAddress();
         cacheService.store( address, eTag, changeSet );

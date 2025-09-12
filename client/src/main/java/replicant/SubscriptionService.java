@@ -131,7 +131,7 @@ abstract class SubscriptionService
                     () -> "Replicant-0064: createSubscription invoked with address " + address +
                           " but a subscription with that address already exists." );
     }
-    final Integer rootId = address.getRootId();
+    final Integer rootId = address.rootId();
     if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
@@ -151,15 +151,15 @@ abstract class SubscriptionService
     if ( null == rootId )
     {
       _typeSubscriptions
-        .computeIfAbsent( address.getSchemaId(), HashMap::new )
-        .put( address.getChannelId(), subscription );
+        .computeIfAbsent( address.schemaId(), HashMap::new )
+        .put( address.channelId(), subscription );
       getTypeSubscriptionsObservableValue().reportChanged();
     }
     else
     {
       _instanceSubscriptions
-        .computeIfAbsent( address.getSchemaId(), HashMap::new )
-        .computeIfAbsent( address.getChannelId(), HashMap::new )
+        .computeIfAbsent( address.schemaId(), HashMap::new )
+        .computeIfAbsent( address.channelId(), HashMap::new )
         .put( rootId, subscription );
       getInstanceSubscriptionsObservableValue().reportChanged();
     }
@@ -193,9 +193,9 @@ abstract class SubscriptionService
   @Nullable
   Subscription findSubscription( @Nonnull final ChannelAddress address )
   {
-    final int schemaId = address.getSchemaId();
-    final int channelId = address.getChannelId();
-    final Integer rootId = address.getRootId();
+    final int schemaId = address.schemaId();
+    final int channelId = address.channelId();
+    final Integer rootId = address.rootId();
     return null == rootId ?
            findTypeSubscription( schemaId, channelId ) :
            findInstanceSubscription( schemaId, channelId, rootId );
@@ -273,9 +273,9 @@ abstract class SubscriptionService
   @Nonnull
   Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
   {
-    final int schemaId = address.getSchemaId();
-    final int channelId = address.getChannelId();
-    final Integer rootId = address.getRootId();
+    final int schemaId = address.schemaId();
+    final int channelId = address.channelId();
+    final Integer rootId = address.rootId();
     if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();

@@ -29,7 +29,7 @@ public class TestCacheService
   @Override
   public String lookupEtag( @Nonnull final ChannelAddress address )
   {
-    final CacheEntry entry = getSystemCache( address.getSchemaId() ).get( address );
+    final CacheEntry entry = getSystemCache( address.schemaId() ).get( address );
     return null != entry ? entry.getETag() : null;
   }
 
@@ -37,7 +37,7 @@ public class TestCacheService
   @Override
   public CacheEntry lookup( @Nonnull final ChannelAddress address )
   {
-    return getSystemCache( address.getSchemaId() ).get( address );
+    return getSystemCache( address.schemaId() ).get( address );
   }
 
   @Override
@@ -45,14 +45,14 @@ public class TestCacheService
                         @Nonnull final String eTag,
                         @Nonnull final Object content )
   {
-    getSystemCache( address.getSchemaId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content) ) );
+    getSystemCache( address.schemaId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content) ) );
     return true;
   }
 
   @Override
   public boolean invalidate( @Nonnull final ChannelAddress address )
   {
-    final Map<ChannelAddress, CacheEntry> systemCache = getSystemCache( address.getSchemaId() );
+    final Map<ChannelAddress, CacheEntry> systemCache = getSystemCache( address.schemaId() );
     if ( !systemCache.containsKey( address ) )
     {
       return false;

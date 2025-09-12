@@ -290,7 +290,7 @@ public abstract class AbstractSessionRestService
   @Nonnull
   private SchemaMetaData getSystemMetaData()
   {
-    return getSessionManager().getSystemMetaData();
+    return getSessionManager().getSchemaMetaData();
   }
 
   @Nonnull

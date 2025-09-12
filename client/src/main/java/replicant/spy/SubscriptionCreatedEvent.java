@@ -32,9 +32,9 @@ public final class SubscriptionCreatedEvent
   {
     map.put( "type", "Subscription.Created" );
     final ChannelAddress address = getSubscription().getAddress();
-    map.put( "channel.schemaId", address.getSchemaId() );
-    map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.rootId", address.getRootId() );
+    map.put( "channel.schemaId", address.schemaId() );
+    map.put( "channel.channelId", address.channelId() );
+    map.put( "channel.rootId", address.rootId() );
     map.put( "channel.filter", getSubscription().getFilter() );
     map.put( "explicitSubscription", getSubscription().isExplicitSubscription() );
   }

@@ -338,7 +338,7 @@ public final class ReplicantSession
   boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
     ensureLockedByCurrentThread();
-    final ChannelAddress address = entry.getAddress();
+    final ChannelAddress address = entry.address();
     final boolean removed = null != _subscriptions.remove( address );
     if ( removed )
     {

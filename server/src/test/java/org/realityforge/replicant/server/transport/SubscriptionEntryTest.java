@@ -29,7 +29,7 @@ public class SubscriptionEntryTest
     session.getLock().lock();
     final SubscriptionEntry entry = new SubscriptionEntry( session, cd1 );
 
-    assertEquals( entry.getAddress(), cd1 );
+    assertEquals( entry.address(), cd1 );
     assertFalse( entry.isExplicitlySubscribed() );
     assertEquals( entry.getInwardSubscriptions().size(), 0 );
     assertEquals( entry.getOutwardSubscriptions().size(), 0 );

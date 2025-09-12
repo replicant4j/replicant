@@ -126,7 +126,7 @@ public abstract class Subscription
   public Object getInstanceRoot()
   {
     final ChannelSchema channel = getChannelSchema();
-    final Integer rootId = _address.getRootId();
+    final Integer rootId = _address.rootId();
     if ( Replicant.shouldCheckApiInvariants() )
     {
       invariant( channel::isInstanceChannel,
@@ -158,8 +158,8 @@ public abstract class Subscription
   {
     return getReplicantContext()
       .getSchemaService()
-      .getById( _address.getSchemaId() )
-      .getChannel( _address.getChannelId() );
+      .getById( _address.schemaId() )
+      .getChannel( _address.channelId() );
   }
 
   @ObservableValueRef

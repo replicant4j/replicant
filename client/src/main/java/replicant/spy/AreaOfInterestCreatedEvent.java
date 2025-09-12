@@ -32,9 +32,9 @@ public final class AreaOfInterestCreatedEvent
   {
     map.put( "type", "AreaOfInterest.Created" );
     final ChannelAddress address = getAreaOfInterest().getAddress();
-    map.put( "channel.schemaId", address.getSchemaId() );
-    map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.rootId", address.getRootId() );
+    map.put( "channel.schemaId", address.schemaId() );
+    map.put( "channel.channelId", address.channelId() );
+    map.put( "channel.rootId", address.rootId() );
     map.put( "channel.filter", getAreaOfInterest().getFilter() );
   }
 }

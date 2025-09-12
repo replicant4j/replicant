@@ -33,9 +33,9 @@ public final class AreaOfInterestDisposedEvent
     map.put( "type", "AreaOfInterest.Disposed" );
     final AreaOfInterest areaOfInterest = getAreaOfInterest();
     final ChannelAddress address = areaOfInterest.getAddress();
-    map.put( "channel.schemaId", address.getSchemaId() );
-    map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.rootId", address.getRootId() );
+    map.put( "channel.schemaId", address.schemaId() );
+    map.put( "channel.channelId", address.channelId() );
+    map.put( "channel.rootId", address.rootId() );
     map.put( "channel.filter", areaOfInterest.getFilter() );
   }
 }

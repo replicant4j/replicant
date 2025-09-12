@@ -27,7 +27,7 @@ public class UnsubscribeCompletedEventTest
     assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertEquals( data.get( "channel.rootId" ), address.getRootId() );
+    assertEquals( data.get( "channel.rootId" ), address.rootId() );
     assertEquals( data.size(), 6 );
   }
 }

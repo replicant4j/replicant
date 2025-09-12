@@ -950,7 +950,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      with( session, () -> sm.unsubscribe( session, entry.getAddress(), EntityMessageCacheUtil.getSessionChanges() ) );
+      with( session, () -> sm.unsubscribe( session, entry.address(), EntityMessageCacheUtil.getSessionChanges() ) );
 
       assertChannelActionCount( 1 );
       assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
@@ -1618,7 +1618,7 @@ public class ReplicantSessionManagerImplTest
 
     @Nonnull
     @Override
-    public SchemaMetaData getSystemMetaData()
+    public SchemaMetaData getSchemaMetaData()
     {
       return _schemaMetaData;
     }
@@ -1688,7 +1688,7 @@ public class ReplicantSessionManagerImplTest
     protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                         @Nonnull final ChannelAddress target )
     {
-      return null != _followSource && _followSource.equals( sourceEntry.getAddress() );
+      return null != _followSource && _followSource.equals( sourceEntry.address() );
     }
 
     @Nonnull

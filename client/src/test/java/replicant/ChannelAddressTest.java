@@ -12,9 +12,9 @@ public class ChannelAddressTest
   {
     final ChannelAddress address = new ChannelAddress( 2, 4, 1 );
 
-    assertEquals( address.getSchemaId(), 2 );
-    assertEquals( address.getChannelId(), 4 );
-    assertEquals( address.getRootId(), (Integer) 1 );
+    assertEquals( address.schemaId(), 2 );
+    assertEquals( address.channelId(), 4 );
+    assertEquals( address.rootId(), (Integer) 1 );
   }
 
   @Test
@@ -22,9 +22,9 @@ public class ChannelAddressTest
   {
     final ChannelAddress address = ChannelAddress.parse( 2, "4.1" );
 
-    assertEquals( address.getSchemaId(), 2 );
-    assertEquals( address.getChannelId(), 4 );
-    assertEquals( address.getRootId(), (Integer) 1 );
+    assertEquals( address.schemaId(), 2 );
+    assertEquals( address.channelId(), 4 );
+    assertEquals( address.rootId(), (Integer) 1 );
   }
 
   @Test
@@ -32,9 +32,9 @@ public class ChannelAddressTest
   {
     final ChannelAddress address = ChannelAddress.parse( 4, "77" );
 
-    assertEquals( address.getSchemaId(), 4 );
-    assertEquals( address.getChannelId(), 77 );
-    assertEquals( address.getRootId(), null );
+    assertEquals( address.schemaId(), 4 );
+    assertEquals( address.channelId(), 77 );
+    assertEquals( address.rootId(), null );
   }
 
   @Test

@@ -138,7 +138,7 @@ public abstract class AbstractSessionContextImpl
         sourceEntry.registerOutwardSubscriptions( targetAddress );
         final SubscriptionEntry targetEntry =
           recordSubscription( session, changeSet, targetAddress, filter, false );
-        targetEntry.registerInwardSubscriptions( sourceEntry.getAddress() );
+        targetEntry.registerInwardSubscriptions( sourceEntry.address() );
       }
     }
   }

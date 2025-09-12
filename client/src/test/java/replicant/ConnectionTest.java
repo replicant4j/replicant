@@ -422,7 +422,7 @@ public class ConnectionTest
       for ( final AreaOfInterestRequest r2 : requests )
       {
         final boolean expected =
-          ( r1 == r2 && null != r1.getAddress().getRootId() ) ||
+          ( r1 == r2 && null != r1.getAddress().rootId() ) ||
           Objects.equals( String.valueOf( groupingPairs.get( r1.toString() ) ), r2.toString() ) ||
           Objects.equals( String.valueOf( groupingPairs.get( r2.toString() ) ), r1.toString() );
         assertEquals( connection.canGroupRequests( r1, r2 ),

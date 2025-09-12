@@ -368,7 +368,7 @@ public abstract class ReplicantSessionManagerImpl
         {
           toSubscribe = Collections.singletonList( entry );
         }
-        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( target.channelId() );
+        final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
         if ( channelMetaData.areBulkLoadsSupported() )
         {
           doBulkSubscribe( session,
@@ -475,7 +475,7 @@ public abstract class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final ChannelAddress target = link.target();
-      final boolean targetHasFilter = getSystemMetaData().getChannelMetaData( target ).hasFilterParameter();
+      final boolean targetHasFilter = getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter();
       if ( !targetHasFilter || shouldFollowLink( sourceEntry, target ) )
       {
         final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
@@ -522,7 +522,7 @@ public abstract class ReplicantSessionManagerImpl
                                    @Nullable final Object filter,
                                    @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( address );
+    final ChannelMetaData channel = getSchemaMetaData().getChannelMetaData( address );
     assert channel.hasFilterParameter();
     assert channel.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
@@ -592,7 +592,7 @@ public abstract class ReplicantSessionManagerImpl
                                 @Nonnull final ChangeSet changeSet,
                                 final boolean isExplicitSubscribe )
   {
-    final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
+    final ChannelMetaData channel = getSchemaMetaData().getChannelMetaData( channelId );
     assert ( channel.isInstanceGraph() && null != rootIds ) || ( channel.isTypeGraph() && null == rootIds );
 
     subscribeToRequiredTypeChannels( session, channel );
@@ -749,7 +749,7 @@ public abstract class ReplicantSessionManagerImpl
                             @Nullable final Object filter,
                             @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+    final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
     if ( session.isSubscriptionEntryPresent( address ) )
     {
@@ -782,7 +782,7 @@ public abstract class ReplicantSessionManagerImpl
         if ( doFiltersNotMatch( filter, existingFilter ) )
         {
           final String message =
-            "Attempted to update filter on channel " + entry.getAddress() + " from " + existingFilter +
+            "Attempted to update filter on channel " + entry.address() + " from " + existingFilter +
             " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
           throw new AttemptedToUpdateStaticFilterException( message );
         }
@@ -829,8 +829,8 @@ public abstract class ReplicantSessionManagerImpl
                          @Nonnull final ChangeSet changeSet )
   {
     entry.setFilter( filter );
-    final ChannelAddress address = entry.getAddress();
-    final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+    final ChannelAddress address = entry.address();
+    final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
     subscribeToRequiredTypeChannels( session, channelMetaData );
 
@@ -971,7 +971,7 @@ public abstract class ReplicantSessionManagerImpl
     _cacheLock.writeLock().lock();
     try
     {
-      final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+      final ChannelMetaData metaData = getSchemaMetaData().getChannelMetaData( address );
       final boolean cacheRemoved = null != _cache.remove( address );
       if ( cacheRemoved )
       {
@@ -1021,7 +1021,7 @@ public abstract class ReplicantSessionManagerImpl
   @Nullable
   ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
-    final ChannelMetaData metaData = getSystemMetaData().getChannelMetaData( address );
+    final ChannelMetaData metaData = getSchemaMetaData().getChannelMetaData( address );
     assert metaData.isCacheable();
     final ChannelCacheEntry entry = getCacheEntry( address );
     entry.getLock().readLock().lock();
@@ -1239,7 +1239,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     if ( entry.canUnsubscribe() )
     {
-      changeSet.mergeAction( entry.getAddress(),
+      changeSet.mergeAction( entry.address(),
                              delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
                              null );
       for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
@@ -1286,8 +1286,8 @@ public abstract class ReplicantSessionManagerImpl
   void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
                                 @Nonnull final SubscriptionEntry targetEntry )
   {
-    sourceEntry.registerOutwardSubscriptions( targetEntry.getAddress() );
-    targetEntry.registerInwardSubscriptions( sourceEntry.getAddress() );
+    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
+    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
   }
 
   /**
@@ -1296,15 +1296,15 @@ public abstract class ReplicantSessionManagerImpl
   void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
                                   @Nonnull final SubscriptionEntry targetEntry )
   {
-    sourceEntry.deregisterOutwardSubscriptions( targetEntry.getAddress() );
-    targetEntry.deregisterInwardSubscriptions( sourceEntry.getAddress() );
+    sourceEntry.deregisterOutwardSubscriptions( targetEntry.address() );
+    targetEntry.deregisterInwardSubscriptions( sourceEntry.address() );
   }
 
   protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                       @Nonnull final ChannelAddress target )
   {
     throw new IllegalStateException( "shouldFollowLink called for link between channel " +
-                                     sourceEntry.getAddress() + " and " + target +
+                                     sourceEntry.address() + " and " + target +
                                      " and the target has no filter or the link is unknown." );
   }
 
@@ -1319,7 +1319,7 @@ public abstract class ReplicantSessionManagerImpl
 
   private void processCachePurge( @Nonnull final EntityMessage message )
   {
-    final SchemaMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSchemaMetaData();
     final int channelCount = schema.getChannelCount();
     for ( int i = 0; i < channelCount; i++ )
     {
@@ -1342,7 +1342,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SchemaMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSchemaMetaData();
     final int channelCount = schema.getChannelCount();
     for ( int i = 0; i < channelCount; i++ )
     {
@@ -1414,7 +1414,7 @@ public abstract class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SchemaMetaData schema = getSystemMetaData();
+    final SchemaMetaData schema = getSchemaMetaData();
     final int instanceChannelCount = schema.getInstanceChannelCount();
     for ( int i = 0; i < instanceChannelCount; i++ )
     {
@@ -1463,7 +1463,7 @@ public abstract class ReplicantSessionManagerImpl
       // Process any deleted messages that are in scope for session
       if ( null != m && m.isDelete() )
       {
-        final ChannelMetaData channelMetaData = getSystemMetaData().getChannelMetaData( address );
+        final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
         if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )

@@ -709,7 +709,7 @@ public abstract class AbstractReplicantEndpoint
   @Nonnull
   private ChannelMetaData getChannelMetaData( final int channelId )
   {
-    return getSessionManager().getSystemMetaData().getChannelMetaData( channelId );
+    return getSessionManager().getSchemaMetaData().getChannelMetaData( channelId );
   }
 
   private void closeWithError( @Nonnull final ReplicantSession replicantSession,

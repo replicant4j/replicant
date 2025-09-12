@@ -1541,7 +1541,7 @@ public final class ConnectorTest
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "+0." + address.getRootId() };
+    final String[] channels = { "+0." + address.rootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1584,7 +1584,7 @@ public final class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final String[] channels = { "-0." + address.getRootId() };
+    final String[] channels = { "-0." + address.rootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1624,7 +1624,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.getRootId() };
+    final String[] channels = { "-0." + address.rootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1688,7 +1688,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.getRootId() };
+    final String[] channels = { "-0." + address.rootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1720,7 +1720,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "!0." + address.getRootId() };
+    final String[] channels = { "!0." + address.rootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1772,7 +1772,7 @@ public final class ConnectorTest
     final String oldFilter = ValueUtil.randomString();
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
-      new ChannelChange[]{ ChannelChange.create( "=0." + address.getRootId(), newFilter ) };
+      new ChannelChange[]{ ChannelChange.create( "=0." + address.rootId(), newFilter ) };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response
