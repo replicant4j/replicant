@@ -30,7 +30,7 @@ public class SubscriptionDisposedEventTest
     assertEquals( data.get( "type" ), "Subscription.Disposed" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.id" ) );
+    assertNull( data.get( "channel.rootId" ) );
     assertEquals( data.get( "channel.filter" ), filter );
     assertEquals( data.get( "explicitSubscription" ), true );
     assertEquals( data.size(), 6 );

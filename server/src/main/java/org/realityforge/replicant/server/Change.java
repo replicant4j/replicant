@@ -2,6 +2,7 @@ package org.realityforge.replicant.server;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -11,21 +12,21 @@ public class Change
   private final String _key;
   @Nonnull
   private final EntityMessage _entityMessage;
-  private final Map<Integer, Integer> _channels;
+  @Nonnull
+  private final Map<Integer, Integer> _channels = new LinkedHashMap<>();
 
   public Change( @Nonnull final EntityMessage entityMessage )
   {
     _key = entityMessage.getTypeId() + "#" + entityMessage.getId();
-    _entityMessage = entityMessage;
-    _channels = new LinkedHashMap<>();
+    _entityMessage = Objects.requireNonNull( entityMessage );
   }
 
   public Change( @Nonnull final EntityMessage entityMessage,
                  final int channelId,
-                 @Nullable final Integer subChannelId )
+                 @Nullable final Integer rootId )
   {
     this( entityMessage );
-    _channels.put( channelId, subChannelId );
+    _channels.put( channelId, rootId );
   }
 
   @Nonnull

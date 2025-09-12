@@ -16,18 +16,18 @@ public final class ChangeUtil
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         @Nonnull final ChannelAddress address )
   {
-    return toChanges( messages, address.getChannelId(), address.getSubChannelId() );
+    return toChanges( messages, address.getChannelId(), address.getRootId() );
   }
 
   @Nonnull
   public static List<Change> toChanges( @Nonnull final Collection<EntityMessage> messages,
                                         final int channelId,
-                                        @Nullable final Integer subChannelId )
+                                        @Nullable final Integer rootId )
   {
     final List<Change> changes = new ArrayList<>( messages.size() );
     for ( final EntityMessage message : messages )
     {
-      changes.add( new Change( message, channelId, subChannelId ) );
+      changes.add( new Change( message, channelId, rootId ) );
     }
     return changes;
   }

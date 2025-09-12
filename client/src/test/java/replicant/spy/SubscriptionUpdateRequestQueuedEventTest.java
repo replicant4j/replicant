@@ -27,7 +27,7 @@ public class SubscriptionUpdateRequestQueuedEventTest
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateRequestQueued" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.id" ) );
+    assertNull( data.get( "channel.rootId" ) );
     assertEquals( data.get( "channel.filter" ), filter );
     assertEquals( data.size(), 5 );
   }

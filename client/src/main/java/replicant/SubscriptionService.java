@@ -131,8 +131,8 @@ abstract class SubscriptionService
                     () -> "Replicant-0064: createSubscription invoked with address " + address +
                           " but a subscription with that address already exists." );
     }
-    final Integer id = address.getId();
-    if ( null == id )
+    final Integer rootId = address.getRootId();
+    if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
     }
@@ -148,7 +148,7 @@ abstract class SubscriptionService
     DisposeNotifier
       .asDisposeNotifier( subscription )
       .addOnDisposeListener( this, () -> destroy( subscription ), true );
-    if ( null == id )
+    if ( null == rootId )
     {
       _typeSubscriptions
         .computeIfAbsent( address.getSchemaId(), HashMap::new )
@@ -160,7 +160,7 @@ abstract class SubscriptionService
       _instanceSubscriptions
         .computeIfAbsent( address.getSchemaId(), HashMap::new )
         .computeIfAbsent( address.getChannelId(), HashMap::new )
-        .put( id, subscription );
+        .put( rootId, subscription );
       getInstanceSubscriptionsObservableValue().reportChanged();
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -195,10 +195,10 @@ abstract class SubscriptionService
   {
     final int schemaId = address.getSchemaId();
     final int channelId = address.getChannelId();
-    final Integer id = address.getId();
-    return null == id ?
+    final Integer rootId = address.getRootId();
+    return null == rootId ?
            findTypeSubscription( schemaId, channelId ) :
-           findInstanceSubscription( schemaId, channelId, id );
+           findInstanceSubscription( schemaId, channelId, rootId );
   }
 
   /**
@@ -275,8 +275,8 @@ abstract class SubscriptionService
   {
     final int schemaId = address.getSchemaId();
     final int channelId = address.getChannelId();
-    final Integer id = address.getId();
-    if ( null == id )
+    final Integer rootId = address.getRootId();
+    if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
       final Map<Integer, Subscription> map = _typeSubscriptions.get( schemaId );
@@ -304,7 +304,7 @@ abstract class SubscriptionService
       getInstanceSubscriptionsObservableValue().preReportChanged();
       final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( schemaId );
       final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
-      final Subscription subscription = null == instanceMap ? null : instanceMap.remove( id );
+      final Subscription subscription = null == instanceMap ? null : instanceMap.remove( rootId );
       if ( null != subscription && instanceMap.isEmpty() )
       {
         channelMap.remove( channelId );

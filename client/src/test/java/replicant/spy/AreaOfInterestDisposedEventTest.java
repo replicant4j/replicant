@@ -33,7 +33,7 @@ public class AreaOfInterestDisposedEventTest
     assertEquals( data.get( "type" ), "AreaOfInterest.Disposed" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.id" ) );
+    assertNull( data.get( "channel.rootId" ) );
     assertEquals( data.get( "channel.filter" ), filter );
     assertEquals( data.size(), 5 );
   }

@@ -24,7 +24,7 @@ public class UnsubscribeRequestQueuedEventTest
     assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestQueued" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.id" ) );
+    assertNull( data.get( "channel.rootId" ) );
     assertEquals( data.size(), 4 );
   }
 }

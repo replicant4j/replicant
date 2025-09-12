@@ -138,7 +138,7 @@ public final class ChangeSet
 
   public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
-    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.getChannelId(), address.getSubChannelId() ) );
+    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.getChannelId(), address.getRootId() ) );
   }
 
   @Nonnull

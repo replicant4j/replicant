@@ -70,7 +70,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }
@@ -89,7 +89,7 @@ public class ChangeSetTest
 
     final ChannelAction action = changeSet.getChannelActions().get( 0 );
     assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
 
     final JsonObject filter =
@@ -148,7 +148,7 @@ public class ChangeSetTest
 
     final ChannelAction action = actions.get( 0 );
     assertEquals( action.getAddress().getChannelId(), 1 );
-    assertEquals( action.getAddress().getSubChannelId(), (Integer) 2 );
+    assertEquals( action.getAddress().getRootId(), (Integer) 2 );
     assertEquals( action.getAction(), Action.ADD );
     assertEquals( action.getFilter(), filter );
   }

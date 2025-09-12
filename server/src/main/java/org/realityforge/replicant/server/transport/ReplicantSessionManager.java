@@ -57,14 +57,14 @@ public interface ReplicantSessionManager
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int channelId,
-                      @Nullable Collection<Integer> subChannelIds,
+                      @Nullable Collection<Integer> rootIds,
                       @Nullable Object filter )
     throws InterruptedException;
 
   void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address )
     throws InterruptedException;
 
-  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> subChannelIds )
+  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> rootIds )
     throws InterruptedException;
 
   /**

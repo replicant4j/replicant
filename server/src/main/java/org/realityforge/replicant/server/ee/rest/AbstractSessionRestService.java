@@ -28,9 +28,9 @@ import org.realityforge.replicant.server.transport.SchemaMetaData;
 
 /**
  * The session management rest resource.
- *
+ * <p>
  * It is expected that this endpoint has already had security applied.
- *
+ * <p>
  * Extend this class and provider a SessionManager as required. ie.
  *
  * <pre>
@@ -113,21 +113,21 @@ public abstract class AbstractSessionRestService
     }
   }
 
-  @Path( "{sessionId}/channel/{channelId:\\d+}.{subChannelId:\\d+}" )
+  @Path( "{sessionId}/channel/{channelId:\\d+}.{rootId:\\d+}" )
   @GET
   public Response getChannel( @PathParam( "sessionId" ) @NotNull final String sessionId,
                               @PathParam( "channelId" ) @NotNull final int channelId,
-                              @PathParam( "subChannelId" ) @NotNull final int subChannelId,
+                              @PathParam( "rootId" ) @NotNull final int rootId,
                               @Context @Nonnull final UriInfo uri )
   {
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
     if ( channelMetaData.isTypeGraph() )
     {
       final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Supplied subChannelIds to type graph" );
+        standardResponse( Response.Status.BAD_REQUEST, "Supplied rootIds to type graph" );
       throw new WebApplicationException( response );
     }
-    return doGetChannel( sessionId, new ChannelAddress( channelId, subChannelId ), uri );
+    return doGetChannel( sessionId, new ChannelAddress( channelId, rootId ), uri );
   }
 
   @Nonnull
@@ -237,7 +237,7 @@ public abstract class AbstractSessionRestService
     if ( getChannelMetaData( channelId ).isInstanceGraph() )
     {
       final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Failed to supply subChannelId to instance graph" );
+        standardResponse( Response.Status.BAD_REQUEST, "Failed to supply rootId to instance graph" );
       throw new WebApplicationException( response );
     }
     return new ChannelAddress( channelId );

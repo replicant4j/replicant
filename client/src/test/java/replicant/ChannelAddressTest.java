@@ -14,7 +14,7 @@ public class ChannelAddressTest
 
     assertEquals( address.getSchemaId(), 2 );
     assertEquals( address.getChannelId(), 4 );
-    assertEquals( address.getId(), (Integer) 1 );
+    assertEquals( address.getRootId(), (Integer) 1 );
   }
 
   @Test
@@ -24,7 +24,7 @@ public class ChannelAddressTest
 
     assertEquals( address.getSchemaId(), 2 );
     assertEquals( address.getChannelId(), 4 );
-    assertEquals( address.getId(), (Integer) 1 );
+    assertEquals( address.getRootId(), (Integer) 1 );
   }
 
   @Test
@@ -34,7 +34,7 @@ public class ChannelAddressTest
 
     assertEquals( address.getSchemaId(), 4 );
     assertEquals( address.getChannelId(), 77 );
-    assertEquals( address.getId(), null );
+    assertEquals( address.getRootId(), null );
   }
 
   @Test

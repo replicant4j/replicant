@@ -15,18 +15,18 @@ public final class ChannelAddress
   private final int _schemaId;
   private final int _channelId;
   @Nullable
-  private final Integer _id;
+  private final Integer _rootId;
 
   public ChannelAddress( final int schemaId, final int channelId )
   {
     this( schemaId, channelId, null );
   }
 
-  public ChannelAddress( final int schemaId, final int channelId, @Nullable final Integer id )
+  public ChannelAddress( final int schemaId, final int channelId, @Nullable final Integer rootId )
   {
     _schemaId = schemaId;
     _channelId = channelId;
-    _id = id;
+    _rootId = rootId;
   }
 
   public int getSchemaId()
@@ -40,9 +40,9 @@ public final class ChannelAddress
   }
 
   @Nullable
-  public Integer getId()
+  public Integer getRootId()
   {
-    return _id;
+    return _rootId;
   }
 
   @Override
@@ -60,7 +60,7 @@ public final class ChannelAddress
   @Nonnull
   public String asChannelDescriptor()
   {
-    return getChannelId() + ( null != _id ? "." + _id : "" );
+    return getChannelId() + ( null != _rootId ? "." + _rootId : "" );
   }
 
   @Nonnull
@@ -75,8 +75,8 @@ public final class ChannelAddress
     final int offset = channel.indexOf( ".", 1 );
     final int channelId =
       Integer.parseInt( -1 == offset ? channel : channel.substring( 0, offset ) );
-    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( channel.substring( offset + 1 ) );
-    return new ChannelAddress( schema, channelId, subChannelId );
+    final Integer rootId = -1 == offset ? null : Integer.parseInt( channel.substring( offset + 1 ) );
+    return new ChannelAddress( schema, channelId, rootId );
   }
 
   @Override
@@ -95,7 +95,7 @@ public final class ChannelAddress
       final ChannelAddress that = (ChannelAddress) o;
       return Objects.equals( _schemaId, that._schemaId ) &&
              Objects.equals( _channelId, that._channelId ) &&
-             Objects.equals( _id, that._id );
+             Objects.equals( _rootId, that._rootId );
     }
   }
 
@@ -104,7 +104,7 @@ public final class ChannelAddress
   {
     int result = _schemaId;
     result = 17 * result + _channelId;
-    result = 31 * result + ( _id != null ? _id.hashCode() : 0 );
+    result = 31 * result + ( _rootId != null ? _rootId.hashCode() : 0 );
     return result;
   }
 

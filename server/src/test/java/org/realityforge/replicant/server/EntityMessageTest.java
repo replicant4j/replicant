@@ -42,7 +42,7 @@ public class EntityMessageTest
     assertEquals( message.getLinks().size(), 1 );
     final ChannelLink channelLink = message.getLinks().iterator().next();
     assertEquals( channelLink.getSourceChannel().getChannelId(), 1 );
-    assertEquals( channelLink.getSourceChannel().getSubChannelId(), (Integer) 2 );
+    assertEquals( channelLink.getSourceChannel().getRootId(), (Integer) 2 );
     assertEquals( channelLink.getTargetChannel().getChannelId(), 47 );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a3" );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY2, "a2" );

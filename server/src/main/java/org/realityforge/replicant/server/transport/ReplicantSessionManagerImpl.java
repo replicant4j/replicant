@@ -378,7 +378,7 @@ public abstract class ReplicantSessionManagerImpl
                            toSubscribe
                              .stream()
                              .map( ChannelLinkEntry::getTarget )
-                             .map( ChannelAddress::getSubChannelId )
+                             .map( ChannelAddress::getRootId )
                              .collect( Collectors.toList() ),
                            entry.getFilter(),
                            changeSet,
@@ -566,7 +566,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int channelId,
-                             @Nullable final Collection<Integer> subChannelIds,
+                             @Nullable final Collection<Integer> rootIds,
                              @Nullable final Object filter )
     throws InterruptedException
   {
@@ -576,7 +576,7 @@ public abstract class ReplicantSessionManagerImpl
       lock.lockInterruptibly();
       try
       {
-        doBulkSubscribe( session, channelId, subChannelIds, filter, EntityMessageCacheUtil.getSessionChanges(), true );
+        doBulkSubscribe( session, channelId, rootIds, filter, EntityMessageCacheUtil.getSessionChanges(), true );
       }
       finally
       {
@@ -587,13 +587,13 @@ public abstract class ReplicantSessionManagerImpl
 
   private void doBulkSubscribe( @Nonnull final ReplicantSession session,
                                 final int channelId,
-                                @Nullable final Collection<Integer> subChannelIds,
+                                @Nullable final Collection<Integer> rootIds,
                                 @Nullable final Object filter,
                                 @Nonnull final ChangeSet changeSet,
                                 final boolean isExplicitSubscribe )
   {
     final ChannelMetaData channel = getSystemMetaData().getChannelMetaData( channelId );
-    assert ( channel.isInstanceGraph() && null != subChannelIds ) || ( channel.isTypeGraph() && null == subChannelIds );
+    assert ( channel.isInstanceGraph() && null != rootIds ) || ( channel.isTypeGraph() && null == rootIds );
 
     subscribeToRequiredTypeChannels( session, channel );
 
@@ -601,7 +601,7 @@ public abstract class ReplicantSessionManagerImpl
     //OriginalFilter => Channels
     final Map<Object, List<ChannelAddress>> channelsToUpdate = new HashMap<>();
 
-    if ( null == subChannelIds )
+    if ( null == rootIds )
     {
       final ChannelAddress address = new ChannelAddress( channelId );
       final SubscriptionEntry entry = session.findSubscriptionEntry( address );
@@ -620,7 +620,7 @@ public abstract class ReplicantSessionManagerImpl
     }
     else
     {
-      for ( final Integer root : subChannelIds )
+      for ( final Integer root : rootIds )
       {
         final ChannelAddress address = new ChannelAddress( channelId, root );
         final SubscriptionEntry entry = session.findSubscriptionEntry( address );
@@ -766,7 +766,7 @@ public abstract class ReplicantSessionManagerImpl
                            address.getChannelId(),
                            channelMetaData.isTypeGraph() ?
                            null :
-                           Collections.singletonList( address.getSubChannelId() ),
+                           Collections.singletonList( address.getRootId() ),
                            filter,
                            changeSet,
                            true );
@@ -796,7 +796,7 @@ public abstract class ReplicantSessionManagerImpl
                          address.getChannelId(),
                          channelMetaData.isTypeGraph() ?
                          null :
-                         Collections.singletonList( address.getSubChannelId() ),
+                         Collections.singletonList( address.getRootId() ),
                          filter,
                          changeSet,
                          true );
@@ -885,7 +885,7 @@ public abstract class ReplicantSessionManagerImpl
       {
         final ChannelAddress channelAddress =
           new ChannelAddress( address.getChannelId(),
-                              channelMetaData.isTypeGraph() ? null : address.getSubChannelId() );
+                              channelMetaData.isTypeGraph() ? null : address.getRootId() );
         bulkCollectDataForSubscribe( session,
                                      Collections.singletonList( channelAddress ),
                                      filter,
@@ -1197,7 +1197,7 @@ public abstract class ReplicantSessionManagerImpl
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int channelId,
-                               @Nonnull final Collection<Integer> subChannelIds )
+                               @Nonnull final Collection<Integer> rootIds )
     throws InterruptedException
   {
     if ( session.isOpen() )
@@ -1206,7 +1206,7 @@ public abstract class ReplicantSessionManagerImpl
       lock.lockInterruptibly();
       try
       {
-        doBulkUnsubscribe( session, channelId, subChannelIds );
+        doBulkUnsubscribe( session, channelId, rootIds );
       }
       finally
       {
@@ -1217,12 +1217,12 @@ public abstract class ReplicantSessionManagerImpl
 
   private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
                                   final int channelId,
-                                  @Nonnull final Collection<Integer> subChannelIds )
+                                  @Nonnull final Collection<Integer> rootIds )
   {
     final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-    for ( final int subChannelId : subChannelIds )
+    for ( final int rootId : rootIds )
     {
-      performUnsubscribe( session, new ChannelAddress( channelId, subChannelId ), sessionChanges );
+      performUnsubscribe( session, new ChannelAddress( channelId, rootId ), sessionChanges );
     }
   }
 
@@ -1370,12 +1370,12 @@ public abstract class ReplicantSessionManagerImpl
     if ( channel.isInstanceGraph() )
     {
       @SuppressWarnings( "unchecked" )
-      final List<Integer> subChannelIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
-      if ( null != subChannelIds )
+      final List<Integer> rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      if ( null != rootIds )
       {
-        return subChannelIds
+        return rootIds
           .stream()
-          .map( subChannelId -> new ChannelAddress( channel.getChannelId(), subChannelId ) )
+          .map( rootId -> new ChannelAddress( channel.getChannelId(), rootId ) )
           .collect( Collectors.toList() );
       }
     }
@@ -1405,7 +1405,7 @@ public abstract class ReplicantSessionManagerImpl
       // Process any  messages that are in scope for session
       if ( null != m )
       {
-        changeSet.merge( new Change( message, address.getChannelId(), address.getSubChannelId() ) );
+        changeSet.merge( new Change( message, address.getChannelId(), address.getRootId() ) );
       }
     }
   }
@@ -1420,12 +1420,12 @@ public abstract class ReplicantSessionManagerImpl
     {
       final ChannelMetaData channel = schema.getInstanceChannelByIndex( i );
       @SuppressWarnings( "unchecked" )
-      final List<Integer> subChannelIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
-      if ( null != subChannelIds )
+      final List<Integer> rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      if ( null != rootIds )
       {
-        for ( final Integer subChannelId : subChannelIds )
+        for ( final Integer rootId : rootIds )
         {
-          final ChannelAddress address = new ChannelAddress( channel.getChannelId(), subChannelId );
+          final ChannelAddress address = new ChannelAddress( channel.getChannelId(), rootId );
           final boolean isFiltered =
             ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
           processDeleteMessage( address,

@@ -1421,9 +1421,9 @@ public final class ConnectorTest
     final Connection connection = newConnection( connector );
 
     final int channelId = 0;
-    final int subChannelId = ValueUtil.randomInt();
+    final int rootId = ValueUtil.randomInt();
     final String filter = null;
-    final String[] channels = { "+0." + subChannelId };
+    final String[] channels = { "+0." + rootId };
 
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
@@ -1437,7 +1437,7 @@ public final class ConnectorTest
 
     assertFalse( response.needsChannelChangesProcessed() );
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
+    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
@@ -1459,9 +1459,9 @@ public final class ConnectorTest
     final Connection connection = newConnection( connector );
 
     final int channelId = 0;
-    final int subChannelId = ValueUtil.randomInt();
+    final int rootId = ValueUtil.randomInt();
     final String filter = ValueUtil.randomString();
-    final ChannelChange[] fchannels = { ChannelChange.create( "+0." + subChannelId, filter ) };
+    final ChannelChange[] fchannels = { ChannelChange.create( "+0." + rootId, filter ) };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, fchannels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, fchannels[ 0 ] ) ) );
@@ -1474,7 +1474,7 @@ public final class ConnectorTest
 
     assertFalse( response.needsChannelChangesProcessed() );
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
+    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
     final Subscription subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
@@ -1496,13 +1496,13 @@ public final class ConnectorTest
     final Connection connection = newConnection( connector );
 
     final int channelId = 0;
-    final int subChannelId = ValueUtil.randomInt();
+    final int rootId = ValueUtil.randomInt();
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, subChannelId );
+    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "+0." + subChannelId };
+    final String[] channels = { "+0." + rootId };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1541,7 +1541,7 @@ public final class ConnectorTest
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "+0." + address.getId() };
+    final String[] channels = { "+0." + address.getRootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1584,7 +1584,7 @@ public final class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final String[] channels = { "-0." + address.getId() };
+    final String[] channels = { "-0." + address.getRootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1624,7 +1624,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.getId() };
+    final String[] channels = { "-0." + address.getRootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1688,7 +1688,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.getId() };
+    final String[] channels = { "-0." + address.getRootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1720,7 +1720,7 @@ public final class ConnectorTest
     final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "!0." + address.getId() };
+    final String[] channels = { "!0." + address.getRootId() };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
@@ -1772,7 +1772,7 @@ public final class ConnectorTest
     final String oldFilter = ValueUtil.randomString();
     final String newFilter = ValueUtil.randomString();
     final ChannelChange[] channelChanges =
-      new ChannelChange[]{ ChannelChange.create( "=0." + address.getId(), newFilter ) };
+      new ChannelChange[]{ ChannelChange.create( "=0." + address.getRootId(), newFilter ) };
     final MessageResponse response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response

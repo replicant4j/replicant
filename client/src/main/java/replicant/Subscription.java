@@ -126,18 +126,18 @@ public abstract class Subscription
   public Object getInstanceRoot()
   {
     final ChannelSchema channel = getChannelSchema();
-    final Integer id = _address.getId();
+    final Integer rootId = _address.getRootId();
     if ( Replicant.shouldCheckApiInvariants() )
     {
       invariant( channel::isInstanceChannel,
                  () -> "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel " +
                        _address + " but channel is not instance based." );
-      invariant( () -> null != id,
+      invariant( () -> null != rootId,
                  () -> "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel " +
                        _address + " but channel has not supplied expected id." );
     }
-    assert null != id;
-    final Entity entity = findEntityByTypeAndId( Objects.requireNonNull( channel.getInstanceType() ), id );
+    assert null != rootId;
+    final Entity entity = findEntityByTypeAndId( Objects.requireNonNull( channel.getInstanceType() ), rootId );
     if ( Replicant.shouldCheckApiInvariants() )
     {
       invariant( () -> null != entity,

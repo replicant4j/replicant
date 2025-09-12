@@ -30,7 +30,7 @@ public class SubscriptionUpdateStartedEventTest
     assertEquals( data.get( "schema.name" ), "Rose" );
     assertEquals( data.get( "channel.schemaId" ), 1 );
     assertEquals( data.get( "channel.channelId" ), 2 );
-    assertEquals( data.get( "channel.id" ), address.getId() );
+    assertEquals( data.get( "channel.rootId" ), address.getRootId() );
     assertEquals( data.size(), 6 );
   }
 }

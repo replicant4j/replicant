@@ -10,9 +10,9 @@ public class ChannelLinkTest
   {
     final ChannelLink link = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 2 ) );
     assertEquals( link.getSourceChannel().getChannelId(), 22 );
-    assertEquals( link.getSourceChannel().getSubChannelId(), (Integer) 44 );
+    assertEquals( link.getSourceChannel().getRootId(), (Integer) 44 );
     assertEquals( link.getTargetChannel().getChannelId(), 1 );
-    assertEquals( link.getTargetChannel().getSubChannelId(), (Integer) 2 );
+    assertEquals( link.getTargetChannel().getRootId(), (Integer) 2 );
     assertEquals( link.toString(), "[22.44=>1.2]" );
   }
 

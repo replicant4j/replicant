@@ -1049,14 +1049,14 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Integer> subChannelIds = new ArrayList<>();
-      subChannelIds.add( address1.getSubChannelId() );
-      subChannelIds.add( address2.getSubChannelId() );
+      final ArrayList<Integer> rootIds = new ArrayList<>();
+      rootIds.add( address1.getRootId() );
+      rootIds.add( address2.getRootId() );
       //This next one is not subscribed
-      subChannelIds.add( address3.getSubChannelId() );
+      rootIds.add( address3.getRootId() );
       // This next one is for wrong channel so should be no-op
-      subChannelIds.add( address4.getSubChannelId() );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds );
+      rootIds.add( address4.getRootId() );
+      sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
 
       assertChannelActionCount( 2 );
       assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
@@ -1111,15 +1111,15 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Integer> subChannelIds = new ArrayList<>();
-      subChannelIds.add( address1.getSubChannelId() );
-      subChannelIds.add( address2.getSubChannelId() );
+      final ArrayList<Integer> rootIds = new ArrayList<>();
+      rootIds.add( address1.getRootId() );
+      rootIds.add( address2.getRootId() );
       //This next one is not subscribed
-      subChannelIds.add( address3.getSubChannelId() );
+      rootIds.add( address3.getRootId() );
       // This next one is for wrong channel so should be no-op
-      subChannelIds.add( address4.getSubChannelId() );
+      rootIds.add( address4.getRootId() );
       //sm.setupRegistryContext( sessionId );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), subChannelIds );
+      sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
 
       assertChannelActionCount( 2 );
       assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
@@ -1206,14 +1206,14 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
     with( session, () -> e2.setFilter( originalFilter ) );
 
-    final ArrayList<Integer> subChannelIds = new ArrayList<>();
-    subChannelIds.add( address1.getSubChannelId() );
-    subChannelIds.add( address2.getSubChannelId() );
+    final ArrayList<Integer> rootIds = new ArrayList<>();
+    rootIds.add( address1.getRootId() );
+    rootIds.add( address2.getRootId() );
 
     TransactionSynchronizationRegistryUtil.lookup()
       .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
 
-    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, originalFilter );
+    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, originalFilter );
 
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1222,7 +1222,7 @@ public class ReplicantSessionManagerImplTest
     assertEntry( e2, true, 0, 0, originalFilter );
 
     // Attempt to update to same filter - should be a noop
-    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, originalFilter );
+    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, originalFilter );
 
     assertEntry( e1, true, 0, 0, originalFilter );
     assertEntry( e2, true, 0, 0, originalFilter );
@@ -1240,7 +1240,7 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 0 );
 
     // Attempt to update both channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter );
+    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
 
     assertEntry( e1, true, 0, 0, filter );
     assertEntry( e2, true, 0, 0, filter );
@@ -1255,7 +1255,7 @@ public class ReplicantSessionManagerImplTest
     with( session, () -> e2.setFilter( originalFilter ) );
 
     // Attempt to update one channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter );
+    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
 
     assertEntry( e1, true, 0, 0, filter );
     assertEntry( e2, true, 0, 0, filter );
@@ -1293,9 +1293,9 @@ public class ReplicantSessionManagerImplTest
     final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
     with( session, () -> e2.setFilter( originalFilter ) );
 
-    final ArrayList<Integer> subChannelIds = new ArrayList<>();
-    subChannelIds.add( address1.getSubChannelId() );
-    subChannelIds.add( address2.getSubChannelId() );
+    final ArrayList<Integer> rootIds = new ArrayList<>();
+    rootIds.add( address1.getRootId() );
+    rootIds.add( address2.getRootId() );
 
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1308,7 +1308,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
 
     // Attempt to update both channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), subChannelIds, filter );
+    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
 
     // the original filter is still set as it is expected that the hook method does the magic
     assertEntry( e1, false, 0, 0, originalFilter );
@@ -1653,7 +1653,7 @@ public class ReplicantSessionManagerImplTest
         final HashMap<String, Serializable> attributes = new HashMap<>();
         attributes.put( "ID", 79 );
         final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
-        changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getSubChannelId() ) );
+        changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getRootId() ) );
         return new SubscribeResult( false, _cacheKey );
       }
       else
@@ -1676,7 +1676,7 @@ public class ReplicantSessionManagerImplTest
       attributes.put( "OriginalFilter", (Serializable) originalFilter );
       attributes.put( "Filter", (Serializable) filter );
       final EntityMessage message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
-      changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getSubChannelId() ) );
+      changeSet.merge( new Change( message, descriptor.getChannelId(), descriptor.getRootId() ) );
     }
 
     private void setFollowSource( final ChannelAddress followSource )

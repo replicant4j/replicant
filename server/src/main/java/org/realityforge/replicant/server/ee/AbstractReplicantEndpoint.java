@@ -392,7 +392,7 @@ public abstract class AbstractReplicantEndpoint
     final int channelId = addresses[ 0 ].getChannelId();
 
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
-    final List<Integer> subChannelIds = new ArrayList<>();
+    final List<Integer> rootIds = new ArrayList<>();
     for ( final ChannelAddress address : addresses )
     {
       if ( !checkSubscribeRequest( session, channelMetaData, address ) )
@@ -411,7 +411,7 @@ public abstract class AbstractReplicantEndpoint
       }
       else
       {
-        subChannelIds.add( address.getSubChannelId() );
+        rootIds.add( address.getRootId() );
       }
     }
 
@@ -429,19 +429,19 @@ public abstract class AbstractReplicantEndpoint
                                                    "BulkSubscribe(" + channelMetaData.getChannelId() + ")",
                                                    session,
                                                    requestId,
-                                                   () -> doBulkSubscribe( session, channelId, subChannelIds, filter ) );
+                                                   () -> doBulkSubscribe( session, channelId, rootIds, filter ) );
     }
   }
 
   private void doBulkSubscribe( @Nonnull final ReplicantSession session,
                                 final int channelId,
-                                @Nullable final List<Integer> subChannelIds,
+                                @Nullable final List<Integer> rootIds,
                                 @Nullable final Object filter )
   {
     EntityMessageCacheUtil.getSessionChanges().setRequired( true );
     try
     {
-      getSessionManager().bulkSubscribe( session, channelId, subChannelIds, filter );
+      getSessionManager().bulkSubscribe( session, channelId, rootIds, filter );
     }
     catch ( final InterruptedException ignored )
     {
@@ -494,7 +494,7 @@ public abstract class AbstractReplicantEndpoint
     final int channelId = addresses[ 0 ].getChannelId();
 
     final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
-    final List<Integer> subChannelIds = new ArrayList<>();
+    final List<Integer> rootIds = new ArrayList<>();
     for ( final ChannelAddress address : addresses )
     {
       if ( !checkUnsubscribeRequest( session, channelMetaData, address ) )
@@ -514,7 +514,7 @@ public abstract class AbstractReplicantEndpoint
       }
       else
       {
-        subChannelIds.add( address.getSubChannelId() );
+        rootIds.add( address.getRootId() );
       }
     }
 
@@ -531,18 +531,18 @@ public abstract class AbstractReplicantEndpoint
                                                    "BulkUnsubscribe(" + channelMetaData.getChannelId() + ")",
                                                    session,
                                                    requestId,
-                                                   () -> doBulkUnsubscribe( session, channelId, subChannelIds ) );
+                                                   () -> doBulkUnsubscribe( session, channelId, rootIds ) );
     }
   }
 
   private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
                                   final int channelId,
-                                  final List<Integer> subChannelIds )
+                                  final List<Integer> rootIds )
   {
     EntityMessageCacheUtil.getSessionChanges().setRequired( true );
     try
     {
-      getSessionManager().bulkUnsubscribe( session, channelId, subChannelIds );
+      getSessionManager().bulkUnsubscribe( session, channelId, rootIds );
     }
     catch ( final InterruptedException ignored )
     {

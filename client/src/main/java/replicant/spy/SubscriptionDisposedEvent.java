@@ -34,7 +34,7 @@ public final class SubscriptionDisposedEvent
     final ChannelAddress address = getSubscription().getAddress();
     map.put( "channel.schemaId", address.getSchemaId() );
     map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.id", address.getId() );
+    map.put( "channel.rootId", address.getRootId() );
     map.put( "channel.filter", getSubscription().getFilter() );
     map.put( "explicitSubscription", getSubscription().isExplicitSubscription() );
   }

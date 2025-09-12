@@ -1,13 +1,11 @@
 package org.realityforge.replicant.server.ee.rest;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.UriInfo;
 import org.realityforge.replicant.server.ChannelAddress;
@@ -113,9 +111,9 @@ final class Encoder
                                        @Nonnull final UriInfo uri )
   {
     final String baseURL = getSubscriptionsURL( session, uri ) + '/' + address.getChannelId();
-    if ( null != address.getSubChannelId() )
+    if ( null != address.getRootId() )
     {
-      return baseURL + '.' + address.getSubChannelId();
+      return baseURL + '.' + address.getRootId();
     }
     else
     {
@@ -139,27 +137,6 @@ final class Encoder
       emitChannel( schemaMetaData, session, g, subscription, uri );
     }
     g.writeEnd();
-  }
-
-  private static void emitChannelId( @Nonnull final JsonGenerator g,
-                                     final int channelId )
-  {
-    g.write( "channelId", channelId );
-  }
-
-  private static void emitSubChannelId( @Nonnull final JsonGenerator g, @Nullable final Serializable subChannelId )
-  {
-    if ( null != subChannelId )
-    {
-      if ( subChannelId instanceof Integer )
-      {
-        g.write( "instanceID", (Integer) subChannelId );
-      }
-      else
-      {
-        g.write( "instanceID", String.valueOf( subChannelId ) );
-      }
-    }
   }
 
   private static void emitChannelDescriptors( @Nonnull final SchemaMetaData schemaMetaData,
@@ -208,8 +185,12 @@ final class Encoder
                                              @Nonnull final ChannelAddress address )
   {
     g.write( "name", schemaMetaData.getChannelMetaData( address.getChannelId() ).getName() );
-    emitChannelId( g, address.getChannelId() );
-    emitSubChannelId( g, address.getSubChannelId() );
+    g.write( "channelId", address.getChannelId() );
+    final Integer rootId = address.getRootId();
+    if ( null != rootId )
+    {
+      g.write( "rootId", rootId );
+    }
   }
 
   private static void emitChannelDescriptors( @Nonnull final SchemaMetaData schemaMetaData,

@@ -43,7 +43,7 @@ public final class SubscribeRequestQueuedEvent
     final ChannelAddress address = getAddress();
     map.put( "channel.schemaId", address.getSchemaId() );
     map.put( "channel.channelId", address.getChannelId() );
-    map.put( "channel.id", address.getId() );
+    map.put( "channel.rootId", address.getRootId() );
     map.put( "channel.filter", getFilter() );
   }
 }

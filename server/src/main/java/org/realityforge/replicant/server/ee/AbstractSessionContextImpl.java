@@ -70,7 +70,7 @@ public abstract class AbstractSessionContextImpl
   {
     return
       "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
-      chunked( addresses.stream().map( ChannelAddress::getSubChannelId ), 900 )
+      chunked( addresses.stream().map( ChannelAddress::getRootId ), 900 )
         .map( ids ->
                 "INSERT INTO @Ids VALUES " +
                 ids.stream().map( id -> "(" + id + ")" ).collect( Collectors.joining( "," ) ) ).

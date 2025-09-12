@@ -1,22 +1,24 @@
 package org.realityforge.replicant.server;
 
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@SuppressWarnings( "ClassCanBeRecord" )
 public final class ChannelAddress
   implements Comparable<ChannelAddress>
 {
   private final int _channelId;
   @Nullable
-  private final Integer _subChannelId;
+  private final Integer _rootId;
 
   @Nonnull
   public static ChannelAddress parse( @Nonnull final String name )
   {
     final int offset = name.indexOf( "." );
     final int channelId = Integer.parseInt( -1 == offset ? name : name.substring( 0, offset ) );
-    final Integer subChannelId = -1 == offset ? null : Integer.parseInt( name.substring( offset + 1 ) );
-    return new ChannelAddress( channelId, subChannelId );
+    final Integer rootId = -1 == offset ? null : Integer.parseInt( name.substring( offset + 1 ) );
+    return new ChannelAddress( channelId, rootId );
   }
 
   public ChannelAddress( final int channelId )
@@ -24,10 +26,10 @@ public final class ChannelAddress
     this( channelId, null );
   }
 
-  public ChannelAddress( final int channelId, @Nullable final Integer subChannelId )
+  public ChannelAddress( final int channelId, @Nullable final Integer rootId )
   {
     _channelId = channelId;
-    _subChannelId = subChannelId;
+    _rootId = rootId;
   }
 
   public int getChannelId()
@@ -36,14 +38,14 @@ public final class ChannelAddress
   }
 
   @Nullable
-  public Integer getSubChannelId()
+  public Integer getRootId()
   {
-    return _subChannelId;
+    return _rootId;
   }
 
   public boolean hasSubChannelId()
   {
-    return null != _subChannelId;
+    return null != _rootId;
   }
 
   @Override
@@ -59,15 +61,14 @@ public final class ChannelAddress
     }
 
     final ChannelAddress that = (ChannelAddress) o;
-    return _channelId == that._channelId &&
-           !( _subChannelId != null ? !_subChannelId.equals( that._subChannelId ) : null != that._subChannelId );
+    return _channelId == that._channelId && Objects.equals( _rootId, that._rootId );
   }
 
   @Override
   public int hashCode()
   {
     int result = _channelId;
-    result = 31 * result + ( _subChannelId != null ? _subChannelId.hashCode() : 0 );
+    result = 31 * result + ( _rootId != null ? _rootId.hashCode() : 0 );
     return result;
   }
 
@@ -81,23 +82,23 @@ public final class ChannelAddress
     }
     else
     {
-      final Integer otherSubChannelId = other.getSubChannelId();
-      final Integer subChannelId = getSubChannelId();
-      if ( null == otherSubChannelId && null == subChannelId )
+      final Integer otherRootId = other.getRootId();
+      final Integer rootId = getRootId();
+      if ( null == otherRootId && null == rootId )
       {
         return 0;
       }
-      else if ( null == otherSubChannelId )
+      else if ( null == otherRootId )
       {
         return -1;
       }
-      else if ( null == subChannelId )
+      else if ( null == rootId )
       {
         return 1;
       }
       else
       {
-        return subChannelId.compareTo( otherSubChannelId );
+        return rootId.compareTo( otherRootId );
       }
     }
   }
@@ -105,6 +106,6 @@ public final class ChannelAddress
   @Override
   public String toString()
   {
-    return _channelId + ( null == _subChannelId ? "" : "." + _subChannelId );
+    return _channelId + ( null == _rootId ? "" : "." + _rootId );
   }
 }

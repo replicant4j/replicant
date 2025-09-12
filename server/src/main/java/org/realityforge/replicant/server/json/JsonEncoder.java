@@ -154,7 +154,7 @@ public final class JsonEncoder
 
     final ChannelAddress address = channelAction.getAddress();
 
-    final Integer scid = address.getSubChannelId();
+    final Integer scid = address.getRootId();
     return String.valueOf( actionValue ) + address.getChannelId() + ( null == scid ? "" : "." + scid );
   }
 

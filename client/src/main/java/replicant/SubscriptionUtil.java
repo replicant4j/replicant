@@ -42,14 +42,14 @@ public class SubscriptionUtil
         .filter( s -> s.getAddress().getSchemaId() == targetSystemId &&
                       s.getAddress().getChannelId() == targetChannelId )
         .filter( subscription -> FilterUtil.filtersEqual( subscription.getFilter(), filter ) )
-        .collect( Collectors.toMap( s -> s.getAddress().getId(), Function.identity() ) );
+        .collect( Collectors.toMap( s -> s.getAddress().getRootId(), Function.identity() ) );
 
     context
       .getAreasOfInterest()
       .stream()
       .filter( s -> s.getAddress().getSchemaId() == sourceSystemId &&
                     s.getAddress().getChannelId() == sourceChannelId )
-      .map( s -> s.getAddress().getId() )
+      .map( s -> s.getAddress().getRootId() )
       .flatMap( sourceIdToTargetIds )
       .filter( Objects::nonNull )
       .filter( id -> null == existing.remove( id ) )
