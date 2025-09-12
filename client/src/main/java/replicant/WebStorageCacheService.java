@@ -16,6 +16,7 @@ import jsinterop.base.JsPropertyMap;
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
  * The implementation will preferentially use local storage and then session storage.
  */
+@SuppressWarnings( { "unused", "ClassCanBeRecord" } )
 public final class WebStorageCacheService
   implements CacheService
 {
