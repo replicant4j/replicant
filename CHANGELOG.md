@@ -2,6 +2,13 @@
 
 ### Unreleased
 
+* Migrate server code from the `org.realityforge.replicant.server` package to the `replicant.server` package.
+* Rename `SystemMetaData` to `SchemaMetaData` and all supported infrastructure to use the new name (i.e. `systemId` becomes `schemaId`). This is to achieve consistency between the client and server as well as domgen generated code and hand-crafted code.
+* Rename `ChannelAddress.id` to `ChannelAddress.rootId` on the client and rename `ChannelAddress.subChannelId` to `ChannelAddress.rootId` on the server. This is done to gain consistency across client, server, and generated code.
+* Start to use records in the server code to reduce verbosity.
+* Pass `JsonValue` as the response object rather than converting `JsonValue` to a string and then deserializing back into a `JsonValue` in server code.
+* Change `ChannelMetaData` to use more explicit mechanisms for decoding strings into `JsonValue` objects in java `Object` rather than reliance on implicit jackson presence.
+
 ### [v6.151](https://github.com/replicant4j/replicant/tree/v6.151) (2025-09-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.150...v6.151)
 
 Changes in this release:
