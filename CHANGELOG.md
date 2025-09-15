@@ -739,7 +739,7 @@ Changes in this release:
 * Refactor the `replicant.Transport` interface to remove methods 4-arg `requestSubscribe()`, `requestSubscriptionUpdate()`
   and `requestBulkSubscriptionUpdate()` that can be reimplemented as calls to 6-arg `requestSubscribe()`.
 * Refactor the serverside code to mandate the use of `WebSocket` transport layer. As a result of this there is no
-  need to maintain infrastructure for representing packets, queuing and retrying packets. Thus the `Packet` class
+  need to maintain infrastructure for representing packets, queuing, and retrying packets. Thus the `Packet` class
   and `PacketQueue` have been removed. The endpoints designed for manipulation of sessions (i.e. creating,
   destroying, subscribe, unsubscribe etc) has also been removed.
 * `ReplicantSessionManager.invalidateSession(...)` now accepts a `ReplicantSession session` as a parameter rather
@@ -1309,8 +1309,8 @@ Changes in this release:
   no entity is present.
 * Ensure correct handling of incorrect disconnects when failing to connect to server.
 * Ensure a stopped WebPoller marks the DataLoaderService as disconnected.
-* Generate CDI events for InvalidConnect, InvalidDisconnect and PollError conditions in EE client.
-* Add explicit mechanisms for firing events for InvalidConnect, InvalidDisconnect and PollError events.
+* Generate CDI events for InvalidConnect, InvalidDisconnect, and PollError conditions in EE client.
+* Add explicit mechanisms for firing events for InvalidConnect, InvalidDisconnect, and PollError events.
 * Move propagation of SystemErrorEvent from EeWebPollerDataLoaderService to EeDataLoaderService.
 * Fire ConnectEvent and DisconnectEvent from EeDataLoaderService when data loader connects and disconnects.
 
@@ -1321,7 +1321,7 @@ Changes in this release:
 
 ### [v0.5.72](https://github.com/replicant4j/replicant/tree/v0.5.72)
 
-* Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker and
+* Introduce the `EntitySystem` abstraction that collectors the EntityRepository, the EntityChangeBroker, and
   the EntitySubscriptionManager services into one access point.
 * Move to Java8.
 * Move to GWT 2.8.0.
@@ -1684,7 +1684,7 @@ Changes in this release:
 * Introduce ReplicantJsonSessionManager as all downstream projects use json as their
   transport layer.
 * Rename ReplicantSessionManager.poll() to pollPacket to make it easier to sub-class.
-* Backport, test and generalize ReplicantPollResource from downstream libraries. This class
+* Backport, test, and generalize ReplicantPollResource from downstream libraries. This class
   makes it easy to setup polling for replicant based systems. Derive the default poll
   url in the WebPollerDataLoaderService assuming the ReplicantPollResource implementation.
 
