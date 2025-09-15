@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.152](https://github.com/replicant4j/replicant/tree/v6.152) (2025-09-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.151...v6.152)
+
+Changes in this release:
 
 * Migrate server code from the `org.realityforge.replicant.server` package to the `replicant.server` package.
 * Rename `SystemMetaData` to `SchemaMetaData` and all supported infrastructure to use the new name (i.e. `systemId` becomes `schemaId`). This is to achieve consistency between the client and server as well as domgen generated code and hand-crafted code.
