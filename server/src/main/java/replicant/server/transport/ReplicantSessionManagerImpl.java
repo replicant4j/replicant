@@ -383,8 +383,8 @@ public class ReplicantSessionManagerImpl
   {
     try
     {
-      final Set<ChannelLinkEntry> pending = new HashSet<>();
-      final Set<ChannelLinkEntry> subscribed = new HashSet<>();
+      final var pending = new HashSet<ChannelLinkEntry>();
+      final var subscribed = new HashSet<ChannelLinkEntry>();
 
       while ( true )
       {
@@ -393,13 +393,13 @@ public class ReplicantSessionManagerImpl
         {
           break;
         }
-        final ChannelLinkEntry entry =
+        final var entry =
           pending
             .stream()
             .min( Comparator.comparing( ChannelLinkEntry::target ) )
             .orElse( null );
         final List<ChannelLinkEntry> toSubscribe;
-        final ChannelAddress target = entry.target();
+        final var target = entry.target();
         if ( target.hasRootId() )
         {
           toSubscribe =
@@ -413,7 +413,7 @@ public class ReplicantSessionManagerImpl
         {
           toSubscribe = Collections.singletonList( entry );
         }
-        final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
+        final var channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
         if ( channelMetaData.areBulkLoadsSupported() )
         {
           doBulkSubscribe( session,
@@ -433,7 +433,7 @@ public class ReplicantSessionManagerImpl
         {
           for ( final ChannelLinkEntry e : toSubscribe )
           {
-            final SubscriptionEntry targetEntry = session.createSubscriptionEntry( e.target() );
+            final var targetEntry = session.createSubscriptionEntry( e.target() );
             try
             {
               performSubscribe( session, targetEntry, false, entry.filter(), changeSet );
@@ -447,10 +447,10 @@ public class ReplicantSessionManagerImpl
         }
         toSubscribe.forEach( pending::remove );
         subscribed.addAll( toSubscribe );
-        for ( final ChannelLinkEntry e : toSubscribe )
+        for ( final var e : toSubscribe )
         {
-          final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( e.source() );
-          final SubscriptionEntry targetEntry = session.getSubscriptionEntry( e.target() );
+          final var sourceEntry = session.getSubscriptionEntry( e.source() );
+          final var targetEntry = session.getSubscriptionEntry( e.target() );
           linkSubscriptionEntries( sourceEntry, targetEntry );
         }
       }
@@ -474,12 +474,12 @@ public class ReplicantSessionManagerImpl
                                     @Nonnull final Set<ChannelLinkEntry> targets,
                                     @Nonnull final Set<ChannelLinkEntry> subscribed )
   {
-    for ( final Change change : changeSet.getChanges() )
+    for ( final var change : changeSet.getChanges() )
     {
-      final EntityMessage entityMessage = change.getEntityMessage();
+      final var entityMessage = change.getEntityMessage();
       if ( entityMessage.isUpdate() )
       {
-        final Set<ChannelLink> links = entityMessage.getLinks();
+        final var links = entityMessage.getLinks();
         if ( null != links )
         {
           for ( final ChannelLink link : links )
@@ -515,15 +515,15 @@ public class ReplicantSessionManagerImpl
   ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final ReplicantSession session,
                                                      @Nonnull final ChannelLink link )
   {
-    final ChannelAddress source = link.source();
-    final SubscriptionEntry sourceEntry = session.findSubscriptionEntry( source );
+    final var source = link.source();
+    final var sourceEntry = session.findSubscriptionEntry( source );
     if ( null != sourceEntry )
     {
-      final ChannelAddress target = link.target();
-      final boolean targetHasFilter = getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter();
+      final var target = link.target();
+      final var targetHasFilter = getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter();
       if ( !targetHasFilter || shouldFollowLink( sourceEntry, target ) )
       {
-        final SubscriptionEntry targetEntry = session.findSubscriptionEntry( target );
+        final var targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
           return new ChannelLinkEntry( source,
@@ -551,12 +551,12 @@ public class ReplicantSessionManagerImpl
                                 @Nonnull final ReplicantSession session,
                                 @Nonnull final ChangeSet changeSet )
   {
-    for ( final EntityMessage message : messages )
+    for ( final var message : messages )
     {
       processDeleteMessages( message, session, changeSet );
     }
 
-    for ( final EntityMessage message : messages )
+    for ( final var message : messages )
     {
       processUpdateMessages( message, session, changeSet );
     }
@@ -567,12 +567,12 @@ public class ReplicantSessionManagerImpl
                                    @Nullable final Object filter,
                                    @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channel = getSchemaMetaData().getChannelMetaData( address );
+    final var channel = getSchemaMetaData().getChannelMetaData( address );
     assert channel.hasFilterParameter();
     assert channel.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
 
-    final SubscriptionEntry entry = session.getSubscriptionEntry( address );
-    final Object originalFilter = entry.getFilter();
+    final var entry = session.getSubscriptionEntry( address );
+    final var originalFilter = entry.getFilter();
     if ( doFiltersNotMatch( filter, originalFilter ) )
     {
       entry.setFilter( filter );
@@ -583,7 +583,7 @@ public class ReplicantSessionManagerImpl
       // from the channel. It is expected the applications that use non-auto graph-links can signal
       // the removal of the target side by adding REMOVE action but it is up to this code to perform
       // the actual remove
-      for ( final ChannelAction channelAction : new ArrayList<>( changeSet.getChannelActions() ) )
+      for ( final var channelAction : new ArrayList<>( changeSet.getChannelActions() ) )
       {
         if ( ChannelAction.Action.REMOVE == channelAction.action() )
         {
@@ -618,7 +618,7 @@ public class ReplicantSessionManagerImpl
   {
     if ( session.isOpen() )
     {
-      final ReentrantLock lock = session.getLock();
+      final var lock = session.getLock();
       lock.lockInterruptibly();
       try
       {
@@ -638,26 +638,26 @@ public class ReplicantSessionManagerImpl
                                 @Nonnull final ChangeSet changeSet,
                                 final boolean isExplicitSubscribe )
   {
-    final ChannelMetaData channel = getSchemaMetaData().getChannelMetaData( channelId );
+    final var channel = getSchemaMetaData().getChannelMetaData( channelId );
     assert ( channel.isInstanceGraph() && null != rootIds ) || ( channel.isTypeGraph() && null == rootIds );
 
     subscribeToRequiredTypeChannels( session, channel );
 
-    final List<ChannelAddress> newChannels = new ArrayList<>();
+    final var newChannels = new ArrayList<ChannelAddress>();
     //OriginalFilter => Channels
-    final Map<Object, List<ChannelAddress>> channelsToUpdate = new HashMap<>();
+    final var channelsToUpdate = new HashMap<Object, List<ChannelAddress>>();
 
     if ( null == rootIds )
     {
-      final ChannelAddress address = new ChannelAddress( channelId );
-      final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+      final var address = new ChannelAddress( channelId );
+      final var entry = session.findSubscriptionEntry( address );
       if ( null == entry )
       {
         newChannels.add( address );
       }
       else
       {
-        final Object existingFilter = entry.getFilter();
+        final var existingFilter = entry.getFilter();
         if ( doFiltersNotMatch( filter, existingFilter ) )
         {
           channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
@@ -666,17 +666,17 @@ public class ReplicantSessionManagerImpl
     }
     else
     {
-      for ( final Integer root : rootIds )
+      for ( final var root : rootIds )
       {
-        final ChannelAddress address = new ChannelAddress( channelId, root );
-        final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+        final var address = new ChannelAddress( channelId, root );
+        final var entry = session.findSubscriptionEntry( address );
         if ( null == entry )
         {
           newChannels.add( address );
         }
         else
         {
-          final Object existingFilter = entry.getFilter();
+          final var existingFilter = entry.getFilter();
           if ( doFiltersNotMatch( filter, existingFilter ) )
           {
             channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
@@ -703,10 +703,10 @@ public class ReplicantSessionManagerImpl
     }
     if ( !channelsToUpdate.isEmpty() )
     {
-      for ( final Map.Entry<Object, List<ChannelAddress>> update : channelsToUpdate.entrySet() )
+      for ( final var update : channelsToUpdate.entrySet() )
       {
-        final Object originalFilter = update.getKey();
-        final List<ChannelAddress> addresses = update.getValue();
+        final var originalFilter = update.getKey();
+        final var addresses = update.getValue();
 
         if ( channel.areBulkLoadsSupported() )
         {
@@ -721,7 +721,7 @@ public class ReplicantSessionManagerImpl
           }
           else
           {
-            final String message =
+            final var message =
               "Attempted to update filter on channel " + channel.getName() + " to " + filter + " but the " +
               "channel that has a static filter. Unsubscribe and resubscribe to channel.";
             throw new AttemptedToUpdateStaticFilterException( message );
@@ -729,7 +729,7 @@ public class ReplicantSessionManagerImpl
         }
         else
         {
-          final Throwable error = subscribeToAddresses( session, addresses, filter, changeSet );
+          final var error = subscribeToAddresses( session, addresses, filter, changeSet );
           if ( null != error )
           {
             t = error;
@@ -754,7 +754,7 @@ public class ReplicantSessionManagerImpl
                                           @Nonnull final ChangeSet changeSet )
   {
     Throwable t = null;
-    for ( final ChannelAddress address : addresses )
+    for ( final var address : addresses )
     {
       try
       {
@@ -796,11 +796,11 @@ public class ReplicantSessionManagerImpl
                             @Nullable final Object filter,
                             @Nonnull final ChangeSet changeSet )
   {
-    final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
+    final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
     if ( session.isSubscriptionEntryPresent( address ) )
     {
-      final SubscriptionEntry entry = session.getSubscriptionEntry( address );
+      final var entry = session.getSubscriptionEntry( address );
       if ( explicitlySubscribe )
       {
         entry.setExplicitlySubscribed( true );
@@ -825,10 +825,10 @@ public class ReplicantSessionManagerImpl
       }
       else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
-        final Object existingFilter = entry.getFilter();
+        final var existingFilter = entry.getFilter();
         if ( doFiltersNotMatch( filter, existingFilter ) )
         {
-          final String message =
+          final var message =
             "Attempted to update filter on channel " + entry.address() + " from " + existingFilter +
             " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
           throw new AttemptedToUpdateStaticFilterException( message );
@@ -850,7 +850,7 @@ public class ReplicantSessionManagerImpl
       }
       else
       {
-        final SubscriptionEntry entry = session.createSubscriptionEntry( address );
+        final var entry = session.createSubscriptionEntry( address );
         try
         {
           performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
@@ -876,14 +876,14 @@ public class ReplicantSessionManagerImpl
                          @Nonnull final ChangeSet changeSet )
   {
     entry.setFilter( filter );
-    final ChannelAddress address = entry.address();
-    final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
+    final var address = entry.address();
+    final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
     subscribeToRequiredTypeChannels( session, channelMetaData );
 
     if ( channelMetaData.isCacheable() )
     {
-      final ChannelCacheEntry cacheEntry = tryGetCacheEntry( address );
+      final var cacheEntry = tryGetCacheEntry( address );
       if ( null != cacheEntry )
       {
         if ( explicitSubscribe )
@@ -891,12 +891,12 @@ public class ReplicantSessionManagerImpl
           entry.setExplicitlySubscribed( true );
         }
 
-        final String eTag = cacheEntry.getCacheKey();
+        final var eTag = cacheEntry.getCacheKey();
         if ( eTag.equals( session.getETag( address ) ) )
         {
           if ( session.getWebSocketSession().isOpen() )
           {
-            final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+            final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
             WebSocketUtil.sendText( session.getWebSocketSession(),
                                     JsonEncoder.encodeUseCacheMessage( address, eTag, requestId ) );
             changeSet.setRequired( false );
@@ -908,7 +908,7 @@ public class ReplicantSessionManagerImpl
         else
         {
           session.setETag( address, null );
-          final ChangeSet cacheChangeSet = new ChangeSet();
+          final var cacheChangeSet = new ChangeSet();
           cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
           cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
           queueCachedChangeSet( session, eTag, cacheChangeSet );
@@ -920,7 +920,7 @@ public class ReplicantSessionManagerImpl
         // If we get here then we have requested a cacheable instance channel
         // where the root has been removed
         assert address.hasRootId();
-        final ChangeSet cacheChangeSet = new ChangeSet();
+        final var cacheChangeSet = new ChangeSet();
         cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
         queueCachedChangeSet( session, null, cacheChangeSet );
         changeSet.setRequired( false );
@@ -930,7 +930,7 @@ public class ReplicantSessionManagerImpl
     {
       if ( channelMetaData.areBulkLoadsSupported() )
       {
-        final ChannelAddress channelAddress =
+        final var channelAddress =
           new ChannelAddress( address.channelId(),
                               channelMetaData.isTypeGraph() ? null : address.rootId() );
         bulkCollectDataForSubscribe( session,
@@ -941,7 +941,7 @@ public class ReplicantSessionManagerImpl
       }
       else
       {
-        final SubscribeResult result = collectDataForSubscribe( address, changeSet, filter );
+        final var result = collectDataForSubscribe( address, changeSet, filter );
         if ( result.channelRootDeleted() )
         {
           changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
@@ -961,7 +961,7 @@ public class ReplicantSessionManagerImpl
   private void subscribeToRequiredTypeChannels( @Nonnull final ReplicantSession session,
                                                 @Nonnull final ChannelMetaData channelMetaData )
   {
-    final ChannelMetaData[] requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
+    final var requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
     if ( LOG.isLoggable( Level.FINE ) && requiredTypeChannels.length > 0 )
     {
       LOG.log( Level.FINE, "Subscribing to " +
@@ -973,41 +973,39 @@ public class ReplicantSessionManagerImpl
                              .map( ChannelMetaData::getName )
                              .collect( Collectors.joining( "," ) ) );
     }
-    for ( final ChannelMetaData requiredTypeChannel : requiredTypeChannels )
+    for ( final var requiredTypeChannel : requiredTypeChannels )
     {
       assert requiredTypeChannel.isTypeGraph();
       // At the moment we propagate no filters ... which is fine
       assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.getFilterType();
-      final ChannelAddress address = new ChannelAddress( requiredTypeChannel.getChannelId() );
+      final var address = new ChannelAddress( requiredTypeChannel.getChannelId() );
 
       // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
       if ( !session.isSubscriptionEntryPresent( address ) )
       {
-        final TransactionSynchronizationRegistry registry = _registry;
-        final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
-        final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
-        final String requestResponse = (String) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
-        final String requestCachedResultHandled =
-          (String) registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
+        final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+        final var requestComplete = (String) _registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+        final var requestResponse = (String) _registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
+        final var requestCachedResultHandled =
+          (String) _registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
 
-        registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-        registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
-        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
+        _registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
+        _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
+        _registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
+        _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
 
-        final ChangeSet changeSet = new ChangeSet();
+        final var changeSet = new ChangeSet();
         subscribe( session, address, false, null, changeSet );
         if ( changeSet.hasContent() )
         {
           // In this scenario we have a non-cached changeset, so we send it along
-          _broker.
-            queueChangeMessage( session, true, null, null, null, Collections.emptyList(), changeSet );
+          _broker.queueChangeMessage( session, true, null, null, null, Collections.emptyList(), changeSet );
         }
 
-        registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-        registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
-        registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, requestResponse );
-        registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
+        _registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
+        _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
+        _registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, requestResponse );
+        _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
       }
     }
   }
@@ -1018,8 +1016,8 @@ public class ReplicantSessionManagerImpl
     _cacheLock.writeLock().lock();
     try
     {
-      final ChannelMetaData metaData = getSchemaMetaData().getChannelMetaData( address );
-      final boolean cacheRemoved = null != _cache.remove( address );
+      final var metaData = getSchemaMetaData().getChannelMetaData( address );
+      final var cacheRemoved = null != _cache.remove( address );
       if ( cacheRemoved )
       {
         // If we expire the cache then any dependent type graphs must also be expired. This is
@@ -1030,7 +1028,7 @@ public class ReplicantSessionManagerImpl
         // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
         // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
         // invalidate all dependent cached type graphs to avoid this scenario.
-        for ( final ChannelMetaData channel : metaData.getDependentChannels() )
+        for ( final var channel : metaData.getDependentChannels() )
         {
           if ( channel.isTypeGraph() && channel.isCacheable() )
           {
@@ -1068,9 +1066,9 @@ public class ReplicantSessionManagerImpl
   @Nullable
   ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
-    final ChannelMetaData metaData = getSchemaMetaData().getChannelMetaData( address );
+    final var metaData = getSchemaMetaData().getChannelMetaData( address );
     assert metaData.isCacheable();
-    final ChannelCacheEntry entry = getCacheEntry( address );
+    final var entry = getCacheEntry( address );
     entry.getLock().readLock().lock();
     try
     {
@@ -1091,17 +1089,17 @@ public class ReplicantSessionManagerImpl
       {
         return entry;
       }
-      final ChangeSet changeSet = new ChangeSet();
+      final var changeSet = new ChangeSet();
       // TODO: At some point we should add support for bulk loads here
       assert !metaData.areBulkLoadsSupported();
-      final SubscribeResult result = collectDataForSubscribe( address, changeSet, null );
+      final var result = collectDataForSubscribe( address, changeSet, null );
       if ( result.channelRootDeleted() )
       {
         return null;
       }
       else
       {
-        final String cacheKey = result.cacheKey();
+        final var cacheKey = result.cacheKey();
         assert null != cacheKey;
         entry.init( cacheKey, changeSet );
         return entry;
@@ -1123,7 +1121,7 @@ public class ReplicantSessionManagerImpl
     _cacheLock.readLock().lock();
     try
     {
-      final ChannelCacheEntry entry = _cache.get( address );
+      final var entry = _cache.get( address );
       if ( null != entry )
       {
         return entry;
@@ -1137,7 +1135,7 @@ public class ReplicantSessionManagerImpl
     try
     {
       //Try again in case it has since been created
-      ChannelCacheEntry entry = _cache.get( address );
+      var entry = _cache.get( address );
       if ( null != entry )
       {
         return entry;
@@ -1213,7 +1211,7 @@ public class ReplicantSessionManagerImpl
   {
     if ( session.isOpen() )
     {
-      final ReentrantLock lock = session.getLock();
+      final var lock = session.getLock();
       lock.lockInterruptibly();
       try
       {
@@ -1252,7 +1250,7 @@ public class ReplicantSessionManagerImpl
   {
     if ( session.isOpen() )
     {
-      final ReentrantLock lock = session.getLock();
+      final var lock = session.getLock();
       lock.lockInterruptibly();
       try
       {
@@ -1269,8 +1267,8 @@ public class ReplicantSessionManagerImpl
                                   final int channelId,
                                   @Nonnull final Collection<Integer> rootIds )
   {
-    final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-    for ( final int rootId : rootIds )
+    final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+    for ( final var rootId : rootIds )
     {
       performUnsubscribe( session, new ChannelAddress( channelId, rootId ), sessionChanges );
     }
@@ -1292,7 +1290,7 @@ public class ReplicantSessionManagerImpl
       changeSet.mergeAction( entry.address(),
                              delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
                              null );
-      for ( final ChannelAddress downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
+      for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         delinkDownstreamSubscription( session, entry, downstream, changeSet );
       }
@@ -1305,7 +1303,7 @@ public class ReplicantSessionManagerImpl
                                              @Nonnull final ChannelAddress downstream,
                                              @Nonnull final ChangeSet changeSet )
   {
-    final SubscriptionEntry downstreamEntry = session.findSubscriptionEntry( downstream );
+    final var downstreamEntry = session.findSubscriptionEntry( downstream );
     if ( null != downstreamEntry )
     {
       delinkSubscriptionEntries( sourceEntry, downstreamEntry );
@@ -1320,10 +1318,10 @@ public class ReplicantSessionManagerImpl
                                                 @Nonnull final ChangeSet changeSet )
   {
     // Delink any implicit subscriptions that was a result of the deleted entity
-    final Set<ChannelLink> links = message.getLinks();
+    final var links = message.getLinks();
     if ( null != links )
     {
-      for ( final ChannelLink link : links )
+      for ( final var link : links )
       {
         delinkDownstreamSubscription( session, entry, link.target(), changeSet );
       }
@@ -1367,17 +1365,17 @@ public class ReplicantSessionManagerImpl
 
   private void processCachePurge( @Nonnull final EntityMessage message )
   {
-    final SchemaMetaData schema = getSchemaMetaData();
-    final int channelCount = schema.getChannelCount();
-    for ( int i = 0; i < channelCount; i++ )
+    final var schema = getSchemaMetaData();
+    final var channelCount = schema.getChannelCount();
+    for ( var i = 0; i < channelCount; i++ )
     {
-      final ChannelMetaData channel = schema.getChannelMetaData( i );
+      final var channel = schema.getChannelMetaData( i );
       if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
       {
-        final List<ChannelAddress> addresses = extractChannelAddressesFromMessage( channel, message );
+        final var addresses = extractChannelAddressesFromMessage( channel, message );
         if ( null != addresses )
         {
-          for ( final ChannelAddress address : addresses )
+          for ( final var address : addresses )
           {
             deleteCacheEntry( address );
           }
@@ -1390,17 +1388,17 @@ public class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SchemaMetaData schema = getSchemaMetaData();
-    final int channelCount = schema.getChannelCount();
-    for ( int i = 0; i < channelCount; i++ )
+    final var schema = getSchemaMetaData();
+    final var channelCount = schema.getChannelCount();
+    for ( var i = 0; i < channelCount; i++ )
     {
-      final ChannelMetaData channel = schema.getChannelMetaData( i );
-      final List<ChannelAddress> addresses = extractChannelAddressesFromMessage( channel, message );
+      final var channel = schema.getChannelMetaData( i );
+      final var addresses = extractChannelAddressesFromMessage( channel, message );
       if ( null != addresses )
       {
-        for ( final ChannelAddress address : addresses )
+        for ( final var address : addresses )
         {
-          final boolean isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
+          final var isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
           processUpdateMessage( address,
                                 message,
                                 session,
@@ -1418,13 +1416,14 @@ public class ReplicantSessionManagerImpl
     if ( channel.isInstanceGraph() )
     {
       @SuppressWarnings( "unchecked" )
-      final List<Integer> rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
       if ( null != rootIds )
       {
-        return rootIds
-          .stream()
-          .map( rootId -> new ChannelAddress( channel.getChannelId(), rootId ) )
-          .collect( Collectors.toList() );
+        return
+          rootIds
+            .stream()
+            .map( rootId -> new ChannelAddress( channel.getChannelId(), rootId ) )
+            .collect( Collectors.toList() );
       }
     }
     else
@@ -1443,12 +1442,12 @@ public class ReplicantSessionManagerImpl
                                      @Nonnull final ChangeSet changeSet,
                                      @Nullable final Function<EntityMessage, EntityMessage> filter )
   {
-    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+    final var entry = session.findSubscriptionEntry( address );
 
     // If the session is not subscribed to graph then skip processing
     if ( null != entry )
     {
-      final EntityMessage m = null == filter ? message : filter.apply( message );
+      final var m = null == filter ? message : filter.apply( message );
 
       // Process any  messages that are in scope for session
       if ( null != m )
@@ -1462,19 +1461,19 @@ public class ReplicantSessionManagerImpl
                                       @Nonnull final ReplicantSession session,
                                       @Nonnull final ChangeSet changeSet )
   {
-    final SchemaMetaData schema = getSchemaMetaData();
-    final int instanceChannelCount = schema.getInstanceChannelCount();
-    for ( int i = 0; i < instanceChannelCount; i++ )
+    final var schema = getSchemaMetaData();
+    final var instanceChannelCount = schema.getInstanceChannelCount();
+    for ( var i = 0; i < instanceChannelCount; i++ )
     {
-      final ChannelMetaData channel = schema.getInstanceChannelByIndex( i );
+      final var channel = schema.getInstanceChannelByIndex( i );
       @SuppressWarnings( "unchecked" )
-      final List<Integer> rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+      final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
       if ( null != rootIds )
       {
-        for ( final Integer rootId : rootIds )
+        for ( final var rootId : rootIds )
         {
-          final ChannelAddress address = new ChannelAddress( channel.getChannelId(), rootId );
-          final boolean isFiltered =
+          final var address = new ChannelAddress( channel.getChannelId(), rootId );
+          final var isFiltered =
             ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
           processDeleteMessage( address,
                                 message,
@@ -1501,17 +1500,17 @@ public class ReplicantSessionManagerImpl
                                      @Nonnull final ChangeSet changeSet,
                                      @Nullable final Function<EntityMessage, EntityMessage> filter )
   {
-    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+    final var entry = session.findSubscriptionEntry( address );
 
     // If the session is not subscribed to graph then skip processing
     if ( null != entry )
     {
-      final EntityMessage m = null == filter ? message : filter.apply( message );
+      final var m = null == filter ? message : filter.apply( message );
 
       // Process any deleted messages that are in scope for session
       if ( null != m && m.isDelete() )
       {
-        final ChannelMetaData channelMetaData = getSchemaMetaData().getChannelMetaData( address );
+        final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
         if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )
