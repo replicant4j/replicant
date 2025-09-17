@@ -3,7 +3,6 @@ package replicant.server.ee;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,8 @@ import org.intellij.lang.annotations.Language;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
+import replicant.server.EntityMessage;
+import replicant.server.EntityMessageSet;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.SubscriptionEntry;
 
@@ -91,6 +92,11 @@ public abstract class AbstractSessionContextImpl
         .sorted( Map.Entry.comparingByKey() )
         .map( Map.Entry::getValue );
   }
+
+  @Nullable
+  protected abstract EntityMessage convertToEntityMessage( @Nonnull final Object object,
+                                                           final boolean isUpdate,
+                                                           final boolean isInitialLoad );
 
   protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
                                                        @Nullable final Object filter,
@@ -175,6 +181,26 @@ public abstract class AbstractSessionContextImpl
       final var address = new ChannelAddress( targetGraph, targetId );
       changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
       session.getSubscriptionEntry( address ).setFilter( filter );
+    }
+  }
+
+  protected void encodeObjects( @Nonnull final EntityMessageSet messages, @Nonnull final List<?> objects )
+  {
+    for ( final var object : objects )
+    {
+      encodeObject( messages, object );
+    }
+  }
+
+  protected void encodeObject( @Nonnull final EntityMessageSet messages, @Nullable final Object object )
+  {
+    if ( null != object )
+    {
+      final var message = convertToEntityMessage( object, true, true );
+      if ( null != message )
+      {
+        messages.merge( message, true );
+      }
     }
   }
 }
