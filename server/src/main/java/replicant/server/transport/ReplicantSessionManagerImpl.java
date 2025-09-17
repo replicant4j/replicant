@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
-import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.CloseReason;
