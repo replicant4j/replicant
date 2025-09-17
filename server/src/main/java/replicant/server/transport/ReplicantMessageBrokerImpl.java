@@ -4,18 +4,30 @@ import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.json.JsonValue;
+import javax.transaction.Transactional;
+import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
 
-public abstract class ReplicantMessageBrokerImpl
+@ApplicationScoped
+@Transactional( Transactional.TxType.NOT_SUPPORTED )
+@Typed( ReplicantMessageBroker.class )
+public class ReplicantMessageBrokerImpl
   implements ReplicantMessageBroker
 {
   @Nonnull
@@ -30,9 +42,28 @@ public abstract class ReplicantMessageBrokerImpl
    */
   @Nonnull
   private final ConcurrentHashMap<String, ReplicantSession> _inProgress = new ConcurrentHashMap<>();
+  @VisibleForTesting
+  @Inject
+  ReplicantSessionManager _sessionManager;
+  @Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
+  private ManagedScheduledExecutorService _executor;
+  private ScheduledFuture<?> _future;
 
-  @Nonnull
-  protected abstract ReplicantSessionManager getReplicantSessionManager();
+  @PostConstruct
+  void postConstruct()
+  {
+    _future = _executor.scheduleAtFixedRate( this::processPendingSessions, 3, 20, TimeUnit.MILLISECONDS );
+  }
+
+  @PreDestroy
+  void preDestroy()
+  {
+    if ( null != _future )
+    {
+      _future.cancel( true );
+      _future = null;
+    }
+  }
 
   @Override
   public void queueChangeMessage( @Nonnull final ReplicantSession session,
@@ -77,7 +108,7 @@ public abstract class ReplicantMessageBrokerImpl
         Packet packet;
         while ( null != ( packet = session.popPendingPacket() ) )
         {
-          getReplicantSessionManager()
+          _sessionManager
             .sendChangeMessage( session,
                                 packet.requestId(),
                                 packet.response(),

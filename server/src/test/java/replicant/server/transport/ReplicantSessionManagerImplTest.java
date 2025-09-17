@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import org.realityforge.guiceyloops.server.AssertUtil;
@@ -33,6 +33,7 @@ import replicant.server.ee.TransactionSynchronizationRegistryUtil;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+@SuppressWarnings( "resource" )
 public class ReplicantSessionManagerImplTest
 {
   @BeforeMethod
@@ -50,7 +51,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void basicWorkflow()
   {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+    final var sm = createSessionManager();
     assertEquals( sm.getSessionIDs().size(), 0 );
     assertNull( sm.getSession( "MySessionID" ) );
     final ReplicantSession session = createSession( sm );
@@ -75,7 +76,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getId() ).thenReturn( id );
     when( webSocketSession.isOpen() ).thenReturn( true );
 
-    final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
+    final ReplicantSessionManagerImpl sm = createSessionManager();
     final ReplicantSession session = sm.createSession( webSocketSession );
 
     assertEquals( sm.getSession( session.getId() ), session );
@@ -91,7 +92,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getId() ).thenReturn( id );
     when( webSocketSession.isOpen() ).thenReturn( false );
 
-    final ReplicantSessionManagerImpl sm = new TestReplicantSessionManager();
+    final ReplicantSessionManagerImpl sm = createSessionManager();
     final ReplicantSession session = sm.createSession( webSocketSession );
 
     assertEquals( sm.getSession( session.getId() ), session );
@@ -103,7 +104,7 @@ public class ReplicantSessionManagerImplTest
   public void locking()
     throws Exception
   {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+    final var sm = createSessionManager();
     final ReadWriteLock lock = sm.getLock();
 
     // Variable used to pass data back from threads
@@ -173,7 +174,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void deleteCacheEntry()
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            null,
@@ -182,14 +183,15 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.INTERNAL,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     assertFalse( sm.deleteCacheEntry( address1 ) );
 
-    sm.setCacheKey( "X" );
+    context.setCacheKey( "X" );
 
     sm.tryGetCacheEntry( address1 );
 
@@ -206,7 +208,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            null,
@@ -215,7 +217,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 1,
                            "C2",
                            null,
@@ -224,7 +226,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch3 =
+    final var ch3 =
       new ChannelMetaData( 2,
                            "C3",
                            null,
@@ -233,16 +235,17 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId(), null );
-    final ChannelAddress address3 = new ChannelAddress( ch3.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address2 = new ChannelAddress( ch2.getChannelId(), null );
+    final var address3 = new ChannelAddress( ch3.getChannelId(), null );
 
     final TestFilter originalFilter = new TestFilter( 41 );
     final TestFilter filter = new TestFilter( 42 );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
     final Session webSocketSession = session.getWebSocketSession();
     when( webSocketSession.isOpen() ).thenReturn( true );
@@ -344,21 +347,22 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withCache()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
 
-    sm.setCacheKey( "X" );
+    context.setCacheKey( "X" );
 
     // subscribe - matching cacheKey
     {
@@ -394,7 +398,7 @@ public class ReplicantSessionManagerImplTest
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
-      verify( sm.getReplicantMessageBroker() )
+      verify( sm._broker )
         .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
     }
   }
@@ -403,7 +407,7 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            null,
@@ -412,11 +416,12 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
@@ -438,22 +443,23 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
-    sm.setCacheKey( "X" );
+    context.setCacheKey( "X" );
 
     assertNull( session.getETag( address1 ) );
 
@@ -478,22 +484,23 @@ public class ReplicantSessionManagerImplTest
   public void subscribe_withSessionID_andCachingThatNoMatch()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
-    sm.setCacheKey( "X" );
+    context.setCacheKey( "X" );
 
     assertNull( session.getETag( address1 ) );
 
@@ -508,7 +515,7 @@ public class ReplicantSessionManagerImplTest
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
-    verify( sm.getReplicantMessageBroker() )
+    verify( sm._broker )
       .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
   }
 
@@ -516,7 +523,7 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            null,
@@ -525,7 +532,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 1,
                            "C2",
                            null,
@@ -534,7 +541,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch3 =
+    final var ch3 =
       new ChannelMetaData( 2,
                            "C3",
                            42,
@@ -543,13 +550,14 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId() );
-    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId() );
-    final ChannelAddress address3 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId() );
+    final var address2 = new ChannelAddress( ch2.getChannelId() );
+    final var address3 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     // Test with no filter
@@ -614,7 +622,7 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
-      sm.markChannelRootAsDeleted();
+      context.markChannelRootAsDeleted();
 
       with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
@@ -632,15 +640,15 @@ public class ReplicantSessionManagerImplTest
   public void performSubscribe_withCaching()
     throws Exception
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData ch2 =
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var ch2 =
       new ChannelMetaData( 1,
                            "C2",
                            42,
@@ -649,14 +657,15 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.INTERNAL,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId() );
-    final ChannelAddress address2 = new ChannelAddress( ch2.getChannelId(), 1 );
+    final var address1 = new ChannelAddress( ch1.getChannelId() );
+    final var address2 = new ChannelAddress( ch2.getChannelId(), 1 );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
 
-    sm.setCacheKey( "X" );
+    context.setCacheKey( "X" );
 
     //Locally cached
     {
@@ -685,7 +694,7 @@ public class ReplicantSessionManagerImplTest
     {
       sm.deleteAllCacheEntries();
       final ReplicantSession session = createSession( sm );
-      with( session, () -> session.setETag( address1, "NOT" + sm._cacheKey ) );
+      with( session, () -> session.setETag( address1, "NOT" + context._cacheKey ) );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
@@ -697,13 +706,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      verify( sm.getReplicantMessageBroker() )
+      verify( sm._broker )
         .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
     }
 
     //Not cached locally
     {
-      reset( sm.getReplicantMessageBroker() );
+      reset( sm._broker );
       sm.deleteAllCacheEntries();
       final ReplicantSession session = createSession( sm );
       final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
@@ -717,13 +726,13 @@ public class ReplicantSessionManagerImplTest
 
       assertEntry( e1, true, 0, 0, null );
 
-      verify( sm.getReplicantMessageBroker() )
+      verify( sm._broker )
         .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
     }
 
     //Locally cached but deleted
     {
-      reset( sm.getReplicantMessageBroker() );
+      reset( sm._broker );
       sm.deleteAllCacheEntries();
       final ReplicantSession session = createSession( sm );
       with( session, () -> session.setETag( address1, "X" ) );
@@ -734,7 +743,7 @@ public class ReplicantSessionManagerImplTest
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
 
-      sm.markChannelRootAsDeleted();
+      context.markChannelRootAsDeleted();
 
       with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
@@ -744,7 +753,7 @@ public class ReplicantSessionManagerImplTest
       assertSessionChangesCount( 0 );
 
       // Queue a cached response that contains a delete
-      verify( sm.getReplicantMessageBroker() )
+      verify( sm._broker )
         .queueChangeMessage( eq( session ),
                              eq( true ),
                              isNull(),
@@ -759,7 +768,7 @@ public class ReplicantSessionManagerImplTest
   public void performUnsubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -768,15 +777,16 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
@@ -923,7 +933,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -932,11 +942,12 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
@@ -974,7 +985,7 @@ public class ReplicantSessionManagerImplTest
   public void unsubscribe_usingSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -983,11 +994,12 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     EntityMessageCacheUtil.removeSessionChanges();
@@ -1009,7 +1021,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -1018,7 +1030,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 1,
                            "C2",
                            42,
@@ -1027,14 +1039,15 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
@@ -1071,7 +1084,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkUnsubscribe_withSessionID()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -1080,7 +1093,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 1,
                            "C2",
                            42,
@@ -1089,14 +1102,15 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
@@ -1134,7 +1148,7 @@ public class ReplicantSessionManagerImplTest
   public void updateSubscription()
     throws Exception
   {
-    final ChannelMetaData ch =
+    final var ch =
       new ChannelMetaData( 0,
                            "C2",
                            null,
@@ -1143,11 +1157,12 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch };
+    final var channels = new ChannelMetaData[]{ ch };
 
-    final ChannelAddress cd = new ChannelAddress( ch.getChannelId(), null );
+    final var cd = new ChannelAddress( ch.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     final TestFilter originalFilter = new TestFilter( 41 );
@@ -1181,7 +1196,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkSubscribe_forUpdate()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -1190,12 +1205,13 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     final TestFilter originalFilter = new TestFilter( 41 );
@@ -1268,7 +1284,7 @@ public class ReplicantSessionManagerImplTest
   public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "C1",
                            42,
@@ -1277,12 +1293,13 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            true,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
+    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     final TestFilter originalFilter = new TestFilter( 41 );
@@ -1303,9 +1320,9 @@ public class ReplicantSessionManagerImplTest
     assertEntry( e1, false, 0, 0, originalFilter );
     assertEntry( e2, false, 0, 0, originalFilter );
 
-    sm.markAsBulkCollectDataForSubscriptionUpdate();
+    context.markAsBulkCollectDataForSubscriptionUpdate();
 
-    assertEquals( sm.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
+    assertEquals( context.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
 
     // Attempt to update both channels
     sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
@@ -1323,7 +1340,7 @@ public class ReplicantSessionManagerImplTest
   public void linkSubscriptionEntries()
     throws Exception
   {
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 0,
                            "Roster",
                            null,
@@ -1332,7 +1349,7 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 1,
                            "Resource",
                            42,
@@ -1341,13 +1358,14 @@ public class ReplicantSessionManagerImplTest
                            ChannelMetaData.CacheType.NONE,
                            false,
                            true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1, ch2 };
+    final var channels = new ChannelMetaData[]{ ch1, ch2 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
-    final ChannelAddress address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final ChannelAddress address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
+    final var address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
     final ReplicantSession session = createSession( sm );
 
     final SubscriptionEntry se1 = session.createSubscriptionEntry( address1 );
@@ -1403,7 +1421,7 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void newReplicantSession()
   {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+    final var sm = createSessionManager();
     final ReplicantSession session = createSession( sm );
 
     assertTrue( session.getId().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
@@ -1413,15 +1431,15 @@ public class ReplicantSessionManagerImplTest
   public void sendPacket()
     throws Exception
   {
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager();
+    final var sm = createSessionManager();
     final ReplicantSession session = createSession( sm );
 
-    sm.getRegistry().putResource( ServerConstants.REQUEST_ID_KEY, 1 );
+    sm._registry.putResource( ServerConstants.REQUEST_ID_KEY, 1 );
 
     final ChangeSet changeSet = new ChangeSet();
     with( session, () -> sm.queueCachedChangeSet( session, "X", changeSet ) );
 
-    verify( sm.getReplicantMessageBroker() )
+    verify( sm._broker )
       .queueChangeMessage( eq( session ),
                            eq( true ),
                            eq( 1 ),
@@ -1434,26 +1452,27 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void tryGetCacheEntry()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
 
     final String cacheKey = ValueUtil.randomString();
-    sm.setCacheKey( cacheKey );
+    context.setCacheKey( cacheKey );
 
     assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
 
-    final ChannelCacheEntry entry = sm.tryGetCacheEntry( address1 );
+    final var entry = sm.tryGetCacheEntry( address1 );
 
     assertNotNull( entry );
     assertTrue( entry.isInitialized() );
@@ -1465,26 +1484,27 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void tryGetCacheEntry_entryNotCached()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
 
     final String cacheKey = ValueUtil.randomString();
-    sm.setCacheKey( cacheKey );
+    context.setCacheKey( cacheKey );
 
     assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
 
-    final ChannelCacheEntry entry = sm.tryGetCacheEntry( address1 );
+    final var entry = sm.tryGetCacheEntry( address1 );
 
     assertNotNull( entry );
     assertTrue( entry.isInitialized() );
@@ -1496,26 +1516,27 @@ public class ReplicantSessionManagerImplTest
   @Test
   public void tryGetCacheEntry_entryNotCached_instanceDeleted()
   {
-    final ChannelMetaData ch1 = new ChannelMetaData( 0,
-                                                     "C1",
-                                                     null,
-                                                     ChannelMetaData.FilterType.NONE,
-                                                     null,
-                                                     ChannelMetaData.CacheType.INTERNAL,
-                                                     false,
-                                                     true );
-    final ChannelMetaData[] channels = new ChannelMetaData[]{ ch1 };
+    final var ch1 = new ChannelMetaData( 0,
+                                         "C1",
+                                         null,
+                                         ChannelMetaData.FilterType.NONE,
+                                         null,
+                                         ChannelMetaData.CacheType.INTERNAL,
+                                         false,
+                                         true );
+    final var channels = new ChannelMetaData[]{ ch1 };
 
-    final ChannelAddress address1 = new ChannelAddress( ch1.getChannelId(), null );
+    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
 
-    final TestReplicantSessionManager sm = new TestReplicantSessionManager( channels );
+    final var context = new TestReplicantSessionContext( channels );
+    final var sm = createSessionManager( context );
 
-    sm.setCacheKey( ValueUtil.randomString() );
-    sm.markChannelRootAsDeleted();
+    context.setCacheKey( ValueUtil.randomString() );
+    context.markChannelRootAsDeleted();
 
     assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
 
-    final ChannelCacheEntry entry = sm.tryGetCacheEntry( address1 );
+    final var entry = sm.tryGetCacheEntry( address1 );
 
     assertNull( entry );
   }
@@ -1571,134 +1592,6 @@ public class ReplicantSessionManagerImplTest
     assertEquals( getChannelActions().size(), channelActionCount );
   }
 
-  static class TestReplicantSessionManager
-    extends ReplicantSessionManagerImpl
-  {
-    private final SchemaMetaData _schemaMetaData;
-    @Nonnull
-    private final ReplicantMessageBroker _broker = mock( ReplicantMessageBroker.class );
-    private ChannelAddress _followSource;
-    private String _cacheKey;
-    private int _bulkCollectDataForSubscriptionUpdateCallCount;
-    private boolean _channelRootDeleted;
-
-    private TestReplicantSessionManager()
-    {
-      this( new SchemaMetaData( ValueUtil.randomString() ) );
-    }
-
-    private TestReplicantSessionManager( final ChannelMetaData[] channels )
-    {
-      this( new SchemaMetaData( ValueUtil.randomString(), channels ) );
-    }
-
-    private TestReplicantSessionManager( final SchemaMetaData schemaMetaData )
-    {
-      _schemaMetaData = schemaMetaData;
-    }
-
-    int getBulkCollectDataForSubscriptionUpdateCallCount()
-    {
-      return _bulkCollectDataForSubscriptionUpdateCallCount;
-    }
-
-    void markAsBulkCollectDataForSubscriptionUpdate()
-    {
-    }
-
-    void markChannelRootAsDeleted()
-    {
-      _channelRootDeleted = true;
-    }
-
-    private void setCacheKey( final String cacheKey )
-    {
-      _cacheKey = cacheKey;
-    }
-
-    @Nonnull
-    @Override
-    public SchemaMetaData getSchemaMetaData()
-    {
-      return _schemaMetaData;
-    }
-
-    @Nonnull
-    @Override
-    protected ReplicantMessageBroker getReplicantMessageBroker()
-    {
-      return _broker;
-    }
-
-    @Override
-    protected void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                         @Nonnull final List<ChannelAddress> addresses,
-                                                         @Nullable final Object originalFilter,
-                                                         @Nullable final Object filter,
-                                                         @Nonnull final ChangeSet changeSet,
-                                                         final boolean isExplicitSubscribe )
-    {
-      _bulkCollectDataForSubscriptionUpdateCallCount += 1;
-    }
-
-    @Nonnull
-    @Override
-    protected SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress descriptor,
-                                                       @Nonnull final ChangeSet changeSet,
-                                                       @Nullable final Object filter )
-    {
-      if ( !_channelRootDeleted )
-      {
-        final HashMap<String, Serializable> routingKeys = new HashMap<>();
-        final HashMap<String, Serializable> attributes = new HashMap<>();
-        attributes.put( "ID", 79 );
-        final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
-        changeSet.merge( new Change( message, descriptor.channelId(), descriptor.rootId() ) );
-        return new SubscribeResult( false, _cacheKey );
-      }
-      else
-      {
-        return new SubscribeResult( true, null );
-      }
-    }
-
-    @Override
-    protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                     @Nonnull final ChannelAddress descriptor,
-                                                     @Nonnull final ChangeSet changeSet,
-                                                     @Nullable final Object originalFilter,
-                                                     @Nullable final Object filter )
-    {
-      final HashMap<String, Serializable> routingKeys = new HashMap<>();
-      final HashMap<String, Serializable> attributes = new HashMap<>();
-      attributes.put( "ID", 78 );
-      //Ugly hack to pass back filters
-      attributes.put( "OriginalFilter", (Serializable) originalFilter );
-      attributes.put( "Filter", (Serializable) filter );
-      final EntityMessage message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
-      changeSet.merge( new Change( message, descriptor.channelId(), descriptor.rootId() ) );
-    }
-
-    private void setFollowSource( final ChannelAddress followSource )
-    {
-      _followSource = followSource;
-    }
-
-    @Override
-    protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
-                                        @Nonnull final ChannelAddress target )
-    {
-      return null != _followSource && _followSource.equals( sourceEntry.address() );
-    }
-
-    @Nonnull
-    @Override
-    protected TransactionSynchronizationRegistry getRegistry()
-    {
-      return TransactionSynchronizationRegistryUtil.lookup();
-    }
-  }
-
   @Nonnull
   private ReplicantSession createSession( @Nonnull final TestReplicantSessionManager sm )
   {
@@ -1708,6 +1601,17 @@ public class ReplicantSessionManagerImplTest
     final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
     return sm.createSession( webSocketSession );
+  }
+  @Nonnull
+  private TestReplicantSessionManager createSessionManager()
+  {
+    return createSessionManager( new TestReplicantSessionContext() );
+  }
+
+  @Nonnull
+  private TestReplicantSessionManager createSessionManager( @Nonnull final ReplicantSessionContext context )
+  {
+    return new TestReplicantSessionManager( context );
   }
 
   private <T> T with( @Nonnull final ReplicantSession session, @Nonnull final Callable<T> action )
@@ -1737,6 +1641,158 @@ public class ReplicantSessionManagerImplTest
     finally
     {
       lock.unlock();
+    }
+  }
+
+  static final class TestReplicantSessionContext
+    implements ReplicantSessionContext
+  {
+    @Nonnull
+    private final SchemaMetaData _schemaMetaData;
+    private String _cacheKey;
+    private int _bulkCollectDataForSubscriptionUpdateCallCount;
+    private boolean _channelRootDeleted;
+
+    private TestReplicantSessionContext()
+    {
+      this( new SchemaMetaData( ValueUtil.randomString() ) );
+    }
+
+    private TestReplicantSessionContext( final ChannelMetaData[] channels )
+    {
+      this( new SchemaMetaData( ValueUtil.randomString(), channels ) );
+    }
+
+    TestReplicantSessionContext( @Nonnull final SchemaMetaData schema )
+    {
+      _schemaMetaData = Objects.requireNonNull( schema );
+    }
+
+    int getBulkCollectDataForSubscriptionUpdateCallCount()
+    {
+      return _bulkCollectDataForSubscriptionUpdateCallCount;
+    }
+
+    void markAsBulkCollectDataForSubscriptionUpdate()
+    {
+    }
+
+    void markChannelRootAsDeleted()
+    {
+      _channelRootDeleted = true;
+    }
+
+    private void setCacheKey( final String cacheKey )
+    {
+      _cacheKey = cacheKey;
+    }
+
+    @Nonnull
+    @Override
+    public SchemaMetaData getSchemaMetaData()
+    {
+      return _schemaMetaData;
+    }
+
+    @Override
+    public void preSubscribe( @Nonnull final ReplicantSession session,
+                              @Nonnull final ChannelAddress address,
+                              @Nullable final Object filter )
+    {
+    }
+
+    @Nonnull
+    @Override
+    public SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress address,
+                                                    @Nullable final Object filter,
+                                                    @Nonnull final ChangeSet changeSet )
+    {
+      if ( !_channelRootDeleted )
+      {
+        final HashMap<String, Serializable> routingKeys = new HashMap<>();
+        final HashMap<String, Serializable> attributes = new HashMap<>();
+        attributes.put( "ID", 79 );
+        final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
+        changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
+        return new SubscribeResult( false, _cacheKey );
+      }
+      else
+      {
+        return new SubscribeResult( true, null );
+      }
+    }
+
+    @Override
+    public void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                  @Nonnull final ChannelAddress address,
+                                                  @Nullable final Object originalFilter,
+                                                  @Nullable final Object filter,
+                                                  @Nonnull final ChangeSet changeSet )
+    {
+      final var routingKeys = new HashMap<String, Serializable>();
+      final var attributes = new HashMap<String, Serializable>();
+      attributes.put( "ID", 78 );
+      //Ugly hack to pass back filters
+      attributes.put( "OriginalFilter", (Serializable) originalFilter );
+      attributes.put( "Filter", (Serializable) filter );
+      final var message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
+      changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
+    }
+
+    @Override
+    public void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+                                             @Nonnull final List<ChannelAddress> addresses,
+                                             @Nullable final Object filter,
+                                             @Nonnull final ChangeSet changeSet,
+                                             final boolean isExplicitSubscribe )
+    {
+    }
+
+    @Override
+    public void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                      @Nonnull final List<ChannelAddress> addresses,
+                                                      @Nullable final Object originalFilter,
+                                                      @Nullable final Object filter,
+                                                      @Nonnull final ChangeSet changeSet,
+                                                      final boolean isExplicitSubscribe )
+    {
+      _bulkCollectDataForSubscriptionUpdateCallCount += 1;
+    }
+
+    @Nullable
+    @Override
+    public EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
+                                              @Nonnull final ChannelAddress address,
+                                              @Nonnull final EntityMessage message )
+    {
+      return null;
+    }
+
+    @Override
+    public void propagateSubscriptionFilterUpdate( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final ChannelAddress address,
+                                                   @Nullable final Object filter,
+                                                   @Nonnull final ChangeSet changeSet )
+    {
+
+    }
+
+    @Override
+    public boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
+                                     @Nonnull final ChannelAddress target )
+    {
+      return false;
+    }
+  }
+
+  static final class TestReplicantSessionManager
+    extends ReplicantSessionManagerImpl
+  {
+    private TestReplicantSessionManager( @Nonnull final ReplicantSessionContext context )
+    {
+      _context = Objects.requireNonNull( context );
+      _broker = mock( ReplicantMessageBroker.class );
+      _registry = TransactionSynchronizationRegistryUtil.lookup();
     }
   }
 }

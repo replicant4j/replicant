@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -21,11 +23,19 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.json.JsonValue;
 import javax.transaction.TransactionSynchronizationRegistry;
+import javax.transaction.Transactional;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
@@ -38,9 +48,12 @@ import replicant.server.ee.EntityMessageCacheUtil;
 import replicant.server.json.JsonEncoder;
 
 /**
- * Base class for session managers.
+ * Session managers.
  */
-public abstract class ReplicantSessionManagerImpl
+@ApplicationScoped
+@Transactional
+@Typed( { EntityMessageEndpoint.class, ReplicantSessionManager.class } )
+public class ReplicantSessionManagerImpl
   implements EntityMessageEndpoint, ReplicantSessionManager
 {
   @Nonnull
@@ -53,9 +66,52 @@ public abstract class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   @Nonnull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
+  @SuppressWarnings( "CdiInjectionPointsInspection" )
+  @VisibleForTesting
+  @Inject
+  ReplicantSessionContext _context;
+  @VisibleForTesting
+  @Resource
+  TransactionSynchronizationRegistry _registry;
+  @VisibleForTesting
+  @Inject
+  ReplicantMessageBroker _broker;
+  @Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
+  ManagedScheduledExecutorService _executor;
+  @Nullable
+  private ScheduledFuture<?> _removeClosedSessionsFuture;
+  @Nullable
+  private ScheduledFuture<?> _pingSessionsFuture;
+
+  @PostConstruct
+  void postConstruct()
+  {
+    _removeClosedSessionsFuture = _executor.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, TimeUnit.MINUTES );
+    _pingSessionsFuture = _executor.scheduleAtFixedRate( this::pingSessions, 2, 1, TimeUnit.MINUTES );
+  }
+
+  @PreDestroy
+  void preDestroy()
+  {
+    if ( null != _removeClosedSessionsFuture )
+    {
+      _removeClosedSessionsFuture.cancel( true );
+      _removeClosedSessionsFuture = null;
+    }
+    if ( null != _pingSessionsFuture )
+    {
+      _pingSessionsFuture.cancel( true );
+      _pingSessionsFuture = null;
+    }
+    removeAllSessions();
+  }
 
   @Nonnull
-  protected abstract ReplicantMessageBroker getReplicantMessageBroker();
+  @Override
+  public SchemaMetaData getSchemaMetaData()
+  {
+    return _context.getSchemaMetaData();
+  }
 
   @SuppressWarnings( "resource" )
   @Override
@@ -141,12 +197,6 @@ public abstract class ReplicantSessionManagerImpl
     return session;
   }
 
-  @PreDestroy
-  protected void preDestroy()
-  {
-    removeAllSessions();
-  }
-
   @SuppressWarnings( { "WeakerAccess", "unused" } )
   public void pingSessions()
   {
@@ -230,24 +280,18 @@ public abstract class ReplicantSessionManagerImpl
                              @Nullable final String etag,
                              @Nonnull final ChangeSet changeSet )
   {
-    final TransactionSynchronizationRegistry registry = getRegistry();
+    final TransactionSynchronizationRegistry registry = _registry;
     final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
     registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
     registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
-    getReplicantMessageBroker().queueChangeMessage( session,
-                                                    true,
-                                                    requestId,
-                                                    null,
-                                                    etag,
-                                                    Collections.emptyList(),
-                                                    changeSet );
+    _broker.queueChangeMessage( session,
+                                true,
+                                requestId,
+                                null,
+                                etag,
+                                Collections.emptyList(),
+                                changeSet );
   }
-
-  /**
-   * @return the transaction synchronization registry.
-   */
-  @Nonnull
-  protected abstract TransactionSynchronizationRegistry getRegistry();
 
   @Override
   public boolean saveEntityMessages( @Nullable final String sessionId,
@@ -293,21 +337,21 @@ public abstract class ReplicantSessionManagerImpl
            * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
            * at a later stage and move all rpc onto replicant channel.
            */
-          if ( null == getRegistry().getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY ) )
+          if ( null == _registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY ) )
           {
             // We skip scenario when we have already sent a cached result
             changeSet.setRequired( true );
           }
         }
         final boolean altersExplicitSubscriptions =
-          null != getRegistry().getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );
-        getReplicantMessageBroker().queueChangeMessage( session,
-                                                        altersExplicitSubscriptions,
-                                                        isInitiator ? requestId : null,
-                                                        isInitiator ? response : null,
-                                                        null,
-                                                        messages,
-                                                        changeSet );
+          null != _registry.getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );
+        _broker.queueChangeMessage( session,
+                                    altersExplicitSubscriptions,
+                                    isInitiator ? requestId : null,
+                                    isInitiator ? response : null,
+                                    null,
+                                    messages,
+                                    changeSet );
       }
     }
 
@@ -562,6 +606,7 @@ public abstract class ReplicantSessionManagerImpl
                                                     @Nullable final Object filter,
                                                     @Nonnull final ChangeSet changeSet )
   {
+    _context.propagateSubscriptionFilterUpdate( session, address, filter, changeSet );
   }
 
   @Override
@@ -729,6 +774,7 @@ public abstract class ReplicantSessionManagerImpl
                          @Nullable final Object filter )
     throws InterruptedException
   {
+    _context.preSubscribe( session, address, filter );
     if ( session.isOpen() )
     {
       final ReentrantLock lock = session.getLock();
@@ -850,13 +896,13 @@ public abstract class ReplicantSessionManagerImpl
         {
           if ( session.getWebSocketSession().isOpen() )
           {
-            final Integer requestId = (Integer) getRegistry().getResource( ServerConstants.REQUEST_ID_KEY );
+            final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
             WebSocketUtil.sendText( session.getWebSocketSession(),
                                     JsonEncoder.encodeUseCacheMessage( address, eTag, requestId ) );
             changeSet.setRequired( false );
             // We need to mark this as handled otherwise the wrapper will attempt to send
             // another ok message with same requestId
-            getRegistry().putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
+            _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
           }
         }
         else
@@ -937,7 +983,7 @@ public abstract class ReplicantSessionManagerImpl
       // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
       if ( !session.isSubscriptionEntryPresent( address ) )
       {
-        final TransactionSynchronizationRegistry registry = getRegistry();
+        final TransactionSynchronizationRegistry registry = _registry;
         final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
         final String requestComplete = (String) registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
         final String requestResponse = (String) registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
@@ -954,7 +1000,7 @@ public abstract class ReplicantSessionManagerImpl
         if ( changeSet.hasContent() )
         {
           // In this scenario we have a non-cached changeset, so we send it along
-          getReplicantMessageBroker().
+          _broker.
             queueChangeMessage( session, true, null, null, null, Collections.emptyList(), changeSet );
         }
 
@@ -1114,7 +1160,7 @@ public abstract class ReplicantSessionManagerImpl
                                                      @Nonnull final ChangeSet changeSet,
                                                      @Nullable final Object filter )
   {
-    throw new IllegalStateException( "collectDataForSubscribe called for unsupported channel " + address );
+    return _context.collectDataForSubscribe( address, filter, changeSet );
   }
 
   /**
@@ -1129,8 +1175,7 @@ public abstract class ReplicantSessionManagerImpl
                                               @Nonnull final ChangeSet changeSet,
                                               final boolean isExplicitSubscribe )
   {
-    final ChannelAddress address = addresses.get( 0 );
-    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
+    _context.bulkCollectDataForSubscribe( session, addresses, filter, changeSet, isExplicitSubscribe );
   }
 
   protected void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
@@ -1139,7 +1184,7 @@ public abstract class ReplicantSessionManagerImpl
                                                    @Nullable final Object originalFilter,
                                                    @Nullable final Object filter )
   {
-    throw new IllegalStateException( "collectDataForSubscriptionUpdate called for unsupported channel " + address );
+    _context.collectDataForSubscriptionUpdate( session, address, originalFilter, filter, changeSet );
   }
 
   /**
@@ -1154,8 +1199,12 @@ public abstract class ReplicantSessionManagerImpl
                                                        @Nonnull final ChangeSet changeSet,
                                                        final boolean isExplicitSubscribe )
   {
-    final ChannelAddress address = addresses.get( 0 );
-    throw new IllegalStateException( "bulkCollectDataForSubscriptionUpdate called for unknown channel " + address );
+    _context.bulkCollectDataForSubscriptionUpdate( session,
+                                                   addresses,
+                                                   originalFilter,
+                                                   filter,
+                                                   changeSet,
+                                                   isExplicitSubscribe );
   }
 
   @Override
@@ -1304,9 +1353,7 @@ public abstract class ReplicantSessionManagerImpl
   protected boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
                                       @Nonnull final ChannelAddress target )
   {
-    throw new IllegalStateException( "shouldFollowLink called for link between channel " +
-                                     sourceEntry.address() + " and " + target +
-                                     " and the target has no filter or the link is unknown." );
+    return _context.shouldFollowLink( sourceEntry, target );
   }
 
   @SuppressWarnings( "unused" )
@@ -1315,7 +1362,7 @@ public abstract class ReplicantSessionManagerImpl
                                                @Nonnull final ChannelAddress address,
                                                @Nonnull final EntityMessage message )
   {
-    throw new IllegalStateException( "filterEntityMessage called for unfiltered channel " + address );
+    return _context.filterEntityMessage( session, address, message );
   }
 
   private void processCachePurge( @Nonnull final EntityMessage message )

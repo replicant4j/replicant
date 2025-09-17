@@ -127,13 +127,13 @@ public class ReplicantMessageBrokerImplTest
                                @Nonnull final Collection<EntityMessage> messages,
                                @Nonnull final ChangeSet changeSet )
   {
-    verify( ( (TestReplicantMessageBrokerImpl) broker ).getReplicantSessionManager(), times( 1 ) )
+    verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, times( 1 ) )
       .sendChangeMessage( eq( session ), eq( requestId ), eq( response ), eq( etag ), eq( messages ), eq( changeSet ) );
   }
 
   private void verifyNoSend( @Nonnull final ReplicantMessageBroker broker )
   {
-    verify( ( (TestReplicantMessageBrokerImpl) broker ).getReplicantSessionManager(), never() )
+    verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, never() )
       .sendChangeMessage( any(), any(), any(), any(), any(), any() );
   }
 
@@ -149,14 +149,9 @@ public class ReplicantMessageBrokerImplTest
   private static class TestReplicantMessageBrokerImpl
     extends ReplicantMessageBrokerImpl
   {
-    @Nonnull
-    private final ReplicantSessionManager _sessionManager = mock( ReplicantSessionManager.class );
-
-    @Nonnull
-    @Override
-    protected ReplicantSessionManager getReplicantSessionManager()
+    public TestReplicantMessageBrokerImpl()
     {
-      return _sessionManager;
+      _sessionManager = mock( ReplicantSessionManager.class );
     }
   }
 }
