@@ -484,14 +484,14 @@ public class ReplicantSessionManagerImpl
         {
           for ( final ChannelLink link : links )
           {
-            final boolean alreadyCollected =
+            final var alreadyCollected =
               subscribed
                 .stream()
                 .anyMatch( s -> s.source().equals( link.source() ) &&
                                 s.target().equals( link.target() ) );
             if ( !alreadyCollected )
             {
-              final ChannelLinkEntry entry = createChannelLinkEntryIfRequired( session, link );
+              final var entry = createChannelLinkEntryIfRequired( session, link );
               if ( null != entry )
               {
                 targets.add( entry );
