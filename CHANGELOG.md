@@ -5,6 +5,7 @@
 * Introduce `ReplicantSessionContext` on the serverside that abstract the application capabilities required to implement the SessionManager.
 * Convert the `ReplicantSessionManagerImpl` into a concrete class that uses the newly introduced `ReplicantSessionContext` so that downstream applications do not need to extend it.
 * Convert the `ReplicantMessageBrokerImpl` into a concrete class so that downstream applications do not need to extend it.
+* Backport `ReplicantChangeRecorder` from downstream applications.
 
 ### [v6.152](https://github.com/replicant4j/replicant/tree/v6.152) (2025-09-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.151...v6.152)
 
