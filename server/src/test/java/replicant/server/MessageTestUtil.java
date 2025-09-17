@@ -3,6 +3,7 @@ package replicant.server;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import javax.annotation.Nonnull;
 import java.util.Map;
 import javax.annotation.Nullable;
 import static org.testng.Assert.*;
@@ -12,11 +13,16 @@ import static org.testng.Assert.*;
  */
 public final class MessageTestUtil
 {
+  @Nonnull
   static final String ROUTING_KEY1 = "ROUTING_KEY1";
+  @Nonnull
   static final String ROUTING_KEY2 = "ROUTING_KEY2";
+  @Nonnull
   public static final String ATTR_KEY1 = "ATTR_KEY1";
+  @Nonnull
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
+  @Nonnull
   public static EntityMessage createMessage( final int id,
                                              final int typeID,
                                              final long timestamp,
@@ -28,6 +34,7 @@ public final class MessageTestUtil
     return createMessage( id, typeID, timestamp, null, r1, r2, a1, a2 );
   }
 
+  @Nonnull
   static EntityMessage createMessage( final int id,
                                       final int typeID,
                                       final long timestamp,
@@ -71,18 +78,18 @@ public final class MessageTestUtil
     return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues, links );
   }
 
-  static void assertAttributeValue( final EntityMessage message,
-                                    final String key,
-                                    final String value )
+  static void assertAttributeValue( @Nonnull final EntityMessage message,
+                                    @Nonnull final String key,
+                                    @Nullable final String value )
   {
     final Map<String, Serializable> values = message.getAttributeValues();
     assertNotNull( values );
     assertEquals( values.get( key ), value );
   }
 
-  static void assertRouteValue( final EntityMessage message,
-                                final String key,
-                                final String value )
+  static void assertRouteValue( @Nonnull final EntityMessage message,
+                                @Nonnull final String key,
+                                @Nullable final String value )
   {
     assertEquals( message.getRoutingKeys().get( key ), value );
   }
