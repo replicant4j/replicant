@@ -482,7 +482,7 @@ public class ReplicantSessionManagerImpl
         final var links = entityMessage.getLinks();
         if ( null != links )
         {
-          for ( final ChannelLink link : links )
+          for ( final var link : links )
           {
             final var alreadyCollected =
               subscribed
