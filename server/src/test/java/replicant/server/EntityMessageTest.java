@@ -4,15 +4,15 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
-public class EntityMessageTest
+public final class EntityMessageTest
 {
   @Test
   public void mergeElementsOverrideExisting()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     assertEquals( message.getId(), id );
     assertEquals( message.getTypeId(), typeID );
@@ -23,7 +23,7 @@ public class EntityMessageTest
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r1" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY2, "r2" );
 
-    final EntityMessage message2 =
+    final var message2 =
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      2,
@@ -40,7 +40,7 @@ public class EntityMessageTest
     assertEquals( message.getTimestamp(), 2 );
     assertNotNull( message.getLinks() );
     assertEquals( message.getLinks().size(), 1 );
-    final ChannelLink channelLink = message.getLinks().iterator().next();
+    final var channelLink = message.getLinks().iterator().next();
     assertEquals( channelLink.source().channelId(), 1 );
     assertEquals( channelLink.source().rootId(), (Integer) 2 );
     assertEquals( channelLink.target().channelId(), 47 );
@@ -49,7 +49,7 @@ public class EntityMessageTest
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r3" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY2, "r2" );
 
-    final EntityMessage message3 = MessageTestUtil.createMessage( id, typeID, 1, null, null, null, "a4" );
+    final var message3 = MessageTestUtil.createMessage( id, typeID, 1, null, null, null, "a4" );
 
     message.merge( message3 );
     assertEquals( message.getId(), id );
@@ -64,10 +64,10 @@ public class EntityMessageTest
   @Test
   public void mergeDeletedEnsuresDeleted()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
     assertTrue( message.isUpdate() );
     assertFalse( message.isDelete() );
@@ -81,10 +81,10 @@ public class EntityMessageTest
   @Test
   public void mergeUpdateRevivesDeleted()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null );
 
     assertFalse( message.isUpdate() );
     assertTrue( message.isDelete() );
@@ -98,14 +98,14 @@ public class EntityMessageTest
   @Test
   public void toStringIncludesDataWhenDataPresent()
   {
-    final EntityMessage message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
+    final var message = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", "a1", "a2" );
     assertTrue( message.toString().matches( ".*Data=.*" ) );
   }
 
   @Test
   public void toIsDeleteFlagIsCorrect()
   {
-    final EntityMessage deleteMessage = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", null, null );
+    final var deleteMessage = MessageTestUtil.createMessage( 17, 42, 0, "r1", "r2", null, null );
     assertFalse( deleteMessage.toString().matches( ".*Data=.*" ) );
     assertFalse( deleteMessage.isUpdate() );
     assertTrue( deleteMessage.isDelete() );
@@ -114,10 +114,10 @@ public class EntityMessageTest
   @Test
   public void toDelete()
   {
-    final int id = ValueUtil.randomInt();
-    final int typeId = ValueUtil.randomInt();
-    final int timestamp = ValueUtil.randomInt();
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeId, timestamp, "r1", "r2", "a1", "a2" );
+    final var id = ValueUtil.randomInt();
+    final var typeId = ValueUtil.randomInt();
+    final var timestamp = ValueUtil.randomInt();
+    final var message = MessageTestUtil.createMessage( id, typeId, timestamp, "r1", "r2", "a1", "a2" );
 
     assertEquals( message.getId(), id );
     assertEquals( message.getTypeId(), typeId );
@@ -130,7 +130,7 @@ public class EntityMessageTest
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY1, "r1" );
     MessageTestUtil.assertRouteValue( message, MessageTestUtil.ROUTING_KEY2, "r2" );
 
-    final EntityMessage message2 = message.toDelete();
+    final var message2 = message.toDelete();
 
     assertEquals( message2.getId(), id );
     assertEquals( message2.getTypeId(), typeId );
