@@ -544,6 +544,7 @@ public class ReplicantSessionManagerImpl
   @Nullable
   protected Object deriveFilterToPropagateFromSourceToTarget( @Nonnull final SubscriptionEntry sourceEntry )
   {
+    // TODO: This code should be migrated to the context
     return sourceEntry.getFilter();
   }
 
