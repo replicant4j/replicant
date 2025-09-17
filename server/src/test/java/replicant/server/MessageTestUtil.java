@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.annotation.Nonnull;
-import java.util.Map;
 import javax.annotation.Nullable;
 import static org.testng.Assert.*;
 
@@ -44,7 +43,7 @@ public final class MessageTestUtil
                                       @Nullable final String a1,
                                       @Nullable final String a2 )
   {
-    final HashMap<String, Serializable> routingKeys = new HashMap<>();
+    final var routingKeys = new HashMap<String, Serializable>();
     if ( null != r1 )
     {
       routingKeys.put( ROUTING_KEY1, r1 );
@@ -54,7 +53,7 @@ public final class MessageTestUtil
       routingKeys.put( ROUTING_KEY2, r2 );
     }
 
-    final HashMap<String, Serializable> attributeValues = ( null == a1 && null == a2 ) ? null : new HashMap<>();
+    final var attributeValues = ( null == a1 && null == a2 ) ? null : new HashMap<String, Serializable>();
     if ( null != a1 )
     {
       attributeValues.put( ATTR_KEY1, a1 );
@@ -82,7 +81,7 @@ public final class MessageTestUtil
                                     @Nonnull final String key,
                                     @Nullable final String value )
   {
-    final Map<String, Serializable> values = message.getAttributeValues();
+    final var values = message.getAttributeValues();
     assertNotNull( values );
     assertEquals( values.get( key ), value );
   }
