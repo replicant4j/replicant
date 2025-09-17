@@ -41,7 +41,7 @@ public abstract class AbstractSessionContextImpl
                                       @Nullable final Object filter,
                                       final boolean explicitSubscribe )
   {
-    for ( final ChannelAddress address : addresses )
+    for ( final var address : addresses )
     {
       recordSubscription( session, changeSet, address, filter, explicitSubscribe );
     }
@@ -54,8 +54,8 @@ public abstract class AbstractSessionContextImpl
                                                   @Nullable final Object filter,
                                                   final boolean explicitSubscribe )
   {
-    final SubscriptionEntry existing = session.findSubscriptionEntry( address );
-    final SubscriptionEntry entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
+    final var existing = session.findSubscriptionEntry( address );
+    final var entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
     if ( explicitSubscribe )
     {
       entry.setExplicitlySubscribed( true );
@@ -78,16 +78,18 @@ public abstract class AbstractSessionContextImpl
       "\n";
   }
 
+  @Nonnull
   @SuppressWarnings( "SameParameterValue" )
   private static <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
   {
-    final AtomicInteger index = new AtomicInteger( 0 );
+    final var index = new AtomicInteger( 0 );
 
-    return stream
-      .collect( Collectors.groupingBy( x -> index.getAndIncrement() / chunkSize ) )
-      .entrySet().stream()
-      .sorted( Map.Entry.comparingByKey() )
-      .map( Map.Entry::getValue );
+    return
+      stream
+        .collect( Collectors.groupingBy( x -> index.getAndIncrement() / chunkSize ) )
+        .entrySet().stream()
+        .sorted( Map.Entry.comparingByKey() )
+        .map( Map.Entry::getValue );
   }
 
   protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
@@ -100,9 +102,9 @@ public abstract class AbstractSessionContextImpl
                                                        @Language( "TSQL" ) @Nonnull final String sql )
     throws SQLException
   {
-    try ( Statement statement = connection().createStatement() )
+    try ( var statement = connection().createStatement() )
     {
-      try ( ResultSet resultSet = statement.executeQuery( sql ) )
+      try ( var resultSet = statement.executeQuery( sql ) )
       {
         bulkLinkFromSourceGraphToTargetGraph( session,
                                               filter,
@@ -128,16 +130,15 @@ public abstract class AbstractSessionContextImpl
   {
     while ( resultSet.next() )
     {
-      final int sourceId = resultSet.getInt( sourceColumnName );
-      final int targetId = resultSet.getInt( targetColumnName );
-      final ChannelAddress targetAddress = new ChannelAddress( targetGraph, targetId );
+      final var sourceId = resultSet.getInt( sourceColumnName );
+      final var targetId = resultSet.getInt( targetColumnName );
+      final var targetAddress = new ChannelAddress( targetGraph, targetId );
       if ( !session.isSubscriptionEntryPresent( targetAddress ) )
       {
-        final ChannelAddress sourceAddress = new ChannelAddress( sourceGraph, sourceId );
-        final SubscriptionEntry sourceEntry = session.getSubscriptionEntry( sourceAddress );
+        final var sourceAddress = new ChannelAddress( sourceGraph, sourceId );
+        final var sourceEntry = session.getSubscriptionEntry( sourceAddress );
         sourceEntry.registerOutwardSubscriptions( targetAddress );
-        final SubscriptionEntry targetEntry =
-          recordSubscription( session, changeSet, targetAddress, filter, false );
+        final var targetEntry = recordSubscription( session, changeSet, targetAddress, filter, false );
         targetEntry.registerInwardSubscriptions( sourceEntry.address() );
       }
     }
@@ -151,9 +152,9 @@ public abstract class AbstractSessionContextImpl
                                            @Language( "TSQL" ) @Nonnull final String sql )
     throws SQLException
   {
-    try ( Statement statement = connection().createStatement() )
+    try ( var statement = connection().createStatement() )
     {
-      try ( ResultSet resultSet = statement.executeQuery( sql ) )
+      try ( var resultSet = statement.executeQuery( sql ) )
       {
         updateLinksToTargetGraph( session, changeSet, filter, targetGraphColumnName, targetGraph, resultSet );
       }
@@ -170,8 +171,8 @@ public abstract class AbstractSessionContextImpl
   {
     while ( resultSet.next() )
     {
-      final int targetId = resultSet.getInt( targetGraphColumnName );
-      final ChannelAddress address = new ChannelAddress( targetGraph, targetId );
+      final var targetId = resultSet.getInt( targetGraphColumnName );
+      final var address = new ChannelAddress( targetGraph, targetId );
       changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
       session.getSubscriptionEntry( address ).setFilter( filter );
     }
