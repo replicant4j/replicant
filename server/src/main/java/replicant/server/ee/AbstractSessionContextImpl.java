@@ -108,6 +108,7 @@ public abstract class AbstractSessionContextImpl
                                                            final boolean isUpdate,
                                                            final boolean isInitialLoad );
 
+  @SuppressWarnings( "resource" )
   protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
                                                        @Nullable final Object filter,
                                                        @Nonnull final ChangeSet changeSet,
