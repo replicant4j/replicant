@@ -93,6 +93,16 @@ public abstract class AbstractSessionContextImpl
         .map( Map.Entry::getValue );
   }
 
+  /**
+   * Converts the given object into an appropriate {@link EntityMessage}.
+   * This method may be used for initial data load or for entity updates.
+   * Implementations of this abstract method define the specific conversion logic.
+   *
+   * @param object        the source object to be converted; must not be null
+   * @param isUpdate      a boolean indicating if the conversion is for an update
+   * @param isInitialLoad a boolean indicating if the conversion is for an initial data load
+   * @return the converted {@link EntityMessage}, or null if the conversion cannot be performed
+   */
   @Nullable
   protected abstract EntityMessage convertToEntityMessage( @Nonnull final Object object,
                                                            final boolean isUpdate,
