@@ -1602,6 +1602,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
     return sm.createSession( webSocketSession );
   }
+
   @Nonnull
   private TestReplicantSessionManager createSessionManager()
   {
