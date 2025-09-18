@@ -505,7 +505,7 @@ public class ReplicantSessionManagerImpl
 
   /**
    * Determine if the specified ChannelLink needs to be follows and link channels if required. A ChannelLink
-   * needs to befollowed if the session is subscribed to the source channel and shouldFollowLink returns true.
+   * needs to be followed if the session is subscribed to the source channel and shouldFollowLink returns true.
    * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
    * is always followed. If a link should be followed the source graph and target graph are linked.
    * <p>
