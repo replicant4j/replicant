@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +16,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.Resource;
 import javax.persistence.EntityManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import org.intellij.lang.annotations.Language;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
@@ -21,7 +26,9 @@ import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.EntityMessageSet;
+import replicant.server.transport.ReplicantChangeRecorder;
 import replicant.server.transport.ReplicantSession;
+import replicant.server.transport.ReplicantSessionContext;
 import replicant.server.transport.SubscriptionEntry;
 
 /**
@@ -29,7 +36,27 @@ import replicant.server.transport.SubscriptionEntry;
  * Primarily it contains support for customizing bulk loads using SQL.
  */
 public abstract class AbstractSessionContextImpl
+  implements ReplicantChangeRecorder, ReplicantSessionContext
 {
+  @Resource
+  private TransactionSynchronizationRegistry _registry;
+
+  /**
+   * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
+   *
+   * @param entity   the entity to record.
+   * @param isUpdate true if change is an update, false if it is a delete.
+   */
+  @Override
+  public void recordEntityMessageForEntity( @Nonnull final Object entity, final boolean isUpdate )
+  {
+    final var entityMessage = convertToEntityMessage( entity, isUpdate, false );
+    if ( null != entityMessage )
+    {
+      EntityMessageCacheUtil.getEntityMessageSet( _registry ).merge( entityMessage );
+    }
+  }
+
   @Nonnull
   protected abstract EntityManager em();
 
@@ -285,9 +312,154 @@ public abstract class AbstractSessionContextImpl
     {
       for ( final var sourceRootId : sourceRootIds )
       {
-        links.add( new ChannelLink( new ChannelAddress( sourceChannelId, sourceRootId ),
-                                    new ChannelAddress( targetChannelId, targetRootId ) ) );
+        addChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId );
       }
+    }
+  }
+
+  protected void addChannelLink( @Nonnull final Set<ChannelLink> links,
+                                 final int sourceChannelId,
+                                 final int sourceRootId,
+                                 final int targetChannelId,
+                                 @Nullable final Integer targetRootId )
+  {
+    if ( null != targetRootId )
+    {
+      links.add( new ChannelLink( new ChannelAddress( sourceChannelId, sourceRootId ),
+                                  new ChannelAddress( targetChannelId, targetRootId ) ) );
+    }
+  }
+
+  @SuppressWarnings( "unchecked" )
+  protected void addInstanceRootRouterKey( @Nonnull final Map<String, Serializable> routerKeys,
+                                           @Nonnull final String key,
+                                           @Nonnull final Integer id )
+  {
+    ( (List<Integer>) routerKeys.computeIfAbsent( key, v -> new ArrayList<>() ) ).add( id );
+  }
+
+  protected int decodeIntAttribute( @Nonnull final ResultSet resultSet,
+                                    @Nonnull final Map<String, Serializable> attributeValues,
+                                    @Nonnull final String key,
+                                    @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final int value = resultSet.getInt( columnLabel );
+    attributeValues.put( key, value );
+    return value;
+  }
+
+  @Nullable
+  protected Integer decodeNullableIntAttribute( @Nonnull final ResultSet resultSet,
+                                                @Nonnull final Map<String, Serializable> attributeValues,
+                                                @Nonnull final String key,
+                                                @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final var value = (Integer) resultSet.getObject( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
+    }
+    return value;
+  }
+
+  protected void decodeTimestampAttribute( @Nonnull final ResultSet resultSet,
+                                           @Nonnull final Map<String, Serializable> attributeValues,
+                                           @Nonnull final String key,
+                                           @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    attributeValues.put( key, resultSet.getTimestamp( columnLabel ).getTime() );
+  }
+
+  protected void decodeNullableTimestampAttribute( @Nonnull final ResultSet resultSet,
+                                                   @Nonnull final Map<String, Serializable> attributeValues,
+                                                   @Nonnull final String key,
+                                                   @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final var value = resultSet.getTimestamp( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value.getTime() );
+    }
+  }
+
+  protected void decodeDateAttribute( @Nonnull final ResultSet resultSet,
+                                      @Nonnull final Map<String, Serializable> attributeValues,
+                                      @Nonnull final String key,
+                                      @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    attributeValues.put( key, toDateString( resultSet.getDate( columnLabel ) ) );
+  }
+
+  protected void decodeNullableDateAttribute( @Nonnull final ResultSet resultSet,
+                                              @Nonnull final Map<String, Serializable> attributeValues,
+                                              @Nonnull final String key,
+                                              @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final var value = resultSet.getDate( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, toDateString( value ) );
+    }
+  }
+
+  @Nonnull
+  protected String toDateString( @Nonnull final java.util.Date value )
+  {
+    return
+      new Date( value.getTime() )
+        .toInstant()
+        .atZone( ZoneId.systemDefault() )
+        .toLocalDate()
+        .toString();
+  }
+
+  protected void decodeStringAttribute( @Nonnull final ResultSet resultSet,
+                                        @Nonnull final Map<String, Serializable> attributeValues,
+                                        @Nonnull final String key,
+                                        @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    attributeValues.put( key, resultSet.getString( columnLabel ) );
+  }
+
+  protected void decodeNullableStringAttribute( @Nonnull final ResultSet resultSet,
+                                                @Nonnull final Map<String, Serializable> attributeValues,
+                                                @Nonnull final String key,
+                                                @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final var value = resultSet.getString( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
+    }
+  }
+
+  protected void decodeBooleanAttribute( @Nonnull final ResultSet resultSet,
+                                         @Nonnull final Map<String, Serializable> attributeValues,
+                                         @Nonnull final String key,
+                                         @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    attributeValues.put( key, resultSet.getBoolean( columnLabel ) );
+  }
+
+  protected void decodeNullableBooleanAttribute( @Nonnull final ResultSet resultSet,
+                                                 @Nonnull final Map<String, Serializable> attributeValues,
+                                                 @Nonnull final String key,
+                                                 @Nonnull final String columnLabel )
+    throws SQLException
+  {
+    final var value = (Boolean) resultSet.getObject( columnLabel );
+    if ( null != value )
+    {
+      attributeValues.put( key, value );
     }
   }
 }
