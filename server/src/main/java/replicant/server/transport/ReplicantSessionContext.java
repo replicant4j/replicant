@@ -48,8 +48,7 @@ public interface ReplicantSessionContext
                                              @Nonnull List<ChannelAddress> addresses,
                                              @Nullable Object originalFilter,
                                              @Nullable Object filter,
-                                             @Nonnull ChangeSet changeSet,
-                                             boolean isExplicitSubscribe );
+                                             @Nonnull ChangeSet changeSet );
 
   @Nullable
   EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,

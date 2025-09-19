@@ -704,12 +704,7 @@ public class ReplicantSessionManagerImpl
         {
           if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
           {
-            _context.bulkCollectDataForSubscriptionUpdate( session,
-                                                           addresses,
-                                                           originalFilter,
-                                                           filter,
-                                                           changeSet,
-                                                           isExplicitSubscribe );
+            _context.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
           }
           else
           {
