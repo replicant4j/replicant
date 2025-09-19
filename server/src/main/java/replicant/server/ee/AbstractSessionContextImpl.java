@@ -228,11 +228,15 @@ public abstract class AbstractSessionContextImpl
    * @param targetChannelId the ID of the target channel
    * @param targetRootId    the root ID associated with the target channel; may be null
    */
-  protected void addChannelLink( @javax.annotation.Nonnull final java.util.Set<replicant.server.ChannelLink> links, final int sourceChannelId, final int targetChannelId, @javax.annotation.Nullable final java.lang.Integer targetRootId )
+  protected void addChannelLink( @Nonnull final Set<ChannelLink> links,
+                                 final int sourceChannelId,
+                                 final int targetChannelId,
+                                 @Nullable final Integer targetRootId )
   {
     if ( null != targetRootId )
     {
-      links.add( new replicant.server.ChannelLink( new replicant.server.ChannelAddress( sourceChannelId ), new replicant.server.ChannelAddress( targetChannelId, targetRootId ) ) );
+      links.add( new ChannelLink( new ChannelAddress( sourceChannelId ),
+                                  new ChannelAddress( targetChannelId, targetRootId ) ) );
     }
   }
 
