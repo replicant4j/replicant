@@ -1780,7 +1780,8 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     public boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
-                                     @Nonnull final ChannelAddress target )
+                                     @Nonnull final ChannelAddress target,
+                                     @Nullable final Object filter )
     {
       return false;
     }

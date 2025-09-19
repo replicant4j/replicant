@@ -60,5 +60,7 @@ public interface ReplicantSessionContext
                                           @Nullable Object filter,
                                           @Nonnull ChangeSet changeSet );
 
-  boolean shouldFollowLink( @Nonnull SubscriptionEntry sourceEntry, @Nonnull ChannelAddress target );
+  boolean shouldFollowLink( @Nonnull SubscriptionEntry sourceEntry,
+                            @Nonnull ChannelAddress target,
+                            @Nullable Object filter );
 }
