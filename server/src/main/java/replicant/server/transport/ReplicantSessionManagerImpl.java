@@ -588,7 +588,7 @@ public class ReplicantSessionManagerImpl
       {
         if ( ChannelAction.Action.REMOVE == channelAction.action() )
         {
-          final SubscriptionEntry other = session.findSubscriptionEntry( channelAction.address() );
+          final var other = session.findSubscriptionEntry( channelAction.address() );
           // It is unclear when other is ever allowed to be null. If it is null then it probably means
           // that collectDataForSubscriptionUpdate incorrectly added this action.z
           if ( null != other )
