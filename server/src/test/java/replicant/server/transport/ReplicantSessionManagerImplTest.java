@@ -1754,8 +1754,7 @@ public class ReplicantSessionManagerImplTest
                                                       @Nonnull final List<ChannelAddress> addresses,
                                                       @Nullable final Object originalFilter,
                                                       @Nullable final Object filter,
-                                                      @Nonnull final ChangeSet changeSet,
-                                                      final boolean isExplicitSubscribe )
+                                                      @Nonnull final ChangeSet changeSet )
     {
       _bulkCollectDataForSubscriptionUpdateCallCount += 1;
     }
