@@ -514,17 +514,29 @@ public class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final var target = link.target();
-      final var targetHasFilter = getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter();
-      if ( !targetHasFilter || _context.shouldFollowLink( sourceEntry, target ) )
+      if ( getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter() )
+      {
+        final var filter = link.targetFilter();
+        if ( _context.shouldFollowLink( sourceEntry, target, filter ) )
+        {
+          final var targetEntry = session.findSubscriptionEntry( target );
+          if ( null == targetEntry )
+          {
+            return new ChannelLinkEntry( source, link.target(), filter );
+          }
+          else
+          {
+            linkSubscriptionEntries( sourceEntry, targetEntry );
+            targetEntry.setFilter( filter );
+          }
+        }
+      }
+      else
       {
         final var targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          return new ChannelLinkEntry( source,
-                                       link.target(),
-                                       targetHasFilter ?
-                                       deriveFilterToPropagateFromSourceToTarget( sourceEntry ) :
-                                       null );
+          return new ChannelLinkEntry( source, link.target(), null );
         }
         else
         {
@@ -584,7 +596,11 @@ public class ReplicantSessionManagerImpl
           }
         }
       }
-      _context.propagateSubscriptionFilterUpdate( session, address, filter, changeSet );
+      final var channelLinks = _context.propagateSubscriptionFilterUpdate( address, filter );
+      for ( final var link : channelLinks )
+      {
+        subscribe( session, link.target(), true, link.targetFilter(), changeSet );
+      }
     }
   }
 

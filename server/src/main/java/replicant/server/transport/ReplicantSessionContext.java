@@ -1,10 +1,12 @@
 package replicant.server.transport;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 
 public interface ReplicantSessionContext
@@ -55,10 +57,9 @@ public interface ReplicantSessionContext
                                      @Nonnull ChannelAddress address,
                                      @Nonnull EntityMessage message );
 
-  void propagateSubscriptionFilterUpdate( @Nonnull ReplicantSession session,
-                                          @Nonnull ChannelAddress address,
-                                          @Nullable Object filter,
-                                          @Nonnull ChangeSet changeSet );
+  @Nonnull
+  Collection<ChannelLink> propagateSubscriptionFilterUpdate( @Nonnull ChannelAddress source,
+                                                             @Nullable Object sourceFilter );
 
   boolean shouldFollowLink( @Nonnull SubscriptionEntry sourceEntry,
                             @Nonnull ChannelAddress target,

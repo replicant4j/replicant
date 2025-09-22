@@ -25,6 +25,7 @@ import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.ServerConstants;
 import replicant.server.ee.EntityMessageCacheUtil;
@@ -1768,13 +1769,12 @@ public class ReplicantSessionManagerImplTest
       return null;
     }
 
+    @Nonnull
     @Override
-    public void propagateSubscriptionFilterUpdate( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final ChannelAddress address,
-                                                   @Nullable final Object filter,
-                                                   @Nonnull final ChangeSet changeSet )
+    public Collection<ChannelLink> propagateSubscriptionFilterUpdate( @Nonnull final ChannelAddress source,
+                                                                      @Nullable final Object sourceFilter )
     {
-
+      return new ArrayList<>();
     }
 
     @Override
