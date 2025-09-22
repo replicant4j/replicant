@@ -425,7 +425,7 @@ public class ReplicantSessionManagerImpl
         }
         else
         {
-          for ( final ChannelLinkEntry e : toSubscribe )
+          for ( final var e : toSubscribe )
           {
             final var targetEntry = session.createSubscriptionEntry( e.target() );
             try
