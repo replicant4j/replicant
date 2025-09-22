@@ -7,7 +7,7 @@
 * Convert the `ReplicantMessageBrokerImpl` into a concrete class so that downstream applications do not need to extend it.
 * Backport `ReplicantChangeRecorder` from downstream applications.
 * Begin refactoring `ChannelLink` so that it can carry the filter for the target graph that is linked to.
-* Update `ReplicantSessionContext.propagateSubscriptionFilterUpdate()` to start using the new `ChannelLink` capabilities. 
+* Update `ReplicantSessionContext.propagateSubscriptionFilterUpdate()` to start using the new `ChannelLink` capabilities.
 
 ### [v6.152](https://github.com/replicant4j/replicant/tree/v6.152) (2025-09-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.151...v6.152)
 
