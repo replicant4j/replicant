@@ -11,7 +11,8 @@ PROVIDED_DEPS = [
   :jetbrains_annotations,
   :jackson_annotations,
   :jackson_core,
-  :jackson_databind
+  :jackson_databind,
+  :javax_json
 ]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 
@@ -125,6 +126,7 @@ define 'replicant' do
                       :objenesis,
                       :braincheck_testng,
                       :arez_testng,
+                      :javax_json,
                       :guiceyloops
   end
 
