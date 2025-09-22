@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.153](https://github.com/replicant4j/replicant/tree/v6.153) (2025-09-22) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.152...v6.153)
+
+Changes in this release:
 
 * Introduce `ReplicantSessionContext` on the serverside that abstract the application capabilities required to implement the SessionManager.
 * Convert the `ReplicantSessionManagerImpl` into a concrete class that uses the newly introduced `ReplicantSessionContext` so that downstream applications do not need to extend it.
