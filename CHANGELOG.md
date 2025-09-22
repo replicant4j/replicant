@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.154](https://github.com/replicant4j/replicant/tree/v6.154) (2025-09-22) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.153...v6.154)
+
+Changes in this release:
 
 * Replace Glassfish dependency with jackson when building project to avoid unanticipated issues with Eclipselink annotation processors.
 * Backport `ReplicantEntityChangeListener` from downstream applications.
