@@ -535,13 +535,6 @@ public class ReplicantSessionManagerImpl
     return null;
   }
 
-  @Nullable
-  protected Object deriveFilterToPropagateFromSourceToTarget( @Nonnull final SubscriptionEntry sourceEntry )
-  {
-    // TODO: This code should be migrated to the context
-    return sourceEntry.getFilter();
-  }
-
   private void processMessages( @Nonnull final Collection<EntityMessage> messages,
                                 @Nonnull final ReplicantSession session,
                                 @Nonnull final ChangeSet changeSet )
