@@ -37,7 +37,6 @@ artifacts:
   jackson_core: com.fasterxml.jackson.core:jackson-core:jar:2.17.2
   jackson_databind: com.fasterxml.jackson.core:jackson-databind:jar:2.17.2
 
-
   grim_annotations: org.realityforge.grim:grim-annotations:jar:0.09
   grim_processor: org.realityforge.grim:grim-processor:jar:0.09
 
