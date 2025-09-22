@@ -5,7 +5,14 @@ require 'buildr/single_intermediate_layout'
 
 Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
 
-PROVIDED_DEPS = [:javax_annotation, :javax_javaee, :glassfish_embedded, :jetbrains_annotations]
+PROVIDED_DEPS = [
+  :javax_annotation,
+  :javax_javaee,
+  :jetbrains_annotations,
+  :jackson_annotations,
+  :jackson_core,
+  :jackson_databind
+]
 KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 
 # JDK options passed to test environment. Essentially turns assertions on.
@@ -66,7 +73,6 @@ define 'replicant' do
                       :byte_buddy,
                       :objenesis,
                       :guiceyloops,
-                      :glassfish_embedded,
                       :jndikit
   end
 
@@ -119,9 +125,7 @@ define 'replicant' do
                       :objenesis,
                       :braincheck_testng,
                       :arez_testng,
-                      :guiceyloops,
-                      # javax_javaee is provided so that JSON parsing can occur for JRE variant.
-                      :glassfish_embedded
+                      :guiceyloops
   end
 
   iml.excluded_directories << project._('tmp')

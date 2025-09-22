@@ -12,7 +12,6 @@ artifacts:
   # Test deps
   jndikit: org.realityforge.jndikit:jndikit:jar:1.4
 
-  glassfish_embedded: fish.payara.extras:payara-embedded-all:jar:5.2020.3
   javax_json: org.glassfish:javax.json:jar:1.1
 
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.113
@@ -33,6 +32,11 @@ artifacts:
   braincheck_core: org.realityforge.braincheck:braincheck-core:jar:1.31.0
   braincheck_jre: org.realityforge.braincheck:braincheck-jre:jar:1.31.0
   braincheck_testng: org.realityforge.braincheck:braincheck-testng:jar:1.31.0
+
+  jackson_annotations: com.fasterxml.jackson.core:jackson-annotations:jar:2.17.2
+  jackson_core: com.fasterxml.jackson.core:jackson-core:jar:2.17.2
+  jackson_databind: com.fasterxml.jackson.core:jackson-databind:jar:2.17.2
+
 
   grim_annotations: org.realityforge.grim:grim-annotations:jar:0.09
   grim_processor: org.realityforge.grim:grim-processor:jar:0.09
