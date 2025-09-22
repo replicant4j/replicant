@@ -398,21 +398,15 @@ public class ReplicantSessionManagerImpl
             .stream()
             .min( Comparator.comparing( ChannelLinkEntry::target ) )
             .orElse( null );
-        final List<ChannelLinkEntry> toSubscribe;
         final var target = entry.target();
-        if ( target.hasRootId() )
-        {
-          toSubscribe =
-            pending
-              .stream()
-              .filter( a -> a.target().channelId() == target.channelId() &&
-                            Objects.equals( a.filter(), entry.filter() ) )
-              .collect( Collectors.toList() );
-        }
-        else
-        {
-          toSubscribe = Collections.singletonList( entry );
-        }
+        final var toSubscribe =
+          target.hasRootId() ?
+          pending
+            .stream()
+            .filter( a -> a.target().channelId() == target.channelId() &&
+                          Objects.equals( a.filter(), entry.filter() ) )
+            .toList() :
+          Collections.singletonList( entry );
         final var channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
         if ( channelMetaData.areBulkLoadsSupported() )
         {
