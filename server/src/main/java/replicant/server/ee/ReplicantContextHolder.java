@@ -78,7 +78,7 @@ public final class ReplicantContextHolder
    * @return the value that was removed if any.
    */
   @Nullable
-  public static Object remove( @Nonnull final String key )
+  static Object remove( @Nonnull final String key )
   {
     final Map<String, Object> map = c_context.get();
     return null != map ? map.remove( key ) : null;
