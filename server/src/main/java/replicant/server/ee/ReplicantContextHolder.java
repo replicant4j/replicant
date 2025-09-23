@@ -29,46 +29,20 @@ public final class ReplicantContextHolder
    */
   public static void put( @Nonnull final String key, @Nullable final Object data )
   {
-    if ( null == data )
-    {
-      getRawContext().remove( key );
-    }
-    else
-    {
-      getRawContext().put( key, data );
-    }
-  }
-
-  /**
-   * Put all specified context data.
-   *
-   * @param data the data.
-   */
-  static void putAll( @Nonnull final Map<String, Object> data )
-  {
-    getRawContext().putAll( data );
-  }
-
-  /**
-   * Return a copy of the current ReplicantContext.
-   */
-  @Nonnull
-  public static Map<String, Object> getContext()
-  {
-    return new HashMap<>( getRawContext() );
-  }
-
-  /**
-   * Return the underlying ReplicantContext without copying.
-   */
-  private static Map<String, Object> getRawContext()
-  {
     if ( null == c_context.get() )
     {
       c_context.set( new HashMap<>() );
     }
 
-    return c_context.get();
+    final var context = c_context.get();
+    if ( null == data )
+    {
+      context.remove( key );
+    }
+    else
+    {
+      context.put( key, data );
+    }
   }
 
   /**
