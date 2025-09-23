@@ -2,6 +2,7 @@ package replicant.server.transport;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonValue;
@@ -21,6 +22,12 @@ public interface ReplicantSessionManager
    */
   @Nullable
   ReplicantSession getSession( @Nonnull String sessionId );
+
+  <T> T runRequest( @Nonnull String invocationKey,
+                    @Nullable ReplicantSession session,
+                    @Nullable Integer requestId,
+                    @Nonnull Callable<T> action )
+    throws Exception;
 
   /**
    * Return the st of valid session ids.
