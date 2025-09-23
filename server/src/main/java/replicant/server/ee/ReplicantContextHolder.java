@@ -94,14 +94,7 @@ public final class ReplicantContextHolder
   public static Object get( @Nonnull final String key )
   {
     final Map<String, Object> map = c_context.get();
-    if ( null == map )
-    {
-      return null;
-    }
-    else
-    {
-      return map.get( key );
-    }
+    return null == map ? null : map.get( key );
   }
 
   /**
