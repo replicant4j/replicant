@@ -457,12 +457,11 @@ public class ReplicantSessionManagerImpl
                                 changeSet );
   }
 
-  @Override
-  public boolean saveEntityMessages( @Nullable final String sessionId,
-                                     @Nullable final Integer requestId,
-                                     @Nullable final JsonValue response,
-                                     @Nonnull final Collection<EntityMessage> messages,
-                                     @Nullable final ChangeSet sessionChanges )
+  private boolean saveEntityMessages( @Nullable final String sessionId,
+                                      @Nullable final Integer requestId,
+                                      @Nullable final JsonValue response,
+                                      @Nonnull final Collection<EntityMessage> messages,
+                                      @Nullable final ChangeSet sessionChanges )
   {
     boolean impactsInitiator = false;
 
