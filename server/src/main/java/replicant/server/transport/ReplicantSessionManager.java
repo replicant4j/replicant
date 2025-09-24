@@ -1,10 +1,12 @@
 package replicant.server.transport;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.websocket.Session;
 import replicant.server.ChangeSet;
@@ -28,6 +30,13 @@ public interface ReplicantSessionManager
                     @Nullable Integer requestId,
                     @Nonnull Callable<T> action )
     throws Exception;
+
+  boolean isAuthorized( @Nonnull ReplicantSession session );
+
+  void execCommand( @Nonnull ReplicantSession session,
+                    @Nonnull String command,
+                    int requestId,
+                    @Nullable JsonObject payload );
 
   /**
    * Return the st of valid session ids.
@@ -60,20 +69,25 @@ public interface ReplicantSessionManager
   @Nonnull
   SchemaMetaData getSchemaMetaData();
 
-  void subscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter )
-    throws InterruptedException;
+  void setETags( @Nonnull ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags );
+
+  void subscribe( @Nonnull ReplicantSession session,
+                  int requestId,
+                  @Nonnull ChannelAddress address,
+                  @Nullable Object filter );
 
   void bulkSubscribe( @Nonnull ReplicantSession session,
+                      int requestId,
                       int channelId,
                       @Nullable Collection<Integer> rootIds,
-                      @Nullable Object filter )
-    throws InterruptedException;
+                      @Nullable Object filter );
 
-  void unsubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address )
-    throws InterruptedException;
+  void unsubscribe( @Nonnull ReplicantSession session, int requestId, @Nonnull ChannelAddress address );
 
-  void bulkUnsubscribe( @Nonnull ReplicantSession session, int channelId, @Nonnull Collection<Integer> rootIds )
-    throws InterruptedException;
+  void bulkUnsubscribe( @Nonnull ReplicantSession session,
+                        int requestId,
+                        int channelId,
+                        @Nonnull Collection<Integer> rootIds );
 
   /**
    * Send the "Change" message to the client.

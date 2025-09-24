@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -30,7 +31,9 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
+import javax.transaction.Status;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.Transactional;
 import javax.websocket.CloseReason;
@@ -42,19 +45,21 @@ import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
-import replicant.server.EntityMessageEndpoint;
+import replicant.server.EntityMessageSet;
 import replicant.server.ServerConstants;
 import replicant.server.ee.EntityMessageCacheUtil;
+import replicant.server.ee.ReplicantContextHolder;
 import replicant.server.json.JsonEncoder;
 
 /**
  * Session managers.
  */
+@SuppressWarnings( "DuplicatedCode" )
 @ApplicationScoped
 @Transactional
-@Typed( { EntityMessageEndpoint.class, ReplicantSessionManager.class } )
+@Typed( ReplicantSessionManager.class )
 public class ReplicantSessionManagerImpl
-  implements EntityMessageEndpoint, ReplicantSessionManager
+  implements ReplicantSessionManager
 {
   @Nonnull
   private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
@@ -128,7 +133,6 @@ public class ReplicantSessionManagerImpl
                               @Nonnull final ReplicantSession session,
                               @Nullable final Integer requestId,
                               @Nonnull final Runnable action )
-    throws InterruptedException
   {
     final ReentrantLock lock = session.getLock();
     try
@@ -144,17 +148,35 @@ public class ReplicantSessionManagerImpl
         completeReplication( invocationKey );
       }
     }
+    catch ( final InterruptedException ie )
+    {
+      session.closeDueToInterrupt();
+    }
     finally
     {
       lock.unlock();
     }
   }
 
-  void sessionUpdateRequest( @Nonnull final String invocationKey,
-                             @Nonnull final ReplicantSession session,
-                             final int requestId,
-                             @Nonnull final Runnable action )
-    throws InterruptedException
+  @Override
+  public boolean isAuthorized( @Nonnull final ReplicantSession session )
+  {
+    return _context.isAuthorized( session );
+  }
+
+  @Override
+  public void execCommand( @Nonnull final ReplicantSession session,
+                           @Nonnull final String command,
+                           final int requestId,
+                           @Nullable final JsonObject payload )
+  {
+    _context.execCommand( session, command, requestId, payload );
+  }
+
+  private void sessionUpdateRequest( @Nonnull final String invocationKey,
+                                     @Nonnull final ReplicantSession session,
+                                     final int requestId,
+                                     @Nonnull final Runnable action )
   {
     sessionLockingRequest( invocationKey, session, requestId, () -> {
       _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
@@ -748,24 +770,19 @@ public class ReplicantSessionManagerImpl
 
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
+                             final int requestId,
                              final int channelId,
                              @Nullable final Collection<Integer> rootIds,
                              @Nullable final Object filter )
-    throws InterruptedException
   {
-    if ( session.isOpen() )
-    {
-      final var lock = session.getLock();
-      lock.lockInterruptibly();
-      try
+    sessionUpdateRequest( "BulkSubscribe(" + channelId + ")", session, requestId, () -> {
+      if ( session.isOpen() )
       {
-        doBulkSubscribe( session, channelId, rootIds, filter, EntityMessageCacheUtil.getSessionChanges(), true );
+        final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+        sessionChanges.setRequired( true );
+        doBulkSubscribe( session, channelId, rootIds, filter, sessionChanges, true );
       }
-      finally
-      {
-        lock.unlock();
-      }
-    }
+    } );
   }
 
   private void doBulkSubscribe( @Nonnull final ReplicantSession session,
@@ -901,32 +918,36 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void subscribe( @Nonnull final ReplicantSession session,
-                         @Nonnull final ChannelAddress address,
-                         @Nullable final Object filter )
-    throws InterruptedException
+  public void setETags( @Nonnull final ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags )
   {
-    _context.preSubscribe( session, address, filter );
-    if ( session.isOpen() )
-    {
-      final ReentrantLock lock = session.getLock();
-      lock.lockInterruptibly();
-      try
-      {
-        subscribe( session, address, true, filter, EntityMessageCacheUtil.getSessionChanges() );
-      }
-      finally
-      {
-        lock.unlock();
-      }
-    }
+    sessionLockingRequest( "setEtags()", session, null, () -> session.setETags( eTags ) );
   }
 
-  protected void subscribe( @Nonnull final ReplicantSession session,
-                            @Nonnull final ChannelAddress address,
-                            final boolean explicitlySubscribe,
-                            @Nullable final Object filter,
-                            @Nonnull final ChangeSet changeSet )
+  @Override
+  public void subscribe( @Nonnull final ReplicantSession session,
+                         final int requestId,
+                         @Nonnull final ChannelAddress address,
+                         @Nullable final Object filter )
+  {
+    final String invocationKey = "Subscribe(" + address + ")";
+    sessionUpdateRequest( invocationKey, session, requestId, () -> {
+      _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
+      final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+      sessionChanges.setRequired( true );
+
+      _context.preSubscribe( session, address, filter );
+      if ( session.isOpen() )
+      {
+        subscribe( session, address, true, filter, sessionChanges );
+      }
+    } );
+  }
+
+  private void subscribe( @Nonnull final ReplicantSession session,
+                          @Nonnull final ChannelAddress address,
+                          final boolean explicitlySubscribe,
+                          @Nullable final Object filter,
+                          @Nonnull final ChangeSet changeSet )
   {
     final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
@@ -1283,27 +1304,23 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void unsubscribe( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
-    throws InterruptedException
+  public void unsubscribe( @Nonnull final ReplicantSession session,
+                           final int requestId,
+                           @Nonnull final ChannelAddress address )
   {
-    if ( session.isOpen() )
-    {
-      final var lock = session.getLock();
-      lock.lockInterruptibly();
-      try
+    sessionUpdateRequest( "Unsubscribe(" + address + ")", session, requestId, () -> {
+      if ( session.isOpen() )
       {
-        unsubscribe( session, address, EntityMessageCacheUtil.getSessionChanges() );
+        final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+        sessionChanges.setRequired( true );
+        unsubscribe( session, address, sessionChanges );
       }
-      finally
-      {
-        lock.unlock();
-      }
-    }
+    } );
   }
 
-  void unsubscribe( @Nonnull final ReplicantSession session,
-                    @Nonnull final ChannelAddress address,
-                    @Nonnull final ChangeSet changeSet )
+  private void unsubscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final ChannelAddress address,
+                            @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = session.findSubscriptionEntry( address );
     if ( null != entry )
@@ -1314,23 +1331,17 @@ public class ReplicantSessionManagerImpl
 
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
+                               final int requestId,
                                final int channelId,
                                @Nonnull final Collection<Integer> rootIds )
-    throws InterruptedException
   {
-    if ( session.isOpen() )
-    {
-      final var lock = session.getLock();
-      lock.lockInterruptibly();
-      try
+    sessionUpdateRequest( "BulkUnsubscribe(" + channelId + ")", session, requestId, () -> {
+      if ( session.isOpen() )
       {
+        EntityMessageCacheUtil.getSessionChanges().setRequired( true );
         doBulkUnsubscribe( session, channelId, rootIds );
       }
-      finally
-      {
-        lock.unlock();
-      }
-    }
+    } );
   }
 
   private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,

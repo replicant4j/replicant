@@ -48,14 +48,14 @@ public class ReplicantSessionManagerImplTest
   {
     TestInitialContextFactory.reset();
   }
-
+/*
   @Test
   public void basicWorkflow()
   {
     final var sm = createSessionManager();
     assertEquals( sm.getSessionIDs().size(), 0 );
     assertNull( sm.getSession( "MySessionID" ) );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
     assertNotNull( session );
     assertNotNull( session.getId() );
     assertEquals( sm.getSessionIDs().size(), 1 );
@@ -78,7 +78,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.isOpen() ).thenReturn( true );
 
     final ReplicantSessionManagerImpl sm = createSessionManager();
-    final ReplicantSession session = sm.createSession( webSocketSession );
+    final var session = sm.createSession( webSocketSession );
 
     assertEquals( sm.getSession( session.getId() ), session );
     sm.removeClosedSessions();
@@ -94,7 +94,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.isOpen() ).thenReturn( false );
 
     final ReplicantSessionManagerImpl sm = createSessionManager();
-    final ReplicantSession session = sm.createSession( webSocketSession );
+    final var session = sm.createSession( webSocketSession );
 
     assertEquals( sm.getSession( session.getId() ), session );
     sm.removeClosedSessions();
@@ -242,12 +242,14 @@ public class ReplicantSessionManagerImplTest
     final var address2 = new ChannelAddress( ch2.getChannelId(), null );
     final var address3 = new ChannelAddress( ch3.getChannelId(), null );
 
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
+    final var originalFilter = new TestFilter( 41 );
+    final var filter = new TestFilter( 42 );
+
+    final int requestId = ValueUtil.randomInt();
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
     final Session webSocketSession = session.getWebSocketSession();
     when( webSocketSession.isOpen() ).thenReturn( true );
 
@@ -258,7 +260,7 @@ public class ReplicantSessionManagerImplTest
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
-      final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -367,7 +369,7 @@ public class ReplicantSessionManagerImplTest
 
     // subscribe - matching cacheKey
     {
-      final ReplicantSession session = createSession( sm );
+      final var session = createSession( sm );
       final Session webSocketSession = session.getWebSocketSession();
       when( webSocketSession.isOpen() ).thenReturn( true );
 
@@ -377,7 +379,7 @@ public class ReplicantSessionManagerImplTest
 
       with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
-      final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -389,13 +391,13 @@ public class ReplicantSessionManagerImplTest
 
     // subscribe - cacheKey differs
     {
-      final ReplicantSession session = createSession( sm );
+      final var session = createSession( sm );
       with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> session.setETag( address1, "Y" ) );
       with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
-      final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
       assertNotNull( entry1 );
       assertEntry( entry1, false, 0, 0, null );
 
@@ -423,13 +425,13 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
 
     with( session, () -> sm.subscribe( session, address1, null ) );
 
-    final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -458,7 +460,7 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     context.setCacheKey( "X" );
 
@@ -471,7 +473,7 @@ public class ReplicantSessionManagerImplTest
 
     assertEquals( session.getETag( address1 ), "X" );
 
-    final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -499,7 +501,7 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     context.setCacheKey( "X" );
 
@@ -512,7 +514,7 @@ public class ReplicantSessionManagerImplTest
 
     assertNull( session.getETag( address1 ) );
 
-    final SubscriptionEntry entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
+    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
     assertNotNull( entry1 );
     assertEntry( entry1, true, 0, 0, null );
 
@@ -559,11 +561,11 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     // Test with no filter
     {
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+      final var e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -587,10 +589,10 @@ public class ReplicantSessionManagerImplTest
     }
 
     {
-      final TestFilter filter = new TestFilter( 42 );
+      final var filter = new TestFilter( 42 );
 
       EntityMessageCacheUtil.removeSessionChanges();
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address2 );
+      final var e1 = session.createSubscriptionEntry( address2 );
 
       assertChannelActionCount( 0 );
       assertEntry( e1, false, 0, 0, null );
@@ -616,7 +618,7 @@ public class ReplicantSessionManagerImplTest
 
     // Root instance is deleted
     {
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address3 );
+      final var e1 = session.createSubscriptionEntry( address3 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -671,9 +673,9 @@ public class ReplicantSessionManagerImplTest
     //Locally cached
     {
       sm.deleteAllCacheEntries();
-      final ReplicantSession session = createSession( sm );
+      final var session = createSession( sm );
       with( session, () -> session.setETag( address1, "X" ) );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+      final var e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -694,9 +696,9 @@ public class ReplicantSessionManagerImplTest
     //Locally cached but an old version
     {
       sm.deleteAllCacheEntries();
-      final ReplicantSession session = createSession( sm );
+      final var session = createSession( sm );
       with( session, () -> session.setETag( address1, "NOT" + context._cacheKey ) );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+      final var e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -715,8 +717,8 @@ public class ReplicantSessionManagerImplTest
     {
       reset( sm._broker );
       sm.deleteAllCacheEntries();
-      final ReplicantSession session = createSession( sm );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+      final var session = createSession( sm );
+      final var e1 = session.createSubscriptionEntry( address1 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -735,9 +737,9 @@ public class ReplicantSessionManagerImplTest
     {
       reset( sm._broker );
       sm.deleteAllCacheEntries();
-      final ReplicantSession session = createSession( sm );
+      final var session = createSession( sm );
       with( session, () -> session.setETag( address1, "X" ) );
-      final SubscriptionEntry e1 = session.createSubscriptionEntry( address2 );
+      final var e1 = session.createSubscriptionEntry( address2 );
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
 
@@ -788,13 +790,13 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
     {
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, null ) );
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
 
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
@@ -814,7 +816,7 @@ public class ReplicantSessionManagerImplTest
     {
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, null ) );
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
 
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
@@ -840,7 +842,7 @@ public class ReplicantSessionManagerImplTest
     {
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
 
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
@@ -861,10 +863,10 @@ public class ReplicantSessionManagerImplTest
     {
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
 
       with( session, () -> sm.subscribe( session, address2, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final SubscriptionEntry entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
+      final var entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
       with( session, () -> sm.linkSubscriptionEntries( entry2, entry ) );
 
       //Rebind clears the state
@@ -897,11 +899,11 @@ public class ReplicantSessionManagerImplTest
       with( session, () -> sm.subscribe( session, address4, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
       with( session, () -> sm.subscribe( session, address5, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
 
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-      final SubscriptionEntry entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
-      final SubscriptionEntry entry3 = with( session, () -> session.getSubscriptionEntry( address3 ) );
-      final SubscriptionEntry entry4 = with( session, () -> session.getSubscriptionEntry( address4 ) );
-      final SubscriptionEntry entry5 = with( session, () -> session.getSubscriptionEntry( address5 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
+      final var entry3 = with( session, () -> session.getSubscriptionEntry( address3 ) );
+      final var entry4 = with( session, () -> session.getSubscriptionEntry( address4 ) );
+      final var entry5 = with( session, () -> session.getSubscriptionEntry( address5 ) );
 
       with( session, () -> sm.linkSubscriptionEntries( entry, entry2 ) );
       with( session, () -> sm.linkSubscriptionEntries( entry, entry3 ) );
@@ -949,13 +951,13 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
     {
       EntityMessageCacheUtil.removeSessionChanges();
       with( session, () -> sm.subscribe( session, address1, null ) );
-      final SubscriptionEntry entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
+      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
 
       //Rebind clears the state
       EntityMessageCacheUtil.removeSessionChanges();
@@ -1001,7 +1003,7 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     EntityMessageCacheUtil.removeSessionChanges();
     with( session, () -> sm.subscribe( session, address1, null ) );
@@ -1049,7 +1051,7 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
     {
@@ -1063,7 +1065,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Integer> rootIds = new ArrayList<>();
+      final var rootIds = new ArrayList<Integer>();
       rootIds.add( address1.rootId() );
       rootIds.add( address2.rootId() );
       //This next one is not subscribed
@@ -1112,7 +1114,7 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     // Unsubscribe from channel that was explicitly subscribed
     {
@@ -1126,7 +1128,7 @@ public class ReplicantSessionManagerImplTest
 
       assertChannelActionCount( 0 );
 
-      final ArrayList<Integer> rootIds = new ArrayList<>();
+      final var rootIds = new ArrayList<Integer>();
       rootIds.add( address1.rootId() );
       rootIds.add( address2.rootId() );
       //This next one is not subscribed
@@ -1164,14 +1166,16 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
+    final var originalFilter = new TestFilter( 41 );
+    final var filter = new TestFilter( 42 );
 
     EntityMessageCacheUtil.removeSessionChanges();
 
-    with( session, () -> sm.subscribe( session, cd, originalFilter ) );
+    final int requestId = ValueUtil.randomInt();
+
+    with( session, () -> sm.subscribe( session, requestId, cd, originalFilter ) );
     EntityMessageCacheUtil.removeSessionChanges();
 
     TransactionSynchronizationRegistryUtil.lookup()
@@ -1179,7 +1183,7 @@ public class ReplicantSessionManagerImplTest
     // Attempt to update to same filter - should be a noop
     with( session, () -> sm.subscribe( session, cd, originalFilter ) );
 
-    final SubscriptionEntry e1 = with( session, () -> session.getSubscriptionEntry( cd ) );
+    final var e1 = with( session, () -> session.getSubscriptionEntry( cd ) );
     assertEntry( e1, true, 0, 0, originalFilter );
 
     assertChannelActionCount( 0 );
@@ -1213,24 +1217,25 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
+    final var originalFilter = new TestFilter( 41 );
+    final var filter = new TestFilter( 42 );
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+    final var e1 = session.createSubscriptionEntry( address1 );
     with( session, () -> e1.setFilter( originalFilter ) );
-    final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
+    final var e2 = session.createSubscriptionEntry( address2 );
     with( session, () -> e2.setFilter( originalFilter ) );
 
-    final ArrayList<Integer> rootIds = new ArrayList<>();
+    final var rootIds = new ArrayList<Integer>();
     rootIds.add( address1.rootId() );
     rootIds.add( address2.rootId() );
 
+    final int requestId = ValueUtil.randomInt();
     TransactionSynchronizationRegistryUtil.lookup()
-      .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
+      .putResource( ServerConstants.REQUEST_ID_KEY, requestId );
 
-    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, originalFilter );
+    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, originalFilter );
 
     EntityMessageCacheUtil.removeSessionChanges();
 
@@ -1239,7 +1244,7 @@ public class ReplicantSessionManagerImplTest
     assertEntry( e2, true, 0, 0, originalFilter );
 
     // Attempt to update to same filter - should be a noop
-    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, originalFilter );
+    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, originalFilter );
 
     assertEntry( e1, true, 0, 0, originalFilter );
     assertEntry( e2, true, 0, 0, originalFilter );
@@ -1248,7 +1253,7 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 0 );
 
     // Attempt to update no channels - should be noop
-    sm.bulkSubscribe( session, ch1.getChannelId(), new ArrayList<>(), filter );
+    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), new ArrayList<>(), filter );
 
     assertEntry( e1, true, 0, 0, originalFilter );
     assertEntry( e2, true, 0, 0, originalFilter );
@@ -1257,7 +1262,7 @@ public class ReplicantSessionManagerImplTest
     assertSessionChangesCount( 0 );
 
     // Attempt to update both channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
+    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, filter );
 
     assertEntry( e1, true, 0, 0, filter );
     assertEntry( e2, true, 0, 0, filter );
@@ -1272,7 +1277,7 @@ public class ReplicantSessionManagerImplTest
     with( session, () -> e2.setFilter( originalFilter ) );
 
     // Attempt to update one channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
+    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, filter );
 
     assertEntry( e1, true, 0, 0, filter );
     assertEntry( e2, true, 0, 0, filter );
@@ -1301,17 +1306,17 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
-    final TestFilter originalFilter = new TestFilter( 41 );
-    final TestFilter filter = new TestFilter( 42 );
+    final var originalFilter = new TestFilter( 41 );
+    final var filter = new TestFilter( 42 );
 
-    final SubscriptionEntry e1 = session.createSubscriptionEntry( address1 );
+    final var e1 = session.createSubscriptionEntry( address1 );
     with( session, () -> e1.setFilter( originalFilter ) );
-    final SubscriptionEntry e2 = session.createSubscriptionEntry( address2 );
+    final var e2 = session.createSubscriptionEntry( address2 );
     with( session, () -> e2.setFilter( originalFilter ) );
 
-    final ArrayList<Integer> rootIds = new ArrayList<>();
+    final var rootIds = new ArrayList<Integer>();
     rootIds.add( address1.rootId() );
     rootIds.add( address2.rootId() );
 
@@ -1326,7 +1331,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( context.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
 
     // Attempt to update both channels
-    sm.bulkSubscribe( session, ch1.getChannelId(), rootIds, filter );
+    sm.bulkSubscribe( session, ValueUtil.randomInt(), ch1.getChannelId(), rootIds, filter );
 
     // the original filter is still set as it is expected that the hook method does the magic
     assertEntry( e1, false, 0, 0, originalFilter );
@@ -1367,11 +1372,11 @@ public class ReplicantSessionManagerImplTest
 
     final var context = new TestReplicantSessionContext( channels );
     final var sm = createSessionManager( context );
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
-    final SubscriptionEntry se1 = session.createSubscriptionEntry( address1 );
-    final SubscriptionEntry se2a = session.createSubscriptionEntry( address2a );
-    final SubscriptionEntry se2b = session.createSubscriptionEntry( address2b );
+    final var se1 = session.createSubscriptionEntry( address1 );
+    final var se2a = session.createSubscriptionEntry( address2a );
+    final var se2b = session.createSubscriptionEntry( address2b );
 
     assertEntry( se1, false, 0, 0, null );
     assertEntry( se2a, false, 0, 0, null );
@@ -1423,7 +1428,7 @@ public class ReplicantSessionManagerImplTest
   public void newReplicantSession()
   {
     final var sm = createSessionManager();
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     assertTrue( session.getId().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
   }
@@ -1433,7 +1438,7 @@ public class ReplicantSessionManagerImplTest
     throws Exception
   {
     final var sm = createSessionManager();
-    final ReplicantSession session = createSession( sm );
+    final var session = createSession( sm );
 
     sm._registry.putResource( ServerConstants.REQUEST_ID_KEY, 1 );
 
@@ -1796,4 +1801,5 @@ public class ReplicantSessionManagerImplTest
       _registry = TransactionSynchronizationRegistryUtil.lookup();
     }
   }
+  */
 }

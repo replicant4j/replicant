@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
@@ -14,7 +15,21 @@ public interface ReplicantSessionContext
   @Nonnull
   SchemaMetaData getSchemaMetaData();
 
+  boolean isAuthorized( @Nonnull ReplicantSession session );
+
   void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
+
+  /**
+   * Flush the EntityManager that contains replicated entities.
+   *
+   * @return true if the EntityManager was open and flushed, false if was not open or could not be flushed.
+   */
+  boolean flushOpenEntityManager();
+
+  void execCommand( @Nonnull ReplicantSession session,
+                    @Nonnull String command,
+                    int requestId,
+                    @Nullable JsonObject payload );
 
   /**
    * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
