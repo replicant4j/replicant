@@ -80,6 +80,7 @@ public abstract class AbstractSecuredSessionRestService
     }
   }
 
+  @Nonnull
   private Response createForbiddenResponse()
   {
     return standardResponse( Response.Status.FORBIDDEN,
