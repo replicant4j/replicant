@@ -24,7 +24,9 @@ public final class EntityMessage
    */
   @Nonnull
   private final Map<String, Serializable> _routingKeys;
+  @Nullable
   private Set<ChannelLink> _links;
+  @Nullable
   private Map<String, Serializable> _attributeValues;
   private long _timestamp;
 
