@@ -648,7 +648,7 @@ public class ReplicantSessionManagerImpl
                                 s.target().equals( link.target() ) );
             if ( !alreadyCollected )
             {
-              final var entry = createChannelLinkEntryIfRequired( session, link );
+              final var entry = createChannelLinkEntryIfRequired( entityMessage, session, link );
               if ( null != entry )
               {
                 targets.add( entry );
@@ -669,8 +669,9 @@ public class ReplicantSessionManagerImpl
    * This method does not perform the actual subscription and this is deferred to a separate process.
    */
   @Nullable
-  ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final ReplicantSession session,
-                                                     @Nonnull final ChannelLink link )
+  private ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final EntityMessage entityMessage,
+                                                             @Nonnull final ReplicantSession session,
+                                                             @Nonnull final ChannelLink link )
   {
     final var source = link.source();
     final var sourceEntry = session.findSubscriptionEntry( source );
@@ -679,13 +680,21 @@ public class ReplicantSessionManagerImpl
       final var target = link.target();
       if ( getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter() )
       {
-        final var filter = link.targetFilter();
+        final var targetFilter = link.targetFilter();
+        // In most cases, the filter is not known and is specific to the session, and thus targetFilter will be null.
+        // In a few cases (bulk loads of static type graphs that only link to other static type graphs) the target
+        // filter is passed in. In all other scenarios we need to do some magic to make it work.
+        final Object filter =
+          null != targetFilter ?
+          targetFilter :
+          _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
+
         if ( _context.shouldFollowLink( sourceEntry, target, filter ) )
         {
           final var targetEntry = session.findSubscriptionEntry( target );
           if ( null == targetEntry )
           {
-            return new ChannelLinkEntry( source, link.target(), filter );
+            return new ChannelLinkEntry( source, target, filter );
           }
           else
           {
@@ -699,7 +708,7 @@ public class ReplicantSessionManagerImpl
         final var targetEntry = session.findSubscriptionEntry( target );
         if ( null == targetEntry )
         {
-          return new ChannelLinkEntry( source, link.target(), null );
+          return new ChannelLinkEntry( source, target, null );
         }
         else
         {

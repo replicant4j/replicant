@@ -20,6 +20,21 @@ public interface ReplicantSessionContext
   void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
 
   /**
+   * Derive a filter for the target channel based on the source channel and filter.
+   *
+   * @param entityMessage the entityMessage in the context of which the links is being created.
+   * @param source        the source channel.
+   * @param sourceFilter  the filter for the source channel.
+   * @param target        the target channel.
+   * @return the filter for the target channel.
+   */
+  @Nonnull
+  Object deriveTargetFilter( @Nonnull EntityMessage entityMessage,
+                             @Nonnull ChannelAddress source,
+                             @Nullable Object sourceFilter,
+                             @Nonnull ChannelAddress target );
+
+  /**
    * Flush the EntityManager that contains replicated entities.
    *
    * @return true if the EntityManager was open and flushed, false if was not open or could not be flushed.
