@@ -31,7 +31,7 @@ public class ReplicantMessageBrokerImpl
   implements ReplicantMessageBroker
 {
   @Nonnull
-  private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
+  private static final Logger LOG = Logger.getLogger( ReplicantMessageBrokerImpl.class.getName() );
   private static final long QUEUE_TIMEOUT = 10L;
   @Nonnull
   private final BlockingQueue<ReplicantSession> _queue = new LinkedBlockingDeque<>();
