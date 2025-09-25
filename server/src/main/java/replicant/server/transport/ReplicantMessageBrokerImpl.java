@@ -74,7 +74,8 @@ public class ReplicantMessageBrokerImpl
                                   @Nonnull final Collection<EntityMessage> messages,
                                   @Nonnull final ChangeSet changeSet )
   {
-    session.queuePacket( new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet ) );
+    final var packet = new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet );
+    session.queuePacket( packet );
     _queue.add( session );
   }
 
