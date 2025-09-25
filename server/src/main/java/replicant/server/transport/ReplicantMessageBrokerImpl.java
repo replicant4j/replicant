@@ -77,11 +77,19 @@ public class ReplicantMessageBrokerImpl
     final var packet = new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet );
     session.queuePacket( packet );
     _queue.add( session );
+    if ( LOG.isLoggable( Level.FINEST ) )
+    {
+      LOG.log( Level.FINEST, () -> "queueChangeMessage() queue.size=" + _queue.size() + " packet=" + packet );
+    }
   }
 
   @Override
   public void processPendingSessions()
   {
+    if ( !_queue.isEmpty() && LOG.isLoggable( Level.FINEST ) )
+    {
+      LOG.log( Level.FINEST, () -> "processPendingSessions() invoked with queue.size=" + _queue.size() );
+    }
     try
     {
       ReplicantSession session;
@@ -92,6 +100,10 @@ public class ReplicantMessageBrokerImpl
     }
     catch ( final InterruptedException ignored )
     {
+    }
+    catch ( final Throwable t )
+    {
+      LOG.log( Level.SEVERE, t, () -> "Error in processPendingSessions" );
     }
   }
 
