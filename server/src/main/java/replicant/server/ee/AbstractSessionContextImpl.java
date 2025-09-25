@@ -191,6 +191,7 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
+  @SuppressWarnings( { "resource", "SqlSourceToSinkFlow" } )
   protected void updateLinksToTargetGraph( @Nonnull final ReplicantSession session,
                                            @Nonnull final ChangeSet changeSet,
                                            @Nonnull final Object filter,
