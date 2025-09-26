@@ -1,9 +1,7 @@
 package replicant.server.ee.rest;
 
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -28,8 +26,6 @@ import replicant.server.ChannelAddress;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionManager;
-import replicant.server.transport.SchemaMetaData;
-import replicant.server.transport.SubscriptionEntry;
 import replicant.shared.SharedConstants;
 
 /**
@@ -76,7 +72,6 @@ public class ReplicantSessionRestService
   @Inject
   ReplicantSessionManager _sessionManager;
 
-
   @GET
   public Response listSessions( @Context @Nonnull final UriInfo uri )
   {
@@ -105,7 +100,7 @@ public class ReplicantSessionRestService
                               @PathParam( "channelId" ) @NotNull final int channelId,
                               @Context @Nonnull final UriInfo uri )
   {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
+    final var channelMetaData = getChannelMetaData( channelId );
     if ( channelMetaData.isTypeGraph() )
     {
       return doGetChannel( sessionId, toChannelDescriptor( channelId ), uri );
@@ -123,11 +118,10 @@ public class ReplicantSessionRestService
                               @PathParam( "rootId" ) @NotNull final int rootId,
                               @Context @Nonnull final UriInfo uri )
   {
-    final ChannelMetaData channelMetaData = getChannelMetaData( channelId );
+    final var channelMetaData = getChannelMetaData( channelId );
     if ( channelMetaData.isTypeGraph() )
     {
-      final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Supplied rootIds to type graph" );
+      final var response = standardResponse( Response.Status.BAD_REQUEST, "Supplied rootIds to type graph" );
       throw new WebApplicationException( response );
     }
     return doGetChannel( sessionId, new ChannelAddress( channelId, rootId ), uri );
@@ -138,16 +132,16 @@ public class ReplicantSessionRestService
                                    @Nonnull final ChannelAddress address,
                                    @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionId );
+    final var session = ensureSession( sessionId );
     return respondInSessionLock( session, () -> {
-      final SubscriptionEntry entry = session.findSubscriptionEntry( address );
+      final var entry = session.findSubscriptionEntry( address );
       if ( null == entry )
       {
         return standardResponse( Response.Status.NOT_FOUND, "No such channel" );
       }
       else
       {
-        final String content =
+        final var content =
           json( g -> Encoder.emitChannel( _sessionManager.getSchemaMetaData(), session, g, entry, uri ) );
         return buildResponse( Response.ok(), content );
       }
@@ -158,10 +152,9 @@ public class ReplicantSessionRestService
   protected Response doGetChannels( @Nonnull final String sessionId,
                                     @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionId );
+    final var session = ensureSession( sessionId );
     return respondInSessionLock( session, () -> {
-      final String content =
-        json( g -> Encoder.emitChannelsList( _sessionManager.getSchemaMetaData(), session, g, uri ) );
+      final var content = json( g -> Encoder.emitChannelsList( _sessionManager.getSchemaMetaData(), session, g, uri ) );
       return buildResponse( Response.ok(), content );
     } );
   }
@@ -170,7 +163,7 @@ public class ReplicantSessionRestService
   private Response respondInSessionLock( @Nonnull final ReplicantSession session,
                                          @Nonnull final Supplier<Response> action )
   {
-    final ReentrantLock lock = session.getLock();
+    final var lock = session.getLock();
     try
     {
       lock.lockInterruptibly();
@@ -191,8 +184,8 @@ public class ReplicantSessionRestService
                                             final int channelId,
                                             @Nonnull final UriInfo uri )
   {
-    final SchemaMetaData schemaMetaData = _sessionManager.getSchemaMetaData();
-    final ReplicantSession session = ensureSession( sessionId );
+    final var schemaMetaData = _sessionManager.getSchemaMetaData();
+    final var session = ensureSession( sessionId );
     return respondInSessionLock( session, () -> {
       final String content =
         json( g -> Encoder.emitInstanceChannelList( schemaMetaData, channelId, session, g, uri ) );
@@ -203,17 +196,15 @@ public class ReplicantSessionRestService
   @Nonnull
   protected Response doListSessions( @Nonnull final UriInfo uri )
   {
-    final String content = json( g -> emitSessionsList( g, uri ) );
-    return buildResponse( Response.ok(), content );
+    return buildResponse( Response.ok(), json( g -> emitSessionsList( g, uri ) ) );
   }
 
   private void emitSessionsList( @Nonnull final JsonGenerator g, @Nonnull final UriInfo uri )
   {
-    final Set<String> sessionIds = _sessionManager.getSessionIDs();
     g.writeStartArray();
-    for ( final String sessionId : sessionIds )
+    for ( final var sessionId : _sessionManager.getSessionIDs() )
     {
-      final ReplicantSession session = _sessionManager.getSession( sessionId );
+      final var session = _sessionManager.getSession( sessionId );
       if ( null != session )
       {
         Encoder.emitSession( _sessionManager.getSchemaMetaData(), session, g, uri, false );
@@ -226,9 +217,9 @@ public class ReplicantSessionRestService
   protected Response doGetSession( @Nonnull final String sessionId,
                                    @Nonnull final UriInfo uri )
   {
-    final ReplicantSession session = ensureSession( sessionId );
+    final var session = ensureSession( sessionId );
     return respondInSessionLock( session, () -> {
-      final String content =
+      final var content =
         json( g -> Encoder.emitSession( _sessionManager.getSchemaMetaData(), session, g, uri, true ) );
       return buildResponse( Response.ok(), content );
     } );
@@ -239,8 +230,7 @@ public class ReplicantSessionRestService
   {
     if ( getChannelMetaData( channelId ).isInstanceGraph() )
     {
-      final Response response =
-        standardResponse( Response.Status.BAD_REQUEST, "Failed to supply rootId to instance graph" );
+      final var response = standardResponse( Response.Status.BAD_REQUEST, "Failed to supply rootId to instance graph" );
       throw new WebApplicationException( response );
     }
     return new ChannelAddress( channelId );
@@ -255,7 +245,7 @@ public class ReplicantSessionRestService
   @Nonnull
   private ReplicantSession ensureSession( @Nonnull final String sessionId )
   {
-    final ReplicantSession session = _sessionManager.getSession( sessionId );
+    final var session = _sessionManager.getSession( sessionId );
     if ( null == session )
     {
       throw new WebApplicationException( standardResponse( Response.Status.NOT_FOUND, "No such session." ) );
@@ -266,7 +256,7 @@ public class ReplicantSessionRestService
   @Nonnull
   Response standardResponse( @Nonnull final Response.Status status, @Nonnull final String message )
   {
-    final String content =
+    final var content =
       json( g ->
             {
               g.writeStartObject();
@@ -276,15 +266,14 @@ public class ReplicantSessionRestService
               g.close();
             } );
 
-    final Response.ResponseBuilder builder = Response.status( status );
-    return buildResponse( builder, content );
+    return buildResponse( Response.status( status ), content );
   }
 
   @Nonnull
   private String json( @Nonnull final Consumer<JsonGenerator> consumer )
   {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator g = _factory.createGenerator( writer );
+    final var writer = new StringWriter();
+    final var g = _factory.createGenerator( writer );
     consumer.accept( g );
     g.close();
     return writer.toString();
