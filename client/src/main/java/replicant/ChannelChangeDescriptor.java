@@ -1,24 +1,16 @@
 package replicant;
 
-import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import replicant.messages.ChannelChange;
 import replicant.shared.Messages;
 
-final class ChannelChangeDescriptor
+record ChannelChangeDescriptor(@Nonnull Type type, @Nonnull ChannelAddress address, @Nullable Object filter)
 {
   enum Type
   {
     ADD, REMOVE, UPDATE, DELETE
   }
-
-  @Nonnull
-  private final Type _type;
-  @Nonnull
-  private final ChannelAddress _address;
-  @Nullable
-  private final Object _filter;
 
   @Nonnull
   static ChannelChangeDescriptor from( final int schema, @Nonnull final String channelAction )
@@ -45,32 +37,5 @@ final class ChannelChangeDescriptor
            Messages.Update.CHANNEL_ACTION_REMOVE == commandCode ? Type.REMOVE :
            Messages.Update.CHANNEL_ACTION_UPDATE == commandCode ? Type.UPDATE :
            Type.DELETE;
-  }
-
-  private ChannelChangeDescriptor( @Nonnull final Type type,
-                                   @Nonnull final ChannelAddress address,
-                                   @Nullable final Object filter )
-  {
-    _type = Objects.requireNonNull( type );
-    _address = Objects.requireNonNull( address );
-    _filter = filter;
-  }
-
-  @Nonnull
-  Type getType()
-  {
-    return _type;
-  }
-
-  @Nonnull
-  ChannelAddress getAddress()
-  {
-    return _address;
-  }
-
-  @Nullable
-  Object getFilter()
-  {
-    return _filter;
   }
 }

@@ -643,9 +643,9 @@ abstract class Connector
 
     for ( final ChannelChangeDescriptor channelChange : response.getChannelChanges() )
     {
-      final ChannelAddress address = channelChange.getAddress();
-      final Object filter = channelChange.getFilter();
-      final ChannelChangeDescriptor.Type actionType = channelChange.getType();
+      final ChannelAddress address = channelChange.address();
+      final Object filter = channelChange.filter();
+      final ChannelChangeDescriptor.Type actionType = channelChange.type();
 
       if ( ChannelChangeDescriptor.Type.ADD == actionType )
       {
@@ -1029,10 +1029,10 @@ abstract class Connector
       final List<ChannelChangeDescriptor> channelChanges = response.getChannelChanges();
 
       if ( 1 == channelChanges.size() &&
-           ChannelChangeDescriptor.Type.ADD == channelChanges.get( 0 ).getType() &&
-           getSchema().getChannel( channelChanges.get( 0 ).getAddress().channelId() ).isCacheable() )
+           ChannelChangeDescriptor.Type.ADD == channelChanges.get( 0 ).type() &&
+           getSchema().getChannel( channelChanges.get( 0 ).address().channelId() ).isCacheable() )
       {
-        final ChannelAddress address = channelChanges.get( 0 ).getAddress();
+        final ChannelAddress address = channelChanges.get( 0 ).address();
         cacheService.store( address, eTag, changeSet );
         candidate = true;
       }
