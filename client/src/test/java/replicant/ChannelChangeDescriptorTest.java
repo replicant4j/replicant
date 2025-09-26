@@ -13,10 +13,10 @@ public class ChannelChangeDescriptorTest
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "+23" );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.ADD );
-    assertNull( descriptor.filter() );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.ADD );
+    assertNull( descriptor.getFilter() );
   }
 
   @Test
@@ -24,10 +24,10 @@ public class ChannelChangeDescriptorTest
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "+23.2" );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.ADD );
-    assertNull( descriptor.filter() );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.ADD );
+    assertNull( descriptor.getFilter() );
   }
 
   @Test
@@ -35,10 +35,10 @@ public class ChannelChangeDescriptorTest
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "-23" );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.REMOVE );
-    assertNull( descriptor.filter() );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE );
+    assertNull( descriptor.getFilter() );
   }
 
   @Test
@@ -46,10 +46,10 @@ public class ChannelChangeDescriptorTest
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "-23.2" );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.REMOVE );
-    assertNull( descriptor.filter() );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE );
+    assertNull( descriptor.getFilter() );
   }
 
   @Test
@@ -59,10 +59,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "+23", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.ADD );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.ADD );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -72,10 +72,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "+23.2", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.ADD );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.ADD );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -85,10 +85,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "-23", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.REMOVE );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -98,10 +98,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "-23.2", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.REMOVE );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -111,10 +111,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "=23", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.UPDATE );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.UPDATE );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -124,10 +124,10 @@ public class ChannelChangeDescriptorTest
     final String filter = ValueUtil.randomString();
     final ChannelChangeDescriptor descriptor =
       ChannelChangeDescriptor.from( schemaId, ChannelChange.create( "=23.2", filter ) );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.UPDATE );
-    assertEquals( descriptor.filter(), filter );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.UPDATE );
+    assertEquals( descriptor.getFilter(), filter );
   }
 
   @Test
@@ -135,9 +135,9 @@ public class ChannelChangeDescriptorTest
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "!23.2" );
-    assertEquals( descriptor.address().schemaId(), schemaId );
-    assertEquals( descriptor.address().getName(), "0.23.2" );
-    assertEquals( descriptor.type(), ChannelChangeDescriptor.Type.DELETE );
-    assertNull( descriptor.filter() );
+    assertEquals( descriptor.getAddress().schemaId(), schemaId );
+    assertEquals( descriptor.getAddress().getName(), "0.23.2" );
+    assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.DELETE );
+    assertNull( descriptor.getFilter() );
   }
 }
