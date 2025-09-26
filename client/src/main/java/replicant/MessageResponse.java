@@ -323,18 +323,17 @@ final class MessageResponse
   @Nonnull
   private List<ChannelChangeDescriptor> toChannelChanges( @Nonnull final UpdateMessage changeSet )
   {
-    final List<ChannelChangeDescriptor> changes = new ArrayList<>();
-
+    final var changes = new ArrayList<ChannelChangeDescriptor>();
     if ( changeSet.hasChannels() )
     {
-      for ( final String channelChange : changeSet.getChannels() )
+      for ( final var channelChange : changeSet.getChannels() )
       {
         changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
       }
     }
     if ( changeSet.hasFilteredChannels() )
     {
-      for ( final ChannelChange channelChange : changeSet.getFilteredChannels() )
+      for ( final var channelChange : changeSet.getFilteredChannels() )
       {
         changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
       }
