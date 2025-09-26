@@ -64,6 +64,16 @@ public final class ChangeSet
         return;
       }
     }
+    else if ( ChannelAction.Action.UPDATE == action.action() )
+    {
+      // We have got an update for one we are adding so ignore the update
+      if ( _channelActions.stream().anyMatch( a -> ChannelAction.Action.ADD == a.action() &&
+                                                   a.address().equals( action.address() ) &&
+                                                   null == action.filter() ) )
+      {
+        return;
+      }
+    }
     else if ( ChannelAction.Action.REMOVE == action.action() )
     {
       if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
