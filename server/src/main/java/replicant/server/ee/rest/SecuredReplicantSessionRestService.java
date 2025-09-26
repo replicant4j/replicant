@@ -25,11 +25,9 @@ public class SecuredReplicantSessionRestService
   private boolean _disableSessionServiceProtection;
 
   @SuppressWarnings( "BanJNDI" )
-  @Override
   @PostConstruct
   public void postConstruct()
   {
-    super.postConstruct();
     try
     {
       _disableSessionServiceProtection = new InitialContext().lookup( "replicant/env/disable_session_service_protection" ).equals( Boolean.TRUE );

@@ -70,17 +70,12 @@ import replicant.shared.SharedConstants;
 @Transactional
 public class ReplicantSessionRestService
 {
-  private JsonGeneratorFactory _factory;
+  @Nonnull
+  private final JsonGeneratorFactory _factory =
+    Json.createGeneratorFactory( Collections.singletonMap( JsonGenerator.PRETTY_PRINTING, true ) );
   @Inject
   ReplicantSessionManager _sessionManager;
 
-  @PostConstruct
-  protected void postConstruct()
-  {
-    final HashMap<String, Object> config = new HashMap<>();
-    config.put( JsonGenerator.PRETTY_PRINTING, true );
-    _factory = Json.createGeneratorFactory( config );
-  }
 
   @GET
   public Response listSessions( @Context @Nonnull final UriInfo uri )
