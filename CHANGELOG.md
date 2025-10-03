@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Patch `ReplicationInterceptor` so that it does not remove the `ServerConstants.REQUEST_RESPONSE_KEY` from the context on completion so that the value van be propagated back to the caller.
+
 ### [v6.155](https://github.com/replicant4j/replicant/tree/v6.155) (2025-09-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.154...v6.155)
 
 Changes in this release:

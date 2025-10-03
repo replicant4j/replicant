@@ -3,9 +3,9 @@ package replicant.server.ee;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
-import javax.annotation.Priority;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -34,18 +34,7 @@ public class ReplicationInterceptor
     final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
     final ReplicantSession session = null != sessionId ? _sessionManager.getSession( sessionId ) : null;
     ReplicantContextHolder.clean();
-    try
-    {
-      return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, () -> {
-        final Object result = context.proceed();
-        ReplicantContextHolder.clean();
-        return result;
-      } );
-    }
-    finally
-    {
-      ReplicantContextHolder.clean();
-    }
+    return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, context::proceed );
   }
 
   @Nonnull
