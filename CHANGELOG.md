@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.157](https://github.com/replicant4j/replicant/tree/v6.157) (2025-10-07) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.156...v6.157)
+
+Changes in this release:
 
 * If an exec or subscription request is submitted within an Arez transaction then we delay the triggering of the replicant scheduler until the transaction completes by queuing an action.
 
