@@ -358,7 +358,7 @@ abstract class Connector
       getReplicantContext().getSpy().reportSpyEvent( new SyncRequestEvent( getSchema().getId() ) );
     }
     _transport.requestSync();
-    triggerMessageScheduler();
+    tryTriggerMessageScheduler();
   }
 
   void requestExec( @Nonnull final String command,
@@ -372,7 +372,7 @@ abstract class Connector
         .reportSpyEvent( new ExecRequestQueuedEvent( getSchema().getId(), getSchema().getName(), command ) );
     }
     ensureConnection().requestExec( command, payload, responseHandler );
-    triggerMessageScheduler();
+    tryTriggerMessageScheduler();
   }
 
   void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
@@ -382,7 +382,7 @@ abstract class Connector
       getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
     }
     ensureConnection().requestSubscribe( address, filter );
-    triggerMessageScheduler();
+    tryTriggerMessageScheduler();
   }
 
   void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
@@ -396,7 +396,7 @@ abstract class Connector
                        " but channel does not have a dynamic filter." );
     }
     ensureConnection().requestSubscriptionUpdate( address, filter );
-    triggerMessageScheduler();
+    tryTriggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionUpdateRequestQueuedEvent( address, filter ) );
@@ -406,7 +406,7 @@ abstract class Connector
   void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
     ensureConnection().requestUnsubscribe( address );
-    triggerMessageScheduler();
+    tryTriggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
       getReplicantContext().getSpy().reportSpyEvent( new UnsubscribeRequestQueuedEvent( address ) );
@@ -416,6 +416,11 @@ abstract class Connector
   boolean isSchedulerActive()
   {
     return _schedulerActive;
+  }
+
+  private void tryTriggerMessageScheduler()
+  {
+    context().task( this::triggerMessageScheduler );
   }
 
   /**

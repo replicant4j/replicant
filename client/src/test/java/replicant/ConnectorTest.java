@@ -413,7 +413,6 @@ public final class ConnectorTest
 
     assertEquals( connection.getPendingResponses().size(), 1 );
     assertEquals( connection.getPendingResponses().get( 0 ).getMessage(), message );
-    assertTrue( connector.isSchedulerActive() );
   }
 
   @Test
