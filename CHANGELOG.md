@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.158](https://github.com/replicant4j/replicant/tree/v6.158) (2025-10-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.157...v6.158)
+
+Changes in this release:
 
 * Gracefully handle non-contiguous Channel ids.
 
