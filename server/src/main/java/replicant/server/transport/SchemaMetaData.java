@@ -17,11 +17,10 @@ public final class SchemaMetaData
 
   public SchemaMetaData( @Nonnull final String name, @Nonnull final ChannelMetaData... channels )
   {
-    assert Arrays.stream( channels ).allMatch( Objects::nonNull );
     for ( int i = 0; i < channels.length; i++ )
     {
       final ChannelMetaData channel = channels[ i ];
-      if ( i != channel.getChannelId() )
+      if ( null != channel && i != channel.getChannelId() )
       {
         final String message = "Channel at index " + i + " does not have channel id matching index: " + channel;
         throw new IllegalArgumentException( message );
@@ -30,7 +29,7 @@ public final class SchemaMetaData
     _name = Objects.requireNonNull( name );
     _channels = channels;
     _instanceChannels =
-      Stream.of( channels ).filter( ChannelMetaData::isInstanceGraph ).toArray( ChannelMetaData[]::new );
+      Stream.of( channels ).filter( Objects::nonNull ).filter( ChannelMetaData::isInstanceGraph ).toArray( ChannelMetaData[]::new );
   }
 
   @Nonnull
@@ -56,6 +55,7 @@ public final class SchemaMetaData
   @Nonnull
   public ChannelMetaData getChannelMetaData( final int channelId )
   {
+    assert null != _channels[ channelId ];
     return _channels[ channelId ];
   }
 

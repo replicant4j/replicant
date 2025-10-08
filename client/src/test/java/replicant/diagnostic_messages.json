@@ -35,6 +35,11 @@
     "messagePattern": "Unable to locate Connector by schemaId %s"
   },
   {
+    "code": 8,
+    "type": "API_INVARIANT",
+    "messagePattern": "SystemSchema.getChannel(id) attempted to access null channel."
+  },
+  {
     "code": 9,
     "type": "API_INVARIANT",
     "messagePattern": "Entity.getName() invoked when Replicant.areNamesEnabled() is false"
@@ -238,11 +243,6 @@
     "code": 54,
     "type": "API_INVARIANT",
     "messagePattern": "SystemSchema named '%s' passed an array of entities where entity at index %s does not have id matching index."
-  },
-  {
-    "code": 55,
-    "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of channels that has a null element"
   },
   {
     "code": 56,

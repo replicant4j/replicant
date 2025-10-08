@@ -67,13 +67,10 @@ public final class SystemSchema
                             "' passed an array of entities where entity at index " + index + " does not " +
                             "have id matching index." );
       }
-      apiInvariant( () -> Arrays.stream( channels ).allMatch( Objects::nonNull ),
-                    () -> "Replicant-0055: SystemSchema named '" + ( null == name ? "?" : name ) +
-                          "' passed an array of channels that has a null element" );
       for ( int i = 0; i < channels.length; i++ )
       {
         final int index = i;
-        apiInvariant( () -> index == channels[ index ].getId(),
+        apiInvariant( () -> null == channels[ index ] || index == channels[ index ].getId(),
                       () -> "Replicant-0056: SystemSchema named '" + ( null == name ? "?" : name ) +
                             "' passed an array of channels where channel at index " + index + " does not " +
                             "have id matching index." );
@@ -173,6 +170,8 @@ public final class SystemSchema
     {
       apiInvariant( () -> channelId >= 0 && channelId < _channels.length,
                     () -> "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range." );
+      apiInvariant( () -> null != _channels[channelId],
+                    () -> "Replicant-0008: SystemSchema.getChannel(id) attempted to access null channel." );
     }
     return _channels[ channelId ];
   }
@@ -183,6 +182,7 @@ public final class SystemSchema
     return
       Stream
         .of( _channels )
+        .filter( Objects::nonNull )
         .flatMap( channelSchema ->
                     channelSchema
                       .getEntities()
@@ -202,6 +202,7 @@ public final class SystemSchema
     return
       Stream
         .of( _channels )
+        .filter( Objects::nonNull )
         .flatMap( channelSchema ->
                     channelSchema
                       .getEntities()

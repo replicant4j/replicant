@@ -18,7 +18,7 @@ public class SystemSchemaTest
     final EntitySchema entity2 =
       new EntitySchema( 1, ValueUtil.randomString(), String.class, ( i, d ) -> "", null, new ChannelLinkSchema[ 0 ] );
     final EntitySchema[] entities = new EntitySchema[]{ entity1, entity2 };
-    final ChannelSchema channel1 = new ChannelSchema( 0,
+    final ChannelSchema channel1 = new ChannelSchema( 1,
                                                       ValueUtil.randomString(),
                                                       null,
                                                       ChannelSchema.FilterType.NONE,
@@ -26,15 +26,15 @@ public class SystemSchemaTest
                                                       false,
                                                       true,
                                                       Collections.emptyList() );
-    final ChannelSchema[] channels = { channel1 };
+    final ChannelSchema[] channels = { null, channel1 };
     final SystemSchema systemSchema = new SystemSchema( id, name, channels, entities );
     assertEquals( systemSchema.getId(), id );
     assertEquals( systemSchema.getName(), name );
     assertEquals( systemSchema.getEntityCount(), 2 );
     assertEquals( systemSchema.getEntity( 0 ), entity1 );
     assertEquals( systemSchema.getEntity( 1 ), entity2 );
-    assertEquals( systemSchema.getChannelCount(), 1 );
-    assertEquals( systemSchema.getChannel( 0 ), channel1 );
+    assertEquals( systemSchema.getChannelCount(), 2 );
+    assertEquals( systemSchema.getChannel( 1 ), channel1 );
     assertEquals( systemSchema.toString(), name );
   }
 
@@ -63,6 +63,7 @@ public class SystemSchemaTest
   @Test
   public void construct_nullEntity()
   {
+
     final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(),
@@ -71,19 +72,6 @@ public class SystemSchemaTest
                                             new EntitySchema[]{ null } ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0053: SystemSchema named 'X' passed an array of entities that has a null element" );
-  }
-
-  @Test
-  public void construct_nullChannel()
-  {
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class,
-                    () -> new SystemSchema( ValueUtil.randomInt(),
-                                            "X",
-                                            new ChannelSchema[]{ null },
-                                            new EntitySchema[]{} ) );
-    assertEquals( exception.getMessage(),
-                  "Replicant-0055: SystemSchema named 'X' passed an array of channels that has a null element" );
   }
 
   @Test
