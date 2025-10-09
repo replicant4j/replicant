@@ -1443,15 +1443,18 @@ public class ReplicantSessionManagerImpl
     final var channelCount = schema.getChannelCount();
     for ( var i = 0; i < channelCount; i++ )
     {
-      final var channel = schema.getChannelMetaData( i );
-      if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
+      if ( schema.hasChannelMetaData( i ) )
       {
-        final var addresses = extractChannelAddressesFromMessage( channel, message );
-        if ( null != addresses )
+        final var channel = schema.getChannelMetaData( i );
+        if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
         {
-          for ( final var address : addresses )
+          final var addresses = extractChannelAddressesFromMessage( channel, message );
+          if ( null != addresses )
           {
-            deleteCacheEntry( address );
+            for ( final var address : addresses )
+            {
+              deleteCacheEntry( address );
+            }
           }
         }
       }
@@ -1466,18 +1469,21 @@ public class ReplicantSessionManagerImpl
     final var channelCount = schema.getChannelCount();
     for ( var i = 0; i < channelCount; i++ )
     {
-      final var channel = schema.getChannelMetaData( i );
-      final var addresses = extractChannelAddressesFromMessage( channel, message );
-      if ( null != addresses )
+      if ( schema.hasChannelMetaData( i ) )
       {
-        for ( final var address : addresses )
+        final var channel = schema.getChannelMetaData( i );
+        final var addresses = extractChannelAddressesFromMessage( channel, message );
+        if ( null != addresses )
         {
-          final var isFiltered = ChannelMetaData.FilterType.NONE != schema.getChannelMetaData( i ).getFilterType();
-          processUpdateMessage( address,
-                                message,
-                                session,
-                                changeSet,
-                                isFiltered ? m -> _context.filterEntityMessage( session, address, m ) : null );
+          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.getFilterType();
+          for ( final var address : addresses )
+          {
+            processUpdateMessage( address,
+                                  message,
+                                  session,
+                                  changeSet,
+                                  isFiltered ? m -> _context.filterEntityMessage( session, address, m ) : null );
+          }
         }
       }
     }

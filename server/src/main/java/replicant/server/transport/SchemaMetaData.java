@@ -1,6 +1,5 @@
 package replicant.server.transport;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -29,7 +28,10 @@ public final class SchemaMetaData
     _name = Objects.requireNonNull( name );
     _channels = channels;
     _instanceChannels =
-      Stream.of( channels ).filter( Objects::nonNull ).filter( ChannelMetaData::isInstanceGraph ).toArray( ChannelMetaData[]::new );
+      Stream.of( channels )
+        .filter( Objects::nonNull )
+        .filter( ChannelMetaData::isInstanceGraph )
+        .toArray( ChannelMetaData[]::new );
   }
 
   @Nonnull
@@ -55,8 +57,16 @@ public final class SchemaMetaData
   @Nonnull
   public ChannelMetaData getChannelMetaData( final int channelId )
   {
-    assert null != _channels[ channelId ];
+    if ( !hasChannelMetaData( channelId ) )
+    {
+      throw new IllegalArgumentException( "Channel with id " + channelId + " does not exist" );
+    }
     return _channels[ channelId ];
+  }
+
+  public boolean hasChannelMetaData( final int channelId )
+  {
+    return null != _channels[ channelId ];
   }
 
   public int getInstanceChannelCount()
