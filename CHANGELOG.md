@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.161](https://github.com/replicant4j/replicant/tree/v6.161) (2025-10-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.160...v6.161)
+
+Changes in this release:
 
 * Add `SystemSchema.hasChannel()` helper method.
 
