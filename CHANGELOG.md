@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.160](https://github.com/replicant4j/replicant/tree/v6.160) (2025-10-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.159...v6.160)
+
+Changes in this release:
 
 * Flush the Websocket after writing to it, to ensure data gets transmitted to the client.
 
