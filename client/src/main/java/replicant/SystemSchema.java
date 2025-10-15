@@ -157,6 +157,14 @@ public final class SystemSchema
   }
 
   /**
+   * Return true if system contains a channel with the specified channelId.
+   */
+  public boolean hasChannel( final int channelId )
+  {
+    return channelId >= 0 && channelId < _channels.length && null != _channels[ channelId ];
+  }
+
+  /**
    * Return the Channel with specified channelId.
    * The typeId MUST be 0 or more and less than {@link #getChannelCount()}.
    *
@@ -170,7 +178,7 @@ public final class SystemSchema
     {
       apiInvariant( () -> channelId >= 0 && channelId < _channels.length,
                     () -> "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range." );
-      apiInvariant( () -> null != _channels[channelId],
+      apiInvariant( () -> null != _channels[ channelId ],
                     () -> "Replicant-0008: SystemSchema.getChannel(id) attempted to access null channel." );
     }
     return _channels[ channelId ];
