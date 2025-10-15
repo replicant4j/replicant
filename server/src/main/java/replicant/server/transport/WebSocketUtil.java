@@ -2,6 +2,7 @@ package replicant.server.transport;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
+import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 
 @SuppressWarnings( "WeakerAccess" )
@@ -17,7 +18,9 @@ public final class WebSocketUtil
     {
       try
       {
-        session.getBasicRemote().sendText( message );
+        final var endpoint = session.getBasicRemote();
+        endpoint.sendText( message );
+        endpoint.flushBatch();
         return true;
       }
       catch ( final IOException ignored )
