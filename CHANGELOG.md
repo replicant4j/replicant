@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.braincheck` artifacts to version `1.32.0`.
+
 ### [v6.161](https://github.com/replicant4j/replicant/tree/v6.161) (2025-10-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.160...v6.161)
 
 Changes in this release:

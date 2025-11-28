@@ -29,9 +29,9 @@ artifacts:
 
   akasha: org.realityforge.akasha:akasha-gwt:jar:0.30
 
-  braincheck_core: org.realityforge.braincheck:braincheck-core:jar:1.31.0
+  braincheck_core: org.realityforge.braincheck:braincheck-core:jar:1.32.0
   braincheck_jre: org.realityforge.braincheck:braincheck-jre:jar:1.31.0
-  braincheck_testng: org.realityforge.braincheck:braincheck-testng:jar:1.31.0
+  braincheck_testng: org.realityforge.braincheck:braincheck-testng:jar:1.32.0
 
   jackson_annotations: com.fasterxml.jackson.core:jackson-annotations:jar:2.17.2
   jackson_core: com.fasterxml.jackson.core:jackson-core:jar:2.17.2
