@@ -1060,8 +1060,23 @@ abstract class Connector
     {
       final String id = change.getId();
       final int idSeparator = id.indexOf( "." );
-      final int typeId = Integer.parseInt( id.substring( 0, idSeparator ) );
-      final int entityId = Integer.parseInt( id.substring( idSeparator + 1 ) );
+      if ( idSeparator <= 0 || idSeparator >= id.length() - 1 )
+      {
+        onMessageProcessFailure( new IllegalArgumentException( "Invalid entity id format: '" + id + "'" ) );
+        return;
+      }
+      final int typeId;
+      final int entityId;
+      try
+      {
+        typeId = Integer.parseInt( id.substring( 0, idSeparator ) );
+        entityId = Integer.parseInt( id.substring( idSeparator + 1 ) );
+      }
+      catch ( final Throwable t )
+      {
+        onMessageProcessFailure( t );
+        return;
+      }
       final EntitySchema entitySchema = getSchema().getEntity( typeId );
       final Class<?> type = entitySchema.getType();
       Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId( type, entityId );
@@ -1105,10 +1120,18 @@ abstract class Connector
         for ( final String channel : channels )
         {
           final int separator = channel.indexOf( "." );
-          final ChannelAddress address =
-            new ChannelAddress( schemaId,
-                                Integer.parseInt( -1 == separator ? channel : channel.substring( 0, separator ) ),
-                                -1 == separator ? null : Integer.parseInt( channel.substring( separator + 1 ) ) );
+          final ChannelAddress address;
+          try
+          {
+            final int chId = Integer.parseInt( -1 == separator ? channel : channel.substring( 0, separator ) );
+            final Integer rootId = -1 == separator ? null : Integer.parseInt( channel.substring( separator + 1 ) );
+            address = new ChannelAddress( schemaId, chId, rootId );
+          }
+          catch ( final Throwable t )
+          {
+            onMessageProcessFailure( t );
+            return;
+          }
           final Subscription subscription = getReplicantContext().findSubscription( address );
           if ( Replicant.shouldCheckInvariants() )
           {
@@ -1116,8 +1139,15 @@ abstract class Connector
                        () -> "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel " +
                              address + " but no such subscription exists locally." );
           }
-          assert null != subscription;
-          entity.tryLinkToSubscription( subscription );
+          if ( null != subscription )
+          {
+            entity.tryLinkToSubscription( subscription );
+          }
+          else
+          {
+            onOutOfSync();
+            return;
+          }
         }
         /*
          We could get the existing subscriptions for an entity, and any that are not present
@@ -1409,32 +1439,52 @@ abstract class Connector
     {
       final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
       final String channel = useCacheMessage.getChannel();
-      final ChannelAddress address = ChannelAddress.parse( getSchema().getId(), channel );
+      final ChannelAddress address;
+      try
+      {
+        address = ChannelAddress.parse( getSchema().getId(), channel );
+      }
+      catch ( final Throwable t )
+      {
+        onMessageProcessFailure( t );
+        return;
+      }
       final String etag = useCacheMessage.getEtag();
 
       final CacheService cacheService = getReplicantContext().getCacheService();
-      if ( Replicant.shouldCheckApiInvariants() )
+      if ( null == cacheService )
       {
-        apiInvariant( () -> null != cacheService,
-                      () -> "Replicant-0042: Received a use-cache message for channel " + address +
-                            " but no cache service configured." );
+        ReplicantLogger.log( "Received a use-cache message for channel " + address +
+                             " but no cache service configured.", null );
+        onMessageReadFailure();
+        return;
       }
-      assert null != cacheService;
 
       final CacheEntry entry = cacheService.lookup( address );
-      if ( Replicant.shouldCheckApiInvariants() )
+      if ( null == entry )
       {
-        apiInvariant( () -> null != entry,
-                      () -> "Replicant-0068: Received a use-cache message for channel " + channel +
-                            " but no cache entry present for channel." );
-        assert null != entry;
-        apiInvariant( () -> entry.getETag().equals( etag ),
-                      () -> "Replicant-0075: Received a use-cache message for channel " + channel +
-                            " with etag '" + etag + "' but cache entry has etag '" + entry.getETag() +
-                            "'." );
+        ReplicantLogger.log( "Received a use-cache message for channel " + channel +
+                             " but no cache entry present for channel.", null );
+        onMessageReadFailure();
+        return;
       }
-      assert null != entry;
-      messageToQueue = Objects.requireNonNull( JSON.parse( entry.getContent() ) ).cast();
+      if ( !Objects.equals( entry.getETag(), etag ) )
+      {
+        ReplicantLogger.log( "Received a use-cache message for channel " + channel +
+                             " with etag '" + etag + "' but cache entry has etag '" + entry.getETag() + "'.",
+                             null );
+        onMessageReadFailure();
+        return;
+      }
+      try
+      {
+        messageToQueue = Objects.requireNonNull( JSON.parse( entry.getContent() ) ).cast();
+      }
+      catch ( final Throwable t )
+      {
+        onMessageProcessFailure( t );
+        return;
+      }
       messageToQueue.setRequestId( requestId );
     }
     else
