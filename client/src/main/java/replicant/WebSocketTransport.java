@@ -62,7 +62,7 @@ public final class WebSocketTransport
   }
 
   @Override
-  protected final void sendRemoteMessage( @Nonnull final Object message )
+  protected void sendRemoteMessage( @Nonnull final Object message )
   {
     _config.remote( () -> {
       // Attempts to perform a send can occur when there is no connection.
