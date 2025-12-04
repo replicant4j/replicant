@@ -140,4 +140,20 @@ public final class ChannelChangeDescriptorTest
     assertEquals( descriptor.getType(), ChannelChangeDescriptor.Type.DELETE );
     assertNull( descriptor.getFilter() );
   }
+
+  @Test
+  void badAction()
+  {
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> ChannelChangeDescriptor.from( 0, "*1" ) );
+    assertEquals( exception.getMessage(), "Failed to parse channel action '*1'" );
+  }
+
+  @Test
+  void badAddress()
+  {
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> ChannelChangeDescriptor.from( 0, "+X" ) );
+    assertEquals( exception.getMessage(), "Failed to parse channel action '+X'" );
+  }
 }
