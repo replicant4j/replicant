@@ -9,7 +9,6 @@ import jsinterop.annotations.JsType;
 /**
  * A change to an entity.
  */
-@SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class EntityChange
 {

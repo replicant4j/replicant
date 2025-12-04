@@ -8,7 +8,6 @@ import jsinterop.annotations.JsType;
 /**
  * The abstract message type that all messages that are sent from server conform to.
  */
-@SuppressFBWarnings( "EI_EXPOSE_REP" )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public abstract class ServerToClientMessage
   extends AbstractMessage
