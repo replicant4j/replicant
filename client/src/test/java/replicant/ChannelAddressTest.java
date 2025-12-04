@@ -34,7 +34,7 @@ public final class ChannelAddressTest
 
     assertEquals( address.schemaId(), 4 );
     assertEquals( address.channelId(), 77 );
-    assertEquals( address.rootId(), null );
+    assertNull( address.rootId() );
   }
 
   @Test
