@@ -9,7 +9,7 @@ public class ChannelChangeDescriptorTest
   extends AbstractReplicantTest
 {
   @Test
-  public void addTypeGraph()
+  void addTypeGraph()
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "+23" );
@@ -20,7 +20,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void addInstanceGraph()
+  void addInstanceGraph()
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "+23.2" );
@@ -31,7 +31,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void removeTypeGraph()
+  void removeTypeGraph()
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "-23" );
@@ -42,7 +42,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void removeInstanceGraph()
+  void removeInstanceGraph()
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "-23.2" );
@@ -53,7 +53,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void addFilteredTypeGraph()
+  void addFilteredTypeGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -66,7 +66,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void addFilteredInstanceGraph()
+  void addFilteredInstanceGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -79,7 +79,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void removeFilteredTypeGraph()
+  void removeFilteredTypeGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -92,7 +92,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void removeFilteredInstanceGraph()
+  void removeFilteredInstanceGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -105,7 +105,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void updateFilteredTypeGraph()
+  void updateFilteredTypeGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -118,7 +118,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void updateFilteredInstanceGraph()
+  void updateFilteredInstanceGraph()
   {
     final int schemaId = 0;
     final String filter = ValueUtil.randomString();
@@ -131,7 +131,7 @@ public class ChannelChangeDescriptorTest
   }
 
   @Test
-  public void deleteInstanceGraph()
+  void deleteInstanceGraph()
   {
     final int schemaId = 0;
     final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from( schemaId, "!23.2" );
