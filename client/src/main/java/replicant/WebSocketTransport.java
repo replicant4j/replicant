@@ -5,8 +5,12 @@ import akasha.WebSocket;
 import akasha.core.JSON;
 import java.util.Objects;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import jsinterop.base.Any;
+import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 import replicant.messages.ServerToClientMessage;
+import replicant.shared.Messages;
 
 public final class WebSocketTransport
   extends AbstractTransport
@@ -25,19 +29,94 @@ public final class WebSocketTransport
   {
     _webSocket = new WebSocket( _config.getUrl() );
 
-    _webSocket.onmessage = e -> onMessageReceived( toServerToClientMessage( e ) );
+    _webSocket.onmessage = this::handleMessageEvent;
     _webSocket.onerror = e -> onError();
     _webSocket.onclose = e -> onDisconnect();
   }
 
-  @Nonnull
-  private static ServerToClientMessage toServerToClientMessage( @Nonnull final MessageEvent e )
+  private void handleMessageEvent( @Nonnull final MessageEvent e )
   {
     final Any data = e.data();
-    assert null != data;
-    final Any parsedData = JSON.parse( data.asString() );
-    assert null != parsedData;
-    return parsedData.cast();
+    if ( null == data )
+    {
+      ReplicantLogger.log( "WebSocket message has null data", null );
+      onError();
+    }
+    else
+    {
+      try
+      {
+        final ServerToClientMessage message = tryParseMessage( data );
+        if ( null == message )
+        {
+          onError();
+        }
+        else
+        {
+          final String type = message.getType();
+          if ( isKnownMessageType( type ) )
+          {
+            onMessageReceived( message );
+          }
+          else
+          {
+            ReplicantLogger.log( "Unknown WebSocket message type: " + type, null );
+            onError();
+          }
+        }
+      }
+      catch ( final Throwable t )
+      {
+        ReplicantLogger.log( "Failed to parse WebSocket message", t );
+        onError();
+      }
+    }
+  }
+
+  private static boolean isKnownMessageType( @Nonnull final String type )
+  {
+    return Messages.S2C_Type.UPDATE.equals( type ) ||
+           Messages.S2C_Type.USE_CACHE.equals( type ) ||
+           Messages.S2C_Type.SESSION_CREATED.equals( type ) ||
+           Messages.S2C_Type.OK.equals( type ) ||
+           Messages.S2C_Type.MALFORMED_MESSAGE.equals( type ) ||
+           Messages.S2C_Type.UNKNOWN_REQUEST_TYPE.equals( type ) ||
+           Messages.S2C_Type.ERROR.equals( type );
+  }
+
+  @Nullable
+  private static ServerToClientMessage tryParseMessage( @Nonnull final Any data )
+  {
+    final String kind = Js.typeof( data );
+    Any parsed;
+    if ( "string".equals( kind ) )
+    {
+      parsed = JSON.parse( data.asString() );
+    }
+    else
+    {
+      ReplicantLogger.log( "WebSocket message incorrect type: " + kind, null );
+      return null;
+    }
+
+    if ( null == parsed )
+    {
+      ReplicantLogger.log( "WebSocket message parsed to null", null );
+      return null;
+    }
+    else
+    {
+      final JsPropertyMap<?> map = Js.asPropertyMap( parsed );
+      if ( null == map || !map.has( "type" ) )
+      {
+        ReplicantLogger.log( "WebSocket payload missing 'type' property", null );
+        return null;
+      }
+      else
+      {
+        return parsed.cast();
+      }
+    }
   }
 
   @Override

@@ -4,6 +4,7 @@
 
 * Update the `org.realityforge.braincheck` artifacts to version `1.32.0`.
 * Remove `SuppressFBWarnings` annotation as FinsBug and SpotBugs are not used and have not been used for many versions.
+* Harden WebSocket Message Parsing and Error Handling.
 
 ### [v6.161](https://github.com/replicant4j/replicant/tree/v6.161) (2025-10-15) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.160...v6.161)
 
