@@ -23,22 +23,30 @@ final class ChannelChangeDescriptor
   @Nonnull
   static ChannelChangeDescriptor from( final int schema, @Nonnull final String channelAction )
   {
-    try
-    {
-      final String descriptor = channelAction.substring( 1 );
-      final ChannelAddress address = ChannelAddress.parse( schema, descriptor );
-      return new ChannelChangeDescriptor( actionToType( channelAction ), address, null );
-    }
-    catch ( final Throwable t )
-    {
-      throw new IllegalStateException( "Failed to parse channel action '" + channelAction + "'", t );
-    }
+    return from( schema, channelAction, null );
   }
 
   @Nonnull
   static ChannelChangeDescriptor from( final int schema, @Nonnull final ChannelChange channelChange )
   {
-    return from( schema, channelChange.getChannel() );
+    return from( schema, channelChange.getChannel(), channelChange.getFilter() );
+  }
+
+  @Nonnull
+  private static ChannelChangeDescriptor from( final int schema,
+                                               @Nonnull final String channelAction,
+                                               @Nullable final Object filter )
+  {
+    try
+    {
+      final String descriptor = channelAction.substring( 1 );
+      final ChannelAddress address = ChannelAddress.parse( schema, descriptor );
+      return new ChannelChangeDescriptor( actionToType( channelAction ), address, filter );
+    }
+    catch ( final Throwable t )
+    {
+      throw new IllegalStateException( "Failed to parse channel action '" + channelAction + "'", t );
+    }
   }
 
   @Nonnull
