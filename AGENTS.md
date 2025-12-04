@@ -13,8 +13,7 @@ reasonable alternatives.
 - Java modules: `client/` (client-side code), `server/` (server-side code) and `shared/` (code used on both the server-side and client-side).
 - Build configuration: `buildfile` (Buildr), `tasks/*.rake` (CI/site tasks).
 - Source layout: `*/src/main/java/...`; tests: `*/src/test/java/...`.
-- Generated binaries and build artifacts should stay out of version control and should stay untouched unless you are
-  troubleshooting a local build.
+- Generated binaries and build artifacts should stay out of version control and should stay untouched unless you are troubleshooting a local build.
 - Keep `README.md` aligned with new features so downstream teams stay informed.
 
 ## General Principles
