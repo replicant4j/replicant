@@ -80,6 +80,10 @@ Additional details derived from the build:
 - Public API must include Javadoc; keep package-level docs in `package-info.java`.
 - GWT compatibility: annotate JVM-only code with `replicant.GwtIncompatible` (or package-local variant) and keep JS interop types (`@JsType`, `@JsMethod`) isolated as needed.
 
+Annotations:
+
+- GwtIncompatible: intentionally duplicated as package-local annotations in `replicant` and `replicant.messages` to avoid making the annotation public API. Only the name matters for GWT stripping; do not consolidate into a public type.
+
 ## Testing Guidelines
 
 - Framework: TestNG across modules.
