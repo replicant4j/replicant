@@ -18,6 +18,16 @@ public final class ChannelAddressTest
   }
 
   @Test
+  public void constructTypeChannel()
+  {
+    final ChannelAddress address = new ChannelAddress( 2, 4 );
+
+    assertEquals( address.schemaId(), 2 );
+    assertEquals( address.channelId(), 4 );
+    assertNull( address.rootId() );
+  }
+
+  @Test
   public void parseWithSubChannel()
   {
     final ChannelAddress address = ChannelAddress.parse( 2, "4.1" );
@@ -48,14 +58,32 @@ public final class ChannelAddressTest
   @Test
   public void testEquals()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 1 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2 );
+    final ChannelAddress address4 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address5 = new ChannelAddress( 2, 2, 1 );
+    final ChannelAddress address6 = new ChannelAddress( 1, 2 );
 
-    assertTrue( address.equals( address ) );
-    assertFalse( address.equals( new Object() ) );
-    assertFalse( address.equals( address2 ) );
-    assertFalse( address.equals( address3 ) );
+    assertTrue( address1.equals( address1 ) );
+    assertTrue( address1.equals( address2 ) );
+    assertFalse( address1.equals( new Object() ) );
+    assertFalse( address1.equals( null ) );
+    assertFalse( address1.equals( address3 ) );
+    assertFalse( address1.equals( address4 ) );
+    assertFalse( address1.equals( address5 ) );
+    assertFalse( address1.equals( address6 ) );
+  }
+
+  @Test
+  public void testHashCode()
+  {
+    final ChannelAddress address1 = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2 );
+
+    assertEquals( address1.hashCode(), address2.hashCode() );
+    assertNotEquals( address1.hashCode(), address3.hashCode() );
   }
 
   @Test
@@ -85,6 +113,7 @@ public final class ChannelAddressTest
   public void asChannelDescriptor()
   {
     assertEquals( new ChannelAddress( 1, 3, 5 ).asChannelDescriptor(), "3.5" );
+    assertEquals( new ChannelAddress( 1, 3 ).asChannelDescriptor(), "3" );
   }
 
   @SuppressWarnings( "EqualsWithItself" )
@@ -94,15 +123,27 @@ public final class ChannelAddressTest
     final ChannelAddress address1 = new ChannelAddress( 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 2, 3 );
     final ChannelAddress address3 = new ChannelAddress( 1, 2, 2 );
+    final ChannelAddress address4 = new ChannelAddress( 2, 1 );
+    final ChannelAddress address5 = new ChannelAddress( 1, 2 );
 
-    assertEquals( address1.compareTo( address1 ), 0 );
+    // Different schema
+    assertEquals( address1.compareTo( address4 ), -1 );
+    assertEquals( address4.compareTo( address1 ), 1 );
+
+    // Same schema, different channel
     assertEquals( address1.compareTo( address2 ), -1 );
-    assertEquals( address1.compareTo( address3 ), -1 );
     assertEquals( address2.compareTo( address1 ), 1 );
-    assertEquals( address2.compareTo( address2 ), 0 );
+
+    // Same schema, same channel, different root (val vs val)
     assertEquals( address2.compareTo( address3 ), 1 );
-    assertEquals( address3.compareTo( address1 ), 1 );
     assertEquals( address3.compareTo( address2 ), -1 );
-    assertEquals( address3.compareTo( address3 ), 0 );
+
+    // Same schema, same channel, different root (null vs val)
+    assertEquals( address5.compareTo( address2 ), -1 );
+    assertEquals( address2.compareTo( address5 ), 1 );
+
+    // Same schema, same channel, different root (null vs null)
+    assertEquals( address1.compareTo( address1 ), 0 );
+    assertEquals( address5.compareTo( address5 ), 0 );
   }
 }
