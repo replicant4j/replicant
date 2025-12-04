@@ -112,6 +112,39 @@ public final class ChannelAddress
   public int compareTo( @Nonnull final ChannelAddress o )
   {
     final int systemDiff = Integer.compare( schemaId(), o.schemaId() );
-    return 0 == systemDiff ? Integer.compare( channelId(), o.channelId() ) : systemDiff;
+    if ( 0 != systemDiff )
+    {
+      return systemDiff;
+    }
+    else
+    {
+      final int channelDiff = Integer.compare( channelId(), o.channelId() );
+      if ( 0 != channelDiff )
+      {
+        return channelDiff;
+      }
+      else
+      {
+        // Align ordering with equals by comparing rootId as well
+        final Integer r1 = rootId();
+        final Integer r2 = o.rootId();
+        if ( null == r1 && null == r2 )
+        {
+          return 0;
+        }
+        else if ( null == r1 )
+        {
+          return -1;
+        }
+        else if ( null == r2 )
+        {
+          return 1;
+        }
+        else
+        {
+          return Integer.compare( r1, r2 );
+        }
+      }
+    }
   }
 }

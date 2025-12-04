@@ -92,11 +92,17 @@ public final class ChannelAddressTest
   public void compareTo()
   {
     final ChannelAddress address1 = new ChannelAddress( 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2, 3 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2 );
 
     assertEquals( address1.compareTo( address1 ), 0 );
     assertEquals( address1.compareTo( address2 ), -1 );
+    assertEquals( address1.compareTo( address3 ), -1 );
     assertEquals( address2.compareTo( address1 ), 1 );
     assertEquals( address2.compareTo( address2 ), 0 );
+    assertEquals( address2.compareTo( address3 ), 1 );
+    assertEquals( address3.compareTo( address1 ), 1 );
+    assertEquals( address3.compareTo( address2 ), -1 );
+    assertEquals( address3.compareTo( address3 ), 0 );
   }
 }
