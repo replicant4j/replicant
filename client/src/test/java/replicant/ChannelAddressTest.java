@@ -8,7 +8,7 @@ public final class ChannelAddressTest
   extends AbstractReplicantTest
 {
   @Test
-  public void construct()
+  void construct()
   {
     final ChannelAddress address = new ChannelAddress( 2, 4, 1 );
 
@@ -18,7 +18,7 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void constructTypeChannel()
+  void constructTypeChannel()
   {
     final ChannelAddress address = new ChannelAddress( 2, 4 );
 
@@ -28,7 +28,7 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void parseWithSubChannel()
+  void parseWithSubChannel()
   {
     final ChannelAddress address = ChannelAddress.parse( 2, "4.1" );
 
@@ -38,7 +38,7 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void parse()
+  void parse()
   {
     final ChannelAddress address = ChannelAddress.parse( 4, "77" );
 
@@ -48,7 +48,7 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void getCacheKey()
+  void getCacheKey()
   {
     final ChannelAddress address = new ChannelAddress( 2, 4, 1 );
     assertEquals( address.getCacheKey(), "RC-2.4.1" );
@@ -56,7 +56,7 @@ public final class ChannelAddressTest
 
   @SuppressWarnings( { "EqualsWithItself", "SimplifiableAssertion", "ConstantValue" } )
   @Test
-  public void testEquals()
+  void testEquals()
   {
     final ChannelAddress address1 = new ChannelAddress( 1, 2, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
@@ -76,7 +76,7 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void testHashCode()
+  void testHashCode()
   {
     final ChannelAddress address1 = new ChannelAddress( 1, 2, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 2, 1 );
@@ -87,14 +87,14 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void toStringTest()
+  void toStringTest()
   {
     final ChannelAddress address = new ChannelAddress( 1, 2, 1 );
     assertEquals( address.toString(), "1.2.1" );
   }
 
   @Test
-  public void toStringTest_NamingDisabled()
+  void toStringTest_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
     final ChannelAddress address =
@@ -103,14 +103,14 @@ public final class ChannelAddressTest
   }
 
   @Test
-  public void getName_NamingDisabled()
+  void getName_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
     assertEquals( new ChannelAddress( 1, 3, 5 ).getName(), "1.3.5" );
   }
 
   @Test
-  public void asChannelDescriptor()
+  void asChannelDescriptor()
   {
     assertEquals( new ChannelAddress( 1, 3, 5 ).asChannelDescriptor(), "3.5" );
     assertEquals( new ChannelAddress( 1, 3 ).asChannelDescriptor(), "3" );
@@ -118,7 +118,7 @@ public final class ChannelAddressTest
 
   @SuppressWarnings( "EqualsWithItself" )
   @Test
-  public void compareTo()
+  void compareTo()
   {
     final ChannelAddress address1 = new ChannelAddress( 1, 1 );
     final ChannelAddress address2 = new ChannelAddress( 1, 2, 3 );
