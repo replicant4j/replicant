@@ -44,7 +44,7 @@ public class ChannelAddressTest
     assertEquals( address.getCacheKey(), "RC-2.4.1" );
   }
 
-  @SuppressWarnings( "EqualsWithItself" )
+  @SuppressWarnings( { "EqualsWithItself", "SimplifiableAssertion" } )
   @Test
   public void testEquals()
   {
