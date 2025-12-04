@@ -145,7 +145,7 @@ final class ReplicantConfig
     @Override
     String loggerType()
     {
-      return System.getProperty( "replicant.logger", PRODUCTION_MODE ? "basic" : "proxy" );
+      return System.getProperty( "replicant.logger", PRODUCTION_MODE ? "console" : "proxy" );
     }
 
     @GwtIncompatible
