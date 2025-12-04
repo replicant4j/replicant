@@ -120,7 +120,7 @@ Diagnostics fixtures and invariants:
   - `replicant.check_invariants`, `replicant.check_api_invariants` — enable invariant checks.
   - `replicant.enable_names`, `replicant.enable_zones`, `replicant.enable_spies` — feature toggles.
   - `replicant.validateChangeSetOnRead`, `replicant.validateEntitiesOnLoad` — additional validations.
-  - `replicant.logger` — `console`, `proxy`, or `none` (JVM production default effectively disables logging). Use `console` for human-readable logs or `proxy` in tests.
+  - `replicant.logger` — `console`, `proxy`, or `none`. Default is `console`. Tests and local debugging default to `proxy`.
 
 ## Generated Code
 
