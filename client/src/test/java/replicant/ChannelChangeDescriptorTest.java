@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import replicant.messages.ChannelChange;
 import static org.testng.Assert.*;
 
-public class ChannelChangeDescriptorTest
+public final class ChannelChangeDescriptorTest
   extends AbstractReplicantTest
 {
   @Test
