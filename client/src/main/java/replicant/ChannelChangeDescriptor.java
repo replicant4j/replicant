@@ -31,10 +31,7 @@ final class ChannelChangeDescriptor
   @Nonnull
   static ChannelChangeDescriptor from( final int schema, @Nonnull final ChannelChange channelChange )
   {
-    final String channelAction = channelChange.getChannel();
-    final Type type = actionToType( channelAction );
-    final ChannelAddress address = ChannelAddress.parse( schema, channelAction.substring( 1 ) );
-    return new ChannelChangeDescriptor( type, address, channelChange.getFilter() );
+    return from( schema, channelChange.getChannel() );
   }
 
   @Nonnull
