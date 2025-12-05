@@ -227,6 +227,16 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
+  /**
+   * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
+   */
+  protected void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                          @Nonnull final SubscriptionEntry targetEntry )
+  {
+    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
+    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
+  }
+
   protected void encodeObjects( @Nonnull final EntityMessageSet messages, @Nonnull final List<?> objects )
   {
     for ( final var object : objects )
