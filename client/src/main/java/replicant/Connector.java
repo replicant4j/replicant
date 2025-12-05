@@ -318,6 +318,14 @@ abstract class Connector
       // Purge in reverse order. First instance subscriptions then type subscriptions
       .sorted( Comparator.reverseOrder() )
       .forEachOrdered( Disposable::dispose );
+
+    // Purge AreaOfInterest for current system
+    getReplicantContext()
+      .getAreaOfInterestService()
+      .getAreasOfInterest()
+      .stream()
+      .filter( s -> s.getAddress().schemaId() == getSchema().getId() )
+      .forEachOrdered( aoi -> updateAreaOfInterest( aoi.getAddress(), AreaOfInterest.Status.NOT_ASKED ) );
   }
 
   void setLinksToProcessPerTick( final int linksToProcessPerTick )
