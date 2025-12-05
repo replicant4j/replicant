@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.162](https://github.com/replicant4j/replicant/tree/v6.162) (2025-12-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.161...v6.162)
+
+Changes in this release:
 
 * Update the `org.realityforge.braincheck` artifacts to version `1.32.0`.
 * Remove `SuppressFBWarnings` annotation as FinsBug and SpotBugs are not used and have not been used for many versions.
