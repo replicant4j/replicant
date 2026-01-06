@@ -35,8 +35,8 @@ final class ChannelCacheEntry
 
   void init( @Nonnull final String cacheKey, @Nonnull final ChangeSet changeSet )
   {
-    _cacheKey = cacheKey;
-    _changeSet = changeSet;
+    _cacheKey = Objects.requireNonNull( cacheKey );
+    _changeSet = Objects.requireNonNull( changeSet );
   }
 
   boolean isInitialized()
