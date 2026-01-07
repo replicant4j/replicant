@@ -522,7 +522,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Nonnull
-  protected String toDateString( @Nonnull final java.util.Date value )
+  protected String toDateString( @Nonnull final Date value )
   {
     return
       new Date( value.getTime() )
