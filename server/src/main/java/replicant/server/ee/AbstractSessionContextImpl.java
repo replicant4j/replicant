@@ -42,6 +42,22 @@ public abstract class AbstractSessionContextImpl
   @Resource
   private TransactionSynchronizationRegistry _registry;
 
+  @Override
+  public void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+                                           @Nonnull final List<ChannelAddress> addresses,
+                                           @Nullable final Object filter,
+                                           @Nonnull final ChangeSet changeSet,
+                                           final boolean isExplicitSubscribe )
+  {
+    doBulkCollectDataForSubscribe( session, addresses, filter, changeSet, isExplicitSubscribe );
+  }
+
+  protected abstract void doBulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
+                                                         @Nonnull final List<ChannelAddress> addresses,
+                                                         @Nullable final Object filter,
+                                                         @Nonnull final ChangeSet changeSet,
+                                                         final boolean isExplicitSubscribe );
+
   /**
    * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
    *
