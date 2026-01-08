@@ -432,9 +432,10 @@ public class ReplicantSessionManagerImpl
   }
 
   /**
-   * Send messages to the specified session.
+   * Send message to the specified session in rsponse to a cacheable channel subscription request.
    * The requesting service must NOT have made any other changes that will be sent to the
    * client, otherwise this message will be discarded.
+   * This can also be sent if the cache request resulted in deleted channel in which case the eTag will be null.
    *
    * @param session   the session.
    * @param etag      the etag for message if any.
