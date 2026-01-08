@@ -18,7 +18,6 @@ public class ChannelMetaDataTest
                            ChannelMetaData.FilterType.NONE,
                            null,
                            ChannelMetaData.CacheType.NONE,
-                           false,
                            false );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
@@ -28,7 +27,6 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isCacheable() );
     assertFalse( metaData.hasFilterParameter() );
     assertFalse( metaData.isExternal() );
-    assertFalse( metaData.areBulkLoadsSupported() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
     assertThrows( metaData::getFilterParameterFactory );
@@ -44,7 +42,6 @@ public class ChannelMetaDataTest
                            ChannelMetaData.FilterType.NONE,
                            null,
                            ChannelMetaData.CacheType.NONE,
-                           false,
                            true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
@@ -68,7 +65,6 @@ public class ChannelMetaDataTest
                            ChannelMetaData.FilterType.STATIC,
                            filterParameterFactory,
                            ChannelMetaData.CacheType.NONE,
-                           false,
                            true );
     assertEquals( metaData.getChannelId(), 1 );
     assertEquals( metaData.getName(), "MetaData" );
@@ -90,7 +86,6 @@ public class ChannelMetaDataTest
                                              ChannelMetaData.FilterType.STATIC,
                                              null,
                                              ChannelMetaData.CacheType.NONE,
-                                             false,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
@@ -98,7 +93,6 @@ public class ChannelMetaDataTest
                                              ChannelMetaData.FilterType.DYNAMIC,
                                              null,
                                              ChannelMetaData.CacheType.NONE,
-                                             false,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
@@ -106,7 +100,6 @@ public class ChannelMetaDataTest
                                              ChannelMetaData.FilterType.NONE,
                                              j -> null,
                                              ChannelMetaData.CacheType.NONE,
-                                             false,
                                              true ) );
   }
 }

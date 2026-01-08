@@ -16,7 +16,6 @@ public class SchemaMetaDataTest
                            ChannelMetaData.FilterType.NONE,
                            null,
                            ChannelMetaData.CacheType.NONE,
-                           false,
                            false );
     final ChannelMetaData ch1 =
       new ChannelMetaData( 1,
@@ -25,7 +24,6 @@ public class SchemaMetaDataTest
                            ChannelMetaData.FilterType.NONE,
                            null,
                            ChannelMetaData.CacheType.NONE,
-                           false,
                            false );
     final ChannelMetaData ch2 =
       new ChannelMetaData( 2,
@@ -34,7 +32,6 @@ public class SchemaMetaDataTest
                            ChannelMetaData.FilterType.NONE,
                            null,
                            ChannelMetaData.CacheType.NONE,
-                           true,
                            false );
     final String name = ValueUtil.randomString();
 

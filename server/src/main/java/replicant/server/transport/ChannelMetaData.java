@@ -59,10 +59,6 @@ public final class ChannelMetaData
   @Nonnull
   private final CacheType _cacheType;
   /**
-   * Flag indicating whether it is valid to attempt to perform bulk loads for channel.
-   */
-  private final boolean _bulkLoadsSupported;
-  /**
    * Flag indicating whether the channel can be subscribed to, externally.
    * i.e. Can this be explicitly subscribed.
    */
@@ -78,7 +74,6 @@ public final class ChannelMetaData
                           @Nonnull final FilterType filterType,
                           @Nullable final Function<JsonObject, Object> filterParameterFactory,
                           @Nonnull final CacheType cacheType,
-                          final boolean bulkLoadsSupported,
                           final boolean external,
                           @Nonnull final ChannelMetaData... requiredTypeGraphs )
   {
@@ -88,7 +83,6 @@ public final class ChannelMetaData
     _filterType = Objects.requireNonNull( filterType );
     _filterParameterFactory = filterParameterFactory;
     _cacheType = Objects.requireNonNull( cacheType );
-    _bulkLoadsSupported = bulkLoadsSupported;
     _external = external;
     _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
     if ( !hasFilterParameter() && null != filterParameterFactory )
@@ -165,11 +159,6 @@ public final class ChannelMetaData
   public CacheType getCacheType()
   {
     return _cacheType;
-  }
-
-  public boolean areBulkLoadsSupported()
-  {
-    return _bulkLoadsSupported;
   }
 
   public boolean isExternal()
