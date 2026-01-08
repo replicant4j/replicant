@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
@@ -17,6 +18,8 @@ public final class ChangeSet
   @Nonnull
   private final Map<String, Change> _changes = new LinkedHashMap<>();
   private boolean _required;
+  @Nullable
+  private String _eTag;
 
   public boolean hasContent()
   {
@@ -31,6 +34,23 @@ public final class ChangeSet
   public void setRequired( final boolean required )
   {
     _required = required;
+  }
+
+  public boolean isCacheResponse()
+  {
+    return null != _eTag;
+  }
+
+  @Nullable
+  public String getETag()
+  {
+    return _eTag;
+  }
+
+  public void setETag( @Nonnull final String eTag )
+  {
+    assert null == _eTag;
+    _eTag = Objects.requireNonNull( eTag );
   }
 
   public void mergeActions( @Nonnull final Collection<ChannelAction> actions )
@@ -142,6 +162,7 @@ public final class ChangeSet
 
   public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
   {
+    _eTag = changeSet.getETag();
     merge( changeSet.getChanges(), copyOnMerge );
     mergeActions( changeSet.getChannelActions() );
   }
