@@ -569,37 +569,18 @@ public class ReplicantSessionManagerImpl
             .toList() :
           Collections.singletonList( entry );
         final var channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
-        if ( channelMetaData.areBulkLoadsSupported() )
-        {
-          doBulkSubscribe( session,
-                           target.channelId(),
-                           channelMetaData.isTypeGraph() ?
-                           null :
-                           toSubscribe
-                             .stream()
-                             .map( ChannelLinkEntry::target )
-                             .map( ChannelAddress::rootId )
-                             .collect( Collectors.toList() ),
-                           entry.filter(),
-                           changeSet,
-                           false );
-        }
-        else
-        {
-          for ( final var e : toSubscribe )
-          {
-            final var targetEntry = session.createSubscriptionEntry( e.target() );
-            try
-            {
-              performSubscribe( session, targetEntry, false, entry.filter(), changeSet );
-            }
-            catch ( final Throwable t )
-            {
-              session.deleteSubscriptionEntry( targetEntry );
-              throw t;
-            }
-          }
-        }
+        doBulkSubscribe( session,
+                         target.channelId(),
+                         channelMetaData.isTypeGraph() ?
+                         null :
+                         toSubscribe
+                           .stream()
+                           .map( ChannelLinkEntry::target )
+                           .map( ChannelAddress::rootId )
+                           .collect( Collectors.toList() ),
+                         entry.filter(),
+                         changeSet,
+                         false );
         toSubscribe.forEach( pending::remove );
         subscribed.addAll( toSubscribe );
         for ( final var e : toSubscribe )
@@ -732,48 +713,6 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void updateSubscription( @Nonnull final ReplicantSession session,
-                                   @Nonnull final ChannelAddress address,
-                                   @Nullable final Object filter,
-                                   @Nonnull final ChangeSet changeSet )
-  {
-    final var channel = getSchemaMetaData().getChannelMetaData( address );
-    assert channel.hasFilterParameter();
-    assert channel.getFilterType() == ChannelMetaData.FilterType.DYNAMIC;
-
-    final var entry = session.getSubscriptionEntry( address );
-    final var originalFilter = entry.getFilter();
-    if ( doFiltersNotMatch( filter, originalFilter ) )
-    {
-      entry.setFilter( filter );
-      _context.collectDataForSubscriptionUpdate( session, address, originalFilter, filter, changeSet );
-      changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
-      // If collectDataForSubscriptionUpdate indicates that we should unsubscribe from a channel
-      // due to filter omitting entity (i.e. action == REMOVE) then we should explicitly unsubscribe
-      // from the channel. It is expected the applications that use non-auto graph-links can signal
-      // the removal of the target side by adding REMOVE action but it is up to this code to perform
-      // the actual remove
-      for ( final var channelAction : new ArrayList<>( changeSet.getChannelActions() ) )
-      {
-        if ( ChannelAction.Action.REMOVE == channelAction.action() )
-        {
-          final var other = session.findSubscriptionEntry( channelAction.address() );
-          // It is unclear when other is ever allowed to be null. If it is null then it probably means
-          // that collectDataForSubscriptionUpdate incorrectly added this action.z
-          if ( null != other )
-          {
-            performUnsubscribe( session, other, true, false, changeSet );
-          }
-        }
-      }
-      final var channelLinks = _context.propagateSubscriptionFilterUpdate( address, filter );
-      for ( final var link : channelLinks )
-      {
-        subscribe( session, link.target(), true, link.targetFilter(), changeSet );
-      }
-    }
-  }
-
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int requestId,
@@ -848,79 +787,91 @@ public class ReplicantSessionManagerImpl
         }
       }
     }
-    Throwable t = null;
 
     if ( !newChannels.isEmpty() )
     {
-      if ( channel.areBulkLoadsSupported() )
+      if ( channel.isCacheable() )
       {
-        _context.bulkCollectDataForSubscribe( session, newChannels, filter, changeSet, isExplicitSubscribe );
+        // Only type graphs are cached atm, need to add extra plumbing to cache instance graphs
+        assert channel.isTypeGraph();
+        // Only unfiltered graphs currently supported as cache targets, although static or internal
+        // caching would be possible if we wanted to add support
+        assert ChannelMetaData.FilterType.NONE == channel.getFilterType();
+        for ( var newChannel : newChannels )
+        {
+          final var cacheEntry = tryGetCacheEntry( newChannel );
+          if ( null != cacheEntry )
+          {
+            final var eTag = cacheEntry.getCacheKey();
+            if ( eTag.equals( session.getETag( newChannel ) ) )
+            {
+              if ( session.getWebSocketSession().isOpen() )
+              {
+                final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+                WebSocketUtil.sendText( session.getWebSocketSession(),
+                                        JsonEncoder.encodeUseCacheMessage( newChannel, eTag, requestId ) );
+                changeSet.setRequired( false );
+                // We need to mark this as handled otherwise the wrapper will attempt to send
+                // another ok message with same requestId
+                // TODO: We really need to be able to handle multiple cached results for a single request
+                _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
+              }
+            }
+            else
+            {
+              session.setETag( newChannel, null );
+              final var cacheChangeSet = new ChangeSet();
+              cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
+              //cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.ADD, filter );
+              queueCachedChangeSet( session, cacheChangeSet );
+              changeSet.setRequired( false );
+            }
+
+            final var entry = session.createSubscriptionEntry( newChannel );
+            if ( isExplicitSubscribe )
+            {
+              entry.setExplicitlySubscribed( true );
+            }
+            entry.setFilter( filter );
+          }
+          else
+          {
+            // If we get here then we have requested a cacheable instance channel
+            // where the root has been removed
+            assert newChannel.hasRootId();
+            final var cacheChangeSet = new ChangeSet();
+            cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.DELETE, null );
+            queueCachedChangeSet( session, cacheChangeSet );
+            changeSet.setRequired( false );
+          }
+        }
       }
       else
       {
-        t = subscribeToAddresses( session, newChannels, filter, changeSet );
+        _context.bulkCollectDataForSubscribe( session, newChannels, filter, changeSet, isExplicitSubscribe );
       }
     }
     if ( !channelsToUpdate.isEmpty() )
     {
+      assert !channel.isCacheable();
       for ( final var update : channelsToUpdate.entrySet() )
       {
         final var originalFilter = update.getKey();
         final var addresses = update.getValue();
 
-        if ( channel.areBulkLoadsSupported() )
+        if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
         {
-          if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
-          {
-            _context.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
-          }
-          else
-          {
-            final var message =
-              "Attempted to update filter on channel " + channel.getName() + " to " + filter + " but the " +
-              "channel that has a static filter. Unsubscribe and resubscribe to channel.";
-            throw new AttemptedToUpdateStaticFilterException( message );
-          }
+          _context.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
         }
         else
         {
-          final var error = subscribeToAddresses( session, addresses, filter, changeSet );
-          if ( null != error )
-          {
-            t = error;
-          }
+          final var message =
+            "Attempted to update filter on channel " + channel.getName() + " to " + filter + " but the " +
+            "channel that has a static filter. Unsubscribe and resubscribe to channel.";
+          throw new AttemptedToUpdateStaticFilterException( message );
         }
       }
     }
-    if ( t instanceof Error )
-    {
-      throw (Error) t;
-    }
-    else if ( null != t )
-    {
-      throw (RuntimeException) t;
-    }
-  }
-
-  @Nullable
-  private Throwable subscribeToAddresses( @Nonnull final ReplicantSession session,
-                                          @Nonnull final List<ChannelAddress> addresses,
-                                          @Nullable final Object filter,
-                                          @Nonnull final ChangeSet changeSet )
-  {
-    Throwable t = null;
-    for ( final var address : addresses )
-    {
-      try
-      {
-        subscribe( session, address, true, filter, changeSet );
-      }
-      catch ( final Throwable e )
-      {
-        t = e;
-      }
-    }
-    return t;
   }
 
   @Override
@@ -966,21 +917,14 @@ public class ReplicantSessionManagerImpl
       }
       if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
       {
-        if ( channelMetaData.areBulkLoadsSupported() )
-        {
-          doBulkSubscribe( session,
-                           address.channelId(),
-                           channelMetaData.isTypeGraph() ?
-                           null :
-                           Collections.singletonList( address.rootId() ),
-                           filter,
-                           changeSet,
-                           true );
-        }
-        else
-        {
-          updateSubscription( session, address, filter, changeSet );
-        }
+        doBulkSubscribe( session,
+                         address.channelId(),
+                         channelMetaData.isTypeGraph() ?
+                         null :
+                         Collections.singletonList( address.rootId() ),
+                         filter,
+                         changeSet,
+                         true );
       }
       else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
@@ -996,125 +940,20 @@ public class ReplicantSessionManagerImpl
     }
     else
     {
-      if ( channelMetaData.areBulkLoadsSupported() )
-      {
-        doBulkSubscribe( session,
-                         address.channelId(),
-                         channelMetaData.isTypeGraph() ?
-                         null :
-                         Collections.singletonList( address.rootId() ),
-                         filter,
-                         changeSet,
-                         true );
-      }
-      else
-      {
-        final var entry = session.createSubscriptionEntry( address );
-        try
-        {
-          performSubscribe( session, entry, explicitlySubscribe, filter, changeSet );
-        }
-        catch ( final Throwable e )
-        {
-          session.deleteSubscriptionEntry( entry );
-          throw e;
-        }
-      }
+      doBulkSubscribe( session,
+                       address.channelId(),
+                       channelMetaData.isTypeGraph() ?
+                       null :
+                       Collections.singletonList( address.rootId() ),
+                       filter,
+                       changeSet,
+                       true );
     }
   }
 
   private boolean doFiltersNotMatch( final Object filter1, final Object filter2 )
   {
     return ( null != filter2 || null != filter1 ) && ( null == filter2 || !filter2.equals( filter1 ) );
-  }
-
-  void performSubscribe( @Nonnull final ReplicantSession session,
-                         @Nonnull final SubscriptionEntry entry,
-                         final boolean explicitSubscribe,
-                         @Nullable final Object filter,
-                         @Nonnull final ChangeSet changeSet )
-  {
-    entry.setFilter( filter );
-    final var address = entry.address();
-    final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
-
-    subscribeToRequiredTypeChannels( session, channelMetaData );
-
-    if ( channelMetaData.isCacheable() )
-    {
-      final var cacheEntry = tryGetCacheEntry( address );
-      if ( null != cacheEntry )
-      {
-        if ( explicitSubscribe )
-        {
-          entry.setExplicitlySubscribed( true );
-        }
-
-        final var eTag = cacheEntry.getCacheKey();
-        if ( eTag.equals( session.getETag( address ) ) )
-        {
-          if ( session.getWebSocketSession().isOpen() )
-          {
-            final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-            WebSocketUtil.sendText( session.getWebSocketSession(),
-                                    JsonEncoder.encodeUseCacheMessage( address, eTag, requestId ) );
-            changeSet.setRequired( false );
-            // We need to mark this as handled otherwise the wrapper will attempt to send
-            // another ok message with same requestId
-            _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
-          }
-        }
-        else
-        {
-          session.setETag( address, null );
-          final var cacheChangeSet = new ChangeSet();
-          cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
-          cacheChangeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-          queueCachedChangeSet( session, eTag, cacheChangeSet );
-          changeSet.setRequired( false );
-        }
-      }
-      else
-      {
-        // If we get here then we have requested a cacheable instance channel
-        // where the root has been removed
-        assert address.hasRootId();
-        final var cacheChangeSet = new ChangeSet();
-        cacheChangeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
-        queueCachedChangeSet( session, null, cacheChangeSet );
-        changeSet.setRequired( false );
-      }
-    }
-    else
-    {
-      if ( channelMetaData.areBulkLoadsSupported() )
-      {
-        final var channelAddress =
-          new ChannelAddress( address.channelId(),
-                              channelMetaData.isTypeGraph() ? null : address.rootId() );
-        _context.bulkCollectDataForSubscribe( session,
-                                              Collections.singletonList( channelAddress ),
-                                              filter,
-                                              changeSet,
-                                              explicitSubscribe );
-      }
-      else
-      {
-        final var result = _context.collectDataForSubscribe( address, filter, changeSet );
-        if ( result.channelRootDeleted() )
-        {
-          changeSet.mergeAction( address, ChannelAction.Action.DELETE, null );
-        }
-        else
-        {
-          changeSet.mergeAction( address, ChannelAction.Action.ADD, filter );
-          if ( explicitSubscribe )
-          {
-            entry.setExplicitlySubscribed( true );
-          }
-        }
-      }
-    }
   }
 
   private void subscribeToRequiredTypeChannels( @Nonnull final ReplicantSession session,
@@ -1249,16 +1088,27 @@ public class ReplicantSessionManagerImpl
         return entry;
       }
       final var changeSet = new ChangeSet();
-      // TODO: At some point we should add support for bulk loads here
-      assert !metaData.areBulkLoadsSupported();
-      final var result = _context.collectDataForSubscribe( address, null, changeSet );
-      if ( result.channelRootDeleted() )
+      _context.bulkCollectDataForSubscribe( null, Collections.singletonList( address ), null, changeSet, false );
+      final var cacheKey = changeSet.getETag();
+      final var channelAction =
+        changeSet
+          .getChannelActions()
+          .stream()
+          .filter( a -> a.address().equals( address ) )
+          .findFirst()
+          .orElse( null );
+      assert null != channelAction;
+      final var action = channelAction.action();
+      // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+      if ( ChannelAction.Action.DELETE == action )
       {
+        assert null == cacheKey;
         return null;
       }
       else
       {
-        final var cacheKey = result.cacheKey();
+        // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
+        assert ChannelAction.Action.ADD == action;
         assert null != cacheKey;
         entry.init( cacheKey, changeSet );
         return entry;
@@ -1599,14 +1449,5 @@ public class ReplicantSessionManagerImpl
         delinkDownstreamSubscriptions( session, entry, m, changeSet );
       }
     }
-  }
-
-  /**
-   * @return the lock used to guard access to sessions map.
-   */
-  @Nonnull
-  ReadWriteLock getLock()
-  {
-    return _lock;
   }
 }

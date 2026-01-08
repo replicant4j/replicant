@@ -1,13 +1,11 @@
 package replicant.server.transport;
 
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
-import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 
 public interface ReplicantSessionContext
@@ -47,25 +45,17 @@ public interface ReplicantSessionContext
                     @Nullable JsonObject payload );
 
   /**
-   * @return the cacheKey if any. The return value is ignored for non-cacheable channels.
-   */
-  @Nonnull
-  SubscribeResult collectDataForSubscribe( @Nonnull ChannelAddress address,
-                                           @Nullable Object filter,
-                                           @Nonnull ChangeSet changeSet );
-
-  void collectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                         @Nonnull ChannelAddress address,
-                                         @Nullable Object originalFilter,
-                                         @Nullable Object filter,
-                                         @Nonnull ChangeSet changeSet );
-
-  /**
    * This method is called in an attempt to use a more efficient method for bulk loading instance graphs.
    * Subclasses may return false form this method, in which case collectDataForSubscribe will be called
    * for each independent channel.
+   *
+   * @param session             the session. May be null if data is being collected for the purposes of caching.
+   * @param addresses           the addresses of the channels to collect data for.
+   * @param filter              the filter to apply to the channels. May be null.
+   * @param changeSet           the changeSet to add the collected data to.
+   * @param isExplicitSubscribe true if the subscribe is explicit, false if it is implicit, ignored unless session is non-null.
    */
-  void bulkCollectDataForSubscribe( @Nonnull ReplicantSession session,
+  void bulkCollectDataForSubscribe( @Nullable ReplicantSession session,
                                     @Nonnull List<ChannelAddress> addresses,
                                     @Nullable Object filter,
                                     @Nonnull ChangeSet changeSet,
@@ -86,10 +76,6 @@ public interface ReplicantSessionContext
   EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,
                                      @Nonnull ChannelAddress address,
                                      @Nonnull EntityMessage message );
-
-  @Nonnull
-  Collection<ChannelLink> propagateSubscriptionFilterUpdate( @Nonnull ChannelAddress source,
-                                                             @Nullable Object sourceFilter );
 
   boolean shouldFollowLink( @Nonnull SubscriptionEntry sourceEntry,
                             @Nonnull ChannelAddress target,
