@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Remove support for non-bulk-loaded graphs and all related infrastructure.
+
 ### [v6.163](https://github.com/replicant4j/replicant/tree/v6.163) (2025-12-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.162...v6.163)
 
 Changes in this release:
