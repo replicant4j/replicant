@@ -438,22 +438,19 @@ public class ReplicantSessionManagerImpl
    * This can also be sent if the cache request resulted in deleted channel in which case the eTag will be null.
    *
    * @param session   the session.
-   * @param etag      the etag for message if any.
    * @param changeSet the messages to be sent along to the client.
    */
   void queueCachedChangeSet( @Nonnull final ReplicantSession session,
-                             @Nullable final String etag,
                              @Nonnull final ChangeSet changeSet )
   {
-    final TransactionSynchronizationRegistry registry = _registry;
-    final Integer requestId = (Integer) registry.getResource( ServerConstants.REQUEST_ID_KEY );
-    registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
-    registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
+    final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+    _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
+    _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
     _broker.queueChangeMessage( session,
                                 true,
                                 requestId,
                                 null,
-                                etag,
+                                changeSet.getETag(),
                                 Collections.emptyList(),
                                 changeSet );
   }
