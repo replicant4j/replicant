@@ -25,7 +25,9 @@ public final class ChannelSchema
     /// Filtering is specified when the channel is created and is unable to be changed
     STATIC,
     /// Filtering can be changed after the channel has been created
-    DYNAMIC
+    DYNAMIC,
+    /// Filtering can be changed after the channel has been created and supports multiple instances
+    DYNAMIC_INSTANCED
   }
 
   /**
@@ -50,7 +52,7 @@ public final class ChannelSchema
   private final FilterType _filterType;
   /**
    * The hook to filter entities when filter changes. This should be null unless {@link #_filterType} is
-   * {@link FilterType#DYNAMIC}.
+   * {@link FilterType#DYNAMIC} or {@link FilterType#DYNAMIC_INSTANCED}.
    */
   @Nullable
   private final SubscriptionUpdateEntityFilter<?> _filter;
@@ -82,10 +84,12 @@ public final class ChannelSchema
       apiInvariant( () -> Replicant.areNamesEnabled() || null == name,
                     () -> "Replicant-0045: ChannelSchema passed a name '" + name +
                           "' but Replicant.areNamesEnabled() is false" );
-      apiInvariant( () -> FilterType.DYNAMIC != filterType || null != filter,
+      apiInvariant( () -> ( FilterType.DYNAMIC != filterType && FilterType.DYNAMIC_INSTANCED != filterType ) ||
+                          null != filter,
                     () -> "Replicant-0076: ChannelSchema " + id + " has a DYNAMIC filterType " +
                           "but has supplied no filter." );
-      apiInvariant( () -> FilterType.DYNAMIC == filterType || null == filter,
+      apiInvariant( () -> ( FilterType.DYNAMIC == filterType || FilterType.DYNAMIC_INSTANCED == filterType ) ||
+                          null == filter,
                     () -> "Replicant-0077: ChannelSchema " + id + " does not have a DYNAMIC filterType " +
                           "but has supplied a filter." );
     }
@@ -172,7 +176,8 @@ public final class ChannelSchema
 
   /**
    * Return the hook that filters entities when the filter changes.
-   * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC}.
+   * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC} or
+   * {@link FilterType#DYNAMIC_INSTANCED}.
    *
    * @return the hook to filter entities.
    */

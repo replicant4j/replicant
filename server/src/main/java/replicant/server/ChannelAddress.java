@@ -3,21 +3,29 @@ package replicant.server;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public record ChannelAddress(int channelId, @Nullable Integer rootId)
+public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId)
   implements Comparable<ChannelAddress>
 {
   @Nonnull
   public static ChannelAddress parse( @Nonnull final String name )
   {
-    final int offset = name.indexOf( "." );
-    final int channelId = Integer.parseInt( -1 == offset ? name : name.substring( 0, offset ) );
-    final Integer rootId = -1 == offset ? null : Integer.parseInt( name.substring( offset + 1 ) );
-    return new ChannelAddress( channelId, rootId );
+    final int instanceOffset = name.indexOf( '#' );
+    final String channelPart = -1 == instanceOffset ? name : name.substring( 0, instanceOffset );
+    final String filterInstanceId = -1 == instanceOffset ? null : name.substring( instanceOffset + 1 );
+    final int offset = channelPart.indexOf( "." );
+    final int channelId = Integer.parseInt( -1 == offset ? channelPart : channelPart.substring( 0, offset ) );
+    final Integer rootId = -1 == offset ? null : Integer.parseInt( channelPart.substring( offset + 1 ) );
+    return new ChannelAddress( channelId, rootId, filterInstanceId );
   }
 
   public ChannelAddress( final int channelId )
   {
-    this( channelId, null );
+    this( channelId, null, null );
+  }
+
+  public ChannelAddress( final int channelId, @Nullable final Integer rootId )
+  {
+    this( channelId, rootId, null );
   }
 
   public boolean hasRootId()
@@ -39,7 +47,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId)
       final Integer rootId = rootId();
       if ( null == otherRootId && null == rootId )
       {
-        return 0;
+        // continue
       }
       else if ( null == otherRootId )
       {
@@ -51,8 +59,30 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId)
       }
       else
       {
-        return rootId.compareTo( otherRootId );
+        final int rootDiff = rootId.compareTo( otherRootId );
+        if ( 0 != rootDiff )
+        {
+          return rootDiff;
+        }
       }
+    }
+    final String f1 = filterInstanceId();
+    final String f2 = other.filterInstanceId();
+    if ( null == f1 && null == f2 )
+    {
+      return 0;
+    }
+    else if ( null == f1 )
+    {
+      return -1;
+    }
+    else if ( null == f2 )
+    {
+      return 1;
+    }
+    else
+    {
+      return f1.compareTo( f2 );
     }
   }
 
@@ -60,6 +90,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId)
   @Override
   public String toString()
   {
-    return channelId + ( null == rootId ? "" : "." + rootId );
+    final String base = channelId + ( null == rootId ? "" : "." + rootId );
+    return base + ( null == filterInstanceId ? "" : "#" + filterInstanceId );
   }
 }

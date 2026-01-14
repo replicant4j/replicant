@@ -2,6 +2,7 @@ package replicant.server.transport;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
@@ -71,23 +72,14 @@ public interface ReplicantSessionManager
 
   void setETags( @Nonnull ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags );
 
-  void subscribe( @Nonnull ReplicantSession session,
-                  int requestId,
-                  @Nonnull ChannelAddress address,
-                  @Nullable Object filter );
-
   void bulkSubscribe( @Nonnull ReplicantSession session,
                       int requestId,
-                      int channelId,
-                      @Nullable Collection<Integer> rootIds,
+                      @Nonnull List<ChannelAddress> addresses,
                       @Nullable Object filter );
-
-  void unsubscribe( @Nonnull ReplicantSession session, int requestId, @Nonnull ChannelAddress address );
 
   void bulkUnsubscribe( @Nonnull ReplicantSession session,
                         int requestId,
-                        int channelId,
-                        @Nonnull Collection<Integer> rootIds );
+                        @Nonnull List<ChannelAddress> addresses );
 
   /**
    * Send the "Change" message to the client.

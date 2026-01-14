@@ -2,7 +2,8 @@ package replicant.server.ee;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -292,7 +293,7 @@ public class ReplicantEndpoint
     {
       final int requestId = command.getInt( Messages.Common.REQUEST_ID );
       final Object filter = extractFilter( channelMetaData, command );
-      _sessionManager.subscribe( replicantSession, requestId, address, filter );
+      _sessionManager.bulkSubscribe( replicantSession, requestId, Collections.singletonList( address ), filter );
     }
   }
 
@@ -316,6 +317,10 @@ public class ReplicantEndpoint
       sendErrorAndClose( replicantSession, "Attempted to subscribe to instance channel without instance data" );
       return false;
     }
+    else if ( !validateFilterInstanceId( replicantSession, channelMetaData, address ) )
+    {
+      return false;
+    }
     else
     {
       return true;
@@ -332,7 +337,6 @@ public class ReplicantEndpoint
       final var channelId = addresses[ 0 ].channelId();
 
       final var channelMetaData = getChannelMetaData( channelId );
-      final var rootIds = new ArrayList<Integer>();
       for ( final var address : addresses )
       {
         if ( !checkSubscribeRequest( session, channelMetaData, address ) )
@@ -344,27 +348,11 @@ public class ReplicantEndpoint
           sendErrorAndClose( session, "Bulk channel subscribe included addresses from multiple channels" );
           return;
         }
-        else if ( !address.hasRootId() )
-        {
-          sendErrorAndClose( session, "Bulk channel subscribe included addresses channel without sub-channel ids" );
-          return;
-        }
-        else
-        {
-          rootIds.add( address.rootId() );
-        }
       }
 
       final var requestId = command.getInt( Messages.Common.REQUEST_ID );
       final var filter = extractFilter( channelMetaData, command );
-      if ( 1 == addresses.length )
-      {
-        _sessionManager.subscribe( session, requestId, addresses[ 0 ], filter );
-      }
-      else
-      {
-        _sessionManager.bulkSubscribe( session, requestId, channelId, rootIds, filter );
-      }
+      _sessionManager.bulkSubscribe( session, requestId, Arrays.asList( addresses ), filter );
     }
   }
 
@@ -399,7 +387,7 @@ public class ReplicantEndpoint
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
       final var requestId = command.getInt( Messages.Common.REQUEST_ID );
-      _sessionManager.unsubscribe( replicantSession, requestId, address );
+      _sessionManager.bulkUnsubscribe( replicantSession, requestId, Collections.singletonList( address ) );
     }
   }
 
@@ -413,7 +401,6 @@ public class ReplicantEndpoint
       final var channelId = addresses[ 0 ].channelId();
 
       final var channelMetaData = getChannelMetaData( channelId );
-      final var rootIds = new ArrayList<Integer>();
       for ( final var address : addresses )
       {
         if ( !checkUnsubscribeRequest( session, channelMetaData, address ) )
@@ -425,27 +412,10 @@ public class ReplicantEndpoint
           sendErrorAndClose( session, "Bulk channel unsubscribe included addresses from multiple channels" );
           return;
         }
-        else if ( !address.hasRootId() )
-        {
-          sendErrorAndClose( session,
-                             "Bulk channel unsubscribe included addresses channel without sub-channel ids" );
-          return;
-        }
-        else
-        {
-          rootIds.add( address.rootId() );
-        }
       }
 
       final int requestId = command.getInt( Messages.Common.REQUEST_ID );
-      if ( 1 == addresses.length )
-      {
-        _sessionManager.unsubscribe( session, requestId, addresses[ 0 ] );
-      }
-      else
-      {
-        _sessionManager.bulkUnsubscribe( session, requestId, channelId, rootIds );
-      }
+      _sessionManager.bulkUnsubscribe( session, requestId, Arrays.asList( addresses ) );
     }
   }
 
@@ -467,6 +437,39 @@ public class ReplicantEndpoint
     else if ( !address.hasRootId() && channelMetaData.isInstanceGraph() )
     {
       sendErrorAndClose( replicantSession, "Attempted to unsubscribe from instance channel without instance data" );
+      return false;
+    }
+    else if ( !validateFilterInstanceId( replicantSession, channelMetaData, address ) )
+    {
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
+
+  private boolean validateFilterInstanceId( @Nonnull final ReplicantSession session,
+                                            @Nonnull final ChannelMetaData channelMetaData,
+                                            @Nonnull final ChannelAddress address )
+    throws IOException
+  {
+    final boolean hasInstanceId = null != address.filterInstanceId();
+    if ( ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() )
+    {
+      if ( !hasInstanceId )
+      {
+        sendErrorAndClose( session, "Attempted to use instanced channel without filter instance id" );
+        return false;
+      }
+      else
+      {
+        return true;
+      }
+    }
+    else if ( hasInstanceId )
+    {
+      sendErrorAndClose( session, "Attempted to use non-instanced channel with filter instance id" );
       return false;
     }
     else

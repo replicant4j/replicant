@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 import javax.json.JsonObject;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 
 public interface ReplicantSessionContext
@@ -31,6 +32,21 @@ public interface ReplicantSessionContext
                              @Nonnull ChannelAddress source,
                              @Nullable Object sourceFilter,
                              @Nonnull ChannelAddress target );
+
+  /**
+   * Derive the filter instance id for the target channel.
+   *
+   * @param entityMessage the entityMessage in the context of which the links is being created.
+   * @param link          the link between source and target channels.
+   * @param sourceFilter  the filter for the source channel.
+   * @param targetFilter  the filter for the target channel.
+   * @return the derived filter instance id.
+   */
+  @Nonnull
+  String deriveFilterInstanceId( @Nonnull EntityMessage entityMessage,
+                                 @Nonnull ChannelLink link,
+                                 @Nullable Object sourceFilter,
+                                 @Nullable Object targetFilter );
 
   /**
    * Flush the EntityManager that contains replicated entities.

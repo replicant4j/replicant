@@ -31,7 +31,12 @@ public final class ChannelMetaData
     /**
      * Filtering occurs and the client passes a filter parameter and can change the filter parameter.
      */
-    DYNAMIC
+    DYNAMIC,
+    /**
+     * Filtering occurs and the client passes a filter parameter, can change the filter parameter, and can
+     * subscribe to multiple instances of the channel.
+     */
+    DYNAMIC_INSTANCED
   }
 
   public enum CacheType
@@ -140,7 +145,9 @@ public final class ChannelMetaData
 
   public boolean hasFilterParameter()
   {
-    return FilterType.DYNAMIC == _filterType || FilterType.STATIC == _filterType;
+    return FilterType.DYNAMIC == _filterType ||
+           FilterType.DYNAMIC_INSTANCED == _filterType ||
+           FilterType.STATIC == _filterType;
   }
 
   @Nonnull

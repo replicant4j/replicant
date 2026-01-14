@@ -191,6 +191,11 @@ final class Encoder
     {
       g.write( "rootId", rootId );
     }
+    final String filterInstanceId = address.filterInstanceId();
+    if ( null != filterInstanceId )
+    {
+      g.write( "filterInstanceId", filterInstanceId );
+    }
   }
 
   private static void emitChannelDescriptors( @Nonnull final SchemaMetaData schemaMetaData,

@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -568,19 +567,8 @@ public class ReplicantSessionManagerImpl
                           Objects.equals( a.filter(), entry.filter() ) )
             .toList() :
           Collections.singletonList( entry );
-        final var channelMetaData = getSchemaMetaData().getChannelMetaData( target.channelId() );
-        doBulkSubscribe( session,
-                         target.channelId(),
-                         channelMetaData.isTypeGraph() ?
-                         null :
-                         toSubscribe
-                           .stream()
-                           .map( ChannelLinkEntry::target )
-                           .map( ChannelAddress::rootId )
-                           .collect( Collectors.toList() ),
-                         entry.filter(),
-                         changeSet,
-                         false );
+        final var addresses = toSubscribe.stream().map( ChannelLinkEntry::target ).toList();
+        doBulkSubscribe( session, addresses, entry.filter(), changeSet, false );
         toSubscribe.forEach( pending::remove );
         subscribed.addAll( toSubscribe );
         for ( final var e : toSubscribe )
@@ -657,23 +645,33 @@ public class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final var target = link.target();
-      if ( getSchemaMetaData().getChannelMetaData( target ).hasFilterParameter() )
+      final var targetMetaData = getSchemaMetaData().getChannelMetaData( target );
+      if ( targetMetaData.hasFilterParameter() )
       {
         final var targetFilter = link.targetFilter();
         // In most cases, the filter is not known and is specific to the session, and thus targetFilter will be null.
         // In a few cases (bulk loads of static type graphs that only link to other static type graphs) the target
         // filter is passed in. In all other scenarios we need to do some magic to make it work.
-        final Object filter =
+        final var filter =
           null != targetFilter ?
           targetFilter :
           _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
+        final var targetAddress =
+          ChannelMetaData.FilterType.DYNAMIC_INSTANCED == targetMetaData.getFilterType() ?
+          new ChannelAddress( target.channelId(),
+                              target.rootId(),
+                              _context.deriveFilterInstanceId( entityMessage,
+                                                               link,
+                                                               sourceEntry.getFilter(),
+                                                               filter ) ) :
+          target;
 
-        if ( _context.shouldFollowLink( sourceEntry, target, filter ) )
+        if ( _context.shouldFollowLink( sourceEntry, targetAddress, filter ) )
         {
-          final var targetEntry = session.findSubscriptionEntry( target );
+          final var targetEntry = session.findSubscriptionEntry( targetAddress );
           if ( null == targetEntry )
           {
-            return new ChannelLinkEntry( source, target, filter );
+            return new ChannelLinkEntry( source, targetAddress, filter );
           }
           else
           {
@@ -716,29 +714,35 @@ public class ReplicantSessionManagerImpl
   @Override
   public void bulkSubscribe( @Nonnull final ReplicantSession session,
                              final int requestId,
-                             final int channelId,
-                             @Nullable final Collection<Integer> rootIds,
+                             @Nonnull final List<ChannelAddress> addresses,
                              @Nullable final Object filter )
   {
-    sessionUpdateRequest( "BulkSubscribe(" + channelId + ")", session, requestId, () -> {
+    final String invocationKey =
+      addresses.isEmpty() ? "BulkSubscribe(empty)" : "BulkSubscribe(" + addresses.get( 0 ).channelId() + ")";
+    sessionUpdateRequest( invocationKey, session, requestId, () -> {
       if ( session.isOpen() )
       {
         final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
         sessionChanges.setRequired( true );
-        doBulkSubscribe( session, channelId, rootIds, filter, sessionChanges, true );
+        addresses.forEach( address -> _context.preSubscribe( session, address, filter ) );
+        doBulkSubscribe( session, addresses, filter, sessionChanges, true );
       }
     } );
   }
 
   private void doBulkSubscribe( @Nonnull final ReplicantSession session,
-                                final int channelId,
-                                @Nullable final Collection<Integer> rootIds,
+                                @Nonnull final List<ChannelAddress> addresses,
                                 @Nullable final Object filter,
                                 @Nonnull final ChangeSet changeSet,
                                 final boolean isExplicitSubscribe )
   {
+    final List<ChannelAddress> uniqueAddresses = addresses.stream().distinct().toList();
+    if ( uniqueAddresses.isEmpty() )
+    {
+      return;
+    }
+    final int channelId = uniqueAddresses.get( 0 ).channelId();
     final var channel = getSchemaMetaData().getChannelMetaData( channelId );
-    assert ( channel.isInstanceGraph() && null != rootIds ) || ( channel.isTypeGraph() && null == rootIds );
 
     subscribeToRequiredTypeChannels( session, channel );
 
@@ -746,9 +750,18 @@ public class ReplicantSessionManagerImpl
     //OriginalFilter => Channels
     final var channelsToUpdate = new HashMap<Object, List<ChannelAddress>>();
 
-    if ( null == rootIds )
+    for ( final var address : uniqueAddresses )
     {
-      final var address = new ChannelAddress( channelId );
+      assert address.channelId() == channelId;
+      if ( channel.isTypeGraph() )
+      {
+        assert !address.hasRootId();
+      }
+      else
+      {
+        assert address.hasRootId();
+      }
+
       final var entry = session.findSubscriptionEntry( address );
       if ( null == entry )
       {
@@ -761,29 +774,9 @@ public class ReplicantSessionManagerImpl
         {
           channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
         }
-      }
-    }
-    else
-    {
-      for ( final var root : rootIds )
-      {
-        final var address = new ChannelAddress( channelId, root );
-        final var entry = session.findSubscriptionEntry( address );
-        if ( null == entry )
+        else if ( !entry.isExplicitlySubscribed() && isExplicitSubscribe )
         {
-          newChannels.add( address );
-        }
-        else
-        {
-          final var existingFilter = entry.getFilter();
-          if ( doFiltersNotMatch( filter, existingFilter ) )
-          {
-            channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
-          }
-          else if ( !entry.isExplicitlySubscribed() && isExplicitSubscribe )
-          {
-            entry.setExplicitlySubscribed( true );
-          }
+          entry.setExplicitlySubscribed( true );
         }
       }
     }
@@ -857,11 +850,12 @@ public class ReplicantSessionManagerImpl
       for ( final var update : channelsToUpdate.entrySet() )
       {
         final var originalFilter = update.getKey();
-        final var addresses = update.getValue();
+        final var updateAddresses = update.getValue();
 
-        if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() )
+        if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() ||
+             ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channel.getFilterType() )
         {
-          _context.bulkCollectDataForSubscriptionUpdate( session, addresses, originalFilter, filter, changeSet );
+          _context.bulkCollectDataForSubscriptionUpdate( session, updateAddresses, originalFilter, filter, changeSet );
         }
         else
         {
@@ -880,26 +874,6 @@ public class ReplicantSessionManagerImpl
     sessionLockingRequest( "setEtags()", session, null, () -> session.setETags( eTags ) );
   }
 
-  @Override
-  public void subscribe( @Nonnull final ReplicantSession session,
-                         final int requestId,
-                         @Nonnull final ChannelAddress address,
-                         @Nullable final Object filter )
-  {
-    final String invocationKey = "Subscribe(" + address + ")";
-    sessionUpdateRequest( invocationKey, session, requestId, () -> {
-      _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
-      final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-      sessionChanges.setRequired( true );
-
-      _context.preSubscribe( session, address, filter );
-      if ( session.isOpen() )
-      {
-        subscribe( session, address, true, filter, sessionChanges );
-      }
-    } );
-  }
-
   private void subscribe( @Nonnull final ReplicantSession session,
                           @Nonnull final ChannelAddress address,
                           final boolean explicitlySubscribe,
@@ -915,16 +889,10 @@ public class ReplicantSessionManagerImpl
       {
         entry.setExplicitlySubscribed( true );
       }
-      if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() )
+      if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() ||
+           ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() )
       {
-        doBulkSubscribe( session,
-                         address.channelId(),
-                         channelMetaData.isTypeGraph() ?
-                         null :
-                         Collections.singletonList( address.rootId() ),
-                         filter,
-                         changeSet,
-                         true );
+        doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
       }
       else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
       {
@@ -940,14 +908,7 @@ public class ReplicantSessionManagerImpl
     }
     else
     {
-      doBulkSubscribe( session,
-                       address.channelId(),
-                       channelMetaData.isTypeGraph() ?
-                       null :
-                       Collections.singletonList( address.rootId() ),
-                       filter,
-                       changeSet,
-                       true );
+      doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
     }
   }
 
@@ -1159,21 +1120,6 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @Override
-  public void unsubscribe( @Nonnull final ReplicantSession session,
-                           final int requestId,
-                           @Nonnull final ChannelAddress address )
-  {
-    sessionUpdateRequest( "Unsubscribe(" + address + ")", session, requestId, () -> {
-      if ( session.isOpen() )
-      {
-        final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-        sessionChanges.setRequired( true );
-        unsubscribe( session, address, sessionChanges );
-      }
-    } );
-  }
-
   private void unsubscribe( @Nonnull final ReplicantSession session,
                             @Nonnull final ChannelAddress address,
                             @Nonnull final ChangeSet changeSet )
@@ -1188,26 +1134,26 @@ public class ReplicantSessionManagerImpl
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int requestId,
-                               final int channelId,
-                               @Nonnull final Collection<Integer> rootIds )
+                               @Nonnull final List<ChannelAddress> addresses )
   {
-    sessionUpdateRequest( "BulkUnsubscribe(" + channelId + ")", session, requestId, () -> {
+    final String invocationKey =
+      addresses.isEmpty() ? "BulkUnsubscribe(empty)" : "BulkUnsubscribe(" + addresses.get( 0 ).channelId() + ")";
+    sessionUpdateRequest( invocationKey, session, requestId, () -> {
       if ( session.isOpen() )
       {
         EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-        doBulkUnsubscribe( session, channelId, rootIds );
+        doBulkUnsubscribe( session, addresses );
       }
     } );
   }
 
   private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
-                                  final int channelId,
-                                  @Nonnull final Collection<Integer> rootIds )
+                                  @Nonnull final List<ChannelAddress> addresses )
   {
     final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-    for ( final var rootId : rootIds )
+    for ( final var address : addresses )
     {
-      unsubscribe( session, new ChannelAddress( channelId, rootId ), sessionChanges );
+      unsubscribe( session, address, sessionChanges );
     }
   }
 
@@ -1326,11 +1272,7 @@ public class ReplicantSessionManagerImpl
           final var isFiltered = ChannelMetaData.FilterType.NONE != channel.getFilterType();
           for ( final var address : addresses )
           {
-            processUpdateMessage( address,
-                                  message,
-                                  session,
-                                  changeSet,
-                                  isFiltered ? m -> _context.filterEntityMessage( session, address, m ) : null );
+            processUpdateMessage( address, message, session, changeSet, isFiltered );
           }
         }
       }
@@ -1368,19 +1310,18 @@ public class ReplicantSessionManagerImpl
                                      @Nonnull final EntityMessage message,
                                      @Nonnull final ReplicantSession session,
                                      @Nonnull final ChangeSet changeSet,
-                                     @Nullable final Function<EntityMessage, EntityMessage> filter )
+                                     final boolean isFiltered )
   {
-    final var entry = session.findSubscriptionEntry( address );
-
-    // If the session is not subscribed to graph then skip processing
-    if ( null != entry )
+    final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
+    for ( final var entry : entries )
     {
-      final var m = null == filter ? message : filter.apply( message );
+      final var entryAddress = entry.address();
+      final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
 
-      // Process any  messages that are in scope for session
+      // Process any messages that are in scope for session
       if ( null != m )
       {
-        changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
+        changeSet.merge( new Change( message, entryAddress ) );
       }
     }
   }
@@ -1403,11 +1344,7 @@ public class ReplicantSessionManagerImpl
           final var address = new ChannelAddress( channel.getChannelId(), rootId );
           final var isFiltered =
             ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
-          processDeleteMessage( address,
-                                message,
-                                session,
-                                changeSet,
-                                isFiltered ? m -> _context.filterEntityMessage( session, address, m ) : null );
+          processDeleteMessage( address, message, session, changeSet, isFiltered );
         }
       }
     }
@@ -1416,29 +1353,28 @@ public class ReplicantSessionManagerImpl
   /**
    * Process message handling any logical deletes.
    *
-   * @param address   the address of the graph.
-   * @param message   the message to process
-   * @param session   the session that message is being processed for.
-   * @param changeSet for changeSet for session.
-   * @param filter    a filter that transforms and or filters entity message before handling. May be null.
+   * @param address    the address of the graph.
+   * @param message    the message to process
+   * @param session    the session that message is being processed for.
+   * @param changeSet  for changeSet for session.
+   * @param isFiltered a flag indicating that the graph is filtered.
    */
   private void processDeleteMessage( @Nonnull final ChannelAddress address,
                                      @Nonnull final EntityMessage message,
                                      @Nonnull final ReplicantSession session,
                                      @Nonnull final ChangeSet changeSet,
-                                     @Nullable final Function<EntityMessage, EntityMessage> filter )
+                                     final boolean isFiltered )
   {
-    final var entry = session.findSubscriptionEntry( address );
-
-    // If the session is not subscribed to graph then skip processing
-    if ( null != entry )
+    final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
+    for ( final var entry : entries )
     {
-      final var m = null == filter ? message : filter.apply( message );
+      final var entryAddress = entry.address();
+      final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
 
       // Process any deleted messages that are in scope for session
       if ( null != m && m.isDelete() )
       {
-        final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
+        final var channelMetaData = getSchemaMetaData().getChannelMetaData( entryAddress );
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
         if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )

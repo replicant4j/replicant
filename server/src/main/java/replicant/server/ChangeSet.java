@@ -169,7 +169,7 @@ public final class ChangeSet
 
   public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
   {
-    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address.channelId(), address.rootId() ) );
+    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address ) );
   }
 
   @Nonnull

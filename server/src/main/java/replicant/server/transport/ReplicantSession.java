@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,6 +36,8 @@ public final class ReplicantSession
   @Nonnull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
   @Nonnull
+  private final Map<ChannelKey, Set<SubscriptionEntry>> _subscriptionsByChannel = new HashMap<>();
+  @Nonnull
   private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
   @Nonnull
   private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
@@ -48,12 +53,14 @@ public final class ReplicantSession
     _webSocketSession = Objects.requireNonNull( webSocketSession );
   }
 
+  @SuppressWarnings( "unused" )
   @Nullable
   public Object getUserObject()
   {
     return _userObject;
   }
 
+  @SuppressWarnings( "unused" )
   public void setUserObject( @Nullable final Object userObject )
   {
     _userObject = userObject;
@@ -306,6 +313,9 @@ public final class ReplicantSession
                () -> "Creating subscription entry for replicant session " + getId() + " on address " + address );
       final SubscriptionEntry entry = new SubscriptionEntry( this, address );
       _subscriptions.put( address, entry );
+      _subscriptionsByChannel
+        .computeIfAbsent( new ChannelKey( address.channelId(), address.rootId() ), key -> new HashSet<>() )
+        .add( entry );
       return entry;
     }
     else
@@ -333,6 +343,14 @@ public final class ReplicantSession
     return null != findSubscriptionEntry( address );
   }
 
+  @Nonnull
+  public List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
+  {
+    ensureLockedByCurrentThread();
+    final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );
+    return null == entries ? Collections.emptyList() : entries.stream().toList();
+  }
+
   /**
    * Delete specified subscription entry.
    */
@@ -343,6 +361,16 @@ public final class ReplicantSession
     final boolean removed = null != _subscriptions.remove( address );
     if ( removed )
     {
+      final ChannelKey key = new ChannelKey( address.channelId(), address.rootId() );
+      final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( key );
+      if ( null != entries )
+      {
+        entries.remove( entry );
+        if ( entries.isEmpty() )
+        {
+          _subscriptionsByChannel.remove( key );
+        }
+      }
       LOG.log( Level.FINE,
                () -> "Removed subscription entry for replicant session " + getId() + " on address " + address );
     }
@@ -353,5 +381,9 @@ public final class ReplicantSession
                      address + " but no such subscription existed" );
     }
     return removed;
+  }
+
+  private record ChannelKey(int channelId, @Nullable Integer rootId)
+  {
   }
 }

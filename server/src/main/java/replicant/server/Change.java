@@ -1,8 +1,8 @@
 package replicant.server;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -13,7 +13,7 @@ public class Change
   @Nonnull
   private final EntityMessage _entityMessage;
   @Nonnull
-  private final Map<Integer, Integer> _channels = new LinkedHashMap<>();
+  private final Set<ChannelAddress> _channels = new LinkedHashSet<>();
 
   public Change( @Nonnull final EntityMessage entityMessage )
   {
@@ -25,8 +25,13 @@ public class Change
                  final int channelId,
                  @Nullable final Integer rootId )
   {
+    this( entityMessage, new ChannelAddress( channelId, rootId ) );
+  }
+
+  public Change( @Nonnull final EntityMessage entityMessage, @Nonnull final ChannelAddress address )
+  {
     this( entityMessage );
-    _channels.put( channelId, rootId );
+    _channels.add( Objects.requireNonNull( address ) );
   }
 
   @Nonnull
@@ -42,7 +47,7 @@ public class Change
   }
 
   @Nonnull
-  public Map<Integer, Integer> getChannels()
+  public Set<ChannelAddress> getChannels()
   {
     return _channels;
   }
@@ -50,14 +55,14 @@ public class Change
   public void merge( @Nonnull final Change other )
   {
     getEntityMessage().merge( other.getEntityMessage() );
-    getChannels().putAll( other.getChannels() );
+    getChannels().addAll( other.getChannels() );
   }
 
   @Nonnull
   public Change duplicate()
   {
     final Change change = new Change( getEntityMessage().duplicate() );
-    change.getChannels().putAll( getChannels() );
+    change.getChannels().addAll( getChannels() );
     return change;
   }
 }

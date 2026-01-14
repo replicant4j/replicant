@@ -164,6 +164,52 @@ public class SubscriptionServiceTest
   }
 
   @Test
+  public void typeSubscriptions_withFilterInstanceId()
+  {
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null, "fi1" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, null, "fi2" );
+
+    final SubscriptionService service = SubscriptionService.create( null );
+
+    safeAction( () -> {
+      service.createSubscription( address1, null, true );
+      service.createSubscription( address2, null, true );
+    } );
+
+    assertNotNull( service.findSubscription( address1 ) );
+    assertNotNull( service.findSubscription( address2 ) );
+    safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
+
+    safeAction( () -> {
+      final Subscription subscription = service.findSubscription( address1 );
+      assertNotNull( subscription );
+      Disposable.dispose( subscription );
+    } );
+
+    assertNull( service.findSubscription( address1 ) );
+    assertNotNull( service.findSubscription( address2 ) );
+    safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 1 ) );
+  }
+
+  @Test
+  public void typeSubscriptions_emptyFilterInstanceId()
+  {
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null, "" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, null, null );
+
+    final SubscriptionService service = SubscriptionService.create( null );
+
+    safeAction( () -> {
+      service.createSubscription( address1, null, true );
+      service.createSubscription( address2, null, true );
+    } );
+
+    assertNotNull( service.findSubscription( address1 ) );
+    assertNotNull( service.findSubscription( address2 ) );
+    safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
+  }
+
+  @Test
   public void instanceSubscriptions()
   {
     final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
@@ -327,6 +373,40 @@ public class SubscriptionServiceTest
       assertEquals( getInstanceSubscriptionsCallCount.get(), 7 );
       assertEquals( getTypeSubscriptionsCallCount.get(), 2 );
     }
+  }
+
+  @Test
+  public void instanceSubscriptions_withFilterInstanceId()
+  {
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 7, "fi1" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 7, "fi2" );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 8, "fi1" );
+
+    final SubscriptionService service = SubscriptionService.create( null );
+
+    safeAction( () -> {
+      service.createSubscription( address1, null, true );
+      service.createSubscription( address2, null, true );
+      service.createSubscription( address3, null, true );
+    } );
+
+    assertNotNull( service.findSubscription( address1 ) );
+    assertNotNull( service.findSubscription( address2 ) );
+    assertNotNull( service.findSubscription( address3 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 3 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
+
+    safeAction( () -> {
+      final Subscription subscription = service.findSubscription( address2 );
+      assertNotNull( subscription );
+      Disposable.dispose( subscription );
+    } );
+
+    assertNull( service.findSubscription( address2 ) );
+    assertNotNull( service.findSubscription( address1 ) );
+    assertNotNull( service.findSubscription( address3 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptions().size(), 2 ) );
+    safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
   }
 
   @Test
@@ -583,6 +663,25 @@ public class SubscriptionServiceTest
     assertFalse( Disposable.isDisposed( entity1 ) );
     // entity2 had no other subscriptions so it went away
     assertTrue( Disposable.isDisposed( entity2 ) );
+  }
+
+  @Test
+  public void disposeService_disposesFilterInstanceSubscriptions()
+  {
+    final SubscriptionService service = SubscriptionService.create( null );
+
+    final Subscription typeSubscription =
+      safeAction( () -> service.createSubscription( new ChannelAddress( 1, 0, null, "fi" ), null, true ) );
+    final Subscription instanceSubscription =
+      safeAction( () -> service.createSubscription( new ChannelAddress( 1, 0, 2, "fi" ), null, true ) );
+
+    assertFalse( Disposable.isDisposed( typeSubscription ) );
+    assertFalse( Disposable.isDisposed( instanceSubscription ) );
+
+    Disposable.dispose( service );
+
+    assertTrue( Disposable.isDisposed( typeSubscription ) );
+    assertTrue( Disposable.isDisposed( instanceSubscription ) );
   }
 
   static class A

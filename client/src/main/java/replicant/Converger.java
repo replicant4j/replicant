@@ -8,6 +8,7 @@ import arez.annotations.Observable;
 import arez.annotations.Observe;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -233,7 +234,9 @@ abstract class Converger
         {
           final SystemSchema schema = getReplicantContext().getSchemaService().getById( address.schemaId() );
           final ChannelSchema.FilterType filterType = schema.getChannel( address.channelId() ).getFilterType();
-          if ( null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType )
+          if ( null == groupTemplate &&
+               ChannelSchema.FilterType.DYNAMIC != filterType &&
+               ChannelSchema.FilterType.DYNAMIC_INSTANCED != filterType )
           {
             /*
             If the subscription needs an update but the backend does not support updates
@@ -301,8 +304,12 @@ abstract class Converger
       final boolean sameChannel =
         groupTemplate.getAddress().schemaId() == areaOfInterest.getAddress().schemaId() &&
         groupTemplate.getAddress().channelId() == areaOfInterest.getAddress().channelId();
+      final boolean sameInstanceId =
+        Objects.equals( groupTemplate.getAddress().filterInstanceId(),
+                        areaOfInterest.getAddress().filterInstanceId() );
 
       return sameChannel &&
+             sameInstanceId &&
              ( AreaOfInterestRequest.Type.REMOVE == action ||
                FilterUtil.filtersEqual( groupTemplate.getFilter(), areaOfInterest.getFilter() ) );
     }

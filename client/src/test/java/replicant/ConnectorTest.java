@@ -976,6 +976,82 @@ public final class ConnectorTest
   }
 
   @Test
+  public void requestSubscribe_requiresFilterInstanceId_forDynamicInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied." );
+  }
+
+  @Test
+  public void requestSubscribe_rejectsFilterInstanceId_forNonInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0099: Channel 1.0#inst does not support filter instance ids but one was supplied." );
+  }
+
+  @Test
+  public void requestSubscribe_dynamicInstanced_withFilterInstanceId()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
+
+    connector.requestSubscribe( address, null );
+
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
+  }
+
+  @Test
   public void requestSubscriptionUpdate()
   {
     final ChannelSchema channelSchema =
@@ -1008,6 +1084,32 @@ public final class ConnectorTest
   }
 
   @Test
+  public void requestSubscriptionUpdate_requiresFilterInstanceId_forDynamicInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied." );
+  }
+
+  @Test
   public void requestSubscriptionUpdate_ChannelNot_DYNAMIC_Filter()
   {
     final ChannelSchema channelSchema =
@@ -1033,6 +1135,31 @@ public final class ConnectorTest
 
     assertEquals( exception.getMessage(),
                   "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel 1.0 but channel does not have a dynamic filter." );
+  }
+
+  @Test
+  public void requestUnsubscribe_requiresFilterInstanceId_forDynamicInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestUnsubscribe( address ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied." );
   }
 
   @Test
@@ -1253,6 +1380,53 @@ public final class ConnectorTest
     assertEquals( response.getEntityRemoveCount(), 1 );
     assertFalse( Disposable.isDisposed( entity2 ) );
     assertTrue( Disposable.isDisposed( entity3 ) );
+  }
+
+  @SuppressWarnings( "unchecked" )
+  @Test
+  public void processEntityChanges_withFilterInstanceIdChannel()
+  {
+    final int schemaId = 1;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         Linkable.class,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
+    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
+    final EntitySchema entitySchema =
+      new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
+    final SystemSchema schema =
+      new SystemSchema( schemaId,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[]{ entitySchema } );
+    final Connector connector = createConnector( schema );
+    connector.setLinksToProcessPerTick( 1 );
+
+    final Connection connection = newConnection( connector );
+
+    // Pause scheduler to avoid converge of subscriptions
+    pauseScheduler();
+
+    final int rootId = ValueUtil.randomInt();
+    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0, rootId, "fi" );
+    final Subscription subscription = createSubscription( address, null, true );
+
+    final EntityChangeData data = mock( EntityChangeData.class );
+    final EntityChange[] entityChanges = {
+      EntityChange.create( 0, 1, new String[]{ "0." + rootId + "#fi" }, data )
+    };
+    setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, entityChanges, null ) );
+
+    when( creator.createEntity( 1, data ) ).thenReturn( mock( Linkable.class ) );
+
+    connector.processEntityChanges();
+
+    safeAction( () -> assertNotNull( subscription.findEntityByTypeAndId( Linkable.class, 1 ) ) );
   }
 
   @SuppressWarnings( "unchecked" )
@@ -1795,6 +1969,53 @@ public final class ConnectorTest
     assertFalse( Disposable.isDisposed( initialSubscription ) );
 
     handler.assertEventCount( 0 );
+  }
+
+  @Test
+  public void processChannelChanges_update_withFilterInstanceId()
+  {
+    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         Integer.class,
+                         ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                         filter,
+                         true, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1,
+                        ValueUtil.randomString(),
+                        new ChannelSchema[]{ channelSchema },
+                        new EntitySchema[ 0 ] );
+
+    final Connector connector = createConnector( schema );
+    connector.pauseMessageScheduler();
+
+    final Connection connection = newConnection( connector );
+
+    final int rootId = ValueUtil.randomInt();
+    final ChannelAddress address = new ChannelAddress( 1, 0, rootId, "fi" );
+
+    final String oldFilter = ValueUtil.randomString();
+    final String newFilter = ValueUtil.randomString();
+    final ChannelChange[] channelChanges =
+      new ChannelChange[]{ ChannelChange.create( "=0." + rootId + "#fi", newFilter ) };
+    final MessageResponse response =
+      setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
+    response
+      .setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channelChanges[ 0 ] ) ) );
+
+    final Subscription subscription = createSubscription( address, oldFilter, true );
+
+    assertTrue( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelUpdateCount(), 0 );
+
+    connector.processChannelChanges();
+
+    assertFalse( response.needsChannelChangesProcessed() );
+    assertEquals( response.getChannelUpdateCount(), 1 );
+    safeAction( () -> assertEquals( subscription.getFilter(), newFilter ) );
   }
 
   @Test

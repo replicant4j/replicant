@@ -31,12 +31,13 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class SubscriptionService
   extends ReplicantService
 {
-  //SystemId -> ChannelId => Id => Entry
+  //SystemId -> ChannelId -> RootId -> FilterInstanceId => Entry
   @Nonnull
-  private final Map<Integer, Map<Integer, Map<Integer, Subscription>>> _instanceSubscriptions = new HashMap<>();
-  //SystemId -> ChannelId => Entry
+  private final Map<Integer, Map<Integer, Map<Integer, Map<String, Subscription>>>> _instanceSubscriptions =
+    new HashMap<>();
+  //SystemId -> ChannelId -> FilterInstanceId => Entry
   @Nonnull
-  private final Map<Integer, Map<Integer, Subscription>> _typeSubscriptions = new HashMap<>();
+  private final Map<Integer, Map<Integer, Map<String, Subscription>>> _typeSubscriptions = new HashMap<>();
 
   @Nonnull
   static SubscriptionService create( @Nullable final ReplicantContext context )
@@ -62,6 +63,7 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
+      .flatMap( s -> s.values().stream() )
       .collect( Collectors.toList() );
   }
 
@@ -82,6 +84,7 @@ abstract class SubscriptionService
       .stream()
       .flatMap( s -> s.values().stream() )
       .flatMap( s -> s.values().stream() )
+      .flatMap( s -> s.values().stream() )
       .collect( Collectors.toList() );
   }
 
@@ -99,8 +102,8 @@ abstract class SubscriptionService
   Set<Integer> getInstanceSubscriptionIds( final int schemaId, final int channelId )
   {
     getInstanceSubscriptionsObservableValue().reportObserved();
-    final Map<Integer, Map<Integer, Subscription>> channelMaps = _instanceSubscriptions.get( schemaId );
-    final Map<Integer, Subscription> map = null == channelMaps ? null : channelMaps.get( channelId );
+    final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMaps = _instanceSubscriptions.get( schemaId );
+    final Map<Integer, Map<String, Subscription>> map = null == channelMaps ? null : channelMaps.get( channelId );
     if ( null == map )
     {
       return Collections.emptySet();
@@ -132,6 +135,7 @@ abstract class SubscriptionService
                           " but a subscription with that address already exists." );
     }
     final Integer rootId = address.rootId();
+    final String filterInstanceId = address.filterInstanceId();
     if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
@@ -152,7 +156,8 @@ abstract class SubscriptionService
     {
       _typeSubscriptions
         .computeIfAbsent( address.schemaId(), HashMap::new )
-        .put( address.channelId(), subscription );
+        .computeIfAbsent( address.channelId(), key -> new HashMap<>() )
+        .put( filterInstanceId, subscription );
       getTypeSubscriptionsObservableValue().reportChanged();
     }
     else
@@ -160,7 +165,8 @@ abstract class SubscriptionService
       _instanceSubscriptions
         .computeIfAbsent( address.schemaId(), HashMap::new )
         .computeIfAbsent( address.channelId(), HashMap::new )
-        .put( rootId, subscription );
+        .computeIfAbsent( rootId, key -> new HashMap<>() )
+        .put( filterInstanceId, subscription );
       getInstanceSubscriptionsObservableValue().reportChanged();
     }
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -196,9 +202,10 @@ abstract class SubscriptionService
     final int schemaId = address.schemaId();
     final int channelId = address.channelId();
     final Integer rootId = address.rootId();
+    final String filterInstanceId = address.filterInstanceId();
     return null == rootId ?
-           findTypeSubscription( schemaId, channelId ) :
-           findInstanceSubscription( schemaId, channelId, rootId );
+           findTypeSubscription( schemaId, channelId, filterInstanceId ) :
+           findInstanceSubscription( schemaId, channelId, rootId, filterInstanceId );
   }
 
   /**
@@ -212,10 +219,13 @@ abstract class SubscriptionService
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findTypeSubscription( final int schemaId, final int channelId )
+  private Subscription findTypeSubscription( final int schemaId,
+                                             final int channelId,
+                                             @Nullable final String filterInstanceId )
   {
-    final Map<Integer, Subscription> channelMap = _typeSubscriptions.get( schemaId );
-    final Subscription subscription = null == channelMap ? null : channelMap.get( channelId );
+    final Map<Integer, Map<String, Subscription>> channelMap = _typeSubscriptions.get( schemaId );
+    final Map<String, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+    final Subscription subscription = null == instanceMap ? null : instanceMap.get( filterInstanceId );
     if ( null == subscription )
     {
       getTypeSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
@@ -243,11 +253,15 @@ abstract class SubscriptionService
    * @return the subscription if any matches.
    */
   @Nullable
-  private Subscription findInstanceSubscription( final int schemaId, final int channelId, final int id )
+  private Subscription findInstanceSubscription( final int schemaId,
+                                                 final int channelId,
+                                                 final int id,
+                                                 @Nullable final String filterInstanceId )
   {
-    final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( schemaId );
-    final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
-    final Subscription subscription = null == instanceMap ? null : instanceMap.get( id );
+    final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap = _instanceSubscriptions.get( schemaId );
+    final Map<Integer, Map<String, Subscription>> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+    final Map<String, Subscription> filterMap = null == instanceMap ? null : instanceMap.get( id );
+    final Subscription subscription = null == filterMap ? null : filterMap.get( filterInstanceId );
     if ( null == subscription || Disposable.isDisposed( subscription ) )
     {
       getInstanceSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
@@ -276,11 +290,17 @@ abstract class SubscriptionService
     final int schemaId = address.schemaId();
     final int channelId = address.channelId();
     final Integer rootId = address.rootId();
+    final String filterInstanceId = address.filterInstanceId();
     if ( null == rootId )
     {
       getTypeSubscriptionsObservableValue().preReportChanged();
-      final Map<Integer, Subscription> map = _typeSubscriptions.get( schemaId );
-      final Subscription subscription = null == map ? null : map.remove( channelId );
+      final Map<Integer, Map<String, Subscription>> map = _typeSubscriptions.get( schemaId );
+      final Map<String, Subscription> instanceMap = null == map ? null : map.get( channelId );
+      final Subscription subscription = null == instanceMap ? null : instanceMap.remove( filterInstanceId );
+      if ( null != instanceMap && instanceMap.isEmpty() )
+      {
+        map.remove( channelId );
+      }
       if ( null != subscription && map.isEmpty() )
       {
         _typeSubscriptions.remove( schemaId );
@@ -302,9 +322,14 @@ abstract class SubscriptionService
     else
     {
       getInstanceSubscriptionsObservableValue().preReportChanged();
-      final Map<Integer, Map<Integer, Subscription>> channelMap = _instanceSubscriptions.get( schemaId );
-      final Map<Integer, Subscription> instanceMap = null == channelMap ? null : channelMap.get( channelId );
-      final Subscription subscription = null == instanceMap ? null : instanceMap.remove( rootId );
+      final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap = _instanceSubscriptions.get( schemaId );
+      final Map<Integer, Map<String, Subscription>> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+      final Map<String, Subscription> filterMap = null == instanceMap ? null : instanceMap.get( rootId );
+      final Subscription subscription = null == filterMap ? null : filterMap.remove( filterInstanceId );
+      if ( null != filterMap && filterMap.isEmpty() )
+      {
+        instanceMap.remove( rootId );
+      }
       if ( null != subscription && instanceMap.isEmpty() )
       {
         channelMap.remove( channelId );
@@ -336,11 +361,13 @@ abstract class SubscriptionService
       .values()
       .stream()
       .flatMap( s -> s.values().stream() )
+      .flatMap( s -> s.values().stream() )
       .peek( this::detachSubscription )
       .forEach( Disposable::dispose );
     _instanceSubscriptions
       .values()
       .stream()
+      .flatMap( t -> t.values().stream() )
       .flatMap( t -> t.values().stream() )
       .flatMap( t -> t.values().stream() )
       .peek( this::detachSubscription )

@@ -109,15 +109,13 @@ public final class JsonEncoder
         generator.writeStartObject();
         generator.write( Messages.Update.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
 
-        final Map<Integer, Integer> channels = change.getChannels();
+        final var channels = change.getChannels();
         if ( !channels.isEmpty() )
         {
           generator.writeStartArray( Messages.Update.CHANNELS );
-          for ( final Entry<Integer, Integer> entry : channels.entrySet() )
+          for ( final ChannelAddress address : channels )
           {
-            final Integer cid = entry.getKey();
-            final Integer scid = entry.getValue();
-            generator.write( cid + ( null == scid ? "" : "." + scid ) );
+            generator.write( address.toString() );
           }
           generator.writeEnd();
         }
@@ -154,8 +152,7 @@ public final class JsonEncoder
 
     final ChannelAddress address = channelAction.address();
 
-    final Integer scid = address.rootId();
-    return String.valueOf( actionValue ) + address.channelId() + ( null == scid ? "" : "." + scid );
+    return String.valueOf( actionValue ) + address;
   }
 
   @SuppressWarnings( "StatementWithEmptyBody" )

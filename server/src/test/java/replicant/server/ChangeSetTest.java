@@ -27,9 +27,9 @@ public class ChangeSetTest
     final Change change2 = new Change( message2 );
     final Change change3 = new Change( message3 );
 
-    change1.getChannels().put( 1, 1 );
-    change2.getChannels().put( 2, 3 );
-    change3.getChannels().put( 3, 42 );
+    change1.getChannels().add( new ChannelAddress( 1, 1 ) );
+    change2.getChannels().add( new ChannelAddress( 2, 3 ) );
+    change3.getChannels().add( new ChannelAddress( 3, 42 ) );
 
     final ChangeSet changeSet = new ChangeSet();
 
@@ -172,7 +172,7 @@ public class ChangeSetTest
     final Change change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
-    assertNull( change.getChannels().get( 1 ) );
+    assertTrue( change.getChannels().contains( new ChannelAddress( 1 ) ) );
   }
 
   @Test

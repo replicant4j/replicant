@@ -7,7 +7,8 @@ import javax.annotation.Nullable;
 /**
  * A channel address is immutable reference that defines the channel address.
  * A "type" channel is addressed by the type while an "instance" channel is addressed
- * by the "type" and the instance "id"
+ * by the "type" and the instance "id". Channels that support multiple filter instances
+ * include a filter instance id.
  */
 public final class ChannelAddress
   implements Comparable<ChannelAddress>
@@ -16,17 +17,28 @@ public final class ChannelAddress
   private final int _channelId;
   @Nullable
   private final Integer _rootId;
+  @Nullable
+  private final String _filterInstanceId;
 
   public ChannelAddress( final int schemaId, final int channelId )
   {
-    this( schemaId, channelId, null );
+    this( schemaId, channelId, null, null );
   }
 
   public ChannelAddress( final int schemaId, final int channelId, @Nullable final Integer rootId )
   {
+    this( schemaId, channelId, rootId, null );
+  }
+
+  public ChannelAddress( final int schemaId,
+                         final int channelId,
+                         @Nullable final Integer rootId,
+                         @Nullable final String filterInstanceId )
+  {
     _schemaId = schemaId;
     _channelId = channelId;
     _rootId = rootId;
+    _filterInstanceId = filterInstanceId;
   }
 
   public int schemaId()
@@ -45,6 +57,12 @@ public final class ChannelAddress
     return _rootId;
   }
 
+  @Nullable
+  public String filterInstanceId()
+  {
+    return _filterInstanceId;
+  }
+
   @Override
   public String toString()
   {
@@ -60,7 +78,16 @@ public final class ChannelAddress
   @Nonnull
   public String asChannelDescriptor()
   {
-    return channelId() + ( null != _rootId ? "." + _rootId : "" );
+    final StringBuilder sb = new StringBuilder().append( channelId() );
+    if ( null != _rootId )
+    {
+      sb.append( "." ).append( _rootId );
+    }
+    if ( null != _filterInstanceId )
+    {
+      sb.append( "#" ).append( _filterInstanceId );
+    }
+    return sb.toString();
   }
 
   @Nonnull
@@ -72,11 +99,13 @@ public final class ChannelAddress
   @Nonnull
   public static ChannelAddress parse( final int schema, @Nonnull final String channel )
   {
-    final int offset = channel.indexOf( ".", 1 );
-    final int channelId =
-      Integer.parseInt( -1 == offset ? channel : channel.substring( 0, offset ) );
-    final Integer rootId = -1 == offset ? null : Integer.parseInt( channel.substring( offset + 1 ) );
-    return new ChannelAddress( schema, channelId, rootId );
+    final int instanceOffset = channel.indexOf( '#' );
+    final String channelPart = -1 == instanceOffset ? channel : channel.substring( 0, instanceOffset );
+    final String filterInstanceId = -1 == instanceOffset ? null : channel.substring( instanceOffset + 1 );
+    final int offset = channelPart.indexOf( ".", 1 );
+    final int channelId = Integer.parseInt( -1 == offset ? channelPart : channelPart.substring( 0, offset ) );
+    final Integer rootId = -1 == offset ? null : Integer.parseInt( channelPart.substring( offset + 1 ) );
+    return new ChannelAddress( schema, channelId, rootId, filterInstanceId );
   }
 
   @Override
@@ -95,7 +124,8 @@ public final class ChannelAddress
       final ChannelAddress that = (ChannelAddress) o;
       return Objects.equals( _schemaId, that._schemaId ) &&
              Objects.equals( _channelId, that._channelId ) &&
-             Objects.equals( _rootId, that._rootId );
+             Objects.equals( _rootId, that._rootId ) &&
+             Objects.equals( _filterInstanceId, that._filterInstanceId );
     }
   }
 
@@ -105,6 +135,7 @@ public final class ChannelAddress
     int result = _schemaId;
     result = 17 * result + _channelId;
     result = 31 * result + ( _rootId != null ? _rootId.hashCode() : 0 );
+    result = 31 * result + ( _filterInstanceId != null ? _filterInstanceId.hashCode() : 0 );
     return result;
   }
 
@@ -128,21 +159,42 @@ public final class ChannelAddress
         // Align ordering with equals by comparing rootId as well
         final Integer r1 = rootId();
         final Integer r2 = o.rootId();
-        if ( null == r1 && null == r2 )
+        if ( null != r1 || null != r2 )
+        {
+          if ( null == r1 )
+          {
+            return -1;
+          }
+          else if ( null == r2 )
+          {
+            return 1;
+          }
+          else
+          {
+            final int rootDiff = Integer.compare( r1, r2 );
+            if ( 0 != rootDiff )
+            {
+              return rootDiff;
+            }
+          }
+        }
+        final String f1 = filterInstanceId();
+        final String f2 = o.filterInstanceId();
+        if ( null == f1 && null == f2 )
         {
           return 0;
         }
-        else if ( null == r1 )
+        else if ( null == f1 )
         {
           return -1;
         }
-        else if ( null == r2 )
+        else if ( null == f2 )
         {
           return 1;
         }
         else
         {
-          return Integer.compare( r1, r2 );
+          return f1.compareTo( f2 );
         }
       }
     }

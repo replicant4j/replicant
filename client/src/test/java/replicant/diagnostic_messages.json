@@ -383,5 +383,15 @@
     "code": 94,
     "type": "API_INVARIANT",
     "messagePattern": "Called attach() passing an areaOfInterest that is already attached to the container. AreaOfInterest: AreaOfInterest[%s]"
+  },
+  {
+    "code": 98,
+    "type": "INVARIANT",
+    "messagePattern": "Channel %s requires a filter instance id but none was supplied."
+  },
+  {
+    "code": 99,
+    "type": "INVARIANT",
+    "messagePattern": "Channel %s does not support filter instance ids but one was supplied."
   }
 ]

@@ -5,8 +5,9 @@ import javax.annotation.Nullable;
 
 /**
  * Interface that used during subscription updates to remove Entities from subscriptions
- * as a result of a filter change. Each channel with a {@link replicant.ChannelSchema.FilterType#DYNAMIC}
- * filter type must be associated with a filter of this type.
+ * as a result of a filter change. Each channel with a {@link replicant.ChannelSchema.FilterType#DYNAMIC} or
+ * {@link replicant.ChannelSchema.FilterType#DYNAMIC_INSTANCED} filter type must be associated with a filter
+ * of this type.
  */
 public interface SubscriptionUpdateEntityFilter<T>
 {

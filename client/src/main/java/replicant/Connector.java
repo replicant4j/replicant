@@ -389,6 +389,7 @@ abstract class Connector
     {
       getReplicantContext().getSpy().reportSpyEvent( new SubscribeRequestQueuedEvent( address, filter ) );
     }
+    validateFilterInstanceId( address );
     ensureConnection().requestSubscribe( address, filter );
     tryTriggerMessageScheduler();
   }
@@ -398,11 +399,16 @@ abstract class Connector
   {
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
-                       getSchema().getChannel( address.channelId() ).getFilterType(),
+      invariant( () -> {
+                   final ChannelSchema.FilterType filterType =
+                     getSchema().getChannel( address.channelId() ).getFilterType();
+                   return ChannelSchema.FilterType.DYNAMIC == filterType ||
+                          ChannelSchema.FilterType.DYNAMIC_INSTANCED == filterType;
+                 },
                  () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel " + address +
                        " but channel does not have a dynamic filter." );
     }
+    validateFilterInstanceId( address );
     ensureConnection().requestSubscriptionUpdate( address, filter );
     tryTriggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -413,6 +419,7 @@ abstract class Connector
 
   void requestUnsubscribe( @Nonnull final ChannelAddress address )
   {
+    validateFilterInstanceId( address );
     ensureConnection().requestUnsubscribe( address );
     tryTriggerMessageScheduler();
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -429,6 +436,30 @@ abstract class Connector
   private void tryTriggerMessageScheduler()
   {
     context().task( this::triggerMessageScheduler );
+  }
+
+  private void validateFilterInstanceId( @Nonnull final ChannelAddress address )
+  {
+    if ( Replicant.shouldCheckInvariants() )
+    {
+      final SystemSchema schema = getSchema();
+      if ( schema.hasChannel( address.channelId() ) )
+      {
+        final ChannelSchema channel = schema.getChannel( address.channelId() );
+        if ( ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType() )
+        {
+          invariant( () -> null != address.filterInstanceId(),
+                     () -> "Replicant-0098: Channel " + address +
+                           " requires a filter instance id but none was supplied." );
+        }
+        else
+        {
+          invariant( () -> null == address.filterInstanceId(),
+                     () -> "Replicant-0099: Channel " + address +
+                           " does not support filter instance ids but one was supplied." );
+        }
+      }
+    }
   }
 
   /**
@@ -713,8 +744,12 @@ abstract class Connector
           assert null != subscription;
           if ( Replicant.shouldCheckInvariants() )
           {
-            invariant( () -> ChannelSchema.FilterType.DYNAMIC ==
-                             getSchema().getChannel( address.channelId() ).getFilterType(),
+            invariant( () -> {
+                         final ChannelSchema.FilterType filterType =
+                           getSchema().getChannel( address.channelId() ).getFilterType();
+                         return ChannelSchema.FilterType.DYNAMIC == filterType ||
+                                ChannelSchema.FilterType.DYNAMIC_INSTANCED == filterType;
+                       },
                        () -> "Replicant-0078: Received ChannelChange of type UPDATE for address " + address +
                              " but the channel does not have a DYNAMIC filter." );
           }
@@ -772,7 +807,8 @@ abstract class Connector
     final ChannelSchema channel = getSchema().getChannel( address.channelId() );
     if ( Replicant.shouldCheckInvariants() )
     {
-      invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
+      invariant( () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType() ||
+                       ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType(),
                  () -> "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address " +
                        subscription.address() + " but the channel does not have a DYNAMIC filter." );
     }
@@ -1127,33 +1163,33 @@ abstract class Connector
         final int schemaId = getSchema().getId();
         for ( final String channel : channels )
         {
-          final int separator = channel.indexOf( "." );
-          final ChannelAddress address;
           try
           {
-            final int chId = Integer.parseInt( -1 == separator ? channel : channel.substring( 0, separator ) );
-            final Integer rootId = -1 == separator ? null : Integer.parseInt( channel.substring( separator + 1 ) );
-            address = new ChannelAddress( schemaId, chId, rootId );
+            final ChannelAddress address = ChannelAddress.parse( schemaId, channel );
+            final Subscription subscription = getReplicantContext().findSubscription( address );
+            if ( Replicant.shouldCheckInvariants() )
+            {
+              invariant( () -> null != subscription,
+                         () -> "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel " +
+                               address + " but no such subscription exists locally." );
+            }
+            if ( null != subscription )
+            {
+              entity.tryLinkToSubscription( subscription );
+            }
+            else
+            {
+              onOutOfSync();
+              return;
+            }
           }
           catch ( final Throwable t )
           {
+            if ( t instanceof IllegalStateException )
+            {
+              throw (IllegalStateException) t;
+            }
             onMessageProcessFailure( t );
-            return;
-          }
-          final Subscription subscription = getReplicantContext().findSubscription( address );
-          if ( Replicant.shouldCheckInvariants() )
-          {
-            invariant( () -> null != subscription,
-                       () -> "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel " +
-                             address + " but no such subscription exists locally." );
-          }
-          if ( null != subscription )
-          {
-            entity.tryLinkToSubscription( subscription );
-          }
-          else
-          {
-            onOutOfSync();
             return;
           }
         }

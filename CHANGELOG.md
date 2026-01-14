@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add support for dynamic instanced filtered graphs using filter instance ids encoded in channel descriptors.
+
 ### [v6.164](https://github.com/replicant4j/replicant/tree/v6.164) (2026-01-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.163...v6.164)
 
 Changes in this release:
