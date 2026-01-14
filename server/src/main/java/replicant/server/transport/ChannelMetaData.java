@@ -41,7 +41,39 @@ public final class ChannelMetaData
      * Filtering occurs and the client passes a filter parameter, can change the filter parameter, and can
      * subscribe to multiple instances of the channel.
      */
-    DYNAMIC_INSTANCED
+    DYNAMIC_INSTANCED;
+
+    /**
+     * Return true if the filter is a dynamic parameter that can be updated.
+     */
+    public boolean isDynamicFilter()
+    {
+      return this == DYNAMIC || this == DYNAMIC_INSTANCED;
+    }
+
+    /**
+     * Return true if the filter is a static parameter.
+     */
+    public boolean isStaticFilter()
+    {
+      return this == STATIC || this == STATIC_INSTANCED;
+    }
+
+    /**
+     * Return true if the filter is instance-able and the graph can be subscribed to multiple times.
+     */
+    public boolean isInstancedFilter()
+    {
+      return this == DYNAMIC_INSTANCED || this == STATIC_INSTANCED;
+    }
+
+    /**
+     * Return true if the filter requires a parameter to be passed to it.
+     */
+    public boolean hasFilterParameter()
+    {
+      return isDynamicFilter() || isStaticFilter();
+    }
   }
 
   public enum CacheType
@@ -95,11 +127,11 @@ public final class ChannelMetaData
     _cacheType = Objects.requireNonNull( cacheType );
     _external = external;
     _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
-    if ( !hasFilterParameter() && null != filterParameterFactory )
+    if ( !filterType().hasFilterParameter() && null != filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
     }
-    else if ( hasFilterParameter() && null == filterParameterFactory )
+    else if ( filterType().hasFilterParameter() && null == filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
@@ -143,17 +175,9 @@ public final class ChannelMetaData
   }
 
   @Nonnull
-  public FilterType getFilterType()
+  public FilterType filterType()
   {
     return _filterType;
-  }
-
-  public boolean hasFilterParameter()
-  {
-    return FilterType.DYNAMIC == _filterType ||
-           FilterType.DYNAMIC_INSTANCED == _filterType ||
-           FilterType.STATIC_INSTANCED == _filterType ||
-           FilterType.STATIC == _filterType;
   }
 
   @Nonnull

@@ -162,7 +162,7 @@ final class Encoder
     g.write( "url", getChannelURL( session, entry.address(), uri ) );
     emitChannelDescriptor( schemaMetaData, g, entry.address() );
     g.write( "explicitlySubscribed", entry.isExplicitlySubscribed() );
-    if ( channelMetaData.hasFilterParameter() )
+    if ( channelMetaData.filterType().hasFilterParameter() )
     {
       final Object filter = entry.getFilter();
       if ( null == filter )

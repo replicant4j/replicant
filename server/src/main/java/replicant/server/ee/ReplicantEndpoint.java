@@ -372,7 +372,7 @@ public class ReplicantEndpoint
   @Nullable
   private Object extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
   {
-    return channelMetaData.hasFilterParameter() &&
+    return channelMetaData.filterType().hasFilterParameter() &&
            command.containsKey( Messages.Update.FILTER ) &&
            !command.isNull( Messages.Update.FILTER ) ?
            channelMetaData.getFilterParameterFactory().apply( command.getJsonObject( Messages.Update.FILTER ) ) :
@@ -455,8 +455,7 @@ public class ReplicantEndpoint
     throws IOException
   {
     final boolean hasInstanceId = null != address.filterInstanceId();
-    if ( ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() ||
-         ChannelMetaData.FilterType.STATIC_INSTANCED == channelMetaData.getFilterType() )
+    if ( channelMetaData.filterType().isInstancedFilter() )
     {
       if ( !hasInstanceId )
       {

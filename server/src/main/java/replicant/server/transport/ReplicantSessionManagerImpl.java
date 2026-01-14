@@ -646,7 +646,7 @@ public class ReplicantSessionManagerImpl
     {
       final var target = link.target();
       final var targetMetaData = getSchemaMetaData().getChannelMetaData( target );
-      if ( targetMetaData.hasFilterParameter() )
+      if ( targetMetaData.filterType().hasFilterParameter() )
       {
         final var targetFilter = link.targetFilter();
         // In most cases, the filter is not known and is specific to the session, and thus targetFilter will be null.
@@ -657,8 +657,7 @@ public class ReplicantSessionManagerImpl
           targetFilter :
           _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
         final var targetAddress =
-          ChannelMetaData.FilterType.DYNAMIC_INSTANCED == targetMetaData.getFilterType() ||
-          ChannelMetaData.FilterType.STATIC_INSTANCED == targetMetaData.getFilterType() ?
+          targetMetaData.filterType().isInstancedFilter() ?
           new ChannelAddress( target.channelId(),
                               target.rootId(),
                               _context.deriveFilterInstanceId( entityMessage,
@@ -790,7 +789,7 @@ public class ReplicantSessionManagerImpl
         assert channel.isTypeGraph();
         // Only unfiltered graphs currently supported as cache targets, although static or internal
         // caching would be possible if we wanted to add support
-        assert ChannelMetaData.FilterType.NONE == channel.getFilterType();
+        assert ChannelMetaData.FilterType.NONE == channel.filterType();
         for ( var newChannel : newChannels )
         {
           final var cacheEntry = tryGetCacheEntry( newChannel );
@@ -853,8 +852,7 @@ public class ReplicantSessionManagerImpl
         final var originalFilter = update.getKey();
         final var updateAddresses = update.getValue();
 
-        if ( ChannelMetaData.FilterType.DYNAMIC == channel.getFilterType() ||
-             ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channel.getFilterType() )
+        if ( channel.filterType().isInstancedFilter() )
         {
           _context.bulkCollectDataForSubscriptionUpdate( session, updateAddresses, originalFilter, filter, changeSet );
         }
@@ -890,13 +888,11 @@ public class ReplicantSessionManagerImpl
       {
         entry.setExplicitlySubscribed( true );
       }
-      if ( ChannelMetaData.FilterType.DYNAMIC == channelMetaData.getFilterType() ||
-           ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() )
+      if ( channelMetaData.filterType().isDynamicFilter() )
       {
         doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
       }
-      else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() ||
-                ChannelMetaData.FilterType.STATIC_INSTANCED == channelMetaData.getFilterType() )
+      else if ( channelMetaData.filterType().isStaticFilter() )
       {
         final var existingFilter = entry.getFilter();
         if ( doFiltersNotMatch( filter, existingFilter ) )
@@ -938,7 +934,7 @@ public class ReplicantSessionManagerImpl
     {
       assert requiredTypeChannel.isTypeGraph();
       // At the moment we propagate no filters ... which is fine
-      assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.getFilterType();
+      assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.filterType();
       final var address = new ChannelAddress( requiredTypeChannel.getChannelId() );
 
       // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
@@ -1271,7 +1267,7 @@ public class ReplicantSessionManagerImpl
         final var addresses = extractChannelAddressesFromMessage( channel, message );
         if ( null != addresses )
         {
-          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.getFilterType();
+          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
           for ( final var address : addresses )
           {
             processUpdateMessage( address, message, session, changeSet, isFiltered );
@@ -1345,7 +1341,7 @@ public class ReplicantSessionManagerImpl
         {
           final var address = new ChannelAddress( channel.getChannelId(), rootId );
           final var isFiltered =
-            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).getFilterType();
+            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).filterType();
           processDeleteMessage( address, message, session, changeSet, isFiltered );
         }
       }
