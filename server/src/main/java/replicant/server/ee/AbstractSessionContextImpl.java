@@ -42,6 +42,35 @@ public abstract class AbstractSessionContextImpl
   @Resource
   private TransactionSynchronizationRegistry _registry;
 
+  @Nonnull
+  @Override
+  public Object deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
+                                    @Nonnull final ChannelAddress source,
+                                    @Nullable final Object sourceFilter,
+                                    @Nonnull final ChannelAddress target )
+  {
+    throw new IllegalStateException( "deriveTargetFilter called for link from " + source + " to " + target +
+                                     ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
+                                     " in the context of the entity message " + entityMessage +
+                                     " but no such graph link exists or the target graph has no filter parameter" );
+  }
+
+  @Nonnull
+  @Override
+  public String deriveFilterInstanceId( @Nonnull final EntityMessage entityMessage,
+                                        @Nonnull final ChannelLink link,
+                                        @Nullable final Object sourceFilter,
+                                        @Nullable final Object targetFilter )
+  {
+    final var source = link.source();
+    final var target = link.target();
+    throw new IllegalStateException( "deriveFilterInstanceId called for link from " + source + " to " + target +
+                                     ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
+                                     " in the context of the entity message " + entityMessage +
+                                     " but no such graph link exists or the target graph is not a " +
+                                     "instanced filter graph" );
+  }
+
   @Override
   public void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
                                            @Nonnull final List<ChannelAddress> addresses,
