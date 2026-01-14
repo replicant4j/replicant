@@ -29,6 +29,11 @@ public final class ChannelMetaData
      */
     STATIC,
     /**
+     * Filtering occurs and the client passes a filter parameter, can never change the filter parameter without
+     * unsubscribing and resubscribing to graph, and can subscribe to multiple instances of the channel.
+     */
+    STATIC_INSTANCED,
+    /**
      * Filtering occurs and the client passes a filter parameter and can change the filter parameter.
      */
     DYNAMIC,
@@ -147,6 +152,7 @@ public final class ChannelMetaData
   {
     return FilterType.DYNAMIC == _filterType ||
            FilterType.DYNAMIC_INSTANCED == _filterType ||
+           FilterType.STATIC_INSTANCED == _filterType ||
            FilterType.STATIC == _filterType;
   }
 

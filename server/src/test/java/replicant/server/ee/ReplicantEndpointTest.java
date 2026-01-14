@@ -311,10 +311,33 @@ public final class ReplicantEndpointTest
   }
 
   @Test
+  public void command_subscribe_staticInstancedWithoutFilterInstanceId()
+    throws Exception
+  {
+    assertInvalidSubscribe( "4.7", "Attempted to use instanced channel without filter instance id" );
+  }
+
+  @Test
   public void command_subscribe_nonInstancedWithFilterInstanceId()
     throws Exception
   {
     assertInvalidSubscribe( "1.5#fi", "Attempted to use non-instanced channel with filter instance id" );
+  }
+
+  @Test
+  public void command_subscribe_staticInstancedWithFilterInstanceId()
+    throws Exception
+  {
+    final var fixture = newFixture();
+    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
+    final var command = createSubscribeCommand( "4.7#fi", 5, filter );
+
+    fixture.endpoint.command( fixture.session, command.toString() );
+
+    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession,
+                                                    5,
+                                                    Collections.singletonList( new ChannelAddress( 4, 7, "fi" ) ),
+                                                    filter );
   }
 
   @Test
@@ -619,6 +642,13 @@ public final class ReplicantEndpointTest
                                                                   json -> json,
                                                                   ChannelMetaData.CacheType.NONE,
                                                                   true );
+    final ChannelMetaData staticInstancedChannel = new ChannelMetaData( 4,
+                                                                        "staticInstanced",
+                                                                        4,
+                                                                        ChannelMetaData.FilterType.STATIC_INSTANCED,
+                                                                        json -> json,
+                                                                        ChannelMetaData.CacheType.NONE,
+                                                                        true );
     final ChannelMetaData internalChannel = new ChannelMetaData( 3,
                                                                  "internal",
                                                                  null,
@@ -626,7 +656,12 @@ public final class ReplicantEndpointTest
                                                                  null,
                                                                  ChannelMetaData.CacheType.NONE,
                                                                  false );
-    return new SchemaMetaData( "Test", typeChannel, dynamicChannel, instancedChannel, internalChannel );
+    return new SchemaMetaData( "Test",
+                               typeChannel,
+                               dynamicChannel,
+                               instancedChannel,
+                               internalChannel,
+                               staticInstancedChannel );
   }
 
   private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )

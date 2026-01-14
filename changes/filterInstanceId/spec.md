@@ -15,7 +15,8 @@ Primary goals:
   same channel/root.
 - **Channel descriptor**: String used in the protocol to identify a channel (subscribe/unsubscribe,
   update actions, entity change channels, etags, etc.).
-- **DYNAMIC_INSTANCED**: New filter type that allows filter updates and multiple concurrent instances.
+- **DYNAMIC_INSTANCED**: Filter type that allows filter updates and multiple concurrent instances.
+- **STATIC_INSTANCED**: Filter type that disallows filter updates but allows multiple concurrent instances.
 
 ## Protocol
 
@@ -41,6 +42,9 @@ Examples:
 - For channels with `filterType == DYNAMIC_INSTANCED`:
   - A `#` **must** be present in subscribe, update, and unsubscribe descriptors.
   - Missing `#` is rejected.
+- For channels with `filterType == STATIC_INSTANCED`:
+  - A `#` **must** be present in subscribe and unsubscribe descriptors.
+  - Updates are **rejected**.
 - For channels with any other filter type:
   - A `#` in a descriptor is **rejected**.
 
@@ -54,6 +58,15 @@ Add `DYNAMIC_INSTANCED`:
 Semantics:
 - Filter parameter is required (same as `DYNAMIC`).
 - Filter updates are allowed.
+- Multiple concurrent subscriptions are allowed, distinguished by `filterInstanceId`.
+
+Add `STATIC_INSTANCED`:
+- Client: `replicant.ChannelSchema.FilterType`
+- Server: `replicant.server.transport.ChannelMetaData.FilterType`
+
+Semantics:
+- Filter parameter is required (same as `STATIC`).
+- Filter updates are **not** allowed.
 - Multiple concurrent subscriptions are allowed, distinguished by `filterInstanceId`.
 
 ## Channel Address
@@ -87,6 +100,8 @@ Add `@Nullable String filterInstanceId` to `ChannelAddress` on both client and s
 ### Validation
 - For `DYNAMIC_INSTANCED`, require non-null `filterInstanceId` in all subscribe/update/unsubscribe
   requests, even if the instance id is empty.
+- For `STATIC_INSTANCED`, require non-null `filterInstanceId` in subscribe/unsubscribe requests
+  (updates are not allowed).
 
 ## Server Behavior
 
@@ -124,6 +139,7 @@ void bulkUnsubscribe( ReplicantSession session,
 
 ### Validation
 - For `DYNAMIC_INSTANCED`, `#` is required in subscribe/update/unsubscribe.
+- For `STATIC_INSTANCED`, `#` is required in subscribe/unsubscribe and update is rejected.
 - For other types, `#` is rejected.
 
 ## Channel Links
@@ -141,8 +157,8 @@ String deriveFilterInstanceId( @Nonnull EntityMessage entityMessage,
 
 ### Link Expansion
 - Derive target filter (existing behavior).
-- If target channel is `DYNAMIC_INSTANCED`, call `deriveFilterInstanceId` and build a new
-  `ChannelAddress` with the same `channelId/rootId` and the derived instance id.
+- If target channel is `DYNAMIC_INSTANCED` or `STATIC_INSTANCED`, call `deriveFilterInstanceId` and
+  build a new `ChannelAddress` with the same `channelId/rootId` and the derived instance id.
 - Links do not carry instance ids.
 
 ## Bulk Subscribe Semantics

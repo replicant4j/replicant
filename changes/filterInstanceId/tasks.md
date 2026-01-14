@@ -15,7 +15,9 @@ If any changes diverge from the spec, update `changes/filterInstanceId/spec.md` 
 
 ## Phase 2: Protocol Constants and FilterType
 - [x] Add `DYNAMIC_INSTANCED` to `ChannelSchema.FilterType` and `ChannelMetaData.FilterType`.
+- [x] Add `STATIC_INSTANCED` to `ChannelSchema.FilterType` and `ChannelMetaData.FilterType`.
 - [x] Update filter type checks/invariants on client and server to include `DYNAMIC_INSTANCED` where `DYNAMIC` is expected.
+- [x] Update filter type checks/invariants to treat `STATIC_INSTANCED` like `STATIC` (no updates) but instanced.
 - [ ] Review: confirm invariant logic and error messages are still correct.
 
 ## Phase 3: Message Parsing/Encoding (Descriptor-Only)
@@ -40,16 +42,19 @@ If any changes diverge from the spec, update `changes/filterInstanceId/spec.md` 
 - [x] Remove `subscribe`/`unsubscribe` from `ReplicantSessionManager` and update all callers.
 - [x] Update endpoint handlers to use bulk methods with full `ChannelAddress` lists and shared filter.
 - [x] Validate `DYNAMIC_INSTANCED` requirements: reject missing `#` and reject `#` for non-instanced channels.
+- [x] Validate `STATIC_INSTANCED` requirements: require `#` on subscribe/unsubscribe, reject updates.
 - [ ] Review: confirm bulk behaviors and validation rules.
 
 ## Phase 7: Link Expansion
 - [x] Add `deriveFilterInstanceId` to `ReplicantSessionContext` and update implementations.
 - [x] Update `createChannelLinkEntryIfRequired` to derive instance id for instanced channels.
+- [x] Update link expansion to derive instance ids for `STATIC_INSTANCED` channels.
 - [ ] Review: confirm linking behavior and derived instance id propagation.
 
 ## Phase 8: Client Convergence and AOI Behavior
 - [x] Update converger grouping logic to include instance id.
 - [x] Ensure client-side validation enforces `#` on subscribe/update/unsubscribe for `DYNAMIC_INSTANCED`.
+- [x] Ensure client-side validation enforces `#` on subscribe/unsubscribe for `STATIC_INSTANCED` and rejects updates.
 - [ ] Review: confirm no incorrect grouping or missing validation.
 
 ## Phase 9: REST Introspection
@@ -59,6 +64,7 @@ If any changes diverge from the spec, update `changes/filterInstanceId/spec.md` 
 ## Phase 10: Tests and Fixture Updates
 - [x] Update tests for message parsing/encoding and any fixtures with channel descriptors.
 - [x] Add coverage for `JsonEncoder`, REST `Encoder`, and `ReplicantEndpoint`.
+- [x] Add/adjust tests for `STATIC_INSTANCED` validation and behavior (client + server + link expansion).
 - [ ] Run relevant unit tests.
 - [ ] Review: confirm failures are fixed and fixtures updated intentionally.
 

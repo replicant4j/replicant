@@ -446,7 +446,8 @@ abstract class Connector
       if ( schema.hasChannel( address.channelId() ) )
       {
         final ChannelSchema channel = schema.getChannel( address.channelId() );
-        if ( ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType() )
+        if ( ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType() ||
+             ChannelSchema.FilterType.STATIC_INSTANCED == channel.getFilterType() )
         {
           invariant( () -> null != address.filterInstanceId(),
                      () -> "Replicant-0098: Channel " + address +

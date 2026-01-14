@@ -1001,6 +1001,31 @@ public final class ConnectorTest
   }
 
   @Test
+  public void requestSubscribe_requiresFilterInstanceId_forStaticInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.STATIC_INSTANCED,
+                         null,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied." );
+  }
+
+  @Test
   public void requestSubscribe_rejectsFilterInstanceId_forNonInstancedChannel()
   {
     final ChannelSchema channelSchema =
@@ -1034,6 +1059,32 @@ public final class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC_INSTANCED,
                          ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+    connector.pauseMessageScheduler();
+
+    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+
+    assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
+
+    connector.requestSubscribe( address, null );
+
+    assertTrue( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
+  }
+
+  @Test
+  public void requestSubscribe_staticInstanced_withFilterInstanceId()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.STATIC_INSTANCED,
+                         null,
                          false, true,
                          Collections.emptyList() );
     final SystemSchema schema =
@@ -1146,6 +1197,31 @@ public final class ConnectorTest
                          null,
                          ChannelSchema.FilterType.DYNAMIC_INSTANCED,
                          ( f, e ) -> true,
+                         false, true,
+                         Collections.emptyList() );
+    final SystemSchema schema =
+      new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
+    final Connector connector = createConnector( schema );
+    newConnection( connector );
+
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> connector.requestUnsubscribe( address ) );
+
+    assertEquals( exception.getMessage(),
+                  "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied." );
+  }
+
+  @Test
+  public void requestUnsubscribe_requiresFilterInstanceId_forStaticInstancedChannel()
+  {
+    final ChannelSchema channelSchema =
+      new ChannelSchema( 0,
+                         ValueUtil.randomString(),
+                         null,
+                         ChannelSchema.FilterType.STATIC_INSTANCED,
+                         null,
                          false, true,
                          Collections.emptyList() );
     final SystemSchema schema =

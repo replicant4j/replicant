@@ -121,7 +121,8 @@ a person and all their related contact details.
 
 Some filtered graphs may support multiple instances of the same graph distinguished by a filter
 instance id. In this case a client can subscribe to multiple instances of the same graph, where each
-instance is routed independently by a filter instance id.
+instance is routed independently by a filter instance id. These channels use instanced filter types
+(`DYNAMIC_INSTANCED` or `STATIC_INSTANCED`); only `DYNAMIC_INSTANCED` allows filter updates.
 
 The codebase often refers to the "Area of Interest" or AOI of a client. This essentially indicates
 whether an entity is contained within one of the graphs that client is subscribed to.
@@ -129,7 +130,7 @@ whether an entity is contained within one of the graphs that client is subscribe
 NB: The codebase(s) for replicant map graphs to channels or data channels at the transport layer.
 The identifier for the root entity in instance graphs is used to name a sub-channel. This is useful
 to understand when monitoring the communication between replicant clients and the replicant engines.
-When a graph uses dynamic instances, the filter instance id is embedded into the channel descriptor
+When a graph uses instanced filters, the filter instance id is embedded into the channel descriptor
 after a '#' suffix.
 
 ### Services

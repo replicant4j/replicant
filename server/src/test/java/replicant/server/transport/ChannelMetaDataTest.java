@@ -78,12 +78,42 @@ public class ChannelMetaDataTest
   }
 
   @Test
+  public void staticInstancedFilteredGraph()
+  {
+    final Function<JsonObject, Object> filterParameterFactory = e -> null;
+    final ChannelMetaData metaData =
+      new ChannelMetaData( 2,
+                           "MetaData",
+                           22,
+                           ChannelMetaData.FilterType.STATIC_INSTANCED,
+                           filterParameterFactory,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    assertEquals( metaData.getChannelId(), 2 );
+    assertEquals( metaData.getName(), "MetaData" );
+    assertFalse( metaData.isTypeGraph() );
+    assertTrue( metaData.isInstanceGraph() );
+    assertEquals( metaData.getFilterType(), ChannelMetaData.FilterType.STATIC_INSTANCED );
+    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
+    assertFalse( metaData.isCacheable() );
+    assertTrue( metaData.hasFilterParameter() );
+    assertTrue( metaData.isExternal() );
+  }
+
+  @Test
   public void badFilteredConfig()
   {
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.STATIC,
+                                             null,
+                                             ChannelMetaData.CacheType.NONE,
+                                             true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             null,
+                                             ChannelMetaData.FilterType.STATIC_INSTANCED,
                                              null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );

@@ -24,6 +24,8 @@ public final class ChannelSchema
     INTERNAL,
     /// Filtering is specified when the channel is created and is unable to be changed
     STATIC,
+    /// Filtering is specified when the channel is created and is unable to be changed but supports multiple instances
+    STATIC_INSTANCED,
     /// Filtering can be changed after the channel has been created
     DYNAMIC,
     /// Filtering can be changed after the channel has been created and supports multiple instances

@@ -455,7 +455,8 @@ public class ReplicantEndpoint
     throws IOException
   {
     final boolean hasInstanceId = null != address.filterInstanceId();
-    if ( ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() )
+    if ( ChannelMetaData.FilterType.DYNAMIC_INSTANCED == channelMetaData.getFilterType() ||
+         ChannelMetaData.FilterType.STATIC_INSTANCED == channelMetaData.getFilterType() )
     {
       if ( !hasInstanceId )
       {

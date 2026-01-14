@@ -657,7 +657,8 @@ public class ReplicantSessionManagerImpl
           targetFilter :
           _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
         final var targetAddress =
-          ChannelMetaData.FilterType.DYNAMIC_INSTANCED == targetMetaData.getFilterType() ?
+          ChannelMetaData.FilterType.DYNAMIC_INSTANCED == targetMetaData.getFilterType() ||
+          ChannelMetaData.FilterType.STATIC_INSTANCED == targetMetaData.getFilterType() ?
           new ChannelAddress( target.channelId(),
                               target.rootId(),
                               _context.deriveFilterInstanceId( entityMessage,
@@ -894,7 +895,8 @@ public class ReplicantSessionManagerImpl
       {
         doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
       }
-      else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() )
+      else if ( ChannelMetaData.FilterType.STATIC == channelMetaData.getFilterType() ||
+                ChannelMetaData.FilterType.STATIC_INSTANCED == channelMetaData.getFilterType() )
       {
         final var existingFilter = entry.getFilter();
         if ( doFiltersNotMatch( filter, existingFilter ) )

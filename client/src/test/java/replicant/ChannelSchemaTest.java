@@ -118,6 +118,33 @@ public class ChannelSchemaTest
   }
 
   @Test
+  public void staticInstancedFilteredGraph()
+  {
+    final int id = ValueUtil.randomInt();
+    final String name = ValueUtil.randomString();
+    final boolean cacheable = false;
+    final boolean external = true;
+    final ChannelSchema channelSchema =
+      new ChannelSchema( id,
+                         name,
+                         String.class,
+                         ChannelSchema.FilterType.STATIC_INSTANCED,
+                         null,
+                         cacheable,
+                         external,
+                         Collections.emptyList() );
+    assertEquals( channelSchema.getId(), id );
+    assertEquals( channelSchema.getName(), name );
+    assertEquals( channelSchema.toString(), name );
+    assertFalse( channelSchema.isTypeChannel() );
+    assertTrue( channelSchema.isInstanceChannel() );
+    assertEquals( channelSchema.getInstanceType(), String.class );
+    assertEquals( channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC_INSTANCED );
+    assertEquals( channelSchema.isCacheable(), cacheable );
+    assertEquals( channelSchema.isExternal(), external );
+  }
+
+  @Test
   public void dynamicFilteredGraph()
   {
     final int id = ValueUtil.randomInt();
@@ -210,6 +237,23 @@ public class ChannelSchemaTest
                                              "MyChannel",
                                              null,
                                              ChannelSchema.FilterType.STATIC,
+                                             mock( SubscriptionUpdateEntityFilter.class ),
+                                             ValueUtil.randomBoolean(),
+                                             ValueUtil.randomBoolean(),
+                                             Collections.emptyList() ) );
+    assertEquals( exception.getMessage(),
+                  "Replicant-0077: ChannelSchema 222 does not have a DYNAMIC filterType but has supplied a filter." );
+  }
+
+  @Test
+  public void constructorPassedFilterWhenNotExpected_staticInstanced()
+  {
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> new ChannelSchema( 222,
+                                             "MyChannel",
+                                             null,
+                                             ChannelSchema.FilterType.STATIC_INSTANCED,
                                              mock( SubscriptionUpdateEntityFilter.class ),
                                              ValueUtil.randomBoolean(),
                                              ValueUtil.randomBoolean(),
