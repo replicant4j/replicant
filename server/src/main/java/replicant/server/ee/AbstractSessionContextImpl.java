@@ -127,7 +127,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Nonnull
-  @SuppressWarnings( "SameParameterValue" )
+  @SuppressWarnings( { "SameParameterValue", "DataFlowIssue" } )
   protected <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
   {
     final var index = new AtomicInteger( 0 );
@@ -155,7 +155,7 @@ public abstract class AbstractSessionContextImpl
                                                            final boolean isUpdate,
                                                            final boolean isInitialLoad );
 
-  @SuppressWarnings( "resource" )
+  @SuppressWarnings( { "resource", "SqlSourceToSinkFlow" } )
   protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
                                                        @Nullable final Object filter,
                                                        @Nonnull final ChangeSet changeSet,
