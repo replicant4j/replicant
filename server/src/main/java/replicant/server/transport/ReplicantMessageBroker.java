@@ -3,7 +3,6 @@ package replicant.server.transport;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
 import javax.json.JsonValue;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;

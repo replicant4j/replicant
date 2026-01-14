@@ -323,7 +323,8 @@ abstract class SubscriptionService
     {
       getInstanceSubscriptionsObservableValue().preReportChanged();
       final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap = _instanceSubscriptions.get( schemaId );
-      final Map<Integer, Map<String, Subscription>> instanceMap = null == channelMap ? null : channelMap.get( channelId );
+      final Map<Integer, Map<String, Subscription>> instanceMap =
+        null == channelMap ? null : channelMap.get( channelId );
       final Map<String, Subscription> filterMap = null == instanceMap ? null : instanceMap.get( rootId );
       final Subscription subscription = null == filterMap ? null : filterMap.remove( filterInstanceId );
       if ( null != filterMap && filterMap.isEmpty() )

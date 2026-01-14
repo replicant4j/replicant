@@ -135,7 +135,7 @@ public final class Messages
     }
   }
 
-  public static final  class Exec
+  public static final class Exec
   {
     @Nonnull
     public static final String PAYLOAD = "payload";

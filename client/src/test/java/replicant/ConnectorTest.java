@@ -1606,7 +1606,12 @@ public final class ConnectorTest
     final Connection connection = newConnection( connector );
     final MessageResponse response =
       setCurrentMessageResponse( connection,
-                                 UpdateMessage.create( null, null, new String[ 0 ], null, new EntityChange[ 0 ], null ) );
+                                 UpdateMessage.create( null,
+                                                       null,
+                                                       new String[ 0 ],
+                                                       null,
+                                                       new EntityChange[ 0 ],
+                                                       null ) );
 
     final Linkable entity1 = mock( Linkable.class );
     final Linkable entity2 = mock( Linkable.class );

@@ -14,7 +14,6 @@ public final class ExecMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.EXEC;
-
   @Nonnull
   private String command;
   @Nullable

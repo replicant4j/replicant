@@ -176,7 +176,8 @@ public abstract class Subscription
     getEntitiesObservableValue().preReportChanged();
     final Class<?> type = entity.getType();
     final int id = entity.getId();
-    final NavigableMap<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type, t -> new TreeMap<>() );
+    final NavigableMap<Integer, EntitySubscriptionEntry> typeMap = _entities.computeIfAbsent( type,
+                                                                                              t -> new TreeMap<>() );
     if ( !typeMap.containsKey( id ) )
     {
       createSubscriptionEntry( typeMap, entity );

@@ -17,7 +17,6 @@ public class SessionCreatedMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.SESSION_CREATED;
-
   @Nonnull
   private String sessionId;
 

@@ -14,7 +14,6 @@ public final class AuthTokenMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.AUTH;
-
   @Nullable
   private String token;
 

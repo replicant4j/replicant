@@ -1,8 +1,8 @@
 package replicant.server.transport;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;

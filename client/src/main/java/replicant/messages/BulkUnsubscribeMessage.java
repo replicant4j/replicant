@@ -14,7 +14,6 @@ public final class BulkUnsubscribeMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.BULK_UNSUB;
-
   @Nonnull
   private String[] channels;
 

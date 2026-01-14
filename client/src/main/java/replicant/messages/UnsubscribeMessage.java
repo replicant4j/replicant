@@ -13,7 +13,6 @@ public final class UnsubscribeMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.UNSUB;
-
   @Nonnull
   private String channel;
 

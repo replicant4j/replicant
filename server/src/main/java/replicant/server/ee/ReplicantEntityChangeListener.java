@@ -73,7 +73,7 @@ public class ReplicantEntityChangeListener
   {
     if ( null == _registry )
     {
-      _registry = lookup("java:comp/TransactionSynchronizationRegistry");
+      _registry = lookup( "java:comp/TransactionSynchronizationRegistry" );
     }
     return _registry;
   }
@@ -86,7 +86,9 @@ public class ReplicantEntityChangeListener
       final BeanManager beanManager = lookup( "java:comp/BeanManager" );
       final var bean = beanManager.getBeans( ReplicantChangeRecorder.class ).iterator().next();
       final var creationalContext = beanManager.createCreationalContext( bean );
-      _recorder = (ReplicantChangeRecorder) beanManager.getReference( bean, ReplicantChangeRecorder.class, creationalContext );
+      _recorder = (ReplicantChangeRecorder) beanManager.getReference( bean,
+                                                                      ReplicantChangeRecorder.class,
+                                                                      creationalContext );
     }
     return _recorder;
   }

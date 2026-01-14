@@ -1,6 +1,5 @@
 package replicant.server.ee;
 
-import java.io.Serializable;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

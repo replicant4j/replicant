@@ -19,7 +19,6 @@ public class UpdateMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.UPDATE;
-
   @Nullable
   private String etag;
   @Nullable

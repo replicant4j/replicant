@@ -45,7 +45,7 @@ public class TestCacheService
                         @Nonnull final String eTag,
                         @Nonnull final Object content )
   {
-    getSystemCache( address.schemaId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content) ) );
+    getSystemCache( address.schemaId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content ) ) );
     return true;
   }
 

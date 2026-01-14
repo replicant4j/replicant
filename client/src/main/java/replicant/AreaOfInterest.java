@@ -97,6 +97,7 @@ public abstract class AreaOfInterest
     {
       return this == NOT_ASKED || this == LOADING;
     }
+
     /**
      * Return true if the subscription has not reached a terminal state and data is not present.
      *

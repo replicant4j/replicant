@@ -43,7 +43,7 @@ public class EntityChange
                                      @Nonnull final String[] channels,
                                      @Nullable final EntityChangeData data )
   {
-    final EntityChange change = create(type, id, channels );
+    final EntityChange change = create( type, id, channels );
     change.data = data;
     return change;
   }

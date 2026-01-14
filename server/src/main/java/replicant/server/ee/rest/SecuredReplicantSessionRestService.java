@@ -30,7 +30,8 @@ public class SecuredReplicantSessionRestService
   {
     try
     {
-      _disableSessionServiceProtection = new InitialContext().lookup( "replicant/env/disable_session_service_protection" ).equals( Boolean.TRUE );
+      _disableSessionServiceProtection =
+        new InitialContext().lookup( "replicant/env/disable_session_service_protection" ).equals( Boolean.TRUE );
     }
     catch ( final Exception ignored )
     {

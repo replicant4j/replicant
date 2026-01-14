@@ -14,7 +14,6 @@ public final class SubscribeMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.SUB;
-
   @Nonnull
   private String channel;
   @Nullable

@@ -2,7 +2,6 @@ package replicant.server.transport;
 
 import java.io.IOException;
 import javax.annotation.Nonnull;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 
 @SuppressWarnings( "WeakerAccess" )

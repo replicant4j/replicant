@@ -15,7 +15,6 @@ public class ErrorMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.ERROR;
-
   @Nullable
   private String message;
 

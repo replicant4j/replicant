@@ -13,7 +13,6 @@ public final class EtagsMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.ETAGS;
-
   @Nonnull
   private EtagsData etags;
 

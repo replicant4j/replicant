@@ -18,7 +18,6 @@ public class UseCacheMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.USE_CACHE;
-
   @Nonnull
   private String channel;
   @Nonnull
