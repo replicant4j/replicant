@@ -59,7 +59,7 @@ public class ReplicantEndpoint
                " for replicant session " + getReplicantSession( session ).getId() );
     }
 
-    onSessionOpen( newReplicantSession );
+    _replicantSessionAddedEventEvent.fire( new ReplicantSessionAdded( newReplicantSession.getId() ) );
 
     WebSocketUtil.sendText( session, JsonEncoder.encodeSessionCreatedMessage( newReplicantSession.getId() ) );
   }
@@ -99,14 +99,13 @@ public class ReplicantEndpoint
       onMalformedMessage( replicantSession, message );
       return;
     }
-    if ( !Messages.C2S_Type.AUTH.equals( type ) && !isAuthorized( replicantSession ) )
+    if ( !Messages.C2S_Type.AUTH.equals( type ) && !_sessionManager.isAuthorized( replicantSession ) )
     {
       sendErrorAndClose( session, "Replicant session not authorized" );
       return;
     }
     try
     {
-      beforeCommand( replicantSession, type, command );
       //noinspection IfCanBeSwitch
       if ( Messages.C2S_Type.EXEC.equals( type ) )
       {
@@ -184,68 +183,12 @@ public class ReplicantEndpoint
       {
         onUnknownType( replicantSession, command );
       }
-      afterCommand( replicantSession, type, command );
+      _replicantSessionUpdatedEvent.fire( new ReplicantSessionUpdated( replicantSession.getId() ) );
     }
     catch ( final SecurityException ignored )
     {
       sendErrorAndClose( replicantSession, "Security constraints violated" );
     }
-  }
-
-  /**
-   * A hook method invoked as a session is opened.
-   *
-   * @param session the session.
-   */
-  @SuppressWarnings( "unused" )
-  protected void onSessionOpen( @Nonnull final ReplicantSession session )
-  {
-    _replicantSessionAddedEventEvent.fire( new ReplicantSessionAdded( session.getId() ) );
-  }
-
-  /**
-   * A hook method invoked as a session is closed.
-   *
-   * @param session the session.
-   */
-  @SuppressWarnings( "unused" )
-  protected void onSessionClose( @Nonnull final ReplicantSession session )
-  {
-    _replicantSessionRemovedEvent.fire( new ReplicantSessionRemoved( session.getId() ) );
-  }
-
-  /**
-   * A hook method invoked before a command is processed.
-   *
-   * @param session the session.
-   * @param type    the type of the command.
-   * @param command the command object
-   */
-  @SuppressWarnings( "unused" )
-  protected void beforeCommand( @Nonnull final ReplicantSession session,
-                                @Nonnull final String type,
-                                @Nonnull final JsonObject command )
-  {
-  }
-
-  /**
-   * A hook method invoked after a command is processed.
-   *
-   * @param session the session.
-   * @param type    the type of the command.
-   * @param command the command object
-   */
-  @SuppressWarnings( "unused" )
-  protected void afterCommand( @Nonnull final ReplicantSession session,
-                               @Nonnull final String type,
-                               @Nonnull final JsonObject command )
-  {
-    _replicantSessionUpdatedEvent.fire( new ReplicantSessionUpdated( session.getId() ) );
-  }
-
-  private boolean isAuthorized( @Nonnull final ReplicantSession session )
-  {
-    return _sessionManager.isAuthorized( session );
   }
 
   private void sendOk( @Nonnull final Session session, final int requestId )
@@ -317,13 +260,9 @@ public class ReplicantEndpoint
       sendErrorAndClose( replicantSession, "Attempted to subscribe to instance channel without instance data" );
       return false;
     }
-    else if ( !validateFilterInstanceId( replicantSession, channelMetaData, address ) )
-    {
-      return false;
-    }
     else
     {
-      return true;
+      return validateFilterInstanceId( replicantSession, channelMetaData, address );
     }
   }
 
@@ -439,13 +378,9 @@ public class ReplicantEndpoint
       sendErrorAndClose( replicantSession, "Attempted to unsubscribe from instance channel without instance data" );
       return false;
     }
-    else if ( !validateFilterInstanceId( replicantSession, channelMetaData, address ) )
-    {
-      return false;
-    }
     else
     {
-      return true;
+      return validateFilterInstanceId( replicantSession, channelMetaData, address );
     }
   }
 
@@ -579,7 +514,7 @@ public class ReplicantEndpoint
 
   private void closeReplicantSession( @Nonnull final ReplicantSession replicantSession )
   {
-    onSessionClose( replicantSession );
+    _replicantSessionRemovedEvent.fire( new ReplicantSessionRemoved( replicantSession.getId() ) );
     _sessionManager.invalidateSession( replicantSession );
   }
 }
