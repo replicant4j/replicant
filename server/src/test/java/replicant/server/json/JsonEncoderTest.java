@@ -262,7 +262,7 @@ public final class JsonEncoderTest
   {
     final HashMap<String, Serializable> routingKeys = new HashMap<>();
     final HashMap<String, Serializable> attributeData = new HashMap<>();
-    attributeData.put( "bad", Byte.valueOf( (byte) 1 ) );
+    attributeData.put( "bad", (byte) 1 );
     final EntityMessage message = new EntityMessage( 1, 2, 0, routingKeys, attributeData, null );
     final ChangeSet cs = new ChangeSet();
     cs.merge( new Change( message ) );
