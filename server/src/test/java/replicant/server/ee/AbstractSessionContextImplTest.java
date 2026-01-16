@@ -1,0 +1,783 @@
+package replicant.server.ee;
+
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.persistence.EntityManager;
+import javax.transaction.TransactionSynchronizationRegistry;
+import javax.websocket.Session;
+import org.realityforge.guiceyloops.server.TestInitialContextFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import replicant.server.ChangeSet;
+import replicant.server.ChannelAction;
+import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
+import replicant.server.EntityMessage;
+import replicant.server.EntityMessageSet;
+import replicant.server.transport.ReplicantSession;
+import replicant.server.transport.SchemaMetaData;
+import replicant.server.transport.SubscriptionEntry;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
+
+@SuppressWarnings( { "resource", "SqlNoDataSourceInspection" } )
+public class AbstractSessionContextImplTest
+{
+  @BeforeMethod
+  public void setup()
+  {
+    RegistryUtil.bind();
+  }
+
+  @AfterMethod
+  public void teardown()
+  {
+    TestInitialContextFactory.reset();
+  }
+
+  @Test
+  public void deriveTargetFilter_throwsWhenNotOverridden()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final ChannelAddress source = new ChannelAddress( 1, 2 );
+    final ChannelAddress target = new ChannelAddress( 3, 4 );
+    final EntityMessage message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> context.deriveTargetFilter( message, source, "filter", target ) );
+
+    assertEquals( exception.getMessage(),
+                  "deriveTargetFilter called for link from " + source + " to " + target +
+                  " with source filter filter in the context of the entity message " + message +
+                  " but no such graph link exists or the target graph has no filter parameter" );
+  }
+
+  @Test
+  public void deriveFilterInstanceId_throwsWhenNotOverridden()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final ChannelAddress source = new ChannelAddress( 1, 2 );
+    final ChannelAddress target = new ChannelAddress( 3, 4 );
+    final ChannelLink link = new ChannelLink( source, target );
+    final EntityMessage message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class,
+                    () -> context.deriveFilterInstanceId( message, link, "filter", null ) );
+
+    assertEquals( exception.getMessage(),
+                  "deriveFilterInstanceId called for link from " + source + " to " + target +
+                  " with source filter filter in the context of the entity message " + message +
+                  " but no such graph link exists or the target graph is not a instanced filter graph" );
+  }
+
+  @Test
+  public void bulkCollectDataForSubscribe_delegates()
+  {
+    final var em = mock( EntityManager.class );
+    final var context = newContext( em );
+    final var session = newSession();
+    final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
+    final var filter = Map.of( "k", "v" );
+    final var changeSet = new ChangeSet();
+
+    context.bulkCollectDataForSubscribe( session, addresses, filter, changeSet, true );
+
+    assertEquals( context.getBulkCollectCalls().size(), 1 );
+    final var call = context.getBulkCollectCalls().get( 0 );
+    assertEquals( call.session(), session );
+    assertEquals( call.addresses(), addresses );
+    assertEquals( call.filter(), filter );
+    assertEquals( call.changeSet(), changeSet );
+    assertTrue( call.explicitSubscribe() );
+  }
+
+  @Test
+  public void recordEntityMessageForEntity_mergesMessage()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    context.registerMessageForObject( "entity", new EntityMessage( 11, 7, 0, new HashMap<>(), null, null ) );
+
+    context.recordEntityMessageForEntity( "entity", true );
+
+    final TransactionSynchronizationRegistry registry = TransactionSynchronizationRegistryUtil.lookup();
+    final EntityMessageSet set = EntityMessageCacheUtil.getEntityMessageSet( registry );
+    assertTrue( set.containsEntityMessage( 7, 11 ) );
+  }
+
+  @Test
+  public void recordEntityMessageForEntity_ignoresNullMessage()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+
+    context.recordEntityMessageForEntity( "entity", true );
+
+    final TransactionSynchronizationRegistry registry = TransactionSynchronizationRegistryUtil.lookup();
+    final EntityMessageSet set = EntityMessageCacheUtil.getEntityMessageSet( registry );
+    assertFalse( set.containsEntityMessage( 7, 11 ) );
+    assertTrue( set.getEntityMessages().isEmpty() );
+  }
+
+  @Test
+  public void connection_usesEntityManagerUnwrap()
+  {
+    final var em = mock( EntityManager.class );
+    final var connection = mock( Connection.class );
+    when( em.unwrap( Connection.class ) ).thenReturn( connection );
+    final var context = newContext( em );
+
+    assertEquals( context.connection(), connection );
+    verify( em ).unwrap( Connection.class );
+  }
+
+  @Test
+  public void recordSubscription_addsEntryAndAction()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
+    final var filter = Map.of( "k", "v" );
+
+    withSessionLock( session, () -> {
+      final SubscriptionEntry entry = context.recordSubscription( session, changeSet, address, filter, true );
+      assertEquals( entry.address(), address );
+      assertTrue( entry.isExplicitlySubscribed() );
+      assertEquals( entry.getFilter(), filter );
+    } );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    final var action = changeSet.getChannelActions().get( 0 );
+    assertEquals( action.address(), address );
+    assertEquals( action.action(), ChannelAction.Action.ADD );
+    assertNotNull( action.filter() );
+  }
+
+  @Test
+  public void recordSubscription_updatesExistingEntry()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
+    final var filter = Map.of( "k", "v" );
+
+    withSessionLock( session, () -> {
+      final SubscriptionEntry entry = session.createSubscriptionEntry( address );
+      entry.setFilter( Map.of( "old", "filter" ) );
+      context.recordSubscription( session, changeSet, address, filter, false );
+      assertEquals( entry.getFilter(), filter );
+      assertFalse( entry.isExplicitlySubscribed() );
+    } );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    final var action = changeSet.getChannelActions().get( 0 );
+    assertEquals( action.action(), ChannelAction.Action.UPDATE );
+  }
+
+  @Test
+  public void recordSubscriptions_recordsAll()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
+
+    withSessionLock( session,
+                     () -> context.recordSubscriptions( session, changeSet, addresses, Map.of( "k", "v" ), true ) );
+
+    assertEquals( changeSet.getChannelActions().size(), 2 );
+  }
+
+  @Test
+  public void generateTempIdTable_buildsSql()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var addresses = List.of( new ChannelAddress( 1, 11 ),
+                                   new ChannelAddress( 1, 12 ),
+                                   new ChannelAddress( 1, 13 ) );
+
+    final var sql = context.generateTempIdTable( addresses );
+
+    assertEquals( sql,
+                  """
+                    DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
+                    INSERT INTO @Ids VALUES (11),(12),(13)
+                    """ );
+  }
+
+  @Test
+  public void chunked_groupsValues()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var values = List.of( 1, 2, 3, 4, 5 );
+
+    final List<List<Integer>> chunks = context.chunked( values.stream(), 2 ).toList();
+
+    assertEquals( chunks.size(), 3 );
+    assertEquals( chunks.get( 0 ), List.of( 1, 2 ) );
+    assertEquals( chunks.get( 1 ), List.of( 3, 4 ) );
+    assertEquals( chunks.get( 2 ), List.of( 5 ) );
+  }
+
+  @Test
+  public void bulkLinkFromSourceGraphToTargetGraph_linksAndRecords()
+    throws Exception
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var resultSet = mock( ResultSet.class );
+
+    when( resultSet.next() ).thenReturn( true, true, false );
+    when( resultSet.getInt( "source_id" ) ).thenReturn( 1, 2 );
+    when( resultSet.getInt( "target_id" ) ).thenReturn( 10, 20 );
+
+    withSessionLock( session, () -> {
+      session.createSubscriptionEntry( new ChannelAddress( 0, 1 ) );
+      session.createSubscriptionEntry( new ChannelAddress( 0, 2 ) );
+
+      context.bulkLinkFromSourceGraphToTargetGraph( session,
+                                                    Map.of( "k", "v" ),
+                                                    changeSet,
+                                                    0,
+                                                    "source_id",
+                                                    1,
+                                                    "target_id",
+                                                    resultSet );
+    } );
+
+    assertEquals( changeSet.getChannelActions().size(), 2 );
+    withSessionLock( session, () -> assertEquals( session.getSubscriptions().size(), 4 ) );
+    withSessionLock( session, () -> {
+      final var source1 = session.getSubscriptionEntry( new ChannelAddress( 0, 1 ) );
+      final var target10 = session.getSubscriptionEntry( new ChannelAddress( 1, 10 ) );
+      assertTrue( source1.getOutwardSubscriptions().contains( target10.address() ) );
+      assertTrue( target10.getInwardSubscriptions().contains( source1.address() ) );
+    } );
+  }
+
+  @Test
+  public void bulkLinkFromSourceGraphToTargetGraph_skipsExistingTarget()
+    throws Exception
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var resultSet = mock( ResultSet.class );
+
+    when( resultSet.next() ).thenReturn( true, true, false );
+    when( resultSet.getInt( "source_id" ) ).thenReturn( 1, 2 );
+    when( resultSet.getInt( "target_id" ) ).thenReturn( 10, 20 );
+
+    withSessionLock( session, () -> {
+      session.createSubscriptionEntry( new ChannelAddress( 0, 1 ) );
+      session.createSubscriptionEntry( new ChannelAddress( 0, 2 ) );
+      session.createSubscriptionEntry( new ChannelAddress( 1, 10 ) );
+
+      context.bulkLinkFromSourceGraphToTargetGraph( session,
+                                                    Map.of( "k", "v" ),
+                                                    changeSet,
+                                                    0,
+                                                    "source_id",
+                                                    1,
+                                                    "target_id",
+                                                    resultSet );
+    } );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    withSessionLock( session, () -> assertEquals( session.getSubscriptions().size(), 4 ) );
+  }
+
+  @Test
+  public void bulkLinkFromSourceGraphToTargetGraph_executesSql()
+    throws Exception
+  {
+    final var em = mock( EntityManager.class );
+    final var connection = mock( Connection.class );
+    final var statement = mock( Statement.class );
+    final var resultSet = mock( ResultSet.class );
+    when( em.unwrap( Connection.class ) ).thenReturn( connection );
+    when( connection.createStatement() ).thenReturn( statement );
+    when( statement.executeQuery( "SELECT 1" ) ).thenReturn( resultSet );
+    when( resultSet.next() ).thenReturn( false );
+
+    final var context = newContext( em );
+    final var session = newSession();
+
+    withSessionLock( session,
+                     () -> context.bulkLinkFromSourceGraphToTargetGraph( session,
+                                                                         null,
+                                                                         new ChangeSet(),
+                                                                         0,
+                                                                         "source_id",
+                                                                         1,
+                                                                         "target_id",
+                                                                         "SELECT 1" ) );
+
+    verify( statement ).executeQuery( "SELECT 1" );
+  }
+
+  @Test
+  public void updateLinksToTargetGraph_updatesFilters()
+    throws Exception
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var changeSet = new ChangeSet();
+    final var resultSet = mock( ResultSet.class );
+
+    when( resultSet.next() ).thenReturn( true, false );
+    when( resultSet.getInt( "target_id" ) ).thenReturn( 10 );
+
+    withSessionLock( session, () -> {
+      final var entry = session.createSubscriptionEntry( new ChannelAddress( 1, 10 ) );
+      entry.setFilter( null );
+
+      context.updateLinksToTargetGraph( session,
+                                        changeSet,
+                                        Map.of( "k", "v" ),
+                                        "target_id",
+                                        1,
+                                        resultSet );
+      assertEquals( entry.getFilter(), Map.of( "k", "v" ) );
+    } );
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.UPDATE );
+  }
+
+  @Test
+  public void updateLinksToTargetGraph_executesSql()
+    throws Exception
+  {
+    final var em = mock( EntityManager.class );
+    final var connection = mock( Connection.class );
+    final var statement = mock( Statement.class );
+    final var resultSet = mock( ResultSet.class );
+    when( em.unwrap( Connection.class ) ).thenReturn( connection );
+    when( connection.createStatement() ).thenReturn( statement );
+    when( statement.executeQuery( "SELECT 2" ) ).thenReturn( resultSet );
+    when( resultSet.next() ).thenReturn( false );
+
+    final var context = newContext( em );
+    final var session = newSession();
+
+    withSessionLock( session,
+                     () -> context.updateLinksToTargetGraph( session,
+                                                             new ChangeSet(),
+                                                             Map.of( "k", "v" ),
+                                                             1,
+                                                             "target_id",
+                                                             "SELECT 2" ) );
+
+    verify( statement ).executeQuery( "SELECT 2" );
+  }
+
+  @Test
+  public void linkSubscriptionEntries_registersLinks()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var session = newSession();
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 3, 4 );
+
+    withSessionLock( session, () -> {
+      final var sourceEntry = session.createSubscriptionEntry( source );
+      final var targetEntry = session.createSubscriptionEntry( target );
+      context.linkSubscriptionEntries( sourceEntry, targetEntry );
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
+      assertTrue( targetEntry.getInwardSubscriptions().contains( source ) );
+    } );
+  }
+
+  @Test
+  public void encodeObjects_mergesMessages()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var messages = new EntityMessageSet();
+    context.registerMessageForObject( "A", new EntityMessage( 1, 1, 0, new HashMap<>(), new HashMap<>(), null ) );
+    context.registerMessageForObject( "B", new EntityMessage( 2, 1, 0, new HashMap<>(), new HashMap<>(), null ) );
+
+    final List<String> objects = new ArrayList<>();
+    objects.add( "A" );
+    objects.add( null );
+    objects.add( "B" );
+    context.encodeObjects( messages, objects );
+
+    assertTrue( messages.containsEntityMessage( 1, 1 ) );
+    assertTrue( messages.containsEntityMessage( 1, 2 ) );
+    assertEquals( context.getConvertCalls().size(), 2 );
+    assertTrue( context.getConvertCalls().stream().allMatch( call -> call.isUpdate() && call.isInitialLoad() ) );
+  }
+
+  @Test
+  public void addChannelLink_skipsNullTargetRoot()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLink( links, 1, 2, null );
+
+    assertTrue( links.isEmpty() );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_addsLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLinkWithFilter( links, 1, 2, 3, Map.of( "k", "v" ) );
+
+    assertEquals( links.size(), 1 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1 ),
+                                                 new ChannelAddress( 2, 3 ),
+                                                 Map.of( "k", "v" ) ) ) );
+  }
+
+  @Test
+  public void addChannelLinksFromRoutingKeys_addsLinks()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+    final var routingKeys = new HashMap<String, Serializable>();
+    routingKeys.put( "R", new ArrayList<>( List.of( 4, 5 ) ) );
+
+    context.addChannelLinks( routingKeys, links, 1, "R", 2, 99 );
+
+    assertEquals( links.size(), 2 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 4 ), new ChannelAddress( 2, 99 ) ) ) );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 5 ), new ChannelAddress( 2, 99 ) ) ) );
+  }
+
+  @Test
+  public void addChannelLinks_skipsMissingData()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLinks( links, 1, null, 2, 3 );
+    context.addChannelLinks( links, 1, List.of( 1, 2 ), 2, null );
+
+    assertTrue( links.isEmpty() );
+  }
+
+  @Test
+  public void addChannelLinksWithFilter_addsLinks()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLinksWithFilter( links, 1, List.of( 1, 2 ), 3, 4, Map.of( "k", "v" ) );
+
+    assertEquals( links.size(), 2 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 1 ),
+                                                 new ChannelAddress( 3, 4 ),
+                                                 Map.of( "k", "v" ) ) ) );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 2 ),
+                                                 new ChannelAddress( 3, 4 ),
+                                                 Map.of( "k", "v" ) ) ) );
+  }
+
+  @Test
+  public void addInstanceRootRouterKey_appendsIds()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var routingKeys = new HashMap<String, Serializable>();
+
+    context.addInstanceRootRouterKey( routingKeys, "R", 1 );
+    context.addInstanceRootRouterKey( routingKeys, "R", 2 );
+
+    @SuppressWarnings( "unchecked" )
+    final var ids = (List<Integer>) routingKeys.get( "R" );
+    assertEquals( ids, List.of( 1, 2 ) );
+  }
+
+  @Test
+  public void decodeAttributes_populatesMap()
+    throws Exception
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var resultSet = mock( ResultSet.class );
+    final var attributes = new HashMap<String, Serializable>();
+
+    when( resultSet.getInt( "I" ) ).thenReturn( 12 );
+    when( resultSet.getObject( "NI" ) ).thenReturn( 13 );
+    when( resultSet.getTimestamp( "TS" ) ).thenReturn( new Timestamp( 1000L ) );
+    when( resultSet.getTimestamp( "NTS" ) ).thenReturn( new Timestamp( 2000L ) );
+    when( resultSet.getDate( "D" ) ).thenReturn( new java.sql.Date( 0L ) );
+    when( resultSet.getDate( "ND" ) ).thenReturn( new java.sql.Date( 0L ) );
+    when( resultSet.getString( "S" ) ).thenReturn( "value" );
+    when( resultSet.getString( "NS" ) ).thenReturn( "nvalue" );
+    when( resultSet.getBoolean( "B" ) ).thenReturn( true );
+    when( resultSet.getObject( "NB" ) ).thenReturn( Boolean.FALSE );
+
+    assertEquals( context.decodeIntAttribute( resultSet, attributes, "I", "I" ), 12 );
+    assertEquals( context.decodeNullableIntAttribute( resultSet, attributes, "NI", "NI" ), Integer.valueOf( 13 ) );
+    context.decodeTimestampAttribute( resultSet, attributes, "TS", "TS" );
+    context.decodeNullableTimestampAttribute( resultSet, attributes, "NTS", "NTS" );
+    context.decodeDateAttribute( resultSet, attributes, "D", "D" );
+    context.decodeNullableDateAttribute( resultSet, attributes, "ND", "ND" );
+    context.decodeStringAttribute( resultSet, attributes, "S", "S" );
+    context.decodeNullableStringAttribute( resultSet, attributes, "NS", "NS" );
+    context.decodeBooleanAttribute( resultSet, attributes, "B", "B" );
+    context.decodeNullableBooleanAttribute( resultSet, attributes, "NB", "NB" );
+
+    assertEquals( attributes.get( "I" ), 12 );
+    assertEquals( attributes.get( "NI" ), 13 );
+    assertEquals( attributes.get( "TS" ), 1000L );
+    assertEquals( attributes.get( "NTS" ), 2000L );
+    assertEquals( attributes.get( "D" ), context.toDateString( new java.sql.Date( 0L ) ) );
+    assertEquals( attributes.get( "ND" ), context.toDateString( new java.sql.Date( 0L ) ) );
+    assertEquals( attributes.get( "S" ), "value" );
+    assertEquals( attributes.get( "NS" ), "nvalue" );
+    assertEquals( attributes.get( "B" ), true );
+    assertEquals( attributes.get( "NB" ), false );
+  }
+
+  @Test
+  public void decodeNullableAttributes_skipNulls()
+    throws Exception
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var resultSet = mock( ResultSet.class );
+    final var attributes = new HashMap<String, Serializable>();
+
+    when( resultSet.getObject( "NI" ) ).thenReturn( null );
+    when( resultSet.getTimestamp( "NTS" ) ).thenReturn( null );
+    when( resultSet.getDate( "ND" ) ).thenReturn( null );
+    when( resultSet.getString( "NS" ) ).thenReturn( null );
+    when( resultSet.getObject( "NB" ) ).thenReturn( null );
+
+    assertNull( context.decodeNullableIntAttribute( resultSet, attributes, "NI", "NI" ) );
+    context.decodeNullableTimestampAttribute( resultSet, attributes, "NTS", "NTS" );
+    context.decodeNullableDateAttribute( resultSet, attributes, "ND", "ND" );
+    context.decodeNullableStringAttribute( resultSet, attributes, "NS", "NS" );
+    context.decodeNullableBooleanAttribute( resultSet, attributes, "NB", "NB" );
+
+    assertTrue( attributes.isEmpty() );
+  }
+
+  @Test
+  public void toDateString_convertsDate()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var value = new Date( 10_000L );
+    final var expected =
+      new Date( value.getTime() )
+        .toInstant()
+        .atZone( ZoneId.systemDefault() )
+        .toLocalDate()
+        .toString();
+
+    assertEquals( context.toDateString( value ), expected );
+  }
+
+  @Nonnull
+  private TestSessionContext newContext( @Nonnull final EntityManager em )
+  {
+    final var context = new TestSessionContext( em );
+    setField( context, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
+    return context;
+  }
+
+  @SuppressWarnings( "SameParameterValue" )
+  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
+  {
+    try
+    {
+      final var field = AbstractSessionContextImpl.class.getDeclaredField( name );
+      field.setAccessible( true );
+      field.set( target, value );
+    }
+    catch ( final Exception e )
+    {
+      throw new AssertionError( e );
+    }
+  }
+
+  @Nonnull
+  private ReplicantSession newSession()
+  {
+    final var webSocketSession = mock( Session.class );
+    when( webSocketSession.getId() ).thenReturn( "session-1" );
+    when( webSocketSession.isOpen() ).thenReturn( true );
+    return new ReplicantSession( webSocketSession );
+  }
+
+  private void withSessionLock( @Nonnull final ReplicantSession session, @Nonnull final ThrowingAction action )
+  {
+    session.getLock().lock();
+    try
+    {
+      action.run();
+    }
+    catch ( final Exception e )
+    {
+      throw new AssertionError( e );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @FunctionalInterface
+  private interface ThrowingAction
+  {
+    void run()
+      throws Exception;
+  }
+
+  private static final class TestSessionContext
+    extends AbstractSessionContextImpl
+  {
+    @Nonnull
+    private final EntityManager _em;
+    @Nonnull
+    private final SchemaMetaData _schema = new SchemaMetaData( "Test" );
+    @Nonnull
+    private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
+    @Nonnull
+    private final List<ConvertCall> _convertCalls = new ArrayList<>();
+    @Nonnull
+    private final Map<Object, EntityMessage> _messages = new HashMap<>();
+
+    private TestSessionContext( @Nonnull final EntityManager em )
+    {
+      _em = em;
+    }
+
+    @Nonnull
+    @Override
+    protected EntityManager em()
+    {
+      return _em;
+    }
+
+    @Nonnull
+    @Override
+    public SchemaMetaData getSchemaMetaData()
+    {
+      return _schema;
+    }
+
+    @Override
+    public boolean isAuthorized( @Nonnull final ReplicantSession session )
+    {
+      return true;
+    }
+
+    @Override
+    public void preSubscribe( @Nonnull final ReplicantSession session,
+                              @Nonnull final ChannelAddress address,
+                              @Nullable final Object filter )
+    {
+    }
+
+    @Override
+    public boolean flushOpenEntityManager()
+    {
+      return false;
+    }
+
+    @Override
+    public void execCommand( @Nonnull final ReplicantSession session,
+                             @Nonnull final String command,
+                             final int requestId,
+                             @Nullable final JsonObject payload )
+    {
+    }
+
+    @Override
+    protected void doBulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
+                                                  @Nonnull final List<ChannelAddress> addresses,
+                                                  @Nullable final Object filter,
+                                                  @Nonnull final ChangeSet changeSet,
+                                                  final boolean isExplicitSubscribe )
+    {
+      _bulkCollectCalls.add( new BulkCollectCall( session, addresses, filter, changeSet, isExplicitSubscribe ) );
+    }
+
+    @Nullable
+    @Override
+    protected EntityMessage convertToEntityMessage( @Nonnull final Object object,
+                                                    final boolean isUpdate,
+                                                    final boolean isInitialLoad )
+    {
+      _convertCalls.add( new ConvertCall( object, isUpdate, isInitialLoad ) );
+      return _messages.get( object );
+    }
+
+    @Override
+    public void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
+                                                      @Nonnull final List<ChannelAddress> addresses,
+                                                      @Nullable final Object originalFilter,
+                                                      @Nullable final Object filter,
+                                                      @Nonnull final ChangeSet changeSet )
+    {
+    }
+
+    @Nullable
+    @Override
+    public EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
+                                              @Nonnull final ChannelAddress address,
+                                              @Nonnull final EntityMessage message )
+    {
+      return null;
+    }
+
+    @Override
+    public boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
+                                     @Nonnull final ChannelAddress target,
+                                     @Nullable final Object filter )
+    {
+      return false;
+    }
+
+    void registerMessageForObject( @Nonnull final Object object, @Nonnull final EntityMessage message )
+    {
+      _messages.put( object, message );
+    }
+
+    @Nonnull
+    List<BulkCollectCall> getBulkCollectCalls()
+    {
+      return _bulkCollectCalls;
+    }
+
+    @Nonnull
+    List<ConvertCall> getConvertCalls()
+    {
+      return _convertCalls;
+    }
+  }
+
+  private record BulkCollectCall(@Nullable ReplicantSession session,
+                                 @Nonnull List<ChannelAddress> addresses,
+                                 @Nullable Object filter,
+                                 @Nonnull ChangeSet changeSet,
+                                 boolean explicitSubscribe)
+  {
+  }
+
+  private record ConvertCall(@Nonnull Object object, boolean isUpdate, boolean isInitialLoad)
+  {
+  }
+}
