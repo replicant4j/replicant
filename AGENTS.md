@@ -73,7 +73,9 @@ reasonable alternatives.
   - Prefer `@Nonnull`/`@Nullable` from `javax.annotation` for general code.
   - On JAX-RS resources, also use `@NotNull` from `javax.validation` for parameter validation.
 - Immutability and locals:
-  - Use `final` where practical. Local variables commonly use `final var` for readability when the type is obvious (Java 17).
+  - Use `final` where practical.
+  - `final var` is allowed in tests and server module code only. Do not use `var` in non-test client code, as it is transpiled to JavaScript and the transpiler does not support `var` yet.
+  - Use explicit types when clarity or overload resolution benefits.
 - Warnings and lint:
   - Compilation runs with `-Xlint:all,-processing,-serial` and `-Werror` (see `buildfile:15-19`). Fix warnings or explicitly and narrowly suppress with justification.
 - Package visibility:
