@@ -16,7 +16,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
-import javax.transaction.TransactionSynchronizationRegistry;
 import javax.websocket.Session;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.testng.annotations.AfterMethod;
@@ -53,11 +52,11 @@ public class AbstractSessionContextImplTest
   public void deriveTargetFilter_throwsWhenNotOverridden()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final ChannelAddress source = new ChannelAddress( 1, 2 );
-    final ChannelAddress target = new ChannelAddress( 3, 4 );
-    final EntityMessage message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 3, 4 );
+    final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> context.deriveTargetFilter( message, source, "filter", target ) );
 
@@ -71,12 +70,12 @@ public class AbstractSessionContextImplTest
   public void deriveFilterInstanceId_throwsWhenNotOverridden()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final ChannelAddress source = new ChannelAddress( 1, 2 );
-    final ChannelAddress target = new ChannelAddress( 3, 4 );
-    final ChannelLink link = new ChannelLink( source, target );
-    final EntityMessage message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 3, 4 );
+    final var link = new ChannelLink( source, target );
+    final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> context.deriveFilterInstanceId( message, link, "filter", null ) );
 
@@ -115,8 +114,8 @@ public class AbstractSessionContextImplTest
 
     context.recordEntityMessageForEntity( "entity", true );
 
-    final TransactionSynchronizationRegistry registry = TransactionSynchronizationRegistryUtil.lookup();
-    final EntityMessageSet set = EntityMessageCacheUtil.getEntityMessageSet( registry );
+    final var registry = TransactionSynchronizationRegistryUtil.lookup();
+    final var set = EntityMessageCacheUtil.getEntityMessageSet( registry );
     assertTrue( set.containsEntityMessage( 7, 11 ) );
   }
 
@@ -127,8 +126,8 @@ public class AbstractSessionContextImplTest
 
     context.recordEntityMessageForEntity( "entity", true );
 
-    final TransactionSynchronizationRegistry registry = TransactionSynchronizationRegistryUtil.lookup();
-    final EntityMessageSet set = EntityMessageCacheUtil.getEntityMessageSet( registry );
+    final var registry = TransactionSynchronizationRegistryUtil.lookup();
+    final var set = EntityMessageCacheUtil.getEntityMessageSet( registry );
     assertFalse( set.containsEntityMessage( 7, 11 ) );
     assertTrue( set.getEntityMessages().isEmpty() );
   }
