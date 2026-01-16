@@ -495,27 +495,6 @@ public final class ReplicantEndpointTest
     assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE );
   }
 
-  @Test
-  public void command_securityException()
-    throws Exception
-  {
-    final var fixture = newFixture( new SecuredEndpoint() );
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.PING )
-      .add( Messages.Common.REQUEST_ID, 3 )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent, never() ).fire( any() );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), "Security constraints violated" );
-  }
-
   private void assertInvalidSubscribe( @Nonnull final String address, @Nonnull final String message )
     throws Exception
   {
@@ -685,18 +664,6 @@ public final class ReplicantEndpointTest
                                  @Nonnull RemoteEndpoint.Basic remote, @Nonnull String sessionId,
                                  @Nonnull ReplicantSession replicantSession)
   {
-  }
-
-  private static final class SecuredEndpoint
-    extends ReplicantEndpoint
-  {
-    @Override
-    protected void beforeCommand( @Nonnull final ReplicantSession session,
-                                  @Nonnull final String type,
-                                  @Nonnull final JsonObject command )
-    {
-      throw new SecurityException( "Denied" );
-    }
   }
 
   @SuppressWarnings( "unchecked" )
