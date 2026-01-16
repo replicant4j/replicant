@@ -29,6 +29,28 @@ reasonable alternatives.
   - Java EE/Jakarta EE style server with CDI, JAX-RS, WebSocket, and JSON-P (javax.json). WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT` and REST resources are rooted at `SharedConstants.CONNECTION_URL_FRAGMENT`.
   - Guard session access with the session lock pattern (see `server/src/main/java/replicant/server/ee/rest/ReplicantSessionRestService.java:110`).
 
+## Protocol and Instanced Filters
+
+- Channel descriptor grammar: `channelId[.rootId][#filterInstanceId]`.
+  - `#` is reserved; filter instance id is the substring after the first `#` and may be empty.
+  - No escaping; JSON transport handles encoding.
+- Instanced filter types:
+  - `DYNAMIC_INSTANCED`: requires `#` on subscribe/update/unsubscribe; filter updates allowed.
+  - `STATIC_INSTANCED`: requires `#` on subscribe/unsubscribe; filter updates rejected.
+- Bulk subscribe/unsubscribe uses a shared filter for all addresses; the instance id lives on each `ChannelAddress`.
+
+## Implementation Hotspots
+
+- Channel descriptor parsing/formatting: `client/src/main/java/replicant/ChannelAddress.java`,
+  `server/src/main/java/replicant/server/ChannelAddress.java`.
+- Client validation + AOI flow: `client/src/main/java/replicant/Connector.java`,
+  `client/src/main/java/replicant/Converger.java`, `client/src/main/java/replicant/SubscriptionService.java`.
+- Server validation + routing: `server/src/main/java/replicant/server/ee/ReplicantEndpoint.java`,
+  `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java`,
+  `server/src/main/java/replicant/server/transport/ReplicantSession.java`.
+- Change encoding: `server/src/main/java/replicant/server/json/JsonEncoder.java`,
+  `server/src/main/java/replicant/server/Change.java`, `server/src/main/java/replicant/server/ChangeSet.java`.
+
 ## General Principles
 
 - Readability: Write code that is easy to read and understand. Prioritize clarity over overly clever or obscure
