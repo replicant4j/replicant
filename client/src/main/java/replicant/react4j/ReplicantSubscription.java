@@ -61,27 +61,11 @@ public abstract class ReplicantSubscription
     updateAreaOfInterest();
   }
 
-  protected final void updateAreaOfInterestOnIdChange()
-  {
-    clearAreaOfInterest();
-  }
-
   protected final void updateAreaOfInterestOnFilterChange( @Nullable final Object newFilter )
   {
     if ( null != _areaOfInterest )
     {
       Replicant.context().createOrUpdateAreaOfInterest( _areaOfInterest.getAddress(), newFilter );
-    }
-  }
-
-  @Action
-  protected void clearAreaOfInterest()
-  {
-    final AreaOfInterest areaOfInterest = getAreaOfInterest();
-    if ( null != areaOfInterest )
-    {
-      setAreaOfInterest( null );
-      areaOfInterest.decRefCount();
     }
   }
 
