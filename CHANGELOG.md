@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.167](https://github.com/replicant4j/replicant/tree/v6.167) (2026-01-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.166...v6.167)
+
+Changes in this release:
 
 * Remove additional unused features from `ReplicantSubscription`.
 
