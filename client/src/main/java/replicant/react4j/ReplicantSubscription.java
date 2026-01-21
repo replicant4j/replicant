@@ -2,25 +2,22 @@ package replicant.react4j;
 
 import arez.annotations.Action;
 import arez.annotations.ComponentDependency;
-import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import arez.annotations.SuppressArezWarnings;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import react4j.ReactNode;
 import react4j.annotations.PostMountOrUpdate;
-import react4j.annotations.Render;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
-import replicant.Subscription;
+import replicant.ReplicantContext;
 
 /**
  * An abstract React4j component that manages subscription to channels.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
-public abstract class ReplicantSubscription<T>
+public abstract class ReplicantSubscription
 {
   //The warning is suppressed as reference is managed on method.
   // We can not convert this field into abstract observable because of some surgery do to work between
@@ -91,8 +88,8 @@ public abstract class ReplicantSubscription<T>
   @Action
   protected void updateAreaOfInterest()
   {
-    final AreaOfInterest newAreaOfInterest =
-      Replicant.context().createOrUpdateAreaOfInterest( getAddress(), getFilter() );
+    final ReplicantContext context = Replicant.context();
+    final AreaOfInterest newAreaOfInterest = context.createOrUpdateAreaOfInterest( getAddress(), getFilter() );
     if ( null == _areaOfInterest )
     {
       newAreaOfInterest.incRefCount();
@@ -102,18 +99,4 @@ public abstract class ReplicantSubscription<T>
 
   @Nonnull
   protected abstract ChannelAddress getAddress();
-
-  @Render
-  @Nullable
-  protected ReactNode render()
-  {
-    return null;
-  }
-
-  @SuppressWarnings( "unchecked" )
-  @Nonnull
-  private T getInstanceRoot( @Nonnull final Subscription subscription )
-  {
-    return (T) subscription.getInstanceRoot();
-  }
 }
