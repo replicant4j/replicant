@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.166](https://github.com/replicant4j/replicant/tree/v6.166) (2026-01-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.165...v6.166)
+
+Changes in this release:
 
 * Remove callbacks from ReplicantSubscription React component.
 
