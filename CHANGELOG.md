@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.169](https://github.com/replicant4j/replicant/tree/v6.169) (2026-01-23) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.168...v6.169)
+
+Changes in this release:
 
 * Fix incorrect guard in `ReplicantSessionManagerImpl` where it was checking `isInstancedFilter()` rather than `isDynamicFilter()` before passing method onto underling context method.
 
