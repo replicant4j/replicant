@@ -873,6 +873,7 @@ public class ReplicantSessionManagerImpl
     sessionLockingRequest( "setEtags()", session, null, () -> session.setETags( eTags ) );
   }
 
+  @SuppressWarnings( "SameParameterValue" )
   private void subscribe( @Nonnull final ReplicantSession session,
                           @Nonnull final ChannelAddress address,
                           final boolean explicitlySubscribe,
