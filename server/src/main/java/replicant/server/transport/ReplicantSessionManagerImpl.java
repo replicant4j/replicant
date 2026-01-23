@@ -967,15 +967,13 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @SuppressWarnings( "WeakerAccess" )
-  protected boolean deleteCacheEntry( @Nonnull final ChannelAddress address )
+  private void deleteCacheEntry( @Nonnull final ChannelAddress address )
   {
     _cacheLock.writeLock().lock();
     try
     {
       final var metaData = getSchemaMetaData().getChannelMetaData( address );
-      final var cacheRemoved = null != _cache.remove( address );
-      if ( cacheRemoved )
+      if ( null != _cache.remove( address ) )
       {
         // If we expire the cache then any dependent type graphs must also be expired. This is
         // required as when a cache is on a client then we send back a "use-cache" message immediately
@@ -993,7 +991,6 @@ public class ReplicantSessionManagerImpl
           }
         }
       }
-      return cacheRemoved;
     }
     finally
     {
