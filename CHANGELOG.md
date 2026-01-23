@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix incorrect guard in `ReplicantSessionManagerImpl` where it was checking `isInstancedFilter()` rather than `isDynamicFilter()` before passing method onto underling context method.
+
 ### [v6.168](https://github.com/replicant4j/replicant/tree/v6.168) (2026-01-21) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.167...v6.168)
 
 Changes in this release:

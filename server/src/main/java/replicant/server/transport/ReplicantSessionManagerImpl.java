@@ -852,7 +852,7 @@ public class ReplicantSessionManagerImpl
         final var originalFilter = update.getKey();
         final var updateAddresses = update.getValue();
 
-        if ( channel.filterType().isInstancedFilter() )
+        if ( channel.filterType().isDynamicFilter() )
         {
           _context.bulkCollectDataForSubscriptionUpdate( session, updateAddresses, originalFilter, filter, changeSet );
         }
