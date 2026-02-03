@@ -65,14 +65,15 @@ public class ReplicantMessageBrokerImpl
     }
   }
 
+  @Nonnull
   @Override
-  public void queueChangeMessage( @Nonnull final ReplicantSession session,
-                                  final boolean altersExplicitSubscriptions,
-                                  @Nullable final Integer requestId,
-                                  @Nullable final JsonValue response,
-                                  @Nullable final String etag,
-                                  @Nonnull final Collection<EntityMessage> messages,
-                                  @Nonnull final ChangeSet changeSet )
+  public Packet queueChangeMessage( @Nonnull final ReplicantSession session,
+                                    final boolean altersExplicitSubscriptions,
+                                    @Nullable final Integer requestId,
+                                    @Nullable final JsonValue response,
+                                    @Nullable final String etag,
+                                    @Nonnull final Collection<EntityMessage> messages,
+                                    @Nonnull final ChangeSet changeSet )
   {
     final var packet = new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet );
     session.queuePacket( packet );
@@ -81,6 +82,7 @@ public class ReplicantMessageBrokerImpl
     {
       LOG.log( Level.FINEST, () -> "queueChangeMessage() queue.size=" + _queue.size() + " packet=" + packet );
     }
+    return packet;
   }
 
   @Override
@@ -121,13 +123,7 @@ public class ReplicantMessageBrokerImpl
         Packet packet;
         while ( null != ( packet = session.popPendingPacket() ) )
         {
-          _sessionManager
-            .sendChangeMessage( session,
-                                packet.requestId(),
-                                packet.response(),
-                                packet.etag(),
-                                packet.messages(),
-                                packet.changeSet() );
+          _sessionManager.sendChangeMessage( session, packet );
         }
       }
       catch ( final InterruptedException ignored )

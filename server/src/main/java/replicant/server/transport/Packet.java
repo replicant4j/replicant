@@ -21,7 +21,7 @@ import replicant.server.EntityMessage;
  * @param changeSet                   Empty ChangeSet unless packet is directed at the request initiator in which case it was
  *                                    whatever was part of the session changes.
  */
-record Packet(boolean altersExplicitSubscriptions, @Nullable Integer requestId, @Nullable JsonValue response,
-              @Nullable String etag, @Nonnull Collection<EntityMessage> messages, @Nonnull ChangeSet changeSet)
+public record Packet(boolean altersExplicitSubscriptions, @Nullable Integer requestId, @Nullable JsonValue response,
+                     @Nullable String etag, @Nonnull Collection<EntityMessage> messages, @Nonnull ChangeSet changeSet)
 {
 }

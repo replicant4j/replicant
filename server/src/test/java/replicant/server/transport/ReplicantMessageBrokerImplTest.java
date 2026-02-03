@@ -1,10 +1,8 @@
 package replicant.server.transport;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.Session;
@@ -28,20 +26,20 @@ public class ReplicantMessageBrokerImplTest
 
     verifyNoSend( broker );
 
-    final int requestId = ValueUtil.randomInt();
-    final JsonObject response =
-      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
-    final String etag = ValueUtil.randomString();
-    final List<EntityMessage> messages = Collections.emptyList();
-    final ChangeSet changeSet = new ChangeSet();
-
-    broker.queueChangeMessage( session, false, requestId, response, etag, messages, changeSet );
+    final var packet = broker.queueChangeMessage( session, false,
+                                                  ValueUtil.randomInt(),
+                                                  Json.createObjectBuilder()
+                                                    .add( ValueUtil.randomString(), ValueUtil.randomString() )
+                                                    .build(),
+                                                  ValueUtil.randomString(),
+                                                  Collections.emptyList(),
+                                                  new ChangeSet() );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session, requestId, response, etag, messages, changeSet );
+    verifySendOnce( broker, session, packet );
   }
 
   @Test
@@ -56,30 +54,32 @@ public class ReplicantMessageBrokerImplTest
 
     verifyNoSend( broker );
 
-    final int requestId1 = ValueUtil.randomInt();
-    final JsonObject response1 =
-      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
-    final String etag1 = ValueUtil.randomString();
-    final List<EntityMessage> messages1 = Collections.emptyList();
-    final ChangeSet changeSet1 = new ChangeSet();
+    final var packet1 = broker.queueChangeMessage( session,
+                                                   false,
+                                                   ValueUtil.randomInt(),
+                                                   Json.createObjectBuilder()
+                                                     .add( ValueUtil.randomString(), ValueUtil.randomString() )
+                                                     .build(),
+                                                   ValueUtil.randomString(),
+                                                   Collections.emptyList(),
+                                                   new ChangeSet() );
 
-    broker.queueChangeMessage( session, false, requestId1, response1, etag1, messages1, changeSet1 );
-
-    final int requestId2 = ValueUtil.randomInt();
-    final JsonObject response2 =
-      Json.createObjectBuilder().add( ValueUtil.randomString(), ValueUtil.randomString() ).build();
-    final String etag2 = ValueUtil.randomString();
-    final List<EntityMessage> messages2 = Collections.emptyList();
-    final ChangeSet changeSet2 = new ChangeSet();
-
-    broker.queueChangeMessage( session, false, requestId2, response2, etag2, messages2, changeSet2 );
+    final var packet2 = broker.queueChangeMessage( session,
+                                                   false,
+                                                   ValueUtil.randomInt(),
+                                                   Json.createObjectBuilder()
+                                                     .add( ValueUtil.randomString(), ValueUtil.randomString() )
+                                                     .build(),
+                                                   ValueUtil.randomString(),
+                                                   Collections.emptyList(),
+                                                   new ChangeSet() );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session, requestId1, response1, etag1, messages1, changeSet1 );
-    verifySendOnce( broker, session, requestId2, response2, etag2, messages2, changeSet2 );
+    verifySendOnce( broker, session, packet1 );
+    verifySendOnce( broker, session, packet2 );
   }
 
   @Test
@@ -95,46 +95,41 @@ public class ReplicantMessageBrokerImplTest
 
     verifyNoSend( broker );
 
-    final Integer requestId1 = null;
-    final JsonObject responseId1 = null;
-    final String etag1 = null;
-    final List<EntityMessage> messages1 = Collections.emptyList();
-    final ChangeSet changeSet1 = new ChangeSet();
+    final var packet1 = broker.queueChangeMessage( session1,
+                                                   false,
+                                                   null,
+                                                   null,
+                                                   null,
+                                                   Collections.emptyList(),
+                                                   new ChangeSet() );
 
-    broker.queueChangeMessage( session1, false, requestId1, responseId1, etag1, messages1, changeSet1 );
-
-    final Integer requestId2 = null;
-    final JsonObject responseId2 = null;
-    final String etag2 = null;
-    final List<EntityMessage> messages2 = Collections.emptyList();
-    final ChangeSet changeSet2 = new ChangeSet();
-
-    broker.queueChangeMessage( session2, false, requestId2, responseId2, etag2, messages2, changeSet2 );
+    final var packet2 = broker.queueChangeMessage( session2,
+                                                   false,
+                                                   null,
+                                                   null,
+                                                   null,
+                                                   Collections.emptyList(),
+                                                   new ChangeSet() );
 
     verifyNoSend( broker );
 
     broker.processPendingSessions();
 
-    verifySendOnce( broker, session1, requestId1, responseId1, etag1, messages1, changeSet1 );
-    verifySendOnce( broker, session2, requestId2, responseId2, etag2, messages2, changeSet2 );
+    verifySendOnce( broker, session1, packet1 );
+    verifySendOnce( broker, session2, packet2 );
   }
 
   private void verifySendOnce( @Nonnull final ReplicantMessageBroker broker,
                                @Nonnull final ReplicantSession session,
-                               @Nullable final Integer requestId,
-                               @Nullable final JsonObject response,
-                               @Nullable final String etag,
-                               @Nonnull final Collection<EntityMessage> messages,
-                               @Nonnull final ChangeSet changeSet )
+                               @Nonnull final Packet packet )
   {
     verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, times( 1 ) )
-      .sendChangeMessage( eq( session ), eq( requestId ), eq( response ), eq( etag ), eq( messages ), eq( changeSet ) );
+      .sendChangeMessage( eq( session ), eq( packet ) );
   }
 
   private void verifyNoSend( @Nonnull final ReplicantMessageBroker broker )
   {
-    verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, never() )
-      .sendChangeMessage( any(), any(), any(), any(), any(), any() );
+    verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, never() ).sendChangeMessage( any(), any() );
   }
 
   @Nonnull

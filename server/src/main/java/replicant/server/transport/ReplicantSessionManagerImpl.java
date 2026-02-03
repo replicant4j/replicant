@@ -519,13 +519,14 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void sendChangeMessage( @Nonnull final ReplicantSession session,
-                                 @Nullable final Integer requestId,
-                                 @Nullable final JsonValue response,
-                                 @Nullable final String etag,
-                                 @Nonnull final Collection<EntityMessage> messages,
-                                 @Nonnull final ChangeSet changeSet )
+  public void sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
   {
+    final var requestId = packet.requestId();
+    final var response = packet.response();
+    final var etag = packet.etag();
+    final var messages = packet.messages();
+    final var changeSet = packet.changeSet();
+
     assert null == response || null != requestId;
     processMessages( messages, session, changeSet );
 

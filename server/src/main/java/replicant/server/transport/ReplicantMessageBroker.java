@@ -11,7 +11,8 @@ public interface ReplicantMessageBroker
 {
   void processPendingSessions();
 
-  void queueChangeMessage( @Nonnull ReplicantSession session,
+  @Nonnull
+  Packet queueChangeMessage( @Nonnull ReplicantSession session,
                            boolean altersExplicitSubscriptions,
                            @Nullable Integer requestId,
                            @Nullable JsonValue response,

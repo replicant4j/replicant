@@ -1,6 +1,5 @@
 package replicant.server.transport;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,11 +7,8 @@ import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 import javax.websocket.Session;
-import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
-import replicant.server.EntityMessage;
 
 public interface ReplicantSessionManager
 {
@@ -88,19 +84,9 @@ public interface ReplicantSessionManager
    * then the requestId and response parameters will be present.
    *
    * @param session   the session
-   * @param requestId the requestId if the change is in response to a request and the request was initiated by the session.
-   * @param response  the response message if a response exists,
-   *                  and the change is in response to a request and the request was initiated by the session.
-   * @param etag      the etag associated with the data. Unique identifier used during caching.
-   * @param messages  the changes to send to the session.
-   * @param changeSet the changeSet associated with the session
+   * @param packet  the packet  associated with the change.
    */
-  void sendChangeMessage( @Nonnull ReplicantSession session,
-                          @Nullable Integer requestId,
-                          @Nullable JsonValue response,
-                          @Nullable String etag,
-                          @Nonnull Collection<EntityMessage> messages,
-                          @Nonnull ChangeSet changeSet );
+  void sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet  );
 
   /**
    * Exposed so that bulk changes can reset Cache.
