@@ -536,7 +536,6 @@ public class ReplicantSessionManagerImpl
     if ( changeSet.hasContent() )
     {
       final long start = System.nanoTime();
-      // TODO: Add some logging here and if it crosses the thresh
       final var expandCycleCount = completeMessageProcessing( session, changeSet );
       final long end = System.nanoTime();
       final var level = Level.WARNING;
