@@ -534,13 +534,43 @@ public class ReplicantSessionManagerImpl
     // return false as there are no changes for in ChangeSet and the _required flag is unset.
     if ( changeSet.hasContent() )
     {
-      completeMessageProcessing( session, changeSet );
+      final long start = System.nanoTime();
+      // TODO: Add some logging here and if it crosses the thresh
+      final var expandCycleCount = completeMessageProcessing( session, changeSet );
+      final long end = System.nanoTime();
+      final var level = Level.WARNING;
+      if ( LOG.isLoggable( level ) )
+      {
+        final var incomingChannelLinks = messages
+          .stream()
+          .map( EntityMessage::getLinks )
+          .filter( Objects::nonNull )
+          .flatMap( Collection::stream )
+          .distinct()
+          .count();
+        final var outgoingChannelLinks = changeSet.getChanges()
+          .stream()
+          .map( c -> c.getEntityMessage().getLinks() )
+          .filter( Objects::nonNull )
+          .flatMap( Collection::stream )
+          .distinct()
+          .count();
+        LOG.log( level, "Sending change message to session " + session.getId() + ":" +
+                        " channelActions=" + changeSet.getChannelActions() +
+                        " incoming message count=" + messages.size() +
+                        " incoming channel link count=" + incomingChannelLinks +
+                        " outgoing change count=" + changeSet.getChanges().size() +
+                        " outgoing channel link count=" + outgoingChannelLinks +
+                        " expandCycleCount=" + expandCycleCount +
+                        " expandTime=" + ( end - start ) / 1000000 + "ms" );
+      }
       session.sendPacket( requestId, response, etag, changeSet );
     }
   }
 
-  private void completeMessageProcessing( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  private int completeMessageProcessing( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
+    int expandCycleCount = 0;
     try
     {
       final var pending = new HashSet<ChannelLinkEntry>();
@@ -548,6 +578,7 @@ public class ReplicantSessionManagerImpl
 
       while ( true )
       {
+        expandCycleCount++;
         collectChannelLinksToFollow( session, changeSet, pending, subscribed );
         if ( pending.isEmpty() )
         {
@@ -588,6 +619,7 @@ public class ReplicantSessionManagerImpl
       }
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding links failed" ) );
     }
+    return expandCycleCount;
   }
 
   /**
