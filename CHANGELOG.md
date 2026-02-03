@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.172](https://github.com/replicant4j/replicant/tree/v6.172) (2026-02-04) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.171...v6.172)
+
+Changes in this release:
 
 * Improve logging in `ReplicantSessionManagerImpl` so that long expand duration log messages are auto-promoted to `SEVERE` log level.
 * Fix incoming counts in log levels.
