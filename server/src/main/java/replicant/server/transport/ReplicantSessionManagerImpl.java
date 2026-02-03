@@ -557,14 +557,16 @@ public class ReplicantSessionManagerImpl
           .flatMap( Collection::stream )
           .distinct()
           .count();
-        LOG.log( level, "Sending change message to session " + session.getId() + ":" +
-                        " channelActions=" + changeSet.getChannelActions() +
-                        " incoming message count=" + messages.size() +
-                        " incoming channel link count=" + incomingChannelLinks +
-                        " outgoing change count=" + changeSet.getChanges().size() +
-                        " outgoing channel link count=" + outgoingChannelLinks +
-                        " expandCycleCount=" + expandCycleCount +
-                        " expandTime=" + ( end - start ) / 1000000 + "ms" );
+        final var actions = changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList();
+        LOG.log( level, "⮕ Session[" + session.getId() + "] :" +
+                        ( null != etag ? " eTag=" + etag : "" ) +
+                        ( null != etag ? " =" + requestId : "" ) +
+                        ( packet.altersExplicitSubscriptions() ? " 🔔" : "" ) +
+                        " Channels" + actions +
+                        " Incoming[Count=" + messages.size() + ",Links=" + incomingChannelLinks + "]" +
+                        " Outgoing[Count=" + changeSet.getChanges().size() + ",Links=" + outgoingChannelLinks + "]" +
+                        " ExpandCycleCount=" + expandCycleCount +
+                        " ExpandTime=" + ( end - start ) / 1000000 + "ms" );
       }
       session.sendPacket( requestId, response, etag, changeSet );
     }
