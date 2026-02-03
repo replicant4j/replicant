@@ -536,37 +536,52 @@ public class ReplicantSessionManagerImpl
     if ( changeSet.hasContent() )
     {
       final long start = System.nanoTime();
-      final var expandCycleCount = completeMessageProcessing( session, changeSet );
-      final long end = System.nanoTime();
-
-      // TODO: This log level  should be fine but leaving it here as INFO to make it easy to assess current production issues.
-      final var level = Level.INFO;
-      if ( LOG.isLoggable( level ) )
-      {
-        final var incomingChannelLinks = messages
+      final var incomingEntityCount = messages.size() + changeSet.getChanges().size();
+      final var incomingChannelLinks =
+        messages
           .stream()
           .map( EntityMessage::getLinks )
           .filter( Objects::nonNull )
           .flatMap( Collection::stream )
           .distinct()
-          .count();
-        final var outgoingChannelLinks = changeSet.getChanges()
+          .count() +
+        changeSet
+          .getChanges()
           .stream()
-          .map( c -> c.getEntityMessage().getLinks() )
+          .map( change -> change.getEntityMessage().getLinks() )
           .filter( Objects::nonNull )
           .flatMap( Collection::stream )
           .distinct()
           .count();
+
+      final var expandCycleCount = completeMessageProcessing( session, changeSet );
+      final long end = System.nanoTime();
+      final var expansionDuration = ( end - start ) / 1000000;
+
+      // This log level should be fine but leaving it here as INFO to make it easy to assess current production issues.
+      final var level = expansionDuration > 1000 ? Level.SEVERE : Level.INFO;
+      if ( LOG.isLoggable( level ) )
+      {
+        final var outgoingEntityCount = changeSet.getChanges().size();
+        final var outgoingChannelLinks =
+          changeSet
+            .getChanges()
+            .stream()
+            .map( change -> change.getEntityMessage().getLinks() )
+            .filter( Objects::nonNull )
+            .flatMap( Collection::stream )
+            .distinct()
+            .count();
         final var actions = changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList();
         LOG.log( level, "⮕ Session[" + session.getId() + "] :" +
                         ( null != etag ? " eTag=" + etag : "" ) +
                         ( null != etag ? " =" + requestId : "" ) +
                         ( packet.altersExplicitSubscriptions() ? " 🔔" : "" ) +
                         " Channels" + actions +
-                        " Incoming[Count=" + messages.size() + ",Links=" + incomingChannelLinks + "]" +
-                        " Outgoing[Count=" + changeSet.getChanges().size() + ",Links=" + outgoingChannelLinks + "]" +
+                        " Incoming[Count=" + incomingEntityCount + ",Links=" + incomingChannelLinks + "]" +
+                        " Outgoing[Count=" + outgoingEntityCount + ",Links=" + outgoingChannelLinks + "]" +
                         " ExpandCycleCount=" + expandCycleCount +
-                        " ExpandTime=" + ( end - start ) / 1000000 + "ms" );
+                        " ExpandTime=" + expansionDuration + "ms" );
       }
       session.sendPacket( requestId, response, etag, changeSet );
     }
