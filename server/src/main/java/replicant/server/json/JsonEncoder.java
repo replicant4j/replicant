@@ -149,10 +149,7 @@ public final class JsonEncoder
       Action.REMOVE == action ? Messages.Update.CHANNEL_ACTION_REMOVE :
       Action.UPDATE == action ? Messages.Update.CHANNEL_ACTION_UPDATE :
       Messages.Update.CHANNEL_ACTION_DELETE;
-
-    final ChannelAddress address = channelAction.address();
-
-    return String.valueOf( actionValue ) + address;
+    return String.valueOf( actionValue ) + channelAction.address();
   }
 
   @SuppressWarnings( "StatementWithEmptyBody" )
