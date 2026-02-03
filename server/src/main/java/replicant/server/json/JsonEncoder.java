@@ -141,7 +141,7 @@ public final class JsonEncoder
   }
 
   @Nonnull
-  private static String toDescriptor( @Nonnull final ChannelAction channelAction )
+  public static String toDescriptor( @Nonnull final ChannelAction channelAction )
   {
     final Action action = channelAction.action();
     final char actionValue =
