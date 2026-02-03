@@ -538,7 +538,9 @@ public class ReplicantSessionManagerImpl
       final long start = System.nanoTime();
       final var expandCycleCount = completeMessageProcessing( session, changeSet );
       final long end = System.nanoTime();
-      final var level = Level.WARNING;
+
+      // TODO: This log level  should be fine but leaving it here as INFO to make it easy to assess current production issues.
+      final var level = Level.INFO;
       if ( LOG.isLoggable( level ) )
       {
         final var incomingChannelLinks = messages
