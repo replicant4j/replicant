@@ -577,11 +577,11 @@ public class ReplicantSessionManagerImpl
                         ( null != etag ? " eTag=" + etag : "" ) +
                         ( null != etag ? " =" + requestId : "" ) +
                         ( packet.altersExplicitSubscriptions() ? " 🔔" : "" ) +
-                        " Channels" + actions +
                         " Incoming[Count=" + incomingEntityCount + ",Links=" + incomingChannelLinks + "]" +
                         " Outgoing[Count=" + outgoingEntityCount + ",Links=" + outgoingChannelLinks + "]" +
                         " ExpandCycleCount=" + expandCycleCount +
-                        " ExpandTime=" + expansionDuration + "ms" );
+                        " ExpandTime=" + expansionDuration + "ms" +
+                        " Channels" + actions );
       }
       session.sendPacket( requestId, response, etag, changeSet );
     }
