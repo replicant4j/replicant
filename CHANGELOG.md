@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` artifacts to version `0.225`.
+
 ### [v6.173](https://github.com/replicant4j/replicant/tree/v6.173) (2026-02-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.172...v6.173)
 
 Changes in this release:
