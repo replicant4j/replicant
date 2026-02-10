@@ -36,6 +36,7 @@ import replicant.server.transport.SubscriptionEntry;
  * Base class used to support implementation of SessionContext implementations.
  * Primarily it contains support for customizing bulk loads using SQL.
  */
+@SuppressWarnings( "SqlNoDataSourceInspection" )
 public abstract class AbstractSessionContextImpl
   implements ReplicantChangeRecorder, ReplicantSessionContext
 {
@@ -72,7 +73,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Override
-  public void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+  public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
                                            @Nonnull final List<ChannelAddress> addresses,
                                            @Nullable final Object filter,
                                            @Nonnull final ChangeSet changeSet,
