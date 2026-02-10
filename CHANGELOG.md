@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Rename `ReplicantSessionContext.deriveFilterInstanceId` to `ReplicantSessionContext.deriveTargetFilterInstanceId` to improve clarity.
+
 ### [v6.173](https://github.com/replicant4j/replicant/tree/v6.173) (2026-02-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.172...v6.173)
 
 Changes in this release:

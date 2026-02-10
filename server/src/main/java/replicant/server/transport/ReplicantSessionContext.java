@@ -43,10 +43,10 @@ public interface ReplicantSessionContext
    * @return the derived filter instance id.
    */
   @Nonnull
-  String deriveFilterInstanceId( @Nonnull EntityMessage entityMessage,
-                                 @Nonnull ChannelLink link,
-                                 @Nullable Object sourceFilter,
-                                 @Nullable Object targetFilter );
+  String deriveTargetFilterInstanceId( @Nonnull EntityMessage entityMessage,
+                                       @Nonnull ChannelLink link,
+                                       @Nullable Object sourceFilter,
+                                       @Nullable Object targetFilter );
 
   /**
    * Flush the EntityManager that contains replicated entities.

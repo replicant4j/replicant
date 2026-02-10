@@ -144,10 +144,10 @@ public class ReplicantSessionManagerImplStaticInstancedTest
 
     @Nonnull
     @Override
-    public String deriveFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                          @Nonnull final ChannelLink link,
-                                          @Nullable final Object sourceFilter,
-                                          @Nullable final Object targetFilter )
+    public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
+                                                @Nonnull final ChannelLink link,
+                                                @Nullable final Object sourceFilter,
+                                                @Nullable final Object targetFilter )
     {
       return "derived-inst";
     }

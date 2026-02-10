@@ -58,10 +58,10 @@ public abstract class AbstractSessionContextImpl
 
   @Nonnull
   @Override
-  public String deriveFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                        @Nonnull final ChannelLink link,
-                                        @Nullable final Object sourceFilter,
-                                        @Nullable final Object targetFilter )
+  public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
+                                              @Nonnull final ChannelLink link,
+                                              @Nullable final Object sourceFilter,
+                                              @Nullable final Object targetFilter )
   {
     final var source = link.source();
     final var target = link.target();

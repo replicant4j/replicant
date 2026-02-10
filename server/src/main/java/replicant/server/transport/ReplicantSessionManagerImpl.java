@@ -711,10 +711,10 @@ public class ReplicantSessionManagerImpl
           filterType.isInstancedFilter() ?
           new ChannelAddress( target.channelId(),
                               target.rootId(),
-                              _context.deriveFilterInstanceId( entityMessage,
-                                                               link,
-                                                               sourceEntry.getFilter(),
-                                                               filter ) ) :
+                              _context.deriveTargetFilterInstanceId( entityMessage,
+                                                                     link,
+                                                                     sourceEntry.getFilter(),
+                                                                     filter ) ) :
           target;
 
         if ( _context.shouldFollowLink( sourceEntry, targetAddress, filter ) )

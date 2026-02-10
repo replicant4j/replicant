@@ -67,7 +67,7 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
-  public void deriveFilterInstanceId_throwsWhenNotOverridden()
+  public void deriveTargetFilterInstanceId_throwsWhenNotOverridden()
   {
     final var context = newContext( mock( EntityManager.class ) );
     final var source = new ChannelAddress( 1, 2 );
@@ -77,7 +77,7 @@ public class AbstractSessionContextImplTest
 
     final var exception =
       expectThrows( IllegalStateException.class,
-                    () -> context.deriveFilterInstanceId( message, link, "filter", null ) );
+                    () -> context.deriveTargetFilterInstanceId( message, link, "filter", null ) );
 
     assertEquals( exception.getMessage(),
                   "deriveFilterInstanceId called for link from " + source + " to " + target +
