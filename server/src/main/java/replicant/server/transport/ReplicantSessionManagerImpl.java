@@ -696,8 +696,8 @@ public class ReplicantSessionManagerImpl
     if ( null != sourceEntry )
     {
       final var target = link.target();
-      final var targetMetaData = getSchemaMetaData().getChannelMetaData( target );
-      if ( targetMetaData.filterType().hasFilterParameter() )
+      final var filterType = getSchemaMetaData().getChannelMetaData( target ).filterType();
+      if ( filterType.hasFilterParameter() )
       {
         final var targetFilter = link.targetFilter();
         // In most cases, the filter is not known and is specific to the session, and thus targetFilter will be null.
@@ -708,7 +708,7 @@ public class ReplicantSessionManagerImpl
           targetFilter :
           _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
         final var targetAddress =
-          targetMetaData.filterType().isInstancedFilter() ?
+          filterType.isInstancedFilter() ?
           new ChannelAddress( target.channelId(),
                               target.rootId(),
                               _context.deriveFilterInstanceId( entityMessage,
