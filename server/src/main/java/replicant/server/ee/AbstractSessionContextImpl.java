@@ -146,6 +146,7 @@ public abstract class AbstractSessionContextImpl
   @Language( "TSQL" )
   protected String generateTempIdTable( @Nonnull final List<ChannelAddress> addresses )
   {
+    //noinspection SqlUnused
     return
       "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
       chunked( addresses.stream().map( ChannelAddress::rootId ), 900 )
