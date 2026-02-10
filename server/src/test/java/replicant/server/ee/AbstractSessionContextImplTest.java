@@ -437,17 +437,136 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
-  public void addChannelLinkWithFilter_addsLink()
+  public void addChannelLink_addsTypeSourceLink()
   {
     final var context = newContext( mock( EntityManager.class ) );
     final var links = new HashSet<ChannelLink>();
 
-    context.addChannelLinkWithFilter( links, 1, 2, 3, Map.of( "k", "v" ) );
+    context.addChannelLink( links, 1, 2, 3 );
+
+    assertEquals( links.size(), 1 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1 ), new ChannelAddress( 2, 3 ) ) ) );
+  }
+
+  @Test
+  public void addChannelLink_isIdempotentForDuplicateTypeSourceLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLink( links, 1, 2, 3 );
+    context.addChannelLink( links, 1, 2, 3 );
+
+    assertEquals( links.size(), 1 );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_addsTypeSourceLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+    final var filter = Map.of( "k", "v" );
+
+    context.addChannelLinkWithFilter( links, 1, 2, 3, filter );
 
     assertEquals( links.size(), 1 );
     assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1 ),
                                                  new ChannelAddress( 2, 3 ),
-                                                 Map.of( "k", "v" ) ) ) );
+                                                 filter ) ) );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_rejectsNullFilterForTypeSourceLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    assertThrows( NullPointerException.class, () -> context.addChannelLinkWithFilter( links, 1, 2, 3, null ) );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_isIdempotentForDuplicateTypeSourceLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+    final var filter = Map.of( "k", "v" );
+
+    context.addChannelLinkWithFilter( links, 1, 2, 3, filter );
+    context.addChannelLinkWithFilter( links, 1, 2, 3, filter );
+
+    assertEquals( links.size(), 1 );
+  }
+
+  @Test
+  public void addChannelLink_withSourceRoot_skipsNullTargetRoot()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLink( links, 1, 4, 2, null );
+
+    assertTrue( links.isEmpty() );
+  }
+
+  @Test
+  public void addChannelLink_withSourceRoot_addsLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLink( links, 1, 4, 2, 3 );
+
+    assertEquals( links.size(), 1 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 4 ), new ChannelAddress( 2, 3 ) ) ) );
+  }
+
+  @Test
+  public void addChannelLink_withSourceRoot_isIdempotentForDuplicates()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    context.addChannelLink( links, 1, 4, 2, 3 );
+    context.addChannelLink( links, 1, 4, 2, 3 );
+
+    assertEquals( links.size(), 1 );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_withSourceRoot_addsLink()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+    final var filter = Map.of( "k", "v" );
+
+    context.addChannelLinkWithFilter( links, 1, 4, 2, 3, filter );
+
+    assertEquals( links.size(), 1 );
+    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 4 ),
+                                                 new ChannelAddress( 2, 3 ),
+                                                 filter ) ) );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_withSourceRoot_rejectsNullFilter()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+
+    assertThrows( NullPointerException.class, () -> context.addChannelLinkWithFilter( links, 1, 4, 2, 3, null ) );
+  }
+
+  @Test
+  public void addChannelLinkWithFilter_withSourceRoot_isIdempotentForDuplicates()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var links = new HashSet<ChannelLink>();
+    final var filter = Map.of( "k", "v" );
+
+    context.addChannelLinkWithFilter( links, 1, 4, 2, 3, filter );
+    context.addChannelLinkWithFilter( links, 1, 4, 2, 3, filter );
+
+    assertEquals( links.size(), 1 );
   }
 
   @Test
