@@ -662,8 +662,7 @@ public class ReplicantSessionManagerImpl
             final var alreadyCollected =
               subscribed
                 .stream()
-                .anyMatch( s -> s.source().equals( link.source() ) &&
-                                s.target().equals( link.target() ) );
+                .anyMatch( s -> s.source().equals( link.source() ) && s.target().equals( link.target() ) );
             if ( !alreadyCollected )
             {
               final var entry = createChannelLinkEntryIfRequired( entityMessage, session, link );
