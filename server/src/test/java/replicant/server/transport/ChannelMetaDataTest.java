@@ -25,7 +25,7 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isInstanceGraph() );
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
-    assertFalse( metaData.filterType().hasFilterParameter() );
+    assertFalse( metaData.requiresFilterParameter() );
     assertFalse( metaData.isExternal() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
@@ -50,7 +50,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getInstanceRootEntityTypeId(), (Integer) 23 );
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
-    assertFalse( metaData.filterType().hasFilterParameter() );
+    assertFalse( metaData.requiresFilterParameter() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -73,7 +73,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.STATIC );
     assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
-    assertTrue( metaData.filterType().hasFilterParameter() );
+    assertTrue( metaData.requiresFilterParameter() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -96,7 +96,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.STATIC_INSTANCED );
     assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
-    assertTrue( metaData.filterType().hasFilterParameter() );
+    assertTrue( metaData.requiresFilterParameter() );
     assertTrue( metaData.isExternal() );
   }
 

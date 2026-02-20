@@ -8,11 +8,6 @@ import javax.annotation.Nullable;
  */
 public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddress target, @Nullable Object targetFilter)
 {
-  public ChannelLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
-  {
-    this( source, target, null );
-  }
-
   @Nonnull
   @Override
   public String toString()

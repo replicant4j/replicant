@@ -28,6 +28,13 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     this( channelId, rootId, null );
   }
 
+  public ChannelAddress( final int channelId, @Nullable final Integer rootId, @Nullable String filterInstanceId )
+  {
+    this.channelId = channelId;
+    this.rootId = rootId;
+    this.filterInstanceId = filterInstanceId;
+  }
+
   public boolean hasRootId()
   {
     return null != rootId;

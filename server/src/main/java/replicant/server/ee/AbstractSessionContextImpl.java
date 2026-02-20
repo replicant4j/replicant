@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -26,7 +25,6 @@ import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
-import replicant.server.EntityMessageSet;
 import replicant.server.transport.ReplicantChangeRecorder;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionContext;
@@ -186,94 +184,6 @@ public abstract class AbstractSessionContextImpl
                                                            final boolean isUpdate,
                                                            final boolean isInitialLoad );
 
-  @SuppressWarnings( { "resource", "SqlSourceToSinkFlow" } )
-  protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
-                                                       @Nullable final Object filter,
-                                                       @Nonnull final ChangeSet changeSet,
-                                                       final int sourceGraph,
-                                                       @Nonnull final String sourceColumnName,
-                                                       final int targetGraph,
-                                                       @Nonnull final String targetColumnName,
-                                                       @Language( "TSQL" ) @Nonnull final String sql )
-    throws SQLException
-  {
-    try ( var statement = connection().createStatement() )
-    {
-      try ( var resultSet = statement.executeQuery( sql ) )
-      {
-        bulkLinkFromSourceGraphToTargetGraph( session,
-                                              filter,
-                                              changeSet,
-                                              sourceGraph,
-                                              sourceColumnName,
-                                              targetGraph,
-                                              targetColumnName,
-                                              resultSet );
-      }
-    }
-  }
-
-  protected void bulkLinkFromSourceGraphToTargetGraph( @Nonnull final ReplicantSession session,
-                                                       @Nullable final Object filter,
-                                                       @Nonnull final ChangeSet changeSet,
-                                                       final int sourceGraph,
-                                                       @Nonnull final String sourceColumnName,
-                                                       final int targetGraph,
-                                                       @Nonnull final String targetColumnName,
-                                                       @Nonnull final ResultSet resultSet )
-    throws SQLException
-  {
-    while ( resultSet.next() )
-    {
-      final var sourceId = resultSet.getInt( sourceColumnName );
-      final var targetId = resultSet.getInt( targetColumnName );
-      final var targetAddress = new ChannelAddress( targetGraph, targetId );
-      if ( !session.isSubscriptionEntryPresent( targetAddress ) )
-      {
-        final var sourceAddress = new ChannelAddress( sourceGraph, sourceId );
-        final var sourceEntry = session.getSubscriptionEntry( sourceAddress );
-        sourceEntry.registerOutwardSubscriptions( targetAddress );
-        final var targetEntry = recordSubscription( session, changeSet, targetAddress, filter, false );
-        targetEntry.registerInwardSubscriptions( sourceEntry.address() );
-      }
-    }
-  }
-
-  @SuppressWarnings( { "resource", "SqlSourceToSinkFlow" } )
-  protected void updateLinksToTargetGraph( @Nonnull final ReplicantSession session,
-                                           @Nonnull final ChangeSet changeSet,
-                                           @Nonnull final Object filter,
-                                           final int targetGraph,
-                                           @Nonnull final String targetGraphColumnName,
-                                           @Language( "TSQL" ) @Nonnull final String sql )
-    throws SQLException
-  {
-    try ( var statement = connection().createStatement() )
-    {
-      try ( var resultSet = statement.executeQuery( sql ) )
-      {
-        updateLinksToTargetGraph( session, changeSet, filter, targetGraphColumnName, targetGraph, resultSet );
-      }
-    }
-  }
-
-  protected void updateLinksToTargetGraph( @Nonnull final ReplicantSession session,
-                                           @Nonnull final ChangeSet changeSet,
-                                           @Nullable final Object filter,
-                                           final String targetGraphColumnName,
-                                           final int targetGraph,
-                                           @Nonnull final ResultSet resultSet )
-    throws SQLException
-  {
-    while ( resultSet.next() )
-    {
-      final var targetId = resultSet.getInt( targetGraphColumnName );
-      final var address = new ChannelAddress( targetGraph, targetId );
-      changeSet.mergeAction( address, ChannelAction.Action.UPDATE, filter );
-      session.getSubscriptionEntry( address ).setFilter( filter );
-    }
-  }
-
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
@@ -282,26 +192,6 @@ public abstract class AbstractSessionContextImpl
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
     targetEntry.registerInwardSubscriptions( sourceEntry.address() );
-  }
-
-  protected void encodeObjects( @Nonnull final EntityMessageSet messages, @Nonnull final List<?> objects )
-  {
-    for ( final var object : objects )
-    {
-      encodeObject( messages, object );
-    }
-  }
-
-  protected void encodeObject( @Nonnull final EntityMessageSet messages, @Nullable final Object object )
-  {
-    if ( null != object )
-    {
-      final var message = convertToEntityMessage( object, true, true );
-      if ( null != message )
-      {
-        messages.merge( message, true );
-      }
-    }
   }
 
   /**
@@ -317,42 +207,23 @@ public abstract class AbstractSessionContextImpl
   protected void addChannelLink( @Nonnull final Set<ChannelLink> links,
                                  final int sourceChannelId,
                                  final int targetChannelId,
-                                 @Nullable final Integer targetRootId )
+                                 final int targetRootId )
   {
-    doAddChannelLink( links, sourceChannelId, targetChannelId, targetRootId, null );
+    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
+    links.add( new ChannelLink( new ChannelAddress( sourceChannelId ),
+                                new ChannelAddress( targetChannelId, targetRootId ),
+                                null ) );
   }
 
-  /**
-   * Adds a channel link to the specified set using the given source and target channel IDs and an optional target root ID.
-   * The source channel MUST be a type channel.
-   * If the target root ID is not null, a new channel link is created and added to the set.
-   *
-   * @param links           the set to add the created channel link; must not be null
-   * @param sourceChannelId the ID of the source channel
-   * @param targetChannelId the ID of the target channel
-   * @param targetRootId    the root ID associated with the target channel; may be null
-   * @param targetFilter    the filter associated with the target channel; may be null
-   */
-  protected void addChannelLinkWithFilter( @Nonnull final Set<ChannelLink> links,
-                                           final int sourceChannelId,
-                                           final int targetChannelId,
-                                           @Nullable final Integer targetRootId,
-                                           @Nonnull final Object targetFilter )
+  protected void maybeAddChannelLink( @Nonnull final Set<ChannelLink> links,
+                                      final int sourceChannelId,
+                                      final int targetChannelId,
+                                      @Nullable final Integer targetRootId )
   {
-    doAddChannelLink( links, sourceChannelId, targetChannelId, targetRootId, Objects.requireNonNull( targetFilter ) );
-  }
-
-  private void doAddChannelLink( @Nonnull final Set<ChannelLink> links,
-                                 final int sourceChannelId,
-                                 final int targetChannelId,
-                                 @Nullable final Integer targetRootId,
-                                 @Nullable final Object targetFilter )
-  {
+    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
     if ( null != targetRootId )
     {
-      links.add( new ChannelLink( new ChannelAddress( sourceChannelId ),
-                                  new ChannelAddress( targetChannelId, targetRootId ),
-                                  targetFilter ) );
+      addChannelLink( links, sourceChannelId, targetChannelId, targetRootId );
     }
   }
 
@@ -374,70 +245,16 @@ public abstract class AbstractSessionContextImpl
                                   final int sourceChannelId,
                                   @Nonnull final String sourceRoutingKey,
                                   final int targetChannelId,
-                                  @Nullable final Integer targetRootId )
+                                  final int targetRootId )
   {
+    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
     @SuppressWarnings( "unchecked" )
     final var sourceRootIds = (List<Integer>) routingKeys.get( sourceRoutingKey );
-    addChannelLinks( links, sourceChannelId, sourceRootIds, targetChannelId, targetRootId );
-  }
-
-  /**
-   * Adds channel links to the provided set based on the source and target channel information.
-   * The source channel MUST be an instance channel.
-   *
-   * @param links           the set to add the created channel links to; must not be null
-   * @param sourceChannelId the ID of the source channel
-   * @param sourceRootIds   a list of root IDs associated with the source channel; may be null
-   * @param targetChannelId the ID of the target channel
-   * @param targetRootId    the root ID associated with the target channel; may be null
-   */
-  protected void addChannelLinks( @Nonnull final Set<ChannelLink> links,
-                                  final int sourceChannelId,
-                                  @Nullable final List<Integer> sourceRootIds,
-                                  final int targetChannelId,
-                                  @Nullable final Integer targetRootId )
-  {
-    doAddChannelLinks( links, sourceChannelId, sourceRootIds, targetChannelId, targetRootId, null );
-  }
-
-  /**
-   * Adds channel links to the provided set based on the source and target channel information.
-   * The source channel MUST be an instance channel.
-   *
-   * @param links           the set to add the created channel links to; must not be null
-   * @param sourceChannelId the ID of the source channel
-   * @param sourceRootIds   the IDs of the source roots
-   * @param targetChannelId the ID of the target channel
-   * @param targetRootId    the ID of the target root, may be null
-   * @param targetFilter    the filter associated with the target channel
-   */
-  protected void addChannelLinksWithFilter( @Nonnull final Set<ChannelLink> links,
-                                            final int sourceChannelId,
-                                            @Nullable final List<Integer> sourceRootIds,
-                                            final int targetChannelId,
-                                            @Nullable final Integer targetRootId,
-                                            @Nonnull final Object targetFilter )
-  {
-    doAddChannelLinks( links,
-                       sourceChannelId,
-                       sourceRootIds,
-                       targetChannelId,
-                       targetRootId,
-                       Objects.requireNonNull( targetFilter ) );
-  }
-
-  private void doAddChannelLinks( @Nonnull final Set<ChannelLink> links,
-                                  final int sourceChannelId,
-                                  @Nullable final List<Integer> sourceRootIds,
-                                  final int targetChannelId,
-                                  @Nullable final Integer targetRootId,
-                                  @Nullable final Object targetFilter )
-  {
-    if ( null != sourceRootIds && null != targetRootId )
+    if ( null != sourceRootIds )
     {
       for ( final var sourceRootId : sourceRootIds )
       {
-        doAddChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId, targetFilter );
+        addChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId );
       }
     }
   }
@@ -455,38 +272,25 @@ public abstract class AbstractSessionContextImpl
                                  final int sourceChannelId,
                                  final int sourceRootId,
                                  final int targetChannelId,
-                                 @Nullable final Integer targetRootId )
+                                 final int targetRootId )
   {
-    doAddChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId, null );
+    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
+    assert !getSchemaMetaData().getChannelMetaData( targetChannelId ).requiresFilterInstanceId();
+    assert !getSchemaMetaData().getChannelMetaData( targetChannelId ).requiresFilterInstanceId();
+    links.add( new ChannelLink( new ChannelAddress( sourceChannelId, sourceRootId ),
+                                new ChannelAddress( targetChannelId, targetRootId ),
+                                null ) );
   }
 
-  protected void addChannelLinkWithFilter( @Nonnull final Set<ChannelLink> links,
-                                           final int sourceChannelId,
-                                           final int sourceRootId,
-                                           final int targetChannelId,
-                                           @Nullable final Integer targetRootId,
-                                           @Nonnull final Object targetFilter )
-  {
-    doAddChannelLink( links,
-                      sourceChannelId,
-                      sourceRootId,
-                      targetChannelId,
-                      targetRootId,
-                      Objects.requireNonNull( targetFilter ) );
-  }
-
-  private void doAddChannelLink( @Nonnull final Set<ChannelLink> links,
-                                 final int sourceChannelId,
-                                 final int sourceRootId,
-                                 final int targetChannelId,
-                                 @Nullable final Integer targetRootId,
-                                 @Nullable final Object targetFilter )
+  protected void maybeAddChannelLink( @Nonnull final Set<ChannelLink> links,
+                                      final int sourceChannelId,
+                                      final int sourceRootId,
+                                      final int targetChannelId,
+                                      @Nullable final Integer targetRootId )
   {
     if ( null != targetRootId )
     {
-      links.add( new ChannelLink( new ChannelAddress( sourceChannelId, sourceRootId ),
-                                  new ChannelAddress( targetChannelId, targetRootId ),
-                                  targetFilter ) );
+      addChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId );
     }
   }
 

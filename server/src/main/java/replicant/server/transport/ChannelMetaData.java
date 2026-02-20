@@ -127,11 +127,11 @@ public final class ChannelMetaData
     _cacheType = Objects.requireNonNull( cacheType );
     _external = external;
     _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
-    if ( !filterType().hasFilterParameter() && null != filterParameterFactory )
+    if ( !requiresFilterParameter() && null != filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
     }
-    else if ( filterType().hasFilterParameter() && null == filterParameterFactory )
+    else if ( requiresFilterParameter() && null == filterParameterFactory )
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
@@ -165,6 +165,16 @@ public final class ChannelMetaData
   public boolean isInstanceGraph()
   {
     return !isTypeGraph();
+  }
+
+  public boolean requiresFilterParameter()
+  {
+    return filterType().hasFilterParameter();
+  }
+
+  public boolean requiresFilterInstanceId()
+  {
+    return filterType().isInstancedFilter();
   }
 
   @Nonnull

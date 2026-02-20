@@ -70,7 +70,7 @@ public class ReplicantSessionManagerImplStaticInstancedTest
 
     final ChannelAddress sourceAddress = new ChannelAddress( 0 );
     final ChannelAddress targetAddress = new ChannelAddress( 1, 7 );
-    final ChannelLink link = new ChannelLink( sourceAddress, targetAddress );
+    final ChannelLink link = new ChannelLink( sourceAddress, targetAddress, null );
 
     session.getLock().lock();
     try

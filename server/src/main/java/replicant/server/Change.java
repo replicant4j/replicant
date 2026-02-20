@@ -4,7 +4,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Change
 {
@@ -19,13 +18,6 @@ public class Change
   {
     _key = entityMessage.getTypeId() + "#" + entityMessage.getId();
     _entityMessage = Objects.requireNonNull( entityMessage );
-  }
-
-  public Change( @Nonnull final EntityMessage entityMessage,
-                 final int channelId,
-                 @Nullable final Integer rootId )
-  {
-    this( entityMessage, new ChannelAddress( channelId, rootId ) );
   }
 
   public Change( @Nonnull final EntityMessage entityMessage, @Nonnull final ChannelAddress address )
