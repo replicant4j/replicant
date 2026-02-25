@@ -278,7 +278,7 @@ public class ReplicantSessionManagerImpl
 
   @SuppressWarnings( "resource" )
   @Override
-  public boolean invalidateSession( @Nonnull final ReplicantSession session )
+  public void invalidateSession( @Nonnull final ReplicantSession session )
   {
     _lock.writeLock().lock();
     try
@@ -286,11 +286,6 @@ public class ReplicantSessionManagerImpl
       if ( null != _sessions.remove( session.getId() ) )
       {
         session.close();
-        return true;
-      }
-      else
-      {
-        return false;
       }
     }
     finally
@@ -307,21 +302,6 @@ public class ReplicantSessionManagerImpl
     try
     {
       return _sessions.get( sessionId );
-    }
-    finally
-    {
-      _lock.readLock().unlock();
-    }
-  }
-
-  @Nonnull
-  @Override
-  public Set<String> getSessionIDs()
-  {
-    _lock.readLock().lock();
-    try
-    {
-      return new HashSet<>( _sessions.keySet() );
     }
     finally
     {
@@ -1035,20 +1015,6 @@ public class ReplicantSessionManagerImpl
           }
         }
       }
-    }
-    finally
-    {
-      _cacheLock.writeLock().unlock();
-    }
-  }
-
-  @Override
-  public void deleteAllCacheEntries()
-  {
-    _cacheLock.writeLock().lock();
-    try
-    {
-      _cache.clear();
     }
     finally
     {

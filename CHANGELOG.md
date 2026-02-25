@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Remove the built-in server session REST endpoints (`ReplicantSessionRestService` and `SecuredReplicantSessionRestService`) and related REST encoding/cache utilities.
+* API cleanup in `ReplicantSessionManager`: `invalidateSession(...)` now returns `void`, and `getSessionIDs()`/`deleteAllCacheEntries()` have been removed.
+
 ### [v6.175](https://github.com/replicant4j/replicant/tree/v6.175) (2026-02-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.174...v6.175)
 
 Changes in this release:

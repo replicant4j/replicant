@@ -2,7 +2,6 @@ package replicant.server.transport;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,20 +35,11 @@ public interface ReplicantSessionManager
                     @Nullable JsonObject payload );
 
   /**
-   * Return the st of valid session ids.
-   *
-   * @return the set of valid session ids.
-   */
-  @Nonnull
-  Set<String> getSessionIDs();
-
-  /**
    * Invalidate specified session.
    *
    * @param session the session.
-   * @return true if a session was invalidated, false otherwise.
    */
-  boolean invalidateSession( @Nonnull ReplicantSession session );
+  void invalidateSession( @Nonnull ReplicantSession session );
 
   /**
    * Create replicant session for specified WebSocket session.
@@ -83,13 +73,8 @@ public interface ReplicantSessionManager
    * If the session that initiated the request is the specified session,
    * then the requestId and response parameters will be present.
    *
-   * @param session   the session
+   * @param session the session
    * @param packet  the packet  associated with the change.
    */
-  void sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet  );
-
-  /**
-   * Exposed so that bulk changes can reset Cache.
-   */
-  void deleteAllCacheEntries();
+  void sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
 }
