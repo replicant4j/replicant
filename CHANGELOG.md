@@ -4,6 +4,11 @@
 
 * Update the `org.realityforge.react4j` artifacts to version `0.202`.
 * Update the `org.realityforge.arez` artifacts to version `0.225`.
+* Simplify instanced-link handling on the server: remove `ReplicantSessionContext.deriveTargetFilterInstanceId(...)` and require channel links targeting instanced filtered graphs to include `ChannelAddress.filterInstanceId`.
+* Update `AbstractSessionContextImpl` extension points: remove `doBulkCollectDataForSubscribe(...)`; downstream implementations should now implement `bulkCollectDataForSubscribe(...)` directly.
+* Add `ChannelMetaData.requiresFilterParameter()` and `ChannelMetaData.requiresFilterInstanceId()` convenience helpers.
+* Add `AbstractSessionContextImpl.generateTempIdAndFilterIdTable(...)` helper for bulk SQL workflows that carry filter instance ids.
+* API cleanup: remove `EntityMessage.safeGetLinks()`, remove the 2-arg `ChannelLink` constructor, and remove `Change(EntityMessage,int,Integer)`; add a 5-arg `EntityMessage` constructor without links.
 
 ### [v6.174](https://github.com/replicant4j/replicant/tree/v6.174) (2026-02-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.173...v6.174)
 
