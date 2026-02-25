@@ -1,11 +1,32 @@
 package replicant.server;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
 public final class EntityMessageTest
 {
+  @Test
+  public void constructor_withoutLinks_setsLinksToNull()
+  {
+    final var routingKeys = new HashMap<String, Serializable>();
+    routingKeys.put( "R", "v" );
+    final var attributes = new HashMap<String, Serializable>();
+    attributes.put( "A", "x" );
+
+    final var message = new EntityMessage( 11, 22, 33L, routingKeys, attributes );
+
+    assertEquals( message.getId(), 11 );
+    assertEquals( message.getTypeId(), 22 );
+    assertEquals( message.getTimestamp(), 33L );
+    assertEquals( message.getRoutingKeys(), routingKeys );
+    assertEquals( message.getAttributeValues(), attributes );
+    assertNull( message.getLinks() );
+    assertTrue( message.isUpdate() );
+  }
+
   @Test
   public void mergeElementsOverrideExisting()
   {

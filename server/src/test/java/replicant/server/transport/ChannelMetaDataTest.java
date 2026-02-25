@@ -26,6 +26,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
     assertFalse( metaData.requiresFilterParameter() );
+    assertFalse( metaData.requiresFilterInstanceId() );
     assertFalse( metaData.isExternal() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
@@ -51,6 +52,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.NONE );
     assertFalse( metaData.isCacheable() );
     assertFalse( metaData.requiresFilterParameter() );
+    assertFalse( metaData.requiresFilterInstanceId() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -74,6 +76,7 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.requiresFilterParameter() );
+    assertFalse( metaData.requiresFilterInstanceId() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -97,6 +100,31 @@ public class ChannelMetaDataTest
     assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.requiresFilterParameter() );
+    assertTrue( metaData.requiresFilterInstanceId() );
+    assertTrue( metaData.isExternal() );
+  }
+
+  @Test
+  public void dynamicInstancedFilteredGraph()
+  {
+    final Function<JsonObject, Object> filterParameterFactory = e -> null;
+    final ChannelMetaData metaData =
+      new ChannelMetaData( 3,
+                           "MetaData",
+                           22,
+                           ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
+                           filterParameterFactory,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    assertEquals( metaData.getChannelId(), 3 );
+    assertEquals( metaData.getName(), "MetaData" );
+    assertFalse( metaData.isTypeGraph() );
+    assertTrue( metaData.isInstanceGraph() );
+    assertEquals( metaData.filterType(), ChannelMetaData.FilterType.DYNAMIC_INSTANCED );
+    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
+    assertFalse( metaData.isCacheable() );
+    assertTrue( metaData.requiresFilterParameter() );
+    assertTrue( metaData.requiresFilterInstanceId() );
     assertTrue( metaData.isExternal() );
   }
 
@@ -121,6 +149,13 @@ public class ChannelMetaDataTest
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.DYNAMIC,
+                                             null,
+                                             ChannelMetaData.CacheType.NONE,
+                                             true ) );
+    assertThrows( () -> new ChannelMetaData( 1,
+                                             "X",
+                                             null,
+                                             ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
                                              null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );

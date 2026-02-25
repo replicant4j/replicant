@@ -201,6 +201,23 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
+  public void generateTempIdAndFilterIdTable_buildsSql()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var addresses = List.of( new ChannelAddress( 1, 11, "fi-1" ),
+                                   new ChannelAddress( 1, 12, "fi-2" ),
+                                   new ChannelAddress( 1, 13, "fi-3" ) );
+
+    final var sql = context.generateTempIdAndFilterIdTable( addresses );
+
+    assertEquals( sql,
+                  """
+                    DECLARE @IdAndFilterIds TABLE ( Id INTEGER NOT NULL, FilterInstanceId VARCHAR(255) NOT NULL );
+                    INSERT INTO @IdAndFilterIds VALUES (11,'fi-1'),(12,'fi-2'),(13,'fi-3')
+                    """ );
+  }
+
+  @Test
   public void chunked_groupsValues()
   {
     final var context = newContext( mock( EntityManager.class ) );
