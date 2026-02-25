@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -53,38 +52,6 @@ public abstract class AbstractSessionContextImpl
                                      " in the context of the entity message " + entityMessage +
                                      " but no such graph link exists or the target graph has no filter parameter" );
   }
-
-  @Nonnull
-  @Override
-  public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                              @Nonnull final ChannelLink link,
-                                              @Nullable final Object sourceFilter,
-                                              @Nullable final Object targetFilter )
-  {
-    final var source = link.source();
-    final var target = link.target();
-    throw new IllegalStateException( "deriveFilterInstanceId called for link from " + source + " to " + target +
-                                     ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
-                                     " in the context of the entity message " + entityMessage +
-                                     " but no such graph link exists or the target graph is not a " +
-                                     "instanced filter graph" );
-  }
-
-  @Override
-  public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
-                                           @Nonnull final List<ChannelAddress> addresses,
-                                           @Nullable final Object filter,
-                                           @Nonnull final ChangeSet changeSet,
-                                           final boolean isExplicitSubscribe )
-  {
-    doBulkCollectDataForSubscribe( session, addresses, filter, changeSet, isExplicitSubscribe );
-  }
-
-  protected abstract void doBulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
-                                                         @Nonnull final List<ChannelAddress> addresses,
-                                                         @Nullable final Object filter,
-                                                         @Nonnull final ChangeSet changeSet,
-                                                         final boolean isExplicitSubscribe );
 
   /**
    * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
@@ -155,9 +122,26 @@ public abstract class AbstractSessionContextImpl
       "\n";
   }
 
+  @Language( "TSQL" )
+  protected String generateTempIdAndFilterIdTable( @Nonnull final List<ChannelAddress> addresses )
+  {
+    //noinspection SqlUnused
+    return
+      "DECLARE @IdAndFilterIds TABLE ( Id INTEGER NOT NULL, FilterInstanceId VARCHAR(255) NOT NULL );\n" +
+      chunked( addresses.stream(), 900 )
+        .map( chunk ->
+                "INSERT INTO @IdAndFilterIds VALUES " +
+                chunk.
+                  stream()
+                  .map( address -> "(" + address.rootId() + ",'" + address.filterInstanceId() + "')" )
+                  .collect( Collectors.joining( "," ) ) ).
+        collect( Collectors.joining( "\n" ) ) +
+      "\n";
+  }
+
   @Nonnull
   @SuppressWarnings( { "SameParameterValue", "DataFlowIssue" } )
-  protected <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
+  <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
   {
     final var index = new AtomicInteger( 0 );
 
@@ -192,106 +176,6 @@ public abstract class AbstractSessionContextImpl
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
     targetEntry.registerInwardSubscriptions( sourceEntry.address() );
-  }
-
-  /**
-   * Adds a channel link to the specified set using the given source and target channel IDs and an optional target root ID.
-   * The source channel MUST be a type channel.
-   * If the target root ID is not null, a new channel link is created and added to the set.
-   *
-   * @param links           the set to add the created channel link; must not be null
-   * @param sourceChannelId the ID of the source channel
-   * @param targetChannelId the ID of the target channel
-   * @param targetRootId    the root ID associated with the target channel; may be null
-   */
-  protected void addChannelLink( @Nonnull final Set<ChannelLink> links,
-                                 final int sourceChannelId,
-                                 final int targetChannelId,
-                                 final int targetRootId )
-  {
-    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
-    links.add( new ChannelLink( new ChannelAddress( sourceChannelId ),
-                                new ChannelAddress( targetChannelId, targetRootId ),
-                                null ) );
-  }
-
-  protected void maybeAddChannelLink( @Nonnull final Set<ChannelLink> links,
-                                      final int sourceChannelId,
-                                      final int targetChannelId,
-                                      @Nullable final Integer targetRootId )
-  {
-    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
-    if ( null != targetRootId )
-    {
-      addChannelLink( links, sourceChannelId, targetChannelId, targetRootId );
-    }
-  }
-
-  /**
-   * Adds channel links to the provided set based on the source and target channel information.
-   * The source channel MUST be an instance channel.
-   * This method retrieves the list of root IDs associated with the source routing key from
-   * the provided routing keys map and delegates to another method to add the links.
-   *
-   * @param routingKeys      a map containing routing keys and their associated serializable data; must not be null
-   * @param links            the set to which the created channel links will be added; must not be null
-   * @param sourceChannelId  the ID of the source channel
-   * @param sourceRoutingKey the routing key for the source channel; must not be null
-   * @param targetChannelId  the ID of the target channel
-   * @param targetRootId     the root ID associated with the target channel; may be null
-   */
-  protected void addChannelLinks( @Nonnull Map<String, Serializable> routingKeys,
-                                  @Nonnull final Set<ChannelLink> links,
-                                  final int sourceChannelId,
-                                  @Nonnull final String sourceRoutingKey,
-                                  final int targetChannelId,
-                                  final int targetRootId )
-  {
-    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
-    @SuppressWarnings( "unchecked" )
-    final var sourceRootIds = (List<Integer>) routingKeys.get( sourceRoutingKey );
-    if ( null != sourceRootIds )
-    {
-      for ( final var sourceRootId : sourceRootIds )
-      {
-        addChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId );
-      }
-    }
-  }
-
-  /**
-   * Adds a channel link to the specified set of links if the targetRootId is not null.
-   *
-   * @param links           the set of channel links to which the new link will be added
-   * @param sourceChannelId the ID of the source channel
-   * @param sourceRootId    the ID of the source root
-   * @param targetChannelId the ID of the target channel
-   * @param targetRootId    the ID of the target root, may be null
-   */
-  protected void addChannelLink( @Nonnull final Set<ChannelLink> links,
-                                 final int sourceChannelId,
-                                 final int sourceRootId,
-                                 final int targetChannelId,
-                                 final int targetRootId )
-  {
-    assert getSchemaMetaData().getChannelMetaData( targetChannelId ).isInstanceGraph();
-    assert !getSchemaMetaData().getChannelMetaData( targetChannelId ).requiresFilterInstanceId();
-    assert !getSchemaMetaData().getChannelMetaData( targetChannelId ).requiresFilterInstanceId();
-    links.add( new ChannelLink( new ChannelAddress( sourceChannelId, sourceRootId ),
-                                new ChannelAddress( targetChannelId, targetRootId ),
-                                null ) );
-  }
-
-  protected void maybeAddChannelLink( @Nonnull final Set<ChannelLink> links,
-                                      final int sourceChannelId,
-                                      final int sourceRootId,
-                                      final int targetChannelId,
-                                      @Nullable final Integer targetRootId )
-  {
-    if ( null != targetRootId )
-    {
-      addChannelLink( links, sourceChannelId, sourceRootId, targetChannelId, targetRootId );
-    }
   }
 
   @SuppressWarnings( "unchecked" )

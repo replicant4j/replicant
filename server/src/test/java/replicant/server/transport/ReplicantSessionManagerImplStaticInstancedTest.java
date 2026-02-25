@@ -142,16 +142,6 @@ public class ReplicantSessionManagerImplStaticInstancedTest
       return "target-filter";
     }
 
-    @Nonnull
-    @Override
-    public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                                @Nonnull final ChannelLink link,
-                                                @Nullable final Object sourceFilter,
-                                                @Nullable final Object targetFilter )
-    {
-      return "derived-inst";
-    }
-
     @Override
     public boolean flushOpenEntityManager()
     {

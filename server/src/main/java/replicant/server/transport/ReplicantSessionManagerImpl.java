@@ -699,29 +699,22 @@ public class ReplicantSessionManagerImpl
       if ( channel.requiresFilterParameter() )
       {
         final var targetFilter = link.targetFilter();
-        // In most cases, the filter is not known and is specific to the session, and thus targetFilter will be null.
-        // In a few cases (bulk loads of static type graphs that only link to other static type graphs) the target
-        // filter is passed in. In all other scenarios we need to do some magic to make it work.
+        // The filter may not be known when the EntityMessage is the result of a mutation of the entity in the app.
+        // In other cases, the `EntityMessage` will come pre-populated (i.e. when coming in due to subscription
+        // creation). This magic code here exists to add filter when it is missing.
         final var filter =
           null != targetFilter ?
           targetFilter :
           _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
-        final var targetAddress =
-          channel.requiresFilterInstanceId() ?
-          new ChannelAddress( target.channelId(),
-                              target.rootId(),
-                              _context.deriveTargetFilterInstanceId( entityMessage,
-                                                                     link,
-                                                                     sourceEntry.getFilter(),
-                                                                     filter ) ) :
-          target;
+        assert ( null == target.filterInstanceId() && !channel.requiresFilterInstanceId() ) ||
+               ( null != target.filterInstanceId() && channel.requiresFilterInstanceId() );
 
-        if ( _context.shouldFollowLink( sourceEntry, targetAddress, filter ) )
+        if ( _context.shouldFollowLink( sourceEntry, target, filter ) )
         {
-          final var targetEntry = session.findSubscriptionEntry( targetAddress );
+          final var targetEntry = session.findSubscriptionEntry( target );
           if ( null == targetEntry )
           {
-            return new ChannelLinkEntry( source, targetAddress, filter );
+            return new ChannelLinkEntry( source, target, filter );
           }
           else
           {

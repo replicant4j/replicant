@@ -8,7 +8,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -66,25 +65,6 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
-  public void deriveTargetFilterInstanceId_throwsWhenNotOverridden()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var source = new ChannelAddress( 1, 2 );
-    final var target = new ChannelAddress( 3, 4 );
-    final var link = new ChannelLink( source, target, null );
-    final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
-
-    final var exception =
-      expectThrows( IllegalStateException.class,
-                    () -> context.deriveTargetFilterInstanceId( message, link, "filter", null ) );
-
-    assertEquals( exception.getMessage(),
-                  "deriveFilterInstanceId called for link from " + source + " to " + target +
-                  " with source filter filter in the context of the entity message " + message +
-                  " but no such graph link exists or the target graph is not a instanced filter graph" );
-  }
-
-  @Test
   public void bulkCollectDataForSubscribe_delegates()
   {
     final var em = mock( EntityManager.class );
@@ -109,9 +89,10 @@ public class AbstractSessionContextImplTest
   public void recordEntityMessageForEntity_mergesMessage()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    context.registerMessageForObject( "entity", new EntityMessage( 11, 7, 0, new HashMap<>(), null, null ) );
+    final var entity = new Object();
+    context.registerMessageForObject( entity, new EntityMessage( 11, 7, 0, new HashMap<>(), null, null ) );
 
-    context.recordEntityMessageForEntity( "entity", true );
+    context.recordEntityMessageForEntity( entity, true );
 
     final var registry = TransactionSynchronizationRegistryUtil.lookup();
     final var set = EntityMessageCacheUtil.getEntityMessageSet( registry );
@@ -248,69 +229,6 @@ public class AbstractSessionContextImplTest
       assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
       assertTrue( targetEntry.getInwardSubscriptions().contains( source ) );
     } );
-  }
-
-  @Test
-  public void addChannelLink_addsTypeSourceLink()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var links = new HashSet<ChannelLink>();
-
-    context.addChannelLink( links, 1, 2, 3 );
-
-    assertEquals( links.size(), 1 );
-    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1 ), new ChannelAddress( 2, 3 ), null ) ) );
-  }
-
-  @Test
-  public void addChannelLink_isIdempotentForDuplicateTypeSourceLink()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var links = new HashSet<ChannelLink>();
-
-    context.addChannelLink( links, 1, 2, 3 );
-    context.addChannelLink( links, 1, 2, 3 );
-
-    assertEquals( links.size(), 1 );
-  }
-
-  @Test
-  public void addChannelLink_withSourceRoot_addsLink()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var links = new HashSet<ChannelLink>();
-
-    context.addChannelLink( links, 1, 4, 2, 3 );
-
-    assertEquals( links.size(), 1 );
-    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 4 ), new ChannelAddress( 2, 3 ), null ) ) );
-  }
-
-  @Test
-  public void addChannelLink_withSourceRoot_isIdempotentForDuplicates()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var links = new HashSet<ChannelLink>();
-
-    context.addChannelLink( links, 1, 4, 2, 3 );
-    context.addChannelLink( links, 1, 4, 2, 3 );
-
-    assertEquals( links.size(), 1 );
-  }
-
-  @Test
-  public void addChannelLinksFromRoutingKeys_addsLinks()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var links = new HashSet<ChannelLink>();
-    final var routingKeys = new HashMap<String, Serializable>();
-    routingKeys.put( "R", new ArrayList<>( List.of( 4, 5 ) ) );
-
-    context.addChannelLinks( routingKeys, links, 1, "R", 2, 99 );
-
-    assertEquals( links.size(), 2 );
-    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 4 ), new ChannelAddress( 2, 99 ), null ) ) );
-    assertTrue( links.contains( new ChannelLink( new ChannelAddress( 1, 5 ), new ChannelAddress( 2, 99 ), null ) ) );
   }
 
   @Test
@@ -495,8 +413,6 @@ public class AbstractSessionContextImplTest
     @Nonnull
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
     @Nonnull
-    private final List<ConvertCall> _convertCalls = new ArrayList<>();
-    @Nonnull
     private final Map<Object, EntityMessage> _messages = new HashMap<>();
 
     private TestSessionContext( @Nonnull final EntityManager em )
@@ -546,11 +462,11 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    protected void doBulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
-                                                  @Nonnull final List<ChannelAddress> addresses,
-                                                  @Nullable final Object filter,
-                                                  @Nonnull final ChangeSet changeSet,
-                                                  final boolean isExplicitSubscribe )
+    public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
+                                             @Nonnull final List<ChannelAddress> addresses,
+                                             @Nullable final Object filter,
+                                             @Nonnull final ChangeSet changeSet,
+                                             final boolean isExplicitSubscribe )
     {
       _bulkCollectCalls.add( new BulkCollectCall( session, addresses, filter, changeSet, isExplicitSubscribe ) );
     }
@@ -561,7 +477,6 @@ public class AbstractSessionContextImplTest
                                                     final boolean isUpdate,
                                                     final boolean isInitialLoad )
     {
-      _convertCalls.add( new ConvertCall( object, isUpdate, isInitialLoad ) );
       return _messages.get( object );
     }
 
@@ -601,12 +516,6 @@ public class AbstractSessionContextImplTest
     {
       return _bulkCollectCalls;
     }
-
-    @Nonnull
-    List<ConvertCall> getConvertCalls()
-    {
-      return _convertCalls;
-    }
   }
 
   private record BulkCollectCall(@Nullable ReplicantSession session,
@@ -614,10 +523,6 @@ public class AbstractSessionContextImplTest
                                  @Nullable Object filter,
                                  @Nonnull ChangeSet changeSet,
                                  boolean explicitSubscribe)
-  {
-  }
-
-  private record ConvertCall(@Nonnull Object object, boolean isUpdate, boolean isInitialLoad)
   {
   }
 }
