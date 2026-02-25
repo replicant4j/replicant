@@ -34,6 +34,15 @@ public final class EntityMessage
                         final int typeId,
                         final long timestamp,
                         @Nonnull final Map<String, Serializable> routingKeys,
+                        @Nullable final Map<String, Serializable> attributeValues )
+  {
+    this( id, typeId, timestamp, routingKeys, attributeValues, null );
+  }
+
+  public EntityMessage( final int id,
+                        final int typeId,
+                        final long timestamp,
+                        @Nonnull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues,
                         @Nullable final Set<ChannelLink> links )
   {
