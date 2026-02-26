@@ -5,7 +5,9 @@ import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
@@ -17,7 +19,9 @@ import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
+import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
 import replicant.shared.Messages;
@@ -100,6 +104,16 @@ public class ReplicantSessionTest
     {
       session.getLock().unlock();
     }
+  }
+
+  @Test
+  public void requiresLockForSubscriptionAccess()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+
+    final IllegalStateException exception =
+      expectThrows( IllegalStateException.class, () -> session.findSubscriptionEntry( new ChannelAddress( 1 ) ) );
+    assertEquals( exception.getMessage(), "Expected session to be locked by the current thread" );
   }
 
   @Test
@@ -292,6 +306,349 @@ public class ReplicantSessionTest
     {
       session.getLock().unlock();
     }
+  }
+
+  @Test
+  public void recordSubscription_addsEntryAndAction()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      session.recordSubscription( changeSet, address, Map.of( "k", "v" ), true );
+
+      final var entry = session.getSubscriptionEntry( address );
+      assertTrue( entry.isExplicitlySubscribed() );
+      assertEquals( entry.getFilter(), Map.of( "k", "v" ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    final var action = changeSet.getChannelActions().get( 0 );
+    assertEquals( action.address(), address );
+    assertEquals( action.action(), ChannelAction.Action.ADD );
+    assertNotNull( action.filter() );
+    assertEquals( action.filter().getString( "k" ), "v" );
+  }
+
+  @Test
+  public void recordSubscription_updatesEntryAndCanPromoteExplicitSubscribe()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entry = session.createSubscriptionEntry( address );
+      entry.setFilter( Map.of( "old", "value" ) );
+      assertFalse( entry.isExplicitlySubscribed() );
+
+      session.recordSubscription( changeSet, address, Map.of( "k", "v" ), true );
+
+      assertTrue( entry.isExplicitlySubscribed() );
+      assertEquals( entry.getFilter(), Map.of( "k", "v" ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.UPDATE );
+  }
+
+  @Test
+  public void recordSubscriptions_recordsEachAddress()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 1, 3 ) );
+
+    session.getLock().lock();
+    try
+    {
+      session.recordSubscriptions( changeSet, addresses, null, false );
+
+      assertEquals( session.findSubscriptionEntries( 1, 2 ).size(), 1 );
+      assertEquals( session.findSubscriptionEntries( 1, 3 ).size(), 1 );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 2 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.ADD );
+    assertEquals( changeSet.getChannelActions().get( 1 ).action(), ChannelAction.Action.ADD );
+  }
+
+  @Test
+  public void recordGraphLink_linksEntries()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChannelAddress source = new ChannelAddress( 1, 2 );
+    final ChannelAddress target = new ChannelAddress( 2, 3 );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( source );
+      session.createSubscriptionEntry( target );
+
+      session.recordGraphLink( source, target );
+
+      assertTrue( session.getSubscriptionEntry( source ).getOutwardSubscriptions().contains( target ) );
+      assertTrue( session.getSubscriptionEntry( target ).getInwardSubscriptions().contains( source ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void getFilterAndSetFilter_roundTrip()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( address );
+      session.setFilter( address, Map.of( "k", "v" ) );
+      assertEquals( session.getFilter( address ), Map.of( "k", "v" ) );
+
+      session.setFilter( address, null );
+      assertNull( session.getFilter( address ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void unsubscribe_removesExistingAndIgnoresMissing()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entry = session.createSubscriptionEntry( address );
+      entry.setExplicitlySubscribed( true );
+
+      session.unsubscribe( address, changeSet );
+      assertNull( session.findSubscriptionEntry( address ) );
+
+      session.unsubscribe( address, changeSet );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
+  }
+
+  @Test
+  public void bulkUnsubscribe_removesEachSubscribedAddress()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address1 = new ChannelAddress( 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entry1 = session.createSubscriptionEntry( address1 );
+      final var entry2 = session.createSubscriptionEntry( address2 );
+      entry1.setExplicitlySubscribed( true );
+      entry2.setExplicitlySubscribed( true );
+
+      session.bulkUnsubscribe( List.of( address1, address2, new ChannelAddress( 1, 3 ) ), changeSet );
+
+      assertNull( session.findSubscriptionEntry( address1 ) );
+      assertNull( session.findSubscriptionEntry( address2 ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 2 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
+    assertEquals( changeSet.getChannelActions().get( 1 ).action(), ChannelAction.Action.REMOVE );
+  }
+
+  @Test
+  public void performUnsubscribe_onlyRemovesWhenEntryCanUnsubscribe()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entry = session.createSubscriptionEntry( address );
+      entry.setExplicitlySubscribed( true );
+
+      session.performUnsubscribe( entry, false, false, changeSet );
+      assertNotNull( session.findSubscriptionEntry( address ) );
+
+      session.performUnsubscribe( entry, true, false, changeSet );
+      assertNull( session.findSubscriptionEntry( address ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
+  }
+
+  @Test
+  public void performUnsubscribe_deleteUsesDeleteAction()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entry = session.createSubscriptionEntry( address );
+      entry.setExplicitlySubscribed( true );
+
+      session.performUnsubscribe( entry, true, true, changeSet );
+      assertNull( session.findSubscriptionEntry( address ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.DELETE );
+  }
+
+  @Test
+  public void performUnsubscribe_cascadesDownstreamSubscriptions()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress a = new ChannelAddress( 1, 1 );
+    final ChannelAddress b = new ChannelAddress( 1, 2 );
+    final ChannelAddress c = new ChannelAddress( 1, 3 );
+
+    session.getLock().lock();
+    try
+    {
+      final var entryA = session.createSubscriptionEntry( a );
+      session.createSubscriptionEntry( b );
+      session.createSubscriptionEntry( c );
+      session.recordGraphLink( a, b );
+      session.recordGraphLink( b, c );
+
+      session.performUnsubscribe( entryA, false, false, changeSet );
+
+      assertNull( session.findSubscriptionEntry( a ) );
+      assertNull( session.findSubscriptionEntry( b ) );
+      assertNull( session.findSubscriptionEntry( c ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 3 );
+    final var actions =
+      changeSet.getChannelActions().stream().map( ChannelAction::address ).collect( java.util.stream.Collectors.toSet() );
+    assertEquals( actions, Set.of( a, b, c ) );
+  }
+
+  @Test
+  public void delinkDownstreamSubscription_keepsExplicitDownstream()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress upstream = new ChannelAddress( 1, 1 );
+    final ChannelAddress downstream = new ChannelAddress( 1, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( upstream );
+      final var downstreamEntry = session.createSubscriptionEntry( downstream );
+      downstreamEntry.setExplicitlySubscribed( true );
+      session.recordGraphLink( upstream, downstream );
+
+      session.delinkDownstreamSubscription( upstream, downstream, changeSet );
+
+      assertTrue( session.getSubscriptionEntry( upstream ).getOutwardSubscriptions().isEmpty() );
+      assertTrue( session.getSubscriptionEntry( downstream ).getInwardSubscriptions().isEmpty() );
+      assertNotNull( session.findSubscriptionEntry( downstream ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( changeSet.getChannelActions().isEmpty() );
+  }
+
+  @Test
+  public void delinkDownstreamSubscriptions_unsubscribesLinkedTargetsFromMessage()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress source = new ChannelAddress( 1, 1 );
+    final ChannelAddress target = new ChannelAddress( 2, 2 );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( source );
+      session.createSubscriptionEntry( target );
+      session.recordGraphLink( source, target );
+
+      final var routingKeys = new HashMap<String, java.io.Serializable>();
+      final var message =
+        new EntityMessage( 7,
+                           9,
+                           0,
+                           routingKeys,
+                           null,
+                           Set.of( new ChannelLink( source, target, null ) ) );
+
+      session.delinkDownstreamSubscriptions( sourceEntry, message, changeSet );
+
+      assertTrue( session.getSubscriptionEntry( source ).getOutwardSubscriptions().isEmpty() );
+      assertNull( session.findSubscriptionEntry( target ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertEquals( changeSet.getChannelActions().size(), 1 );
+    assertEquals( changeSet.getChannelActions().get( 0 ).address(), target );
+    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
   }
 
   @SuppressWarnings( "DataFlowIssue" )

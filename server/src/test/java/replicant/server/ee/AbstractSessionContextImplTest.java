@@ -83,6 +83,23 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
+  public void convertToEntityMessage_delegatesWithInitialLoadFalse()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var entity = new Object();
+    final var message = new EntityMessage( 11, 7, 0, new HashMap<>(), Map.of( "k", "v" ) );
+    context.registerMessageForObject( entity, message );
+
+    assertEquals( context.convertToEntityMessage( entity, true ), message );
+    assertEquals( context.getConvertCalls().size(), 1 );
+
+    final var call = context.getConvertCalls().get( 0 );
+    assertEquals( call.object(), entity );
+    assertTrue( call.isUpdate() );
+    assertFalse( call.isInitialLoad() );
+  }
+
+  @Test
   public void connection_usesEntityManagerUnwrap()
   {
     final var em = mock( EntityManager.class );
@@ -284,6 +301,8 @@ public class AbstractSessionContextImplTest
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
     @Nonnull
     private final Map<Object, EntityMessage> _messages = new HashMap<>();
+    @Nonnull
+    private final List<ConvertCall> _convertCalls = new ArrayList<>();
 
     private TestSessionContext( @Nonnull final EntityManager em )
     {
@@ -347,6 +366,7 @@ public class AbstractSessionContextImplTest
                                                     final boolean isUpdate,
                                                     final boolean isInitialLoad )
     {
+      _convertCalls.add( new ConvertCall( object, isUpdate, isInitialLoad ) );
       return _messages.get( object );
     }
 
@@ -382,6 +402,17 @@ public class AbstractSessionContextImplTest
     {
       return _bulkCollectCalls;
     }
+
+    void registerMessageForObject( @Nonnull final Object object, @Nonnull final EntityMessage message )
+    {
+      _messages.put( object, message );
+    }
+
+    @Nonnull
+    List<ConvertCall> getConvertCalls()
+    {
+      return _convertCalls;
+    }
   }
 
   private record BulkCollectCall(@Nullable ReplicantSession session,
@@ -389,6 +420,10 @@ public class AbstractSessionContextImplTest
                                  @Nullable Object filter,
                                  @Nonnull ChangeSet changeSet,
                                  boolean explicitSubscribe)
+  {
+  }
+
+  private record ConvertCall(@Nonnull Object object, boolean isUpdate, boolean isInitialLoad)
   {
   }
 }
