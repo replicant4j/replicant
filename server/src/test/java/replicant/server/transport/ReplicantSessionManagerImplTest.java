@@ -1,15 +1,36 @@
 package replicant.server.transport;
 
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.json.JsonObject;
+import javax.websocket.RemoteEndpoint;
+import javax.websocket.Session;
 import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+import replicant.server.ChangeSet;
+import replicant.server.ChannelAction;
+import replicant.server.ChannelAddress;
+import replicant.server.ChannelLink;
+import replicant.server.EntityMessage;
 import replicant.server.ee.RegistryUtil;
+import replicant.server.ee.TransactionSynchronizationRegistryUtil;
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
-@SuppressWarnings( "resource" )
 public class ReplicantSessionManagerImplTest
 {
   @BeforeMethod
-  public void setupTransactionContext()
+  public void setup()
   {
     RegistryUtil.bind();
   }
@@ -19,1657 +40,187 @@ public class ReplicantSessionManagerImplTest
   {
     TestInitialContextFactory.reset();
   }
-/*
-  @Test
-  public void basicWorkflow()
-  {
-    final var sm = createSessionManager();
-    assertEquals( sm.getSessionIDs().size(), 0 );
-    assertNull( sm.getSession( "MySessionID" ) );
-    final var session = createSession( sm );
-    assertNotNull( session );
-    assertNotNull( session.getId() );
-    assertEquals( sm.getSessionIDs().size(), 1 );
-
-    // The next line should update the last accessed time too!
-    assertEquals( sm.getSession( session.getId() ), session );
-
-    assertTrue( sm.invalidateSession( session ) );
-    assertEquals( sm.getSessionIDs().size(), 0 );
-    assertFalse( sm.invalidateSession( session ) );
-    assertNull( sm.getSession( session.getId() ) );
-  }
 
   @Test
-  public void removeClosedSessions_openWebSocketSession()
+  public void createChannelLinkEntry_staticInstanced_usesTargetInstanceId()
+    throws Exception
   {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           null,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           1,
+                           ChannelMetaData.FilterType.STATIC_INSTANCED,
+                           json -> json,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+
+    final var context = new TestSessionContext( schema );
+    final var manager = new ReplicantSessionManagerImpl();
+
+    setField( manager, "_context", context );
+    setField( manager, "_broker", mock( ReplicantMessageBroker.class ) );
+    setField( manager, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
+
     final Session webSocketSession = mock( Session.class );
-    final String id = ValueUtil.randomString();
-    when( webSocketSession.getId() ).thenReturn( id );
+    when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
+    final var session = new ReplicantSession( webSocketSession );
 
-    final ReplicantSessionManagerImpl sm = createSessionManager();
-    final var session = sm.createSession( webSocketSession );
+    final ChannelAddress sourceAddress = new ChannelAddress( 0 );
+    final ChannelAddress targetAddress = new ChannelAddress( 1, 7, "fi-7" );
+    final ChannelLink link = new ChannelLink( sourceAddress, targetAddress, null );
 
-    assertEquals( sm.getSession( session.getId() ), session );
-    sm.removeClosedSessions();
-    assertEquals( sm.getSession( session.getId() ), session );
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setFilter( "source-filter" );
+
+      final var routingKeys = new HashMap<String, Serializable>();
+      final var attributes = new HashMap<String, Serializable>();
+      final var message = new EntityMessage( 1, 1, 0L, routingKeys, attributes, null );
+
+      final Method method =
+        ReplicantSessionManagerImpl.class
+          .getDeclaredMethod( "createChannelLinkEntryIfRequired",
+                              EntityMessage.class,
+                              ReplicantSession.class,
+                              ChannelLink.class );
+      method.setAccessible( true );
+      final ChannelLinkEntry entry =
+        (ChannelLinkEntry) method.invoke( manager, message, session, link );
+
+      assertNotNull( entry );
+      assertEquals( entry.target(), targetAddress );
+      assertEquals( entry.filter(), Map.of( "k", "v" ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
   }
 
   @Test
-  public void removeClosedSessions_closedWebSocketSession()
+  public void sendChangeMessage_staticInstancedLinkFollow_usesTargetInstanceId()
   {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           null,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           1,
+                           ChannelMetaData.FilterType.STATIC_INSTANCED,
+                           json -> json,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+
+    final var context = new TestSessionContext( schema );
+    final var manager = new ReplicantSessionManagerImpl();
+    setField( manager, "_context", context );
+    setField( manager, "_broker", mock( ReplicantMessageBroker.class ) );
+    setField( manager, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
+
     final Session webSocketSession = mock( Session.class );
-    final String id = ValueUtil.randomString();
-    when( webSocketSession.getId() ).thenReturn( id );
-    when( webSocketSession.isOpen() ).thenReturn( false );
-
-    final ReplicantSessionManagerImpl sm = createSessionManager();
-    final var session = sm.createSession( webSocketSession );
-
-    assertEquals( sm.getSession( session.getId() ), session );
-    sm.removeClosedSessions();
-    assertNull( sm.getSession( session.getId() ) );
-  }
-
-  @Test
-  public void locking()
-    throws Exception
-  {
-    final var sm = createSessionManager();
-    final ReadWriteLock lock = sm.getLock();
-
-    // Variable used to pass data back from threads
-    final ReplicantSession[] sessions = new ReplicantSession[ 2 ];
-
-    lock.readLock().lock();
-
-    // Make sure createSession can not complete if something has a read lock
-    final CyclicBarrier end = go( () -> sessions[ 0 ] = createSession( sm ) );
-
-    assertNull( sessions[ 0 ] );
-    lock.readLock().unlock();
-    end.await();
-    assertNotNull( sessions[ 0 ] );
-
-    lock.writeLock().lock();
-
-    // Make sure getSession can acquire a read lock
-    final CyclicBarrier end2 = go( () -> sessions[ 1 ] = sm.getSession( sessions[ 0 ].getId() ) );
-
-    assertNull( sessions[ 1 ] );
-    lock.writeLock().unlock();
-    end2.await();
-    assertNotNull( sessions[ 1 ] );
-
-    lock.readLock().lock();
-
-    final Boolean[] invalidated = new Boolean[ 1 ];
-    // Make sure createSession can not complete if something has a read lock
-    final CyclicBarrier end3 = go( () -> invalidated[ 0 ] = sm.invalidateSession( sessions[ 0 ] ) );
-
-    assertNull( invalidated[ 0 ] );
-    lock.readLock().unlock();
-    end3.await();
-    assertEquals( invalidated[ 0 ], Boolean.TRUE );
-  }
-
-  @FunctionalInterface
-  public interface Action
-  {
-    void run()
-      throws Exception;
-  }
-
-  private CyclicBarrier go( final Action target )
-    throws Exception
-  {
-    final CyclicBarrier start = new CyclicBarrier( 2 );
-    final CyclicBarrier stop = new CyclicBarrier( 2 );
-    new Thread( () -> {
-      try
-      {
-        start.await();
-        target.run();
-        stop.await();
-      }
-      catch ( Exception e )
-      {
-        // Ignored
-      }
-    } ).start();
-    start.await();
-    Thread.sleep( 1 );
-    return stop;
-  }
-
-  @Test
-  public void deleteCacheEntry()
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           null,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.INTERNAL,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    assertFalse( sm.deleteCacheEntry( address1 ) );
-
-    context.setCacheKey( "X" );
-
-    sm.tryGetCacheEntry( address1 );
-
-    assertTrue( sm.deleteCacheEntry( address1 ) );
-  }
-
-  @Test
-  public void ensureCdiType()
-  {
-    AssertUtil.assertNoFinalMethodsForCDI( ReplicantSessionManagerImpl.class );
-  }
-
-  @Test
-  public void subscribe()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           null,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "C2",
-                           null,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch3 =
-      new ChannelMetaData( 2,
-                           "C3",
-                           null,
-                           ChannelMetaData.FilterType.STATIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-    final var address2 = new ChannelAddress( ch2.getChannelId(), null );
-    final var address3 = new ChannelAddress( ch3.getChannelId(), null );
-
-    final var originalFilter = new TestFilter( 41 );
-    final var filter = new TestFilter( 42 );
-
-    final int requestId = ValueUtil.randomInt();
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-    final Session webSocketSession = session.getWebSocketSession();
-    when( webSocketSession.isOpen() ).thenReturn( true );
-
-    with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-
-    // subscribe
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-      assertNotNull( entry1 );
-      assertEntry( entry1, false, 0, 0, null );
-
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
-    }
-
-    // re-subscribe- should be noop
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address1 ) ), false, 0, 0, null );
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-    }
-
-    // re-subscribe explicitly - should only set explicit flag
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address1 ) ), true, 0, 0, null );
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-    }
-
-    // subscribe when existing subscription present
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address2, originalFilter ) );
-
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address2 ) ), true, 0, 0, originalFilter );
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
-
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      TransactionSynchronizationRegistryUtil.lookup()
-        .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
-
-      //Should be a noop as same filter
-      with( session, () -> sm.subscribe( session, address2, originalFilter ) );
-
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address2 ) ), true, 0, 0, originalFilter );
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      //Should be a filter update
-      with( session, () -> sm.subscribe( session, address2, filter ) );
-
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address2 ) ), true, 0, 0, filter );
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
-    }
-
-    //Subscribe and attempt to update static filter
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address3, originalFilter ) );
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address3 ) ), true, 0, 0, originalFilter );
-      assertChannelActionCount( 1 );
-      assertSessionChangesCount( 1 );
-
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      //Should be a noop as same filter
-      with( session, () -> sm.subscribe( session, address3, originalFilter ) );
-
-      assertEntry( with( session, () -> session.getSubscriptionEntry( address3 ) ), true, 0, 0, originalFilter );
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-
-      try
-      {
-        with( session, () -> sm.subscribe( session, address3, filter ) );
-        fail( "Successfully updated a static filter" );
-      }
-      catch ( final AttemptedToUpdateStaticFilterException ignore )
-      {
-        //Ignore. Fine
-      }
-    }
-  }
-
-  @Test
-  public void subscribe_withCache()
-    throws Exception
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-
-    context.setCacheKey( "X" );
-
-    // subscribe - matching cacheKey
-    {
-      final var session = createSession( sm );
-      final Session webSocketSession = session.getWebSocketSession();
-      when( webSocketSession.isOpen() ).thenReturn( true );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> session.setETag( address1, "X" ) );
-
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-      assertNotNull( entry1 );
-      assertEntry( entry1, false, 0, 0, null );
-
-      verify( webSocketSession.getBasicRemote() ).sendText( "{\"type\":\"use-cache\",\"channel\":\"0\",\"etag\":\"X\"}" );
-
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-    }
-
-    // subscribe - cacheKey differs
-    {
-      final var session = createSession( sm );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> session.setETag( address1, "Y" ) );
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-      assertNotNull( entry1 );
-      assertEntry( entry1, false, 0, 0, null );
-
-      verify( sm._broker )
-        .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
-    }
-  }
-
-  @Test
-  public void subscribe_withSessionID()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           null,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-
-    with( session, () -> sm.subscribe( session, address1, null ) );
-
-    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-    assertNotNull( entry1 );
-    assertEntry( entry1, true, 0, 0, null );
-
-    assertChannelActionCount( 1 );
-    assertSessionChangesCount( 1 );
-
-    final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote, never() ).sendText( anyString() );
-  }
-
-  @Test
-  public void subscribe_withSessionID_andCaching()
-    throws Exception
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    context.setCacheKey( "X" );
-
-    assertNull( session.getETag( address1 ) );
-
-    with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-
-    with( session, () -> session.setETag( address1, "X" ) );
-    with( session, () -> sm.subscribe( session, address1, null ) );
-
-    assertEquals( session.getETag( address1 ), "X" );
-
-    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-    assertNotNull( entry1 );
-    assertEntry( entry1, true, 0, 0, null );
-
-    assertChannelActionCount( 0 );
-    assertSessionChangesCount( 0 );
-    final RemoteEndpoint.Basic remote = session.getWebSocketSession().getBasicRemote();
-    verify( remote ).sendText( "{\"type\":\"use-cache\",\"channel\":\"0\",\"etag\":\"X\"}" );
-  }
-
-  @Test
-  public void subscribe_withSessionID_andCachingThatNoMatch()
-    throws Exception
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    context.setCacheKey( "X" );
-
-    assertNull( session.getETag( address1 ) );
-
-    with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-
-    with( session, () -> session.setETag( address1, "Y" ) );
-    with( session, () -> sm.subscribe( session, address1, null ) );
-
-    assertNull( session.getETag( address1 ) );
-
-    final var entry1 = with( session, () -> session.findSubscriptionEntry( address1 ) );
-    assertNotNull( entry1 );
-    assertEntry( entry1, true, 0, 0, null );
-
-    verify( sm._broker )
-      .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
-  }
-
-  @Test
-  public void performSubscribe()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           null,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "C2",
-                           null,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch3 =
-      new ChannelMetaData( 2,
-                           "C3",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2, ch3 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId() );
-    final var address2 = new ChannelAddress( ch2.getChannelId() );
-    final var address3 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    // Test with no filter
-    {
-      final var e1 = session.createSubscriptionEntry( address1 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, true, 0, 0, null );
-
-      final List<ChannelAction> actions = getChannelActions();
-      assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), address1, ChannelAction.Action.ADD, null );
-
-      // 1 Change comes from collectDataForSubscribe
-      final Collection<Change> changes = getChanges();
-      assertEquals( changes.size(), 1 );
-      assertEquals( changes.iterator().next().getEntityMessage().getId(), 79 );
-
-      assertEntry( e1, true, 0, 0, null );
-    }
-
-    {
-      final var filter = new TestFilter( 42 );
-
-      EntityMessageCacheUtil.removeSessionChanges();
-      final var e1 = session.createSubscriptionEntry( address2 );
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      with( session,
-            () -> sm.performSubscribe( session, e1, true, filter, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, true, 0, 0, filter );
-
-      final List<ChannelAction> actions = getChannelActions();
-      assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), address2, ChannelAction.Action.ADD, "{\"myField\":42}" );
-
-      // 1 Change comes from collectDataForSubscribe
-      final Collection<Change> changes = getChanges();
-      assertEquals( changes.size(), 1 );
-      assertEquals( changes.iterator().next().getEntityMessage().getId(), 79 );
-
-      assertEntry( e1, true, 0, 0, filter );
-
-      with( session, () -> session.deleteSubscriptionEntry( e1 ) );
-    }
-
-    // Root instance is deleted
-    {
-      final var e1 = session.createSubscriptionEntry( address3 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      context.markChannelRootAsDeleted();
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, false, 0, 0, null );
-
-      final List<ChannelAction> actions = getChannelActions();
-      assertEquals( actions.size(), 1 );
-      assertChannelAction( actions.get( 0 ), address3, ChannelAction.Action.DELETE, null );
-
-      assertEquals( getChanges().size(), 0 );
-    }
-  }
-
-  @Test
-  public void performSubscribe_withCaching()
-    throws Exception
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "C2",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.INTERNAL,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId() );
-    final var address2 = new ChannelAddress( ch2.getChannelId(), 1 );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-
-    context.setCacheKey( "X" );
-
-    //Locally cached
-    {
-      sm.deleteAllCacheEntries();
-      final var session = createSession( sm );
-      with( session, () -> session.setETag( address1, "X" ) );
-      final var e1 = session.createSubscriptionEntry( address1 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, true, 0, 0, null );
-
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-
-      verify( session.getWebSocketSession().getBasicRemote() ).sendText(
-        "{\"type\":\"use-cache\",\"channel\":\"0\",\"etag\":\"X\"}" );
-    }
-
-    //Locally cached but an old version
-    {
-      sm.deleteAllCacheEntries();
-      final var session = createSession( sm );
-      with( session, () -> session.setETag( address1, "NOT" + context._cacheKey ) );
-      final var e1 = session.createSubscriptionEntry( address1 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, true, 0, 0, null );
-
-      verify( sm._broker )
-        .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
-    }
-
-    //Not cached locally
-    {
-      reset( sm._broker );
-      sm.deleteAllCacheEntries();
-      final var session = createSession( sm );
-      final var e1 = session.createSubscriptionEntry( address1 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, true, 0, 0, null );
-
-      verify( sm._broker )
-        .queueChangeMessage( eq( session ), eq( true ), isNull(), isNull(), eq( "X" ), any(), any() );
-    }
-
-    //Locally cached but deleted
-    {
-      reset( sm._broker );
-      sm.deleteAllCacheEntries();
-      final var session = createSession( sm );
-      with( session, () -> session.setETag( address1, "X" ) );
-      final var e1 = session.createSubscriptionEntry( address2 );
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-      assertEntry( e1, false, 0, 0, null );
-
-      context.markChannelRootAsDeleted();
-
-      with( session, () -> sm.performSubscribe( session, e1, true, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertEntry( e1, false, 0, 0, null );
-
-      assertChannelActionCount( 0 );
-      assertSessionChangesCount( 0 );
-
-      // Queue a cached response that contains a delete
-      verify( sm._broker )
-        .queueChangeMessage( eq( session ),
-                             eq( true ),
-                             isNull(),
-                             isNull(),
-                             isNull(),
-                             eq( Collections.emptyList() ),
-                             any() );
-    }
-  }
-
-  @Test
-  public void performUnsubscribe()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address4 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address5 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    // Unsubscribe from channel that was explicitly subscribed
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, true, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-    }
-
-    // implicit unsubscribe from channel that was implicitly subscribed should leave explicit subscription
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, false, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 0 );
-
-      with( session, () -> assertNotNull( session.findSubscriptionEntry( address1 ) ) );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, true, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 1 );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-    }
-
-    // implicit unsubscribe from channel that was implicitly subscribed should delete subscription
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, false, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-    }
-
-    // implicit unsubscribe from channel that was implicitly subscribed should leave subscription that
-    // implicitly linked from elsewhere
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-
-      with( session, () -> sm.subscribe( session, address2, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      final var entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
-      with( session, () -> sm.linkSubscriptionEntries( entry2, entry ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, false, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 0 );
-      with( session, () -> assertNotNull( session.findSubscriptionEntry( address1 ) ) );
-
-      with( session, () -> sm.delinkSubscriptionEntries( entry2, entry ) );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, false, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-    }
-
-    // Unsubscribe also results in unsubscribe for all downstream channels
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      with( session, () -> sm.subscribe( session, address2, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      with( session, () -> sm.subscribe( session, address3, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      with( session, () -> sm.subscribe( session, address4, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-      with( session, () -> sm.subscribe( session, address5, false, null, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-      final var entry2 = with( session, () -> session.getSubscriptionEntry( address2 ) );
-      final var entry3 = with( session, () -> session.getSubscriptionEntry( address3 ) );
-      final var entry4 = with( session, () -> session.getSubscriptionEntry( address4 ) );
-      final var entry5 = with( session, () -> session.getSubscriptionEntry( address5 ) );
-
-      with( session, () -> sm.linkSubscriptionEntries( entry, entry2 ) );
-      with( session, () -> sm.linkSubscriptionEntries( entry, entry3 ) );
-      with( session, () -> sm.linkSubscriptionEntries( entry3, entry4 ) );
-      with( session, () -> sm.linkSubscriptionEntries( entry4, entry5 ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session,
-            () -> sm.performUnsubscribe( session, entry, true, false, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 5 );
-      for ( final ChannelAction action : getChannelActions() )
-      {
-        assertEquals( action.action(), ChannelAction.Action.REMOVE );
-      }
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address2 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address3 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address4 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address5 ) ) );
-    }
-  }
-
-  @Test
-  public void unsubscribe()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    // Unsubscribe from channel that was explicitly subscribed
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      final var entry = with( session, () -> session.getSubscriptionEntry( address1 ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session, () -> sm.unsubscribe( session, entry.address(), EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 1 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-    }
-
-    // unsubscribe from unsubscribed
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      with( session, () -> sm.unsubscribe( session, address1, EntityMessageCacheUtil.getSessionChanges() ) );
-
-      assertChannelActionCount( 0 );
-    }
-  }
-
-  @Test
-  public void unsubscribe_usingSessionID()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-    with( session, () -> sm.subscribe( session, address1, null ) );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    assertChannelActionCount( 0 );
-
-    with( session, () -> sm.unsubscribe( session, address1, EntityMessageCacheUtil.getSessionChanges() ) );
-
-    assertChannelActionCount( 1 );
-    assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-
-    with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-  }
-
-  @Test
-  public void bulkUnsubscribe()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "C2",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    // Unsubscribe from channel that was explicitly subscribed
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      with( session, () -> sm.subscribe( session, address2, null ) );
-      with( session, () -> sm.subscribe( session, address4, null ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      final var rootIds = new ArrayList<Integer>();
-      rootIds.add( address1.rootId() );
-      rootIds.add( address2.rootId() );
-      //This next one is not subscribed
-      rootIds.add( address3.rootId() );
-      // This next one is for wrong channel so should be no-op
-      rootIds.add( address4.rootId() );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
-
-      assertChannelActionCount( 2 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 1 ), address2, ChannelAction.Action.REMOVE, null );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address2 ) ) );
-    }
-  }
-
-  @Test
-  public void bulkUnsubscribe_withSessionID()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "C2",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address3 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address4 = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    // Unsubscribe from channel that was explicitly subscribed
-    {
-      EntityMessageCacheUtil.removeSessionChanges();
-      with( session, () -> sm.subscribe( session, address1, null ) );
-      with( session, () -> sm.subscribe( session, address2, null ) );
-      with( session, () -> sm.subscribe( session, address4, null ) );
-
-      //Rebind clears the state
-      EntityMessageCacheUtil.removeSessionChanges();
-
-      assertChannelActionCount( 0 );
-
-      final var rootIds = new ArrayList<Integer>();
-      rootIds.add( address1.rootId() );
-      rootIds.add( address2.rootId() );
-      //This next one is not subscribed
-      rootIds.add( address3.rootId() );
-      // This next one is for wrong channel so should be no-op
-      rootIds.add( address4.rootId() );
-      //sm.setupRegistryContext( sessionId );
-      sm.bulkUnsubscribe( session, ch1.getChannelId(), rootIds );
-
-      assertChannelActionCount( 2 );
-      assertChannelAction( getChannelActions().get( 0 ), address1, ChannelAction.Action.REMOVE, null );
-      assertChannelAction( getChannelActions().get( 1 ), address2, ChannelAction.Action.REMOVE, null );
-
-      with( session, () -> assertNull( session.findSubscriptionEntry( address1 ) ) );
-      with( session, () -> assertNull( session.findSubscriptionEntry( address2 ) ) );
-    }
-  }
-
-  @Test
-  public void updateSubscription()
-    throws Exception
-  {
-    final var ch =
-      new ChannelMetaData( 0,
-                           "C2",
-                           null,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch };
-
-    final var cd = new ChannelAddress( ch.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    final var originalFilter = new TestFilter( 41 );
-    final var filter = new TestFilter( 42 );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    final int requestId = ValueUtil.randomInt();
-
-    with( session, () -> sm.subscribe( session, requestId, cd, originalFilter ) );
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    TransactionSynchronizationRegistryUtil.lookup()
-      .putResource( ServerConstants.REQUEST_ID_KEY, ValueUtil.randomInt() );
-    // Attempt to update to same filter - should be a noop
-    with( session, () -> sm.subscribe( session, cd, originalFilter ) );
-
-    final var e1 = with( session, () -> session.getSubscriptionEntry( cd ) );
-    assertEntry( e1, true, 0, 0, originalFilter );
-
-    assertChannelActionCount( 0 );
-    assertSessionChangesCount( 0 );
-
-    with( session, () -> sm.subscribe( session, cd, filter ) );
-
-    assertEntry( e1, true, 0, 0, filter );
-
-    assertChannelActionCount( 1 );
-    assertSessionChangesCount( 1 );
-  }
-
-  @Test
-  public void bulkSubscribe_forUpdate()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    final var originalFilter = new TestFilter( 41 );
-    final var filter = new TestFilter( 42 );
-
-    final var e1 = session.createSubscriptionEntry( address1 );
-    with( session, () -> e1.setFilter( originalFilter ) );
-    final var e2 = session.createSubscriptionEntry( address2 );
-    with( session, () -> e2.setFilter( originalFilter ) );
-
-    final var rootIds = new ArrayList<Integer>();
-    rootIds.add( address1.rootId() );
-    rootIds.add( address2.rootId() );
-
-    final int requestId = ValueUtil.randomInt();
-    TransactionSynchronizationRegistryUtil.lookup()
-      .putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-
-    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, originalFilter );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    assertChannelActionCount( 0 );
-    assertEntry( e1, true, 0, 0, originalFilter );
-    assertEntry( e2, true, 0, 0, originalFilter );
-
-    // Attempt to update to same filter - should be a noop
-    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, originalFilter );
-
-    assertEntry( e1, true, 0, 0, originalFilter );
-    assertEntry( e2, true, 0, 0, originalFilter );
-
-    assertChannelActionCount( 0 );
-    assertSessionChangesCount( 0 );
-
-    // Attempt to update no channels - should be noop
-    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), new ArrayList<>(), filter );
-
-    assertEntry( e1, true, 0, 0, originalFilter );
-    assertEntry( e2, true, 0, 0, originalFilter );
-
-    assertChannelActionCount( 0 );
-    assertSessionChangesCount( 0 );
-
-    // Attempt to update both channels
-    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, filter );
-
-    assertEntry( e1, true, 0, 0, filter );
-    assertEntry( e2, true, 0, 0, filter );
-
-    assertChannelActionCount( 2 );
-    assertSessionChangesCount( 1 );
-
-    //Clear counts
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    //Set original filter so next action updates this one again
-    with( session, () -> e2.setFilter( originalFilter ) );
-
-    // Attempt to update one channels
-    sm.bulkSubscribe( session, requestId, ch1.getChannelId(), rootIds, filter );
-
-    assertEntry( e1, true, 0, 0, filter );
-    assertEntry( e2, true, 0, 0, filter );
-
-    assertChannelActionCount( 1 );
-    assertSessionChangesCount( 1 );
-  }
-
-  @Test
-  public void bulkSubscribe_ForUpdate_whereBulkUpdateHookIsUsed()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "C1",
-                           42,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           true,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-    final var address2 = new ChannelAddress( ch1.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    final var originalFilter = new TestFilter( 41 );
-    final var filter = new TestFilter( 42 );
-
-    final var e1 = session.createSubscriptionEntry( address1 );
-    with( session, () -> e1.setFilter( originalFilter ) );
-    final var e2 = session.createSubscriptionEntry( address2 );
-    with( session, () -> e2.setFilter( originalFilter ) );
-
-    final var rootIds = new ArrayList<Integer>();
-    rootIds.add( address1.rootId() );
-    rootIds.add( address2.rootId() );
-
-    EntityMessageCacheUtil.removeSessionChanges();
-
-    assertChannelActionCount( 0 );
-    assertEntry( e1, false, 0, 0, originalFilter );
-    assertEntry( e2, false, 0, 0, originalFilter );
-
-    context.markAsBulkCollectDataForSubscriptionUpdate();
-
-    assertEquals( context.getBulkCollectDataForSubscriptionUpdateCallCount(), 0 );
-
-    // Attempt to update both channels
-    sm.bulkSubscribe( session, ValueUtil.randomInt(), ch1.getChannelId(), rootIds, filter );
-
-    // the original filter is still set as it is expected that the hook method does the magic
-    assertEntry( e1, false, 0, 0, originalFilter );
-    assertEntry( e2, false, 0, 0, originalFilter );
-
-    // These are 0 as expected the hook to do magic
-    assertChannelActionCount( 0 );
-    assertSessionChangesCount( 0 );
-  }
-
-  @Test
-  public void linkSubscriptionEntries()
-    throws Exception
-  {
-    final var ch1 =
-      new ChannelMetaData( 0,
-                           "Roster",
-                           null,
-                           ChannelMetaData.FilterType.DYNAMIC,
-                           j -> null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var ch2 =
-      new ChannelMetaData( 1,
-                           "Resource",
-                           42,
-                           ChannelMetaData.FilterType.NONE,
-                           null,
-                           ChannelMetaData.CacheType.NONE,
-                           false,
-                           true );
-    final var channels = new ChannelMetaData[]{ ch1, ch2 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-    final var address2a = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-    final var address2b = new ChannelAddress( ch2.getChannelId(), ValueUtil.randomInt() );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-    final var session = createSession( sm );
-
-    final var se1 = session.createSubscriptionEntry( address1 );
-    final var se2a = session.createSubscriptionEntry( address2a );
-    final var se2b = session.createSubscriptionEntry( address2b );
-
-    assertEntry( se1, false, 0, 0, null );
-    assertEntry( se2a, false, 0, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-
-    with( session, () -> sm.linkSubscriptionEntries( se1, se2a ) );
-
-    assertEntry( se1, false, 0, 1, null );
-    assertEntry( se2a, false, 1, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-    assertTrue( se1.getOutwardSubscriptions().contains( address2a ) );
-    assertTrue( se2a.getInwardSubscriptions().contains( address1 ) );
-
-    with( session, () -> sm.linkSubscriptionEntries( se2a, se2b ) );
-
-    assertEntry( se1, false, 0, 1, null );
-    assertEntry( se2a, false, 1, 1, null );
-    assertEntry( se2b, false, 1, 0, null );
-    assertTrue( se2a.getOutwardSubscriptions().contains( address2b ) );
-    assertTrue( se2b.getInwardSubscriptions().contains( address2a ) );
-
-    with( session, () -> sm.delinkSubscriptionEntries( se2a, se2b ) );
-
-    assertEntry( se1, false, 0, 1, null );
-    assertEntry( se2a, false, 1, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se2a.getOutwardSubscriptions().contains( address2b ) );
-    assertFalse( se2b.getInwardSubscriptions().contains( address2a ) );
-
-    //Duplicate delink - noop
-    with( session, () -> sm.delinkSubscriptionEntries( se2a, se2b ) );
-
-    assertEntry( se1, false, 0, 1, null );
-    assertEntry( se2a, false, 1, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se2a.getOutwardSubscriptions().contains( address2b ) );
-    assertFalse( se2b.getInwardSubscriptions().contains( address2a ) );
-
-    with( session, () -> sm.delinkSubscriptionEntries( se1, se2a ) );
-
-    assertEntry( se1, false, 0, 0, null );
-    assertEntry( se2a, false, 0, 0, null );
-    assertEntry( se2b, false, 0, 0, null );
-    assertFalse( se1.getOutwardSubscriptions().contains( address2a ) );
-    assertFalse( se2a.getInwardSubscriptions().contains( address1 ) );
-  }
-
-  @Test
-  public void newReplicantSession()
-  {
-    final var sm = createSessionManager();
-    final var session = createSession( sm );
-
-    assertTrue( session.getId().matches( "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" ) );
-  }
-
-  @Test
-  public void sendPacket()
-    throws Exception
-  {
-    final var sm = createSessionManager();
-    final var session = createSession( sm );
-
-    sm._registry.putResource( ServerConstants.REQUEST_ID_KEY, 1 );
-
-    final ChangeSet changeSet = new ChangeSet();
-    with( session, () -> sm.queueCachedChangeSet( session, "X", changeSet ) );
-
-    verify( sm._broker )
-      .queueChangeMessage( eq( session ),
-                           eq( true ),
-                           eq( 1 ),
-                           isNull(),
-                           eq( "X" ),
-                           eq( Collections.emptyList() ),
-                           eq( changeSet ) );
-  }
-
-  @Test
-  public void tryGetCacheEntry()
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-
-    final String cacheKey = ValueUtil.randomString();
-    context.setCacheKey( cacheKey );
-
-    assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
-
-    final var entry = sm.tryGetCacheEntry( address1 );
-
-    assertNotNull( entry );
-    assertTrue( entry.isInitialized() );
-    assertEquals( entry.getDescriptor(), address1 );
-    assertEquals( entry.getCacheKey(), cacheKey );
-    assertEquals( entry.getChangeSet().getChanges().size(), 1 );
-  }
-
-  @Test
-  public void tryGetCacheEntry_entryNotCached()
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-
-    final String cacheKey = ValueUtil.randomString();
-    context.setCacheKey( cacheKey );
-
-    assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
-
-    final var entry = sm.tryGetCacheEntry( address1 );
-
-    assertNotNull( entry );
-    assertTrue( entry.isInitialized() );
-    assertEquals( entry.getDescriptor(), address1 );
-    assertEquals( entry.getCacheKey(), cacheKey );
-    assertEquals( entry.getChangeSet().getChanges().size(), 1 );
-  }
-
-  @Test
-  public void tryGetCacheEntry_entryNotCached_instanceDeleted()
-  {
-    final var ch1 = new ChannelMetaData( 0,
-                                         "C1",
-                                         null,
-                                         ChannelMetaData.FilterType.NONE,
-                                         null,
-                                         ChannelMetaData.CacheType.INTERNAL,
-                                         false,
-                                         true );
-    final var channels = new ChannelMetaData[]{ ch1 };
-
-    final var address1 = new ChannelAddress( ch1.getChannelId(), null );
-
-    final var context = new TestReplicantSessionContext( channels );
-    final var sm = createSessionManager( context );
-
-    context.setCacheKey( ValueUtil.randomString() );
-    context.markChannelRootAsDeleted();
-
-    assertFalse( sm.getCacheEntry( address1 ).isInitialized() );
-
-    final var entry = sm.tryGetCacheEntry( address1 );
-
-    assertNull( entry );
-  }
-
-  private void assertEntry( @Nonnull final SubscriptionEntry entry,
-                            final boolean explicitlySubscribed,
-                            final int inwardCount,
-                            final int outwardCount,
-                            @Nullable final Object filter )
-  {
-    assertEquals( entry.isExplicitlySubscribed(), explicitlySubscribed );
-    assertEquals( entry.getInwardSubscriptions().size(), inwardCount );
-    assertEquals( entry.getOutwardSubscriptions().size(), outwardCount );
-    assertEquals( entry.getFilter(), filter );
-  }
-
-  private Collection<Change> getChanges()
-  {
-    return EntityMessageCacheUtil.getSessionChanges().getChanges();
-  }
-
-  private void assertSessionChangesCount( final int sessionChangesCount )
-  {
-    assertEquals( getChanges().size(), sessionChangesCount );
-  }
-
-  @Nonnull
-  private List<ChannelAction> getChannelActions()
-  {
-    return EntityMessageCacheUtil.getSessionChanges().getChannelActions();
-  }
-
-  private void assertChannelAction( @Nonnull final ChannelAction channelAction,
-                                    @Nonnull final ChannelAddress address,
-                                    @Nonnull final ChannelAction.Action action,
-                                    @Nullable final String filterAsString )
-  {
-    assertEquals( channelAction.action(), action );
-    assertEquals( channelAction.address(), address );
-    if ( null == filterAsString )
-    {
-      assertNull( channelAction.filter() );
-    }
-    else
-    {
-      assertNotNull( channelAction.filter() );
-      assertEquals( channelAction.filter().toString(), filterAsString );
-    }
-  }
-
-  private void assertChannelActionCount( final int channelActionCount )
-  {
-    assertEquals( getChannelActions().size(), channelActionCount );
-  }
-
-  @Nonnull
-  private ReplicantSession createSession( @Nonnull final TestReplicantSessionManager sm )
-  {
-    final Session webSocketSession = mock( Session.class );
-    when( webSocketSession.getId() ).thenReturn( ValueUtil.randomString() );
-    when( webSocketSession.isOpen() ).thenReturn( true );
     final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    when( webSocketSession.getId() ).thenReturn( "session-1" );
+    when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
-    return sm.createSession( webSocketSession );
-  }
 
-  @Nonnull
-  private TestReplicantSessionManager createSessionManager()
-  {
-    return createSessionManager( new TestReplicantSessionContext() );
-  }
+    final var session = new ReplicantSession( webSocketSession );
 
-  @Nonnull
-  private TestReplicantSessionManager createSessionManager( @Nonnull final ReplicantSessionContext context )
-  {
-    return new TestReplicantSessionManager( context );
-  }
+    final var sourceAddress = new ChannelAddress( 0 );
+    final var targetAddress = new ChannelAddress( 1, 7, "fi-7" );
+    final var link = new ChannelLink( sourceAddress, targetAddress, null );
 
-  private <T> T with( @Nonnull final ReplicantSession session, @Nonnull final Callable<T> action )
-    throws Exception
-  {
-    final ReentrantLock lock = session.getLock();
-    lock.lock();
+    final var routingKeys = new HashMap<String, Serializable>();
+    routingKeys.put( "Source", "present" );
+    final var attributes = new HashMap<String, Serializable>();
+    attributes.put( "ID", 1 );
+    final var message = new EntityMessage( 1, 1, 0L, routingKeys, attributes, Set.of( link ) );
+
+    final var packet = new Packet( false, null, null, null, List.of( message ), new ChangeSet() );
+
+    session.getLock().lock();
     try
     {
-      return action.call();
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setFilter( "source-filter" );
+
+      manager.sendChangeMessage( session, packet );
+
+      final var targetEntry = session.findSubscriptionEntry( targetAddress );
+      assertNotNull( targetEntry );
+      assertEquals( targetEntry.getFilter(), Map.of( "k", "v" ) );
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
+      assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
     }
     finally
     {
-      lock.unlock();
+      session.getLock().unlock();
     }
+
+    final var collectCalls = context.getBulkCollectCalls();
+    assertEquals( collectCalls.size(), 1 );
+    final var call = collectCalls.get( 0 );
+    assertEquals( call.addresses(), List.of( targetAddress ) );
+    assertEquals( call.filter(), Map.of( "k", "v" ) );
+    assertFalse( call.isExplicitSubscribe() );
   }
 
-  private void with( @Nonnull final ReplicantSession session, @Nonnull final Action action )
-    throws Exception
+  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
   {
-    final ReentrantLock lock = session.getLock();
-    lock.lock();
     try
     {
-      action.run();
+      final Field field = ReplicantSessionManagerImpl.class.getDeclaredField( name );
+      field.setAccessible( true );
+      field.set( target, value );
     }
-    finally
+    catch ( final Exception e )
     {
-      lock.unlock();
+      throw new AssertionError( e );
     }
   }
 
-  static final class TestReplicantSessionContext
+  private static final class TestSessionContext
     implements ReplicantSessionContext
   {
     @Nonnull
-    private final SchemaMetaData _schemaMetaData;
-    private String _cacheKey;
-    private int _bulkCollectDataForSubscriptionUpdateCallCount;
-    private boolean _channelRootDeleted;
+    private final SchemaMetaData _schema;
+    @Nonnull
+    private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
 
-    private TestReplicantSessionContext()
+    private TestSessionContext( @Nonnull final SchemaMetaData schema )
     {
-      this( new SchemaMetaData( ValueUtil.randomString() ) );
-    }
-
-    private TestReplicantSessionContext( final ChannelMetaData[] channels )
-    {
-      this( new SchemaMetaData( ValueUtil.randomString(), channels ) );
-    }
-
-    TestReplicantSessionContext( @Nonnull final SchemaMetaData schema )
-    {
-      _schemaMetaData = Objects.requireNonNull( schema );
-    }
-
-    int getBulkCollectDataForSubscriptionUpdateCallCount()
-    {
-      return _bulkCollectDataForSubscriptionUpdateCallCount;
-    }
-
-    void markAsBulkCollectDataForSubscriptionUpdate()
-    {
-    }
-
-    void markChannelRootAsDeleted()
-    {
-      _channelRootDeleted = true;
-    }
-
-    private void setCacheKey( final String cacheKey )
-    {
-      _cacheKey = cacheKey;
+      _schema = schema;
     }
 
     @Nonnull
     @Override
     public SchemaMetaData getSchemaMetaData()
     {
-      return _schemaMetaData;
+      return _schema;
+    }
+
+    @Override
+    public boolean isAuthorized( @Nonnull final ReplicantSession session )
+    {
+      return true;
     }
 
     @Override
@@ -1681,49 +232,48 @@ public class ReplicantSessionManagerImplTest
 
     @Nonnull
     @Override
-    public SubscribeResult collectDataForSubscribe( @Nonnull final ChannelAddress address,
-                                                    @Nullable final Object filter,
-                                                    @Nonnull final ChangeSet changeSet )
+    public Object deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
+                                      @Nonnull final ChannelAddress source,
+                                      @Nullable final Object sourceFilter,
+                                      @Nonnull final ChannelAddress target )
     {
-      if ( !_channelRootDeleted )
-      {
-        final HashMap<String, Serializable> routingKeys = new HashMap<>();
-        final HashMap<String, Serializable> attributes = new HashMap<>();
-        attributes.put( "ID", 79 );
-        final EntityMessage message = new EntityMessage( 79, 1, 0, routingKeys, attributes, null );
-        changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
-        return new SubscribeResult( false, _cacheKey );
-      }
-      else
-      {
-        return new SubscribeResult( true, null );
-      }
+      return Map.of( "k", "v" );
     }
 
     @Override
-    public void collectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                  @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object originalFilter,
-                                                  @Nullable final Object filter,
-                                                  @Nonnull final ChangeSet changeSet )
+    public boolean flushOpenEntityManager()
     {
-      final var routingKeys = new HashMap<String, Serializable>();
-      final var attributes = new HashMap<String, Serializable>();
-      attributes.put( "ID", 78 );
-      //Ugly hack to pass back filters
-      attributes.put( "OriginalFilter", (Serializable) originalFilter );
-      attributes.put( "Filter", (Serializable) filter );
-      final var message = new EntityMessage( 78, 1, 0, routingKeys, attributes, null );
-      changeSet.merge( new Change( message, address.channelId(), address.rootId() ) );
+      return false;
     }
 
     @Override
-    public void bulkCollectDataForSubscribe( @Nonnull final ReplicantSession session,
+    public void execCommand( @Nonnull final ReplicantSession session,
+                             @Nonnull final String command,
+                             final int requestId,
+                             @Nullable final JsonObject payload )
+    {
+    }
+
+    @Override
+    public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
                                              @Nonnull final List<ChannelAddress> addresses,
                                              @Nullable final Object filter,
                                              @Nonnull final ChangeSet changeSet,
                                              final boolean isExplicitSubscribe )
     {
+      _bulkCollectCalls.add( new BulkCollectCall( addresses, filter, isExplicitSubscribe ) );
+      if ( null != session )
+      {
+        for ( final var address : addresses )
+        {
+          final var existing = session.findSubscriptionEntry( address );
+          final var entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
+          entry.setFilter( filter );
+          changeSet.mergeAction( address,
+                                 null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE,
+                                 filter );
+        }
+      }
     }
 
     @Override
@@ -1733,7 +283,6 @@ public class ReplicantSessionManagerImplTest
                                                       @Nullable final Object filter,
                                                       @Nonnull final ChangeSet changeSet )
     {
-      _bulkCollectDataForSubscriptionUpdateCallCount += 1;
     }
 
     @Nullable
@@ -1745,32 +294,24 @@ public class ReplicantSessionManagerImplTest
       return null;
     }
 
-    @Nonnull
     @Override
-    public Collection<ChannelLink> propagateSubscriptionFilterUpdate( @Nonnull final ChannelAddress source,
-                                                                      @Nullable final Object sourceFilter )
-    {
-      return new ArrayList<>();
-    }
-
-    @Override
-    public boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
+    public boolean shouldFollowLink( @Nonnull final @org.jetbrains.annotations.UnknownNullability ChannelAddress source,
                                      @Nonnull final ChannelAddress target,
                                      @Nullable final Object filter )
     {
-      return false;
+      return true;
+    }
+
+    @Nonnull
+    List<BulkCollectCall> getBulkCollectCalls()
+    {
+      return _bulkCollectCalls;
     }
   }
 
-  static final class TestReplicantSessionManager
-    extends ReplicantSessionManagerImpl
+  private record BulkCollectCall(@Nonnull List<ChannelAddress> addresses,
+                                 @Nullable Object filter,
+                                 boolean isExplicitSubscribe)
   {
-    private TestReplicantSessionManager( @Nonnull final ReplicantSessionContext context )
-    {
-      _context = Objects.requireNonNull( context );
-      _broker = mock( ReplicantMessageBroker.class );
-      _registry = TransactionSynchronizationRegistryUtil.lookup();
-    }
   }
-  */
 }
