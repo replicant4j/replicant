@@ -1152,7 +1152,6 @@ public class ReplicantSessionManagerImpl
     targetEntry.registerInwardSubscriptions( sourceEntry.address() );
   }
 
-
   private void processCachePurge( @Nonnull final EntityMessage message )
   {
     final var schema = getSchemaMetaData();
@@ -1217,6 +1216,10 @@ public class ReplicantSessionManagerImpl
             .map( rootId -> new ChannelAddress( channel.getChannelId(), rootId ) )
             .collect( Collectors.toList() );
       }
+      else
+      {
+        return null;
+      }
     }
     else
     {
@@ -1224,8 +1227,12 @@ public class ReplicantSessionManagerImpl
       {
         return Collections.singletonList( new ChannelAddress( channel.getChannelId() ) );
       }
+      else
+      {
+        return null;
+      }
     }
-    return null;
+
   }
 
   private void processUpdateMessage( @Nonnull final ChannelAddress address,
