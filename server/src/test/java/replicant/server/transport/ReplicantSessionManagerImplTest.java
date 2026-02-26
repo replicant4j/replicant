@@ -295,9 +295,10 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public boolean shouldFollowLink( @Nonnull final @org.jetbrains.annotations.UnknownNullability ChannelAddress source,
+    public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
+                                     final Object sourceFilter,
                                      @Nonnull final ChannelAddress target,
-                                     @Nullable final Object filter )
+                                     @Nullable final Object targetFilter )
     {
       return true;
     }

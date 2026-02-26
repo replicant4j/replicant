@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
-import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
@@ -516,9 +515,10 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public boolean shouldFollowLink( @Nonnull final SubscriptionEntry sourceEntry,
+    public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
+                                     final Object sourceFilter,
                                      @Nonnull final ChannelAddress target,
-                                     @Nullable final Object filter )
+                                     @Nullable final Object targetFilter )
     {
       return false;
     }

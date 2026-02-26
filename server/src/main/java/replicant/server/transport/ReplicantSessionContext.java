@@ -77,7 +77,8 @@ public interface ReplicantSessionContext
                                      @Nonnull ChannelAddress address,
                                      @Nonnull EntityMessage message );
 
-  boolean shouldFollowLink( @Nonnull SubscriptionEntry sourceEntry,
+  boolean shouldFollowLink( @Nonnull ChannelAddress source,
+                            @Nullable Object sourceFilter,
                             @Nonnull ChannelAddress target,
-                            @Nullable Object filter );
+                            @Nullable Object targetFilter );
 }

@@ -37,7 +37,6 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.Transactional;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
-import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
@@ -679,14 +678,15 @@ public class ReplicantSessionManagerImpl
         // The filter may not be known when the EntityMessage is the result of a mutation of the entity in the app.
         // In other cases, the `EntityMessage` will come pre-populated (i.e. when coming in due to subscription
         // creation). This magic code here exists to add filter when it is missing.
+        final var sourceFilter = sourceEntry.getFilter();
         final var filter =
           null != targetFilter ?
           targetFilter :
-          _context.deriveTargetFilter( entityMessage, sourceEntry.address(), sourceEntry.getFilter(), target );
+          _context.deriveTargetFilter( entityMessage, source, sourceFilter, target );
         assert ( null == target.filterInstanceId() && !channel.requiresFilterInstanceId() ) ||
                ( null != target.filterInstanceId() && channel.requiresFilterInstanceId() );
 
-        if ( _context.shouldFollowLink( sourceEntry, target, filter ) )
+        if ( _context.shouldFollowLink( source, sourceFilter, target, filter ) )
         {
           final var targetEntry = session.findSubscriptionEntry( target );
           if ( null == targetEntry )
