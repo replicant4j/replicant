@@ -1145,8 +1145,8 @@ public class ReplicantSessionManagerImpl
   /**
    * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
    */
-  void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                @Nonnull final SubscriptionEntry targetEntry )
+  private void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                        @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
     targetEntry.registerInwardSubscriptions( sourceEntry.address() );
