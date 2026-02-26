@@ -128,10 +128,10 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  void sessionLockingRequest( @Nonnull final String invocationKey,
-                              @Nonnull final ReplicantSession session,
-                              @Nullable final Integer requestId,
-                              @Nonnull final Runnable action )
+  private void sessionLockingRequest( @Nonnull final String invocationKey,
+                                      @Nonnull final ReplicantSession session,
+                                      @Nullable final Integer requestId,
+                                      @Nonnull final Runnable action )
   {
     final ReentrantLock lock = session.getLock();
     try
@@ -419,8 +419,8 @@ public class ReplicantSessionManagerImpl
    * @param session   the session.
    * @param changeSet the messages to be sent along to the client.
    */
-  void queueCachedChangeSet( @Nonnull final ReplicantSession session,
-                             @Nonnull final ChangeSet changeSet )
+  private void queueCachedChangeSet( @Nonnull final ReplicantSession session,
+                                     @Nonnull final ChangeSet changeSet )
   {
     final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
     _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
@@ -624,10 +624,10 @@ public class ReplicantSessionManagerImpl
   /**
    * Collect a list of ChannelLinks in change set that may need to be followed.
    */
-  void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
-                                    @Nonnull final ChangeSet changeSet,
-                                    @Nonnull final Set<ChannelLinkEntry> targets,
-                                    @Nonnull final Set<ChannelLinkEntry> subscribed )
+  private void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
+                                            @Nonnull final ChangeSet changeSet,
+                                            @Nonnull final Set<ChannelLinkEntry> targets,
+                                            @Nonnull final Set<ChannelLinkEntry> subscribed )
   {
     for ( final var change : changeSet.getChanges() )
     {
@@ -1028,7 +1028,7 @@ public class ReplicantSessionManagerImpl
    * each channel cached.
    */
   @Nullable
-  ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
+  private ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
     final var metaData = getSchemaMetaData().getChannelMetaData( address );
     assert metaData.isCacheable();
@@ -1091,7 +1091,7 @@ public class ReplicantSessionManagerImpl
    * loaded at this stage. This is done to avoid using a global lock while loading data for a
    * particular cache entry.
    */
-  ChannelCacheEntry getCacheEntry( @Nonnull final ChannelAddress address )
+  private ChannelCacheEntry getCacheEntry( @Nonnull final ChannelAddress address )
   {
     _cacheLock.readLock().lock();
     try
