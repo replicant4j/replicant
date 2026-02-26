@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -279,19 +280,12 @@ public final class ReplicantSession
     }
   }
 
-  @Nonnull
-  public Map<ChannelAddress, SubscriptionEntry> getSubscriptions()
-  {
-    ensureLockedByCurrentThread();
-    return Collections.unmodifiableMap( _subscriptions );
-  }
-
   /**
    * Return subscription entry for specified channel.
    */
   @SuppressWarnings( "WeakerAccess" )
   @Nonnull
-  public SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
+  SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     final SubscriptionEntry entry = findSubscriptionEntry( address );
@@ -303,12 +297,59 @@ public final class ReplicantSession
   }
 
   /**
+   * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
+   */
+  public void recordGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
+  {
+    final SubscriptionEntry sourceEntry = getSubscriptionEntry( source );
+    final SubscriptionEntry targetEntry = getSubscriptionEntry( target );
+    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
+    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
+  }
+
+  public void recordSubscriptions( @Nonnull final ChangeSet changeSet,
+                                   @Nonnull final Collection<ChannelAddress> addresses,
+                                   @Nullable final Object filter,
+                                   final boolean explicitSubscribe )
+  {
+    for ( final var address : addresses )
+    {
+      recordSubscription( changeSet, address, filter, explicitSubscribe );
+    }
+  }
+
+  public void recordSubscription( @Nonnull final ChangeSet changeSet,
+                                  @Nonnull final ChannelAddress address,
+                                  @Nullable final Object filter,
+                                  final boolean explicitSubscribe )
+  {
+    final var existing = findSubscriptionEntry( address );
+    final var entry = null == existing ? createSubscriptionEntry( address ) : existing;
+    if ( explicitSubscribe )
+    {
+      entry.setExplicitlySubscribed( true );
+    }
+    entry.setFilter( filter );
+    changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
+  }
+
+  public Object getFilter( @Nonnull final ChannelAddress address )
+  {
+    return getSubscriptionEntry( address ).getFilter();
+  }
+
+  public void setFilter( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  {
+    getSubscriptionEntry( address ).setFilter( filter );
+  }
+
+  /**
    * Create and return a subscription entry for specified channel.
    *
    * @throws IllegalStateException if subscription already exists.
    */
   @Nonnull
-  public SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
+  SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     if ( !_subscriptions.containsKey( address ) )
     {
@@ -331,7 +372,7 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nullable
-  public SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
+  SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     return _subscriptions.get( address );
@@ -340,14 +381,14 @@ public final class ReplicantSession
   /**
    * Return true if specified channel is present.
    */
-  public boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
+  boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     return null != findSubscriptionEntry( address );
   }
 
   @Nonnull
-  public List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
+  List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
   {
     ensureLockedByCurrentThread();
     final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );

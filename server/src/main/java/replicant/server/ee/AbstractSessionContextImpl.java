@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,19 +14,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import javax.persistence.EntityManager;
-import javax.transaction.TransactionSynchronizationRegistry;
 import org.intellij.lang.annotations.Language;
-import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
-import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.transport.ReplicantChangeRecorder;
-import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionContext;
-import replicant.server.transport.SubscriptionEntry;
 
 /**
  * Base class used to support implementation of SessionContext implementations.
@@ -37,9 +29,6 @@ import replicant.server.transport.SubscriptionEntry;
 public abstract class AbstractSessionContextImpl
   implements ReplicantChangeRecorder, ReplicantSessionContext
 {
-  @Resource
-  private TransactionSynchronizationRegistry _registry;
-
   @Nonnull
   @Override
   public Object deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
@@ -53,22 +42,6 @@ public abstract class AbstractSessionContextImpl
                                      " but no such graph link exists or the target graph has no filter parameter" );
   }
 
-  /**
-   * Record the EntityMessage for specified entity in the transactions EntityMessageSet.
-   *
-   * @param entity   the entity to record.
-   * @param isUpdate true if change is an update, false if it is a delete.
-   */
-  @Override
-  public void recordEntityMessageForEntity( @Nonnull final Object entity, final boolean isUpdate )
-  {
-    final var entityMessage = convertToEntityMessage( entity, isUpdate, false );
-    if ( null != entityMessage )
-    {
-      EntityMessageCacheUtil.getEntityMessageSet( _registry ).merge( entityMessage );
-    }
-  }
-
   @Nonnull
   protected abstract EntityManager em();
 
@@ -76,36 +49,6 @@ public abstract class AbstractSessionContextImpl
   protected Connection connection()
   {
     return em().unwrap( Connection.class );
-  }
-
-  protected void recordSubscriptions( @Nonnull final ReplicantSession session,
-                                      @Nonnull final ChangeSet changeSet,
-                                      @Nonnull final Collection<ChannelAddress> addresses,
-                                      @Nullable final Object filter,
-                                      final boolean explicitSubscribe )
-  {
-    for ( final var address : addresses )
-    {
-      recordSubscription( session, changeSet, address, filter, explicitSubscribe );
-    }
-  }
-
-  @Nonnull
-  protected SubscriptionEntry recordSubscription( @Nonnull final ReplicantSession session,
-                                                  @Nonnull final ChangeSet changeSet,
-                                                  @Nonnull final ChannelAddress address,
-                                                  @Nullable final Object filter,
-                                                  final boolean explicitSubscribe )
-  {
-    final var existing = session.findSubscriptionEntry( address );
-    final var entry = null == existing ? session.createSubscriptionEntry( address ) : existing;
-    if ( explicitSubscribe )
-    {
-      entry.setExplicitlySubscribed( true );
-    }
-    entry.setFilter( filter );
-    changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
-    return entry;
   }
 
   @Language( "TSQL" )
@@ -168,14 +111,11 @@ public abstract class AbstractSessionContextImpl
                                                            final boolean isUpdate,
                                                            final boolean isInitialLoad );
 
-  /**
-   * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
-   */
-  protected void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                          @Nonnull final SubscriptionEntry targetEntry )
+  @Nullable
+  @Override
+  public EntityMessage convertToEntityMessage( @Nonnull final Object object, final boolean isUpdate )
   {
-    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
-    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
+    return convertToEntityMessage( object, isUpdate, false );
   }
 
   @SuppressWarnings( "unchecked" )

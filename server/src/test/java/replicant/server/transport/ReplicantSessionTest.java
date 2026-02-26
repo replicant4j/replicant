@@ -2,9 +2,12 @@ package replicant.server.transport;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.CloseReason;
@@ -35,7 +38,7 @@ public class ReplicantSessionTest
 
     assertEquals( session.getId(), sessionId );
 
-    assertEquals( session.getSubscriptions().size(), 0 );
+    assertEquals( getSubscriptions( session ).size(), 0 );
 
     final ChannelAddress cd1 = new ChannelAddress( 1, null );
 
@@ -55,38 +58,18 @@ public class ReplicantSessionTest
     final SubscriptionEntry entry = session.createSubscriptionEntry( cd1 );
 
     assertEquals( entry.address(), cd1 );
-    assertEquals( session.getSubscriptions().size(), 1 );
+    assertEquals( getSubscriptions( session ).size(), 1 );
     assertEquals( session.findSubscriptionEntry( cd1 ), entry );
     assertEquals( session.getSubscriptionEntry( cd1 ), entry );
-    assertTrue( session.getSubscriptions().containsKey( cd1 ) );
-    assertTrue( session.getSubscriptions().containsValue( entry ) );
-
-    try
-    {
-      session.getSubscriptions().remove( cd1 );
-      fail( "Expected to be unable to delete subscription as it is a read-only set" );
-    }
-    catch ( final UnsupportedOperationException uoe )
-    {
-      //ignored
-    }
+    assertTrue( getSubscriptions( session ).containsKey( cd1 ) );
+    assertTrue( getSubscriptions( session ).containsValue( entry ) );
 
     assertTrue( session.deleteSubscriptionEntry( entry ) );
     assertFalse( session.deleteSubscriptionEntry( entry ) );
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
     assertFalse( session.isSubscriptionEntryPresent( cd1 ) );
-    assertEquals( session.getSubscriptions().size(), 0 );
-  }
-
-  @Test
-  public void requiresLockForSubscriptionAccess()
-  {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-
-    final IllegalStateException exception =
-      expectThrows( IllegalStateException.class, session::getSubscriptions );
-    assertEquals( exception.getMessage(), "Expected session to be locked by the current thread" );
+    assertEquals( getSubscriptions( session ).size(), 0 );
   }
 
   @Test
@@ -136,24 +119,6 @@ public class ReplicantSessionTest
 
       assertTrue( session.deleteSubscriptionEntry( entryB ) );
       assertTrue( session.findSubscriptionEntries( 1, 5 ).isEmpty() );
-    }
-    finally
-    {
-      session.getLock().unlock();
-    }
-  }
-
-  @Test
-  public void getSubscriptions_isUnmodifiable()
-  {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    session.getLock().lock();
-    try
-    {
-      session.createSubscriptionEntry( new ChannelAddress( 1, null ) );
-      final Map<ChannelAddress, SubscriptionEntry> subscriptions = session.getSubscriptions();
-      assertEquals( subscriptions.size(), 1 );
-      expectThrows( UnsupportedOperationException.class, () -> subscriptions.clear() );
     }
     finally
     {
@@ -297,7 +262,6 @@ public class ReplicantSessionTest
 
   @Test
   public void pingTransport_noopWhenClosed()
-    throws IOException
   {
     final Session webSocketSession = mock( Session.class );
     when( webSocketSession.isOpen() ).thenReturn( false );
@@ -327,6 +291,29 @@ public class ReplicantSessionTest
     finally
     {
       session.getLock().unlock();
+    }
+  }
+
+  @SuppressWarnings( "DataFlowIssue" )
+  @Nonnull
+  private Map<ChannelAddress, SubscriptionEntry> getSubscriptions( final ReplicantSession session )
+  {
+    return getField( session, "_subscriptions" );
+  }
+
+  @SuppressWarnings( { "SameParameterValue", "unchecked" } )
+  @Nullable
+  private <T> T getField( @Nonnull final ReplicantSession session, @Nonnull final String fieldName )
+  {
+    try
+    {
+      final Field field = ReplicantSession.class.getDeclaredField( fieldName );
+      field.setAccessible( true );
+      return (T) field.get( session );
+    }
+    catch ( final Throwable t )
+    {
+      throw new AssertionError( t );
     }
   }
 }

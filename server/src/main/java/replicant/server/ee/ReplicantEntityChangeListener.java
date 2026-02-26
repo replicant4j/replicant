@@ -29,9 +29,14 @@ public class ReplicantEntityChangeListener
   @PostPersist
   public void postUpdate( final Object object )
   {
-    if ( !getRegistry().getRollbackOnly() )
+    final var registry = getRegistry();
+    if ( !registry.getRollbackOnly() )
     {
-      getRecorder().recordEntityMessageForEntity( object, true );
+      final var entityMessage = getRecorder().convertToEntityMessage( object, true );
+      if ( null != entityMessage )
+      {
+        EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( entityMessage );
+      }
     }
   }
 
@@ -47,9 +52,14 @@ public class ReplicantEntityChangeListener
   @PreRemove
   public void preRemove( final Object object )
   {
-    if ( !getRegistry().getRollbackOnly() )
+    final var registry = getRegistry();
+    if ( !registry.getRollbackOnly() )
     {
-      getRecorder().recordEntityMessageForEntity( object, false );
+      final var entityMessage = getRecorder().convertToEntityMessage( object, false );
+      if ( null != entityMessage )
+      {
+        EntityMessageCacheUtil.getEntityMessageSet( registry ).merge( entityMessage );
+      }
     }
   }
 

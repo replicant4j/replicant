@@ -20,13 +20,11 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.EntityMessage;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.SchemaMetaData;
-import replicant.server.transport.SubscriptionEntry;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -85,33 +83,6 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
-  public void recordEntityMessageForEntity_mergesMessage()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var entity = new Object();
-    context.registerMessageForObject( entity, new EntityMessage( 11, 7, 0, new HashMap<>(), null, null ) );
-
-    context.recordEntityMessageForEntity( entity, true );
-
-    final var registry = TransactionSynchronizationRegistryUtil.lookup();
-    final var set = EntityMessageCacheUtil.getEntityMessageSet( registry );
-    assertTrue( set.containsEntityMessage( 7, 11 ) );
-  }
-
-  @Test
-  public void recordEntityMessageForEntity_ignoresNullMessage()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-
-    context.recordEntityMessageForEntity( "entity", true );
-
-    final var registry = TransactionSynchronizationRegistryUtil.lookup();
-    final var set = EntityMessageCacheUtil.getEntityMessageSet( registry );
-    assertFalse( set.containsEntityMessage( 7, 11 ) );
-    assertTrue( set.getEntityMessages().isEmpty() );
-  }
-
-  @Test
   public void connection_usesEntityManagerUnwrap()
   {
     final var em = mock( EntityManager.class );
@@ -121,65 +92,6 @@ public class AbstractSessionContextImplTest
 
     assertEquals( context.connection(), connection );
     verify( em ).unwrap( Connection.class );
-  }
-
-  @Test
-  public void recordSubscription_addsEntryAndAction()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var session = newSession();
-    final var changeSet = new ChangeSet();
-    final var address = new ChannelAddress( 1, 2 );
-    final var filter = Map.of( "k", "v" );
-
-    withSessionLock( session, () -> {
-      final SubscriptionEntry entry = context.recordSubscription( session, changeSet, address, filter, true );
-      assertEquals( entry.address(), address );
-      assertTrue( entry.isExplicitlySubscribed() );
-      assertEquals( entry.getFilter(), filter );
-    } );
-
-    assertEquals( changeSet.getChannelActions().size(), 1 );
-    final var action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.address(), address );
-    assertEquals( action.action(), ChannelAction.Action.ADD );
-    assertNotNull( action.filter() );
-  }
-
-  @Test
-  public void recordSubscription_updatesExistingEntry()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var session = newSession();
-    final var changeSet = new ChangeSet();
-    final var address = new ChannelAddress( 1, 2 );
-    final var filter = Map.of( "k", "v" );
-
-    withSessionLock( session, () -> {
-      final SubscriptionEntry entry = session.createSubscriptionEntry( address );
-      entry.setFilter( Map.of( "old", "filter" ) );
-      context.recordSubscription( session, changeSet, address, filter, false );
-      assertEquals( entry.getFilter(), filter );
-      assertFalse( entry.isExplicitlySubscribed() );
-    } );
-
-    assertEquals( changeSet.getChannelActions().size(), 1 );
-    final var action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.action(), ChannelAction.Action.UPDATE );
-  }
-
-  @Test
-  public void recordSubscriptions_recordsAll()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var session = newSession();
-    final var changeSet = new ChangeSet();
-    final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
-
-    withSessionLock( session,
-                     () -> context.recordSubscriptions( session, changeSet, addresses, Map.of( "k", "v" ), true ) );
-
-    assertEquals( changeSet.getChannelActions().size(), 2 );
   }
 
   @Test
@@ -228,23 +140,6 @@ public class AbstractSessionContextImplTest
     assertEquals( chunks.get( 0 ), List.of( 1, 2 ) );
     assertEquals( chunks.get( 1 ), List.of( 3, 4 ) );
     assertEquals( chunks.get( 2 ), List.of( 5 ) );
-  }
-
-  @Test
-  public void linkSubscriptionEntries_registersLinks()
-  {
-    final var context = newContext( mock( EntityManager.class ) );
-    final var session = newSession();
-    final var source = new ChannelAddress( 1, 2 );
-    final var target = new ChannelAddress( 3, 4 );
-
-    withSessionLock( session, () -> {
-      final var sourceEntry = session.createSubscriptionEntry( source );
-      final var targetEntry = session.createSubscriptionEntry( target );
-      context.linkSubscriptionEntries( sourceEntry, targetEntry );
-      assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
-      assertTrue( targetEntry.getInwardSubscriptions().contains( source ) );
-    } );
   }
 
   @Test
@@ -344,24 +239,7 @@ public class AbstractSessionContextImplTest
   @Nonnull
   private TestSessionContext newContext( @Nonnull final EntityManager em )
   {
-    final var context = new TestSessionContext( em );
-    setField( context, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
-    return context;
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
-  {
-    try
-    {
-      final var field = AbstractSessionContextImpl.class.getDeclaredField( name );
-      field.setAccessible( true );
-      field.set( target, value );
-    }
-    catch ( final Exception e )
-    {
-      throw new AssertionError( e );
-    }
+    return new TestSessionContext( em );
   }
 
   @Nonnull
@@ -371,30 +249,6 @@ public class AbstractSessionContextImplTest
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     return new ReplicantSession( webSocketSession );
-  }
-
-  private void withSessionLock( @Nonnull final ReplicantSession session, @Nonnull final ThrowingAction action )
-  {
-    session.getLock().lock();
-    try
-    {
-      action.run();
-    }
-    catch ( final Exception e )
-    {
-      throw new AssertionError( e );
-    }
-    finally
-    {
-      session.getLock().unlock();
-    }
-  }
-
-  @FunctionalInterface
-  private interface ThrowingAction
-  {
-    void run()
-      throws Exception;
   }
 
   private static final class TestSessionContext
@@ -521,11 +375,6 @@ public class AbstractSessionContextImplTest
                                      @Nullable final Object targetFilter )
     {
       return false;
-    }
-
-    void registerMessageForObject( @Nonnull final Object object, @Nonnull final EntityMessage message )
-    {
-      _messages.put( object, message );
     }
 
     @Nonnull

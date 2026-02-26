@@ -14,7 +14,7 @@ import replicant.server.ChannelAddress;
  * An object defining the state of the subscription to a particular channel and
  * all the dependency relationships to other graphs.
  */
-public final class SubscriptionEntry
+final class SubscriptionEntry
   implements Comparable<SubscriptionEntry>
 {
   @Nonnull
@@ -39,14 +39,14 @@ public final class SubscriptionEntry
   @Nullable
   private Object _filter;
 
-  public SubscriptionEntry( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
+  SubscriptionEntry( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
   {
     _session = Objects.requireNonNull( session );
     _address = Objects.requireNonNull( address );
   }
 
   @Nonnull
-  public ChannelAddress address()
+  ChannelAddress address()
   {
     return _address;
   }
@@ -55,7 +55,7 @@ public final class SubscriptionEntry
    * Return true if this channel can be automatically un-subscribed. This means it has not
    * been explicitly subscribed and has no incoming subscriptions.
    */
-  public boolean canUnsubscribe()
+  boolean canUnsubscribe()
   {
     return !isExplicitlySubscribed() && _inwardSubscriptions.isEmpty();
   }
@@ -64,12 +64,12 @@ public final class SubscriptionEntry
    * Return true if this channel has been explicitly subscribed to from the client,
    * false the subscription occurred due to a graph link.
    */
-  public boolean isExplicitlySubscribed()
+  boolean isExplicitlySubscribed()
   {
     return _explicitlySubscribed;
   }
 
-  public void setExplicitlySubscribed( final boolean explicitlySubscribed )
+  void setExplicitlySubscribed( final boolean explicitlySubscribed )
   {
     _session.ensureLockedByCurrentThread();
     _explicitlySubscribed = explicitlySubscribed;
@@ -80,7 +80,7 @@ public final class SubscriptionEntry
    * may or may not have a filter.
    */
   @Nullable
-  public Object getFilter()
+  Object getFilter()
   {
     return _filter;
   }
@@ -92,7 +92,7 @@ public final class SubscriptionEntry
    *
    * @param filter the filter.
    */
-  public void setFilter( @Nullable final Object filter )
+  void setFilter( @Nullable final Object filter )
   {
     _session.ensureLockedByCurrentThread();
     _filter = filter;
@@ -102,7 +102,7 @@ public final class SubscriptionEntry
    * Return the channels that were subscribed as a result of subscribing to this channel.
    */
   @Nonnull
-  public Set<ChannelAddress> getOutwardSubscriptions()
+  Set<ChannelAddress> getOutwardSubscriptions()
   {
     return _roOutwardSubscriptions;
   }
@@ -111,7 +111,7 @@ public final class SubscriptionEntry
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
@@ -149,7 +149,7 @@ public final class SubscriptionEntry
    * Return the channels that were auto-subscribed to the current channel.
    */
   @Nonnull
-  public Set<ChannelAddress> getInwardSubscriptions()
+  Set<ChannelAddress> getInwardSubscriptions()
   {
     return _roInwardSubscriptions;
   }
@@ -158,7 +158,7 @@ public final class SubscriptionEntry
    * Register the specified channel as inward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  public ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final List<ChannelAddress> results = new ArrayList<>( channels.length );
