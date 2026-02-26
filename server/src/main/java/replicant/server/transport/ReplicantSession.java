@@ -3,6 +3,7 @@ package replicant.server.transport;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +22,9 @@ import javax.json.JsonValue;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import replicant.server.ChangeSet;
+import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
+import replicant.server.EntityMessage;
 import replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession
@@ -349,6 +352,89 @@ public final class ReplicantSession
     ensureLockedByCurrentThread();
     final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );
     return null == entries ? Collections.emptyList() : entries.stream().toList();
+  }
+
+  void bulkUnsubscribe( @Nonnull final List<ChannelAddress> addresses, @Nonnull final ChangeSet sessionChanges )
+  {
+    for ( final var address : addresses )
+    {
+      unsubscribe( address, sessionChanges );
+    }
+  }
+
+  void unsubscribe( @Nonnull final ChannelAddress address, @Nonnull final ChangeSet changeSet )
+  {
+    final SubscriptionEntry entry = findSubscriptionEntry( address );
+    if ( null != entry )
+    {
+      performUnsubscribe( entry, true, false, changeSet );
+    }
+  }
+
+  void performUnsubscribe( @Nonnull final SubscriptionEntry entry,
+                           final boolean explicitUnsubscribe,
+                           final boolean delete,
+                           @Nonnull final ChangeSet changeSet )
+  {
+    if ( explicitUnsubscribe )
+    {
+      entry.setExplicitlySubscribed( false );
+    }
+    if ( entry.canUnsubscribe() )
+    {
+      changeSet.mergeAction( entry.address(),
+                             delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
+                             null );
+      for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
+      {
+        delinkDownstreamSubscription( entry, downstream, changeSet );
+      }
+      deleteSubscriptionEntry( entry );
+    }
+  }
+
+  void delinkDownstreamSubscriptions( @Nonnull final SubscriptionEntry entry,
+                                      @Nonnull final EntityMessage message,
+                                      @Nonnull final ChangeSet changeSet )
+  {
+    // Delink any implicit subscriptions that was a result of the deleted entity
+    final var links = message.getLinks();
+    if ( null != links )
+    {
+      for ( final var link : links )
+      {
+        delinkDownstreamSubscription( entry, link.target(), changeSet );
+      }
+    }
+  }
+
+  public void delinkDownstreamSubscription( @Nonnull final ChannelAddress upstream,
+                                            @Nonnull final ChannelAddress downstream,
+                                            @Nonnull final ChangeSet changeSet )
+  {
+    delinkDownstreamSubscription( getSubscriptionEntry( upstream ), downstream, changeSet );
+  }
+
+  void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
+                                     @Nonnull final ChannelAddress downstream,
+                                     @Nonnull final ChangeSet changeSet )
+  {
+    final var downstreamEntry = findSubscriptionEntry( downstream );
+    if ( null != downstreamEntry )
+    {
+      delinkSubscriptionEntries( sourceEntry, downstreamEntry );
+      performUnsubscribe( downstreamEntry, false, false, changeSet );
+    }
+  }
+
+  /**
+   * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
+   */
+  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                  @Nonnull final SubscriptionEntry targetEntry )
+  {
+    sourceEntry.deregisterOutwardSubscriptions( targetEntry.address() );
+    targetEntry.deregisterInwardSubscriptions( sourceEntry.address() );
   }
 
   /**

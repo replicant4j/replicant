@@ -1125,17 +1125,6 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void unsubscribe( @Nonnull final ReplicantSession session,
-                            @Nonnull final ChannelAddress address,
-                            @Nonnull final ChangeSet changeSet )
-  {
-    final SubscriptionEntry entry = session.findSubscriptionEntry( address );
-    if ( null != entry )
-    {
-      performUnsubscribe( session, entry, true, false, changeSet );
-    }
-  }
-
   @Override
   public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
                                final int requestId,
@@ -1146,74 +1135,11 @@ public class ReplicantSessionManagerImpl
     sessionUpdateRequest( invocationKey, session, requestId, () -> {
       if ( session.isOpen() )
       {
-        EntityMessageCacheUtil.getSessionChanges().setRequired( true );
-        doBulkUnsubscribe( session, addresses );
+        final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+        sessionChanges.setRequired( true );
+        session.bulkUnsubscribe( addresses, sessionChanges );
       }
     } );
-  }
-
-  private void doBulkUnsubscribe( @Nonnull final ReplicantSession session,
-                                  @Nonnull final List<ChannelAddress> addresses )
-  {
-    final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-    for ( final var address : addresses )
-    {
-      unsubscribe( session, address, sessionChanges );
-    }
-  }
-
-  @SuppressWarnings( { "SameParameterValue", "WeakerAccess" } )
-  protected void performUnsubscribe( @Nonnull final ReplicantSession session,
-                                     @Nonnull final SubscriptionEntry entry,
-                                     final boolean explicitUnsubscribe,
-                                     final boolean delete,
-                                     @Nonnull final ChangeSet changeSet )
-  {
-    if ( explicitUnsubscribe )
-    {
-      entry.setExplicitlySubscribed( false );
-    }
-    if ( entry.canUnsubscribe() )
-    {
-      changeSet.mergeAction( entry.address(),
-                             delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
-                             null );
-      for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
-      {
-        delinkDownstreamSubscription( session, entry, downstream, changeSet );
-      }
-      session.deleteSubscriptionEntry( entry );
-    }
-  }
-
-  private void delinkDownstreamSubscription( @Nonnull final ReplicantSession session,
-                                             @Nonnull final SubscriptionEntry sourceEntry,
-                                             @Nonnull final ChannelAddress downstream,
-                                             @Nonnull final ChangeSet changeSet )
-  {
-    final var downstreamEntry = session.findSubscriptionEntry( downstream );
-    if ( null != downstreamEntry )
-    {
-      delinkSubscriptionEntries( sourceEntry, downstreamEntry );
-      performUnsubscribe( session, downstreamEntry, false, false, changeSet );
-    }
-  }
-
-  @SuppressWarnings( "unused" )
-  protected void delinkDownstreamSubscriptions( @Nonnull final ReplicantSession session,
-                                                @Nonnull final SubscriptionEntry entry,
-                                                @Nonnull final EntityMessage message,
-                                                @Nonnull final ChangeSet changeSet )
-  {
-    // Delink any implicit subscriptions that was a result of the deleted entity
-    final var links = message.getLinks();
-    if ( null != links )
-    {
-      for ( final var link : links )
-      {
-        delinkDownstreamSubscription( session, entry, link.target(), changeSet );
-      }
-    }
   }
 
   /**
@@ -1226,15 +1152,6 @@ public class ReplicantSessionManagerImpl
     targetEntry.registerInwardSubscriptions( sourceEntry.address() );
   }
 
-  /**
-   * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
-   */
-  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                  @Nonnull final SubscriptionEntry targetEntry )
-  {
-    sourceEntry.deregisterOutwardSubscriptions( targetEntry.address() );
-    targetEntry.deregisterInwardSubscriptions( sourceEntry.address() );
-  }
 
   private void processCachePurge( @Nonnull final EntityMessage message )
   {
@@ -1384,10 +1301,10 @@ public class ReplicantSessionManagerImpl
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
         if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )
         {
-          performUnsubscribe( session, entry, true, true, changeSet );
+          session.performUnsubscribe( entry, true, true, changeSet );
         }
         // Delink any implicit subscriptions that was a result of the deleted entity
-        delinkDownstreamSubscriptions( session, entry, m, changeSet );
+        session.delinkDownstreamSubscriptions( entry, m, changeSet );
       }
     }
   }
