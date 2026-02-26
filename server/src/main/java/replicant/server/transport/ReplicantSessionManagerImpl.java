@@ -71,15 +71,12 @@ public class ReplicantSessionManagerImpl
   @Nonnull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
   @SuppressWarnings( "CdiInjectionPointsInspection" )
-  @VisibleForTesting
   @Inject
-  ReplicantSessionContext _context;
-  @VisibleForTesting
+  private ReplicantSessionContext _context;
   @Resource
-  TransactionSynchronizationRegistry _registry;
-  @VisibleForTesting
+  private TransactionSynchronizationRegistry _registry;
   @Inject
-  ReplicantMessageBroker _broker;
+  private ReplicantMessageBroker _broker;
   @Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
   ManagedScheduledExecutorService _executor;
   @Nullable

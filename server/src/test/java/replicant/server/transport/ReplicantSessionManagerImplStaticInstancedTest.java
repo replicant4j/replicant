@@ -1,6 +1,7 @@
 package replicant.server.transport;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +17,8 @@ import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import replicant.server.ChannelAction;
 import replicant.server.ChangeSet;
+import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
@@ -64,9 +65,10 @@ public class ReplicantSessionManagerImplStaticInstancedTest
 
     final var context = new TestSessionContext( schema );
     final var manager = new ReplicantSessionManagerImpl();
-    manager._context = context;
-    manager._broker = mock( ReplicantMessageBroker.class );
-    manager._registry = TransactionSynchronizationRegistryUtil.lookup();
+
+    setField( manager, "_context", context );
+    setField( manager, "_broker", mock( ReplicantMessageBroker.class ) );
+    setField( manager, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
 
     final Session webSocketSession = mock( Session.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
@@ -130,9 +132,9 @@ public class ReplicantSessionManagerImplStaticInstancedTest
 
     final var context = new TestSessionContext( schema );
     final var manager = new ReplicantSessionManagerImpl();
-    manager._context = context;
-    manager._broker = mock( ReplicantMessageBroker.class );
-    manager._registry = TransactionSynchronizationRegistryUtil.lookup();
+    setField( manager, "_context", context );
+    setField( manager, "_broker", mock( ReplicantMessageBroker.class ) );
+    setField( manager, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
 
     final Session webSocketSession = mock( Session.class );
     final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
@@ -179,6 +181,20 @@ public class ReplicantSessionManagerImplStaticInstancedTest
     assertEquals( call.addresses(), List.of( targetAddress ) );
     assertEquals( call.filter(), Map.of( "k", "v" ) );
     assertFalse( call.isExplicitSubscribe() );
+  }
+
+  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
+  {
+    try
+    {
+      final Field field = ReplicantSessionManagerImpl.class.getDeclaredField( name );
+      field.setAccessible( true );
+      field.set( target, value );
+    }
+    catch ( final Exception e )
+    {
+      throw new AssertionError( e );
+    }
   }
 
   private static final class TestSessionContext
