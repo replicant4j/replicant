@@ -1,6 +1,5 @@
 package replicant.server.ee;
 
-import org.realityforge.guiceyloops.server.TestInitialContextFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -20,7 +19,7 @@ public class EntityMessageCacheUtilTest
   @AfterMethod
   public void clearContext()
   {
-    TestInitialContextFactory.reset();
+    RegistryUtil.unbind();
   }
 
   @Test
