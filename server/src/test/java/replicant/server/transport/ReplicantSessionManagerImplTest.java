@@ -524,11 +524,11 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
-                                             @Nonnull final List<ChannelAddress> addresses,
-                                             @Nullable final Object filter,
-                                             @Nonnull final ChangeSet changeSet,
-                                             final boolean isExplicitSubscribe )
+    public void collectChannelData( @Nullable final ReplicantSession session,
+                                    @Nonnull final List<ChannelAddress> addresses,
+                                    @Nullable final Object filter,
+                                    @Nonnull final ChangeSet changeSet,
+                                    final boolean isExplicitSubscribe )
     {
       _bulkCollectCalls.add( new BulkCollectCall( addresses, filter, isExplicitSubscribe ) );
       if ( null != session )
@@ -546,11 +546,11 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                      @Nonnull final List<ChannelAddress> addresses,
-                                                      @Nullable final Object originalFilter,
-                                                      @Nullable final Object filter,
-                                                      @Nonnull final ChangeSet changeSet )
+    public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final List<ChannelAddress> addresses,
+                                                   @Nullable final Object originalFilter,
+                                                   @Nullable final Object newFilter,
+                                                   @Nonnull final ChangeSet changeSet )
     {
     }
 

@@ -861,7 +861,7 @@ public class ReplicantSessionManagerImpl
       }
       else
       {
-        _context.bulkCollectDataForSubscribe( session, newChannels, filter, changeSet, isExplicitSubscribe );
+        _context.collectChannelData( session, newChannels, filter, changeSet, isExplicitSubscribe );
       }
     }
     if ( !channelsToUpdate.isEmpty() )
@@ -874,7 +874,8 @@ public class ReplicantSessionManagerImpl
 
         if ( channel.filterType().isDynamicFilter() )
         {
-          _context.bulkCollectDataForSubscriptionUpdate( session, updateAddresses, originalFilter, filter, changeSet );
+          assert null != filter;
+          _context.collectChannelDataForFilterChange( session, updateAddresses, originalFilter, filter, changeSet );
         }
         else
         {
@@ -1051,7 +1052,7 @@ public class ReplicantSessionManagerImpl
         return entry;
       }
       final var changeSet = new ChangeSet();
-      _context.bulkCollectDataForSubscribe( null, Collections.singletonList( address ), null, changeSet, false );
+      _context.collectChannelData( null, Collections.singletonList( address ), null, changeSet, false );
       final var cacheKey = changeSet.getETag();
       final var channelAction =
         changeSet

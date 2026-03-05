@@ -54,11 +54,11 @@ public interface ReplicantSessionContext
    * @param changeSet           the changeSet to add the collected data to.
    * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
    */
-  void bulkCollectDataForSubscribe( @Nullable ReplicantSession session,
-                                    @Nonnull List<ChannelAddress> addresses,
-                                    @Nullable Object filter,
-                                    @Nonnull ChangeSet changeSet,
-                                    boolean isExplicitSubscribe );
+  void collectChannelData( @Nullable ReplicantSession session,
+                           @Nonnull List<ChannelAddress> addresses,
+                           @Nullable Object filter,
+                           @Nonnull ChangeSet changeSet,
+                           boolean isExplicitSubscribe );
 
   /**
    * Add changes to the ChangeSet as a result of changing the channel filter.
@@ -71,11 +71,11 @@ public interface ReplicantSessionContext
    * @param newFilter      the new filter to apply to the channels.
    * @param changeSet      the changeSet to add the collected data to.
    */
-  void bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
-                                             @Nonnull List<ChannelAddress> addresses,
-                                             @Nullable Object originalFilter,
-                                             @Nullable Object filter,
-                                             @Nonnull ChangeSet changeSet );
+  void collectChannelDataForFilterChange( @Nonnull ReplicantSession session,
+                                          @Nonnull List<ChannelAddress> addresses,
+                                          @Nonnull Object originalFilter,
+                                          @Nonnull Object newFilter,
+                                          @Nonnull ChangeSet changeSet );
 
   @Nullable
   EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,

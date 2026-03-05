@@ -70,7 +70,7 @@ public class AbstractSessionContextImplTest
     final var filter = Map.of( "k", "v" );
     final var changeSet = new ChangeSet();
 
-    context.bulkCollectDataForSubscribe( session, addresses, filter, changeSet, true );
+    context.collectChannelData( session, addresses, filter, changeSet, true );
 
     assertEquals( context.getBulkCollectCalls().size(), 1 );
     final var call = context.getBulkCollectCalls().get( 0 );
@@ -350,11 +350,11 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public void bulkCollectDataForSubscribe( @Nullable final ReplicantSession session,
-                                             @Nonnull final List<ChannelAddress> addresses,
-                                             @Nullable final Object filter,
-                                             @Nonnull final ChangeSet changeSet,
-                                             final boolean isExplicitSubscribe )
+    public void collectChannelData( @Nullable final ReplicantSession session,
+                                    @Nonnull final List<ChannelAddress> addresses,
+                                    @Nullable final Object filter,
+                                    @Nonnull final ChangeSet changeSet,
+                                    final boolean isExplicitSubscribe )
     {
       _bulkCollectCalls.add( new BulkCollectCall( session, addresses, filter, changeSet, isExplicitSubscribe ) );
     }
@@ -370,11 +370,11 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public void bulkCollectDataForSubscriptionUpdate( @Nonnull final ReplicantSession session,
-                                                      @Nonnull final List<ChannelAddress> addresses,
-                                                      @Nullable final Object originalFilter,
-                                                      @Nullable final Object filter,
-                                                      @Nonnull final ChangeSet changeSet )
+    public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
+                                                   @Nonnull final List<ChannelAddress> addresses,
+                                                   @Nullable final Object originalFilter,
+                                                   @Nullable final Object newFilter,
+                                                   @Nonnull final ChangeSet changeSet )
     {
     }
 
