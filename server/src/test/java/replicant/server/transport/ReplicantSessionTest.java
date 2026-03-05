@@ -15,7 +15,7 @@ import javax.json.JsonObject;
 import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import org.realityforge.guiceyloops.shared.ValueUtil;
+import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;

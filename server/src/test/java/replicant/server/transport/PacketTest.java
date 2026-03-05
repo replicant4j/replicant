@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.json.Json;
 import javax.json.JsonValue;
-import org.realityforge.guiceyloops.shared.ValueUtil;
+import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;

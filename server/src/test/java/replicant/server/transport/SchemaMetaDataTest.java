@@ -1,6 +1,6 @@
 package replicant.server.transport;
 
-import org.realityforge.guiceyloops.shared.ValueUtil;
+import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

@@ -2,7 +2,7 @@ package replicant.server;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import org.realityforge.guiceyloops.shared.ValueUtil;
+import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

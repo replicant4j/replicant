@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.Session;
-import org.realityforge.guiceyloops.shared.ValueUtil;
+import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAddress;
 import static org.mockito.Mockito.*;

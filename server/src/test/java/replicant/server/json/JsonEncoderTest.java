@@ -10,7 +10,6 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
@@ -19,6 +18,7 @@ import replicant.server.ChannelAction.Action;
 import replicant.server.ChannelAddress;
 import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
+import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 import static org.testng.Assert.*;
 

@@ -73,7 +73,6 @@ define 'replicant' do
     test.compile.with :mockito,
                       :byte_buddy,
                       :objenesis,
-                      :guiceyloops,
                       :jndikit
   end
 
