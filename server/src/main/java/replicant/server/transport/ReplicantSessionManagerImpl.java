@@ -1229,7 +1229,6 @@ public class ReplicantSessionManagerImpl
         return null;
       }
     }
-
   }
 
   private void processUpdateMessage( @Nonnull final ChannelAddress address,
