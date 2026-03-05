@@ -45,15 +45,14 @@ public interface ReplicantSessionContext
                     @Nullable JsonObject payload );
 
   /**
-   * This method is called in an attempt to use a more efficient method for bulk loading instance graphs.
-   * Subclasses may return false form this method, in which case collectDataForSubscribe will be called
-   * for each independent channel.
+   * Add changes to the ChangeSet as a result of subscribing to a channel.
+   * If the session is not null, then the method implementation is expected to update session state to reflect subscription addition.
    *
-   * @param session             the session. May be null if data is being collected for the purposes of caching.
-   * @param addresses           the addresses of the channels to collect data for.
-   * @param filter              the filter to apply to the channels. May be null.
+   * @param session             the session. May be null if data is being collected for caching.
+   * @param addresses           the addresses of the channels to collect data for. All addresses must be for a single channelId.
+   * @param filter              the filter to apply to the channels. May be null if the channel has no filter parameter.
    * @param changeSet           the changeSet to add the collected data to.
-   * @param isExplicitSubscribe true if the subscribe is explicit, false if it is implicit, ignored unless session is non-null.
+   * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
    */
   void bulkCollectDataForSubscribe( @Nullable ReplicantSession session,
                                     @Nonnull List<ChannelAddress> addresses,
@@ -62,9 +61,15 @@ public interface ReplicantSessionContext
                                     boolean isExplicitSubscribe );
 
   /**
-   * Hook method by which efficient bulk collection of data for subscription updates can occur.
+   * Add changes to the ChangeSet as a result of changing the channel filter.
    * It is expected that the hook does everything including updating SubscriptionEntry with new
    * filter, adding graph links etc.
+   *
+   * @param session        the session.
+   * @param addresses      the addresses of the channels to collect data for. All addresses must be for a single channelId.
+   * @param originalFilter the old filter that was applied to the channels.
+   * @param newFilter      the new filter to apply to the channels.
+   * @param changeSet      the changeSet to add the collected data to.
    */
   void bulkCollectDataForSubscriptionUpdate( @Nonnull ReplicantSession session,
                                              @Nonnull List<ChannelAddress> addresses,
