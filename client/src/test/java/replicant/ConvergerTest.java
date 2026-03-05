@@ -4,7 +4,6 @@ import arez.Disposable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;

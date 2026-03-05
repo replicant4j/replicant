@@ -1,6 +1,5 @@
 package replicant;
 
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.messages.ChannelChange;
 import static org.testng.Assert.*;

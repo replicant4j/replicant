@@ -2,7 +2,6 @@ package replicant;
 
 import arez.Disposable;
 import java.util.List;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;

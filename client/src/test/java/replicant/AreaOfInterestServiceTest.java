@@ -2,7 +2,6 @@ package replicant;
 
 import arez.Disposable;
 import java.util.Collection;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;

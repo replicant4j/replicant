@@ -1,10 +1,10 @@
 package replicant.spy;
 
 import java.util.HashMap;
-import org.realityforge.guiceyloops.shared.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
+import replicant.ValueUtil;
 import static org.testng.Assert.*;
 
 public class SubscribeRequestQueuedEventTest

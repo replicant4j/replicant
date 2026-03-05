@@ -125,8 +125,7 @@ define 'replicant' do
                       :objenesis,
                       :braincheck_testng,
                       :arez_testng,
-                      :javax_json,
-                      :guiceyloops
+                      :javax_json
   end
 
   iml.excluded_directories << project._('tmp')
