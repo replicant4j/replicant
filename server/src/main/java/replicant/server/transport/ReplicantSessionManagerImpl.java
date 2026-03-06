@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -343,7 +342,7 @@ public class ReplicantSessionManagerImpl
     {
       try
       {
-        for ( final ReplicantSession session : _sessions.values() )
+        for ( final var session : _sessions.values() )
         {
           if ( LOG.isLoggable( Level.FINEST ) )
           {
@@ -389,7 +388,7 @@ public class ReplicantSessionManagerImpl
     {
       try
       {
-        final Iterator<Map.Entry<String, ReplicantSession>> iterator = _sessions.entrySet().iterator();
+        final var iterator = _sessions.entrySet().iterator();
         while ( iterator.hasNext() )
         {
           final ReplicantSession session = iterator.next().getValue();
@@ -415,10 +414,9 @@ public class ReplicantSessionManagerImpl
    * @param session   the session.
    * @param changeSet the messages to be sent along to the client.
    */
-  private void queueCachedChangeSet( @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChangeSet changeSet )
+  private void queueCachedChangeSet( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
-    final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+    final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
     _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
     _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
     _broker.queueChangeMessage( session,
@@ -436,10 +434,10 @@ public class ReplicantSessionManagerImpl
                                       @Nonnull final Collection<EntityMessage> messages,
                                       @Nullable final ChangeSet sessionChanges )
   {
-    boolean impactsInitiator = false;
+    var impactsInitiator = false;
 
     // Make sure if the message relates to an existing cache message then the cache is busted
-    for ( final EntityMessage message : messages )
+    for ( final var message : messages )
     {
       processCachePurge( message );
     }
@@ -447,7 +445,7 @@ public class ReplicantSessionManagerImpl
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
     for ( final ReplicantSession session : getSessions() )
     {
-      final boolean isInitiator = Objects.equals( session.getId(), sessionId );
+      final var isInitiator = Objects.equals( session.getId(), sessionId );
       if ( isInitiator )
       {
         // The initiator has been impacted, even if the underlying session has been closed
@@ -456,7 +454,7 @@ public class ReplicantSessionManagerImpl
       }
       if ( session.isOpen() )
       {
-        final ChangeSet changeSet = new ChangeSet();
+        final var changeSet = new ChangeSet();
         if ( isInitiator )
         {
           if ( null != sessionChanges )
@@ -479,7 +477,7 @@ public class ReplicantSessionManagerImpl
             changeSet.setRequired( true );
           }
         }
-        final boolean altersExplicitSubscriptions =
+        final var altersExplicitSubscriptions =
           null != _registry.getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );
         _broker.queueChangeMessage( session,
                                     altersExplicitSubscriptions,
@@ -531,7 +529,7 @@ public class ReplicantSessionManagerImpl
           .count();
 
       final var expandCycleCount = completeMessageProcessing( session, changeSet );
-      final long end = System.nanoTime();
+      final var end = System.nanoTime();
       final var expansionDuration = ( end - start ) / 1000000;
 
       // This log level should be fine but leaving it here as INFO to make it easy to assess current production issues.
