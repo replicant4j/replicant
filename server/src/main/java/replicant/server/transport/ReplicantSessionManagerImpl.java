@@ -1030,6 +1030,10 @@ public class ReplicantSessionManagerImpl
   {
     final var metaData = getSchemaMetaData().getChannelMetaData( address );
     assert metaData.isCacheable();
+    // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove this assertion.
+    assert !metaData.requiresFilterParameter();
+    // We have not implemented the ability to cache instance graphs. When it has been implemented we can remove this assertion.
+    assert metaData.isTypeGraph();
     final var entry = getCacheEntry( address );
     entry.getLock().readLock().lock();
     try
