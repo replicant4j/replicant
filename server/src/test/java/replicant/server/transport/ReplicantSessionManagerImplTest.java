@@ -307,7 +307,7 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
-  public void bulkUnsubscribe_removesSubscriptionsViaSessionLogic()
+  public void unsubscribe_removesSubscriptionsViaSessionLogic()
   {
     final var channel =
       new ChannelMetaData( 0,
@@ -346,7 +346,7 @@ public class ReplicantSessionManagerImplTest
     final var registry = TransactionSynchronizationRegistryUtil.lookup();
     registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
 
-    manager.bulkUnsubscribe( session, 99, List.of( address1, address2, address3 ) );
+    manager.unsubscribe( session, 99, List.of( address1, address2, address3 ) );
 
     session.getLock().lock();
     try

@@ -58,14 +58,14 @@ public interface ReplicantSessionManager
 
   void setETags( @Nonnull ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags );
 
-  void bulkSubscribe( @Nonnull ReplicantSession session,
-                      int requestId,
-                      @Nonnull List<ChannelAddress> addresses,
-                      @Nullable Object filter );
+  void subscribe( @Nonnull ReplicantSession session,
+                  int requestId,
+                  @Nonnull List<ChannelAddress> addresses,
+                  @Nullable Object filter );
 
-  void bulkUnsubscribe( @Nonnull ReplicantSession session,
-                        int requestId,
-                        @Nonnull List<ChannelAddress> addresses );
+  void unsubscribe( @Nonnull ReplicantSession session,
+                    int requestId,
+                    @Nonnull List<ChannelAddress> addresses );
 
   /**
    * Send the "Change" message to the client.

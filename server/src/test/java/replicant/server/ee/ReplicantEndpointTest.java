@@ -242,10 +242,10 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession,
-                                                    1,
-                                                    Collections.singletonList( new ChannelAddress( 0 ) ),
-                                                    null );
+    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
+                                                1,
+                                                Collections.singletonList( new ChannelAddress( 0 ) ),
+                                                null );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -259,10 +259,10 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession,
-                                                    2,
-                                                    Collections.singletonList( new ChannelAddress( 1, 5 ) ),
-                                                    filter );
+    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
+                                                2,
+                                                Collections.singletonList( new ChannelAddress( 1, 5 ) ),
+                                                filter );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -276,10 +276,10 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession,
-                                                    3,
-                                                    Collections.singletonList( new ChannelAddress( 0 ) ),
-                                                    null );
+    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
+                                                3,
+                                                Collections.singletonList( new ChannelAddress( 0 ) ),
+                                                null );
   }
 
   @Test
@@ -334,10 +334,10 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession,
-                                                    5,
-                                                    Collections.singletonList( new ChannelAddress( 4, 7, "fi" ) ),
-                                                    filter );
+    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
+                                                5,
+                                                Collections.singletonList( new ChannelAddress( 4, 7, "fi" ) ),
+                                                filter );
   }
 
   @Test
@@ -356,7 +356,7 @@ public final class ReplicantEndpointTest
     fixture.endpoint.command( fixture.session, command.toString() );
 
     final var expected = Arrays.asList( new ChannelAddress( 2, 7, "fi" ), new ChannelAddress( 2, 8, "fi2" ) );
-    verify( fixture.sessionManager ).bulkSubscribe( fixture.replicantSession, 4, expected, filter );
+    verify( fixture.sessionManager ).subscribe( fixture.replicantSession, 4, expected, filter );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -373,7 +373,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager, never() ).bulkSubscribe( any(), anyInt(), anyList(), any() );
+    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -390,7 +390,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager, never() ).bulkSubscribe( any(), anyInt(), anyList(), any() );
+    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
     verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
     verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
@@ -414,9 +414,9 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager ).bulkUnsubscribe( fixture.replicantSession,
-                                                      7,
-                                                      Collections.singletonList( new ChannelAddress( 1, 5 ) ) );
+    verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession,
+                                                  7,
+                                                  Collections.singletonList( new ChannelAddress( 1, 5 ) ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -433,7 +433,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager, never() ).bulkUnsubscribe( any(), anyInt(), anyList() );
+    verify( fixture.sessionManager, never() ).unsubscribe( any(), anyInt(), anyList() );
     verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
     verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
@@ -451,7 +451,7 @@ public final class ReplicantEndpointTest
     fixture.endpoint.command( fixture.session, command.toString() );
 
     final var expected = Arrays.asList( new ChannelAddress( 1, 1 ), new ChannelAddress( 1, 2 ) );
-    verify( fixture.sessionManager ).bulkUnsubscribe( fixture.replicantSession, 8, expected );
+    verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession, 8, expected );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -466,7 +466,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager, never() ).bulkUnsubscribe( any(), anyInt(), anyList() );
+    verify( fixture.sessionManager, never() ).unsubscribe( any(), anyInt(), anyList() );
     verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
     verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
@@ -503,7 +503,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    verify( fixture.sessionManager, never() ).bulkSubscribe( any(), anyInt(), anyList(), any() );
+    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
     verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
     verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );

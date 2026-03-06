@@ -592,7 +592,7 @@ public class ReplicantSessionManagerImpl
             .toList() :
           Collections.singletonList( entry );
         final var addresses = toSubscribe.stream().map( ChannelLinkEntry::target ).toList();
-        doBulkSubscribe( session, addresses, entry.filter(), changeSet, false );
+        doSubscribe( session, addresses, entry.filter(), changeSet, false );
         toSubscribe.forEach( pending::remove );
         subscribed.addAll( toSubscribe );
         for ( final var e : toSubscribe )
@@ -730,29 +730,28 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void bulkSubscribe( @Nonnull final ReplicantSession session,
-                             final int requestId,
-                             @Nonnull final List<ChannelAddress> addresses,
-                             @Nullable final Object filter )
+  public void subscribe( @Nonnull final ReplicantSession session,
+                         final int requestId,
+                         @Nonnull final List<ChannelAddress> addresses,
+                         @Nullable final Object filter )
   {
-    final String invocationKey =
-      addresses.isEmpty() ? "BulkSubscribe(empty)" : "BulkSubscribe(" + addresses.get( 0 ).channelId() + ")";
-    sessionUpdateRequest( invocationKey, session, requestId, () -> {
+    final var key = "Subscribe(" + ( addresses.isEmpty() ? "empty" : addresses.get( 0 ).channelId() ) + ")";
+    sessionUpdateRequest( key, session, requestId, () -> {
       if ( session.isOpen() )
       {
         final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
         sessionChanges.setRequired( true );
         addresses.forEach( address -> _context.preSubscribe( session, address, filter ) );
-        doBulkSubscribe( session, addresses, filter, sessionChanges, true );
+        doSubscribe( session, addresses, filter, sessionChanges, true );
       }
     } );
   }
 
-  private void doBulkSubscribe( @Nonnull final ReplicantSession session,
-                                @Nonnull final List<ChannelAddress> addresses,
-                                @Nullable final Object filter,
-                                @Nonnull final ChangeSet changeSet,
-                                final boolean isExplicitSubscribe )
+  private void doSubscribe( @Nonnull final ReplicantSession session,
+                            @Nonnull final List<ChannelAddress> addresses,
+                            @Nullable final Object filter,
+                            @Nonnull final ChangeSet changeSet,
+                            final boolean isExplicitSubscribe )
   {
     final List<ChannelAddress> uniqueAddresses = addresses.stream().distinct().toList();
     if ( uniqueAddresses.isEmpty() )
@@ -910,7 +909,7 @@ public class ReplicantSessionManagerImpl
       }
       if ( channelMetaData.filterType().isDynamicFilter() )
       {
-        doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
+        doSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
       }
       else if ( channelMetaData.filterType().isStaticFilter() )
       {
@@ -926,7 +925,7 @@ public class ReplicantSessionManagerImpl
     }
     else
     {
-      doBulkSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
+      doSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
     }
   }
 
@@ -1126,9 +1125,9 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void bulkUnsubscribe( @Nonnull final ReplicantSession session,
-                               final int requestId,
-                               @Nonnull final List<ChannelAddress> addresses )
+  public void unsubscribe( @Nonnull final ReplicantSession session,
+                           final int requestId,
+                           @Nonnull final List<ChannelAddress> addresses )
   {
     final String invocationKey =
       addresses.isEmpty() ? "BulkUnsubscribe(empty)" : "BulkUnsubscribe(" + addresses.get( 0 ).channelId() + ")";

@@ -236,7 +236,7 @@ public class ReplicantEndpoint
     {
       final int requestId = command.getInt( Messages.Common.REQUEST_ID );
       final Object filter = extractFilter( channelMetaData, command );
-      _sessionManager.bulkSubscribe( replicantSession, requestId, Collections.singletonList( address ), filter );
+      _sessionManager.subscribe( replicantSession, requestId, Collections.singletonList( address ), filter );
     }
   }
 
@@ -291,7 +291,7 @@ public class ReplicantEndpoint
 
       final var requestId = command.getInt( Messages.Common.REQUEST_ID );
       final var filter = extractFilter( channelMetaData, command );
-      _sessionManager.bulkSubscribe( session, requestId, Arrays.asList( addresses ), filter );
+      _sessionManager.subscribe( session, requestId, Arrays.asList( addresses ), filter );
     }
   }
 
@@ -326,7 +326,7 @@ public class ReplicantEndpoint
     if ( checkUnsubscribeRequest( replicantSession, channelMetaData, address ) )
     {
       final var requestId = command.getInt( Messages.Common.REQUEST_ID );
-      _sessionManager.bulkUnsubscribe( replicantSession, requestId, Collections.singletonList( address ) );
+      _sessionManager.unsubscribe( replicantSession, requestId, Collections.singletonList( address ) );
     }
   }
 
@@ -354,7 +354,7 @@ public class ReplicantEndpoint
       }
 
       final int requestId = command.getInt( Messages.Common.REQUEST_ID );
-      _sessionManager.bulkUnsubscribe( session, requestId, Arrays.asList( addresses ) );
+      _sessionManager.unsubscribe( session, requestId, Arrays.asList( addresses ) );
     }
   }
 
