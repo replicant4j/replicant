@@ -3,7 +3,7 @@
 ### Unreleased
 
 * Decouple from guiceyloops library.
-* Rename `bulkCollectDataForSubscribe` to `collectChannelData` and `bulkCollectDataForSubscriptionUpdate` to `collectChannelDataForFilterChange` in `ReplicantSessionContext`. 
+* Rename `bulkCollectDataForSubscribe` to `collectChannelData` and `bulkCollectDataForSubscriptionUpdate` to `collectChannelDataForFilterChange` in `ReplicantSessionContext`.
 
 ### [v6.176](https://github.com/replicant4j/replicant/tree/v6.176) (2026-02-26) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.175...v6.176)
 
