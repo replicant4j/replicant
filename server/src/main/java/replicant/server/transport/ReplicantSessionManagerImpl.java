@@ -48,9 +48,6 @@ import replicant.server.ee.EntityMessageCacheUtil;
 import replicant.server.ee.ReplicantContextHolder;
 import replicant.server.json.JsonEncoder;
 
-/**
- * Session managers.
- */
 @SuppressWarnings( "DuplicatedCode" )
 @ApplicationScoped
 @Transactional
