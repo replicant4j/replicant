@@ -630,11 +630,36 @@ public class ReplicantSessionManagerImpl
         {
           for ( final var link : links )
           {
-            final var alreadyCollected =
+            final var existing =
               subscribed
                 .stream()
-                .anyMatch( s -> s.source().equals( link.source() ) && s.target().equals( link.target() ) );
-            if ( !alreadyCollected )
+                .filter( s -> s.source().equals( link.source() ) && s.target().equals( link.target() ) )
+                .findFirst()
+                .orElse( null );
+            if ( null != existing )
+            {
+              final var target = existing.target();
+              final var channel = getSchemaMetaData().getChannelMetaData( target.channelId() );
+
+              assert ( null == target.filterInstanceId() && !channel.requiresFilterInstanceId() ) ||
+                     ( null != target.filterInstanceId() && channel.requiresFilterInstanceId() );
+
+              if ( channel.requiresFilterParameter() && channel.filterType().isDynamicFilter() )
+              {
+                final var targetEntry = session.findSubscriptionEntry( target );
+                if ( null != targetEntry )
+                {
+                  final var source = existing.source();
+                  final var sourceEntry = session.findSubscriptionEntry( source );
+                  assert null != sourceEntry;
+                  targetEntry.setFilter( _context.deriveTargetFilter( entityMessage,
+                                                                      source,
+                                                                      sourceEntry.getFilter(),
+                                                                      target ) );
+                }
+              }
+            }
+            else
             {
               final var entry = createChannelLinkEntryIfRequired( entityMessage, session, link );
               if ( null != entry )
