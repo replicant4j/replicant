@@ -65,7 +65,7 @@ public class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   @Nonnull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
-  @SuppressWarnings( "CdiInjectionPointsInspection" )
+  @SuppressWarnings( { "CdiInjectionPointsInspection", "RedundantSuppression" } )
   @Inject
   private ReplicantSessionContext _context;
   @Resource
