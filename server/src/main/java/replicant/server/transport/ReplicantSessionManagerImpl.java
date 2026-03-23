@@ -1326,7 +1326,9 @@ public class ReplicantSessionManagerImpl
         final var channelMetaData = getSchemaMetaData().getChannelMetaData( entryAddress );
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
-        if ( channelMetaData.isInstanceGraph() && channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() )
+        if ( channelMetaData.isInstanceGraph() &&
+             channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() &&
+             Objects.equals( address.rootId(), m.getId() ) )
         {
           session.performUnsubscribe( entry, true, true, changeSet );
         }
