@@ -403,7 +403,7 @@ public final class ReplicantSession
     }
   }
 
-  void unsubscribe( @Nonnull final ChannelAddress address, @Nonnull final ChangeSet changeSet )
+  private void unsubscribe( @Nonnull final ChannelAddress address, @Nonnull final ChangeSet changeSet )
   {
     final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null != entry )

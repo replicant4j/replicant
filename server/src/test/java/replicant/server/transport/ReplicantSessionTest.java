@@ -449,10 +449,10 @@ public class ReplicantSessionTest
       final var entry = session.createSubscriptionEntry( address );
       entry.setExplicitlySubscribed( true );
 
-      session.unsubscribe( address, changeSet );
+      session.bulkUnsubscribe( Collections.singletonList( address ), changeSet );
       assertNull( session.findSubscriptionEntry( address ) );
 
-      session.unsubscribe( address, changeSet );
+      session.bulkUnsubscribe( Collections.singletonList( address ), changeSet );
     }
     finally
     {
