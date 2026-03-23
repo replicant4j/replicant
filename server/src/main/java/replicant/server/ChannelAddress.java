@@ -52,24 +52,23 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     {
       final Integer otherRootId = other.rootId();
       final Integer rootId = rootId();
-      if ( null == otherRootId && null == rootId )
+      if ( null != otherRootId || null != rootId )
       {
-        // continue
-      }
-      else if ( null == otherRootId )
-      {
-        return -1;
-      }
-      else if ( null == rootId )
-      {
-        return 1;
-      }
-      else
-      {
-        final int rootDiff = rootId.compareTo( otherRootId );
-        if ( 0 != rootDiff )
+        if ( null == otherRootId )
         {
-          return rootDiff;
+          return -1;
+        }
+        else if ( null == rootId )
+        {
+          return 1;
+        }
+        else
+        {
+          final int rootDiff = rootId.compareTo( otherRootId );
+          if ( 0 != rootDiff )
+          {
+            return rootDiff;
+          }
         }
       }
     }
