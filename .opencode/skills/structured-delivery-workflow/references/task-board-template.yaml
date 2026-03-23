@@ -1,0 +1,36 @@
+meta:
+  project: <project-name>
+  last_updated: <yyyy-mm-dd>
+  required_full_gates:
+    - <full-gate-command>
+  statuses:
+    - pending
+    - in_progress
+    - completed
+    - cancelled
+
+current_focus: <task-id-or-complete>
+
+tasks:
+  - id: T01
+    title: <task-title>
+    status: pending
+    priority: high
+    depends_on: []
+    acceptance_criteria:
+      - <criterion-1>
+      - <criterion-2>
+    files_touched:
+      - <path-or-pattern>
+    evidence:
+      - command: <command>
+        result: pass
+    commit:
+      hash: pending
+      message: pending
+
+history:
+  - timestamp: <yyyy-mm-dd>
+    task: T01
+    commit: <hash-or-pending>
+    note: <short completion note>
