@@ -25,12 +25,13 @@ tasks:
     evidence:
       - command: <command>
         result: pass
+    # Use real commit sha when available; use not_required only when no commit is expected.
     commit:
-      hash: pending
-      message: pending
+      hash: <sha-or-not_required>
+      message: <message-or-not_required>
 
 history:
   - timestamp: <yyyy-mm-dd>
     task: T01
-    commit: <hash-or-pending>
+    commit: <sha-or-not_required>
     note: <short completion note>
