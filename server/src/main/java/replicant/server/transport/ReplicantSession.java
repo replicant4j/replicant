@@ -471,8 +471,8 @@ public final class ReplicantSession
   /**
    * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
    */
-  void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                  @Nonnull final SubscriptionEntry targetEntry )
+  private void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
+                                          @Nonnull final SubscriptionEntry targetEntry )
   {
     sourceEntry.deregisterOutwardSubscriptions( targetEntry.address() );
     targetEntry.deregisterInwardSubscriptions( sourceEntry.address() );
