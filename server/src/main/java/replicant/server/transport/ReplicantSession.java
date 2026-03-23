@@ -456,9 +456,9 @@ public final class ReplicantSession
     delinkDownstreamSubscription( getSubscriptionEntry( upstream ), downstream, changeSet );
   }
 
-  void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
-                                     @Nonnull final ChannelAddress downstream,
-                                     @Nonnull final ChangeSet changeSet )
+  private void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
+                                             @Nonnull final ChannelAddress downstream,
+                                             @Nonnull final ChangeSet changeSet )
   {
     final var downstreamEntry = findSubscriptionEntry( downstream );
     if ( null != downstreamEntry )
