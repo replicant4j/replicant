@@ -1,185 +1,158 @@
 # Repository Guidelines
 
-This guide helps contributors work effectively on the Replicant codebase.
-
-## User Interaction
-
-When asked to perform a task, ask the user questions one at a time until you have enough context. Feel free to make
-reasonable assumptions based on patterns present in the code and ask the user to confirm the assumptions if there are
-reasonable alternatives.
-
-## Code Style
-
-- Use `var` for local variable declarations whenever possible.
-- Use literal-on-left comparisons for comparison operators (Yoda conditions).
-- Prefer ternary operators for simple, side-effect-free conditionals that return or assign a value.
-  - Example: `return condition ? a : b;`
-  - Avoid ternaries when they hurt readability (nested, long expressions, or multi-step logic).
-- Prefer low coupling between packages and the narrowest visibility possible for classes/methods.
-- Where viable, expose package functionality via a facade to reduce cross-package dependencies.
-- Keep Javadocs aligned with code behavior and signatures. If a method/class changes, update any related Javadocs in the same change.
+This guide captures the repo-specific rules and conventions for working effectively in the Replicant codebase.
 
 ## Non-negotiable Rules
 
-1. When asked to perform a task, ask the user questions one at a time until you have enough context. Feel free to make
-   reasonable assumptions based on patterns present in the code and ask the user to confirm the assumptions if there are
-   reasonable alternatives.
+1. When asked to perform a task, ask clarifying questions one at a time until you have enough context to proceed. Make reasonable assumptions when the codebase makes the answer clear, and ask the user to confirm when there are meaningful alternatives.
 
-2. **Prefer direct API evolution over compatibility shims**
-  - Treat this repo as greenfield unless the user says otherwise.
-  - When changing constructors, methods, or internal interfaces, update all production code and tests directly instead of adding overloads, chained constructors, default interface methods, or adapter layers solely to reduce churn.
-  - Keep multiple constructors/overloads only when they are meaningfully justified by the final design, not to preserve binary/source compatibility for this repo.
+2. Keep `AGENTS.md` aligned with the codebase.
+   - Update this file in the same change whenever build steps, module structure, generated-code paths, runtime flags, or architectural concepts change.
+   - Remove stale references to deleted classes, endpoints, workflows, or dependencies instead of preserving compatibility lore.
+   - Prefer concise, accurate guidance over exhaustive historical notes.
 
-## Project Structure & Module Organization
+3. Prefer direct API evolution over compatibility shims.
+   - Treat this repo as greenfield unless the user says otherwise.
+   - When changing constructors, methods, or internal interfaces, update all production code and tests directly instead of adding overloads, chained constructors, default interface methods, or adapter layers solely to reduce churn.
+   - Keep multiple constructors or overloads only when they are justified by the final design, not to preserve compatibility inside this repo.
 
-- Java modules: `client/` (client-side code), `server/` (server-side code) and `shared/` (code used on both the server-side and client-side).
-- Build configuration: `buildfile` (Buildr), `tasks/*.rake` (release, GWT support, packaging), `build.yaml` (artifact coordinates), `Gemfile` (Buildr plugins).
-- Source layout: `*/src/main/java/...`; tests: `*/src/test/java/...`.
-- Generated binaries and build artifacts should stay out of version control and should stay untouched unless you are troubleshooting a local build.
-- Keep `README.md` aligned with new features so downstream teams stay informed.
+4. When the user reports a bug, start by writing or updating a test that reproduces it. Then fix the bug and prove the fix with a passing test.
 
-### Module-specific notes
+## Project Structure
+
+- Java modules:
+  - `client/` contains the GWT-enabled client runtime and JS interop code.
+  - `server/` contains the CDI/WebSocket server transport and replication logic.
+  - `shared/` contains constants and types shared by client and server.
+- Build configuration:
+  - `buildfile` defines the Buildr build.
+  - `build.yaml` defines artifact coordinates and dependency versions.
+  - `tasks/*.rake` contains GWT, release, packaging, and diagnostic helper tasks.
+  - `Gemfile` configures the Ruby/Buildr toolchain.
+- Source layout:
+  - Production code lives under `*/src/main/java/...`.
+  - Tests live under `*/src/test/java/...`.
+- Generated sources:
+  - Annotation processor outputs checked in for GWT compatibility live under `client/generated/processors/main/java/...`.
+  - Do not hand-edit generated sources.
+- Documentation:
+  - Keep `README.md`, `CHANGELOG.md`, and `AGENTS.md` aligned with user-visible or workflow-relevant changes.
+
+### Module Notes
 
 - `shared/`
-  - Pure Java constants and shared types used by both client and server. Example: `shared/src/main/java/replicant/shared/SharedConstants.java`.
-  - Keep URL path fragments and message keys centralized here so client/server stay consistent.
+  - Keep transport path fragments, shared constants, and message keys centralized here.
+  - Example files: `shared/src/main/java/replicant/shared/SharedConstants.java`, `shared/src/main/java/replicant/shared/Messages.java`.
 - `client/`
-  - GWT-enabled client runtime with JS interop. GWT modules are defined under `client/src/main/java/replicant/*.gwt.xml` (e.g. `Replicant.gwt.xml`, `ReplicantDev.gwt.xml`, `ReplicantDebug.gwt.xml`).
-  - Uses annotation processors (Arez, React4j, Grim). Pre-generated outputs are checked in under `client/generated/processors/...` to support GWT; do not hand-edit these files.
-  - Mark JVM-only code with `replicant.GwtIncompatible` (or `replicant.messages.GwtIncompatible` within the messages package) to keep GWT builds clean.
+  - GWT modules live under `client/src/main/java/replicant/*.gwt.xml`.
+  - JVM-only code must use the package-local `replicant.GwtIncompatible` annotation, or `replicant.messages.GwtIncompatible` inside the messages package.
+  - Client and shared code must avoid `var`; use explicit local types.
 - `server/`
-  - Java EE/Jakarta EE style server with CDI, JAX-RS, WebSocket, and JSON-P (javax.json). WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT` and REST resources are rooted at `SharedConstants.CONNECTION_URL_FRAGMENT`.
-  - Guard session access with the session lock pattern (see `server/src/main/java/replicant/server/ee/rest/ReplicantSessionRestService.java:110`).
+  - The active transport is CDI + WebSocket + JSON-P (`javax.json`).
+  - The WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT`.
+  - Session mutation is guarded by `ReplicantSession.getLock()`; follow the locking patterns in `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java` and `server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java`.
 
-## Protocol and Instanced Filters
+## Protocol and Hotspots
 
 - Channel descriptor grammar: `channelId[.rootId][#filterInstanceId]`.
-  - `#` is reserved; filter instance id is the substring after the first `#` and may be empty.
-  - No escaping; JSON transport handles encoding.
+  - `#` is reserved; the filter instance id is the substring after the first `#` and may be empty.
+  - No escaping is supported; JSON transport handles encoding.
 - Instanced filter types:
-  - `DYNAMIC_INSTANCED`: requires `#` on subscribe/update/unsubscribe; filter updates allowed.
-  - `STATIC_INSTANCED`: requires `#` on subscribe/unsubscribe; filter updates rejected.
-- Bulk subscribe/unsubscribe uses a shared filter for all addresses; the instance id lives on each `ChannelAddress`.
+  - `DYNAMIC_INSTANCED` requires `#` on subscribe, update, and unsubscribe, and allows filter updates.
+  - `STATIC_INSTANCED` requires `#` on subscribe and unsubscribe, and rejects filter updates.
+- Bulk subscribe and unsubscribe uses a shared filter for all addresses; the instance id lives on each `ChannelAddress`.
 
-## Implementation Hotspots
+Implementation hotspots:
 
-- Channel descriptor parsing/formatting: `client/src/main/java/replicant/ChannelAddress.java`,
-  `server/src/main/java/replicant/server/ChannelAddress.java`.
-- Client validation + AOI flow: `client/src/main/java/replicant/Connector.java`,
-  `client/src/main/java/replicant/Converger.java`, `client/src/main/java/replicant/SubscriptionService.java`.
-- Server validation + routing: `server/src/main/java/replicant/server/ee/ReplicantEndpoint.java`,
-  `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java`,
-  `server/src/main/java/replicant/server/transport/ReplicantSession.java`.
-- Change encoding: `server/src/main/java/replicant/server/json/JsonEncoder.java`,
-  `server/src/main/java/replicant/server/Change.java`, `server/src/main/java/replicant/server/ChangeSet.java`.
+- Channel descriptor parsing and formatting:
+  - `client/src/main/java/replicant/ChannelAddress.java`
+  - `server/src/main/java/replicant/server/ChannelAddress.java`
+- Client validation and AOI flow:
+  - `client/src/main/java/replicant/Connector.java`
+  - `client/src/main/java/replicant/Converger.java`
+  - `client/src/main/java/replicant/SubscriptionService.java`
+- Server validation and routing:
+  - `server/src/main/java/replicant/server/ee/ReplicantEndpoint.java`
+  - `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java`
+  - `server/src/main/java/replicant/server/transport/ReplicantSession.java`
+- Change encoding:
+  - `server/src/main/java/replicant/server/json/JsonEncoder.java`
+  - `server/src/main/java/replicant/server/Change.java`
+  - `server/src/main/java/replicant/server/ChangeSet.java`
 
-## General Principles
+## Coding Conventions
 
-- Readability: Write code that is easy to read and understand. Prioritize clarity over overly clever or obscure
-  solutions.
-- Consistency: Strive for consistency in naming, formatting, and architectural patterns throughout the project.
-- Simplicity (KISS): Keep It Simple, Stupid. Avoid unnecessary complexity.
-- Don't Repeat Yourself (DRY): Avoid code duplication. Utilize functions, classes, and reusable components.
-- Commenting:
-    - Comment code that is complex, non-obvious, or critical.
-    - Explain why something is done, not just what is being done (if the what is clear from the code).
-    - Keep comments up-to-date with code changes.
-- Modularity: Design components to be as self-contained and reusable as possible.
-- Performance: Be mindful of performance implications, especially for real-time operations. Profile and optimize
-  critical code paths.
-- Error Handling: Implement robust error handling and provide clear feedback to users or logs when errors occur.
+- Write for readability first. Prefer simple, direct code over clever abstractions.
+- Keep naming, formatting, and architecture consistent with nearby code.
+- Use the narrowest practical visibility. Helpers are typically `final` and package-private unless they are part of the public API.
+- Use comments sparingly and explain why, not what, when the code is otherwise hard to understand.
 
-## Derived Conventions
+### Java Conventions
 
-- Nullability:
-  - Prefer `@Nonnull`/`@Nullable` from `javax.annotation` for general code.
-  - On JAX-RS resources, also use `@NotNull` from `javax.validation` for parameter validation.
-- Immutability and locals:
-  - Use `final` where practical.
-  - `final var` is allowed in tests and server module code only. Do not use `var` in non-test client code, as it is transpiled to JavaScript and the transpiler does not support `var` yet.
-  - Use explicit types when clarity or overload resolution benefits.
-- Warnings and lint:
-  - Compilation runs with `-Xlint:all,-processing,-serial` and `-Werror` (see `buildfile:15-19`). Fix warnings or explicitly and narrowly suppress with justification.
-- Package visibility:
-  - Keep visibility as small as practical. Many helpers are `final` and/or package-private unless part of the public API.
+- The build targets Java 17 and compiles with `-Xlint:all,-processing,-serial` and `-Werror`. Fix warnings or suppress them narrowly with justification.
+- Use `@Nonnull` and `@Nullable` from `javax.annotation` for nullability.
+- On JAX-RS-style validation boundaries, prefer `@NotNull` from `javax.validation` when that style is already in use. Do not add new REST-specific guidance to this file unless the codebase adds REST resources again.
+- Use `final` where practical.
+- Use `final var` for local variables in `server/` code and under `*/src/test/java/...` unless Java requires an explicit type or the explicit type materially improves clarity.
+- Never use `var` in `client/` or `shared/`; use explicit local types there.
+- Public API changes should include matching Javadoc updates. Keep package documentation in `package-info.java` aligned with the code.
 
-## Build, Test, and Development Commands
+### Generated Code
 
-Prerequisites: JDK 17+, Ruby 2.7.x with Bundler, Node.js (for docs site) and Yarn.
+- Do not hand-edit files under `client/generated/processors/main/java/...`.
+- If annotation processor output changes, regenerate or update the generated sources consistently with the source change that required it.
 
-- Bootstrap once: `bundle install`.
-- Build all modules: `bundle exec buildr clean package`.
-- Run tests: `bundle exec buildr test`.
+## Build and Test
 
-Additional details derived from the build:
+Prerequisites: JDK 17+, Ruby 2.7.x, and Bundler.
 
-- The build is managed via Buildr with artifacts declared in `build.yaml`. Update that file when adding/upgrading dependencies.
+- Bootstrap once: `bundle install`
+- Build all modules: `bundle exec buildr clean package`
+- Run all tests: `bundle exec buildr test`
+
+Additional build notes:
+
+- The build is managed via Buildr; update `build.yaml` when adding or upgrading dependencies.
 - GWT support is wired via `tasks/gwt.rake` and `gwt_enhance(project)` in `buildfile`.
-- Test JVM properties default to development settings for Braincheck/Arez/Replicant (see `buildfile:104-121`).
+- Test JVM properties default to development settings for Braincheck, Arez, and Replicant.
 
-## Coding Style & Naming Conventions
+### Testing Guidelines
 
-- Language: Java 17; compilation uses `-Xlint:all` and `-Werror` (warnings must be fixed).
-- Indentation: 2 spaces; braces on a new line for types/methods; keep imports ordered and minimal.
-- Annotations: prefer `@Nonnull`/`@Nullable`; use `final` where practical.
-- Naming: packages lowercase (`replicant.*`), classes `PascalCase`, methods/fields `camelCase`, constants `UPPER_SNAKE_CASE`.
-- Public API must include Javadoc; keep package-level docs in `package-info.java`.
-- GWT compatibility: annotate JVM-only code with `replicant.GwtIncompatible` (or package-local variant) and keep JS interop types (`@JsType`, `@JsMethod`) isolated as needed.
-
-Annotations:
-
-- GwtIncompatible: intentionally duplicated as package-local annotations in `replicant` and `replicant.messages` to avoid making the annotation public API. Only the name matters for GWT stripping; do not consolidate into a public type.
-
-## Testing Guidelines
-
-- Framework: TestNG across modules.
-- Location: place tests under `*/src/test/java`.
-- Naming: suffix unit tests with `Test`.
-- Run all tests with `bundle exec buildr test` before submitting.
+- Test framework: TestNG across modules.
+- Place tests under `*/src/test/java/...`.
+- Name tests with the `Test` suffix.
+- Run `bundle exec buildr test` before submitting changes unless the user explicitly asks you not to.
 
 Diagnostics fixtures and invariants:
 
 - Client tests validate diagnostic messages via `MessageCollector` and fixtures in `client/src/test/java/replicant/diagnostic_messages.json`.
-- Properties controlling this behaviour (see `buildfile:115-121, 141-146` and `client/src/test/java/replicant/MessageCollector.java:12`):
-  - `replicant.check_diagnostic_messages` (true/false) — verify messages match fixtures.
-  - `replicant.output_fixture_data` (true/false) — rewrite fixtures when messages change.
-  - `replicant.diagnostic_messages_file` — path to fixture JSON.
-- In IntelliJ, use the generated TestNG configurations (e.g. “client - update invariant messages”) to refresh fixtures when expected outputs legitimately change.
+- Relevant properties:
+  - `replicant.check_diagnostic_messages` verifies emitted diagnostics against the fixture file.
+  - `replicant.output_fixture_data` rewrites fixture data when expected outputs intentionally change.
+  - `replicant.diagnostic_messages_file` points at the fixture JSON file.
+- In IntelliJ, use the generated TestNG configurations such as `client - update invariant messages` when fixture updates are intentional.
 
-## Commit & Pull Request Guidelines
+## Runtime and Transport Notes
 
-- Follow `CONTRIBUTING.md` and the Code of Conduct.
-- Commits: small, focused, imperative subject; reference issues where relevant; update `CHANGELOG.md` for user-visible changes.
-- PRs: include a clear description, linked issues, tests for behavior, and docs updates if APIs change. Add screenshots or generated artifacts when helpful.
+- Runtime and GWT properties are defined in `client/src/main/java/replicant/ReplicantConfig.java` and `client/src/main/java/replicant/Replicant.gwt.xml`.
+- Key properties include:
+  - `replicant.environment`
+  - `replicant.check_invariants`
+  - `replicant.check_api_invariants`
+  - `replicant.enable_names`
+  - `replicant.enable_zones`
+  - `replicant.enable_spies`
+  - `replicant.validateChangeSetOnRead`
+  - `replicant.validateEntitiesOnLoad`
+  - `replicant.logger`
+- Keep transport routes and message formats in sync with shared constants and message keys.
+- Prefer JSON-P builders and generators for message encoding rather than ad-hoc string concatenation.
 
-## Security & Configuration Tips (Optional)
+## Commit and Release Guidance
 
-- Never commit secrets.
-- Release-related env vars: `PRODUCT_VERSION`, `PREVIOUS_PRODUCT_VERSION`.
-- Publishing to Maven Central uses `tasks/package_for_maven_central.rake`; requires a `.netrc` entry for `central.sonatype.com` and GPG configured via Buildr.
-
-## Client Runtime Configuration
-
-- Runtime/system properties (JVM) and GWT properties control behaviour (see `client/src/main/java/replicant/ReplicantConfig.java` and `client/src/main/java/replicant/Replicant.gwt.xml`):
-  - `replicant.environment` — `production` or `development`.
-  - `replicant.check_invariants`, `replicant.check_api_invariants` — enable invariant checks.
-  - `replicant.enable_names`, `replicant.enable_zones`, `replicant.enable_spies` — feature toggles.
-  - `replicant.validateChangeSetOnRead`, `replicant.validateEntitiesOnLoad` — additional validations.
-  - `replicant.logger` — `console`, `proxy`, or `none`. Default is `console`. Tests and local debugging default to `proxy`.
-
-## Generated Code
-
-- The repository includes generated sources under `client/generated/processors/...` produced by annotation processors (Arez/React4j/Grim) for GWT compatibility.
-- Do not hand-edit generated code. If generators change API, update the generated sources consistently or re-run the processors and refresh committed outputs.
-
-## Server Endpoints & JSON
-
-- Keep WebSocket and REST routes in sync with `shared` constants to avoid drift:
-  - WebSocket endpoint: `@ServerEndpoint("/api" + SharedConstants.REPLICANT_URL_FRAGMENT)`.
-  - REST base path: `@Path(SharedConstants.CONNECTION_URL_FRAGMENT)`.
-- Prefer JSON-P (`javax.json`) builders/generators (`JsonGeneratorFactory`) for encoding responses and messages. Avoid ad-hoc string concatenation.
-
-## Notes for the Agent
-
-- We are building this together. When you learn something non-obvious, add it here so future changes go faster.
-- When I report a bug, don't start by trying to fix it. Instead start by writing a test that reproduces the bug. Then try to fix the bug and prove it with a passing test.
+- Follow `CONTRIBUTING.md` and `CODE_OF_CONDUCT.md`.
+- Keep commits small, focused, and imperative.
+- Update `CHANGELOG.md` for user-visible changes.
+- Update `README.md` when public APIs, workflows, or integration expectations change.
+- Release-related environment variables include `PRODUCT_VERSION` and `PREVIOUS_PRODUCT_VERSION`.
+- Publishing to Maven Central uses `tasks/package_for_maven_central.rake` and requires `.netrc` credentials for `central.sonatype.com` plus GPG configured via Buildr.
