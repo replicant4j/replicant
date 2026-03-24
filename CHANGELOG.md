@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.179](https://github.com/replicant4j/replicant/tree/v6.179) (2026-03-24) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.178...v6.179)
+
+Changes in this release:
 
 * Add server-side support for partial/template `ChannelAddress` and `ChannelLink` instances so follow-link processing can resolve missing target filters and filter instance ids at session time.
 * Reintroduce `ReplicantSessionContext.deriveTargetFilterInstanceId(...)` and `AbstractSessionContextImpl.deriveTargetFilterInstanceId(...)` so downstream applications can derive target filter instance ids from the source graph, source filter, target template, and current `EntityMessage`.
