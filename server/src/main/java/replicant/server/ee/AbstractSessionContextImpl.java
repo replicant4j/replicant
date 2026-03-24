@@ -148,7 +148,7 @@ public abstract class AbstractSessionContextImpl
                                     @Nonnull final String columnLabel )
     throws SQLException
   {
-    final int value = resultSet.getInt( columnLabel );
+    final var value = resultSet.getInt( columnLabel );
     attributeValues.put( key, value );
     return value;
   }

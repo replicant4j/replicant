@@ -9,9 +9,9 @@ public class RequestEntryTest
   @Test
   public void construct()
   {
-    final int requestId = 321;
-    final String requestKey = "ABC.go";
-    final RequestEntry e = new RequestEntry( requestId, requestKey, false, null );
+    final var requestId = 321;
+    final var requestKey = "ABC.go";
+    final var e = new RequestEntry( requestId, requestKey, false, null );
 
     assertEquals( e.getRequestId(), requestId );
     assertEquals( e.getName(), requestKey );
@@ -28,7 +28,7 @@ public class RequestEntryTest
   public void construct_NameWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> new RequestEntry( 123, "ABC", false, null ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0041: RequestEntry passed a name 'ABC' but Replicant.areNamesEnabled() is false" );
@@ -37,9 +37,9 @@ public class RequestEntryTest
   @Test
   public void minimalToString()
   {
-    final int requestId = 123;
-    final String name = "MyMagicMethod";
-    final RequestEntry e = new RequestEntry( requestId, name, false, null );
+    final var requestId = 123;
+    final var name = "MyMagicMethod";
+    final var e = new RequestEntry( requestId, name, false, null );
 
     assertEquals( e.toString(), "Request(MyMagicMethod)[Id=123]" );
   }
@@ -48,7 +48,7 @@ public class RequestEntryTest
   public void toString_WhenNameDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final RequestEntry e = new RequestEntry( 123, null, false, null );
+    final var e = new RequestEntry( 123, null, false, null );
 
     assertEquals( e.toString(), "replicant.RequestEntry@" + Integer.toHexString( System.identityHashCode( e ) ) );
   }
@@ -57,8 +57,8 @@ public class RequestEntryTest
   public void getName_WhenNameDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final RequestEntry e = new RequestEntry( 123, null, false, null );
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, e::getName );
+    final var e = new RequestEntry( 123, null, false, null );
+    final var exception = expectThrows( IllegalStateException.class, e::getName );
 
     assertEquals( exception.getMessage(),
                   "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );

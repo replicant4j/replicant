@@ -22,7 +22,7 @@ public final class EntityMessageSet
 
   public void mergeAll( @Nonnull final Collection<EntityMessage> messages, final boolean copyOnMerge )
   {
-    for ( final EntityMessage message : messages )
+    for ( final var message : messages )
     {
       merge( message, copyOnMerge );
     }
@@ -35,8 +35,8 @@ public final class EntityMessageSet
 
   public void merge( @Nonnull final EntityMessage message, final boolean copyOnMerge )
   {
-    final String key = toKey( message.getTypeId(), message.getId() );
-    final EntityMessage existing = _entities.get( key );
+    final var key = toKey( message.getTypeId(), message.getId() );
+    final var existing = _entities.get( key );
     if ( null != existing )
     {
       existing.merge( message );

@@ -10,14 +10,14 @@ public class EntityMessageSetTest
   @Test
   public void mergeElementsOverrideExisting()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
-    final EntityMessage message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
+    final var message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
 
-    final EntityMessageSet set = new EntityMessageSet();
+    final var set = new EntityMessageSet();
     set.merge( message );
     assertEquals( set.getEntityMessages().size(), 1 );
 
@@ -44,14 +44,14 @@ public class EntityMessageSetTest
   @Test
   public void mergeReplacesIfCopySpecified()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
 
-    final EntityMessageSet set = new EntityMessageSet();
+    final var set = new EntityMessageSet();
     set.merge( message, true );
-    final EntityMessage inserted = set.getEntityMessages().iterator().next();
+    final var inserted = set.getEntityMessages().iterator().next();
     assertNotSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 0 );
@@ -64,17 +64,17 @@ public class EntityMessageSetTest
   @Test
   public void mergeMultiple()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
-    final EntityMessage message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
+    final var message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
 
-    final EntityMessageSet set = new EntityMessageSet();
+    final var set = new EntityMessageSet();
     set.mergeAll( Arrays.asList( message, message2, message3 ) );
     assertEquals( set.getEntityMessages().size(), 1 );
-    final EntityMessage inserted = set.getEntityMessages().iterator().next();
+    final var inserted = set.getEntityMessages().iterator().next();
     assertSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 2, "Timestamp merge rule is to take the latest value" );
@@ -87,18 +87,18 @@ public class EntityMessageSetTest
   @Test
   public void mergeMultipleWithCopy()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
-    final EntityMessage message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message2 = MessageTestUtil.createMessage( id, typeID, 2, "r3", null, "a3", null );
+    final var message3 = MessageTestUtil.createMessage( id, typeID, 1, null, "r4", null, "a4" );
 
-    final EntityMessageSet set = new EntityMessageSet();
+    final var set = new EntityMessageSet();
     set.mergeAll( Arrays.asList( message, message2, message3 ), true );
     assertEquals( set.getEntityMessages().size(), 1 );
 
-    final EntityMessage inserted = set.getEntityMessages().iterator().next();
+    final var inserted = set.getEntityMessages().iterator().next();
     assertNotSame( inserted, message );
 
     assertEquals( inserted.getTimestamp(), 2, "Timestamp merge rule is to take the latest value" );
@@ -111,10 +111,10 @@ public class EntityMessageSetTest
   @Test
   public void isMessagePresent()
   {
-    final EntityMessage message =
+    final var message =
       new EntityMessage( 17, 42, 0, new HashMap<>(), new HashMap<>(), null );
 
-    final EntityMessageSet set = new EntityMessageSet();
+    final var set = new EntityMessageSet();
 
     assertFalse( set.containsEntityMessage( message.getTypeId(), message.getId() ) );
     set.merge( message );

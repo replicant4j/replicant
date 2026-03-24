@@ -16,7 +16,7 @@ public class MessageResponseTest
   @Test
   public void construct()
   {
-    final MessageResponse action =
+    final var action =
       new MessageResponse( 1, UpdateMessage.create( null, null, null, null, null, null ), null );
 
     assertFalse( action.areEntityLinksPending() );
@@ -34,10 +34,10 @@ public class MessageResponseTest
   @Test
   public void toStatus()
   {
-    final UpdateMessage changeSet =
+    final var changeSet =
       UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ], null );
 
-    final MessageResponse action = new MessageResponse( 1, changeSet, null );
+    final var action = new MessageResponse( 1, changeSet, null );
 
     action.incChannelAddCount();
     action.incChannelAddCount();
@@ -50,7 +50,7 @@ public class MessageResponseTest
     action.incEntityRemoveCount();
     action.incEntityLinkCount();
 
-    final DataLoadStatus status = action.toStatus();
+    final var status = action.toStatus();
 
     assertNull( status.getRequestId() );
     assertEquals( status.getChannelAddCount(), 2 );
@@ -66,7 +66,7 @@ public class MessageResponseTest
   {
     ReplicantTestUtil.disableSpies();
 
-    final MessageResponse action = new MessageResponse( 1, new UpdateMessage(), null );
+    final var action = new MessageResponse( 1, new UpdateMessage(), null );
 
     assertEquals( action.getChannelAddCount(), 0 );
     assertEquals( action.getChannelUpdateCount(), 0 );
@@ -94,9 +94,9 @@ public class MessageResponseTest
   @Test
   public void testToString()
   {
-    final UpdateMessage changeSet =
+    final var changeSet =
       UpdateMessage.create( null, null, null, new ChannelChange[ 0 ], new EntityChange[ 0 ], null );
-    final MessageResponse action = new MessageResponse( 1, changeSet, null );
+    final var action = new MessageResponse( 1, changeSet, null );
     assertEquals( action.toString(),
                   "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,EntitiesToLink.size=0]" );
 
@@ -116,39 +116,39 @@ public class MessageResponseTest
   public void lifeCycleWithNormallyCompletedRequest()
   {
     // ChangeSet details
-    final int requestId = ValueUtil.randomInt();
+    final var requestId = ValueUtil.randomInt();
 
     // Channel updates
-    final ChannelChange[] channelChanges = new ChannelChange[ 0 ];
+    final var channelChanges = new ChannelChange[ 0 ];
 
     // Entity Updates
-    final int channelId = 22;
+    final var channelId = 22;
 
     // Entity update
-    final EntityChange change1 =
+    final var change1 =
       EntityChange.create( 100, 50,
                            new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
     // Entity Remove
-    final EntityChange change2 =
+    final var change2 =
       EntityChange.create( 100, 51,
                            new String[]{ String.valueOf( channelId ) } );
     // Entity update - non linkable
-    final EntityChange change3 =
+    final var change3 =
       EntityChange.create( 100, 52,
                            new String[]{ String.valueOf( channelId ) },
                            new EntityChangeDataImpl() );
-    final EntityChange[] entityChanges = new EntityChange[]{ change1, change2, change3 };
+    final var entityChanges = new EntityChange[]{ change1, change2, change3 };
 
-    final Object[] entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
+    final var entities = new Object[]{ mock( Linkable.class ), new Object(), new Object() };
 
-    final UpdateMessage changeSet =
+    final var changeSet =
       UpdateMessage.create( requestId, null, null, channelChanges, entityChanges, null );
 
-    final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
+    final var requestKey = ValueUtil.randomString();
+    final var request = new RequestEntry( requestId, requestKey, false, null );
 
-    final MessageResponse action = new MessageResponse( 1, changeSet, request );
+    final var action = new MessageResponse( 1, changeSet, request );
 
     assertEquals( action.getMessage(), changeSet );
     assertEquals( action.getRequest(), request );
@@ -215,23 +215,23 @@ public class MessageResponseTest
   public void lifeCycleWithChannelUpdates()
   {
     // ChangeSet details
-    final int requestId = ValueUtil.randomInt();
+    final var requestId = ValueUtil.randomInt();
 
     // Channel updates
-    final String filter1 = ValueUtil.randomString();
-    final String filter2 = ValueUtil.randomString();
-    final ChannelChange channelChange1 = ChannelChange.create( "+42", filter1 );
-    final ChannelChange channelChange2 = ChannelChange.create( "=43.1", filter2 );
-    final ChannelChange[] channelChanges = new ChannelChange[]{ channelChange1, channelChange2 };
+    final var filter1 = ValueUtil.randomString();
+    final var filter2 = ValueUtil.randomString();
+    final var channelChange1 = ChannelChange.create( "+42", filter1 );
+    final var channelChange2 = ChannelChange.create( "=43.1", filter2 );
+    final var channelChanges = new ChannelChange[]{ channelChange1, channelChange2 };
 
-    final EntityChange[] entityChanges = new EntityChange[ 0 ];
+    final var entityChanges = new EntityChange[ 0 ];
 
-    final UpdateMessage changeSet =
+    final var changeSet =
       UpdateMessage.create( requestId, null, new String[]{ "-43.2" }, channelChanges, entityChanges, null );
-    final String requestKey = ValueUtil.randomString();
-    final RequestEntry request = new RequestEntry( requestId, requestKey, false, null );
+    final var requestKey = ValueUtil.randomString();
+    final var request = new RequestEntry( requestId, requestKey, false, null );
 
-    final MessageResponse action = new MessageResponse( 1, changeSet, request );
+    final var action = new MessageResponse( 1, changeSet, request );
 
     assertEquals( action.getMessage(), changeSet );
     assertEquals( action.getRequest(), request );
@@ -260,11 +260,11 @@ public class MessageResponseTest
   @Test
   public void setChangeSet_mismatchedRequestId()
   {
-    final UpdateMessage changeSet =
+    final var changeSet =
       UpdateMessage.create( 1234, null, null, null, null, null );
-    final RequestEntry request = new RequestEntry( 5678, ValueUtil.randomString(), false, null );
+    final var request = new RequestEntry( 5678, ValueUtil.randomString(), false, null );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> new MessageResponse( 1, changeSet, request ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0011: Response message specified requestId '1234' but request specified requestId '5678'." );

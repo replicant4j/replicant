@@ -11,13 +11,13 @@ public class ConnectFailureEventTest
   @Test
   public void basicOperation()
   {
-    final ConnectFailureEvent event =
+    final var event =
       new ConnectFailureEvent( 23, "Rose" );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.ConnectFailure" );

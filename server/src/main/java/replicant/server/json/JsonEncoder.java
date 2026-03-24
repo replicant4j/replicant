@@ -95,7 +95,7 @@ public final class JsonEncoder
 
       for ( final var change : changes )
       {
-        final EntityMessage entityMessage = change.getEntityMessage();
+        final var entityMessage = change.getEntityMessage();
 
         generator.writeStartObject();
         generator.write( Messages.Update.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId() );
@@ -136,8 +136,8 @@ public final class JsonEncoder
   public static String toDescriptor( @Nonnull final ChannelAction channelAction )
   {
     assert channelAction.address().concrete();
-    final Action action = channelAction.action();
-    final char actionValue =
+    final var action = channelAction.action();
+    final var actionValue =
       Action.ADD == action ? Messages.Update.CHANNEL_ACTION_ADD :
       Action.REMOVE == action ? Messages.Update.CHANNEL_ACTION_REMOVE :
       Action.UPDATE == action ? Messages.Update.CHANNEL_ACTION_UPDATE :

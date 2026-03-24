@@ -11,9 +11,9 @@ public class SubscriptionTest
   @Test
   public void basicConstruction()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final Object filter = ValueUtil.randomString();
-    final Subscription subscription = Subscription.create( null, address, filter, true );
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
+    final var subscription = Subscription.create( null, address, filter, true );
 
     assertEquals( subscription.address(), address );
 
@@ -25,10 +25,10 @@ public class SubscriptionTest
   @Test
   public void filter()
   {
-    final Object filter1 = ValueUtil.randomString();
-    final Object filter2 = ValueUtil.randomString();
+    final var filter1 = ValueUtil.randomString();
+    final var filter2 = ValueUtil.randomString();
 
-    final Subscription subscription =
+    final var subscription =
       Subscription.create( null, new ChannelAddress( 1, 0 ), filter1, ValueUtil.randomBoolean() );
 
     safeAction( () -> assertEquals( subscription.getFilter(), filter1 ) );
@@ -39,15 +39,15 @@ public class SubscriptionTest
   @Test
   public void entities()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
+    final var entityService = Replicant.context().getEntityService();
+    final var entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
+    final var entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
-    final Subscription subscription =
+    final var address = new ChannelAddress( 1, 0, 1 );
+    final var subscription =
       Subscription.create( null, address, null, true );
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     observer( () -> {
       // Just invoke method to get observing
       //noinspection ResultOfMethodCallIgnored
@@ -55,7 +55,7 @@ public class SubscriptionTest
       callCount.incrementAndGet();
     } );
 
-    final AtomicInteger findCallCount = new AtomicInteger();
+    final var findCallCount = new AtomicInteger();
     observer( () -> {
       // Just invoke method to get observing
       subscription.findEntityByTypeAndId( A.class, 1 );
@@ -131,17 +131,17 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchType()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity =
+    final var entityService = Replicant.context().getEntityService();
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(), A.class, ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 =
+    final var subscription1 =
       Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
 
     entity.subscriptions().put( subscription1.address(), subscription1 );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity, true ) ) );
     assertEquals( exception.getMessage(), "Entity type A not present in subscription to channel 1.0.1" );
@@ -150,15 +150,15 @@ public class SubscriptionTest
   @Test
   public void delinkEntityFromChannel_noSuchInstance()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity =
+    final var entityService = Replicant.context().getEntityService();
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
-    final Entity entity2 =
+    final var entity2 =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 =
+    final var subscription1 =
       Subscription.create( null, new ChannelAddress( 1, 0, 1 ), null, true );
 
     safeAction( () -> entity2.linkToSubscription( subscription1 ) );
@@ -166,7 +166,7 @@ public class SubscriptionTest
     entity.subscriptions().put( subscription1.address(), subscription1 );
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 1 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> subscription1.delinkEntityFromSubscription( entity, true ) ) );
     assertEquals( exception.getMessage(), "Entity instance A/123 not present in subscription to channel 1.0.1" );
@@ -176,11 +176,11 @@ public class SubscriptionTest
   @Test
   public void comparable()
   {
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1 );
+    final var address1 = new ChannelAddress( 1, 0 );
+    final var address2 = new ChannelAddress( 1, 1 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
-    final Subscription subscription2 = Subscription.create( null, address2, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription2 = Subscription.create( null, address2, null, true );
 
     assertEquals( subscription1.compareTo( subscription1 ), 0 );
     assertEquals( subscription1.compareTo( subscription2 ), -1 );
@@ -191,7 +191,7 @@ public class SubscriptionTest
   @Test
   public void getChannelSchema()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -203,9 +203,9 @@ public class SubscriptionTest
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
                                        new EntitySchema[ 0 ] ) );
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final var address1 = new ChannelAddress( 1, 0 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
 
     assertEquals( subscription1.getChannelSchema(), channelSchema );
   }
@@ -213,7 +213,7 @@ public class SubscriptionTest
   @Test
   public void getInstanceRoot()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          A.class,
@@ -225,13 +225,13 @@ public class SubscriptionTest
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
                                        new EntitySchema[ 0 ] ) );
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 33 );
+    final var address1 = new ChannelAddress( 1, 0, 33 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
 
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/33", A.class, 33 ) );
-    final A entity = new A();
+    final var entityService = Replicant.context().getEntityService();
+    final var entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/33", A.class, 33 ) );
+    final var entity = new A();
     safeAction( () -> entity1.setUserObject( entity ) );
 
     safeAction( () -> subscription1.linkSubscriptionToEntity( entity1 ) );
@@ -242,7 +242,7 @@ public class SubscriptionTest
   @Test
   public void getInstanceRoot_butEntityNotPresent()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          A.class,
@@ -254,11 +254,11 @@ public class SubscriptionTest
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
                                        new EntitySchema[ 0 ] ) );
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 33 );
+    final var address1 = new ChannelAddress( 1, 0, 33 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but entity is not present." );
@@ -267,7 +267,7 @@ public class SubscriptionTest
   @Test
   public void getInstanceRoot_butChannelHasNoId()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          A.class,
@@ -279,11 +279,11 @@ public class SubscriptionTest
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
                                        new EntitySchema[ 0 ] ) );
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final var address1 = new ChannelAddress( 1, 0 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel 1.0 but channel has not supplied expected id." );
@@ -292,7 +292,7 @@ public class SubscriptionTest
   @Test
   public void getInstanceRoot_butChannelIsTypeBased()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -304,11 +304,11 @@ public class SubscriptionTest
                                        ValueUtil.randomString(),
                                        new ChannelSchema[]{ channelSchema },
                                        new EntitySchema[ 0 ] ) );
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 44 );
+    final var address1 = new ChannelAddress( 1, 0, 44 );
 
-    final Subscription subscription1 = Subscription.create( null, address1, null, true );
+    final var subscription1 = Subscription.create( null, address1, null, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> safeAction( subscription1::getInstanceRoot ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.44 but channel is not instance based." );

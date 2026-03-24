@@ -11,13 +11,13 @@ public class ChangeUtilTest
   @Test
   public void basicOperation()
   {
-    final int id = 17;
-    final int typeID = 42;
+    final var id = 17;
+    final var typeID = 42;
 
-    final EntityMessage message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final EntityMessage message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
+    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
 
-    final List<Change> changes =
+    final var changes =
       ChangeUtil.toChanges( Arrays.asList( message1, message2 ), new ChannelAddress( 1, 22 ) );
 
     assertEquals( changes.size(), 2 );
@@ -31,7 +31,7 @@ public class ChangeUtilTest
   @Test
   public void emptyInput()
   {
-    final List<Change> changes = ChangeUtil.toChanges( Collections.emptyList(), new ChannelAddress( 1, 22 ) );
+    final var changes = ChangeUtil.toChanges( Collections.emptyList(), new ChannelAddress( 1, 22 ) );
 
     assertTrue( changes.isEmpty() );
   }
@@ -39,13 +39,13 @@ public class ChangeUtilTest
   @Test
   public void filterInstanceIdIsPreserved()
   {
-    final int id = 5;
-    final int typeID = 6;
+    final var id = 5;
+    final var typeID = 6;
 
-    final EntityMessage message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final ChannelAddress address = new ChannelAddress( 3, 7, "inst-1" );
+    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var address = new ChannelAddress( 3, 7, "inst-1" );
 
-    final List<Change> changes = ChangeUtil.toChanges( Arrays.asList( message ), address );
+    final var changes = ChangeUtil.toChanges( Arrays.asList( message ), address );
 
     assertEquals( changes.size(), 1 );
     assertTrue( changes.get( 0 ).getChannels().contains( address ) );

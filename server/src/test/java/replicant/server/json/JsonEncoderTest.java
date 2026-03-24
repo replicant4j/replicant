@@ -32,7 +32,7 @@ public final class JsonEncoderTest
   {
     final var id = 17;
     final var typeID = 42;
-    final Calendar calendar = Calendar.getInstance();
+    final var calendar = Calendar.getInstance();
     calendar.set( Calendar.YEAR, 2001 );
     calendar.set( Calendar.MONTH, Calendar.JULY );
     calendar.set( Calendar.DAY_OF_MONTH, 5 );
@@ -42,21 +42,21 @@ public final class JsonEncoderTest
     calendar.set( Calendar.SECOND, 56 );
     calendar.set( Calendar.MILLISECOND, 0 );
 
-    final Date date = calendar.getTime();
+    final var date = calendar.getTime();
 
     final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final Map<String, Serializable> values = message.getAttributeValues();
+    final var values = message.getAttributeValues();
     assertNotNull( values );
     values.put( "key3", date );
 
     final var requestId = 1;
-    final JsonValue response =
+    final var response =
       Json.createArrayBuilder().add( 17 ).add( 42 ).build();
 
     final var etag = "#1";
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 
-    final Change change = new Change( message );
+    final var change = new Change( message );
     change.getChannels().add( new ChannelAddress( 1, null ) );
     change.getChannels().add( new ChannelAddress( 2, 42 ) );
     change.getChannels().add( new ChannelAddress( 3, 73 ) );
@@ -69,7 +69,7 @@ public final class JsonEncoderTest
     assertNotNull( changeSet );
 
     assertEquals( changeSet.getInt( Messages.Common.REQUEST_ID ), requestId );
-    final JsonArray jsonResponse = changeSet.getJsonArray( Messages.Update.RESPONSE );
+    final var jsonResponse = changeSet.getJsonArray( Messages.Update.RESPONSE );
     assertEquals( jsonResponse.size(), 2 );
     assertEquals( jsonResponse.getInt( 0 ), 17 );
     assertEquals( jsonResponse.getInt( 1 ), 42 );
@@ -89,7 +89,7 @@ public final class JsonEncoderTest
     assertEquals( data.getString( MessageTestUtil.ATTR_KEY2 ), "a2" );
     assertTrue( data.getString( "key3" ).startsWith( "2001-07-05T05:08:56.000" ) );
 
-    final JsonArray channels = object.getJsonArray( Messages.Update.CHANNELS );
+    final var channels = object.getJsonArray( Messages.Update.CHANNELS );
     assertNotNull( channels );
     assertEquals( channels.size(), 3 );
     final var channel1 = channels.getString( 0 );
@@ -183,7 +183,7 @@ public final class JsonEncoderTest
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
-    final JsonArray actions = changeSet.getJsonArray( Messages.Update.CHANNEL_ACTIONS );
+    final var actions = changeSet.getJsonArray( Messages.Update.CHANNEL_ACTIONS );
     assertEquals( actions.size(), 3 );
     assertEquals( actions.getString( 0 ), "+1" );
     assertEquals( actions.getString( 1 ), "-2.5" );
@@ -198,7 +198,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeChangeSet_dataTypes()
   {
-    final Calendar calendar = Calendar.getInstance();
+    final var calendar = Calendar.getInstance();
     calendar.set( Calendar.YEAR, 2001 );
     calendar.set( Calendar.MONTH, Calendar.JULY );
     calendar.set( Calendar.DAY_OF_MONTH, 5 );
@@ -207,7 +207,7 @@ public final class JsonEncoderTest
     calendar.set( Calendar.MINUTE, 8 );
     calendar.set( Calendar.SECOND, 56 );
     calendar.set( Calendar.MILLISECOND, 0 );
-    final Date date = calendar.getTime();
+    final var date = calendar.getTime();
 
     final var routingKeys = new HashMap<String, Serializable>();
     final var attributeData = new HashMap<String, Serializable>();
@@ -242,14 +242,14 @@ public final class JsonEncoderTest
     final var attributeData = new HashMap<String, Serializable>();
     attributeData.put( "x", "y" );
     final var message = new EntityMessage( 1, 2, 0, routingKeys, attributeData, null );
-    final Change change = new Change( message );
+    final var change = new Change( message );
     change.getChannels().add( new ChannelAddress( 7, null, "fi" ) );
     change.getChannels().add( new ChannelAddress( 8, 3, "fi-2" ) );
     final var cs = new ChangeSet();
     cs.merge( change );
 
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
-    final JsonArray channels =
+    final var channels =
       changeSet.getJsonArray( Messages.Update.CHANGES ).getJsonObject( 0 ).getJsonArray( Messages.Update.CHANNELS );
 
     assertEquals( channels.size(), 2 );

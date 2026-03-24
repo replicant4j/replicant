@@ -12,11 +12,11 @@ public class RequestCompletedEventTest
   @Test
   public void basicOperation()
   {
-    final int requestId = ValueUtil.randomInt();
-    final String name = ValueUtil.randomString();
-    final boolean expectingResults = ValueUtil.randomBoolean();
-    final boolean resultsArrived = ValueUtil.randomBoolean();
-    final RequestCompletedEvent event =
+    final var requestId = ValueUtil.randomInt();
+    final var name = ValueUtil.randomString();
+    final var expectingResults = ValueUtil.randomBoolean();
+    final var resultsArrived = ValueUtil.randomBoolean();
+    final var event =
       new RequestCompletedEvent( 23, "Rose", requestId, name, expectingResults, resultsArrived );
 
     assertEquals( event.getRequestId(), requestId );
@@ -24,7 +24,7 @@ public class RequestCompletedEventTest
     assertEquals( event.isExpectingResults(), expectingResults );
     assertEquals( event.haveResultsArrived(), resultsArrived );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.RequestCompleted" );

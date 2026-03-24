@@ -19,7 +19,7 @@ public class ReplicantServiceTest
   @Test
   public void construct()
   {
-    final TestReplicantService replicantService = new TestReplicantService( null );
+    final var replicantService = new TestReplicantService( null );
     assertEquals( replicantService.getReplicantContext(), Replicant.context() );
   }
 
@@ -27,16 +27,16 @@ public class ReplicantServiceTest
   public void construct_whenZonesEnabled()
   {
     ReplicantTestUtil.enableZones();
-    final ReplicantContext context = Replicant.context();
-    final TestReplicantService replicantService = new TestReplicantService( context );
+    final var context = Replicant.context();
+    final var replicantService = new TestReplicantService( context );
     assertEquals( replicantService.getReplicantContext(), context );
   }
 
   @Test
   public void construct_withUnnecessaryContext()
   {
-    final ReplicantContext context = Replicant.context();
-    final IllegalStateException exception =
+    final var context = Replicant.context();
+    final var exception =
       expectThrows( IllegalStateException.class, () -> new TestReplicantService( context ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );

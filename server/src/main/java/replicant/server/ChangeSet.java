@@ -55,7 +55,7 @@ public final class ChangeSet
 
   public void mergeActions( @Nonnull final Collection<ChannelAction> actions )
   {
-    for ( final ChannelAction action : actions )
+    for ( final var action : actions )
     {
       mergeAction( action );
     }
@@ -105,7 +105,7 @@ public final class ChangeSet
     }
     else if ( ChannelAction.Action.DELETE == action.action() )
     {
-      final boolean removedAdd =
+      final var removedAdd =
         _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
                                        a.address().equals( action.address() ) );
       _channelActions.removeIf( a -> a.address().equals( action.address() ) );
@@ -136,7 +136,7 @@ public final class ChangeSet
 
   private void merge( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
   {
-    for ( final Change change : changes )
+    for ( final var change : changes )
     {
       merge( change, copyOnMerge );
     }
@@ -149,7 +149,7 @@ public final class ChangeSet
 
   public void merge( @Nonnull final Change change, final boolean copyOnMerge )
   {
-    final Change existing = _changes.get( change.getKey() );
+    final var existing = _changes.get( change.getKey() );
     if ( null != existing )
     {
       existing.merge( change );

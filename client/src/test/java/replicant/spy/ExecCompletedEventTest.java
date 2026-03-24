@@ -12,18 +12,18 @@ public final class ExecCompletedEventTest
   @Test
   public void basicOperation()
   {
-    final String command = ValueUtil.randomString();
-    final int schemaId = ValueUtil.randomInt();
-    final String schemaName = ValueUtil.randomString();
-    final int requestId = ValueUtil.randomInt();
-    final ExecCompletedEvent event = new ExecCompletedEvent( schemaId, schemaName, command, requestId );
+    final var command = ValueUtil.randomString();
+    final var schemaId = ValueUtil.randomInt();
+    final var schemaName = ValueUtil.randomString();
+    final var requestId = ValueUtil.randomInt();
+    final var event = new ExecCompletedEvent( schemaId, schemaName, command, requestId );
 
     assertEquals( event.getSchemaId(), schemaId );
     assertEquals( event.getSchemaName(), schemaName );
     assertEquals( event.getCommand(), command );
     assertEquals( event.getRequestId(), requestId );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.ExecCompleted" );

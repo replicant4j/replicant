@@ -24,8 +24,8 @@ public final class JsonUtil
   @Nonnull
   public static JsonObject toJsonObject( @Nonnull final String content )
   {
-    final StringReader stringReader = new StringReader( content );
-    try ( final JsonReader reader = c_readerFactory.createReader( stringReader ) )
+    final var stringReader = new StringReader( content );
+    try ( final var reader = c_readerFactory.createReader( stringReader ) )
     {
       return reader.readObject();
     }

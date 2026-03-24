@@ -53,7 +53,7 @@ public class Change
   @Nonnull
   public Change duplicate()
   {
-    final Change change = new Change( getEntityMessage().duplicate() );
+    final var change = new Change( getEntityMessage().duplicate() );
     change.getChannels().addAll( getChannels() );
     return change;
   }

@@ -54,7 +54,7 @@ public final class ReplicantContextHolder
   @Nullable
   static Object remove( @Nonnull final String key )
   {
-    final Map<String, Object> map = c_context.get();
+    final var map = c_context.get();
     return null != map ? map.remove( key ) : null;
   }
 
@@ -67,7 +67,7 @@ public final class ReplicantContextHolder
   @Nullable
   public static Object get( @Nonnull final String key )
   {
-    final Map<String, Object> map = c_context.get();
+    final var map = c_context.get();
     return null == map ? null : map.get( key );
   }
 

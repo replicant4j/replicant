@@ -9,18 +9,18 @@ public class ReplicantContextHolderTest
   public void basicWorkflow()
     throws Exception
   {
-    final String key = "X";
-    final String value = "1";
+    final var key = "X";
+    final var value = "1";
 
     ReplicantContextHolder.clean();
     assertNull( ReplicantContextHolder.get( key ) );
     ReplicantContextHolder.put( key, value );
-    final Object v2 = ReplicantContextHolder.get( key );
+    final var v2 = ReplicantContextHolder.get( key );
     assertEquals( v2, value );
 
-    final Object[] result = new Object[ 1 ];
+    final var result = new Object[ 1 ];
 
-    final Thread thread = new Thread( () -> result[ 0 ] = ReplicantContextHolder.get( key ) );
+    final var thread = new Thread( () -> result[ 0 ] = ReplicantContextHolder.get( key ) );
     thread.start();
     thread.join();
 

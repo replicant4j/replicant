@@ -10,14 +10,14 @@ public class SystemSchemaTest
   @Test
   public void basicOperation()
   {
-    final int id = ValueUtil.randomInt();
-    final String name = ValueUtil.randomString();
-    final EntitySchema entity1 =
+    final var id = ValueUtil.randomInt();
+    final var name = ValueUtil.randomString();
+    final var entity1 =
       new EntitySchema( 0, ValueUtil.randomString(), Integer.class, ( i, d ) -> 1, null, new ChannelLinkSchema[ 0 ] );
-    final EntitySchema entity2 =
+    final var entity2 =
       new EntitySchema( 1, ValueUtil.randomString(), String.class, ( i, d ) -> "", null, new ChannelLinkSchema[ 0 ] );
-    final EntitySchema[] entities = new EntitySchema[]{ entity1, entity2 };
-    final ChannelSchema channel1 = new ChannelSchema( 1,
+    final var entities = new EntitySchema[]{ entity1, entity2 };
+    final var channel1 = new ChannelSchema( 1,
                                                       ValueUtil.randomString(),
                                                       null,
                                                       ChannelSchema.FilterType.NONE,
@@ -25,8 +25,8 @@ public class SystemSchemaTest
                                                       false,
                                                       true,
                                                       Collections.emptyList() );
-    final ChannelSchema[] channels = { null, channel1 };
-    final SystemSchema systemSchema = new SystemSchema( id, name, channels, entities );
+    final var channels = new ChannelSchema[]{ null, channel1 };
+    final var systemSchema = new SystemSchema( id, name, channels, entities );
     assertEquals( systemSchema.getId(), id );
     assertEquals( systemSchema.getName(), name );
     assertEquals( systemSchema.getEntityCount(), 2 );
@@ -40,9 +40,9 @@ public class SystemSchemaTest
   @Test
   public void getChannel_BadIndex()
   {
-    final SystemSchema systemSchema =
+    final var systemSchema =
       new SystemSchema( ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[]{}, new EntitySchema[]{} );
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> systemSchema.getChannel( 2 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range." );
@@ -51,9 +51,9 @@ public class SystemSchemaTest
   @Test
   public void getEntity_BadIndex()
   {
-    final SystemSchema systemSchema =
+    final var systemSchema =
       new SystemSchema( ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[]{}, new EntitySchema[]{} );
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> systemSchema.getEntity( 2 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0057: SystemSchema.getEntity(id) passed an id that is out of range." );
@@ -63,7 +63,7 @@ public class SystemSchemaTest
   public void construct_nullEntity()
   {
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(),
                                             "X",
@@ -76,9 +76,9 @@ public class SystemSchemaTest
   @Test
   public void construct_badEntityIndex()
   {
-    final EntitySchema entity1 =
+    final var entity1 =
       new EntitySchema( 23, ValueUtil.randomString(), Integer.class, ( i, d ) -> 1, null, new ChannelLinkSchema[ 0 ] );
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(), "X",
                                             new ChannelSchema[]{},
@@ -90,7 +90,7 @@ public class SystemSchemaTest
   @Test
   public void construct_badChannelIndex()
   {
-    final ChannelSchema channel1 = new ChannelSchema( 234,
+    final var channel1 = new ChannelSchema( 234,
                                                       ValueUtil.randomString(),
                                                       null,
                                                       ChannelSchema.FilterType.NONE,
@@ -98,7 +98,7 @@ public class SystemSchemaTest
                                                       false,
                                                       true,
                                                       Collections.emptyList() );
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(),
                                             "X",
@@ -112,9 +112,9 @@ public class SystemSchemaTest
   public void getNameWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final SystemSchema systemSchema =
+    final var systemSchema =
       new SystemSchema( ValueUtil.randomInt(), null, new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, systemSchema::getName );
+    final var exception = expectThrows( IllegalStateException.class, systemSchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0052: SystemSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
   }
@@ -123,7 +123,7 @@ public class SystemSchemaTest
   public void toStringWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final SystemSchema systemSchema =
+    final var systemSchema =
       new SystemSchema( ValueUtil.randomInt(), null, new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
     assertEquals( systemSchema.toString(), "replicant.SystemSchema@" + Integer.toHexString( systemSchema.hashCode() ) );
   }
@@ -132,7 +132,7 @@ public class SystemSchemaTest
   public void passNameToConstructorWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new SystemSchema( ValueUtil.randomInt(),
                                             "MySystem",

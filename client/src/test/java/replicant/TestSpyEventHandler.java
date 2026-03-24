@@ -28,7 +28,7 @@ public final class TestSpyEventHandler
   @Nonnull
   <T> T assertEvent( @Nonnull final Class<T> type )
   {
-    for ( final Object event : _events )
+    for ( final var event : _events )
     {
       if ( type.isInstance( event ) )
       {
@@ -46,7 +46,7 @@ public final class TestSpyEventHandler
   <T> T assertEvent( @Nonnull final Class<T> type, final int index )
   {
     assertTrue( eventCount() > index );
-    final Object event = _events.get( index );
+    final var event = _events.get( index );
     assertTrue( type.isInstance( event ),
                 "Expected event at index " + index + " to be of type " + type + " but is " +
                 " of type " + event.getClass() + " with value " + event );
@@ -70,7 +70,7 @@ public final class TestSpyEventHandler
   @Nonnull
   <T> T assertNextEvent( @Nonnull final Class<T> type )
   {
-    final T event = assertEvent( type, _currentAssertIndex );
+    final var event = assertEvent( type, _currentAssertIndex );
     _currentAssertIndex++;
     return event;
   }
@@ -82,7 +82,7 @@ public final class TestSpyEventHandler
   @Nonnull
   public <T> T assertNextEvent( @Nonnull final Class<T> type, @Nonnull final Consumer<T> action )
   {
-    final T event = assertEvent( type, _currentAssertIndex );
+    final var event = assertEvent( type, _currentAssertIndex );
     _currentAssertIndex++;
     action.accept( event );
     return event;

@@ -12,8 +12,8 @@ public class EntityChangeTest
   @Test
   public void construct_removeMessage()
   {
-    final String[] channels = { "0", "3.4" };
-    final EntityChange change = EntityChange.create( 2, 1, channels );
+    final var channels = new String[]{ "0", "3.4" };
+    final var change = EntityChange.create( 2, 1, channels );
 
     assertEquals( change.getId(), "2.1" );
     assertEquals( change.getChannels(), channels );
@@ -25,9 +25,9 @@ public class EntityChangeTest
   @Test
   public void construct_updateMessage()
   {
-    final String[] channels = { "0", "3.4" };
-    final EntityChangeData data = mock( EntityChangeData.class );
-    final EntityChange change = EntityChange.create( 2, 1, channels, data );
+    final var channels = new String[]{ "0", "3.4" };
+    final var data = mock( EntityChangeData.class );
+    final var change = EntityChange.create( 2, 1, channels, data );
 
     assertEquals( change.getId(), "2.1" );
     assertEquals( change.getChannels(), channels );

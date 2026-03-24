@@ -11,13 +11,13 @@ public class MessageProcessFailureEventTest
   @Test
   public void basicOperation()
   {
-    final MessageProcessFailureEvent event =
+    final var event =
       new MessageProcessFailureEvent( 23, "Rose", new Error( "Some ERROR" ) );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.MessageProcessFailure" );
@@ -30,13 +30,13 @@ public class MessageProcessFailureEventTest
   @Test
   public void basicOperation_ThrowableNoMessage()
   {
-    final MessageProcessFailureEvent event =
+    final var event =
       new MessageProcessFailureEvent( 23, "Rose", new NullPointerException() );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.MessageProcessFailure" );

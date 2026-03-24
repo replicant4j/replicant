@@ -25,7 +25,7 @@ public final class EntityMessageSorter
   @Nonnull
   public static List<EntityMessage> sort( @Nonnull final Collection<EntityMessage> messages )
   {
-    final ArrayList<EntityMessage> sortedMessages = new ArrayList<>( messages );
+    final var sortedMessages = new ArrayList<>( messages );
     sortedMessages.sort( COMPARATOR );
     return sortedMessages;
   }
@@ -43,7 +43,7 @@ public final class EntityMessageSorter
       }
       else
       {
-        final int typeComparison = o2.getTypeId() - o1.getTypeId();
+        final var typeComparison = o2.getTypeId() - o1.getTypeId();
         return 0 != typeComparison ? typeComparison : Long.compare( o2.getTimestamp(), o1.getTimestamp() );
       }
     }
@@ -53,7 +53,7 @@ public final class EntityMessageSorter
     }
     else
     {
-      final int typeComparison = o1.getTypeId() - o2.getTypeId();
+      final var typeComparison = o1.getTypeId() - o2.getTypeId();
       return 0 != typeComparison ? typeComparison : Long.compare( o1.getTimestamp(), o2.getTimestamp() );
     }
   }

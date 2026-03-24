@@ -136,7 +136,7 @@ final class SubscriptionEntry
     {
       if ( owned.add( channel ) )
       {
-        final int referenceCount = _outwardSubscriptionReferenceCounts.merge( channel, 1, Integer::sum );
+        final var referenceCount = _outwardSubscriptionReferenceCounts.merge( channel, 1, Integer::sum );
         if ( 1 == referenceCount )
         {
           _outwardSubscriptions.add( channel );

@@ -22,15 +22,15 @@ public class ConnectorEntryTest
   @Test
   public void basicOperation()
   {
-    final Connector connector = createConnector();
-    final ConnectorEntry entry = new ConnectorEntry( connector, true );
+    final var connector = createConnector();
+    final var entry = new ConnectorEntry( connector, true );
     assertEquals( entry.getConnector(), connector );
     assertTrue( entry.isRequired() );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.REQUIRED_REGEN_PER_SECOND );
 
     entry.getRateLimiter().setTokenCount( 0 );
 
-    final TestConsumer action = new TestConsumer();
+    final var action = new TestConsumer();
     assertFalse( entry.attemptAction( action ) );
     assertNull( action._connector );
 
@@ -43,7 +43,7 @@ public class ConnectorEntryTest
   @Test
   public void optionalService()
   {
-    final ConnectorEntry entry = new ConnectorEntry( createConnector(), false );
+    final var entry = new ConnectorEntry( createConnector(), false );
     assertFalse( entry.isRequired() );
     assertEquals( entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_SECOND );
   }
@@ -52,7 +52,7 @@ public class ConnectorEntryTest
   @Test
   public void flipRequiredState()
   {
-    final ConnectorEntry entry = new ConnectorEntry( createConnector(), true );
+    final var entry = new ConnectorEntry( createConnector(), true );
     assertTrue( entry.isRequired() );
     entry.setRequired( false );
     assertFalse( entry.isRequired() );

@@ -11,7 +11,7 @@ public class ChannelMetaDataTest
   @Test
   public void typeGraph()
   {
-    final ChannelMetaData metaData =
+    final var metaData =
       new ChannelMetaData( 1,
                            "MetaData",
                            null,
@@ -36,7 +36,7 @@ public class ChannelMetaDataTest
   @Test
   public void instanceGraph()
   {
-    final ChannelMetaData metaData =
+    final var metaData =
       new ChannelMetaData( 1,
                            "MetaData",
                            23,
@@ -59,8 +59,8 @@ public class ChannelMetaDataTest
   @Test
   public void filteredGraph()
   {
-    final Function<JsonObject, Object> filterParameterFactory = e -> null;
-    final ChannelMetaData metaData =
+    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
+    final var metaData =
       new ChannelMetaData( 1,
                            "MetaData",
                            22,
@@ -83,8 +83,8 @@ public class ChannelMetaDataTest
   @Test
   public void staticInstancedFilteredGraph()
   {
-    final Function<JsonObject, Object> filterParameterFactory = e -> null;
-    final ChannelMetaData metaData =
+    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
+    final var metaData =
       new ChannelMetaData( 2,
                            "MetaData",
                            22,
@@ -107,8 +107,8 @@ public class ChannelMetaDataTest
   @Test
   public void dynamicInstancedFilteredGraph()
   {
-    final Function<JsonObject, Object> filterParameterFactory = e -> null;
-    final ChannelMetaData metaData =
+    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
+    final var metaData =
       new ChannelMetaData( 3,
                            "MetaData",
                            22,

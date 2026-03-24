@@ -126,7 +126,7 @@ public class ReplicantSessionManagerImpl
                                       @Nullable final Integer requestId,
                                       @Nonnull final Runnable action )
   {
-    final ReentrantLock lock = session.getLock();
+    final var lock = session.getLock();
     try
     {
       lock.lockInterruptibly();
@@ -188,10 +188,10 @@ public class ReplicantSessionManagerImpl
                                  @Nullable final Integer requestId )
   {
     // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
-    final Object existingKey = _registry.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
+    final var existingKey = _registry.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null != existingKey )
     {
-      final String message =
+      final var message =
         "Attempted to invoke service method '" + invocationKey +
         "' while there is an active replication '" + existingKey + "'";
       throw new IllegalStateException( message );
@@ -222,22 +222,22 @@ public class ReplicantSessionManagerImpl
          !_registry.getRollbackOnly() &&
          _context.flushOpenEntityManager() )
     {
-      final String sessionId = (String) _registry.getResource( ServerConstants.SESSION_ID_KEY );
-      final Integer requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-      final JsonValue response = (JsonValue) _registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
-      boolean requestComplete = true;
-      final EntityMessageSet messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
-      final ChangeSet changeSet = EntityMessageCacheUtil.removeSessionChanges( _registry );
+      final var sessionId = (String) _registry.getResource( ServerConstants.SESSION_ID_KEY );
+      final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
+      final var response = (JsonValue) _registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
+      var requestComplete = true;
+      final var messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
+      final var changeSet = EntityMessageCacheUtil.removeSessionChanges( _registry );
       if ( null != messageSet || null != changeSet || null != requestId )
       {
-        final Collection<EntityMessage> messages =
-          null == messageSet ? Collections.emptySet() : messageSet.getEntityMessages();
+        final var messages =
+          null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
         if ( null != changeSet || !messages.isEmpty() || null != requestId )
         {
           requestComplete = !saveEntityMessages( sessionId, requestId, response, messages, changeSet );
         }
       }
-      final String complete = (String) _registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
+      final var complete = (String) _registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
       // Clear all state in case there is multiple replication contexts started in one transaction
       _registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
       _registry.putResource( ServerConstants.SESSION_ID_KEY, null );
@@ -247,7 +247,7 @@ public class ReplicantSessionManagerImpl
       _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
       _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, null );
 
-      final boolean isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
+      final var isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
       ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
       ReplicantContextHolder.put( ServerConstants.REQUEST_RESPONSE_KEY, response );
     }
@@ -320,7 +320,7 @@ public class ReplicantSessionManagerImpl
   @Nonnull
   public ReplicantSession createSession( @Nonnull final Session webSocketSession )
   {
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
     _lock.writeLock().lock();
     try
     {
@@ -389,7 +389,7 @@ public class ReplicantSessionManagerImpl
         final var iterator = _sessions.entrySet().iterator();
         while ( iterator.hasNext() )
         {
-          final ReplicantSession session = iterator.next().getValue();
+          final var session = iterator.next().getValue();
           if ( !session.getWebSocketSession().isOpen() )
           {
             iterator.remove();
@@ -441,7 +441,7 @@ public class ReplicantSessionManagerImpl
     }
 
     //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
-    for ( final ReplicantSession session : getSessions() )
+    for ( final var session : getSessions() )
     {
       final var isInitiator = Objects.equals( session.getId(), sessionId );
       if ( isInitiator )
@@ -507,7 +507,7 @@ public class ReplicantSessionManagerImpl
     // return false as there are no changes for in ChangeSet and the _required flag is unset.
     if ( changeSet.hasContent() )
     {
-      final long start = System.nanoTime();
+      final var start = System.nanoTime();
       final var incomingEntityCount = messages.size() + changeSet.getChanges().size();
       final var incomingChannelLinks =
         messages
@@ -561,7 +561,7 @@ public class ReplicantSessionManagerImpl
 
   private int completeMessageProcessing( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
   {
-    int expandCycleCount = 0;
+    var expandCycleCount = 0;
     try
     {
       final var pending = new HashSet<ChannelLinkEntry>();
@@ -812,7 +812,7 @@ public class ReplicantSessionManagerImpl
     sessionUpdateRequest( key, session, requestId, () -> {
       if ( session.isOpen() )
       {
-        final ChangeSet sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+        final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
         sessionChanges.setRequired( true );
         addresses.forEach( address -> _context.preSubscribe( session, address, filter ) );
         doSubscribe( session, addresses, filter, sessionChanges, true );
@@ -826,7 +826,7 @@ public class ReplicantSessionManagerImpl
                             @Nonnull final ChangeSet changeSet,
                             final boolean isExplicitSubscribe )
   {
-    final List<ChannelAddress> uniqueAddresses = addresses.stream().distinct().toList();
+    final var uniqueAddresses = addresses.stream().distinct().toList();
     if ( uniqueAddresses.isEmpty() )
     {
       return;
@@ -835,7 +835,7 @@ public class ReplicantSessionManagerImpl
     {
       uniqueAddresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
     }
-    final int channelId = uniqueAddresses.get( 0 ).channelId();
+    final var channelId = uniqueAddresses.get( 0 ).channelId();
     final var channel = getSchemaMetaData().getChannelMetaData( channelId );
 
     subscribeToRequiredTypeChannels( session, channel );
@@ -1213,7 +1213,7 @@ public class ReplicantSessionManagerImpl
     {
       addresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
     }
-    final String invocationKey =
+    final var invocationKey =
       addresses.isEmpty() ? "BulkUnsubscribe(empty)" : "BulkUnsubscribe(" + addresses.get( 0 ).channelId() + ")";
     sessionUpdateRequest( invocationKey, session, requestId, () -> {
       if ( session.isOpen() )

@@ -20,8 +20,8 @@ public final class ValueUtil
   @Nonnull
   public static String randomString()
   {
-    final StringBuilder sb = new StringBuilder();
-    for ( int i = 0; i < 50; i++ )
+    final var sb = new StringBuilder();
+    for ( var i = 0; i < 50; i++ )
     {
       sb.append( (char) ( 'a' + c_random.nextInt( 26 ) ) );
     }

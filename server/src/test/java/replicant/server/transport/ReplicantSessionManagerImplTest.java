@@ -70,8 +70,8 @@ public class ReplicantSessionManagerImplTest
     setField( manager, "_broker", mock( ReplicantMessageBroker.class ) );
     setField( manager, "_registry", TransactionSynchronizationRegistryUtil.lookup() );
 
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
@@ -140,8 +140,8 @@ public class ReplicantSessionManagerImplTest
     final var context = createManagerContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
@@ -205,7 +205,7 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
 
@@ -234,7 +234,7 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.getId() ).thenReturn( "unknown-session" );
 
     final var session = new ReplicantSession( webSocketSession );
@@ -258,7 +258,7 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     final var session = new ReplicantSession( webSocketSession );
@@ -326,8 +326,8 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
@@ -398,8 +398,8 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
@@ -461,7 +461,7 @@ public class ReplicantSessionManagerImplTest
     final var context = new TestSessionContext( schema );
     final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
 
-    final Method method =
+    final var method =
       ReplicantSessionManagerImpl.class.getDeclaredMethod( "tryGetCacheEntry", ChannelAddress.class );
     method.setAccessible( true );
 
@@ -492,7 +492,7 @@ public class ReplicantSessionManagerImplTest
   {
     try
     {
-      final Field field = ReplicantSessionManagerImpl.class.getDeclaredField( name );
+      final var field = ReplicantSessionManagerImpl.class.getDeclaredField( name );
       field.setAccessible( true );
       field.set( target, value );
     }

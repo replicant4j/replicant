@@ -213,7 +213,7 @@ public final class ReplicantSession
      * Only after the client has been updated with all subscription changing
      * packets do we send other packets.
      */
-    final Packet packet = _pendingSubscriptionPackets.poll();
+    final var packet = _pendingSubscriptionPackets.poll();
     return null == packet ? _pendingPackets.poll() : packet;
   }
 
@@ -233,7 +233,7 @@ public final class ReplicantSession
   {
     assert null == response || null != requestId;
     ensureLockedByCurrentThread();
-    final String message = JsonEncoder.encodeChangeSet( requestId, response, etag, changeSet );
+    final var message = JsonEncoder.encodeChangeSet( requestId, response, etag, changeSet );
     LOG.log( Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message );
     if ( !WebSocketUtil.sendText( getWebSocketSession(), message ) )
     {
@@ -261,7 +261,7 @@ public final class ReplicantSession
   {
     ensureLockedByCurrentThread();
     _eTags.clear();
-    for ( final Map.Entry<ChannelAddress, String> etag : etags.entrySet() )
+    for ( final var etag : etags.entrySet() )
     {
       setETag( etag.getKey(), etag.getValue() );
     }
@@ -290,7 +290,7 @@ public final class ReplicantSession
   {
     ensureLockedByCurrentThread();
     assert address.concrete();
-    final SubscriptionEntry entry = findSubscriptionEntry( address );
+    final var entry = findSubscriptionEntry( address );
     if ( null == entry )
     {
       throw new IllegalStateException( "Unable to locate subscription entry for " + address );
@@ -312,8 +312,8 @@ public final class ReplicantSession
     InvariantUtil.assertConcreteAddress( source );
     InvariantUtil.assertConcreteAddress( target );
     assert !target.hasRootId();
-    final SubscriptionEntry sourceEntry = getSubscriptionEntry( source );
-    final SubscriptionEntry targetEntry = getSubscriptionEntry( target );
+    final var sourceEntry = getSubscriptionEntry( source );
+    final var targetEntry = getSubscriptionEntry( target );
     recordGraphLink( sourceEntry, targetEntry, LinkOwner.graph() );
   }
 
@@ -324,7 +324,7 @@ public final class ReplicantSession
     InvariantUtil.assertConcreteAddress( sourceEntry.address() );
     InvariantUtil.assertConcreteAddress( targetEntry.address() );
     assert !owner.isGraphScoped() || !targetEntry.address().hasRootId();
-    final ChannelAddress[] added = sourceEntry.registerOutwardSubscriptions( owner, targetEntry.address() );
+    final var added = sourceEntry.registerOutwardSubscriptions( owner, targetEntry.address() );
     if ( 0 != added.length )
     {
       targetEntry.registerInwardSubscriptions( sourceEntry.address() );
@@ -383,7 +383,7 @@ public final class ReplicantSession
     {
       LOG.log( Level.FINE,
                () -> "Creating subscription entry for replicant session " + getId() + " on address " + address );
-      final SubscriptionEntry entry = new SubscriptionEntry( this, address );
+      final var entry = new SubscriptionEntry( this, address );
       _subscriptions.put( address, entry );
       _subscriptionsByChannel
         .computeIfAbsent( new ChannelKey( address.channelId(), address.rootId() ), key -> new HashSet<>() )
@@ -420,7 +420,7 @@ public final class ReplicantSession
   List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
   {
     ensureLockedByCurrentThread();
-    final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );
+    final var entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );
     return null == entries ? Collections.emptyList() : entries.stream().toList();
   }
 
@@ -435,7 +435,7 @@ public final class ReplicantSession
 
   private void unsubscribe( @Nonnull final ChannelAddress address, @Nonnull final ChangeSet changeSet )
   {
-    final SubscriptionEntry entry = findSubscriptionEntry( address );
+    final var entry = findSubscriptionEntry( address );
     if ( null != entry )
     {
       performUnsubscribe( entry, true, false, changeSet );
@@ -481,7 +481,7 @@ public final class ReplicantSession
   {
     assert sourceEntry.address().concrete();
     assert downstream.concrete();
-    final ChannelAddress[] removed = sourceEntry.deregisterOutwardSubscriptions( owner, downstream );
+    final var removed = sourceEntry.deregisterOutwardSubscriptions( owner, downstream );
     if ( 0 != removed.length )
     {
       final var downstreamEntry = findSubscriptionEntry( downstream );

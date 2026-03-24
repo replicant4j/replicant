@@ -135,7 +135,7 @@ public final class ChannelMetaData
     {
       throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
     }
-    for ( final ChannelMetaData requiredTypeChannel : _requiredTypeChannels )
+    for ( final var requiredTypeChannel : _requiredTypeChannels )
     {
       if ( requiredTypeChannel.isInstanceGraph() )
       {

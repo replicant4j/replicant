@@ -18,16 +18,16 @@ public class AreaOfInterestCreatedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 2 );
+    final var filter = ValueUtil.randomString();
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
-    final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent( areaOfInterest );
+    final var event = new AreaOfInterestCreatedEvent( areaOfInterest );
 
     assertEquals( event.getAreaOfInterest(), areaOfInterest );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "AreaOfInterest.Created" );

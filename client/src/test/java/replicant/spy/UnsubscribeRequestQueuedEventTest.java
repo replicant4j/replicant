@@ -12,13 +12,13 @@ public class UnsubscribeRequestQueuedEventTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var address = new ChannelAddress( 1, 2 );
 
-    final UnsubscribeRequestQueuedEvent event = new UnsubscribeRequestQueuedEvent( address );
+    final var event = new UnsubscribeRequestQueuedEvent( address );
 
     assertEquals( event.getAddress(), address );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.UnsubscribeRequestQueued" );

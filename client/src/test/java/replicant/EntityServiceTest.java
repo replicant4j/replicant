@@ -11,9 +11,9 @@ public class EntityServiceTest
   @Test
   public void basicEntityLifecycle()
   {
-    final EntityService service = Replicant.context().getEntityService();
+    final var service = Replicant.context().getEntityService();
 
-    final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
+    final var findAllEntityTypesCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -24,7 +24,7 @@ public class EntityServiceTest
       findAllEntityTypesCallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
+    final var findAllEntitiesByTypeACallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -35,7 +35,7 @@ public class EntityServiceTest
       findAllEntitiesByTypeACallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findAllEntitiesByTypeBCallCount = new AtomicInteger();
+    final var findAllEntitiesByTypeBCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -46,7 +46,7 @@ public class EntityServiceTest
       findAllEntitiesByTypeBCallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
+    final var findEntityByTypeAndId1CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -57,7 +57,7 @@ public class EntityServiceTest
       findEntityByTypeAndId1CallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findEntityByTypeAndId2CallCount = new AtomicInteger();
+    final var findEntityByTypeAndId2CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -151,7 +151,7 @@ public class EntityServiceTest
     // Dispose entity of different type
     {
       safeAction( () -> {
-        final Entity entity = service.findEntityByTypeAndId( B.class, -53 );
+        final var entity = service.findEntityByTypeAndId( B.class, -53 );
         assertNotNull( entity );
         Disposable.dispose( entity );
       } );
@@ -172,7 +172,7 @@ public class EntityServiceTest
     // Dispose entity of A type
     {
       safeAction( () -> {
-        final Entity entity = service.findEntityByTypeAndId( A.class, 1 );
+        final var entity = service.findEntityByTypeAndId( A.class, 1 );
         assertNotNull( entity );
         Disposable.dispose( entity );
       } );
@@ -194,11 +194,11 @@ public class EntityServiceTest
   @Test
   public void unlinkEntity_missingType()
   {
-    final EntityService service = Replicant.context().getEntityService();
+    final var service = Replicant.context().getEntityService();
 
-    final Entity entity = Entity.create( null, "A", A.class, 1 );
+    final var entity = Entity.create( null, "A", A.class, 1 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkEntity( entity ) ) );
 
@@ -208,12 +208,12 @@ public class EntityServiceTest
   @Test
   public void unlinkEntity_missingInstance()
   {
-    final EntityService service = Replicant.context().getEntityService();
+    final var service = Replicant.context().getEntityService();
 
     safeAction( () -> service.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final Entity entity = Entity.create( null, "A/2", A.class, 2 );
+    final var entity = Entity.create( null, "A/2", A.class, 2 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkEntity( entity ) ) );
 
@@ -223,9 +223,9 @@ public class EntityServiceTest
   @Test
   public void disposedEntityNeverReturned()
   {
-    final EntityService service = Replicant.context().getEntityService();
+    final var service = Replicant.context().getEntityService();
 
-    final AtomicInteger findAllEntityTypesCallCount = new AtomicInteger();
+    final var findAllEntityTypesCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -236,7 +236,7 @@ public class EntityServiceTest
       findAllEntityTypesCallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findAllEntitiesByTypeACallCount = new AtomicInteger();
+    final var findAllEntitiesByTypeACallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -247,7 +247,7 @@ public class EntityServiceTest
       findAllEntitiesByTypeACallCount.incrementAndGet();
     } );
 
-    final AtomicInteger findEntityByTypeAndId1CallCount = new AtomicInteger();
+    final var findEntityByTypeAndId1CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -281,9 +281,9 @@ public class EntityServiceTest
 
     // Dispose entity
     {
-      final Disposable schedulerLock = pauseScheduler();
+      final var schedulerLock = pauseScheduler();
       safeAction( () -> {
-        final Entity entity = service.findEntityByTypeAndId( A.class, 1 );
+        final var entity = service.findEntityByTypeAndId( A.class, 1 );
         assertNotNull( entity );
         Disposable.dispose( entity );
       } );

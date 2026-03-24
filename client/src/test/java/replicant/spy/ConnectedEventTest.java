@@ -11,12 +11,12 @@ public class ConnectedEventTest
   @Test
   public void basicOperation()
   {
-    final ConnectedEvent event = new ConnectedEvent( 23, "Rose" );
+    final var event = new ConnectedEvent( 23, "Rose" );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.Connect" );

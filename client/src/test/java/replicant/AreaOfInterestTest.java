@@ -89,7 +89,7 @@ public class AreaOfInterestTest
   @Test
   public void onConstruct()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     safeAction( () -> {
       assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
@@ -103,14 +103,14 @@ public class AreaOfInterestTest
   @Test
   public void disposeAreaOfInterestGeneratesSpyEvent()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     Disposable.dispose( areaOfInterest );
     handler.assertEventCount( 1 );
 
-    final AreaOfInterestDisposedEvent event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
+    final var event = handler.assertNextEvent( AreaOfInterestDisposedEvent.class );
     assertEquals( event.getAreaOfInterest(), areaOfInterest );
   }
 
@@ -119,9 +119,9 @@ public class AreaOfInterestTest
   public void notifications()
   {
     createConnector();
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
-    final AtomicInteger getStatusCallCount = new AtomicInteger();
+    final var getStatusCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
@@ -131,7 +131,7 @@ public class AreaOfInterestTest
       getStatusCallCount.incrementAndGet();
     } );
 
-    final AtomicInteger getErrorCallCount = new AtomicInteger();
+    final var getErrorCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
@@ -141,7 +141,7 @@ public class AreaOfInterestTest
       getErrorCallCount.incrementAndGet();
     } );
 
-    final AtomicInteger getSubscriptionCallCount = new AtomicInteger();
+    final var getSubscriptionCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( areaOfInterest ) )
       {
@@ -190,14 +190,14 @@ public class AreaOfInterestTest
   @Test
   public void testToString()
   {
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
     assertEquals( areaOfInterest.toString(), "AreaOfInterest[1.0 Status: NOT_ASKED]" );
   }
 
   @Test
   public void testToStringWithFilter()
   {
-    final AreaOfInterest areaOfInterest = AreaOfInterest.create( null, new ChannelAddress( 1, 0 ), "MyFilter" );
+    final var areaOfInterest = AreaOfInterest.create( null, new ChannelAddress( 1, 0 ), "MyFilter" );
     assertEquals( areaOfInterest.toString(), "AreaOfInterest[1.0 Filter: MyFilter Status: NOT_ASKED]" );
   }
 
@@ -206,7 +206,7 @@ public class AreaOfInterestTest
   {
     ReplicantTestUtil.disableNames();
 
-    final AreaOfInterest areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var areaOfInterest = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     assertEquals( areaOfInterest.toString(),
                   "replicant.Arez_AreaOfInterest@" + Integer.toHexString( areaOfInterest.hashCode() ) );
@@ -216,8 +216,8 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
-    final Throwable error = new Throwable();
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var error = new Throwable();
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.NOT_ASKED, null );
     assertEquals( aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED );
@@ -234,7 +234,7 @@ public class AreaOfInterestTest
     safeAction( () -> assertNull( aoi.getSubscription() ) );
     safeAction( () -> assertEquals( aoi.getError(), error ) );
 
-    final Subscription subscription = createSubscription( aoi.getAddress(), null, true );
+    final var subscription = createSubscription( aoi.getAddress(), null, true );
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
     assertEquals( aoi.getStatus(), AreaOfInterest.Status.LOADED );
@@ -273,14 +273,14 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_generatesSpyEvent()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     aoi.updateAreaOfInterest( AreaOfInterest.Status.LOADING, null );
 
     handler.assertEventCount( 1 );
-    final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
+    final var event = handler.assertNextEvent( AreaOfInterestStatusUpdatedEvent.class );
     assertEquals( event.getAreaOfInterest(), aoi );
   }
 
@@ -288,9 +288,9 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_missingErrorWhenExpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.LOAD_FAILED, null ) );
     assertEquals( exception.getMessage(),
@@ -301,10 +301,10 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_errorWhenUnexpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
-    final Throwable error = new Throwable();
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var error = new Throwable();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, error ) );
     assertEquals( exception.getMessage(),
@@ -315,7 +315,7 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_subscription_when_NOT_ASKED()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     createSubscription( aoi.getAddress(), null, true );
 
@@ -329,11 +329,11 @@ public class AreaOfInterestTest
   public void updateAreaOfInterest_subscriptionWhenUnexpected()
   {
     pauseScheduler();
-    final AreaOfInterest aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
+    final var aoi = createAreaOfInterest( new ChannelAddress( 1, 0 ) );
 
     createSubscription( aoi.getAddress(), null, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> aoi.updateAreaOfInterest( AreaOfInterest.Status.UNLOADED, null ) );
     assertEquals( exception.getMessage(),
@@ -345,7 +345,7 @@ public class AreaOfInterestTest
   public void refCounting()
     throws Exception
   {
-    final AreaOfInterest areaOfInterest =
+    final var areaOfInterest =
       createAreaOfInterest( new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() ) );
 
     assertEquals( areaOfInterest.getRefCount(), 0 );

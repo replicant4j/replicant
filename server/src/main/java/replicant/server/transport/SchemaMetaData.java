@@ -16,12 +16,12 @@ public final class SchemaMetaData
 
   public SchemaMetaData( @Nonnull final String name, @Nonnull final ChannelMetaData... channels )
   {
-    for ( int i = 0; i < channels.length; i++ )
+    for ( var i = 0; i < channels.length; i++ )
     {
-      final ChannelMetaData channel = channels[ i ];
+      final var channel = channels[ i ];
       if ( null != channel && i != channel.getChannelId() )
       {
-        final String message = "Channel at index " + i + " does not have channel id matching index: " + channel;
+        final var message = "Channel at index " + i + " does not have channel id matching index: " + channel;
         throw new IllegalArgumentException( message );
       }
     }

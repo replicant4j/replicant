@@ -60,9 +60,9 @@ public class ReplicantTest
   {
     ReplicantTestUtil.disableZones();
 
-    final ReplicantContext context1 = Replicant.context();
+    final var context1 = Replicant.context();
     assertNotNull( context1 );
-    final ReplicantContext context2 = Replicant.context();
+    final var context2 = Replicant.context();
     assertSame( context1, context2 );
   }
 
@@ -74,7 +74,7 @@ public class ReplicantTest
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
 
-    final Zone zone1 = Replicant.createZone();
+    final var zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
@@ -98,9 +98,9 @@ public class ReplicantTest
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
 
-    final Zone zone1 = Replicant.createZone();
-    final Zone zone2 = Replicant.createZone();
-    final Zone zone3 = Replicant.createZone();
+    final var zone1 = Replicant.createZone();
+    final var zone2 = Replicant.createZone();
+    final var zone3 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
@@ -193,7 +193,7 @@ public class ReplicantTest
   {
     ReplicantTestUtil.disableZones();
 
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, Replicant::createZone );
+    final var exception = expectThrows( IllegalStateException.class, Replicant::createZone );
     assertEquals( exception.getMessage(), "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled." );
   }
 
@@ -203,7 +203,7 @@ public class ReplicantTest
     ReplicantTestUtil.disableZones();
     Arez.context().pauseScheduler();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> Replicant.activateZone( new Zone() ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
@@ -215,7 +215,7 @@ public class ReplicantTest
     ReplicantTestUtil.disableZones();
     Arez.context().pauseScheduler();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> Replicant.deactivateZone( new Zone() ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0003: Invoked Replicant.deactivateZone() but zones are not enabled." );
@@ -225,7 +225,7 @@ public class ReplicantTest
   public void currentZone_whenZonesNotEnabled()
   {
     ReplicantTestUtil.disableZones();
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, Replicant::currentZone );
     assertEquals( exception.getMessage(),
                   "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
@@ -236,7 +236,7 @@ public class ReplicantTest
   {
     ReplicantTestUtil.enableZones();
     Arez.context().pauseScheduler();
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> Replicant.deactivateZone( new Zone() ) );
     assertEquals( exception.getMessage(), "Replicant-0004: Attempted to deactivate zone that is not active." );
   }

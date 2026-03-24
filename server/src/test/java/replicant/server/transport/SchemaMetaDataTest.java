@@ -9,7 +9,7 @@ public class SchemaMetaDataTest
   @Test
   public void basicOperation()
   {
-    final ChannelMetaData ch0 =
+    final var ch0 =
       new ChannelMetaData( 0,
                            ValueUtil.randomString(),
                            2,
@@ -17,7 +17,7 @@ public class SchemaMetaDataTest
                            null,
                            ChannelMetaData.CacheType.NONE,
                            false );
-    final ChannelMetaData ch1 =
+    final var ch1 =
       new ChannelMetaData( 1,
                            ValueUtil.randomString(),
                            null,
@@ -25,7 +25,7 @@ public class SchemaMetaDataTest
                            null,
                            ChannelMetaData.CacheType.NONE,
                            false );
-    final ChannelMetaData ch2 =
+    final var ch2 =
       new ChannelMetaData( 2,
                            ValueUtil.randomString(),
                            54,
@@ -33,9 +33,9 @@ public class SchemaMetaDataTest
                            null,
                            ChannelMetaData.CacheType.NONE,
                            false );
-    final String name = ValueUtil.randomString();
+    final var name = ValueUtil.randomString();
 
-    final SchemaMetaData schemaMetaData = new SchemaMetaData( name, ch0, ch1, ch2 );
+    final var schemaMetaData = new SchemaMetaData( name, ch0, ch1, ch2 );
 
     assertEquals( schemaMetaData.getName(), name );
     assertEquals( schemaMetaData.getChannelMetaData( 0 ), ch0 );

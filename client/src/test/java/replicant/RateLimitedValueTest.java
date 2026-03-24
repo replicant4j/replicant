@@ -10,7 +10,7 @@ public class RateLimitedValueTest
   @Test
   public void basicOperation()
   {
-    final RateLimitedValue value = new RateLimitedValue( 100L, 10D, 30D );
+    final var value = new RateLimitedValue( 100L, 10D, 30D );
 
     assertEquals( getLastRegenTime( value ), 100L );
 
@@ -49,7 +49,7 @@ public class RateLimitedValueTest
     assertTrue( value.consume( 100L, 10D ) );
     assertEquals( value.getTokenCount(), 190D );
 
-    final CountDownLatch latch = new CountDownLatch( 1 );
+    final var latch = new CountDownLatch( 1 );
     assertFalse( value.attempt( 100L, 1000D, latch::countDown ) );
     assertEquals( value.getTokenCount(), 190D );
     assertEquals( latch.getCount(), 1 );
@@ -62,7 +62,7 @@ public class RateLimitedValueTest
   @Test
   public void regenerateTokens()
   {
-    final RateLimitedValue value = new RateLimitedValue( 0L, 2000D, 2000D );
+    final var value = new RateLimitedValue( 0L, 2000D, 2000D );
     value.setTokenCount( 0D );
 
     assertEquals( value.getTokenCount(), 0D );

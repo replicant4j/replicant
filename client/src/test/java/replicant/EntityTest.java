@@ -12,12 +12,12 @@ public class EntityTest
   @Test
   public void basicConstruction()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Class<A> type = A.class;
-    final int id = ValueUtil.randomInt();
-    final String name = "A/" + id;
-    final Entity entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
+    final var type = A.class;
+    final var id = ValueUtil.randomInt();
+    final var name = "A/" + id;
+    final var entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
     assertEquals( entity.getName(), name );
     assertEquals( entity.getType(), type );
@@ -30,12 +30,12 @@ public class EntityTest
   @Test
   public void toStringTest()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Class<A> type = A.class;
-    final int id = 123;
-    final String name = "A/123";
-    final Entity entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
+    final var type = A.class;
+    final var id = 123;
+    final var name = "A/123";
+    final var entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
     assertEquals( entity.toString(), name );
     ReplicantTestUtil.disableNames();
@@ -46,11 +46,11 @@ public class EntityTest
   @Test
   public void namePassedToConstructorWhenNamesDisabled()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
     ReplicantTestUtil.disableNames();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> entityService.findOrCreateEntity( "A/123",
                                                                               A.class,
@@ -63,13 +63,13 @@ public class EntityTest
   @Test
   public void getNameInvokedWhenNamesDisabled()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
     ReplicantTestUtil.disableNames();
 
-    final Entity entity = safeAction( () -> entityService.findOrCreateEntity( null, A.class, 123 ) );
+    final var entity = safeAction( () -> entityService.findOrCreateEntity( null, A.class, 123 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> safeAction( entity::getName ) );
 
     assertEquals( exception.getMessage(),
@@ -79,16 +79,16 @@ public class EntityTest
   @Test
   public void userObject()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
     safeAction( () -> assertNull( entity.maybeUserObject() ) );
 
-    final A userObject = new A();
+    final var userObject = new A();
     safeAction( () -> entity.setUserObject( userObject ) );
     safeAction( () -> assertEquals( entity.maybeUserObject(), userObject ) );
     safeAction( () -> assertEquals( entity.getUserObject(), userObject ) );
@@ -97,14 +97,14 @@ public class EntityTest
   @Test
   public void getUserObject_whenNull()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> assertNull( entity.getUserObject() ) ) );
 
@@ -114,17 +114,17 @@ public class EntityTest
   @Test
   public void typeSubscriptions()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           String.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 1 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0 ) );
+    final var subscription2 = createSubscription( new ChannelAddress( 1, 1 ) );
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( entity ) )
       {
@@ -175,17 +175,17 @@ public class EntityTest
   @Test
   public void instanceSubscriptions()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           String.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( entity ) )
       {
@@ -237,16 +237,16 @@ public class EntityTest
   @Test
   public void delinkFromSubscription_whenNotLinked()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity",
                                                           String.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> entity.delinkFromSubscription( subscription1 ) ) );
     assertEquals( exception.getMessage(),
@@ -256,16 +256,16 @@ public class EntityTest
   @Test
   public void linkToSubscription_whenNotLinked()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity", String.class, ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> entity.linkToSubscription( subscription1 ) ) );
     assertEquals( exception.getMessage(),
@@ -275,12 +275,12 @@ public class EntityTest
   @Test
   public void tryLinkToSubscription()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity", String.class, ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
     safeAction( () -> entity.tryLinkToSubscription( subscription1 ) );
 
@@ -295,15 +295,15 @@ public class EntityTest
   @Test
   public void disposeRemovesEntityFromSubscriptions()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Class<A> type = A.class;
-    final int id = ValueUtil.randomInt();
-    final String name = "A/" + id;
-    final Entity entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
+    final var type = A.class;
+    final var id = ValueUtil.randomInt();
+    final var name = "A/" + id;
+    final var entity = safeAction( () -> entityService.findOrCreateEntity( name, type, id ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription2 = createSubscription( new ChannelAddress( 1, 0, 2 ) );
 
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
@@ -322,13 +322,13 @@ public class EntityTest
   @Test
   public void disposeWillDisposeUserObject()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
-    final A userObject = new A();
+    final var userObject = new A();
     safeAction( () -> entity.setUserObject( userObject ) );
 
     assertFalse( Disposable.isDisposed( entity ) );
@@ -343,14 +343,14 @@ public class EntityTest
   @Test
   public void getSubscriptions_mutability()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( ValueUtil.randomString(),
                                                           A.class,
                                                           ValueUtil.randomInt() ) );
 
-    final Subscription subscription1 = createSubscription();
+    final var subscription1 = createSubscription();
 
     expectThrows( UnsupportedOperationException.class,
                   () -> safeAction( () -> entity.getSubscriptions().add( subscription1 ) ) );
@@ -359,12 +359,12 @@ public class EntityTest
   @Test
   public void delinkSubscriptionFromEntity_whenSubscriptionMissing()
   {
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
 
-    final Entity entity =
+    final var entity =
       safeAction( () -> entityService.findOrCreateEntity( "A/123", A.class, 123 ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0, 1 ) );
 
     safeAction( () -> assertEquals( entity.getSubscriptions().size(), 0 ) );
     safeAction( () -> entity.linkToSubscription( subscription1 ) );
@@ -372,7 +372,7 @@ public class EntityTest
 
     entity.subscriptions().remove( subscription1.address() );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> entity.delinkSubscriptionFromEntity( subscription1 ) ) );
     assertEquals( exception.getMessage(), "Unable to locate subscription for channel 1.0.1 on entity A/123" );

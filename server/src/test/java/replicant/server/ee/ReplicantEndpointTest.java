@@ -209,7 +209,7 @@ public final class ReplicantEndpointTest
     final var captor =
       (org.mockito.ArgumentCaptor<Map<ChannelAddress, String>>) (Object) org.mockito.ArgumentCaptor.forClass( Map.class );
     verify( fixture.sessionManager ).setETags( eq( fixture.replicantSession ), captor.capture() );
-    final Map<ChannelAddress, String> captured = captor.getValue();
+    final var captured = captor.getValue();
     assertEquals( captured.get( new ChannelAddress( 1 ) ), "e1" );
     assertEquals( captured.get( new ChannelAddress( 2, 3, "fi" ) ), "e2" );
 
@@ -565,9 +565,9 @@ public final class ReplicantEndpointTest
   private EndpointFixture newFixture( @Nonnull final ReplicantEndpoint endpoint )
   {
     final var sessionManager = mock( ReplicantSessionManager.class );
-    final Event<ReplicantSessionAdded> addedEvent = mockEvent();
-    final Event<ReplicantSessionUpdated> updatedEvent = mockEvent();
-    final Event<ReplicantSessionRemoved> removedEvent = mockEvent();
+    final var addedEvent = ReplicantEndpointTest.<ReplicantSessionAdded>mockEvent();
+    final var updatedEvent = ReplicantEndpointTest.<ReplicantSessionUpdated>mockEvent();
+    final var removedEvent = ReplicantEndpointTest.<ReplicantSessionRemoved>mockEvent();
     setField( endpoint, "_sessionManager", sessionManager );
     setField( endpoint, "_replicantSessionAddedEventEvent", addedEvent );
     setField( endpoint, "_replicantSessionUpdatedEvent", updatedEvent );
@@ -580,7 +580,7 @@ public final class ReplicantEndpointTest
     when( session.isOpen() ).thenReturn( true );
     when( session.getBasicRemote() ).thenReturn( remote );
 
-    final ReplicantSession replicantSession = new ReplicantSession( session );
+    final var replicantSession = new ReplicantSession( session );
     when( sessionManager.createSession( session ) ).thenReturn( replicantSession );
     when( sessionManager.getSession( sessionId ) ).thenReturn( replicantSession );
     when( sessionManager.isAuthorized( replicantSession ) ).thenReturn( true );
@@ -600,35 +600,35 @@ public final class ReplicantEndpointTest
   @Nonnull
   private SchemaMetaData newSchemaMetaData()
   {
-    final ChannelMetaData typeChannel = new ChannelMetaData( 0,
+    final var typeChannel = new ChannelMetaData( 0,
                                                              "type",
                                                              null,
                                                              ChannelMetaData.FilterType.NONE,
                                                              null,
                                                              ChannelMetaData.CacheType.NONE,
                                                              true );
-    final ChannelMetaData dynamicChannel = new ChannelMetaData( 1,
+    final var dynamicChannel = new ChannelMetaData( 1,
                                                                 "dynamic",
                                                                 1,
                                                                 ChannelMetaData.FilterType.DYNAMIC,
                                                                 json -> json,
                                                                 ChannelMetaData.CacheType.NONE,
                                                                 true );
-    final ChannelMetaData instancedChannel = new ChannelMetaData( 2,
+    final var instancedChannel = new ChannelMetaData( 2,
                                                                   "instanced",
                                                                   2,
                                                                   ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
                                                                   json -> json,
                                                                   ChannelMetaData.CacheType.NONE,
                                                                   true );
-    final ChannelMetaData staticInstancedChannel = new ChannelMetaData( 4,
+    final var staticInstancedChannel = new ChannelMetaData( 4,
                                                                         "staticInstanced",
                                                                         4,
                                                                         ChannelMetaData.FilterType.STATIC_INSTANCED,
                                                                         json -> json,
                                                                         ChannelMetaData.CacheType.NONE,
                                                                         true );
-    final ChannelMetaData internalChannel = new ChannelMetaData( 3,
+    final var internalChannel = new ChannelMetaData( 3,
                                                                  "internal",
                                                                  null,
                                                                  ChannelMetaData.FilterType.NONE,
@@ -647,7 +647,7 @@ public final class ReplicantEndpointTest
   {
     try
     {
-      final Field field = ReplicantEndpoint.class.getDeclaredField( name );
+      final var field = ReplicantEndpoint.class.getDeclaredField( name );
       field.setAccessible( true );
       field.set( target, value );
     }

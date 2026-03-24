@@ -27,7 +27,7 @@ public final class RegistryUtil
     try
     {
       TestInitialContextFactory.reset();
-      final TestTransactionSynchronizationRegistry registry = new TestTransactionSynchronizationRegistry();
+      final var registry = new TestTransactionSynchronizationRegistry();
       registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, "Ignored" );
       TestInitialContextFactory
         .getContext()
@@ -115,7 +115,7 @@ public final class RegistryUtil
     private static void reset()
     {
       System.setProperty( "java.naming.factory.initial", TestInitialContextFactory.class.getName() );
-      final DefaultNamespace namespace = new DefaultNamespace( new DefaultNameParser() );
+      final var namespace = new DefaultNamespace( new DefaultNameParser() );
       c_context = new MemoryContext( namespace, new Hashtable<>(), null );
     }
 

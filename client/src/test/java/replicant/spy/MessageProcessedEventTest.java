@@ -12,14 +12,14 @@ public class MessageProcessedEventTest
   @Test
   public void basicOperation()
   {
-    final int requestId = ValueUtil.randomInt();
-    final int channelAddCount = ValueUtil.getRandom().nextInt( 10 );
-    final int channelUpdateCount = ValueUtil.getRandom().nextInt( 10 );
-    final int channelRemoveCount = ValueUtil.getRandom().nextInt( 10 );
-    final int entityUpdateCount = ValueUtil.getRandom().nextInt( 100 );
-    final int entityRemoveCount = ValueUtil.getRandom().nextInt( 100 );
-    final int entityLinkCount = ValueUtil.getRandom().nextInt( 10 );
-    final DataLoadStatus dataLoadStatus =
+    final var requestId = ValueUtil.randomInt();
+    final var channelAddCount = ValueUtil.getRandom().nextInt( 10 );
+    final var channelUpdateCount = ValueUtil.getRandom().nextInt( 10 );
+    final var channelRemoveCount = ValueUtil.getRandom().nextInt( 10 );
+    final var entityUpdateCount = ValueUtil.getRandom().nextInt( 100 );
+    final var entityRemoveCount = ValueUtil.getRandom().nextInt( 100 );
+    final var entityLinkCount = ValueUtil.getRandom().nextInt( 10 );
+    final var dataLoadStatus =
       new DataLoadStatus( requestId,
                           channelAddCount,
                           channelUpdateCount,
@@ -27,14 +27,14 @@ public class MessageProcessedEventTest
                           entityUpdateCount,
                           entityRemoveCount,
                           entityLinkCount );
-    final MessageProcessedEvent event =
+    final var event =
       new MessageProcessedEvent( 23, "Rose", dataLoadStatus );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getDataLoadStatus(), dataLoadStatus );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.MessageProcess" );

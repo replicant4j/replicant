@@ -13,15 +13,15 @@ public class SubscriptionUpdateRequestQueuedEventTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final String filter = ValueUtil.randomString();
+    final var address = new ChannelAddress( 1, 2 );
+    final var filter = ValueUtil.randomString();
 
-    final SubscriptionUpdateRequestQueuedEvent event = new SubscriptionUpdateRequestQueuedEvent( address, filter );
+    final var event = new SubscriptionUpdateRequestQueuedEvent( address, filter );
 
     assertEquals( event.getAddress(), address );
     assertEquals( event.getFilter(), filter );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateRequestQueued" );

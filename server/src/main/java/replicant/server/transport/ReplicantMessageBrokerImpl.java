@@ -111,11 +111,11 @@ public class ReplicantMessageBrokerImpl
 
   private void processPendingSession( @Nonnull final ReplicantSession session )
   {
-    final String id = session.getId();
+    final var id = session.getId();
     LOG.log( Level.FINEST, () -> "Processing pending ChangeSets for session " + session.getId() );
     if ( session.isOpen() && !_inProgress.containsKey( id ) )
     {
-      final ReentrantLock lock = session.getLock();
+      final var lock = session.getLock();
       try
       {
         lock.lockInterruptibly();

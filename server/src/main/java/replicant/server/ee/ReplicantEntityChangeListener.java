@@ -93,7 +93,7 @@ public class ReplicantEntityChangeListener
   {
     if ( null == _recorder )
     {
-      final BeanManager beanManager = lookup( "java:comp/BeanManager" );
+      final var beanManager = ReplicantEntityChangeListener.<BeanManager>lookup( "java:comp/BeanManager" );
       final var bean = beanManager.getBeans( ReplicantChangeRecorder.class ).iterator().next();
       final var creationalContext = beanManager.createCreationalContext( bean );
       _recorder = (ReplicantChangeRecorder) beanManager.getReference( bean,

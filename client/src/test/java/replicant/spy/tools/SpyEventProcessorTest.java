@@ -30,9 +30,9 @@ public class SpyEventProcessorTest
   @Test
   public void handleUnhandledEvent()
   {
-    final TestSpyEventProcessor processor = new TestSpyEventProcessor();
+    final var processor = new TestSpyEventProcessor();
 
-    final Object event = new Object();
+    final var event = new Object();
     processor.onSpyEvent( event );
 
     assertEquals( processor._handleUnhandledEventCallCount, 1 );
@@ -41,12 +41,12 @@ public class SpyEventProcessorTest
   @Test
   public void handleEvent()
   {
-    final TestSpyEventProcessor processor = new TestSpyEventProcessor();
+    final var processor = new TestSpyEventProcessor();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     processor.on( FakeEvent.class, e -> callCount.incrementAndGet() );
 
-    final FakeEvent event = new FakeEvent();
+    final var event = new FakeEvent();
 
     assertEquals( callCount.get(), 0 );
     processor.onSpyEvent( event );
@@ -56,12 +56,12 @@ public class SpyEventProcessorTest
   @Test
   public void onFailsOnDuplicates()
   {
-    final TestSpyEventProcessor processor = new TestSpyEventProcessor();
+    final var processor = new TestSpyEventProcessor();
 
-    final Consumer<FakeEvent> handler = e -> {
+    final var handler = (Consumer<FakeEvent>) e -> {
     };
     processor.on( FakeEvent.class, handler );
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> processor.on( FakeEvent.class, handler ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0036: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already exists for type" );

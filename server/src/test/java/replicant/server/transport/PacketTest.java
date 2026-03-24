@@ -15,13 +15,13 @@ public class PacketTest
   @Test
   public void packetFromInitiator()
   {
-    final int requestId = ValueUtil.randomInt();
-    final JsonValue response = Json.createArrayBuilder().build();
-    final String etag = ValueUtil.randomString();
-    final List<EntityMessage> messages = new ArrayList<>();
-    final ChangeSet changeSet = new ChangeSet();
+    final var requestId = ValueUtil.randomInt();
+    final var response = Json.createArrayBuilder().build();
+    final var etag = ValueUtil.randomString();
+    final var messages = new ArrayList<EntityMessage>();
+    final var changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( true, requestId, response, etag, messages, changeSet );
+    final var packet = new Packet( true, requestId, response, etag, messages, changeSet );
 
     assertTrue( packet.altersExplicitSubscriptions() );
     assertEquals( packet.requestId(), (Integer) requestId );
@@ -34,10 +34,10 @@ public class PacketTest
   @Test
   public void packetNotFromInitiator()
   {
-    final List<EntityMessage> messages = new ArrayList<>();
-    final ChangeSet changeSet = new ChangeSet();
+    final var messages = new ArrayList<EntityMessage>();
+    final var changeSet = new ChangeSet();
 
-    final Packet packet = new Packet( false, null, null, null, messages, changeSet );
+    final var packet = new Packet( false, null, null, null, messages, changeSet );
 
     assertFalse( packet.altersExplicitSubscriptions() );
     assertNull( packet.requestId() );

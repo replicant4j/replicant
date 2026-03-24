@@ -17,9 +17,9 @@ public class ReplicantMessageBrokerImplTest
   @Test
   public void basicOperation()
   {
-    final ReplicantSession session = newSession();
+    final var session = newSession();
 
-    final ReplicantMessageBroker broker = new TestReplicantMessageBrokerImpl();
+    final var broker = new TestReplicantMessageBrokerImpl();
 
     // No actions
     broker.processPendingSessions();
@@ -45,9 +45,9 @@ public class ReplicantMessageBrokerImplTest
   @Test
   public void multipleSendsToSameSession()
   {
-    final ReplicantSession session = newSession();
+    final var session = newSession();
 
-    final ReplicantMessageBroker broker = new TestReplicantMessageBrokerImpl();
+    final var broker = new TestReplicantMessageBrokerImpl();
 
     // No actions
     broker.processPendingSessions();
@@ -85,10 +85,10 @@ public class ReplicantMessageBrokerImplTest
   @Test
   public void multipleSendsToDifferentSession()
   {
-    final ReplicantSession session1 = newSession();
-    final ReplicantSession session2 = newSession();
+    final var session1 = newSession();
+    final var session2 = newSession();
 
-    final ReplicantMessageBroker broker = new TestReplicantMessageBrokerImpl();
+    final var broker = new TestReplicantMessageBrokerImpl();
 
     // No actions
     broker.processPendingSessions();
@@ -135,7 +135,7 @@ public class ReplicantMessageBrokerImplTest
   @Nonnull
   private ReplicantSession newSession()
   {
-    final Session session = mock( Session.class );
+    final var session = mock( Session.class );
     when( session.isOpen() ).thenReturn( Boolean.TRUE );
     when( session.getId() ).thenReturn( ValueUtil.randomString() );
     return new ReplicantSession( session );

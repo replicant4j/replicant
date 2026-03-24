@@ -20,15 +20,15 @@ public class SubscriptionEntryTest
   @Test
   public void basicFlow()
   {
-    final ChannelAddress cd1 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final ChannelAddress cd2 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final ChannelAddress cd3 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final ChannelAddress cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final ChannelAddress cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd1 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd2 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd3 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
-    final ReplicantSession session = newSession();
+    final var session = newSession();
     session.getLock().lock();
-    final SubscriptionEntry entry = new SubscriptionEntry( session, cd1 );
+    final var entry = new SubscriptionEntry( session, cd1 );
 
     assertEquals( entry.address(), cd1 );
     assertFalse( entry.isExplicitlySubscribed() );
@@ -44,7 +44,7 @@ public class SubscriptionEntryTest
     assertFalse( entry.isExplicitlySubscribed() );
     assertTrue( entry.canUnsubscribe() );
 
-    final JsonObject filter = Json.createObjectBuilder().build();
+    final var filter = Json.createObjectBuilder().build();
 
     entry.setFilter( filter );
     assertEquals( entry.getFilter(), filter );
@@ -109,38 +109,38 @@ public class SubscriptionEntryTest
   @Test
   public void sorting()
   {
-    final ChannelAddress cd1 = new ChannelAddress( 1, 42 );
-    final ChannelAddress cd3 = new ChannelAddress( 1, 43 );
-    final ChannelAddress cd4 = new ChannelAddress( 2, null );
-    final ChannelAddress cd5 = new ChannelAddress( 3, null );
+    final var cd1 = new ChannelAddress( 1, 42 );
+    final var cd3 = new ChannelAddress( 1, 43 );
+    final var cd4 = new ChannelAddress( 2, null );
+    final var cd5 = new ChannelAddress( 3, null );
 
-    final ReplicantSession session = newSession();
-    final SubscriptionEntry entry1 = new SubscriptionEntry( session, cd1 );
-    final SubscriptionEntry entry3 = new SubscriptionEntry( session, cd3 );
-    final SubscriptionEntry entry4 = new SubscriptionEntry( session, cd4 );
-    final SubscriptionEntry entry5 = new SubscriptionEntry( session, cd5 );
+    final var session = newSession();
+    final var entry1 = new SubscriptionEntry( session, cd1 );
+    final var entry3 = new SubscriptionEntry( session, cd3 );
+    final var entry4 = new SubscriptionEntry( session, cd4 );
+    final var entry5 = new SubscriptionEntry( session, cd5 );
 
-    final List<SubscriptionEntry> list = new ArrayList<>( Arrays.asList( entry5, entry4, entry3, entry1 ) );
+    final var list = new ArrayList<>( Arrays.asList( entry5, entry4, entry3, entry1 ) );
 
     Collections.sort( list );
 
-    final SubscriptionEntry[] expected = { entry1, entry3, entry4, entry5 };
+    final var expected = new SubscriptionEntry[]{ entry1, entry3, entry4, entry5 };
     assertEquals( list.toArray( new SubscriptionEntry[ 0 ] ), expected );
   }
 
   @Test
   public void ownerAwareOutwardSubscriptions_referenceCountSharedTargets()
   {
-    final ChannelAddress source = new ChannelAddress( 1, 1 );
-    final ChannelAddress target = new ChannelAddress( 2, 2 );
+    final var source = new ChannelAddress( 1, 1 );
+    final var target = new ChannelAddress( 2, 2 );
 
-    final ReplicantSession session = newSession();
+    final var session = newSession();
     session.getLock().lock();
     try
     {
-      final SubscriptionEntry entry = new SubscriptionEntry( session, source );
-      final LinkOwner ownerA = LinkOwner.entity( 7, 11 );
-      final LinkOwner ownerB = LinkOwner.entity( 7, 12 );
+      final var entry = new SubscriptionEntry( session, source );
+      final var ownerA = LinkOwner.entity( 7, 11 );
+      final var ownerB = LinkOwner.entity( 7, 12 );
 
       assertEquals( entry.registerOutwardSubscriptions( ownerA, target ), new ChannelAddress[]{ target } );
       assertTrue( entry.getOutwardSubscriptions().contains( target ) );

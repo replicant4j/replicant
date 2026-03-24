@@ -28,7 +28,7 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static EntityMessageSet getEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    EntityMessageSet messageSet = lookup( r, KEY );
+    var messageSet = EntityMessageCacheUtil.<EntityMessageSet>lookup( r, KEY );
     if ( null == messageSet )
     {
       messageSet = new EntityMessageSet();
@@ -64,7 +64,7 @@ public final class EntityMessageCacheUtil
   @Nonnull
   public static ChangeSet getSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
   {
-    ChangeSet changes = lookup( r, SESSION_KEY );
+    var changes = EntityMessageCacheUtil.<ChangeSet>lookup( r, SESSION_KEY );
     if ( null == changes )
     {
       changes = new ChangeSet();
@@ -99,7 +99,7 @@ public final class EntityMessageCacheUtil
 
   private static <T> T remove( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
   {
-    final T messageSet = lookup( r, key );
+    final var messageSet = EntityMessageCacheUtil.<T>lookup( r, key );
     if ( null != messageSet )
     {
       r.putResource( key, null );
@@ -110,10 +110,10 @@ public final class EntityMessageCacheUtil
   @SuppressWarnings( "unchecked" )
   private static <T> T lookup( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
   {
-    final Object invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
+    final var invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )
     {
-      final String message =
+      final var message =
         "Attempting to look up replication resource '" + key + "' but there is no active replication context. " +
         "This probably means you are attempting to update replicated entities outside of a valid replication context. " +
         "Make sure the entity is modified in a service surrounded by a replication interceptor.";

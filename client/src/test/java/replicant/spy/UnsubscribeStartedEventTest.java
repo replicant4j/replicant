@@ -12,14 +12,14 @@ public class UnsubscribeStartedEventTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final UnsubscribeStartedEvent event = new UnsubscribeStartedEvent( 23, "Rose", address );
+    final var address = new ChannelAddress( 1, 2 );
+    final var event = new UnsubscribeStartedEvent( 23, "Rose", address );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
     assertEquals( event.getAddress(), address );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.UnsubscribeStarted" );

@@ -11,14 +11,14 @@ public class ChannelSchemaTest
   @Test
   public void findEntityById()
   {
-    final EntitySchema entity =
+    final var entity =
       new EntitySchema( 1,
                         "MyObject",
                         Object.class,
                         ( i, d ) -> 1,
                         ( o, d ) -> d.notify(),
                         new ChannelLinkSchema[ 0 ] );
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( ValueUtil.randomInt(),
                          ValueUtil.randomString(),
                          null,
@@ -36,14 +36,14 @@ public class ChannelSchemaTest
   @Test
   public void typeGraph()
   {
-    final EntitySchema entity =
+    final var entity =
       new EntitySchema( 1,
                         "MyObject",
                         Object.class,
                         ( i, d ) -> 1,
                         ( o, d ) -> d.notify(),
                         new ChannelLinkSchema[ 0 ] );
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 1,
                          "MetaData",
                          null,
@@ -68,7 +68,7 @@ public class ChannelSchemaTest
   @Test
   public void instanceGraph()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 1,
                          "MetaData",
                          String.class,
@@ -91,12 +91,12 @@ public class ChannelSchemaTest
   @Test
   public void staticFilteredGraph()
   {
-    final int id = ValueUtil.randomInt();
-    final String name = ValueUtil.randomString();
-    final boolean typeChannel = false;
-    final boolean cacheable = false;
-    final boolean external = true;
-    final ChannelSchema channelSchema =
+    final var id = ValueUtil.randomInt();
+    final var name = ValueUtil.randomString();
+    final var typeChannel = false;
+    final var cacheable = false;
+    final var external = true;
+    final var channelSchema =
       new ChannelSchema( id,
                          name,
                          String.class,
@@ -119,11 +119,11 @@ public class ChannelSchemaTest
   @Test
   public void staticInstancedFilteredGraph()
   {
-    final int id = ValueUtil.randomInt();
-    final String name = ValueUtil.randomString();
-    final boolean cacheable = false;
-    final boolean external = true;
-    final ChannelSchema channelSchema =
+    final var id = ValueUtil.randomInt();
+    final var name = ValueUtil.randomString();
+    final var cacheable = false;
+    final var external = true;
+    final var channelSchema =
       new ChannelSchema( id,
                          name,
                          String.class,
@@ -146,12 +146,12 @@ public class ChannelSchemaTest
   @Test
   public void dynamicFilteredGraph()
   {
-    final int id = ValueUtil.randomInt();
-    final String name = ValueUtil.randomString();
-    final boolean cacheable = false;
-    final boolean external = true;
-    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
-    final ChannelSchema channelSchema =
+    final var id = ValueUtil.randomInt();
+    final var name = ValueUtil.randomString();
+    final var cacheable = false;
+    final var external = true;
+    final var filter = mock( SubscriptionUpdateEntityFilter.class );
+    final var channelSchema =
       new ChannelSchema( id,
                          name,
                          null,
@@ -176,7 +176,7 @@ public class ChannelSchemaTest
   public void noNameSuppliedWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( ValueUtil.randomInt(),
                          null,
                          null,
@@ -185,7 +185,7 @@ public class ChannelSchemaTest
                          ValueUtil.randomBoolean(),
                          ValueUtil.randomBoolean(),
                          Collections.emptyList() );
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, channelSchema::getName );
+    final var exception = expectThrows( IllegalStateException.class, channelSchema::getName );
     assertEquals( exception.getMessage(),
                   "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
     assertEquals( channelSchema.toString(),
@@ -196,7 +196,7 @@ public class ChannelSchemaTest
   public void passNameToConstructorWhenNamesDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( ValueUtil.randomInt(),
                                              "MyChannel",
@@ -213,7 +213,7 @@ public class ChannelSchemaTest
   @Test
   public void constructorPassedNoFilterWhenExpected()
   {
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( 222,
                                              "MyChannel",
@@ -230,7 +230,7 @@ public class ChannelSchemaTest
   @Test
   public void constructorPassedFilterWhenNotExpected()
   {
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( 222,
                                              "MyChannel",
@@ -247,7 +247,7 @@ public class ChannelSchemaTest
   @Test
   public void constructorPassedFilterWhenNotExpected_staticInstanced()
   {
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new ChannelSchema( 222,
                                              "MyChannel",

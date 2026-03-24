@@ -9,12 +9,12 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   @Nonnull
   public static ChannelAddress parse( @Nonnull final String name )
   {
-    final int instanceOffset = name.indexOf( '#' );
-    final String channelPart = -1 == instanceOffset ? name : name.substring( 0, instanceOffset );
-    final String filterInstanceId = -1 == instanceOffset ? null : name.substring( instanceOffset + 1 );
-    final int offset = channelPart.indexOf( "." );
-    final int channelId = Integer.parseInt( -1 == offset ? channelPart : channelPart.substring( 0, offset ) );
-    final Integer rootId = -1 == offset ? null : Integer.parseInt( channelPart.substring( offset + 1 ) );
+    final var instanceOffset = name.indexOf( '#' );
+    final var channelPart = -1 == instanceOffset ? name : name.substring( 0, instanceOffset );
+    final var filterInstanceId = -1 == instanceOffset ? null : name.substring( instanceOffset + 1 );
+    final var offset = channelPart.indexOf( "." );
+    final var channelId = Integer.parseInt( -1 == offset ? channelPart : channelPart.substring( 0, offset ) );
+    final var rootId = -1 == offset ? null : Integer.parseInt( channelPart.substring( offset + 1 ) );
     return new ChannelAddress( channelId, rootId, filterInstanceId, false );
   }
 
@@ -63,15 +63,15 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   @Override
   public int compareTo( @Nonnull final ChannelAddress other )
   {
-    final int channelDiff = Integer.compare( channelId(), other.channelId() );
+    final var channelDiff = Integer.compare( channelId(), other.channelId() );
     if ( 0 != channelDiff )
     {
       return channelDiff;
     }
     else
     {
-      final Integer otherRootId = other.rootId();
-      final Integer rootId = rootId();
+      final var otherRootId = other.rootId();
+      final var rootId = rootId();
       if ( null != otherRootId || null != rootId )
       {
         if ( null == otherRootId )
@@ -84,7 +84,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
         }
         else
         {
-          final int rootDiff = rootId.compareTo( otherRootId );
+          final var rootDiff = rootId.compareTo( otherRootId );
           if ( 0 != rootDiff )
           {
             return rootDiff;
@@ -92,8 +92,8 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
         }
       }
     }
-    final String f1 = filterInstanceId();
-    final String f2 = other.filterInstanceId();
+    final var f1 = filterInstanceId();
+    final var f2 = other.filterInstanceId();
     if ( null == f1 && null == f2 )
     {
       if ( partial() == other.partial() )
@@ -131,7 +131,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   @Override
   public String toString()
   {
-    final String base = channelId + ( null == rootId ? "" : "." + rootId );
+    final var base = channelId + ( null == rootId ? "" : "." + rootId );
     return base + ( null == filterInstanceId ? "" : "#" + filterInstanceId ) + ( partial ? "?" : "" );
   }
 }

@@ -13,14 +13,14 @@ public class TransportContextImplTest
   @Test
   public void onMessageReceived()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
-    final Connection connection = newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
+    final var connection = newConnection( connector );
+    final var context = new TransportContextImpl( connector );
 
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
+    final var request = connection.newRequest( ValueUtil.randomString(), false, null );
     assertEquals( connection.getPendingResponses().size(), 0 );
     context.onMessageReceived( OkMessage.create( request.getRequestId() ) );
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -42,14 +42,14 @@ public class TransportContextImplTest
   @Test
   public void onMessageReadFailure()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
     newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
+    final var context = new TransportContextImpl( connector );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
     handler.assertEventCount( 0 );
     context.onError();
     handler.assertEventCount( 2 );
@@ -74,16 +74,16 @@ public class TransportContextImplTest
   @Test
   public void onDisconnect()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
     newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
+    final var context = new TransportContextImpl( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     context.onDisconnect();
 
@@ -96,16 +96,16 @@ public class TransportContextImplTest
   @Test
   public void onDisconnect_onDisposed()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
     pauseScheduler();
 
     newConnection( connector );
-    final TransportContextImpl context = new TransportContextImpl( connector );
+    final var context = new TransportContextImpl( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     context.dispose();
 

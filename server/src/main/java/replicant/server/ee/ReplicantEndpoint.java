@@ -51,7 +51,7 @@ public class ReplicantEndpoint
   @OnOpen
   public void onOpen( @Nonnull final Session session )
   {
-    final ReplicantSession newReplicantSession = _sessionManager.createSession( session );
+    final var newReplicantSession = _sessionManager.createSession( session );
     if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.log( Level.FINE,
@@ -230,12 +230,12 @@ public class ReplicantEndpoint
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
-    final ChannelAddress address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
-    final ChannelMetaData channelMetaData = getChannelMetaData( address.channelId() );
+    final var address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
+    final var channelMetaData = getChannelMetaData( address.channelId() );
     if ( checkSubscribeRequest( replicantSession, channelMetaData, address ) )
     {
-      final int requestId = command.getInt( Messages.Common.REQUEST_ID );
-      final Object filter = extractFilter( channelMetaData, command );
+      final var requestId = command.getInt( Messages.Common.REQUEST_ID );
+      final var filter = extractFilter( channelMetaData, command );
       _sessionManager.subscribe( replicantSession, requestId, Collections.singletonList( address ), filter );
     }
   }
@@ -334,7 +334,7 @@ public class ReplicantEndpoint
   private void onBulkUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
     throws IOException, InterruptedException
   {
-    final ChannelAddress[] addresses = extractChannels( command );
+    final var addresses = extractChannels( command );
     if ( 0 != addresses.length )
     {
       final var channelId = addresses[ 0 ].channelId();
@@ -353,7 +353,7 @@ public class ReplicantEndpoint
         }
       }
 
-      final int requestId = command.getInt( Messages.Common.REQUEST_ID );
+      final var requestId = command.getInt( Messages.Common.REQUEST_ID );
       _sessionManager.unsubscribe( session, requestId, Arrays.asList( addresses ) );
     }
   }
@@ -433,7 +433,7 @@ public class ReplicantEndpoint
   @Nonnull
   private ReplicantSession getReplicantSession( @Nonnull final Session session )
   {
-    final ReplicantSession replicantSession = findReplicantSession( session );
+    final var replicantSession = findReplicantSession( session );
     if ( null != replicantSession )
     {
       return replicantSession;
@@ -470,7 +470,7 @@ public class ReplicantEndpoint
       WebSocketUtil.sendText( session, JsonEncoder.encodeErrorMessage( message ) );
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Unexpected error" ) );
     }
-    final ReplicantSession replicantSession = findReplicantSession( session );
+    final var replicantSession = findReplicantSession( session );
     if ( null != replicantSession )
     {
       closeReplicantSession( replicantSession );
@@ -480,7 +480,7 @@ public class ReplicantEndpoint
   @OnClose
   public void onClose( @Nonnull final Session session )
   {
-    final ReplicantSession replicantSession = findReplicantSession( session );
+    final var replicantSession = findReplicantSession( session );
     if ( null == replicantSession )
     {
       LOG.log( Level.FINE,

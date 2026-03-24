@@ -11,13 +11,13 @@ public class DisconnectFailureEventTest
   @Test
   public void basicOperation()
   {
-    final DisconnectFailureEvent event =
+    final var event =
       new DisconnectFailureEvent( 23, "Rose" );
 
     assertEquals( event.getSchemaId(), 23 );
     assertEquals( event.getSchemaName(), "Rose" );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.DisconnectFailure" );

@@ -11,13 +11,13 @@ public class SpyImplTest
   @Test
   public void basicOperation()
   {
-    final SpyImpl spy = new SpyImpl();
+    final var spy = new SpyImpl();
 
-    final Object event = new Object();
+    final var event = new Object();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
 
-    final SpyEventHandler handler = e -> {
+    final var handler = (SpyEventHandler) e -> {
       callCount.incrementAndGet();
       assertEquals( e, event );
     };
@@ -47,13 +47,13 @@ public class SpyImplTest
   @Test
   public void reportSpyEvent_whenNoListeners()
   {
-    final SpyImpl spy = new SpyImpl();
+    final var spy = new SpyImpl();
 
     assertFalse( spy.willPropagateSpyEvents() );
 
-    final Object event = new Object();
+    final var event = new Object();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> spy.reportSpyEvent( event ) );
 
     assertEquals( exception.getMessage(),
@@ -64,12 +64,12 @@ public class SpyImplTest
   @Test
   public void addSpyEventHandler_alreadyExists()
   {
-    final SpyImpl support = new SpyImpl();
+    final var support = new SpyImpl();
 
-    final SpyEventHandler handler = new TestSpyEventHandler();
+    final var handler = new TestSpyEventHandler();
     support.addSpyEventHandler( handler );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> support.addSpyEventHandler( handler ) );
 
     assertEquals( exception.getMessage(),
@@ -81,11 +81,11 @@ public class SpyImplTest
   @Test
   public void removeSpyEventHandler_noExists()
   {
-    final SpyImpl support = new SpyImpl();
+    final var support = new SpyImpl();
 
-    final SpyEventHandler handler = new TestSpyEventHandler();
+    final var handler = new TestSpyEventHandler();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> support.removeSpyEventHandler( handler ) );
 
     assertEquals( exception.getMessage(),
@@ -97,17 +97,17 @@ public class SpyImplTest
   @Test
   public void multipleHandlers()
   {
-    final SpyImpl support = new SpyImpl();
+    final var support = new SpyImpl();
 
-    final Object event = new Object();
+    final var event = new Object();
 
-    final AtomicInteger callCount1 = new AtomicInteger();
-    final AtomicInteger callCount2 = new AtomicInteger();
-    final AtomicInteger callCount3 = new AtomicInteger();
+    final var callCount1 = new AtomicInteger();
+    final var callCount2 = new AtomicInteger();
+    final var callCount3 = new AtomicInteger();
 
-    final SpyEventHandler handler1 = e -> callCount1.incrementAndGet();
-    final SpyEventHandler handler2 = e -> callCount2.incrementAndGet();
-    final SpyEventHandler handler3 = e -> callCount3.incrementAndGet();
+    final var handler1 = (SpyEventHandler) e -> callCount1.incrementAndGet();
+    final var handler2 = (SpyEventHandler) e -> callCount2.incrementAndGet();
+    final var handler3 = (SpyEventHandler) e -> callCount3.incrementAndGet();
     support.addSpyEventHandler( handler1 );
     support.addSpyEventHandler( handler2 );
     support.addSpyEventHandler( handler3 );
@@ -130,20 +130,20 @@ public class SpyImplTest
   @Test
   public void onSpyEvent_whereOneHandlerGeneratesError()
   {
-    final SpyImpl support = new SpyImpl();
+    final var support = new SpyImpl();
 
-    final Object event = new Object();
+    final var event = new Object();
 
-    final AtomicInteger callCount1 = new AtomicInteger();
-    final AtomicInteger callCount3 = new AtomicInteger();
+    final var callCount1 = new AtomicInteger();
+    final var callCount3 = new AtomicInteger();
 
-    final RuntimeException exception = new RuntimeException( "X" );
+    final var exception = new RuntimeException( "X" );
 
-    final SpyEventHandler handler1 = e -> callCount1.incrementAndGet();
-    final SpyEventHandler handler2 = e -> {
+    final var handler1 = (SpyEventHandler) e -> callCount1.incrementAndGet();
+    final var handler2 = (SpyEventHandler) e -> {
       throw exception;
     };
-    final SpyEventHandler handler3 = e -> callCount3.incrementAndGet();
+    final var handler3 = (SpyEventHandler) e -> callCount3.incrementAndGet();
     support.addSpyEventHandler( handler1 );
     support.addSpyEventHandler( handler2 );
     support.addSpyEventHandler( handler3 );
@@ -153,9 +153,9 @@ public class SpyImplTest
     assertEquals( callCount1.get(), 1 );
     assertEquals( callCount3.get(), 1 );
 
-    final List<TestLogger.LogEntry> entries = getTestLogger().getEntries();
+    final var entries = getTestLogger().getEntries();
     assertEquals( entries.size(), 1 );
-    final TestLogger.LogEntry entry1 = entries.get( 0 );
+    final var entry1 = entries.get( 0 );
     assertEquals( entry1.getMessage(),
                   "Exception when notifying spy handler '" + handler2 + "' of '" + event + "' event." );
     assertEquals( entry1.getThrowable(), exception );

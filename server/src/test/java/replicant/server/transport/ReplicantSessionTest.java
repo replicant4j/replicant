@@ -33,17 +33,17 @@ public class ReplicantSessionTest
   @Test
   public void basicOperation()
   {
-    final Session webSocketSession = mock( Session.class );
-    final String sessionId = ValueUtil.randomString();
+    final var webSocketSession = mock( Session.class );
+    final var sessionId = ValueUtil.randomString();
     when( webSocketSession.getId() ).thenReturn( sessionId );
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
     session.getLock().lock();
 
     assertEquals( session.getId(), sessionId );
 
     assertEquals( getSubscriptions( session ).size(), 0 );
 
-    final ChannelAddress cd1 = new ChannelAddress( 1, null );
+    final var cd1 = new ChannelAddress( 1, null );
 
     assertNull( session.findSubscriptionEntry( cd1 ) );
     assertFalse( session.isSubscriptionEntryPresent( cd1 ) );
@@ -58,7 +58,7 @@ public class ReplicantSessionTest
       assertEquals( ise.getMessage(), "Unable to locate subscription entry for 1" );
     }
 
-    final SubscriptionEntry entry = session.createSubscriptionEntry( cd1 );
+    final var entry = session.createSubscriptionEntry( cd1 );
 
     assertEquals( entry.address(), cd1 );
     assertEquals( getSubscriptions( session ).size(), 1 );
@@ -78,15 +78,15 @@ public class ReplicantSessionTest
   @Test
   public void subscriptionIndexesByChannelAndRoot()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
     session.getLock().lock();
     try
     {
-      final ChannelAddress typeA = new ChannelAddress( 1, null );
-      final ChannelAddress typeB = new ChannelAddress( 1, null, "fi" );
-      final ChannelAddress instA = new ChannelAddress( 1, 5 );
-      final ChannelAddress instB = new ChannelAddress( 1, 5, "fi2" );
-      final ChannelAddress other = new ChannelAddress( 2, null );
+      final var typeA = new ChannelAddress( 1, null );
+      final var typeB = new ChannelAddress( 1, null, "fi" );
+      final var instA = new ChannelAddress( 1, 5 );
+      final var instB = new ChannelAddress( 1, 5, "fi2" );
+      final var other = new ChannelAddress( 2, null );
 
       session.createSubscriptionEntry( typeA );
       session.createSubscriptionEntry( typeB );
@@ -108,9 +108,9 @@ public class ReplicantSessionTest
   @Test
   public void requiresLockForSubscriptionAccess()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> session.findSubscriptionEntry( new ChannelAddress( 1 ) ) );
     assertEquals( exception.getMessage(), "Expected session to be locked by the current thread" );
   }
@@ -118,12 +118,12 @@ public class ReplicantSessionTest
   @Test
   public void deleteSubscriptionEntry_updatesIndexes()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
     session.getLock().lock();
     try
     {
-      final SubscriptionEntry entryA = session.createSubscriptionEntry( new ChannelAddress( 1, 5 ) );
-      final SubscriptionEntry entryB = session.createSubscriptionEntry( new ChannelAddress( 1, 5, "fi" ) );
+      final var entryA = session.createSubscriptionEntry( new ChannelAddress( 1, 5 ) );
+      final var entryB = session.createSubscriptionEntry( new ChannelAddress( 1, 5, "fi" ) );
 
       assertEquals( session.findSubscriptionEntries( 1, 5 ).size(), 2 );
 
@@ -142,17 +142,17 @@ public class ReplicantSessionTest
   @Test
   public void setETags_resetsAndRemovesNulls()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
     session.getLock().lock();
     try
     {
-      final ChannelAddress address1 = new ChannelAddress( 1, null );
-      final ChannelAddress address2 = new ChannelAddress( 2, 5 );
+      final var address1 = new ChannelAddress( 1, null );
+      final var address2 = new ChannelAddress( 2, 5 );
 
       session.setETag( address1, "v1" );
       assertEquals( session.getETag( address1 ), "v1" );
 
-      final Map<ChannelAddress, String> eTags = new HashMap<>();
+      final var eTags = new HashMap<ChannelAddress, String>();
       eTags.put( address1, null );
       eTags.put( address2, "v2" );
       session.setETags( eTags );
@@ -169,10 +169,10 @@ public class ReplicantSessionTest
   @Test
   public void queuePacket_prioritizesSubscriptionPackets()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final Packet normal = new Packet( false, null, null, null, Collections.emptyList(), new ChangeSet() );
-    final Packet sub1 = new Packet( true, null, null, null, Collections.emptyList(), new ChangeSet() );
-    final Packet sub2 = new Packet( true, null, null, null, Collections.emptyList(), new ChangeSet() );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var normal = new Packet( false, null, null, null, Collections.emptyList(), new ChangeSet() );
+    final var sub1 = new Packet( true, null, null, null, Collections.emptyList(), new ChangeSet() );
+    final var sub2 = new Packet( true, null, null, null, Collections.emptyList(), new ChangeSet() );
 
     session.queuePacket( normal );
     session.queuePacket( sub1 );
@@ -188,18 +188,18 @@ public class ReplicantSessionTest
   public void sendPacket_emitsChangeSet()
     throws IOException
   {
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
 
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
     session.getLock().lock();
     try
     {
-      final EntityMessage message = MessageTestUtil.createMessage( 1, 2, 0, "r1", "r2", "a1", "a2" );
-      final Change change = new Change( message, new ChannelAddress( 5, null ) );
-      final ChangeSet changeSet = new ChangeSet();
+      final var message = MessageTestUtil.createMessage( 1, 2, 0, "r1", "r2", "a1", "a2" );
+      final var change = new Change( message, new ChannelAddress( 5, null ) );
+      final var changeSet = new ChangeSet();
       changeSet.merge( change );
 
       session.sendPacket( 7, null, null, changeSet );
@@ -207,7 +207,7 @@ public class ReplicantSessionTest
       final var captor = org.mockito.ArgumentCaptor.forClass( String.class );
       verify( remote ).sendText( captor.capture() );
 
-      final JsonObject payload = Json.createReader( new StringReader( captor.getValue() ) ).readObject();
+      final var payload = Json.createReader( new StringReader( captor.getValue() ) ).readObject();
       assertEquals( payload.getString( Messages.Common.TYPE ), Messages.S2C_Type.UPDATE );
       assertEquals( payload.getInt( Messages.Common.REQUEST_ID ), 7 );
       assertEquals( payload.getJsonArray( Messages.Update.CHANGES ).size(), 1 );
@@ -221,10 +221,10 @@ public class ReplicantSessionTest
   @Test
   public void sendPacket_requiresLock()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> session.sendPacket( null, null, null, changeSet ) );
     assertEquals( exception.getMessage(), "Expected session to be locked by the current thread" );
   }
@@ -233,9 +233,9 @@ public class ReplicantSessionTest
   public void closeDueToInterrupt_closesSession()
     throws IOException
   {
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.isOpen() ).thenReturn( true );
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
 
     session.closeDueToInterrupt();
 
@@ -248,9 +248,9 @@ public class ReplicantSessionTest
   public void close_noopWhenAlreadyClosed()
     throws IOException
   {
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.isOpen() ).thenReturn( false );
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
 
     session.close();
 
@@ -261,12 +261,12 @@ public class ReplicantSessionTest
   public void pingTransport_sendsPingWhenOpen()
     throws IOException
   {
-    final Session webSocketSession = mock( Session.class );
-    final RemoteEndpoint.Basic remote = mock( RemoteEndpoint.Basic.class );
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
     when( webSocketSession.isOpen() ).thenReturn( true );
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
 
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
 
     session.pingTransport();
 
@@ -276,10 +276,10 @@ public class ReplicantSessionTest
   @Test
   public void pingTransport_noopWhenClosed()
   {
-    final Session webSocketSession = mock( Session.class );
+    final var webSocketSession = mock( Session.class );
     when( webSocketSession.isOpen() ).thenReturn( false );
 
-    final ReplicantSession session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession );
 
     session.pingTransport();
 
@@ -289,11 +289,11 @@ public class ReplicantSessionTest
   @Test
   public void cacheKeys()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
     session.getLock().lock();
     try
     {
-      final ChannelAddress cd1 = new ChannelAddress( 1, null );
+      final var cd1 = new ChannelAddress( 1, null );
 
       assertNull( session.getETag( cd1 ) );
 
@@ -310,9 +310,9 @@ public class ReplicantSessionTest
   @Test
   public void recordSubscription_addsEntryAndAction()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -339,9 +339,9 @@ public class ReplicantSessionTest
   @Test
   public void recordSubscription_updatesEntryAndCanPromoteExplicitSubscribe()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -367,8 +367,8 @@ public class ReplicantSessionTest
   @Test
   public void recordSubscriptions_recordsEachAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
     final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 1, 3 ) );
 
     session.getLock().lock();
@@ -392,8 +392,8 @@ public class ReplicantSessionTest
   @Test
   public void recordSubscription_rejectsPartialAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
 
     session.getLock().lock();
     try
@@ -410,9 +410,9 @@ public class ReplicantSessionTest
   @Test
   public void recordGraphScopedGraphLink_linksEntries()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChannelAddress source = new ChannelAddress( 1, 2 );
-    final ChannelAddress target = new ChannelAddress( 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 2 );
 
     session.getLock().lock();
     try
@@ -434,7 +434,7 @@ public class ReplicantSessionTest
   @Test
   public void recordGraphScopedGraphLink_rejectsPartialAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
 
     session.getLock().lock();
     try
@@ -454,7 +454,7 @@ public class ReplicantSessionTest
   @Test
   public void recordGraphScopedGraphLink_rejectsInstanceGraphTarget()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final var session = new ReplicantSession( mock( Session.class ) );
 
     session.getLock().lock();
     try
@@ -474,10 +474,10 @@ public class ReplicantSessionTest
   @Test
   public void entityOwnedGraphLinks_requireLastOwnerBeforeDelink()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress source = new ChannelAddress( 1, 2 );
-    final ChannelAddress target = new ChannelAddress( 2, 3 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 2, 3 );
 
     session.getLock().lock();
     try
@@ -516,8 +516,8 @@ public class ReplicantSessionTest
   @Test
   public void getFilterAndSetFilter_roundTrip()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -538,9 +538,9 @@ public class ReplicantSessionTest
   @Test
   public void unsubscribe_removesExistingAndIgnoresMissing()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -565,10 +565,10 @@ public class ReplicantSessionTest
   @Test
   public void bulkUnsubscribe_removesEachSubscribedAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address1 = new ChannelAddress( 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address1 = new ChannelAddress( 1, 1 );
+    final var address2 = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -596,8 +596,8 @@ public class ReplicantSessionTest
   @Test
   public void bulkUnsubscribe_rejectsPartialAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
 
     session.getLock().lock();
     try
@@ -615,9 +615,9 @@ public class ReplicantSessionTest
   @Test
   public void performUnsubscribe_onlyRemovesWhenEntryCanUnsubscribe()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -643,9 +643,9 @@ public class ReplicantSessionTest
   @Test
   public void performUnsubscribe_deleteUsesDeleteAction()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var address = new ChannelAddress( 1, 2 );
 
     session.getLock().lock();
     try
@@ -668,11 +668,11 @@ public class ReplicantSessionTest
   @Test
   public void performUnsubscribe_cascadesDownstreamSubscriptions()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress a = new ChannelAddress( 1, 1 );
-    final ChannelAddress b = new ChannelAddress( 2 );
-    final ChannelAddress c = new ChannelAddress( 3 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var a = new ChannelAddress( 1, 1 );
+    final var b = new ChannelAddress( 2 );
+    final var c = new ChannelAddress( 3 );
 
     session.getLock().lock();
     try
@@ -703,10 +703,10 @@ public class ReplicantSessionTest
   @Test
   public void delinkDownstreamSubscription_keepsExplicitDownstream()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress upstream = new ChannelAddress( 1, 1 );
-    final ChannelAddress downstream = new ChannelAddress( 2 );
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
+    final var upstream = new ChannelAddress( 1, 1 );
+    final var downstream = new ChannelAddress( 2 );
 
     session.getLock().lock();
     try
@@ -733,8 +733,8 @@ public class ReplicantSessionTest
   @Test
   public void delinkDownstreamSubscription_rejectsPartialAddress()
   {
-    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
-    final ChangeSet changeSet = new ChangeSet();
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var changeSet = new ChangeSet();
 
     session.getLock().lock();
     try
@@ -766,7 +766,7 @@ public class ReplicantSessionTest
   {
     try
     {
-      final Field field = ReplicantSession.class.getDeclaredField( fieldName );
+      final var field = ReplicantSession.class.getDeclaredField( fieldName );
       field.setAccessible( true );
       return (T) field.get( session );
     }

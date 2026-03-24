@@ -9,11 +9,11 @@ public class AreaOfInterestRequestTest
   @Test
   public void basicOperation()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final Object filter = null;
-    final AreaOfInterestRequest.Type action = AreaOfInterestRequest.Type.ADD;
+    final var address = new ChannelAddress( 1, 2 );
+    final var filter = (Object) null;
+    final var action = AreaOfInterestRequest.Type.ADD;
 
-    final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, filter );
+    final var entry = new AreaOfInterestRequest( address, action, filter );
 
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getType(), action );
@@ -34,7 +34,7 @@ public class AreaOfInterestRequestTest
   @Test
   public void construct_withNOnNullFIlterAndRemoveAction()
   {
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> new AreaOfInterestRequest( new ChannelAddress( 1, 2 ),
                                                      AreaOfInterestRequest.Type.REMOVE,
@@ -47,7 +47,7 @@ public class AreaOfInterestRequestTest
   @Test
   public void toString_WithFilter()
   {
-    final AreaOfInterestRequest entry =
+    final var entry =
       new AreaOfInterestRequest( new ChannelAddress( 1, 2 ), AreaOfInterestRequest.Type.UPDATE, "XXX" );
 
     assertEquals( entry.toString(), "AreaOfInterestRequest[Type=UPDATE Address=1.2 Filter=XXX]" );
@@ -57,7 +57,7 @@ public class AreaOfInterestRequestTest
   public void toString_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final AreaOfInterestRequest entry =
+    final var entry =
       new AreaOfInterestRequest( new ChannelAddress( 1, 2 ), AreaOfInterestRequest.Type.UPDATE, "XXX" );
 
     assertEquals( entry.toString(),
@@ -67,10 +67,10 @@ public class AreaOfInterestRequestTest
   @Test
   public void removeActionIgnoredFilterDuringMatch()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final AreaOfInterestRequest.Type action = AreaOfInterestRequest.Type.REMOVE;
+    final var address = new ChannelAddress( 1, 2 );
+    final var action = AreaOfInterestRequest.Type.REMOVE;
 
-    final AreaOfInterestRequest entry = new AreaOfInterestRequest( address, action, null );
+    final var entry = new AreaOfInterestRequest( address, action, null );
 
     assertTrue( entry.match( action, address, null ) );
     assertTrue( entry.match( action, address, "OtherFilter" ) );

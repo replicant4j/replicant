@@ -101,7 +101,7 @@ public final class EntityMessage
   @Nonnull
   public EntityMessage duplicate()
   {
-    final EntityMessage message =
+    final var message =
       new EntityMessage( getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>() );
     message.merge( this );
     return message;
@@ -110,7 +110,7 @@ public final class EntityMessage
   @Nonnull
   public EntityMessage toDelete()
   {
-    final EntityMessage message = duplicate();
+    final var message = duplicate();
     message.merge( this );
     message._attributeValues = null;
     message._links = null;
@@ -158,16 +158,16 @@ public final class EntityMessage
   @SuppressWarnings( "unchecked" )
   private void mergeRoutingKeys( @Nonnull final EntityMessage message )
   {
-    final Map<String, Serializable> routingKeys = message.getRoutingKeys();
-    for ( final Map.Entry<String, Serializable> entry : routingKeys.entrySet() )
+    final var routingKeys = message.getRoutingKeys();
+    for ( final var entry : routingKeys.entrySet() )
     {
-      final Serializable value = entry.getValue();
+      final var value = entry.getValue();
       if ( value instanceof List )
       {
-        final List<Integer> existing =
+        final var existing =
           (List<Integer>) getRoutingKeys().computeIfAbsent( entry.getKey(), k -> new ArrayList<Integer>() );
-        final List<Integer> toMerge = (List<Integer>) entry.getValue();
-        for ( final Integer id : toMerge )
+        final var toMerge = (List<Integer>) entry.getValue();
+        for ( final var id : toMerge )
         {
           if ( !existing.contains( id ) )
           {
@@ -184,7 +184,7 @@ public final class EntityMessage
 
   private void mergeAttributeValues( @Nonnull final EntityMessage message )
   {
-    final Map<String, Serializable> attributeValues = message.getAttributeValues();
+    final var attributeValues = message.getAttributeValues();
     if ( null == attributeValues )
     {
       _attributeValues = null;
@@ -201,7 +201,7 @@ public final class EntityMessage
 
   private void mergeLinks( @Nonnull final EntityMessage message )
   {
-    final Set<ChannelLink> links = message.getLinks();
+    final var links = message.getLinks();
     if ( null != links )
     {
       if ( null == _links )

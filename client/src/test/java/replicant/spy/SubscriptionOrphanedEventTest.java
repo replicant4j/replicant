@@ -17,14 +17,14 @@ public class SubscriptionOrphanedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final String filter = ValueUtil.randomString();
-    final Subscription subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
+    final var filter = ValueUtil.randomString();
+    final var subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
 
-    final SubscriptionOrphanedEvent event = new SubscriptionOrphanedEvent( subscription );
+    final var event = new SubscriptionOrphanedEvent( subscription );
 
     assertEquals( event.getSubscription(), subscription );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Subscription.Orphaned" );

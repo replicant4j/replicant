@@ -12,16 +12,16 @@ public final class ExecRequestQueuedEventTest
   @Test
   public void basicOperation()
   {
-    final String command = ValueUtil.randomString();
-    final int schemaId = ValueUtil.randomInt();
-    final String schemaName = ValueUtil.randomString();
-    final ExecRequestQueuedEvent event = new ExecRequestQueuedEvent( schemaId, schemaName, command );
+    final var command = ValueUtil.randomString();
+    final var schemaId = ValueUtil.randomInt();
+    final var schemaName = ValueUtil.randomString();
+    final var event = new ExecRequestQueuedEvent( schemaId, schemaName, command );
 
     assertEquals( event.getSchemaId(), schemaId );
     assertEquals( event.getSchemaName(), schemaName );
     assertEquals( event.getCommand(), command );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.ExecRequestQueued" );

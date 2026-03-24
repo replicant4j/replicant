@@ -16,13 +16,13 @@ public class ReplicantRuntimeTest
   @Override
   public void postTest()
   {
-    final Disposable schedulerLock = Arez.context().pauseScheduler();
+    final var schedulerLock = Arez.context().pauseScheduler();
     try
     {
-      final ReplicantContext context = Replicant.context();
+      final var context = Replicant.context();
       context.deactivate();
       // Need to dispose converger so can safely dispose runtime
-      final Converger converger = context.getConverger();
+      final var converger = context.getConverger();
       Disposable.dispose( converger );
       // Dispose the runtime as it can have a once-off scheduled to process at a later date to reflect active states
       Disposable.dispose( context.getRuntime() );
@@ -37,10 +37,10 @@ public class ReplicantRuntimeTest
   @Test
   public void registerAndDeregisterLifecycle()
   {
-    final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
-    final ReplicantRuntime runtime2 = ReplicantRuntime.create();
+    final var runtime1 = Replicant.context().getRuntime();
+    final var runtime2 = ReplicantRuntime.create();
 
-    final AtomicInteger callCount1 = new AtomicInteger();
+    final var callCount1 = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( runtime1 ) )
       {
@@ -49,7 +49,7 @@ public class ReplicantRuntimeTest
       callCount1.incrementAndGet();
     } );
 
-    final AtomicInteger callCount2 = new AtomicInteger();
+    final var callCount2 = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( runtime2 ) )
       {
@@ -64,7 +64,7 @@ public class ReplicantRuntimeTest
     assertEquals( callCount2.get(), 1 );
 
     // This connector will self-register to runtime1
-    final Connector connector1 = createConnector();
+    final var connector1 = createConnector();
 
     safeAction( () -> assertEquals( runtime1.getConnectors().size(), 1 ) );
     safeAction( () -> assertEquals( runtime2.getConnectors().size(), 0 ) );
@@ -98,14 +98,14 @@ public class ReplicantRuntimeTest
   @Test
   public void duplicateRegister()
   {
-    final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
+    final var runtime1 = Replicant.context().getRuntime();
 
-    final SystemSchema schema = newSchema();
+    final var schema = newSchema();
 
     // This connector will self-register to runtime1
-    final Connector connector1 = createConnector( schema );
+    final var connector1 = createConnector( schema );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> runtime1.registerConnector( connector1 ) );
 
@@ -117,15 +117,15 @@ public class ReplicantRuntimeTest
   @Test
   public void deregisterWhenNoRegistered()
   {
-    final ReplicantRuntime runtime2 = Replicant.context().getRuntime();
+    final var runtime2 = Replicant.context().getRuntime();
 
-    final SystemSchema schema = newSchema();
+    final var schema = newSchema();
     // This connector will self-register to runtime1
-    final Connector connector1 = createConnector( schema );
+    final var connector1 = createConnector( schema );
 
     safeAction( () -> runtime2.deregisterConnector( connector1 ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> runtime2.deregisterConnector( connector1 ) ) );
 
@@ -137,12 +137,12 @@ public class ReplicantRuntimeTest
   @Test
   public void getConnector()
   {
-    final SystemSchema schema1 = newSchema();
-    final SystemSchema schema2 = newSchema();
-    final SystemSchema schema3 = newSchema();
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
-    final Connector service2 = createConnector( schema2 );
+    final var schema1 = newSchema();
+    final var schema2 = newSchema();
+    final var schema3 = newSchema();
+    final var runtime = Replicant.context().getRuntime();
+    final var service1 = createConnector( schema1 );
+    final var service2 = createConnector( schema2 );
 
     assertEquals( runtime.getConnector( service1.getSchema().getId() ), service1 );
     assertEquals( runtime.getConnector( service2.getSchema().getId() ), service2 );
@@ -153,14 +153,14 @@ public class ReplicantRuntimeTest
   @Test
   public void activate()
   {
-    final SystemSchema schema1 = newSchema();
+    final var schema1 = newSchema();
 
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
+    final var runtime = Replicant.context().getRuntime();
+    final var service1 = createConnector( schema1 );
 
-    final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
+    final var entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
 
-    final Disposable schedulerLock1 = pauseScheduler();
+    final var schedulerLock1 = pauseScheduler();
     runtime.deactivate();
     reset( service1.getTransport() );
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
@@ -174,7 +174,7 @@ public class ReplicantRuntimeTest
 
     // set service state to in transition so connect is not called
 
-    final Disposable schedulerLock2 = pauseScheduler();
+    final var schedulerLock2 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -191,7 +191,7 @@ public class ReplicantRuntimeTest
 
     // set service state to connected so no action required
 
-    final Disposable schedulerLock3 = pauseScheduler();
+    final var schedulerLock3 = pauseScheduler();
     runtime.deactivate();
     newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
@@ -202,7 +202,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock4 = pauseScheduler();
+    final var schedulerLock4 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
@@ -213,7 +213,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock5 = pauseScheduler();
+    final var schedulerLock5 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -226,21 +226,21 @@ public class ReplicantRuntimeTest
   @Test
   public void activateMultiple()
   {
-    final SystemSchema schema1 = newSchema();
-    final SystemSchema schema3 = newSchema();
+    final var schema1 = newSchema();
+    final var schema3 = newSchema();
 
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var runtime = Replicant.context().getRuntime();
 
-    final Connector service1 = createConnector( schema1 );
-    final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
+    final var service1 = createConnector( schema1 );
+    final var entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
 
-    final Connector service3 = createConnector( schema3 );
-    final ConnectorEntry entry3 = runtime.getConnectorEntryBySchemaId( service3.getSchema().getId() );
+    final var service3 = createConnector( schema3 );
+    final var entry3 = runtime.getConnectorEntryBySchemaId( service3.getSchema().getId() );
 
     reset( service1.getTransport() );
     reset( service3.getTransport() );
 
-    final Disposable schedulerLock1 = pauseScheduler();
+    final var schedulerLock1 = pauseScheduler();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     safeAction( () -> service3.setState( ConnectorState.DISCONNECTED ) );
     runtime.deactivate();
@@ -258,7 +258,7 @@ public class ReplicantRuntimeTest
 
     // set service state to in transition so connect is not called
 
-    final Disposable schedulerLock2 = pauseScheduler();
+    final var schedulerLock2 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.CONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -271,7 +271,7 @@ public class ReplicantRuntimeTest
     verify( service3.getTransport(), never() )
       .requestConnect( any( TransportContext.class ) );
 
-    final Disposable schedulerLock3 = pauseScheduler();
+    final var schedulerLock3 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTING ) );
     entry1.getRateLimiter().fillBucket();
@@ -286,7 +286,7 @@ public class ReplicantRuntimeTest
 
     // set service state to connected so no action required
 
-    final Disposable schedulerLock4 = pauseScheduler();
+    final var schedulerLock4 = pauseScheduler();
     runtime.deactivate();
     newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
@@ -303,7 +303,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock5 = pauseScheduler();
+    final var schedulerLock5 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().setTokenCount( 0 );
@@ -318,7 +318,7 @@ public class ReplicantRuntimeTest
 
     // set service state to disconnected but rate limit it
 
-    final Disposable schedulerLock6 = pauseScheduler();
+    final var schedulerLock6 = pauseScheduler();
     runtime.deactivate();
     safeAction( () -> service1.setState( ConnectorState.DISCONNECTED ) );
     entry1.getRateLimiter().fillBucket();
@@ -335,14 +335,14 @@ public class ReplicantRuntimeTest
   @Test
   public void deactivate()
   {
-    final SystemSchema schema1 = newSchema();
+    final var schema1 = newSchema();
 
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
+    final var runtime = Replicant.context().getRuntime();
+    final var service1 = createConnector( schema1 );
     newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
-    final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
+    final var entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
 
     runtime.activate();
 
@@ -404,20 +404,20 @@ public class ReplicantRuntimeTest
   @Test
   public void deactivateMultipleDataSources()
   {
-    final SystemSchema schema1 = newSchema();
-    final SystemSchema schema2 = newSchema();
+    final var schema1 = newSchema();
+    final var schema2 = newSchema();
 
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
-    final Connector service1 = createConnector( schema1 );
+    final var runtime = Replicant.context().getRuntime();
+    final var service1 = createConnector( schema1 );
     newConnection( service1 );
     safeAction( () -> service1.setState( ConnectorState.CONNECTED ) );
 
-    final Connector service3 = createConnector( schema2 );
+    final var service3 = createConnector( schema2 );
     newConnection( service3 );
     safeAction( () -> service3.setState( ConnectorState.CONNECTED ) );
 
-    final ConnectorEntry entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
-    final ConnectorEntry entry3 = runtime.getConnectorEntryBySchemaId( service3.getSchema().getId() );
+    final var entry1 = runtime.getConnectorEntryBySchemaId( service1.getSchema().getId() );
+    final var entry3 = runtime.getConnectorEntryBySchemaId( service3.getSchema().getId() );
     entry3.setRequired( false );
 
     runtime.activate();
@@ -549,8 +549,8 @@ public class ReplicantRuntimeTest
                                   final boolean isActive )
   {
     ReplicantTestUtil.resetState();
-    final Disposable schedulerLock = pauseScheduler();
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var schedulerLock = pauseScheduler();
+    final var runtime = Replicant.context().getRuntime();
     if ( isActive )
     {
       runtime.activate();
@@ -568,8 +568,8 @@ public class ReplicantRuntimeTest
   {
     ReplicantTestUtil.resetState();
 
-    final Disposable schedulerLock = pauseScheduler();
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var schedulerLock = pauseScheduler();
+    final var runtime = Replicant.context().getRuntime();
     createConnectorInState( state );
 
     assertEquals( runtime.getState(), expectedSystemState );
@@ -580,7 +580,7 @@ public class ReplicantRuntimeTest
   @Nonnull
   private Connector createConnectorInState( @Nonnull final ConnectorState state )
   {
-    final Connector connector = createConnector( newSchema() );
+    final var connector = createConnector( newSchema() );
     if ( ConnectorState.CONNECTED == state )
     {
       newConnection( connector );
@@ -595,8 +595,8 @@ public class ReplicantRuntimeTest
   {
     ReplicantTestUtil.resetState();
 
-    final Disposable schedulerLock = pauseScheduler();
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var schedulerLock = pauseScheduler();
+    final var runtime = Replicant.context().getRuntime();
     createConnectorInState( service1State );
     createConnectorInState( service2State );
 
@@ -612,13 +612,13 @@ public class ReplicantRuntimeTest
   {
     ReplicantTestUtil.resetState();
 
-    final Disposable schedulerLock = pauseScheduler();
+    final var schedulerLock = pauseScheduler();
 
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var runtime = Replicant.context().getRuntime();
     createConnectorInState( service1State );
     createConnectorInState( service2State );
 
-    final Connector connector3 = createConnectorInState( service3State );
+    final var connector3 = createConnectorInState( service3State );
 
     runtime.setConnectorRequired( connector3.getSchema().getId(), false );
 

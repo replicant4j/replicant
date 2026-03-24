@@ -11,14 +11,14 @@ public class DataLoadStatusTest
   @Test
   public void basicOperation()
   {
-    final int requestId = 44;
-    final int channelAddCount = 4;
-    final int channelUpdateCount = 2;
-    final int channelRemoveCount = 1;
-    final int entityUpdateCount = 123;
-    final int entityRemoveCount = 3;
-    final int entityLinkCount = 126;
-    final DataLoadStatus status =
+    final var requestId = 44;
+    final var channelAddCount = 4;
+    final var channelUpdateCount = 2;
+    final var channelRemoveCount = 1;
+    final var entityUpdateCount = 123;
+    final var entityRemoveCount = 3;
+    final var entityLinkCount = 126;
+    final var status =
       new DataLoadStatus( requestId,
                           channelAddCount,
                           channelUpdateCount,

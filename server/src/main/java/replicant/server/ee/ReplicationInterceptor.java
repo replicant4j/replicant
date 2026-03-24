@@ -30,9 +30,9 @@ public class ReplicationInterceptor
   public Object businessIntercept( final InvocationContext context )
     throws Exception
   {
-    final String sessionId = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
-    final Integer requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
-    final ReplicantSession session = null != sessionId ? _sessionManager.getSession( sessionId ) : null;
+    final var sessionId = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
+    final var requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
+    final var session = null != sessionId ? _sessionManager.getSession( sessionId ) : null;
     ReplicantContextHolder.clean();
     return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, context::proceed );
   }
@@ -40,12 +40,12 @@ public class ReplicationInterceptor
   @Nonnull
   private String getInvocationKey( @Nonnull final InvocationContext context )
   {
-    final Method method = context.getMethod();
+    final var method = context.getMethod();
     if ( null != method )
     {
       return method.getDeclaringClass().getName() + "." + method.getName();
     }
-    final Constructor<?> constructor = context.getConstructor();
+    final var constructor = context.getConstructor();
     if ( null != constructor )
     {
       return constructor.getDeclaringClass().getName() + "." + constructor.getName();

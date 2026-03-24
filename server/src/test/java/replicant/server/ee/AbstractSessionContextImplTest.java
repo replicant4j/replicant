@@ -169,7 +169,7 @@ public class AbstractSessionContextImplTest
     final var context = newContext( mock( EntityManager.class ) );
     final var values = List.of( 1, 2, 3, 4, 5 );
 
-    final List<List<Integer>> chunks = context.chunked( values.stream(), 2 ).toList();
+    final var chunks = context.chunked( values.stream(), 2 ).toList();
 
     assertEquals( chunks.size(), 3 );
     assertEquals( chunks.get( 0 ), List.of( 1, 2 ) );

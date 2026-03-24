@@ -56,17 +56,17 @@ public final class ConnectorTest
   @Test
   public void construct()
   {
-    final Disposable schedulerLock = pauseScheduler();
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var schedulerLock = pauseScheduler();
+    final var runtime = Replicant.context().getRuntime();
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( ValueUtil.randomInt(),
                         ValueUtil.randomString(),
                         new ChannelSchema[ 0 ],
                         new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
 
     assertEquals( connector.getSchema(), schema );
 
@@ -85,12 +85,12 @@ public final class ConnectorTest
   @Test
   public void dispose()
   {
-    final ReplicantRuntime runtime = Replicant.context().getRuntime();
+    final var runtime = Replicant.context().getRuntime();
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 0 ) );
 
-    final SystemSchema schema = newSchema();
-    final Connector connector = createConnector( schema );
+    final var schema = newSchema();
+    final var connector = createConnector( schema );
 
     safeAction( () -> assertEquals( runtime.getConnectors().size(), 1 ) );
     assertTrue( connector.getReplicantContext().getSchemaService().getSchemas().contains( schema ) );
@@ -104,8 +104,8 @@ public final class ConnectorTest
   @Test
   public void testToString()
   {
-    final SystemSchema schema = newSchema();
-    final Connector connector = createConnector( schema );
+    final var schema = newSchema();
+    final var connector = createConnector( schema );
     assertEquals( connector.toString(), "Connector[" + schema.getName() + "]" );
     ReplicantTestUtil.disableNames();
     assertEquals( connector.toString(), "replicant.Arez_Connector@" + Integer.toHexString( connector.hashCode() ) );
@@ -114,17 +114,17 @@ public final class ConnectorTest
   @Test
   public void setConnection_whenConnectorProcessingMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
 
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, null, null ) );
 
-    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0 );
-    final Subscription subscription = createSubscription( address, null, true );
+    final var address = new ChannelAddress( connector.getSchema().getId(), 0 );
+    final var subscription = createSubscription( address, null, true );
 
     connector.onConnection( ValueUtil.randomString() );
 
@@ -137,16 +137,16 @@ public final class ConnectorTest
   @Test
   public void setConnection_whenExistingConnection()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
 
     assertEquals( connector.getConnection(), connection );
 
-    final String newConnectionId = ValueUtil.randomString();
+    final var newConnectionId = ValueUtil.randomString();
     connector.onConnection( newConnectionId );
 
     assertEquals( connector.ensureConnection().getConnectionId(), newConnectionId );
@@ -159,7 +159,7 @@ public final class ConnectorTest
   {
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
 
     safeAction( connector::connect );
@@ -174,17 +174,17 @@ public final class ConnectorTest
   {
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
 
     reset( connector.getTransport() );
 
-    final IllegalStateException exception = new IllegalStateException();
+    final var exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
     } ).when( connector.getTransport() ).requestConnect( any( TransportContext.class ) );
 
-    final IllegalStateException actual =
+    final var actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::connect ) );
 
     assertEquals( actual, exception );
@@ -198,7 +198,7 @@ public final class ConnectorTest
   {
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -217,18 +217,18 @@ public final class ConnectorTest
   {
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
     reset( connector.getTransport() );
 
-    final IllegalStateException exception = new IllegalStateException();
+    final var exception = new IllegalStateException();
     doAnswer( i -> {
       throw exception;
     } ).when( connector.getTransport() ).requestDisconnect();
 
-    final IllegalStateException actual =
+    final var actual =
       expectThrows( IllegalStateException.class, () -> safeAction( connector::disconnect ) );
 
     assertEquals( actual, exception );
@@ -240,7 +240,7 @@ public final class ConnectorTest
   @Test
   public void onDisconnected()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     newConnection( connector );
 
@@ -264,11 +264,11 @@ public final class ConnectorTest
   @Test
   public void onDisconnected_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -283,7 +283,7 @@ public final class ConnectorTest
   @Test
   public void onDisconnectFailure()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -301,11 +301,11 @@ public final class ConnectorTest
   @Test
   public void onDisconnectFailure_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -321,8 +321,8 @@ public final class ConnectorTest
   public void onConnected()
     throws Exception
   {
-    final Connection connection = createConnection();
-    final Connector connector = connection.getConnector();
+    final var connection = createConnection();
+    final var connector = connection.getConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -331,7 +331,7 @@ public final class ConnectorTest
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
 
-    final Field field = Connector.class.getDeclaredField( "_connection" );
+    final var field = Connector.class.getDeclaredField( "_connection" );
     field.setAccessible( true );
     field.set( connector, connection );
 
@@ -344,12 +344,12 @@ public final class ConnectorTest
   @Test
   public void onConnected_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onConnected();
 
@@ -361,7 +361,7 @@ public final class ConnectorTest
   @Test
   public void onConnectFailure()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
@@ -379,11 +379,11 @@ public final class ConnectorTest
   @Test
   public void onConnectFailure_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -398,8 +398,8 @@ public final class ConnectorTest
   @Test
   public void onMessageReceived()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
@@ -407,7 +407,7 @@ public final class ConnectorTest
     assertEquals( connection.getPendingResponses().size(), 0 );
     assertFalse( connector.isSchedulerActive() );
 
-    final UpdateMessage message = UpdateMessage.create( null, null, null, null, null, null );
+    final var message = UpdateMessage.create( null, null, null, null, null, null );
     connector.onMessageReceived( message );
 
     assertEquals( connection.getPendingResponses().size(), 1 );
@@ -417,13 +417,13 @@ public final class ConnectorTest
   @Test
   public void onMessageProcessed()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final MessageResponse response =
+    final var response =
       new MessageResponse( 1, UpdateMessage.create( null, null, null, null, null, null ), null );
     connector.onMessageProcessed( response );
 
@@ -436,12 +436,12 @@ public final class ConnectorTest
   @Test
   public void onMessageProcessFailure()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final Throwable error = new Throwable();
+    final var error = new Throwable();
 
     // Pause scheduler so runtime does not try to update state
     pauseScheduler();
@@ -454,13 +454,13 @@ public final class ConnectorTest
   @Test
   public void onMessageProcessFailure_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final Throwable error = new Throwable();
+    final var error = new Throwable();
 
     connector.onMessageProcessFailure( error );
 
@@ -474,7 +474,7 @@ public final class ConnectorTest
   @Test
   public void disconnectIfPossible()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -487,11 +487,11 @@ public final class ConnectorTest
   @Test
   public void disconnectIfPossible_noActionAsConnecting()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.disconnectIfPossible();
 
@@ -503,12 +503,12 @@ public final class ConnectorTest
   @Test
   public void disconnectIfPossible_generatesSpyEvent()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     safeAction( connector::disconnectIfPossible );
 
@@ -519,7 +519,7 @@ public final class ConnectorTest
   @Test
   public void onMessageReadFailure()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
@@ -535,11 +535,11 @@ public final class ConnectorTest
   @Test
   public void onMessageReadFailure_generatesSpyMessage()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onMessageReadFailure();
 
@@ -551,17 +551,17 @@ public final class ConnectorTest
   @Test
   public void onSubscribeStarted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onSubscribeStarted( address );
 
@@ -581,19 +581,19 @@ public final class ConnectorTest
   @Test
   public void onSubscribeCompleted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onSubscribeCompleted( address );
 
@@ -613,17 +613,17 @@ public final class ConnectorTest
   @Test
   public void onSubscribeCompleted_DeletedSubscription()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     safeAction( () -> areaOfInterest.setStatus( AreaOfInterest.Status.DELETED ) );
 
     createSubscription( address, null, true );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onSubscribeCompleted( address );
 
@@ -639,19 +639,19 @@ public final class ConnectorTest
   @Test
   public void onUnsubscribeStarted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onUnsubscribeStarted( address );
 
@@ -671,17 +671,17 @@ public final class ConnectorTest
   @Test
   public void onUnsubscribeCompleted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onUnsubscribeCompleted( address );
 
@@ -701,19 +701,19 @@ public final class ConnectorTest
   @Test
   public void onSubscriptionUpdateStarted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onSubscriptionUpdateStarted( address );
 
@@ -733,19 +733,19 @@ public final class ConnectorTest
   @Test
   public void onSubscriptionUpdateCompleted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterest areaOfInterest =
+    final var address = new ChannelAddress( 1, 0 );
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     assertEquals( areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED );
     safeAction( () -> assertNull( areaOfInterest.getSubscription() ) );
     safeAction( () -> assertNull( areaOfInterest.getError() ) );
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onSubscriptionUpdateCompleted( address );
 
@@ -765,16 +765,16 @@ public final class ConnectorTest
   @Test
   public void areaOfInterestRequestPendingQueries()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ) );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter ),
                   -1 );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, filter ) );
     assertEquals( connector.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.ADD, address, filter ),
@@ -790,13 +790,13 @@ public final class ConnectorTest
   @Test
   public void connection()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
     assertNull( connector.getConnection() );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
 
     assertEquals( connector.getConnection(), connection );
     assertEquals( connector.ensureConnection(), connection );
@@ -811,9 +811,9 @@ public final class ConnectorTest
   @Test
   public void ensureConnection_WhenNoConnection()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final IllegalStateException exception = expectThrows( IllegalStateException.class, connector::ensureConnection );
+    final var exception = expectThrows( IllegalStateException.class, connector::ensureConnection );
 
     assertEquals( exception.getMessage(),
                   "Replicant-0031: Connector.ensureConnection() when no connection is present." );
@@ -822,14 +822,14 @@ public final class ConnectorTest
   @Test
   public void purgeSubscriptions()
   {
-    final Connector connector1 = createConnector( newSchema( 1 ) );
+    final var connector1 = createConnector( newSchema( 1 ) );
     createConnector( newSchema( 2 ) );
 
-    final Subscription subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
-    final Subscription subscription2 = createSubscription( new ChannelAddress( 1, 1, 2 ), null, true );
+    final var subscription1 = createSubscription( new ChannelAddress( 1, 0 ), null, true );
+    final var subscription2 = createSubscription( new ChannelAddress( 1, 1, 2 ), null, true );
     // The next two are from a different Connector
-    final Subscription subscription3 = createSubscription( new ChannelAddress( 2, 0, 1 ), null, true );
-    final Subscription subscription4 = createSubscription( new ChannelAddress( 2, 0, 2 ), null, true );
+    final var subscription3 = createSubscription( new ChannelAddress( 2, 0, 1 ), null, true );
+    final var subscription4 = createSubscription( new ChannelAddress( 2, 0, 2 ), null, true );
 
     assertFalse( Disposable.isDisposed( subscription1 ) );
     assertFalse( Disposable.isDisposed( subscription2 ) );
@@ -847,11 +847,11 @@ public final class ConnectorTest
   @Test
   public void progressMessages()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final String[] channels = { "+0" };
-    final MessageResponse response =
+    final var channels = new String[]{ "+0" };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
@@ -861,27 +861,27 @@ public final class ConnectorTest
 
     //response needs processing of channel messages
 
-    final boolean result0 = connector.progressMessages();
+    final var result0 = connector.progressMessages();
 
     assertTrue( result0 );
-    final Disposable schedulerLock0 = connector.getSchedulerLock();
+    final var schedulerLock0 = connector.getSchedulerLock();
     assertNotNull( schedulerLock0 );
 
     //response needs worldValidated
 
-    final boolean result1 = connector.progressMessages();
+    final var result1 = connector.progressMessages();
 
     assertTrue( result1 );
     assertNull( connector.getSchedulerLock() );
     assertTrue( Disposable.isDisposed( schedulerLock0 ) );
 
-    final boolean result2 = connector.progressMessages();
+    final var result2 = connector.progressMessages();
 
     assertTrue( result2 );
     // Current message should be nulled and completed processing now
     assertNull( connection.getCurrentMessageResponse() );
 
-    final boolean result3 = connector.progressMessages();
+    final var result3 = connector.progressMessages();
 
     assertFalse( result3 );
     assertNull( connector.getSchedulerLock() );
@@ -890,15 +890,15 @@ public final class ConnectorTest
   @Test
   public void progressMessages_whenConnectionHasBeenDisconnectedInMeantime()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final String[] channels = { "+0" };
-    final MessageResponse response =
+    final var channels = new String[]{ "+0" };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     connector.setPostMessageResponseAction( callCount::incrementAndGet );
 
     assertNull( connector.getSchedulerLock() );
@@ -929,17 +929,17 @@ public final class ConnectorTest
   @Test
   public void progressMessages_withError()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 0, 0 ),
                                                                               AreaOfInterestRequest.Type.REMOVE,
                                                                               null ) );
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.resumeMessageScheduler();
 
-    final boolean result2 = connector.progressMessages();
+    final var result2 = connector.progressMessages();
 
     assertFalse( result2 );
 
@@ -956,15 +956,15 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.requestSubscribe( address, null );
 
@@ -977,7 +977,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe_requiresFilterInstanceId_forDynamicInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -985,14 +985,14 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
 
     assertEquals( exception.getMessage(),
@@ -1002,7 +1002,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe_requiresFilterInstanceId_forStaticInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1010,14 +1010,14 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
 
     assertEquals( exception.getMessage(),
@@ -1027,7 +1027,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe_rejectsFilterInstanceId_forNonInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1035,14 +1035,14 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+    final var address = new ChannelAddress( 1, 0, null, "inst" );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscribe( address, null ) );
 
     assertEquals( exception.getMessage(),
@@ -1052,7 +1052,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe_dynamicInstanced_withFilterInstanceId()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1060,13 +1060,13 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+    final var address = new ChannelAddress( 1, 0, null, "inst" );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
 
@@ -1078,7 +1078,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscribe_staticInstanced_withFilterInstanceId()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1086,13 +1086,13 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, null, "inst" );
+    final var address = new ChannelAddress( 1, 0, null, "inst" );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.ADD, address, null ) );
 
@@ -1104,7 +1104,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1112,17 +1112,17 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.requestSubscriptionUpdate( address, null );
 
@@ -1136,7 +1136,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscriptionUpdate_requiresFilterInstanceId_forDynamicInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1144,15 +1144,15 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
 
     assertEquals( exception.getMessage(),
@@ -1162,7 +1162,7 @@ public final class ConnectorTest
   @Test
   public void requestSubscriptionUpdate_ChannelNot_DYNAMIC_Filter()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1170,17 +1170,17 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.UPDATE, address, null ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestSubscriptionUpdate( address, null ) );
 
     assertEquals( exception.getMessage(),
@@ -1190,7 +1190,7 @@ public final class ConnectorTest
   @Test
   public void requestUnsubscribe_requiresFilterInstanceId_forDynamicInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1198,14 +1198,14 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestUnsubscribe( address ) );
 
     assertEquals( exception.getMessage(),
@@ -1215,7 +1215,7 @@ public final class ConnectorTest
   @Test
   public void requestUnsubscribe_requiresFilterInstanceId_forStaticInstancedChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1223,14 +1223,14 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connector.requestUnsubscribe( address ) );
 
     assertEquals( exception.getMessage(),
@@ -1241,18 +1241,18 @@ public final class ConnectorTest
   public void requestUnsubscribe()
     throws Exception
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     pauseScheduler();
     connector.pauseMessageScheduler();
     newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final var address = new ChannelAddress( 1, 0 );
 
     createSubscription( address, null, true );
 
     assertFalse( connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.requestUnsubscribe( address );
 
@@ -1268,8 +1268,8 @@ public final class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities()
   {
-    final SubscriptionUpdateEntityFilter<?> filter = ( f, entity ) -> entity.getId() > 0;
-    final ChannelSchema channelSchema =
+    final var filter = (SubscriptionUpdateEntityFilter<String>) ( f, entity ) -> entity.getId() > 0;
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1277,29 +1277,29 @@ public final class ConnectorTest
                          filter,
                          true, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[ 0 ] );
 
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
 
-    final Subscription subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
-    final Subscription subscription2 = createSubscription( address2, ValueUtil.randomString(), true );
+    final var subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
+    final var subscription2 = createSubscription( address2, ValueUtil.randomString(), true );
 
     // Use Integer and String as arbitrary types for our entities...
     // Anything with id below 0 will be removed during update ...
-    final Entity entity1 = findOrCreateEntity( Integer.class, -1 );
-    final Entity entity2 = findOrCreateEntity( Integer.class, -2 );
-    final Entity entity3 = findOrCreateEntity( Integer.class, -3 );
-    final Entity entity4 = findOrCreateEntity( Integer.class, -4 );
-    final Entity entity5 = findOrCreateEntity( String.class, 5 );
-    final Entity entity6 = findOrCreateEntity( String.class, 6 );
+    final var entity1 = findOrCreateEntity( Integer.class, -1 );
+    final var entity2 = findOrCreateEntity( Integer.class, -2 );
+    final var entity3 = findOrCreateEntity( Integer.class, -3 );
+    final var entity4 = findOrCreateEntity( Integer.class, -4 );
+    final var entity5 = findOrCreateEntity( String.class, 5 );
+    final var entity6 = findOrCreateEntity( String.class, 6 );
 
     safeAction( () -> {
       entity1.linkToSubscription( subscription1 );
@@ -1340,7 +1340,7 @@ public final class ConnectorTest
   @Test
   public void updateSubscriptionForFilteredEntities_badFilterType()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1348,20 +1348,20 @@ public final class ConnectorTest
                          null,
                          true, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[ 0 ] );
 
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
 
-    final Subscription subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
+    final var subscription1 = createSubscription( address1, ValueUtil.randomString(), true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.updateSubscriptionForFilteredEntities( subscription1 ) ) );
 
@@ -1373,8 +1373,8 @@ public final class ConnectorTest
   @Test
   public void processEntityChanges()
   {
-    final int schemaId = 1;
-    final ChannelSchema channelSchema =
+    final var schemaId = 1;
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1382,47 +1382,47 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
-    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
-    final EntitySchema entitySchema =
+    final var creator = mock( EntitySchema.Creator.class );
+    final var updater = mock( EntitySchema.Updater.class );
+    final var entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.setLinksToProcessPerTick( 1 );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final Linkable userObject1 = mock( Linkable.class );
-    final Linkable userObject2 = mock( Linkable.class );
+    final var userObject1 = mock( Linkable.class );
+    final var userObject2 = mock( Linkable.class );
 
     // Pause scheduler to avoid converge of subscriptions
     pauseScheduler();
 
-    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 1 );
-    final Subscription subscription = createSubscription( address, null, true );
+    final var address = new ChannelAddress( connector.getSchema().getId(), 1 );
+    final var subscription = createSubscription( address, null, true );
 
     // This entity is to be updated
-    final Entity entity2 = findOrCreateEntity( Linkable.class, 2 );
+    final var entity2 = findOrCreateEntity( Linkable.class, 2 );
     safeAction( () -> entity2.setUserObject( userObject2 ) );
     // It is already subscribed to channel and that should be fine
     safeAction( () -> entity2.linkToSubscription( subscription ) );
     // This entity is to be removed
-    final Entity entity3 = findOrCreateEntity( Linkable.class, 3 );
+    final var entity3 = findOrCreateEntity( Linkable.class, 3 );
 
-    final EntityChangeData data1 = mock( EntityChangeData.class );
-    final EntityChangeData data2 = mock( EntityChangeData.class );
-    final EntityChange[] entityChanges = {
+    final var data1 = mock( EntityChangeData.class );
+    final var data2 = mock( EntityChangeData.class );
+    final var entityChanges = new EntityChange[]{
       // Update changes
       EntityChange.create( 0, 1, new String[]{ "1" }, data1 ),
       EntityChange.create( 0, 2, new String[]{ "1" }, data2 ),
       // Remove change
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, entityChanges, null ) );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
@@ -1461,8 +1461,8 @@ public final class ConnectorTest
   @Test
   public void processEntityChanges_withFilterInstanceIdChannel()
   {
-    final int schemaId = 1;
-    final ChannelSchema channelSchema =
+    final var schemaId = 1;
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          Linkable.class,
@@ -1470,29 +1470,29 @@ public final class ConnectorTest
                          ( f, e ) -> true,
                          false, true,
                          Collections.emptyList() );
-    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
-    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
-    final EntitySchema entitySchema =
+    final var creator = mock( EntitySchema.Creator.class );
+    final var updater = mock( EntitySchema.Updater.class );
+    final var entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.setLinksToProcessPerTick( 1 );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
     // Pause scheduler to avoid converge of subscriptions
     pauseScheduler();
 
-    final int rootId = ValueUtil.randomInt();
-    final ChannelAddress address = new ChannelAddress( connector.getSchema().getId(), 0, rootId, "fi" );
-    final Subscription subscription = createSubscription( address, null, true );
+    final var rootId = ValueUtil.randomInt();
+    final var address = new ChannelAddress( connector.getSchema().getId(), 0, rootId, "fi" );
+    final var subscription = createSubscription( address, null, true );
 
-    final EntityChangeData data = mock( EntityChangeData.class );
-    final EntityChange[] entityChanges = {
+    final var data = mock( EntityChangeData.class );
+    final var entityChanges = new EntityChange[]{
       EntityChange.create( 0, 1, new String[]{ "0." + rootId + "#fi" }, data )
     };
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, entityChanges, null ) );
@@ -1508,8 +1508,8 @@ public final class ConnectorTest
   @Test
   public void processEntityChanges_referenceNonExistentSubscription()
   {
-    final int schemaId = 1;
-    final ChannelSchema channelSchema =
+    final var schemaId = 1;
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1517,34 +1517,34 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
-    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
-    final EntitySchema entitySchema =
+    final var creator = mock( EntitySchema.Creator.class );
+    final var updater = mock( EntitySchema.Updater.class );
+    final var entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.setLinksToProcessPerTick( 1 );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final Linkable userObject1 = mock( Linkable.class );
+    final var userObject1 = mock( Linkable.class );
 
     // Pause scheduler to avoid converge of subscriptions
     pauseScheduler();
 
-    final EntityChangeData data1 = mock( EntityChangeData.class );
-    final EntityChange[] entityChanges = {
+    final var data1 = mock( EntityChangeData.class );
+    final var entityChanges = new EntityChange[]{
       EntityChange.create( 0, 1, new String[]{ "1" }, data1 )
     };
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, entityChanges, null ) );
 
     when( creator.createEntity( 1, data1 ) ).thenReturn( userObject1 );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, connector::processEntityChanges );
     assertEquals( exception.getMessage(),
                   "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel 1.1 but no such subscription exists locally." );
@@ -1553,8 +1553,8 @@ public final class ConnectorTest
   @Test
   public void processEntityChanges_deleteNonExistingEntity()
   {
-    final int schemaId = 1;
-    final ChannelSchema channelSchema =
+    final var schemaId = 1;
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -1562,31 +1562,31 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final EntitySchema entitySchema =
+    final var entitySchema =
       new EntitySchema( 0,
                         ValueUtil.randomString(),
                         MyEntity.class,
                         ( i, d ) -> new MyEntity(),
                         null,
                         new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.setLinksToProcessPerTick( 1 );
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
     // Pause scheduler to avoid converge of subscriptions
     pauseScheduler();
 
-    final EntityChange[] entityChanges = {
+    final var entityChanges = new EntityChange[]{
       // Remove change
       EntityChange.create( 0, 3, new String[]{ "1" } )
     };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, entityChanges, null ) );
 
     connector.setChangesToProcessPerTick( 1 );
@@ -1599,11 +1599,11 @@ public final class ConnectorTest
   @Test
   public void processEntityLinks()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.setLinksToProcessPerTick( 1 );
 
-    final Connection connection = newConnection( connector );
-    final MessageResponse response =
+    final var connection = newConnection( connector );
+    final var response =
       setCurrentMessageResponse( connection,
                                  UpdateMessage.create( null,
                                                        null,
@@ -1612,10 +1612,10 @@ public final class ConnectorTest
                                                        new EntityChange[ 0 ],
                                                        null ) );
 
-    final Linkable entity1 = mock( Linkable.class );
-    final Linkable entity2 = mock( Linkable.class );
-    final Linkable entity3 = mock( Linkable.class );
-    final Linkable entity4 = mock( Linkable.class );
+    final var entity1 = mock( Linkable.class );
+    final var entity2 = mock( Linkable.class );
+    final var entity3 = mock( Linkable.class );
+    final var entity4 = mock( Linkable.class );
 
     response.changeProcessed( entity1 );
     response.changeProcessed( entity2 );
@@ -1653,8 +1653,8 @@ public final class ConnectorTest
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( new ChannelAddress( 1, 0 ),
                                                                               AreaOfInterestRequest.Type.ADD,
@@ -1670,28 +1670,28 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_add()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final int channelId = 0;
-    final int rootId = ValueUtil.randomInt();
-    final String filter = null;
-    final String[] channels = { "+0." + rootId };
+    final var channelId = 0;
+    final var rootId = ValueUtil.randomInt();
+    final var filter = (String) null;
+    final var channels = new String[]{ "+0." + rootId };
 
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
-    final Subscription subscription =
+    final var address = new ChannelAddress( 1, channelId, rootId );
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.address(), address );
@@ -1708,27 +1708,27 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_add_withFilter()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final int channelId = 0;
-    final int rootId = ValueUtil.randomInt();
-    final String filter = ValueUtil.randomString();
-    final ChannelChange[] fchannels = { ChannelChange.create( "+0." + rootId, filter ) };
-    final MessageResponse response =
+    final var channelId = 0;
+    final var rootId = ValueUtil.randomInt();
+    final var filter = ValueUtil.randomString();
+    final var fchannels = new ChannelChange[]{ ChannelChange.create( "+0." + rootId, filter ) };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, fchannels, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, fchannels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
-    final Subscription subscription =
+    final var address = new ChannelAddress( 1, channelId, rootId );
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.address(), address );
@@ -1745,30 +1745,30 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_add_withCorrespondingAreaOfInterest()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final int channelId = 0;
-    final int rootId = ValueUtil.randomInt();
+    final var channelId = 0;
+    final var rootId = ValueUtil.randomInt();
 
-    final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
+    final var address = new ChannelAddress( 1, channelId, rootId );
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "+0." + rootId };
-    final MessageResponse response =
+    final var channels = new String[]{ "+0." + rootId };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
     assertTrue( response.needsChannelChangesProcessed() );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
 
-    final Subscription subscription =
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.address(), address );
@@ -1785,35 +1785,35 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_addConvertingImplicitToExplicit()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
     safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "+0." + address.rootId() };
-    final MessageResponse response =
+    final var channels = new String[]{ "+0." + address.rootId() };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
-    final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, null );
+    final var request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, null );
     connection.injectCurrentAreaOfInterestRequest( request );
     request.markAsInProgress( newRequest( connection ).getRequestId() );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelAddCount(), 1 );
 
-    final Subscription subscription =
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertEquals( subscription.address(), address );
@@ -1830,31 +1830,31 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_remove()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final String[] channels = { "-0." + address.rootId() };
-    final MessageResponse response =
+    final var channels = new String[]{ "-0." + address.rootId() };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
 
-    final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
+    final var initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 1 );
 
-    final Subscription subscription =
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNull( subscription );
     assertTrue( Disposable.isDisposed( initialSubscription ) );
@@ -1867,33 +1867,33 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_remove_withAreaOfInterest()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final AreaOfInterest areaOfInterest =
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.rootId() };
-    final MessageResponse response =
+    final var channels = new String[]{ "-0." + address.rootId() };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
-    final Subscription initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
+    final var initialSubscription = createSubscription( address, ValueUtil.randomString(), true );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 1 );
 
-    final Subscription subscription =
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNull( subscription );
     assertTrue( Disposable.isDisposed( initialSubscription ) );
@@ -1910,17 +1910,17 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_remove_WithMissingSubscription()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final String[] channels = { "-0.72" };
-    final MessageResponse response =
+    final var channels = new String[]{ "-0.72" };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
@@ -1933,22 +1933,22 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_remove_WithMissingSubscription_butAreaOfInterestPresent()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final AreaOfInterest areaOfInterest =
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "-0." + address.rootId() };
-    final MessageResponse response =
+    final var channels = new String[]{ "-0." + address.rootId() };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
@@ -1965,22 +1965,22 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_delete_WithMissingSubscription_butAreaOfInterestPresent()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final AreaOfInterest areaOfInterest =
+    final var areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final String[] channels = { "!0." + address.rootId() };
-    final MessageResponse response =
+    final var channels = new String[]{ "!0." + address.rootId() };
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, channels, null, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channels[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelRemoveCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
@@ -1998,8 +1998,8 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_update()
   {
-    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
-    final ChannelSchema channelSchema =
+    final var filter = mock( SubscriptionUpdateEntityFilter.class );
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2007,43 +2007,43 @@ public final class ConnectorTest
                          filter,
                          true, true,
                          Collections.emptyList() );
-    final EntitySchema entitySchema =
+    final var entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), String.class, ( i, d ) -> "", null, new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
 
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.pauseMessageScheduler();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
+    final var address = new ChannelAddress( 1, 0, ValueUtil.randomInt() );
 
-    final String oldFilter = ValueUtil.randomString();
-    final String newFilter = ValueUtil.randomString();
-    final ChannelChange[] channelChanges =
+    final var oldFilter = ValueUtil.randomString();
+    final var newFilter = ValueUtil.randomString();
+    final var channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0." + address.rootId(), newFilter ) };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response
       .setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channelChanges[ 0 ] ) ) );
 
-    final Subscription initialSubscription = createSubscription( address, oldFilter, true );
+    final var initialSubscription = createSubscription( address, oldFilter, true );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.processChannelChanges();
 
     assertFalse( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 1 );
 
-    final Subscription subscription =
+    final var subscription =
       Replicant.context().findSubscription( address );
     assertNotNull( subscription );
     assertFalse( Disposable.isDisposed( initialSubscription ) );
@@ -2054,8 +2054,8 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_update_withFilterInstanceId()
   {
-    final SubscriptionUpdateEntityFilter<?> filter = mock( SubscriptionUpdateEntityFilter.class );
-    final ChannelSchema channelSchema =
+    final var filter = mock( SubscriptionUpdateEntityFilter.class );
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          Integer.class,
@@ -2063,30 +2063,30 @@ public final class ConnectorTest
                          filter,
                          true, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[ 0 ] );
 
-    final Connector connector = createConnector( schema );
+    final var connector = createConnector( schema );
     connector.pauseMessageScheduler();
 
-    final Connection connection = newConnection( connector );
+    final var connection = newConnection( connector );
 
-    final int rootId = ValueUtil.randomInt();
-    final ChannelAddress address = new ChannelAddress( 1, 0, rootId, "fi" );
+    final var rootId = ValueUtil.randomInt();
+    final var address = new ChannelAddress( 1, 0, rootId, "fi" );
 
-    final String oldFilter = ValueUtil.randomString();
-    final String newFilter = ValueUtil.randomString();
-    final ChannelChange[] channelChanges =
+    final var oldFilter = ValueUtil.randomString();
+    final var newFilter = ValueUtil.randomString();
+    final var channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0." + rootId + "#fi", newFilter ) };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response
       .setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1, channelChanges[ 0 ] ) ) );
 
-    final Subscription subscription = createSubscription( address, oldFilter, true );
+    final var subscription = createSubscription( address, oldFilter, true );
 
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
@@ -2101,7 +2101,7 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_update_forNonDYNAMICChannel()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2110,22 +2110,22 @@ public final class ConnectorTest
                          true,
                          true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final String oldFilter = ValueUtil.randomString();
-    final String newFilter = ValueUtil.randomString();
-    final ChannelChange[] channelChanges =
+    final var oldFilter = ValueUtil.randomString();
+    final var newFilter = ValueUtil.randomString();
+    final var channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.2223", newFilter ) };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     createSubscription( new ChannelAddress( 1, 0, 2223 ), oldFilter, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertEquals( exception.getMessage(),
@@ -2135,22 +2135,22 @@ public final class ConnectorTest
   @Test
   public void processChannelChanges_update_missingSubscription()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final String newFilter = ValueUtil.randomString();
-    final ChannelChange[] channelChanges =
+    final var newFilter = ValueUtil.randomString();
+    final var channelChanges =
       new ChannelChange[]{ ChannelChange.create( "=0.42", newFilter ) };
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, channelChanges, null, null ) );
     response.setParsedChannelChanges( Collections.singletonList( ChannelChangeDescriptor.from( 1,
                                                                                                channelChanges[ 0 ] ) ) );
     assertTrue( response.needsChannelChangesProcessed() );
     assertEquals( response.getChannelUpdateCount(), 0 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, connector::processChannelChanges );
 
     assertTrue( response.needsChannelChangesProcessed() );
@@ -2168,18 +2168,18 @@ public final class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
+    final var address2 = new ChannelAddress( 1, 1, 2 );
+    final var address3 = new ChannelAddress( 1, 1, 3 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final var requests = new ArrayList<AreaOfInterestRequest>();
     requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null ) );
     requests.add( new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null ) );
     requests.add( new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null ) );
 
-    final Subscription subscription1 = createSubscription( address1, null, true );
+    final var subscription1 = createSubscription( address1, null, true );
     // Address2 is already implicit ...
     createSubscription( address2, null, false );
     // Address3 has no subscription ... maybe not converged yet
@@ -2195,16 +2195,16 @@ public final class ConnectorTest
     // Pause converger
     pauseScheduler();
 
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final var requests = new ArrayList<AreaOfInterestRequest>();
     requests.add( new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, null ) );
 
     createSubscription( address1, null, true );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.removeExplicitSubscriptions( requests ) ) );
     assertEquals( exception.getMessage(),
@@ -2214,25 +2214,25 @@ public final class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_whenInvariantsDisabled()
   {
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
+    final var address2 = new ChannelAddress( 1, 1, 2 );
+    final var address3 = new ChannelAddress( 1, 1, 3 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
+    final var requests = new ArrayList<AreaOfInterestRequest>();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null );
     requests.add( request1 );
     requests.add( request2 );
     requests.add( request3 );
 
-    final Connection connection = createConnection();
-    final Connector connector = connection.getConnector();
+    final var connection = createConnection();
+    final var connector = connection.getConnector();
 
-    final RequestEntry request = newRequest( connection );
+    final var request = newRequest( connection );
 
     requests.forEach( r -> r.markAsInProgress( request.getRequestId() ) );
 
@@ -2255,19 +2255,19 @@ public final class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_noSubscription()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
+    final var requests = new ArrayList<AreaOfInterestRequest>();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
     requests.add( request1 );
 
-    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    final var requestId = newRequest( newConnection( connector ) ).getRequestId();
     requests.forEach( r -> r.markAsInProgress( requestId ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
 
@@ -2278,21 +2278,21 @@ public final class ConnectorTest
   @Test
   public void removeUnneededRemoveRequests_implicitSubscription()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
+    final var requests = new ArrayList<AreaOfInterestRequest>();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
     requests.add( request1 );
 
-    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    final var requestId = newRequest( newConnection( connector ) ).getRequestId();
     requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     createSubscription( address1, null, false );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.removeUnneededRemoveRequests( requests ) ) );
 
@@ -2303,24 +2303,24 @@ public final class ConnectorTest
   @Test
   public void removeUnneededUpdateRequests_whenInvariantsDisabled()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 1, 3 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
+    final var address2 = new ChannelAddress( 1, 1, 2 );
+    final var address3 = new ChannelAddress( 1, 1, 3 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
+    final var requests = new ArrayList<AreaOfInterestRequest>();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, null );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.UPDATE, null );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.UPDATE, null );
     requests.add( request1 );
     requests.add( request2 );
     requests.add( request3 );
 
-    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    final var requestId = newRequest( newConnection( connector ) ).getRequestId();
     requests.forEach( r -> r.markAsInProgress( requestId ) );
 
     createSubscription( address1, null, true );
@@ -2343,19 +2343,19 @@ public final class ConnectorTest
   @Test
   public void removeUnneededUpdateRequests_noSubscription()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final var address1 = new ChannelAddress( 1, 1, 1 );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-    final AreaOfInterestRequest request1 =
+    final var requests = new ArrayList<AreaOfInterestRequest>();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, null );
     requests.add( request1 );
 
-    final int requestId = newRequest( newConnection( connector ) ).getRequestId();
+    final var requestId = newRequest( newConnection( connector ) ).getRequestId();
     requests.forEach( r -> r.markAsInProgress( requestId ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> connector.removeUnneededUpdateRequests( requests ) ) );
 
@@ -2366,9 +2366,9 @@ public final class ConnectorTest
   @Test
   public void validateWorld_invalidEntity()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
-    final MessageResponse response = setCurrentMessageResponse( connector.ensureConnection(),
+    final var response = setCurrentMessageResponse( connector.ensureConnection(),
                                                                 UpdateMessage.create( null,
                                                                                       null,
                                                                                       null,
@@ -2377,13 +2377,13 @@ public final class ConnectorTest
 
     assertFalse( response.hasWorldBeenValidated() );
 
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 =
+    final var entityService = Replicant.context().getEntityService();
+    final var entity1 =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
-    final Exception error = new Exception();
+    final var error = new Exception();
     safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, connector::validateWorld );
 
     assertEquals( exception.getMessage(),
@@ -2396,18 +2396,18 @@ public final class ConnectorTest
   public void validateWorld_invalidEntity_ignoredIfCompileSettingDisablesValidation()
   {
     ReplicantTestUtil.noValidateEntitiesOnLoad();
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connector.ensureConnection(),
                                  UpdateMessage.create( null, null, null, null, null, null ) );
 
     assertTrue( response.hasWorldBeenValidated() );
 
-    final EntityService entityService = Replicant.context().getEntityService();
-    final Entity entity1 =
+    final var entityService = Replicant.context().getEntityService();
+    final var entity1 =
       safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
-    final Exception error = new Exception();
+    final var error = new Exception();
     safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
 
     connector.validateWorld();
@@ -2418,15 +2418,15 @@ public final class ConnectorTest
   @Test
   public void validateWorld_validEntity()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
-    final MessageResponse response =
+    final var response =
       setCurrentMessageResponse( connector.ensureConnection(),
                                  UpdateMessage.create( null, null, null, null, null, null ) );
 
     assertFalse( response.hasWorldBeenValidated() );
 
-    final EntityService entityService = Replicant.context().getEntityService();
+    final var entityService = Replicant.context().getEntityService();
     safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
 
     connector.validateWorld();
@@ -2464,12 +2464,12 @@ public final class ConnectorTest
   @Test
   public void completeMessageResponse()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, null, null ) );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.completeMessageResponse();
 
@@ -2485,17 +2485,17 @@ public final class ConnectorTest
   @Test
   public void completeMessageResponse_hasContent()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final RequestEntry request = newRequest( connection );
-    final UpdateMessage changeSet =
+    final var request = newRequest( connection );
+    final var changeSet =
       UpdateMessage.create( request.getRequestId(), null, new String[]{ "+1" }, null, null, null );
 
     setCurrentMessageResponse( connection, changeSet, request );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.completeMessageResponse();
 
@@ -2513,8 +2513,8 @@ public final class ConnectorTest
   @Test
   public void completeMessageResponse_stillMessagesPending()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, null, null ) );
 
@@ -2528,12 +2528,12 @@ public final class ConnectorTest
   @Test
   public void completeMessageResponse_withPostAction()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     setCurrentMessageResponse( connection, UpdateMessage.create( null, null, null, null, null, null ) );
 
-    final AtomicInteger postActionCallCount = new AtomicInteger();
+    final var postActionCallCount = new AtomicInteger();
     connector.setPostMessageResponseAction( postActionCallCount::incrementAndGet );
 
     assertEquals( postActionCallCount.get(), 0 );
@@ -2546,16 +2546,16 @@ public final class ConnectorTest
   @Test
   public void completeMessageResponse_MessageWithRequest_RPCComplete()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
-    final RequestEntry request = newRequest( connection );
+    final var request = newRequest( connection );
 
-    final int requestId = request.getRequestId();
+    final var requestId = request.getRequestId();
 
     setCurrentMessageResponse( connection, OkMessage.create( requestId ), request );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertEquals( connection.getRequest( requestId ), request );
 
@@ -2579,7 +2579,7 @@ public final class ConnectorTest
      * This test steps through each stage of a message processing.
      */
 
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2587,20 +2587,20 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final EntitySchema.Creator<Linkable> creator = mock( EntitySchema.Creator.class );
-    final EntitySchema.Updater<Linkable> updater = mock( EntitySchema.Updater.class );
-    final EntitySchema entitySchema =
+    final var creator = mock( EntitySchema.Creator.class );
+    final var updater = mock( EntitySchema.Updater.class );
+    final var entitySchema =
       new EntitySchema( 0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[ 0 ] );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{ entitySchema } );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final UpdateMessage message =
+    final var message =
       UpdateMessage.create( null,
                             null,
                             new String[]{ "+0" },
@@ -2613,7 +2613,7 @@ public final class ConnectorTest
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
 
-    final MessageResponse response = connection.getPendingResponses().get( 0 );
+    final var response = connection.getPendingResponses().get( 0 );
 
     // Pickup parsed response and set it as current
     assertTrue( connector.progressResponseProcessing() );
@@ -2681,7 +2681,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2689,27 +2689,27 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
+    final var request =
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       assertEquals( i.getArguments()[ 0 ], address );
@@ -2740,7 +2740,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2748,29 +2748,29 @@ public final class ConnectorTest
                          null,
                          true, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
+    final var request =
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
     Replicant.context().setCacheService( new TestCacheService() );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       return null;
@@ -2797,7 +2797,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2805,18 +2805,18 @@ public final class ConnectorTest
                          null,
                          true, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
+    final var request =
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
@@ -2824,14 +2824,14 @@ public final class ConnectorTest
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
-    final TestCacheService cacheService = new TestCacheService();
+    final var cacheService = new TestCacheService();
     Replicant.context().setCacheService( cacheService );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final String eTag = "";
+    final var eTag = "";
     cacheService.store( address, eTag, ValueUtil.randomString() );
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       return null;
@@ -2860,7 +2860,7 @@ public final class ConnectorTest
   @Test
   public void progressBulkAreaOfInterestAddRequests_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -2868,42 +2868,42 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
 
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
+    final var subscription1 = createSubscription( address1, null, true );
+    final var subscription2 = createSubscription( address2, null, true );
+    final var subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
     connection.injectCurrentAreaOfInterestRequest( request3 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      final var addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
       assertTrue( addresses.contains( address1 ) );
       assertTrue( addresses.contains( address2 ) );
       assertTrue( addresses.contains( address3 ) );
@@ -2940,7 +2940,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestAddRequests_onFailure_zeroRequests()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -2948,29 +2948,29 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final var requests = new ArrayList<AreaOfInterestRequest>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestAddRequests( requests );
 
@@ -2982,7 +2982,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestUpdateRequest_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -2990,29 +2990,29 @@ public final class ConnectorTest
                          mock( SubscriptionUpdateEntityFilter.class ),
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request =
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = ValueUtil.randomString();
+    final var request =
       new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.UPDATE, filter );
 
     pauseScheduler();
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       return null;
@@ -3039,7 +3039,7 @@ public final class ConnectorTest
   @Test
   public void progressBulkAreaOfInterestUpdateRequests_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3047,42 +3047,42 @@ public final class ConnectorTest
                          mock( SubscriptionUpdateEntityFilter.class ),
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.UPDATE, filter );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.UPDATE, filter );
 
     pauseScheduler();
 
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
+    final var subscription1 = createSubscription( address1, null, true );
+    final var subscription2 = createSubscription( address2, null, true );
+    final var subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
     connection.injectCurrentAreaOfInterestRequest( request3 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      final var addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
       assertTrue( addresses.contains( address1 ) );
       assertTrue( addresses.contains( address2 ) );
       assertTrue( addresses.contains( address3 ) );
@@ -3119,7 +3119,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestUpdateRequests_onFailure_zeroRequests()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3127,29 +3127,29 @@ public final class ConnectorTest
                          mock( SubscriptionUpdateEntityFilter.class ),
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
 
     pauseScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final var requests = new ArrayList<AreaOfInterestRequest>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestUpdateRequests( requests );
 
@@ -3161,7 +3161,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRemoveRequest_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -3169,27 +3169,27 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final AreaOfInterestRequest request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
+    final var address = new ChannelAddress( 1, 0 );
+    final var request = new AreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
 
     pauseScheduler();
 
-    final Subscription subscription = createSubscription( address, null, true );
+    final var subscription = createSubscription( address, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
       return null;
@@ -3217,7 +3217,7 @@ public final class ConnectorTest
   @Test
   public void progressBulkAreaOfInterestRemoveRequests_onSuccess()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3225,41 +3225,41 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( address3, AreaOfInterestRequest.Type.REMOVE, null );
 
     pauseScheduler();
 
-    final Subscription subscription1 = createSubscription( address1, null, true );
-    final Subscription subscription2 = createSubscription( address2, null, true );
-    final Subscription subscription3 = createSubscription( address3, null, true );
+    final var subscription1 = createSubscription( address1, null, true );
+    final var subscription2 = createSubscription( address2, null, true );
+    final var subscription3 = createSubscription( address3, null, true );
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
     connection.injectCurrentAreaOfInterestRequest( request3 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final AtomicInteger callCount = new AtomicInteger();
+    final var callCount = new AtomicInteger();
     doAnswer( i -> {
       callCount.incrementAndGet();
-      final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
+      final var addresses = (List<ChannelAddress>) i.getArguments()[ 0 ];
       assertTrue( addresses.contains( address1 ) );
       assertTrue( addresses.contains( address2 ) );
       assertTrue( addresses.contains( address3 ) );
@@ -3296,7 +3296,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3304,28 +3304,28 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
 
     pauseScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
-    final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
+    final var requests = new ArrayList<AreaOfInterestRequest>();
     // Pass in empty requests list to simulate that they are all filtered out
     connector.progressAreaOfInterestRemoveRequests( requests );
 
@@ -3337,7 +3337,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRequestProcessing_Noop()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3345,18 +3345,18 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
     pauseScheduler();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertTrue( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
@@ -3370,7 +3370,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRequestProcessing_InProgress()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3378,18 +3378,18 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
@@ -3398,7 +3398,7 @@ public final class ConnectorTest
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
@@ -3412,7 +3412,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRequestProcessing_Add()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3420,25 +3420,25 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter );
 
     pauseScheduler();
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
@@ -3453,7 +3453,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRequestProcessing_Update()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3461,18 +3461,18 @@ public final class ConnectorTest
                          mock( SubscriptionUpdateEntityFilter.class ),
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final String filter = ValueUtil.randomString();
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var filter = ValueUtil.randomString();
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.UPDATE, filter );
 
     pauseScheduler();
@@ -3480,7 +3480,7 @@ public final class ConnectorTest
     createSubscription( address1, null, true );
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
@@ -3495,7 +3495,7 @@ public final class ConnectorTest
   @Test
   public void progressAreaOfInterestRequestProcessing_Remove()
   {
-    final ChannelSchema channelSchema =
+    final var channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          String.class,
@@ -3503,17 +3503,17 @@ public final class ConnectorTest
                          null,
                          false, true,
                          Collections.emptyList() );
-    final SystemSchema schema =
+    final var schema =
       new SystemSchema( 1,
                         ValueUtil.randomString(),
                         new ChannelSchema[]{ channelSchema },
                         new EntitySchema[]{} );
 
-    final Connector connector = createConnector( schema );
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector( schema );
+    final var connection = newConnection( connector );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final AreaOfInterestRequest request1 =
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.REMOVE, null );
 
     pauseScheduler();
@@ -3522,7 +3522,7 @@ public final class ConnectorTest
 
     connection.injectCurrentAreaOfInterestRequest( request1 );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     assertFalse( connection.getCurrentAreaOfInterestRequests().isEmpty() );
 
@@ -3537,7 +3537,7 @@ public final class ConnectorTest
   @Test
   public void pauseMessageScheduler()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
 
     connector.pauseMessageScheduler();
@@ -3573,7 +3573,7 @@ public final class ConnectorTest
   @Test
   public void isSynchronized_notConnected()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
     safeAction( () -> assertFalse( connector.isSynchronized() ) );
   }
@@ -3581,7 +3581,7 @@ public final class ConnectorTest
   @Test
   public void isSynchronized_connected()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     safeAction( () -> assertTrue( connector.isSynchronized() ) );
@@ -3590,7 +3590,7 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_notConnected()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     safeAction( () -> connector.setState( ConnectorState.DISCONNECTED ) );
     assertFalse( connector.shouldRequestSync() );
   }
@@ -3598,7 +3598,7 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_connected()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
@@ -3609,7 +3609,7 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_sentRequest_NotSynced()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
@@ -3621,8 +3621,8 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_receivedRequestResponse_NotSynced()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
       connection.removeRequest( newRequest( connection ).getRequestId() );
@@ -3633,11 +3633,11 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_receivedSyncRequestResponse_Synced()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
-      final RequestEntry entry = connection.newRequest( ValueUtil.randomString(), true, null );
+      final var entry = connection.newRequest( ValueUtil.randomString(), true, null );
       connection.removeRequest( entry.getRequestId() );
       assertFalse( connector.shouldRequestSync() );
     } );
@@ -3646,8 +3646,8 @@ public final class ConnectorTest
   @Test
   public void shouldRequestSync_receivedSyncRequestResponseButResponsesQueued_NotSynced()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
     safeAction( () -> {
       connector.setState( ConnectorState.CONNECTED );
       connection.removeRequest( newRequest( connection ).getRequestId() );
@@ -3659,9 +3659,9 @@ public final class ConnectorTest
   @Test
   public void onInSync()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onInSync();
 
@@ -3673,9 +3673,9 @@ public final class ConnectorTest
   @Test
   public void onOutOfSync()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.onOutOfSync();
 
@@ -3687,9 +3687,9 @@ public final class ConnectorTest
   @Test
   public void requestSync()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
     connector.requestSync();
 
@@ -3703,8 +3703,8 @@ public final class ConnectorTest
   @Test
   public void maybeRequestSync()
   {
-    final Connector connector = createConnector();
-    final Connection connection = newConnection( connector );
+    final var connector = createConnector();
+    final var connection = newConnection( connector );
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
@@ -3724,12 +3724,12 @@ public final class ConnectorTest
   @Test
   public void onExecStarted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final String command = ValueUtil.randomString();
-    final int requestId = ValueUtil.randomInt();
+    final var command = ValueUtil.randomString();
+    final var requestId = ValueUtil.randomInt();
     connector.onExecStarted( command, requestId );
 
     handler.assertEventCount( 1 );
@@ -3744,12 +3744,12 @@ public final class ConnectorTest
   @Test
   public void onExecCompleted()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final String command = ValueUtil.randomString();
-    final int requestId = ValueUtil.randomInt();
+    final var command = ValueUtil.randomString();
+    final var requestId = ValueUtil.randomInt();
     connector.onExecCompleted( command, requestId );
 
     handler.assertEventCount( 1 );
@@ -3764,14 +3764,14 @@ public final class ConnectorTest
   @Test
   public void requestExec()
   {
-    final Connector connector = createConnector();
+    final var connector = createConnector();
     connector.pauseMessageScheduler();
     newConnection( connector );
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final String command = ValueUtil.randomString();
-    final Object payload = new Object();
+    final var command = ValueUtil.randomString();
+    final var payload = new Object();
     connector.requestExec( command, payload, null );
 
     handler.assertEventCount( 1 );
@@ -3781,9 +3781,9 @@ public final class ConnectorTest
       assertEquals( e.getCommand(), command );
     } );
 
-    final List<ExecRequest> requests = connector.ensureConnection().getPendingExecRequests();
+    final var requests = connector.ensureConnection().getPendingExecRequests();
     assertEquals( requests.size(), 1 );
-    final ExecRequest request = requests.get( 0 );
+    final var request = requests.get( 0 );
     assertEquals( request.getCommand(), command );
     assertEquals( request.getPayload(), payload );
   }
@@ -3808,7 +3808,7 @@ public final class ConnectorTest
   {
     connection.enqueueResponse( message, request );
     connection.selectNextMessageResponse();
-    final MessageResponse response = connection.getCurrentMessageResponse();
+    final var response = connection.getCurrentMessageResponse();
     assert null != response;
     return response;
   }

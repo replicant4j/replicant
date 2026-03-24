@@ -19,13 +19,13 @@ public class ConnectionTest
   @Test
   public void construct()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertNull( connection.getCurrentMessageResponse() );
     assertThrows( connection::ensureCurrentMessageResponse );
 
-    final RequestEntry request = connection.newRequest( ValueUtil.randomString(), false, null );
-    final MessageResponse response =
+    final var request = connection.newRequest( ValueUtil.randomString(), false, null );
+    final var response =
       new MessageResponse( 1, OkMessage.create( request.getRequestId() ), request );
     connection.setCurrentMessageResponse( response );
 
@@ -36,11 +36,11 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse_noMessages()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertNull( connection.getCurrentMessageResponse() );
 
-    final boolean selectedMessage = connection.selectNextMessageResponse();
+    final var selectedMessage = connection.selectNextMessageResponse();
 
     assertFalse( selectedMessage );
     assertNull( connection.getCurrentMessageResponse() );
@@ -49,17 +49,17 @@ public class ConnectionTest
   @Test
   public void selectNextMessageResponse()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     connection.enqueueResponse( UseCacheMessage.create( null, "0", ValueUtil.randomString() ), null );
 
     assertNull( connection.getCurrentMessageResponse() );
     assertEquals( connection.getPendingResponses().size(), 1 );
 
-    final boolean selectedMessage = connection.selectNextMessageResponse();
+    final var selectedMessage = connection.selectNextMessageResponse();
 
     assertTrue( selectedMessage );
-    final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
+    final var currentMessageResponse = connection.getCurrentMessageResponse();
     assertNotNull( currentMessageResponse );
     assertEquals( connection.getPendingResponses().size(), 0 );
   }
@@ -67,17 +67,17 @@ public class ConnectionTest
   @Test
   public void requestExec()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getPendingExecRequests().size(), 0 );
 
-    final String command = ValueUtil.randomString();
-    final Object payload = new Object();
+    final var command = ValueUtil.randomString();
+    final var payload = new Object();
     connection.requestExec( command, payload, null );
 
-    final List<ExecRequest> requests = connection.getPendingExecRequests();
+    final var requests = connection.getPendingExecRequests();
     assertEquals( requests.size(), 1 );
-    final ExecRequest request = requests.get( 0 );
+    final var request = requests.get( 0 );
     assertEquals( request.getCommand(), command );
     assertEquals( request.getPayload(), payload );
   }
@@ -85,14 +85,14 @@ public class ConnectionTest
   @Test
   public void requestSubscribe()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
-    final String filter1 = ValueUtil.randomString();
-    final String filter2 = ValueUtil.randomString();
+    final var address1 = new ChannelAddress( 1, 0 );
+    final var address2 = new ChannelAddress( 1, 1, 23 );
+    final var filter1 = ValueUtil.randomString();
+    final var filter2 = ValueUtil.randomString();
 
     connection.requestSubscribe( address1, filter1 );
 
@@ -102,8 +102,8 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
 
-    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
-    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+    final var request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final var request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
 
     assertEquals( request1.getAddress(), address1 );
     assertEquals( request1.getFilter(), filter1 );
@@ -117,14 +117,14 @@ public class ConnectionTest
   @Test
   public void requestSubscriptionUpdate()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
-    final String filter1 = ValueUtil.randomString();
-    final String filter2 = ValueUtil.randomString();
+    final var address1 = new ChannelAddress( 1, 0 );
+    final var address2 = new ChannelAddress( 1, 1, 23 );
+    final var filter1 = ValueUtil.randomString();
+    final var filter2 = ValueUtil.randomString();
 
     connection.requestSubscriptionUpdate( address1, filter1 );
 
@@ -134,8 +134,8 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
 
-    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
-    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+    final var request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final var request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
 
     assertEquals( request1.getAddress(), address1 );
     assertEquals( request1.getFilter(), filter1 );
@@ -149,12 +149,12 @@ public class ConnectionTest
   @Test
   public void requestUnsubscribe()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 1, 23 );
+    final var address1 = new ChannelAddress( 1, 0 );
+    final var address2 = new ChannelAddress( 1, 1, 23 );
 
     connection.requestUnsubscribe( address1 );
 
@@ -164,8 +164,8 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 2 );
 
-    final AreaOfInterestRequest request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
-    final AreaOfInterestRequest request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
+    final var request1 = connection.getPendingAreaOfInterestRequests().get( 0 );
+    final var request2 = connection.getPendingAreaOfInterestRequests().get( 1 );
 
     assertEquals( request1.getAddress(), address1 );
     assertNull( request1.getFilter() );
@@ -179,12 +179,12 @@ public class ConnectionTest
   @Test
   public void enqueueResponse()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getPendingAreaOfInterestRequests().size(), 0 );
 
-    final ServerToClientMessage data1 = OkMessage.create( 1 );
-    final ServerToClientMessage data2 = OkMessage.create( 1 );
+    final var data1 = OkMessage.create( 1 );
+    final var data2 = OkMessage.create( 1 );
 
     assertEquals( connection.getPendingResponses().size(), 0 );
 
@@ -196,8 +196,8 @@ public class ConnectionTest
 
     assertEquals( connection.getPendingResponses().size(), 2 );
 
-    final MessageResponse response1 = connection.getPendingResponses().get( 0 );
-    final MessageResponse response2 = connection.getPendingResponses().get( 1 );
+    final var response1 = connection.getPendingResponses().get( 0 );
+    final var response2 = connection.getPendingResponses().get( 1 );
 
     assertEquals( response1.getMessage(), data1 );
     assertEquals( response2.getMessage(), data2 );
@@ -206,13 +206,13 @@ public class ConnectionTest
   @Test
   public void basicRequestManagementWorkflow()
   {
-    final Connection connection = createConnection();
-    final Connector connector = connection.getConnector();
-    final String requestName = ValueUtil.randomString();
+    final var connection = createConnection();
+    final var connector = connection.getConnector();
+    final var requestName = ValueUtil.randomString();
 
-    final TestSpyEventHandler handler = registerTestSpyEventHandler();
+    final var handler = registerTestSpyEventHandler();
 
-    final RequestEntry request = connection.newRequest( requestName, false, null );
+    final var request = connection.newRequest( requestName, false, null );
 
     assertEquals( request.getName(), requestName );
 
@@ -235,28 +235,28 @@ public class ConnectionTest
   @Test
   public void execLifecycle()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
     assertEquals( connection.getActiveExecRequests().size(), 0 );
     assertEquals( connection.getPendingExecRequests().size(), 0 );
 
-    final String command = ValueUtil.randomString();
-    final Object payload = new Object();
+    final var command = ValueUtil.randomString();
+    final var payload = new Object();
 
     // Request Exec
     {
       connection.requestExec( command, payload, null );
 
       assertEquals( connection.getActiveExecRequests().size(), 0 );
-      final List<ExecRequest> requests = connection.getPendingExecRequests();
+      final var requests = connection.getPendingExecRequests();
       assertEquals( requests.size(), 1 );
-      final ExecRequest request = requests.get( 0 );
+      final var request = requests.get( 0 );
       assertEquals( request.getCommand(), command );
       assertEquals( request.getPayload(), payload );
     }
 
     {
-      final ExecRequest request = connection.nextExecRequest();
+      final var request = connection.nextExecRequest();
       assertNotNull( request );
       assertEquals( request.getCommand(), command );
       assertEquals( request.getPayload(), payload );
@@ -265,7 +265,7 @@ public class ConnectionTest
       assertEquals( connection.getPendingExecRequests().size(), 0 );
       assertEquals( connection.getActiveExecRequests().size(), 0 );
 
-      final int requestId = ValueUtil.randomInt();
+      final var requestId = ValueUtil.randomInt();
       request.markAsInProgress( requestId );
 
       assertEquals( request.getRequestId(), requestId );
@@ -295,9 +295,9 @@ public class ConnectionTest
   @Test
   public void removeRequestWhenNoRequest()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, () -> connection.removeRequest( 789 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0067: Attempted to remove request with id 789 from connection with id '" +
@@ -307,17 +307,17 @@ public class ConnectionTest
   @Test
   public void completeAreaOfInterestRequest()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
 
-    final Object filter1 = null;
-    final Object filter2 = null;
+    final var filter1 = (Object) null;
+    final var filter2 = (Object) null;
 
-    final AreaOfInterestRequest request1 =
+    final var request1 =
       new AreaOfInterestRequest( address1, AreaOfInterestRequest.Type.ADD, filter1 );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( address2, AreaOfInterestRequest.Type.ADD, filter2 );
     connection.injectCurrentAreaOfInterestRequest( request1 );
     connection.injectCurrentAreaOfInterestRequest( request2 );
@@ -339,9 +339,9 @@ public class ConnectionTest
   @Test
   public void completeAreaOfInterestRequest_whenNoRequests()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class, connection::completeAreaOfInterestRequest );
     assertEquals( exception.getMessage(),
                   "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no current AreaOfInterest requests." );
@@ -350,49 +350,49 @@ public class ConnectionTest
   @Test
   public void canGroupRequests()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress addressA = new ChannelAddress( 1, 0 );
-    final ChannelAddress addressB = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress addressC = new ChannelAddress( 1, 1, 2 );
-    final ChannelAddress addressD = new ChannelAddress( 1, 1, 3 );
-    final ChannelAddress addressE = new ChannelAddress( 1, 1, 4 );
+    final var addressA = new ChannelAddress( 1, 0 );
+    final var addressB = new ChannelAddress( 1, 1, 1 );
+    final var addressC = new ChannelAddress( 1, 1, 2 );
+    final var addressD = new ChannelAddress( 1, 1, 3 );
+    final var addressE = new ChannelAddress( 1, 1, 4 );
 
-    final String filterP = null;
-    final String filterQ = "F1";
-    final String filterR = "F2";
+    final var filterP = (String) null;
+    final var filterQ = "F1";
+    final var filterR = "F2";
 
-    final AreaOfInterestRequest request1 =
+    final var request1 =
       new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
-    final AreaOfInterestRequest request2 =
+    final var request2 =
       new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.REMOVE, filterP );
-    final AreaOfInterestRequest request3 =
+    final var request3 =
       new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request4 =
+    final var request4 =
       new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, filterP );
 
-    final AreaOfInterestRequest request10 =
+    final var request10 =
       new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, filterQ );
-    final AreaOfInterestRequest request11 =
+    final var request11 =
       new AreaOfInterestRequest( addressC, AreaOfInterestRequest.Type.ADD, filterQ );
-    final AreaOfInterestRequest request12 =
+    final var request12 =
       new AreaOfInterestRequest( addressD, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request13 =
+    final var request13 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request14 =
+    final var request14 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterQ );
-    final AreaOfInterestRequest request15 =
+    final var request15 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.ADD, filterP );
-    final AreaOfInterestRequest request16 =
+    final var request16 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request17 =
+    final var request17 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.REMOVE, null );
-    final AreaOfInterestRequest request18 =
+    final var request18 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterP );
-    final AreaOfInterestRequest request19 =
+    final var request19 =
       new AreaOfInterestRequest( addressE, AreaOfInterestRequest.Type.UPDATE, filterR );
 
-    final List<AreaOfInterestRequest> requests =
+    final var requests =
       Arrays.asList( request1,
                      request2,
                      request3,
@@ -408,7 +408,7 @@ public class ConnectionTest
                      request18,
                      request19 );
 
-    final HashMap<String, String> groupingPairs = new HashMap<>();
+    final var groupingPairs = new HashMap<>();
 
     groupingPairs.put( request10.toString(), request11.toString() );
     groupingPairs.put( request12.toString(), request13.toString() );
@@ -416,11 +416,11 @@ public class ConnectionTest
     groupingPairs.put( request13.toString(), request17.toString() );
     groupingPairs.put( request16.toString(), request18.toString() );
 
-    for ( final AreaOfInterestRequest r1 : requests )
+    for ( final var r1 : requests )
     {
-      for ( final AreaOfInterestRequest r2 : requests )
+      for ( final var r2 : requests )
       {
-        final boolean expected =
+        final var expected =
           ( r1 == r2 && null != r1.getAddress().rootId() ) ||
           Objects.equals( String.valueOf( groupingPairs.get( r1.toString() ) ), r2.toString() ) ||
           Objects.equals( String.valueOf( groupingPairs.get( r2.toString() ) ), r1.toString() );
@@ -434,18 +434,18 @@ public class ConnectionTest
   @Test
   public void canGroupRequests_presentInCache()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
+    final var addressA = new ChannelAddress( 1, 1, 1 );
+    final var addressB = new ChannelAddress( 1, 1, 2 );
 
-    final AreaOfInterestRequest requestA = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, null );
-    final AreaOfInterestRequest requestB = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, null );
+    final var requestA = new AreaOfInterestRequest( addressA, AreaOfInterestRequest.Type.ADD, null );
+    final var requestB = new AreaOfInterestRequest( addressB, AreaOfInterestRequest.Type.ADD, null );
 
     assertTrue( connection.canGroupRequests( requestA, requestB ) );
     assertTrue( connection.canGroupRequests( requestB, requestA ) );
 
-    final TestCacheService cacheService = new TestCacheService();
+    final var cacheService = new TestCacheService();
     Replicant.context().setCacheService( cacheService );
 
     cacheService.store( addressA, ValueUtil.randomString(), ValueUtil.randomString() );
@@ -457,11 +457,11 @@ public class ConnectionTest
   @Test
   public void getCurrentAreaOfInterestRequests()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress addressA = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress addressB = new ChannelAddress( 1, 1, 2 );
-    final ChannelAddress addressC = new ChannelAddress( 1, 1, 3 );
+    final var addressA = new ChannelAddress( 1, 1, 1 );
+    final var addressB = new ChannelAddress( 1, 1, 2 );
+    final var addressC = new ChannelAddress( 1, 1, 3 );
 
     assertEquals( connection.getCurrentAreaOfInterestRequests().size(), 0 );
 
@@ -488,12 +488,12 @@ public class ConnectionTest
   @Test
   public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterForDelete()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = "MyFilter";
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = "MyFilter";
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> connection.lastIndexOfPendingAreaOfInterestRequest( AreaOfInterestRequest.Type.REMOVE,
                                                                               address,
@@ -505,12 +505,12 @@ public class ConnectionTest
   @Test
   public void isAreaOfInterestRequestPending_passingNonnullFilterForDelete()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address = new ChannelAddress( 1, 0 );
-    final String filter = "MyFilter";
+    final var address = new ChannelAddress( 1, 0 );
+    final var filter = "MyFilter";
 
-    final IllegalStateException exception =
+    final var exception =
       expectThrows( IllegalStateException.class,
                     () -> connection.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE,
                                                                      address,
@@ -522,9 +522,9 @@ public class ConnectionTest
   @Test
   public void pendingAreaOfInterestRequestQueries_noRequestsInConnection()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final var address1 = new ChannelAddress( 1, 0 );
 
     assertRequestPending( connection, AreaOfInterestRequest.Type.ADD, address1, null, false );
     assertRequestPending( connection, AreaOfInterestRequest.Type.REMOVE, address1, null, false );
@@ -537,15 +537,15 @@ public class ConnectionTest
   @Test
   public void pendingAreaOfInterestRequestQueries_requestPending()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
 
-    final Object filter1 = null;
-    final Object filter2 = ValueUtil.randomString();
-    final Object filter3 = null;
+    final var filter1 = (Object) null;
+    final var filter2 = ValueUtil.randomString();
+    final var filter3 = (Object) null;
 
     assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
     assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
@@ -573,15 +573,15 @@ public class ConnectionTest
   @Test
   public void pendingAreaOfInterestRequestQueries_currentPending()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
 
-    final Object filter1 = null;
-    final Object filter2 = null;
-    final Object filter3 = null;
+    final var filter1 = (Object) null;
+    final var filter2 = (Object) null;
+    final var filter3 = (Object) null;
 
     assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
     assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );
@@ -607,17 +607,17 @@ public class ConnectionTest
   @Test
   public void pendingAreaOfInterestRequestQueries_jumbledAggregate()
   {
-    final Connection connection = createConnection();
+    final var connection = createConnection();
 
-    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 0, 3 );
-    final ChannelAddress address4 = new ChannelAddress( 1, 1 );
+    final var address1 = new ChannelAddress( 1, 0, 1 );
+    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final var address3 = new ChannelAddress( 1, 0, 3 );
+    final var address4 = new ChannelAddress( 1, 1 );
 
-    final Object filter1 = null;
-    final Object filter2 = ValueUtil.randomString();
-    final Object filter3 = null;
-    final Object filter4 = null;
+    final var filter1 = (Object) null;
+    final var filter2 = ValueUtil.randomString();
+    final var filter3 = (Object) null;
+    final var filter4 = (Object) null;
 
     assertRequestPendingState( connection, address1, filter1, false, false, false, -1, -1, -1 );
     assertRequestPendingState( connection, address2, filter2, false, false, false, -1, -1, -1 );

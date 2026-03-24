@@ -28,7 +28,7 @@ public class EntityMessageCacheUtilTest
     assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
 
     //Now we force the creation of EntityMessageSet
-    final EntityMessageSet messageSet =
+    final var messageSet =
       EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
 
     assertNotNull( messageSet );
@@ -50,7 +50,7 @@ public class EntityMessageCacheUtilTest
     assertNull( EntityMessageCacheUtil.lookupSessionChanges() );
 
     //Now we force the creation of EntityMessageSet
-    final ChangeSet messageSet = EntityMessageCacheUtil.getSessionChanges();
+    final var messageSet = EntityMessageCacheUtil.getSessionChanges();
 
     assertNotNull( messageSet );
     assertEquals( messageSet, EntityMessageCacheUtil.lookupSessionChanges() );

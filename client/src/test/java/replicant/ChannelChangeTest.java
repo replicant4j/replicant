@@ -10,7 +10,7 @@ public class ChannelChangeTest
   @Test
   public void construct()
   {
-    final ChannelChange action = ChannelChange.create( "+1.2", null );
+    final var action = ChannelChange.create( "+1.2", null );
 
     assertEquals( action.getChannel(), "+1.2" );
     assertNull( action.getFilter() );
@@ -19,8 +19,8 @@ public class ChannelChangeTest
   @Test
   public void construct_withoutSubchannelId()
   {
-    final Object filter = ValueUtil.randomString();
-    final ChannelChange action = ChannelChange.create( "-1", filter );
+    final var filter = ValueUtil.randomString();
+    final var action = ChannelChange.create( "-1", filter );
 
     assertEquals( action.getChannel(), "-1" );
     assertEquals( action.getFilter(), filter );

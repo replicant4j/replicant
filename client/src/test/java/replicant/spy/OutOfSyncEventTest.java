@@ -11,11 +11,11 @@ public class OutOfSyncEventTest
   @Test
   public void basicOperation()
   {
-    final OutOfSyncEvent event = new OutOfSyncEvent( 23 );
+    final var event = new OutOfSyncEvent( 23 );
 
     assertEquals( event.getSchemaId(), 23 );
 
-    final HashMap<String, Object> data = new HashMap<>();
+    final var data = new HashMap<String, Object>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.OutOfSync" );

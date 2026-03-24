@@ -114,7 +114,7 @@ public class ReplicantEntityChangeListenerTest
   {
     try
     {
-      final Field field = ReplicantEntityChangeListener.class.getDeclaredField( name );
+      final var field = ReplicantEntityChangeListener.class.getDeclaredField( name );
       field.setAccessible( true );
       field.set( target, value );
     }

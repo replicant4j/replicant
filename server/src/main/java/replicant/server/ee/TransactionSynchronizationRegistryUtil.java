@@ -25,7 +25,7 @@ public final class TransactionSynchronizationRegistryUtil
     }
     catch ( final NamingException ne )
     {
-      final String message =
+      final var message =
         "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
       throw new IllegalStateException( message, ne );
     }

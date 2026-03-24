@@ -9,7 +9,7 @@ public final class ChannelAddressTest
   @Test
   void construct()
   {
-    final ChannelAddress address = new ChannelAddress( 2, 4, 1, "a" );
+    final var address = new ChannelAddress( 2, 4, 1, "a" );
 
     assertEquals( address.schemaId(), 2 );
     assertEquals( address.channelId(), 4 );
@@ -20,7 +20,7 @@ public final class ChannelAddressTest
   @Test
   void constructTypeChannel()
   {
-    final ChannelAddress address = new ChannelAddress( 2, 4 );
+    final var address = new ChannelAddress( 2, 4 );
 
     assertEquals( address.schemaId(), 2 );
     assertEquals( address.channelId(), 4 );
@@ -31,7 +31,7 @@ public final class ChannelAddressTest
   @Test
   void parseWithSubChannel()
   {
-    final ChannelAddress address = ChannelAddress.parse( 2, "4.1" );
+    final var address = ChannelAddress.parse( 2, "4.1" );
 
     assertEquals( address.schemaId(), 2 );
     assertEquals( address.channelId(), 4 );
@@ -41,7 +41,7 @@ public final class ChannelAddressTest
   @Test
   void parse()
   {
-    final ChannelAddress address = ChannelAddress.parse( 4, "77" );
+    final var address = ChannelAddress.parse( 4, "77" );
 
     assertEquals( address.schemaId(), 4 );
     assertEquals( address.channelId(), 77 );
@@ -51,7 +51,7 @@ public final class ChannelAddressTest
   @Test
   void parseWithInstanceId()
   {
-    final ChannelAddress address = ChannelAddress.parse( 4, "77#alpha" );
+    final var address = ChannelAddress.parse( 4, "77#alpha" );
 
     assertEquals( address.schemaId(), 4 );
     assertEquals( address.channelId(), 77 );
@@ -62,7 +62,7 @@ public final class ChannelAddressTest
   @Test
   void parseWithRootAndInstanceId()
   {
-    final ChannelAddress address = ChannelAddress.parse( 4, "77.5#alpha" );
+    final var address = ChannelAddress.parse( 4, "77.5#alpha" );
 
     assertEquals( address.schemaId(), 4 );
     assertEquals( address.channelId(), 77 );
@@ -73,7 +73,7 @@ public final class ChannelAddressTest
   @Test
   void getCacheKey()
   {
-    final ChannelAddress address = new ChannelAddress( 2, 4, 1, "a" );
+    final var address = new ChannelAddress( 2, 4, 1, "a" );
     assertEquals( address.getCacheKey(), "RC-2.4.1#a" );
   }
 
@@ -81,13 +81,13 @@ public final class ChannelAddressTest
   @Test
   void testEquals()
   {
-    final ChannelAddress address1 = new ChannelAddress( 1, 2, 1, "a" );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1, "a" );
-    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2, "a" );
-    final ChannelAddress address4 = new ChannelAddress( 1, 1, 1 );
-    final ChannelAddress address5 = new ChannelAddress( 2, 2, 1 );
-    final ChannelAddress address6 = new ChannelAddress( 1, 2 );
-    final ChannelAddress address7 = new ChannelAddress( 1, 2, 1, "b" );
+    final var address1 = new ChannelAddress( 1, 2, 1, "a" );
+    final var address2 = new ChannelAddress( 1, 2, 1, "a" );
+    final var address3 = new ChannelAddress( 1, 2, 2, "a" );
+    final var address4 = new ChannelAddress( 1, 1, 1 );
+    final var address5 = new ChannelAddress( 2, 2, 1 );
+    final var address6 = new ChannelAddress( 1, 2 );
+    final var address7 = new ChannelAddress( 1, 2, 1, "b" );
 
     assertTrue( address1.equals( address1 ) );
     assertTrue( address1.equals( address2 ) );
@@ -103,9 +103,9 @@ public final class ChannelAddressTest
   @Test
   void testHashCode()
   {
-    final ChannelAddress address1 = new ChannelAddress( 1, 2, 1, "a" );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2, 1, "a" );
-    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2, "a" );
+    final var address1 = new ChannelAddress( 1, 2, 1, "a" );
+    final var address2 = new ChannelAddress( 1, 2, 1, "a" );
+    final var address3 = new ChannelAddress( 1, 2, 2, "a" );
 
     assertEquals( address1.hashCode(), address2.hashCode() );
     assertNotEquals( address1.hashCode(), address3.hashCode() );
@@ -114,7 +114,7 @@ public final class ChannelAddressTest
   @Test
   void toStringTest()
   {
-    final ChannelAddress address = new ChannelAddress( 1, 2, 1, "a" );
+    final var address = new ChannelAddress( 1, 2, 1, "a" );
     assertEquals( address.toString(), "1.2.1#a" );
   }
 
@@ -122,7 +122,7 @@ public final class ChannelAddressTest
   void toStringTest_NamingDisabled()
   {
     ReplicantTestUtil.disableNames();
-    final ChannelAddress address =
+    final var address =
       new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
     assertEquals( address.toString(), "replicant.ChannelAddress@" + Integer.toHexString( address.hashCode() ) );
   }
@@ -145,12 +145,12 @@ public final class ChannelAddressTest
   @Test
   void compareTo()
   {
-    final ChannelAddress address1 = new ChannelAddress( 1, 1 );
-    final ChannelAddress address2 = new ChannelAddress( 1, 2, 3 );
-    final ChannelAddress address3 = new ChannelAddress( 1, 2, 2 );
-    final ChannelAddress address4 = new ChannelAddress( 2, 1 );
-    final ChannelAddress address5 = new ChannelAddress( 1, 2 );
-    final ChannelAddress address6 = new ChannelAddress( 1, 2, null, "a" );
+    final var address1 = new ChannelAddress( 1, 1 );
+    final var address2 = new ChannelAddress( 1, 2, 3 );
+    final var address3 = new ChannelAddress( 1, 2, 2 );
+    final var address4 = new ChannelAddress( 2, 1 );
+    final var address5 = new ChannelAddress( 1, 2 );
+    final var address6 = new ChannelAddress( 1, 2, null, "a" );
 
     // Different schema
     assertEquals( address1.compareTo( address4 ), -1 );
