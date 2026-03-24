@@ -8,6 +8,17 @@ When asked to perform a task, ask the user questions one at a time until you hav
 reasonable assumptions based on patterns present in the code and ask the user to confirm the assumptions if there are
 reasonable alternatives.
 
+## Non-negotiable Rules
+
+1. When asked to perform a task, ask the user questions one at a time until you have enough context. Feel free to make
+   reasonable assumptions based on patterns present in the code and ask the user to confirm the assumptions if there are
+   reasonable alternatives.
+
+2. **Prefer direct API evolution over compatibility shims**
+  - Treat this repo as greenfield unless the user says otherwise.
+  - When changing constructors, methods, or internal interfaces, update all production code and tests directly instead of adding overloads, chained constructors, default interface methods, or adapter layers solely to reduce churn.
+  - Keep multiple constructors/overloads only when they are meaningfully justified by the final design, not to preserve binary/source compatibility for this repo.
+
 ## Project Structure & Module Organization
 
 - Java modules: `client/` (client-side code), `server/` (server-side code) and `shared/` (code used on both the server-side and client-side).
@@ -156,3 +167,8 @@ Diagnostics fixtures and invariants:
   - WebSocket endpoint: `@ServerEndpoint("/api" + SharedConstants.REPLICANT_URL_FRAGMENT)`.
   - REST base path: `@Path(SharedConstants.CONNECTION_URL_FRAGMENT)`.
 - Prefer JSON-P (`javax.json`) builders/generators (`JsonGeneratorFactory`) for encoding responses and messages. Avoid ad-hoc string concatenation.
+
+## Notes for the Agent
+
+- We are building this together. When you learn something non-obvious, add it here so future changes go faster.
+- When I report a bug, don't start by trying to fix it. Instead start by writing a test that reproduces the bug. Then try to fix the bug and prove it with a passing test.
