@@ -135,7 +135,6 @@ Diagnostics fixtures and invariants:
 - Never commit secrets.
 - Release-related env vars: `PRODUCT_VERSION`, `PREVIOUS_PRODUCT_VERSION`.
 - Publishing to Maven Central uses `tasks/package_for_maven_central.rake`; requires a `.netrc` entry for `central.sonatype.com` and GPG configured via Buildr.
-- The secured REST endpoints can be disabled for local development via the JNDI flag `replicant/env/disable_session_service_protection` (see `server/src/main/java/replicant/server/ee/rest/SecuredReplicantSessionRestService.java:18`). Do not disable this in shared environments.
 
 ## Client Runtime Configuration
 
