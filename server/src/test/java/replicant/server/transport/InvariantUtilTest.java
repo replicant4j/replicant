@@ -3,7 +3,7 @@ package replicant.server.transport;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
-import static org.testng.Assert.expectThrows;
+import static org.testng.Assert.*;
 
 public final class InvariantUtilTest
 {
@@ -45,7 +45,8 @@ public final class InvariantUtilTest
                            true );
     final var schema = new SchemaMetaData( "Test", instanced );
 
-    expectThrows( AssertionError.class, () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, new ChannelAddress( 0, 2 ) ) );
+    expectThrows( AssertionError.class,
+                  () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, new ChannelAddress( 0, 2 ) ) );
   }
 
   @Test
@@ -61,14 +62,15 @@ public final class InvariantUtilTest
                            true );
     final var schema = new SchemaMetaData( "Test", channel );
 
-    expectThrows( AssertionError.class, () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, ChannelAddress.partial( 0 ) ) );
+    expectThrows( AssertionError.class,
+                  () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, ChannelAddress.partial( 0 ) ) );
   }
 
   @Test
   public void channelLink_constructorRejectsConcreteLinkWithPartialAddress()
   {
     expectThrows( AssertionError.class,
-                  () -> new ChannelLink( ChannelAddress.partial( 0 ), new ChannelAddress( 1, 7, "fi" ), null, false ) );
+                  () -> new ChannelLink( ChannelAddress.partial( 0 ), new ChannelAddress( 1, 7, "fi" ) ) );
   }
 
   @Test
@@ -94,9 +96,9 @@ public final class InvariantUtilTest
 
     InvariantUtil.assertLink( schema,
                               new ChannelLink( new ChannelAddress( 0 ),
-                                                      new ChannelAddress( 1, 7 ),
-                                                      null,
-                                                      true ) );
+                                               new ChannelAddress( 1, 7 ),
+                                               null,
+                                               true ) );
   }
 
   @Test
@@ -123,7 +125,6 @@ public final class InvariantUtilTest
     expectThrows( AssertionError.class,
                   () -> InvariantUtil.assertLink( schema,
                                                   new ChannelLink( new ChannelAddress( 0 ),
-                                                                          new ChannelAddress( 1, 7 ),
-                                                                          null, false ) ) );
+                                                                   new ChannelAddress( 1, 7 ) ) ) );
   }
 }

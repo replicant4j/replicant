@@ -9,6 +9,18 @@ import javax.annotation.Nullable;
 public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddress target, @Nullable Object targetFilter,
                           boolean partial)
 {
+  public ChannelLink( @Nonnull final ChannelAddress target, @Nonnull final ChannelAddress source )
+  {
+    this( source, target, null );
+  }
+
+  public ChannelLink( @Nonnull final ChannelAddress target,
+                      @Nonnull final ChannelAddress source,
+                      @Nullable final Object targetFilter )
+  {
+    this( source, target, targetFilter, false );
+  }
+
   public ChannelLink
   {
     assert partial || ( !source.partial() && !target.partial() );

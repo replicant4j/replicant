@@ -32,10 +32,7 @@ public final class EntityMessageTest
   {
     final var routingKeys = new HashMap<String, Serializable>();
     final var link =
-      new ChannelLink( new ChannelAddress( 1, 2 ),
-                       new ChannelAddress( 3, 4 ),
-                       null,
-                       false );
+      new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
 
     expectThrows( AssertionError.class, () -> new EntityMessage( 11, 22, 33L, routingKeys, null, Set.of( link ) ) );
   }
@@ -62,9 +59,7 @@ public final class EntityMessageTest
                                      typeID,
                                      2,
                                      new ChannelLink( new ChannelAddress( 1, 2 ),
-                                                      new ChannelAddress( 47, 66 ),
-                                                      null,
-                                                      false ),
+                                                      new ChannelAddress( 47, 66 ) ),
                                      "r3",
                                      null,
                                      "a3",
@@ -109,9 +104,7 @@ public final class EntityMessageTest
                                      typeID,
                                      0,
                                      new ChannelLink( new ChannelAddress( 1, 2 ),
-                                                      new ChannelAddress( 47, 66 ),
-                                                      null,
-                                                      false ),
+                                                      new ChannelAddress( 47, 66 ) ),
                                      "r1",
                                      "r2",
                                      "a1",
@@ -172,9 +165,7 @@ public final class EntityMessageTest
                                      typeId,
                                      timestamp,
                                      new ChannelLink( new ChannelAddress( 1, 2 ),
-                                                      new ChannelAddress( 47, 66 ),
-                                                      null,
-                                                      false ),
+                                                      new ChannelAddress( 47, 66 ) ),
                                      "r1",
                                      "r2",
                                      "a1",
