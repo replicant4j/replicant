@@ -25,9 +25,9 @@ Use this template when a feature is complex enough to warrant its own requiremen
 
 ## Behavior Requirements
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Error Handling and Diagnostics
 
@@ -58,4 +58,4 @@ Use this template when a feature is complex enough to warrant its own requiremen
 
 ## Open Questions
 
-- 
+-
