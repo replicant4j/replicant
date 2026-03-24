@@ -155,4 +155,4 @@ Diagnostics fixtures and invariants:
 - Keep WebSocket and REST routes in sync with `shared` constants to avoid drift:
   - WebSocket endpoint: `@ServerEndpoint("/api" + SharedConstants.REPLICANT_URL_FRAGMENT)`.
   - REST base path: `@Path(SharedConstants.CONNECTION_URL_FRAGMENT)`.
-- Prefer JSON-P (`javax.json`) builders/generators (`JsonGeneratorFactory`) for encoding responses and messages (see `server/src/main/java/replicant/server/ee/rest/ReplicantSessionRestService.java:25`). Avoid ad-hoc string concatenation.
+- Prefer JSON-P (`javax.json`) builders/generators (`JsonGeneratorFactory`) for encoding responses and messages. Avoid ad-hoc string concatenation.
