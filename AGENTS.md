@@ -8,6 +8,17 @@ When asked to perform a task, ask the user questions one at a time until you hav
 reasonable assumptions based on patterns present in the code and ask the user to confirm the assumptions if there are
 reasonable alternatives.
 
+## Code Style
+
+- Use `var` for local variable declarations whenever possible.
+- Use literal-on-left comparisons for comparison operators (Yoda conditions).
+- Prefer ternary operators for simple, side-effect-free conditionals that return or assign a value.
+  - Example: `return condition ? a : b;`
+  - Avoid ternaries when they hurt readability (nested, long expressions, or multi-step logic).
+- Prefer low coupling between packages and the narrowest visibility possible for classes/methods.
+- Where viable, expose package functionality via a facade to reduce cross-package dependencies.
+- Keep Javadocs aligned with code behavior and signatures. If a method/class changes, update any related Javadocs in the same change.
+
 ## Non-negotiable Rules
 
 1. When asked to perform a task, ask the user questions one at a time until you have enough context. Feel free to make
