@@ -52,6 +52,7 @@ public final class EntityMessage
     _routingKeys = Objects.requireNonNull( routingKeys );
     _attributeValues = attributeValues;
     _links = links;
+    assertInvariants();
   }
 
   public int getTypeId()
@@ -112,6 +113,8 @@ public final class EntityMessage
     final EntityMessage message = duplicate();
     message.merge( this );
     message._attributeValues = null;
+    message._links = null;
+    message.assertInvariants();
     return message;
   }
 
@@ -133,7 +136,15 @@ public final class EntityMessage
     mergeTimestamp( message );
     mergeRoutingKeys( message );
     mergeAttributeValues( message );
-    mergeLinks( message );
+    if ( message.isDelete() )
+    {
+      _links = null;
+    }
+    else
+    {
+      mergeLinks( message );
+    }
+    assertInvariants();
   }
 
   private void mergeTimestamp( @Nonnull final EntityMessage message )
@@ -199,5 +210,10 @@ public final class EntityMessage
       }
       _links.addAll( links );
     }
+  }
+
+  private void assertInvariants()
+  {
+    assert null != _attributeValues || null == _links : "Delete EntityMessage must not contain links";
   }
 }

@@ -21,7 +21,6 @@ import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
-import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
 import replicant.shared.Messages;
@@ -391,11 +390,29 @@ public class ReplicantSessionTest
   }
 
   @Test
-  public void recordGraphLink_linksEntries()
+  public void recordSubscription_rejectsPartialAddress()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+
+    session.getLock().lock();
+    try
+    {
+      expectThrows( AssertionError.class,
+                    () -> session.recordSubscription( changeSet, ChannelAddress.partial( 1, 2 ), null, false ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void recordGraphScopedGraphLink_linksEntries()
   {
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
     final ChannelAddress source = new ChannelAddress( 1, 2 );
-    final ChannelAddress target = new ChannelAddress( 2, 3 );
+    final ChannelAddress target = new ChannelAddress( 2 );
 
     session.getLock().lock();
     try
@@ -403,7 +420,7 @@ public class ReplicantSessionTest
       session.createSubscriptionEntry( source );
       session.createSubscriptionEntry( target );
 
-      session.recordGraphLink( source, target );
+      session.recordGraphScopedGraphLink( source, target );
 
       assertTrue( session.getSubscriptionEntry( source ).getOutwardSubscriptions().contains( target ) );
       assertTrue( session.getSubscriptionEntry( target ).getInwardSubscriptions().contains( source ) );
@@ -412,6 +429,88 @@ public class ReplicantSessionTest
     {
       session.getLock().unlock();
     }
+  }
+
+  @Test
+  public void recordGraphScopedGraphLink_rejectsPartialAddress()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( new ChannelAddress( 1, 2, "fi" ) );
+      session.createSubscriptionEntry( new ChannelAddress( 2 ) );
+
+      expectThrows( AssertionError.class,
+                    () -> session.recordGraphScopedGraphLink( ChannelAddress.partial( 1, 2 ), new ChannelAddress( 2 ) ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void recordGraphScopedGraphLink_rejectsInstanceGraphTarget()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( new ChannelAddress( 1, 2 ) );
+      session.createSubscriptionEntry( new ChannelAddress( 2, 3 ) );
+
+      expectThrows( AssertionError.class,
+                    () -> session.recordGraphScopedGraphLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 2, 3 ) ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void entityOwnedGraphLinks_requireLastOwnerBeforeDelink()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+    final ChannelAddress source = new ChannelAddress( 1, 2 );
+    final ChannelAddress target = new ChannelAddress( 2, 3 );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( source );
+      final var targetEntry = session.createSubscriptionEntry( target );
+      targetEntry.setExplicitlySubscribed( true );
+
+      session.recordGraphLink( sourceEntry, targetEntry, LinkOwner.entity( 7, 11 ) );
+      session.recordGraphLink( sourceEntry, targetEntry, LinkOwner.entity( 7, 12 ) );
+
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( LinkOwner.entity( 7, 11 ) ), Set.of( target ) );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( LinkOwner.entity( 7, 12 ) ), Set.of( target ) );
+
+      session.delinkDownstreamSubscription( sourceEntry, LinkOwner.entity( 7, 11 ), target, changeSet );
+
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
+      assertTrue( targetEntry.getInwardSubscriptions().contains( source ) );
+      assertNotNull( session.findSubscriptionEntry( target ) );
+
+      session.delinkDownstreamSubscription( sourceEntry, LinkOwner.entity( 7, 12 ), target, changeSet );
+
+      assertTrue( sourceEntry.getOutwardSubscriptions().isEmpty() );
+      assertTrue( targetEntry.getInwardSubscriptions().isEmpty() );
+      assertNotNull( session.findSubscriptionEntry( target ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( changeSet.getChannelActions().isEmpty() );
   }
 
   @Test
@@ -495,6 +594,25 @@ public class ReplicantSessionTest
   }
 
   @Test
+  public void bulkUnsubscribe_rejectsPartialAddress()
+  {
+    final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
+    final ChangeSet changeSet = new ChangeSet();
+
+    session.getLock().lock();
+    try
+    {
+      expectThrows( AssertionError.class,
+                    () -> session.bulkUnsubscribe( Collections.singletonList( ChannelAddress.partial( 1, 2 ) ),
+                                                   changeSet ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
   public void performUnsubscribe_onlyRemovesWhenEntryCanUnsubscribe()
   {
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
@@ -553,8 +671,8 @@ public class ReplicantSessionTest
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
     final ChangeSet changeSet = new ChangeSet();
     final ChannelAddress a = new ChannelAddress( 1, 1 );
-    final ChannelAddress b = new ChannelAddress( 1, 2 );
-    final ChannelAddress c = new ChannelAddress( 1, 3 );
+    final ChannelAddress b = new ChannelAddress( 2 );
+    final ChannelAddress c = new ChannelAddress( 3 );
 
     session.getLock().lock();
     try
@@ -562,8 +680,8 @@ public class ReplicantSessionTest
       final var entryA = session.createSubscriptionEntry( a );
       session.createSubscriptionEntry( b );
       session.createSubscriptionEntry( c );
-      session.recordGraphLink( a, b );
-      session.recordGraphLink( b, c );
+      session.recordGraphScopedGraphLink( a, b );
+      session.recordGraphScopedGraphLink( b, c );
 
       session.performUnsubscribe( entryA, false, false, changeSet );
 
@@ -588,7 +706,7 @@ public class ReplicantSessionTest
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
     final ChangeSet changeSet = new ChangeSet();
     final ChannelAddress upstream = new ChannelAddress( 1, 1 );
-    final ChannelAddress downstream = new ChannelAddress( 1, 2 );
+    final ChannelAddress downstream = new ChannelAddress( 2 );
 
     session.getLock().lock();
     try
@@ -596,7 +714,7 @@ public class ReplicantSessionTest
       session.createSubscriptionEntry( upstream );
       final var downstreamEntry = session.createSubscriptionEntry( downstream );
       downstreamEntry.setExplicitlySubscribed( true );
-      session.recordGraphLink( upstream, downstream );
+      session.recordGraphScopedGraphLink( upstream, downstream );
 
       session.delinkDownstreamSubscription( upstream, downstream, changeSet );
 
@@ -613,42 +731,26 @@ public class ReplicantSessionTest
   }
 
   @Test
-  public void delinkDownstreamSubscriptions_unsubscribesLinkedTargetsFromMessage()
+  public void delinkDownstreamSubscription_rejectsPartialAddress()
   {
     final ReplicantSession session = new ReplicantSession( mock( Session.class ) );
     final ChangeSet changeSet = new ChangeSet();
-    final ChannelAddress source = new ChannelAddress( 1, 1 );
-    final ChannelAddress target = new ChannelAddress( 2, 2 );
 
     session.getLock().lock();
     try
     {
-      final var sourceEntry = session.createSubscriptionEntry( source );
-      session.createSubscriptionEntry( target );
-      session.recordGraphLink( source, target );
+      session.createSubscriptionEntry( new ChannelAddress( 1, 1, "fi" ) );
+      session.createSubscriptionEntry( new ChannelAddress( 1, 2 ) );
 
-      final var routingKeys = new HashMap<String, java.io.Serializable>();
-      final var message =
-        new EntityMessage( 7,
-                           9,
-                           0,
-                           routingKeys,
-                           null,
-                           Set.of( new ChannelLink( source, target, null ) ) );
-
-      session.delinkDownstreamSubscriptions( sourceEntry, message, changeSet );
-
-      assertTrue( session.getSubscriptionEntry( source ).getOutwardSubscriptions().isEmpty() );
-      assertNull( session.findSubscriptionEntry( target ) );
+      expectThrows( AssertionError.class,
+                    () -> session.delinkDownstreamSubscription( ChannelAddress.partial( 1, 1 ),
+                                                                new ChannelAddress( 1, 2 ),
+                                                                changeSet ) );
     }
     finally
     {
       session.getLock().unlock();
     }
-
-    assertEquals( changeSet.getChannelActions().size(), 1 );
-    assertEquals( changeSet.getChannelActions().get( 0 ).address(), target );
-    assertEquals( changeSet.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
   }
 
   @SuppressWarnings( "DataFlowIssue" )

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -564,12 +565,11 @@ public class ReplicantSessionManagerImpl
     try
     {
       final var pending = new HashSet<ChannelLinkEntry>();
-      final var subscribed = new HashSet<ChannelLinkEntry>();
 
       while ( true )
       {
         expandCycleCount++;
-        collectChannelLinksToFollow( session, changeSet, pending, subscribed );
+        collectChannelLinksToFollow( session, changeSet, pending );
         if ( pending.isEmpty() )
         {
           break;
@@ -591,12 +591,13 @@ public class ReplicantSessionManagerImpl
         final var addresses = toSubscribe.stream().map( ChannelLinkEntry::target ).toList();
         doSubscribe( session, addresses, entry.filter(), changeSet, false );
         toSubscribe.forEach( pending::remove );
-        subscribed.addAll( toSubscribe );
         for ( final var e : toSubscribe )
         {
           final var sourceEntry = session.getSubscriptionEntry( e.source() );
           final var targetEntry = session.getSubscriptionEntry( e.target() );
-          linkSubscriptionEntries( sourceEntry, targetEntry );
+          InvariantUtil.assertConcreteAddress( getSchemaMetaData(), sourceEntry.address() );
+          InvariantUtil.assertConcreteAddress( getSchemaMetaData(), targetEntry.address() );
+          session.recordGraphLink( sourceEntry, targetEntry, e.owner() );
         }
       }
     }
@@ -617,123 +618,168 @@ public class ReplicantSessionManagerImpl
    */
   private void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
                                             @Nonnull final ChangeSet changeSet,
-                                            @Nonnull final Set<ChannelLinkEntry> targets,
-                                            @Nonnull final Set<ChannelLinkEntry> subscribed )
+                                            @Nonnull final Set<ChannelLinkEntry> targets )
   {
     for ( final var change : changeSet.getChanges() )
     {
       final var entityMessage = change.getEntityMessage();
       if ( entityMessage.isUpdate() )
       {
-        final var links = entityMessage.getLinks();
-        if ( null != links )
+        final var owner = LinkOwner.entity( entityMessage.getTypeId(), entityMessage.getId() );
+        for ( final var sourceAddress : change.getChannels() )
         {
-          for ( final var link : links )
+          final var sourceEntry = session.findSubscriptionEntry( sourceAddress );
+          if ( null != sourceEntry )
           {
-            final var existing =
-              subscribed
-                .stream()
-                .filter( s -> s.source().equals( link.source() ) && s.target().equals( link.target() ) )
-                .findFirst()
-                .orElse( null );
-            if ( null != existing )
-            {
-              final var target = existing.target();
-              final var channel = getSchemaMetaData().getChannelMetaData( target.channelId() );
-
-              assert ( null == target.filterInstanceId() && !channel.requiresFilterInstanceId() ) ||
-                     ( null != target.filterInstanceId() && channel.requiresFilterInstanceId() );
-
-              if ( channel.requiresFilterParameter() && channel.filterType().isDynamicFilter() )
-              {
-                final var targetEntry = session.findSubscriptionEntry( target );
-                if ( null != targetEntry )
-                {
-                  final var source = existing.source();
-                  final var sourceEntry = session.findSubscriptionEntry( source );
-                  assert null != sourceEntry;
-                  targetEntry.setFilter( _context.deriveTargetFilter( entityMessage,
-                                                                      source,
-                                                                      sourceEntry.getFilter(),
-                                                                      target ) );
-                }
-              }
-            }
-            else
-            {
-              final var entry = createChannelLinkEntryIfRequired( entityMessage, session, link );
-              if ( null != entry )
-              {
-                targets.add( entry );
-              }
-            }
+            reconcileOwnedChannelLinks( session,
+                                        sourceEntry,
+                                        owner,
+                                        resolveDesiredChannelLinkTargets( entityMessage, sourceEntry ),
+                                        changeSet,
+                                        targets );
           }
         }
       }
     }
   }
 
-  /**
-   * Determine if the specified ChannelLink needs to be follows and link channels if required. A ChannelLink
-   * needs to be followed if the session is subscribed to the source channel and shouldFollowLink returns true.
-   * The `shouldFollowLink` method is only invoked if the target graph is filtered otherwise the link
-   * is always followed. If a link should be followed the source graph and target graph are linked.
-   * <p>
-   * This method does not perform the actual subscription and this is deferred to a separate process.
-   */
-  @Nullable
-  private ChannelLinkEntry createChannelLinkEntryIfRequired( @Nonnull final EntityMessage entityMessage,
-                                                             @Nonnull final ReplicantSession session,
-                                                             @Nonnull final ChannelLink link )
+  private boolean matchesSourceAddress( @Nonnull final ChannelAddress template, @Nonnull final ChannelAddress address )
   {
-    final var source = link.source();
-    final var sourceEntry = session.findSubscriptionEntry( source );
-    if ( null != sourceEntry )
+    if ( template.partial() )
     {
-      final var target = link.target();
-      final var channel = getSchemaMetaData().getChannelMetaData( target );
-      if ( channel.requiresFilterParameter() )
-      {
-        final var targetFilter = link.targetFilter();
-        // The filter may not be known when the EntityMessage is the result of a mutation of the entity in the app.
-        // In other cases, the `EntityMessage` will come pre-populated (i.e. when coming in due to subscription
-        // creation). This magic code here exists to add filter when it is missing.
-        final var sourceFilter = sourceEntry.getFilter();
-        final var filter =
-          null != targetFilter ?
-          targetFilter :
-          _context.deriveTargetFilter( entityMessage, source, sourceFilter, target );
-        assert ( null == target.filterInstanceId() && !channel.requiresFilterInstanceId() ) ||
-               ( null != target.filterInstanceId() && channel.requiresFilterInstanceId() );
+      return template.channelId() == address.channelId() && Objects.equals( template.rootId(), address.rootId() );
+    }
+    else
+    {
+      return template.equals( address );
+    }
+  }
 
-        if ( _context.shouldFollowLink( source, sourceFilter, target, filter ) )
-        {
-          final var targetEntry = session.findSubscriptionEntry( target );
-          if ( null == targetEntry )
-          {
-            return new ChannelLinkEntry( source, target, filter );
-          }
-          else
-          {
-            linkSubscriptionEntries( sourceEntry, targetEntry );
-            targetEntry.setFilter( filter );
-          }
-        }
-      }
-      else
+  @Nonnull
+  private ChannelAddress resolveTargetAddress( @Nonnull final EntityMessage entityMessage,
+                                               @Nonnull final ChannelAddress source,
+                                               @Nullable final Object sourceFilter,
+                                               @Nonnull final ChannelAddress target,
+                                               @Nullable final Object targetFilter )
+  {
+    if ( target.partial() )
+    {
+      assert entityMessage.isUpdate();
+      final var filterInstanceId =
+        _context.deriveTargetFilterInstanceId( entityMessage, source, sourceFilter, target, targetFilter );
+      final var concreteTarget = new ChannelAddress( target.channelId(), target.rootId(), filterInstanceId, false );
+      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), concreteTarget );
+      return concreteTarget;
+    }
+    else
+    {
+      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), target );
+      return target;
+    }
+  }
+
+  /**
+   * Resolve the desired downstream targets for the source entry from the entity-owned links in the message.
+   */
+  @Nonnull
+  private Map<ChannelAddress, Object> resolveDesiredChannelLinkTargets( @Nonnull final EntityMessage entityMessage,
+                                                                        @Nonnull final SubscriptionEntry sourceEntry )
+  {
+    final var desiredTargets = new LinkedHashMap<ChannelAddress, Object>();
+    final var links = entityMessage.getLinks();
+    if ( null != links )
+    {
+      for ( final var link : links )
       {
-        final var targetEntry = session.findSubscriptionEntry( target );
-        if ( null == targetEntry )
+        InvariantUtil.assertLink( getSchemaMetaData(), link );
+        if ( matchesSourceAddress( link.source(), sourceEntry.address() ) )
         {
-          return new ChannelLinkEntry( source, target, null );
-        }
-        else
-        {
-          linkSubscriptionEntries( sourceEntry, targetEntry );
+          final var resolved = resolveChannelLinkIfRequired( entityMessage, sourceEntry, link );
+          if ( null != resolved )
+          {
+            final var existing = desiredTargets.putIfAbsent( resolved.target(), resolved.filter() );
+            assert null == existing || Objects.equals( existing, resolved.filter() );
+          }
         }
       }
     }
-    return null;
+    return desiredTargets;
+  }
+
+  private void reconcileOwnedChannelLinks( @Nonnull final ReplicantSession session,
+                                           @Nonnull final SubscriptionEntry sourceEntry,
+                                           @Nonnull final LinkOwner owner,
+                                           @Nonnull final Map<ChannelAddress, Object> desiredTargets,
+                                           @Nonnull final ChangeSet changeSet,
+                                           @Nonnull final Set<ChannelLinkEntry> targets )
+  {
+    final var existingTargets = new HashSet<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) );
+    for ( final var existingTarget : existingTargets )
+    {
+      if ( !desiredTargets.containsKey( existingTarget ) )
+      {
+        session.delinkDownstreamSubscription( sourceEntry, owner, existingTarget, changeSet );
+      }
+    }
+
+    for ( final var entry : desiredTargets.entrySet() )
+    {
+      final var pending =
+        createOrUpdateChannelLinkEntry( session, owner, sourceEntry, entry.getKey(), entry.getValue() );
+      if ( null != pending )
+      {
+        targets.add( pending );
+      }
+    }
+  }
+
+  @Nullable
+  private ResolvedChannelLink resolveChannelLinkIfRequired( @Nonnull final EntityMessage entityMessage,
+                                                            @Nonnull final SubscriptionEntry sourceEntry,
+                                                            @Nonnull final ChannelLink link )
+  {
+    final var source = sourceEntry.address();
+    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), source );
+    final var sourceFilter = sourceEntry.getFilter();
+    final var target = resolveTargetAddress( entityMessage, source, sourceFilter, link.target(), link.targetFilter() );
+    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), target );
+    final var channel = getSchemaMetaData().getChannelMetaData( target );
+    if ( channel.requiresFilterParameter() )
+    {
+      final var filter =
+        link.hasTargetFilter() ?
+        link.targetFilter() :
+        _context.deriveTargetFilter( entityMessage, source, sourceFilter, target );
+      return _context.shouldFollowLink( source, sourceFilter, target, filter ) ?
+             new ResolvedChannelLink( target, filter ) :
+             null;
+    }
+    else
+    {
+      return new ResolvedChannelLink( target, null );
+    }
+  }
+
+  @Nullable
+  private ChannelLinkEntry createOrUpdateChannelLinkEntry( @Nonnull final ReplicantSession session,
+                                                           @Nonnull final LinkOwner owner,
+                                                           @Nonnull final SubscriptionEntry sourceEntry,
+                                                           @Nonnull final ChannelAddress target,
+                                                           @Nullable final Object filter )
+  {
+    final var targetEntry = session.findSubscriptionEntry( target );
+    if ( null == targetEntry )
+    {
+      return new ChannelLinkEntry( owner, sourceEntry.address(), target, filter );
+    }
+    else
+    {
+      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), sourceEntry.address() );
+      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), targetEntry.address() );
+      session.recordGraphLink( sourceEntry, targetEntry, owner );
+      targetEntry.setFilter( filter );
+      return null;
+    }
   }
 
   private void processMessages( @Nonnull final Collection<EntityMessage> messages,
@@ -757,6 +803,11 @@ public class ReplicantSessionManagerImpl
                          @Nonnull final List<ChannelAddress> addresses,
                          @Nullable final Object filter )
   {
+    if ( InvariantUtil.isInvariantCheckingEnabled() )
+    {
+      addresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
+    }
+
     final var key = "Subscribe(" + ( addresses.isEmpty() ? "empty" : addresses.get( 0 ).channelId() ) + ")";
     sessionUpdateRequest( key, session, requestId, () -> {
       if ( session.isOpen() )
@@ -779,6 +830,10 @@ public class ReplicantSessionManagerImpl
     if ( uniqueAddresses.isEmpty() )
     {
       return;
+    }
+    if ( InvariantUtil.isInvariantCheckingEnabled() )
+    {
+      uniqueAddresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
     }
     final int channelId = uniqueAddresses.get( 0 ).channelId();
     final var channel = getSchemaMetaData().getChannelMetaData( channelId );
@@ -1010,6 +1065,7 @@ public class ReplicantSessionManagerImpl
 
   private void deleteCacheEntry( @Nonnull final ChannelAddress address )
   {
+    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     _cacheLock.writeLock().lock();
     try
     {
@@ -1047,6 +1103,7 @@ public class ReplicantSessionManagerImpl
   @Nullable
   private ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
   {
+    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     final var metaData = getSchemaMetaData().getChannelMetaData( address );
     assert metaData.isCacheable();
     // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove this assertion.
@@ -1114,6 +1171,7 @@ public class ReplicantSessionManagerImpl
    */
   private ChannelCacheEntry getCacheEntry( @Nonnull final ChannelAddress address )
   {
+    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     _cacheLock.readLock().lock();
     try
     {
@@ -1151,6 +1209,10 @@ public class ReplicantSessionManagerImpl
                            final int requestId,
                            @Nonnull final List<ChannelAddress> addresses )
   {
+    if ( InvariantUtil.isInvariantCheckingEnabled() )
+    {
+      addresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
+    }
     final String invocationKey =
       addresses.isEmpty() ? "BulkUnsubscribe(empty)" : "BulkUnsubscribe(" + addresses.get( 0 ).channelId() + ")";
     sessionUpdateRequest( invocationKey, session, requestId, () -> {
@@ -1161,16 +1223,6 @@ public class ReplicantSessionManagerImpl
         session.bulkUnsubscribe( addresses, sessionChanges );
       }
     } );
-  }
-
-  /**
-   * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
-   */
-  private void linkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                        @Nonnull final SubscriptionEntry targetEntry )
-  {
-    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
-    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
   }
 
   private void processCachePurge( @Nonnull final EntityMessage message )
@@ -1323,18 +1375,27 @@ public class ReplicantSessionManagerImpl
       // Process any deleted messages that are in scope for session
       if ( null != m && m.isDelete() )
       {
-        final var channelMetaData = getSchemaMetaData().getChannelMetaData( entryAddress );
+        final var channel = getSchemaMetaData().getChannelMetaData( entryAddress );
+        final var owner = LinkOwner.entity( m.getTypeId(), m.getId() );
+        var rootDeleted = false;
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
-        if ( channelMetaData.isInstanceGraph() &&
-             channelMetaData.getInstanceRootEntityTypeId() == m.getTypeId() &&
+        if ( channel.isInstanceGraph() &&
+             channel.getInstanceRootEntityTypeId() == m.getTypeId() &&
              Objects.equals( address.rootId(), m.getId() ) )
         {
           session.performUnsubscribe( entry, true, true, changeSet );
+          rootDeleted = null == session.findSubscriptionEntry( entryAddress );
         }
-        // Delink any implicit subscriptions that was a result of the deleted entity
-        session.delinkDownstreamSubscriptions( entry, m, changeSet );
+        if ( !rootDeleted )
+        {
+          session.delinkDownstreamSubscriptions( entry, owner, changeSet );
+        }
       }
     }
+  }
+
+  private record ResolvedChannelLink(@Nonnull ChannelAddress target, @Nullable Object filter)
+  {
   }
 }

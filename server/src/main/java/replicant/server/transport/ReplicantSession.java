@@ -25,7 +25,6 @@ import javax.websocket.Session;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
-import replicant.server.EntityMessage;
 import replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession
@@ -254,6 +253,7 @@ public final class ReplicantSession
   @Nullable
   String getETag( @Nonnull final ChannelAddress address )
   {
+    assert address.concrete();
     return _eTags.get( address );
   }
 
@@ -270,6 +270,7 @@ public final class ReplicantSession
   void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
   {
     ensureLockedByCurrentThread();
+    assert address.concrete();
     if ( null == eTag )
     {
       _eTags.remove( address );
@@ -288,6 +289,7 @@ public final class ReplicantSession
   SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
+    assert address.concrete();
     final SubscriptionEntry entry = findSubscriptionEntry( address );
     if ( null == entry )
     {
@@ -297,14 +299,36 @@ public final class ReplicantSession
   }
 
   /**
-   * Configure the SubscriptionEntries to reflect an auto graph link between the source and target graph.
+   * Configure the subscription entries to reflect a graph-scoped downstream dependency.
+   *
+   * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
+   * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
+   * session and the target must be a concrete type-graph address. Entity-owned links, including links that resolve to
+   * instance graphs, are managed internally by Replicant's follow-link processing and should not be recorded through
+   * this API.</p>
    */
-  public void recordGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
+  public void recordGraphScopedGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
   {
+    InvariantUtil.assertConcreteAddress( source );
+    InvariantUtil.assertConcreteAddress( target );
+    assert !target.hasRootId();
     final SubscriptionEntry sourceEntry = getSubscriptionEntry( source );
     final SubscriptionEntry targetEntry = getSubscriptionEntry( target );
-    sourceEntry.registerOutwardSubscriptions( targetEntry.address() );
-    targetEntry.registerInwardSubscriptions( sourceEntry.address() );
+    recordGraphLink( sourceEntry, targetEntry, LinkOwner.graph() );
+  }
+
+  void recordGraphLink( @Nonnull final SubscriptionEntry sourceEntry,
+                        @Nonnull final SubscriptionEntry targetEntry,
+                        @Nonnull final LinkOwner owner )
+  {
+    InvariantUtil.assertConcreteAddress( sourceEntry.address() );
+    InvariantUtil.assertConcreteAddress( targetEntry.address() );
+    assert !owner.isGraphScoped() || !targetEntry.address().hasRootId();
+    final ChannelAddress[] added = sourceEntry.registerOutwardSubscriptions( owner, targetEntry.address() );
+    if ( 0 != added.length )
+    {
+      targetEntry.registerInwardSubscriptions( sourceEntry.address() );
+    }
   }
 
   public void recordSubscriptions( @Nonnull final ChangeSet changeSet,
@@ -323,6 +347,7 @@ public final class ReplicantSession
                                   @Nullable final Object filter,
                                   final boolean explicitSubscribe )
   {
+    assert address.concrete();
     final var existing = findSubscriptionEntry( address );
     final var entry = null == existing ? createSubscriptionEntry( address ) : existing;
     if ( explicitSubscribe )
@@ -335,11 +360,13 @@ public final class ReplicantSession
 
   public Object getFilter( @Nonnull final ChannelAddress address )
   {
+    assert address.concrete();
     return getSubscriptionEntry( address ).getFilter();
   }
 
   public void setFilter( @Nonnull final ChannelAddress address, @Nullable final Object filter )
   {
+    assert address.concrete();
     getSubscriptionEntry( address ).setFilter( filter );
   }
 
@@ -351,6 +378,7 @@ public final class ReplicantSession
   @Nonnull
   SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
+    assert address.concrete();
     if ( !_subscriptions.containsKey( address ) )
     {
       LOG.log( Level.FINE,
@@ -375,6 +403,7 @@ public final class ReplicantSession
   SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
+    assert address.concrete();
     return _subscriptions.get( address );
   }
 
@@ -399,6 +428,7 @@ public final class ReplicantSession
   {
     for ( final var address : addresses )
     {
+      assert address.concrete();
       unsubscribe( address, sessionChanges );
     }
   }
@@ -417,6 +447,7 @@ public final class ReplicantSession
                            final boolean delete,
                            @Nonnull final ChangeSet changeSet )
   {
+    assert entry.address().concrete();
     if ( explicitUnsubscribe )
     {
       entry.setExplicitlySubscribed( false );
@@ -428,24 +459,9 @@ public final class ReplicantSession
                              null );
       for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
-        delinkDownstreamSubscription( entry, downstream, changeSet );
+        delinkAllDownstreamSubscription( entry, downstream, changeSet );
       }
       deleteSubscriptionEntry( entry );
-    }
-  }
-
-  void delinkDownstreamSubscriptions( @Nonnull final SubscriptionEntry entry,
-                                      @Nonnull final EntityMessage message,
-                                      @Nonnull final ChangeSet changeSet )
-  {
-    // Delink any implicit subscriptions that was a result of the deleted entity
-    final var links = message.getLinks();
-    if ( null != links )
-    {
-      for ( final var link : links )
-      {
-        delinkDownstreamSubscription( entry, link.target(), changeSet );
-      }
     }
   }
 
@@ -453,29 +469,57 @@ public final class ReplicantSession
                                             @Nonnull final ChannelAddress downstream,
                                             @Nonnull final ChangeSet changeSet )
   {
-    delinkDownstreamSubscription( getSubscriptionEntry( upstream ), downstream, changeSet );
+    assert upstream.concrete();
+    assert downstream.concrete();
+    delinkDownstreamSubscription( getSubscriptionEntry( upstream ), LinkOwner.graph(), downstream, changeSet );
   }
 
-  private void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
-                                             @Nonnull final ChannelAddress downstream,
-                                             @Nonnull final ChangeSet changeSet )
+  void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
+                                     @Nonnull final LinkOwner owner,
+                                     @Nonnull final ChannelAddress downstream,
+                                     @Nonnull final ChangeSet changeSet )
   {
-    final var downstreamEntry = findSubscriptionEntry( downstream );
-    if ( null != downstreamEntry )
+    assert sourceEntry.address().concrete();
+    assert downstream.concrete();
+    final ChannelAddress[] removed = sourceEntry.deregisterOutwardSubscriptions( owner, downstream );
+    if ( 0 != removed.length )
     {
-      delinkSubscriptionEntries( sourceEntry, downstreamEntry );
-      performUnsubscribe( downstreamEntry, false, false, changeSet );
+      final var downstreamEntry = findSubscriptionEntry( downstream );
+      if ( null != downstreamEntry )
+      {
+        downstreamEntry.deregisterInwardSubscriptions( sourceEntry.address() );
+        performUnsubscribe( downstreamEntry, false, false, changeSet );
+      }
     }
   }
 
-  /**
-   * Configure the SubscriptionEntries to reflect an auto graph delink between the source and target graph.
-   */
-  private void delinkSubscriptionEntries( @Nonnull final SubscriptionEntry sourceEntry,
-                                          @Nonnull final SubscriptionEntry targetEntry )
+  void delinkDownstreamSubscriptions( @Nonnull final SubscriptionEntry sourceEntry,
+                                      @Nonnull final LinkOwner owner,
+                                      @Nonnull final ChangeSet changeSet )
   {
-    sourceEntry.deregisterOutwardSubscriptions( targetEntry.address() );
-    targetEntry.deregisterInwardSubscriptions( sourceEntry.address() );
+    assert sourceEntry.address().concrete();
+    for ( final var downstream : new ArrayList<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) ) )
+    {
+      delinkDownstreamSubscription( sourceEntry, owner, downstream, changeSet );
+    }
+  }
+
+  private void delinkAllDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
+                                                @Nonnull final ChannelAddress downstream,
+                                                @Nonnull final ChangeSet changeSet )
+  {
+    assert sourceEntry.address().concrete();
+    assert downstream.concrete();
+    final var removed = sourceEntry.deregisterAllOutwardSubscriptions( downstream );
+    if ( 0 != removed.length )
+    {
+      final var downstreamEntry = findSubscriptionEntry( downstream );
+      if ( null != downstreamEntry )
+      {
+        downstreamEntry.deregisterInwardSubscriptions( sourceEntry.address() );
+        performUnsubscribe( downstreamEntry, false, false, changeSet );
+      }
+    }
   }
 
   /**
@@ -484,12 +528,12 @@ public final class ReplicantSession
   boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
   {
     ensureLockedByCurrentThread();
-    final ChannelAddress address = entry.address();
-    final boolean removed = null != _subscriptions.remove( address );
+    final var address = entry.address();
+    final var removed = null != _subscriptions.remove( address );
     if ( removed )
     {
-      final ChannelKey key = new ChannelKey( address.channelId(), address.rootId() );
-      final Set<SubscriptionEntry> entries = _subscriptionsByChannel.get( key );
+      final var key = new ChannelKey( address.channelId(), address.rootId() );
+      final var entries = _subscriptionsByChannel.get( key );
       if ( null != entries )
       {
         entries.remove( entry );

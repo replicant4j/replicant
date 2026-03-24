@@ -322,6 +322,25 @@ public final class JsonEncoderTest
   }
 
   @Test
+  public void encodeUseCacheMessage_rejectsPartialAddress()
+  {
+    expectThrows( AssertionError.class,
+                  () -> JsonEncoder.encodeUseCacheMessage( ChannelAddress.partial( 1, 2 ), "e1", 7 ) );
+  }
+
+  @Test
+  public void encodeChangeSet_rejectsPartialChannelDescriptor()
+  {
+    final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), new HashMap<>(), null );
+    final var change = new Change( message );
+    change.getChannels().add( ChannelAddress.partial( 7, 3 ) );
+    final var changeSet = new ChangeSet();
+    changeSet.merge( change );
+
+    expectThrows( AssertionError.class, () -> JsonEncoder.encodeChangeSet( null, null, null, changeSet ) );
+  }
+
+  @Test
   public void encodeSessionCreatedMessage()
   {
     final var message = toJsonObject( JsonEncoder.encodeSessionCreatedMessage( "sid-1" ) );

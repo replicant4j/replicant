@@ -2,6 +2,13 @@
 
 ### Unreleased
 
+* Add server-side support for partial/template `ChannelAddress` and `ChannelLink` instances so follow-link processing can resolve missing target filters and filter instance ids at session time.
+* Reintroduce `ReplicantSessionContext.deriveTargetFilterInstanceId(...)` and `AbstractSessionContextImpl.deriveTargetFilterInstanceId(...)` so downstream applications can derive target filter instance ids from the source graph, source filter, target template, and current `EntityMessage`.
+* Refactor server follow-link tracking to distinguish graph-scoped and entity-scoped downstream ownership, allowing update/delete processing to diff entity-owned links, handle shared downstream targets safely, and remove only the deleted entity's downstream ownership.
+* Enforce new server invariants that partial addresses must not cross session, cache, or transport encoding boundaries.
+* Enforce the `EntityMessage` delete invariant that delete messages do not contain links, and clear links when a delete is merged into an existing message.
+* Rename the public graph-scoped session helper from `ReplicantSession.recordGraphLink(...)` to `ReplicantSession.recordGraphScopedGraphLink(...)` and restrict it to concrete type-graph targets.
+
 ### [v6.178](https://github.com/replicant4j/replicant/tree/v6.178) (2026-03-11) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.177...v6.178)
 
 Changes in this release:

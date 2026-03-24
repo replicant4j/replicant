@@ -43,6 +43,22 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Nonnull
+  @Override
+  public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
+                                              @Nonnull final ChannelAddress source,
+                                              @Nullable final Object sourceFilter,
+                                              @Nonnull final ChannelAddress target,
+                                              @Nullable final Object targetFilter )
+  {
+    throw new IllegalStateException( "deriveTargetFilterInstanceId called for link from " + source + " to " + target +
+                                     ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
+                                     ( null == targetFilter ? "" : " with target filter " + targetFilter ) +
+                                     " in the context of the entity message " + entityMessage +
+                                     " but no such graph link exists or the target graph does not require a filter " +
+                                     "instance id" );
+  }
+
+  @Nonnull
   protected abstract EntityManager em();
 
   @Nonnull

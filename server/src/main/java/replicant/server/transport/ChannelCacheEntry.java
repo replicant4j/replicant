@@ -18,6 +18,7 @@ final class ChannelCacheEntry
 
   ChannelCacheEntry( @Nonnull final ChannelAddress address )
   {
+    assert address.concrete();
     _descriptor = Objects.requireNonNull( address );
   }
 

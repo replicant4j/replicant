@@ -33,6 +33,23 @@ public interface ReplicantSessionContext
                              @Nonnull ChannelAddress target );
 
   /**
+   * Derive the target filter instance id for a partially specified target address.
+   *
+   * @param entityMessage the entityMessage in the context of which the link is being created.
+   * @param source        the concrete source channel.
+   * @param sourceFilter  the filter for the source channel.
+   * @param target        the target channel template with a missing instance id.
+   * @param targetFilter  the target filter if already known, null otherwise.
+   * @return the filter instance id for the target channel.
+   */
+  @Nonnull
+  String deriveTargetFilterInstanceId( @Nonnull EntityMessage entityMessage,
+                                       @Nonnull ChannelAddress source,
+                                       @Nullable Object sourceFilter,
+                                       @Nonnull ChannelAddress target,
+                                       @Nullable Object targetFilter );
+
+  /**
    * Flush the EntityManager that contains replicated entities.
    *
    * @return true if the EntityManager was open and flushed, false if was not open or could not be flushed.

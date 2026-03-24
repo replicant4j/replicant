@@ -3,7 +3,7 @@ package replicant.server;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId)
+public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId, boolean partial)
   implements Comparable<ChannelAddress>
 {
   @Nonnull
@@ -15,17 +15,44 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     final int offset = channelPart.indexOf( "." );
     final int channelId = Integer.parseInt( -1 == offset ? channelPart : channelPart.substring( 0, offset ) );
     final Integer rootId = -1 == offset ? null : Integer.parseInt( channelPart.substring( offset + 1 ) );
-    return new ChannelAddress( channelId, rootId, filterInstanceId );
+    return new ChannelAddress( channelId, rootId, filterInstanceId, false );
+  }
+
+  @Nonnull
+  public static ChannelAddress partial( final int channelId )
+  {
+    return new ChannelAddress( channelId, null, null, true );
+  }
+
+  @Nonnull
+  public static ChannelAddress partial( final int channelId, @Nullable final Integer rootId )
+  {
+    return new ChannelAddress( channelId, rootId, null, true );
+  }
+
+  public ChannelAddress
+  {
+    assert !partial || null == filterInstanceId;
   }
 
   public ChannelAddress( final int channelId )
   {
-    this( channelId, null, null );
+    this( channelId, null, null, false );
   }
 
   public ChannelAddress( final int channelId, @Nullable final Integer rootId )
   {
-    this( channelId, rootId, null );
+    this( channelId, rootId, null, false );
+  }
+
+  public ChannelAddress( final int channelId, @Nullable final Integer rootId, @Nullable final String filterInstanceId )
+  {
+    this( channelId, rootId, filterInstanceId, false );
+  }
+
+  public boolean concrete()
+  {
+    return !partial;
   }
 
   public boolean hasRootId()
@@ -69,7 +96,14 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     final String f2 = other.filterInstanceId();
     if ( null == f1 && null == f2 )
     {
-      return 0;
+      if ( partial() == other.partial() )
+      {
+        return 0;
+      }
+      else
+      {
+        return partial() ? 1 : -1;
+      }
     }
     else if ( null == f1 )
     {
@@ -79,9 +113,17 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     {
       return 1;
     }
-    else
+    else if ( !f1.equals( f2 ) )
     {
       return f1.compareTo( f2 );
+    }
+    else if ( partial() == other.partial() )
+    {
+      return 0;
+    }
+    else
+    {
+      return partial() ? 1 : -1;
     }
   }
 
@@ -90,6 +132,6 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   public String toString()
   {
     final String base = channelId + ( null == rootId ? "" : "." + rootId );
-    return base + ( null == filterInstanceId ? "" : "#" + filterInstanceId );
+    return base + ( null == filterInstanceId ? "" : "#" + filterInstanceId ) + ( partial ? "?" : "" );
   }
 }

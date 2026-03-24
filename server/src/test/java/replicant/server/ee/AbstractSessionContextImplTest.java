@@ -61,6 +61,25 @@ public class AbstractSessionContextImplTest
   }
 
   @Test
+  public void deriveTargetFilterInstanceId_throwsWhenNotOverridden()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var source = new ChannelAddress( 1, 2, "fi" );
+    final var target = ChannelAddress.partial( 3, 4 );
+    final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), new HashMap<>(), null );
+
+    final var exception =
+      expectThrows( IllegalStateException.class,
+                    () -> context.deriveTargetFilterInstanceId( message, source, "filter", target, Map.of( "k", "v" ) ) );
+
+    assertEquals( exception.getMessage(),
+                  "deriveTargetFilterInstanceId called for link from " + source + " to " + target +
+                  " with source filter filter with target filter {k=v} in the context of the entity message " +
+                  message +
+                  " but no such graph link exists or the target graph does not require a filter instance id" );
+  }
+
+  @Test
   public void bulkCollectDataForSubscribe_delegates()
   {
     final var em = mock( EntityManager.class );

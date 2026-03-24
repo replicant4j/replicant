@@ -1,0 +1,309 @@
+tasks:
+  - id: REQ-01
+    title: Capture requirements for partial channel link resolution
+    status: completed
+    priority: high
+    depends_on: []
+    acceptance_criteria:
+      - Requirements capture scope, locked decisions, invariants, and open questions.
+    files_touched:
+      - changes/partialChannelLinks/00-requirements.md
+    evidence:
+      - command: "Reviewed current follow-link, subscribe, unsubscribe, and delink paths"
+        result: "Confirmed partial addresses cannot be handled safely inside ReplicantSession and must be resolved earlier."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: DECISION-Q02
+    title: Resolve target-address derivation API shape
+    status: completed
+    priority: high
+    depends_on:
+      - REQ-01
+    acceptance_criteria:
+      - Q-02 is resolved with user input.
+      - Requirements and plan docs record the decision and resulting scope changes.
+    files_touched:
+      - changes/partialChannelLinks/00-requirements.md
+      - changes/partialChannelLinks/10-implementation-plan.md
+    evidence:
+      - command: "User consultation"
+        result: "User decided the new context hook derives only the missing target filterInstanceId, and transport/cache paths must assert concrete-only addresses."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: PLAN-01
+    title: Draft implementation plan for partial link resolution
+    status: completed
+    priority: high
+    depends_on:
+      - REQ-01
+    acceptance_criteria:
+      - Draft plan defines ordered phases, risks, mitigations, and validation gates.
+      - Resolved decisions are reflected in the plan.
+    files_touched:
+      - changes/partialChannelLinks/10-implementation-plan.md
+    evidence:
+      - command: "Planned implementation against current code structure"
+        result: "Identified fan-out changes in ReplicantSessionManagerImpl and concrete-only invariants in ReplicantSession."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: PLAN-APPROVAL
+    title: Request and capture user review of the plan
+    status: completed
+    priority: medium
+    depends_on:
+      - DECISION-Q02
+      - PLAN-01
+    acceptance_criteria:
+      - User review of the latest plan is explicitly requested.
+      - Any feedback is incorporated before implementation begins.
+    files_touched:
+      - changes/partialChannelLinks/00-requirements.md
+      - changes/partialChannelLinks/10-implementation-plan.md
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "User review"
+        result: "User approved the updated plan and requested implementation to proceed."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T1
+    title: Model partial server addresses and links with validation helpers
+    status: completed
+    priority: high
+    depends_on:
+      - PLAN-APPROVAL
+    acceptance_criteria:
+      - Server ChannelAddress and ChannelLink explicitly represent partial instances.
+      - Validation helpers exist for concrete-only boundaries.
+      - Unit tests cover equality, formatting, and partial-state helpers.
+    files_touched:
+      - server/src/main/java/replicant/server/ChannelAddress.java
+      - server/src/main/java/replicant/server/ChannelLink.java
+      - server/src/main/java/replicant/server/transport/ChannelInvariantUtil.java
+      - server/src/test/java/replicant/server/ChannelAddressTest.java
+      - server/src/test/java/replicant/server/ChannelLinkTest.java
+    evidence:
+      - command: "Implemented partial server address/link modeling and invariant helpers"
+        result: "Added explicit partial flags, partial factories, concrete conversion helpers, and invariant validation coverage."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T2
+    title: Add concrete-only assertions to session, transport, and cache boundaries
+    status: completed
+    priority: high
+    depends_on:
+      - T1
+    acceptance_criteria:
+      - ReplicantSession mutation boundaries assert concrete addresses.
+      - JsonEncoder and cache helpers assert concrete addresses.
+      - Boundary tests cover assertion behavior.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantSession.java
+      - server/src/main/java/replicant/server/json/JsonEncoder.java
+      - server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java
+      - server/src/test/java/replicant/server/json/JsonEncoderTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionTest.java
+    evidence:
+      - command: "Added concrete-only assertions in session, JsonEncoder, and cache paths"
+        result: "ReplicantSession, JsonEncoder, ChannelCacheEntry, and cache accessors now assert that partial addresses never cross those boundaries."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T3
+    title: Refactor follow-link expansion for partial source and target fan-out
+    status: completed
+    priority: high
+    depends_on:
+      - T1
+      - T2
+    acceptance_criteria:
+      - One template link can resolve to zero or more concrete ChannelLinkEntry values.
+      - Existing follow behavior still works for concrete links.
+      - Duplicate subscriptions are avoided while preserving linking semantics.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java
+      - server/src/main/java/replicant/server/transport/ChannelLinkEntry.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionManagerImplTest.java
+    evidence:
+      - command: "Refactored follow-link expansion in ReplicantSessionManagerImpl"
+        result: "Template links now fan out across matching concrete source subscriptions and resolve concrete target addresses before subscription/linking."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T4
+    title: Add target filterInstanceId derivation hook and thread it through
+    status: completed
+    priority: high
+    depends_on:
+      - T3
+    acceptance_criteria:
+      - ReplicantSessionContext exposes the new derivation hook.
+      - AbstractSessionContextImpl and tests reflect the new API.
+      - Link resolution can derive missing target instance ids from concrete source context.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantSessionContext.java
+      - server/src/main/java/replicant/server/ee/AbstractSessionContextImpl.java
+      - server/src/test/java/replicant/server/ee/AbstractSessionContextImplTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionManagerImplTest.java
+    evidence:
+      - command: "Extended ReplicantSessionContext with target filter instance id derivation"
+        result: "AbstractSessionContextImpl, session-manager logic, and tests now support application-specific target instance-id derivation from concrete source context."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T5
+    title: Resolve partial links before delete and delink operations
+    status: completed
+    priority: high
+    depends_on:
+      - T3
+      - T4
+    acceptance_criteria:
+      - Delete/delink flows no longer pass partial addresses into ReplicantSession.
+      - Delink resolution handles partial message links correctly.
+      - Tests cover delete and delink scenarios with partial links.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java
+      - server/src/main/java/replicant/server/transport/ReplicantSession.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionManagerImplTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionTest.java
+    evidence:
+      - command: "Refactored delete and delink handling for partial links"
+        result: "Delete flows now resolve concrete downstream targets before delinking and preserve concrete-only ReplicantSession boundaries."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T6
+    title: Run targeted tests and full gate
+    status: completed
+    priority: medium
+    depends_on:
+      - T5
+    acceptance_criteria:
+      - Targeted tests pass during iteration.
+      - Full gate command completes successfully or failures are captured.
+    files_touched:
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "bundle exec buildr test"
+        result: "Passed. Client: 442 tests, Server: 160 tests."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T7
+    title: Enforce the EntityMessage delete-without-links invariant
+    status: completed
+    priority: high
+    depends_on:
+      - T5
+      - T6
+    acceptance_criteria:
+      - EntityMessage asserts that delete messages do not carry links.
+      - Merging a delete EntityMessage clears any existing links.
+      - toDelete() produces a delete EntityMessage with null links.
+    files_touched:
+      - server/src/main/java/replicant/server/EntityMessage.java
+      - changes/partialChannelLinks/00-requirements.md
+      - changes/partialChannelLinks/10-implementation-plan.md
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "Patched EntityMessage constructor, merge, and toDelete invariant handling"
+        result: "Delete EntityMessages now assert links are null, merging a delete clears links, and toDelete() clears links."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T8
+    title: Update regression tests for the EntityMessage delete invariant
+    status: completed
+    priority: medium
+    depends_on:
+      - T7
+    acceptance_criteria:
+      - EntityMessage tests cover constructor, merge, and toDelete delete-link behavior.
+      - Session and session-manager delete-path tests no longer construct invalid delete messages.
+      - Targeted validation records passing evidence.
+    files_touched:
+      - server/src/test/java/replicant/server/EntityMessageTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionManagerImplTest.java
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "Updated EntityMessage, ReplicantSession, and ReplicantSessionManagerImpl tests"
+        result: "Regression coverage now asserts delete-with-links is rejected and no delete-path tests construct invalid EntityMessages."
+      - command: "bundle exec buildr clean replicant:server:test"
+        result: "Passed. Server: 162 tests."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T9
+    title: Introduce provenance-aware graph-link tracking
+    status: completed
+    priority: high
+    depends_on:
+      - T8
+    acceptance_criteria:
+      - Session graph-link tracking distinguishes graph-scoped and entity-scoped ownership.
+      - Existing graph-scoped link APIs remain supported.
+      - Multiple entity owners can reference the same downstream target without premature delink.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/EntityReference.java
+      - server/src/main/java/replicant/server/transport/LinkOwner.java
+      - server/src/main/java/replicant/server/transport/ChannelLinkEntry.java
+      - server/src/main/java/replicant/server/transport/SubscriptionEntry.java
+      - server/src/main/java/replicant/server/transport/ReplicantSession.java
+      - server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java
+      - server/src/test/java/replicant/server/transport/SubscriptionEntryTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionTest.java
+      - changes/partialChannelLinks/00-requirements.md
+      - changes/partialChannelLinks/10-implementation-plan.md
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "Implemented provenance-aware downstream link ownership in SubscriptionEntry and ReplicantSession"
+        result: "Added graph-scoped and entity-scoped link owners, per-owner downstream target tracking, and aggregate reference counts so shared targets are only delinked when the last owner releases them."
+      - command: "Tightened the graph-scoped recordGraphLink contract"
+        result: "The public ReplicantSession.recordGraphLink API now asserts concrete addresses, requires a concrete type-graph target, and documents the downstream usage contract in Javadoc."
+      - command: "bundle exec buildr clean replicant:server:test"
+        result: "Passed. Server: 162 tests."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T10
+    title: Refactor update/delete processing to use provenance-aware graph-link ownership
+    status: completed
+    priority: high
+    depends_on:
+      - T9
+    acceptance_criteria:
+      - Update processing diffs entity-owned targets rather than only adding links.
+      - Delete processing removes only entity-owned targets for the deleted entity.
+      - Graph-scoped links to target type graphs without an entity source remain representable and tested.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionManagerImplTest.java
+      - server/src/test/java/replicant/server/transport/ReplicantSessionTest.java
+      - changes/partialChannelLinks/20-task-board.yaml
+    evidence:
+      - command: "Refactored update/delete link processing in ReplicantSessionManagerImpl"
+        result: "Entity updates now diff the full current entity-owned downstream link set against prior ownership, deletes release only the deleted entity's ownership, and graph-scoped links remain representable without an entity source."
+      - command: "bundle exec buildr test"
+        result: "Passed. Full gate completed successfully. Client: 442 tests. Server: 162 tests."
+    commit:
+      hash: not_required
+      message: not_required

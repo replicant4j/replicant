@@ -2,7 +2,7 @@ package replicant.server;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import replicant.server.ValueUtil;
+import java.util.Set;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -28,6 +28,19 @@ public final class EntityMessageTest
   }
 
   @Test
+  public void constructor_rejectsDeleteWithLinks()
+  {
+    final var routingKeys = new HashMap<String, Serializable>();
+    final var link =
+      new ChannelLink( new ChannelAddress( 1, 2 ),
+                       new ChannelAddress( 3, 4 ),
+                       null,
+                       false );
+
+    expectThrows( AssertionError.class, () -> new EntityMessage( 11, 22, 33L, routingKeys, null, Set.of( link ) ) );
+  }
+
+  @Test
   public void mergeElementsOverrideExisting()
   {
     final var id = 17;
@@ -48,7 +61,10 @@ public final class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      2,
-                                     new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 47, 66 ), null ),
+                                     new ChannelLink( new ChannelAddress( 1, 2 ),
+                                                      new ChannelAddress( 47, 66 ),
+                                                      null,
+                                                      false ),
                                      "r3",
                                      null,
                                      "a3",
@@ -88,15 +104,28 @@ public final class EntityMessageTest
     final var id = 17;
     final var typeID = 42;
 
-    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
+    final var message =
+      MessageTestUtil.createMessage( id,
+                                     typeID,
+                                     0,
+                                     new ChannelLink( new ChannelAddress( 1, 2 ),
+                                                      new ChannelAddress( 47, 66 ),
+                                                      null,
+                                                      false ),
+                                     "r1",
+                                     "r2",
+                                     "a1",
+                                     "a2" );
 
     assertTrue( message.isUpdate() );
     assertFalse( message.isDelete() );
+    assertNotNull( message.getLinks() );
 
     message.merge( MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", null, null ) );
 
     assertFalse( message.isUpdate() );
     assertTrue( message.isDelete() );
+    assertNull( message.getLinks() );
   }
 
   @Test
@@ -138,12 +167,23 @@ public final class EntityMessageTest
     final var id = ValueUtil.randomInt();
     final var typeId = ValueUtil.randomInt();
     final var timestamp = ValueUtil.randomInt();
-    final var message = MessageTestUtil.createMessage( id, typeId, timestamp, "r1", "r2", "a1", "a2" );
+    final var message =
+      MessageTestUtil.createMessage( id,
+                                     typeId,
+                                     timestamp,
+                                     new ChannelLink( new ChannelAddress( 1, 2 ),
+                                                      new ChannelAddress( 47, 66 ),
+                                                      null,
+                                                      false ),
+                                     "r1",
+                                     "r2",
+                                     "a1",
+                                     "a2" );
 
     assertEquals( message.getId(), id );
     assertEquals( message.getTypeId(), typeId );
     assertEquals( message.getTimestamp(), timestamp );
-    assertNull( message.getLinks() );
+    assertNotNull( message.getLinks() );
     assertTrue( message.isUpdate() );
     assertFalse( message.isDelete() );
     MessageTestUtil.assertAttributeValue( message, MessageTestUtil.ATTR_KEY1, "a1" );

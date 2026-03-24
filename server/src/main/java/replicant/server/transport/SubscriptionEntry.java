@@ -2,8 +2,9 @@ package replicant.server.transport;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -28,6 +29,10 @@ final class SubscriptionEntry
   private final Set<ChannelAddress> _outwardSubscriptions = new HashSet<>();
   @Nonnull
   private final Set<ChannelAddress> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
+  @Nonnull
+  private final Map<LinkOwner, Set<ChannelAddress>> _ownedOutwardSubscriptions = new HashMap<>();
+  @Nonnull
+  private final Map<ChannelAddress, Integer> _outwardSubscriptionReferenceCounts = new HashMap<>();
   /**
    * This is a list of channels that auto-subscribed to this channel.
    */
@@ -107,20 +112,36 @@ final class SubscriptionEntry
     return _roOutwardSubscriptions;
   }
 
+  @Nonnull
+  Set<ChannelAddress> getOwnedOutwardSubscriptions( @Nonnull final LinkOwner owner )
+  {
+    assert null != owner;
+    _session.ensureLockedByCurrentThread();
+    final var channels = _ownedOutwardSubscriptions.get( owner );
+    return null == channels ? Collections.emptySet() : Set.copyOf( channels );
+  }
+
   /**
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
   @Nonnull
-  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final LinkOwner owner,
+                                                 @Nonnull final ChannelAddress... channels )
   {
+    assert null != owner;
     _session.ensureLockedByCurrentThread();
-    final List<ChannelAddress> results = new ArrayList<>( channels.length );
-    for ( final ChannelAddress channel : channels )
+    final var results = new ArrayList<ChannelAddress>( channels.length );
+    final var owned = _ownedOutwardSubscriptions.computeIfAbsent( owner, k -> new HashSet<>() );
+    for ( final var channel : channels )
     {
-      if ( !_outwardSubscriptions.contains( channel ) )
+      if ( owned.add( channel ) )
       {
-        _outwardSubscriptions.add( channel );
-        results.add( channel );
+        final int referenceCount = _outwardSubscriptionReferenceCounts.merge( channel, 1, Integer::sum );
+        if ( 1 == referenceCount )
+        {
+          _outwardSubscriptions.add( channel );
+          results.add( channel );
+        }
       }
     }
     return results.toArray( new ChannelAddress[ 0 ] );
@@ -130,15 +151,63 @@ final class SubscriptionEntry
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
   @Nonnull
-  ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final LinkOwner owner,
+                                                   @Nonnull final ChannelAddress... channels )
+  {
+    assert null != owner;
+    _session.ensureLockedByCurrentThread();
+    final var owned = _ownedOutwardSubscriptions.get( owner );
+    if ( null == owned )
+    {
+      return new ChannelAddress[ 0 ];
+    }
+    else
+    {
+      final var results = new ArrayList<ChannelAddress>( channels.length );
+      for ( final var channel : channels )
+      {
+        if ( owned.remove( channel ) )
+        {
+          final var existing = _outwardSubscriptionReferenceCounts.get( channel );
+          assert null != existing;
+          assert existing > 0;
+          if ( 1 == existing )
+          {
+            _outwardSubscriptionReferenceCounts.remove( channel );
+            _outwardSubscriptions.remove( channel );
+            results.add( channel );
+          }
+          else
+          {
+            _outwardSubscriptionReferenceCounts.put( channel, existing - 1 );
+          }
+        }
+      }
+      if ( owned.isEmpty() )
+      {
+        _ownedOutwardSubscriptions.remove( owner );
+      }
+      return results.toArray( new ChannelAddress[ 0 ] );
+    }
+  }
+
+  /**
+   * Deregister the specified channels from all graph-link owners. Returns the set of links that were actually deregistered.
+   */
+  @Nonnull
+  ChannelAddress[] deregisterAllOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
-    final List<ChannelAddress> results = new ArrayList<>( channels.length );
-    for ( final ChannelAddress channel : channels )
+    final var results = new ArrayList<ChannelAddress>( channels.length );
+    for ( final var channel : channels )
     {
-      if ( _outwardSubscriptions.contains( channel ) )
+      if ( _outwardSubscriptions.remove( channel ) )
       {
-        _outwardSubscriptions.remove( channel );
+        _outwardSubscriptionReferenceCounts.remove( channel );
+        _ownedOutwardSubscriptions.entrySet().removeIf( e -> {
+          e.getValue().remove( channel );
+          return e.getValue().isEmpty();
+        } );
         results.add( channel );
       }
     }
@@ -161,8 +230,8 @@ final class SubscriptionEntry
   ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
-    final List<ChannelAddress> results = new ArrayList<>( channels.length );
-    for ( final ChannelAddress channel : channels )
+    final var results = new ArrayList<ChannelAddress>( channels.length );
+    for ( final var channel : channels )
     {
       if ( !_inwardSubscriptions.contains( channel ) )
       {
@@ -180,8 +249,8 @@ final class SubscriptionEntry
   ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
-    final List<ChannelAddress> results = new ArrayList<>( channels.length );
-    for ( final ChannelAddress channel : channels )
+    final var results = new ArrayList<ChannelAddress>( channels.length );
+    for ( final var channel : channels )
     {
       if ( _inwardSubscriptions.contains( channel ) )
       {

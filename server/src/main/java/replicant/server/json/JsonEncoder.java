@@ -4,21 +4,14 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
-import javax.json.JsonWriter;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonGeneratorFactory;
-import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAction.Action;
@@ -55,9 +48,9 @@ public final class JsonEncoder
                                         @Nullable final String etag,
                                         @Nonnull final ChangeSet changeSet )
   {
-    final StringWriter writer = new StringWriter();
-    final JsonGenerator generator = FACTORY.createGenerator( writer );
-    final SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
+    final var writer = new StringWriter();
+    final var generator = FACTORY.createGenerator( writer );
+    final var dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
 
     generator.writeStartObject();
     generator.write( Messages.Common.TYPE, Messages.S2C_Type.UPDATE );
@@ -74,8 +67,7 @@ public final class JsonEncoder
       generator.write( Messages.S2C_Common.ETAG, etag );
     }
 
-    final List<ChannelAction> actions =
-      changeSet.getChannelActions().stream().filter( c -> null == c.filter() ).toList();
+    final var actions = changeSet.getChannelActions().stream().filter( c -> null == c.filter() ).toList();
     if ( !actions.isEmpty() )
     {
       generator.writeStartArray( Messages.Update.CHANNEL_ACTIONS );
@@ -83,8 +75,7 @@ public final class JsonEncoder
       generator.writeEnd();
     }
 
-    final List<ChannelAction> filteredActions =
-      changeSet.getChannelActions().stream().filter( c -> null != c.filter() ).toList();
+    final var filteredActions = changeSet.getChannelActions().stream().filter( c -> null != c.filter() ).toList();
     if ( !filteredActions.isEmpty() )
     {
       generator.writeStartArray( Messages.Update.FILTERED_CHANNEL_ACTIONS );
@@ -97,12 +88,12 @@ public final class JsonEncoder
       generator.writeEnd();
     }
 
-    final Collection<Change> changes = changeSet.getChanges();
+    final var changes = changeSet.getChanges();
     if ( !changes.isEmpty() )
     {
       generator.writeStartArray( Messages.Update.CHANGES );
 
-      for ( final Change change : changes )
+      for ( final var change : changes )
       {
         final EntityMessage entityMessage = change.getEntityMessage();
 
@@ -113,8 +104,9 @@ public final class JsonEncoder
         if ( !channels.isEmpty() )
         {
           generator.writeStartArray( Messages.Update.CHANNELS );
-          for ( final ChannelAddress address : channels )
+          for ( final var address : channels )
           {
+            assert address.concrete();
             generator.write( address.toString() );
           }
           generator.writeEnd();
@@ -123,9 +115,9 @@ public final class JsonEncoder
         if ( entityMessage.isUpdate() )
         {
           generator.writeStartObject( Messages.Update.DATA );
-          final Map<String, Serializable> values = entityMessage.getAttributeValues();
+          final var values = entityMessage.getAttributeValues();
           assert null != values;
-          for ( final Entry<String, Serializable> entry : values.entrySet() )
+          for ( final var entry : values.entrySet() )
           {
             writeField( generator, entry.getKey(), entry.getValue(), dateFormat );
           }
@@ -143,6 +135,7 @@ public final class JsonEncoder
   @Nonnull
   public static String toDescriptor( @Nonnull final ChannelAction channelAction )
   {
+    assert channelAction.address().concrete();
     final Action action = channelAction.action();
     final char actionValue =
       Action.ADD == action ? Messages.Update.CHANNEL_ACTION_ADD :
@@ -197,7 +190,8 @@ public final class JsonEncoder
                                               @Nonnull final String eTag,
                                               @Nullable final Integer requestId )
   {
-    final JsonObjectBuilder response =
+    assert address.concrete();
+    final var response =
       Json
         .createObjectBuilder()
         .add( Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE )
@@ -263,8 +257,8 @@ public final class JsonEncoder
   @Nonnull
   private static String asString( @Nonnull final JsonObject message )
   {
-    final StringWriter writer = new StringWriter();
-    final JsonWriter jsonWriter = Json.createWriter( writer );
+    final var writer = new StringWriter();
+    final var jsonWriter = Json.createWriter( writer );
     jsonWriter.writeObject( message );
     jsonWriter.close();
     writer.flush();
