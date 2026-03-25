@@ -9,13 +9,13 @@ import javax.annotation.Nullable;
 public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddress target, @Nullable Object targetFilter,
                           boolean partial)
 {
-  public ChannelLink( @Nonnull final ChannelAddress target, @Nonnull final ChannelAddress source )
+  public ChannelLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
   {
-    this( source, target, null );
+    this( target, source, null );
   }
 
-  public ChannelLink( @Nonnull final ChannelAddress target,
-                      @Nonnull final ChannelAddress source,
+  public ChannelLink( @Nonnull final ChannelAddress source,
+                      @Nonnull final ChannelAddress target,
                       @Nullable final Object targetFilter )
   {
     this( source, target, targetFilter, false );

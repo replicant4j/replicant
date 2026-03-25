@@ -1,9 +1,7 @@
 package replicant.server.transport;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +147,7 @@ public class ReplicantSessionManagerImplTest
 
     final var sourceAddress = new ChannelAddress( 0, 10 );
     final var targetAddress = new ChannelAddress( 1 );
-    final var link = new ChannelLink( sourceAddress, targetAddress );
+    final var link = new ChannelLink( targetAddress, sourceAddress );
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( "Source", new ArrayList<>( List.of( 10 ) ) );
     final var attributesA = new HashMap<String, Serializable>();
