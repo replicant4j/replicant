@@ -32,7 +32,7 @@ public final class EntityMessageTest
   {
     final var routingKeys = new HashMap<String, Serializable>();
     final var link =
-      new ChannelLink( new ChannelAddress( 3, 4 ), new ChannelAddress( 1, 2 ) );
+      new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
 
     expectThrows( AssertionError.class, () -> new EntityMessage( 11, 22, 33L, routingKeys, null, Set.of( link ) ) );
   }
@@ -58,7 +58,7 @@ public final class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      2,
-                                     new ChannelLink( new ChannelAddress( 47, 66 ), new ChannelAddress( 1, 2 )
+                                     new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 47, 66 )
                                      ),
                                      "r3",
                                      null,
@@ -103,7 +103,7 @@ public final class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeID,
                                      0,
-                                     new ChannelLink( new ChannelAddress( 47, 66 ), new ChannelAddress( 1, 2 )
+                                     new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 47, 66 )
                                      ),
                                      "r1",
                                      "r2",
@@ -164,7 +164,7 @@ public final class EntityMessageTest
       MessageTestUtil.createMessage( id,
                                      typeId,
                                      timestamp,
-                                     new ChannelLink( new ChannelAddress( 47, 66 ), new ChannelAddress( 1, 2 )
+                                     new ChannelLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 47, 66 )
                                      ),
                                      "r1",
                                      "r2",

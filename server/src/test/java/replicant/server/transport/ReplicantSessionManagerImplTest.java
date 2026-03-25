@@ -147,7 +147,7 @@ public class ReplicantSessionManagerImplTest
 
     final var sourceAddress = new ChannelAddress( 0, 10 );
     final var targetAddress = new ChannelAddress( 1 );
-    final var link = new ChannelLink( targetAddress, sourceAddress );
+    final var link = new ChannelLink( sourceAddress, targetAddress );
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( "Source", new ArrayList<>( List.of( 10 ) ) );
     final var attributesA = new HashMap<String, Serializable>();

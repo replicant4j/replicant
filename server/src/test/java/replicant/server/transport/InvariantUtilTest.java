@@ -70,7 +70,7 @@ public final class InvariantUtilTest
   public void channelLink_constructorRejectsConcreteLinkWithPartialAddress()
   {
     expectThrows( AssertionError.class,
-                  () -> new ChannelLink( new ChannelAddress( 1, 7, "fi" ), ChannelAddress.partial( 0 ) ) );
+                  () -> new ChannelLink( ChannelAddress.partial( 0 ), new ChannelAddress( 1, 7, "fi" ) ) );
   }
 
   @Test
@@ -124,7 +124,7 @@ public final class InvariantUtilTest
 
     expectThrows( AssertionError.class,
                   () -> InvariantUtil.assertLink( schema,
-                                                  new ChannelLink( new ChannelAddress( 1, 7 ), new ChannelAddress( 0 )
+                                                  new ChannelLink( new ChannelAddress( 0 ), new ChannelAddress( 1, 7 )
                                                   ) ) );
   }
 }

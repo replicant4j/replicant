@@ -11,7 +11,7 @@ public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddres
 {
   public ChannelLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
   {
-    this( target, source, null );
+    this( source, target, null );
   }
 
   public ChannelLink( @Nonnull final ChannelAddress source,
