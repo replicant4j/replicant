@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.181](https://github.com/replicant4j/replicant/tree/v6.181) (2026-03-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.180...v6.181)
+
+Changes in this release:
 
 * Reorder ChannelLink constructor arguments to match underlying source/target order.
 
