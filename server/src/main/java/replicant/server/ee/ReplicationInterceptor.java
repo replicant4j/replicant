@@ -30,8 +30,8 @@ public class ReplicationInterceptor
   public Object businessIntercept( final InvocationContext context )
     throws Exception
   {
-    final var sessionId = (String) ReplicantContextHolder.remove( ServerConstants.SESSION_ID_KEY );
-    final var requestId = (Integer) ReplicantContextHolder.remove( ServerConstants.REQUEST_ID_KEY );
+    final var sessionId = (String) ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY );
+    final var requestId = (Integer) ReplicantContextHolder.get( ServerConstants.REQUEST_ID_KEY );
     final var session = null != sessionId ? _sessionManager.getSession( sessionId ) : null;
     ReplicantContextHolder.clean();
     return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, context::proceed );

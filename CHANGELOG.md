@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* ELiminate the need for ReplicantContextHolder.remove()
+
 ### [v6.182](https://github.com/replicant4j/replicant/tree/v6.182) (2026-03-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.181...v6.182)
 
 Changes in this release:

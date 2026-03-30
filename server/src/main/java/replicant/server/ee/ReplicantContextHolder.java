@@ -31,6 +31,10 @@ public final class ReplicantContextHolder
   {
     if ( null == c_context.get() )
     {
+      if ( null == data )
+      {
+        return;
+      }
       c_context.set( new HashMap<>() );
     }
 
@@ -43,19 +47,6 @@ public final class ReplicantContextHolder
     {
       context.put( key, data );
     }
-  }
-
-  /**
-   * Remove some context data for a particular key.
-   *
-   * @param key the key.
-   * @return the value that was removed if any.
-   */
-  @Nullable
-  static Object remove( @Nonnull final String key )
-  {
-    final var map = c_context.get();
-    return null != map ? map.remove( key ) : null;
   }
 
   /**

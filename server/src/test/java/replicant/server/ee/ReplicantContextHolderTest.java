@@ -26,7 +26,7 @@ public class ReplicantContextHolderTest
 
     assertNull( result[ 0 ] );
 
-    ReplicantContextHolder.remove( key );
+    ReplicantContextHolder.put( key, null );
     assertNull( ReplicantContextHolder.get( key ) );
 
     ReplicantContextHolder.put( key, value );
