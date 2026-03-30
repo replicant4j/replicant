@@ -66,7 +66,7 @@ public final class ReplicantContextHolder
    * Cleanup and remove any context data associated with the current request.
    * This should be invoked by the outer interceptor.
    */
-  static void clean()
+  public static void clean()
   {
     c_context.remove();
   }
