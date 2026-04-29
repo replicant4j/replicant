@@ -9,7 +9,7 @@
 
 Changes in this release:
 
-* ELiminate the need for `ReplicantContextHolder.remove()`.
+* Eliminate the need for `ReplicantContextHolder.remove()`.
 * Make `ReplicantContextHolder.clear()` public.
 
 ### [v6.182](https://github.com/replicant4j/replicant/tree/v6.182) (2026-03-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.181...v6.182)
