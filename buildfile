@@ -14,7 +14,6 @@ PROVIDED_DEPS = [
   :jackson_databind,
   :javax_json
 ]
-KEYCLOAK_DEPS = [:simple_keycloak_service, :keycloak_adapter_core, :keycloak_adapter_spi, :keycloak_core, :keycloak_common]
 
 # JDK options passed to test environment. Essentially turns assertions on.
 TEST_OPTIONS =
@@ -56,7 +55,6 @@ define 'replicant' do
     end
 
     compile.with PROVIDED_DEPS,
-                 KEYCLOAK_DEPS,
                  project('shared').package(:jar)
 
     package(:jar).enhance do |jar|
