@@ -1,6 +1,7 @@
 package replicant.react4j;
 
 import arez.annotations.Action;
+import arez.annotations.ArezComponentLike;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
@@ -17,6 +18,7 @@ import replicant.ReplicantContext;
  * An abstract React4j component that manages subscription to channels.
  */
 @SuppressWarnings( { "WeakerAccess", "unused" } )
+@ArezComponentLike
 public abstract class ReplicantSubscription
 {
   //The warning is suppressed as reference is managed on method.

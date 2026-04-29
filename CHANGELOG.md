@@ -5,6 +5,7 @@
 * Decouple from the `org.realityforge.gwt.keycloak:gwt-keycloak` dependency.
 * Decouple from the `org.keycloak` dependencies.
 * Update the `org.realityforge.react4j` artifacts to version `0.218`.
+* Update the `org.realityforge.arez` artifacts to version `0.239`.
 
 ### [v6.183](https://github.com/replicant4j/replicant/tree/v6.183) (2026-03-30) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.182...v6.183)
 
