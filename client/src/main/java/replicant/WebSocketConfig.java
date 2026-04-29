@@ -37,9 +37,7 @@ public final class WebSocketConfig
                                         @Nullable final Consumer<Runnable> remoteCallWrapper,
                                         @Nullable final Supplier<String> authenticationTokenGenerator )
   {
-    return new WebSocketConfig( baseURL,
-                                remoteCallWrapper,
-                                authenticationTokenGenerator );
+    return new WebSocketConfig( baseURL, remoteCallWrapper, authenticationTokenGenerator );
   }
 
   private WebSocketConfig( @Nonnull final String url,
