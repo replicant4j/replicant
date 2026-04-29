@@ -5,9 +5,6 @@
 
   <inherits name='akasha.Akasha'/>
 
-  <!-- This is required while Keycloak usage is present -->
-  <inherits name='org.realityforge.gwt.keycloak.Keycloak'/>
-
   <source path='' includes='*.java'/>
   <source path='events'/>
   <source path='messages'/>

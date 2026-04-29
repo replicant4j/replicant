@@ -40,8 +40,6 @@ artifacts:
 
   zemeckis: org.realityforge.zemeckis:zemeckis-core:jar:0.14
 
-  gwt_keycloak: org.realityforge.gwt.keycloak:gwt-keycloak:jar:0.7
-
   jetbrains_annotations: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0
 
   #

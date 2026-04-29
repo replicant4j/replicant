@@ -88,7 +88,6 @@ define 'replicant' do
                 :javax_annotation,
                 :jsinterop_base,
                 :jsinterop_annotations,
-                :gwt_keycloak,
                 :braincheck_core,
                 :braincheck_jre) + [project('shared').package(:jar)]
     pom.include_transitive_dependencies << client_deps

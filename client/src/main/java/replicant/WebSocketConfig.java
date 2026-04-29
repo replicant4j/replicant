@@ -1,11 +1,9 @@
 package replicant;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.realityforge.gwt.keycloak.Keycloak;
 import replicant.shared.SharedConstants;
 
 public final class WebSocketConfig
@@ -31,22 +29,24 @@ public final class WebSocketConfig
   @Nonnull
   public static WebSocketConfig create( @Nonnull final String baseURL )
   {
-    return new WebSocketConfig( toWebSocketProtocol( baseURL ) + SharedConstants.REPLICANT_URL_FRAGMENT, null, null );
+    return create( baseURL, null, null );
   }
 
   @Nonnull
-  public static WebSocketConfig create( @Nonnull final String baseURL, @Nonnull final Keycloak keycloak )
+  public static WebSocketConfig create( @Nonnull final String baseURL,
+                                        @Nullable final Consumer<Runnable> remoteCallWrapper,
+                                        @Nullable final Supplier<String> authenticationTokenGenerator )
   {
-    return new WebSocketConfig( toWebSocketProtocol( baseURL ) + SharedConstants.REPLICANT_URL_FRAGMENT,
-                                keycloak::updateTokenAndExecute,
-                                keycloak::getToken );
+    return new WebSocketConfig( baseURL,
+                                remoteCallWrapper,
+                                authenticationTokenGenerator );
   }
 
   private WebSocketConfig( @Nonnull final String url,
                            @Nullable final Consumer<Runnable> remoteCallWrapper,
                            @Nullable final Supplier<String> authenticationTokenGenerator )
   {
-    _url = Objects.requireNonNull( url );
+    _url = url.replace( "https://", "wss://" ).replace( "http://", "ws://" ) + SharedConstants.REPLICANT_URL_FRAGMENT;
     _remoteCallWrapper = remoteCallWrapper;
     _authenticationTokenGenerator = authenticationTokenGenerator;
   }
@@ -73,11 +73,5 @@ public final class WebSocketConfig
     {
       _remoteCallWrapper.accept( action );
     }
-  }
-
-  @Nonnull
-  private static String toWebSocketProtocol( @Nonnull final String baseURL )
-  {
-    return baseURL.replace( "https://", "wss://" ).replace( "http://", "ws://" );
   }
 }
