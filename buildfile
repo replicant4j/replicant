@@ -87,13 +87,13 @@ define 'replicant' do
                 :jsinterop_base,
                 :jsinterop_annotations,
                 :braincheck_core,
-                :braincheck_jre) + [project('shared').package(:jar)]
+                :braincheck_jre)
     pom.include_transitive_dependencies << client_deps
 
     pom.provided_dependencies.concat [:gwt_user]
     pom.dependency_filter = Proc.new {|dep| dep[:scope].to_s != 'test' && client_deps.include?(dep[:artifact]) }
 
-    compile.with client_deps
+    compile.with client_deps + [project('shared').package(:jar)]
 
     compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
 
