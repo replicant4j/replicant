@@ -86,8 +86,7 @@ define 'replicant' do
                 :javax_annotation,
                 :jsinterop_base,
                 :jsinterop_annotations,
-                :braincheck_core,
-                :braincheck_jre)
+                :braincheck_core)
     pom.include_transitive_dependencies << client_deps
 
     pom.provided_dependencies.concat [:gwt_user]
