@@ -3,6 +3,7 @@
 ### Unreleased
 
 * Remove unused `ClassMetaDataCheck` as it requires gwt that is being phased out.
+* Update the `org.realityforge.react4j` artifacts to version `0.222`.
 * Update the `org.realityforge.arez` artifacts to version `0.242`.
 
 ### [v6.185](https://github.com/replicant4j/replicant/tree/v6.185) (2026-04-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.184...v6.185)
