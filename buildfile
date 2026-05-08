@@ -96,15 +96,16 @@ define 'replicant' do
 
     compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
 
-    gwt_enhance(project)
-
     package(:jar).enhance do |jar|
       jar.merge(project('shared').package(:jar))
     end
     package(:sources).enhance do |jar|
       jar.merge(project('shared').package(:jar, :classifier => :sources))
+      jar.include(project._(:target, :generated, 'processors/main/java'))
     end
     package(:javadoc)
+
+    gwt_enhance(project)
 
     test.options[:properties] = {
       'braincheck.environment' => 'development',
