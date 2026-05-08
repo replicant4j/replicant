@@ -155,7 +155,7 @@ abstract class SubscriptionService
     if ( null == rootId )
     {
       _typeSubscriptions
-        .computeIfAbsent( address.schemaId(), HashMap::new )
+        .computeIfAbsent( address.schemaId(), key -> new HashMap<>() )
         .computeIfAbsent( address.channelId(), key -> new HashMap<>() )
         .put( filterInstanceId, subscription );
       getTypeSubscriptionsObservableValue().reportChanged();
