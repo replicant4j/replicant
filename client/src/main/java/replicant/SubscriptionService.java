@@ -163,8 +163,8 @@ abstract class SubscriptionService
     else
     {
       _instanceSubscriptions
-        .computeIfAbsent( address.schemaId(), HashMap::new )
-        .computeIfAbsent( address.channelId(), HashMap::new )
+        .computeIfAbsent( address.schemaId(), key -> new HashMap<>() )
+        .computeIfAbsent( address.channelId(), key -> new HashMap<>() )
         .computeIfAbsent( rootId, key -> new HashMap<>() )
         .put( filterInstanceId, subscription );
       getInstanceSubscriptionsObservableValue().reportChanged();
