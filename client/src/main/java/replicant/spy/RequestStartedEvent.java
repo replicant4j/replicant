@@ -26,7 +26,7 @@ public final class RequestStartedEvent
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
-    _requestId = Objects.requireNonNull( requestId );
+    _requestId = requestId;
     _name = Objects.requireNonNull( name );
   }
 
