@@ -472,6 +472,81 @@ public class ReplicantSessionTest
   }
 
   @Test
+  public void recordEntityScopedGraphLink_linksEntries()
+  {
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 2 );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( source );
+      session.createSubscriptionEntry( target );
+
+      session.recordEntityScopedGraphLink( source, target, 7, 11 );
+
+      final var sourceEntry = session.getSubscriptionEntry( source );
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( target ) );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( LinkOwner.entity( 7, 11 ) ), Set.of( target ) );
+      assertTrue( session.getSubscriptionEntry( target ).getInwardSubscriptions().contains( source ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void recordEntityScopedGraphLink_allowsInstanceGraphTarget()
+  {
+    final var session = new ReplicantSession( mock( Session.class ) );
+    final var source = new ChannelAddress( 1, 2 );
+    final var target = new ChannelAddress( 2, 3 );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( source );
+      session.createSubscriptionEntry( target );
+
+      session.recordEntityScopedGraphLink( source, target, 7, 11 );
+
+      assertTrue( session.getSubscriptionEntry( source ).getOutwardSubscriptions().contains( target ) );
+      assertEquals( session.getSubscriptionEntry( source ).getOwnedOutwardSubscriptions( LinkOwner.entity( 7, 11 ) ),
+                    Set.of( target ) );
+      assertTrue( session.getSubscriptionEntry( target ).getInwardSubscriptions().contains( source ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
+  public void recordEntityScopedGraphLink_rejectsPartialAddress()
+  {
+    final var session = new ReplicantSession( mock( Session.class ) );
+
+    session.getLock().lock();
+    try
+    {
+      session.createSubscriptionEntry( new ChannelAddress( 1, 2, "fi" ) );
+      session.createSubscriptionEntry( new ChannelAddress( 2 ) );
+
+      expectThrows( AssertionError.class,
+                    () -> session.recordEntityScopedGraphLink( ChannelAddress.partial( 1, 2 ),
+                                                               new ChannelAddress( 2 ),
+                                                               7,
+                                                               11 ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+  }
+
+  @Test
   public void entityOwnedGraphLinks_requireLastOwnerBeforeDelink()
   {
     final var session = new ReplicantSession( mock( Session.class ) );

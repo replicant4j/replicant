@@ -303,14 +303,31 @@ public final class ReplicantSession
    *
    * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
    * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
-   * session and the target must be a concrete type-graph address. Entity-owned links, including links that resolve to
-   * instance graphs, are managed internally by Replicant's follow-link processing and should not be recorded through
-   * this API.</p>
+   * session and the target must be a concrete type-graph address.</p>
    */
   public void recordGraphScopedGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
   {
     assert !target.hasRootId();
     recordGraphLink( source, target, LinkOwner.graph() );
+  }
+
+  /**
+   * Configure the subscription entries to reflect an entity-scoped downstream dependency.
+   *
+   * <p>This API is intended for downstream application code that needs to record an entity-scoped dependency after
+   * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
+   * session.</p>
+   *
+   * <p>Entity-owned links, including links that resolve to instance graphs, are managed internally by Replicant's
+   * follow-link processing and should not be recorded through this API unless the developer is using postSubscribe
+   * hooks to optimize data loads.</p>
+   */
+  public void recordEntityScopedGraphLink( @Nonnull final ChannelAddress source,
+                                           @Nonnull final ChannelAddress target,
+                                           final int entityTypeId,
+                                           final int entityId )
+  {
+    recordGraphLink( source, target, LinkOwner.entity( entityTypeId, entityId ) );
   }
 
   private void recordGraphLink( @Nonnull final ChannelAddress source,
