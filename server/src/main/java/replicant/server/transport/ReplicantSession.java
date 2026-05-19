@@ -410,7 +410,7 @@ public final class ReplicantSession
   /**
    * Return true if specified channel is present.
    */
-  boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
+  public boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     return null != findSubscriptionEntry( address );
