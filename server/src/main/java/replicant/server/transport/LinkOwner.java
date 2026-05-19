@@ -15,9 +15,9 @@ record LinkOwner(@Nullable EntityReference entityReference)
   }
 
   @Nonnull
-  static LinkOwner entity( final int typeId, final int entityId )
+  static LinkOwner entity( final int entityTypeId, final int entityId )
   {
-    return new LinkOwner( new EntityReference( typeId, entityId ) );
+    return new LinkOwner( new EntityReference( entityTypeId, entityId ) );
   }
 
   boolean isGraphScoped()
