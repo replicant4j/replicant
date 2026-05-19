@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Language( "TSQL" )
-  protected String generateTempIdTable( @Nonnull final List<ChannelAddress> addresses )
+  protected String generateTempIdTable( @Nonnull final Collection<ChannelAddress> addresses )
   {
     //noinspection SqlUnused
     return
@@ -82,7 +83,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Language( "TSQL" )
-  protected String generateTempIdAndFilterIdTable( @Nonnull final List<ChannelAddress> addresses )
+  protected String generateTempIdAndFilterIdTable( @Nonnull final Collection<ChannelAddress> addresses )
   {
     //noinspection SqlUnused
     return

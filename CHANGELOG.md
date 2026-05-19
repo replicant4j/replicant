@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Change some `java.util.List` to `java.util.Collection` in `AbstractSessionContextImpl`
+
 ### [v6.189](https://github.com/replicant4j/replicant/tree/v6.189) (2026-05-08) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.188...v6.189)
 
 Changes in this release:
