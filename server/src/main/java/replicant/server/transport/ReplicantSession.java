@@ -309,12 +309,19 @@ public final class ReplicantSession
    */
   public void recordGraphScopedGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
   {
+    assert !target.hasRootId();
+    recordGraphLink( source, target, LinkOwner.graph() );
+  }
+
+  private void recordGraphLink( @Nonnull final ChannelAddress source,
+                                @Nonnull final ChannelAddress target,
+                                @Nonnull final LinkOwner owner )
+  {
     InvariantUtil.assertConcreteAddress( source );
     InvariantUtil.assertConcreteAddress( target );
-    assert !target.hasRootId();
     final var sourceEntry = getSubscriptionEntry( source );
     final var targetEntry = getSubscriptionEntry( target );
-    recordGraphLink( sourceEntry, targetEntry, LinkOwner.graph() );
+    recordGraphLink( sourceEntry, targetEntry, owner );
   }
 
   void recordGraphLink( @Nonnull final SubscriptionEntry sourceEntry,
