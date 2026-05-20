@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
-import replicant.server.ee.JsonUtil;
 
 public final class ChangeSet
 {
@@ -65,7 +63,7 @@ public final class ChangeSet
                            @Nonnull final ChannelAction.Action action,
                            @Nullable final Object filter )
   {
-    mergeAction( new ChannelAction( address, action, filterToJsonObject( filter ) ) );
+    mergeAction( new ChannelAction( address, action, null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
   }
 
   public void mergeAction( @Nonnull final ChannelAction action )
@@ -116,11 +114,6 @@ public final class ChangeSet
     }
 
     _channelActions.add( action );
-  }
-
-  private JsonObject filterToJsonObject( @Nullable final Object filter )
-  {
-    return null == filter ? null : JsonUtil.toJsonObject( filter );
   }
 
   @Nonnull
