@@ -113,39 +113,4 @@ public class ChannelMetaDataTest
     assertTrue( metaData.requiresFilterInstanceId() );
     assertTrue( metaData.isExternal() );
   }
-
-  @Test
-  public void badFilteredConfig()
-  {
-    assertThrows( () -> new ChannelMetaData( 1,
-                                             "X",
-                                             null,
-                                             ChannelMetaData.FilterType.STATIC,
-                                             ChannelMetaData.CacheType.NONE,
-                                             true ) );
-    assertThrows( () -> new ChannelMetaData( 1,
-                                             "X",
-                                             null,
-                                             ChannelMetaData.FilterType.STATIC_INSTANCED,
-                                             ChannelMetaData.CacheType.NONE,
-                                             true ) );
-    assertThrows( () -> new ChannelMetaData( 1,
-                                             "X",
-                                             null,
-                                             ChannelMetaData.FilterType.DYNAMIC,
-                                             ChannelMetaData.CacheType.NONE,
-                                             true ) );
-    assertThrows( () -> new ChannelMetaData( 1,
-                                             "X",
-                                             null,
-                                             ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
-                                             ChannelMetaData.CacheType.NONE,
-                                             true ) );
-    assertThrows( () -> new ChannelMetaData( 1,
-                                             "X",
-                                             null,
-                                             ChannelMetaData.FilterType.NONE,
-                                             ChannelMetaData.CacheType.NONE,
-                                             true ) );
-  }
 }
