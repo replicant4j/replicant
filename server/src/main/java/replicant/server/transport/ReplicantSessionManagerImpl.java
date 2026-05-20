@@ -925,7 +925,7 @@ public class ReplicantSessionManagerImpl
             // where the root has been removed
             assert newChannel.hasRootId();
             final var cacheChangeSet = new ChangeSet();
-            cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.DELETE, null );
+            cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.DELETE );
             queueCachedChangeSet( session, cacheChangeSet );
             changeSet.setRequired( false );
           }

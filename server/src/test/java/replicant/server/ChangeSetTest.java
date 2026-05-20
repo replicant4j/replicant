@@ -189,7 +189,7 @@ public class ChangeSetTest
     final var filter = new TestFilter( 23 );
 
     changeSet.mergeAction( address1, Action.ADD, filter );
-    changeSet.mergeAction( address2, Action.REMOVE, null );
+    changeSet.mergeAction( address2, Action.REMOVE );
     changeSet.mergeAction( address3, Action.UPDATE, filter );
 
     assertEquals( changeSet.getChannelActions().size(), 3 );
@@ -198,7 +198,7 @@ public class ChangeSetTest
     assertAction( changeSet, Action.REMOVE, address2 );
     assertAction( changeSet, Action.UPDATE, address3 );
 
-    changeSet.mergeAction( address3, Action.DELETE, null );
+    changeSet.mergeAction( address3, Action.DELETE );
 
     assertEquals( changeSet.getChannelActions().size(), 3 );
 
@@ -206,7 +206,7 @@ public class ChangeSetTest
     assertAction( changeSet, Action.REMOVE, address2 );
     assertAction( changeSet, Action.DELETE, address3 );
 
-    changeSet.mergeAction( address2, Action.DELETE, null );
+    changeSet.mergeAction( address2, Action.DELETE );
 
     assertEquals( changeSet.getChannelActions().size(), 3 );
 
@@ -214,7 +214,7 @@ public class ChangeSetTest
     assertAction( changeSet, Action.DELETE, address2 );
     assertAction( changeSet, Action.DELETE, address3 );
 
-    changeSet.mergeAction( address1, Action.DELETE, null );
+    changeSet.mergeAction( address1, Action.DELETE );
 
     assertEquals( changeSet.getChannelActions().size(), 2 );
 

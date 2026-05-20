@@ -59,6 +59,11 @@ public final class ChangeSet
     }
   }
 
+  public void mergeAction( @Nonnull final ChannelAddress address, @Nonnull final ChannelAction.Action action )
+  {
+    mergeAction( address, action, null );
+  }
+
   public void mergeAction( @Nonnull final ChannelAddress address,
                            @Nonnull final ChannelAction.Action action,
                            @Nullable final Object filter )

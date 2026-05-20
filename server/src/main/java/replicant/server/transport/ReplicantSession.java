@@ -478,9 +478,7 @@ public final class ReplicantSession
     }
     if ( entry.canUnsubscribe() )
     {
-      changeSet.mergeAction( entry.address(),
-                             delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE,
-                             null );
+      changeSet.mergeAction( entry.address(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE );
       for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
       {
         delinkAllDownstreamSubscription( entry, downstream, changeSet );
