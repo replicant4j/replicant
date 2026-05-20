@@ -63,6 +63,7 @@ public final class ChangeSet
                            @Nonnull final ChannelAction.Action action,
                            @Nullable final Object filter )
   {
+    assert ChannelAction.Action.DELETE != action || ChannelAction.Action.REMOVE != action || null == filter;
     mergeAction( new ChannelAction( address, action, null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
   }
 
