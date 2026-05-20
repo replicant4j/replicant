@@ -14,7 +14,6 @@ public class SchemaMetaDataTest
                            ValueUtil.randomString(),
                            2,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            false );
     final var ch1 =
@@ -22,7 +21,6 @@ public class SchemaMetaDataTest
                            ValueUtil.randomString(),
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            false );
     final var ch2 =
@@ -30,7 +28,6 @@ public class SchemaMetaDataTest
                            ValueUtil.randomString(),
                            54,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            false );
     final var name = ValueUtil.randomString();

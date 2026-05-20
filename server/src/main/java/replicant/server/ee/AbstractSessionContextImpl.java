@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import org.intellij.lang.annotations.Language;
 import replicant.server.ChannelAddress;
@@ -32,10 +33,10 @@ public abstract class AbstractSessionContextImpl
 {
   @Nonnull
   @Override
-  public Object deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
-                                    @Nonnull final ChannelAddress source,
-                                    @Nullable final Object sourceFilter,
-                                    @Nonnull final ChannelAddress target )
+  public JsonObject deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
+                                        @Nonnull final ChannelAddress source,
+                                        @Nullable final JsonObject sourceFilter,
+                                        @Nonnull final ChannelAddress target )
   {
     throw new IllegalStateException( "deriveTargetFilter called for link from " + source + " to " + target +
                                      ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
@@ -47,9 +48,9 @@ public abstract class AbstractSessionContextImpl
   @Override
   public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
                                               @Nonnull final ChannelAddress source,
-                                              @Nullable final Object sourceFilter,
+                                              @Nullable final JsonObject sourceFilter,
                                               @Nonnull final ChannelAddress target,
-                                              @Nullable final Object targetFilter )
+                                              @Nullable final JsonObject targetFilter )
   {
     throw new IllegalStateException( "deriveTargetFilterInstanceId called for link from " + source + " to " + target +
                                      ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +

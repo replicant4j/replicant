@@ -61,7 +61,7 @@ public interface ReplicantSessionManager
   void subscribe( @Nonnull ReplicantSession session,
                   int requestId,
                   @Nonnull List<ChannelAddress> addresses,
-                  @Nullable Object filter );
+                  @Nullable JsonObject filter );
 
   void unsubscribe( @Nonnull ReplicantSession session,
                     int requestId,

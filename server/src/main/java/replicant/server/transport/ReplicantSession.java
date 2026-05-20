@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
@@ -357,7 +358,7 @@ public final class ReplicantSession
 
   public void recordSubscriptions( @Nonnull final ChangeSet changeSet,
                                    @Nonnull final Collection<ChannelAddress> addresses,
-                                   @Nullable final Object filter,
+                                   @Nullable final JsonObject filter,
                                    final boolean explicitSubscribe )
   {
     for ( final var address : addresses )
@@ -368,7 +369,7 @@ public final class ReplicantSession
 
   public void recordSubscription( @Nonnull final ChangeSet changeSet,
                                   @Nonnull final ChannelAddress address,
-                                  @Nullable final Object filter,
+                                  @Nullable final JsonObject filter,
                                   final boolean explicitSubscribe )
   {
     assert address.concrete();
@@ -382,13 +383,14 @@ public final class ReplicantSession
     changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
   }
 
-  public Object getFilter( @Nonnull final ChannelAddress address )
+  @Nullable
+  public JsonObject getFilter( @Nonnull final ChannelAddress address )
   {
     assert address.concrete();
     return getSubscriptionEntry( address ).getFilter();
   }
 
-  public void setFilter( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  public void setFilter( @Nonnull final ChannelAddress address, @Nullable final JsonObject filter )
   {
     assert address.concrete();
     getSubscriptionEntry( address ).setFilter( filter );

@@ -1,7 +1,5 @@
 package replicant.server.transport;
 
-import java.util.function.Function;
-import javax.json.JsonObject;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -16,7 +14,6 @@ public class ChannelMetaDataTest
                            "MetaData",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            false );
     assertEquals( metaData.getChannelId(), 1 );
@@ -30,7 +27,6 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isExternal() );
 
     assertThrows( metaData::getInstanceRootEntityTypeId );
-    assertThrows( metaData::getFilterParameterFactory );
   }
 
   @Test
@@ -41,7 +37,6 @@ public class ChannelMetaDataTest
                            "MetaData",
                            23,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     assertEquals( metaData.getChannelId(), 1 );
@@ -59,13 +54,11 @@ public class ChannelMetaDataTest
   @Test
   public void filteredGraph()
   {
-    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
     final var metaData =
       new ChannelMetaData( 1,
                            "MetaData",
                            22,
                            ChannelMetaData.FilterType.STATIC,
-                           filterParameterFactory,
                            ChannelMetaData.CacheType.NONE,
                            true );
     assertEquals( metaData.getChannelId(), 1 );
@@ -73,7 +66,6 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isTypeGraph() );
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.STATIC );
-    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.requiresFilterParameter() );
     assertFalse( metaData.requiresFilterInstanceId() );
@@ -83,13 +75,11 @@ public class ChannelMetaDataTest
   @Test
   public void staticInstancedFilteredGraph()
   {
-    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
     final var metaData =
       new ChannelMetaData( 2,
                            "MetaData",
                            22,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           filterParameterFactory,
                            ChannelMetaData.CacheType.NONE,
                            true );
     assertEquals( metaData.getChannelId(), 2 );
@@ -97,7 +87,6 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isTypeGraph() );
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.STATIC_INSTANCED );
-    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.requiresFilterParameter() );
     assertTrue( metaData.requiresFilterInstanceId() );
@@ -107,13 +96,11 @@ public class ChannelMetaDataTest
   @Test
   public void dynamicInstancedFilteredGraph()
   {
-    final var filterParameterFactory = (Function<JsonObject, Object>) e -> null;
     final var metaData =
       new ChannelMetaData( 3,
                            "MetaData",
                            22,
                            ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
-                           filterParameterFactory,
                            ChannelMetaData.CacheType.NONE,
                            true );
     assertEquals( metaData.getChannelId(), 3 );
@@ -121,7 +108,6 @@ public class ChannelMetaDataTest
     assertFalse( metaData.isTypeGraph() );
     assertTrue( metaData.isInstanceGraph() );
     assertEquals( metaData.filterType(), ChannelMetaData.FilterType.DYNAMIC_INSTANCED );
-    assertEquals( metaData.getFilterParameterFactory(), filterParameterFactory );
     assertFalse( metaData.isCacheable() );
     assertTrue( metaData.requiresFilterParameter() );
     assertTrue( metaData.requiresFilterInstanceId() );
@@ -135,35 +121,30 @@ public class ChannelMetaDataTest
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.STATIC,
-                                             null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.STATIC_INSTANCED,
-                                             null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.DYNAMIC,
-                                             null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
-                                             null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );
     assertThrows( () -> new ChannelMetaData( 1,
                                              "X",
                                              null,
                                              ChannelMetaData.FilterType.NONE,
-                                             j -> null,
                                              ChannelMetaData.CacheType.NONE,
                                              true ) );
   }

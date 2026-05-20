@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 
 public final class ChangeSet
 {
@@ -66,10 +67,10 @@ public final class ChangeSet
 
   public void mergeAction( @Nonnull final ChannelAddress address,
                            @Nonnull final ChannelAction.Action action,
-                           @Nullable final Object filter )
+                           @Nullable final JsonObject filter )
   {
     assert ChannelAction.Action.DELETE != action || ChannelAction.Action.REMOVE != action || null == filter;
-    mergeAction( new ChannelAction( address, action, null == filter ? null : JsonUtil.toJsonObject( filter ) ) );
+    mergeAction( new ChannelAction( address, action, filter ) );
   }
 
   public void mergeAction( @Nonnull final ChannelAction action )

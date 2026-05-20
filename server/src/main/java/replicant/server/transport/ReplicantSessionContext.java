@@ -15,7 +15,7 @@ public interface ReplicantSessionContext
 
   boolean isAuthorized( @Nonnull ReplicantSession session );
 
-  void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable Object filter );
+  void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable JsonObject filter );
 
   /**
    * Derive a filter for the target channel based on the source channel and filter.
@@ -27,10 +27,10 @@ public interface ReplicantSessionContext
    * @return the filter for the target channel.
    */
   @Nonnull
-  Object deriveTargetFilter( @Nonnull EntityMessage entityMessage,
-                             @Nonnull ChannelAddress source,
-                             @Nullable Object sourceFilter,
-                             @Nonnull ChannelAddress target );
+  JsonObject deriveTargetFilter( @Nonnull EntityMessage entityMessage,
+                                 @Nonnull ChannelAddress source,
+                                 @Nullable JsonObject sourceFilter,
+                                 @Nonnull ChannelAddress target );
 
   /**
    * Derive the target filter instance id for a partially specified target address.
@@ -45,9 +45,9 @@ public interface ReplicantSessionContext
   @Nonnull
   String deriveTargetFilterInstanceId( @Nonnull EntityMessage entityMessage,
                                        @Nonnull ChannelAddress source,
-                                       @Nullable Object sourceFilter,
+                                       @Nullable JsonObject sourceFilter,
                                        @Nonnull ChannelAddress target,
-                                       @Nullable Object targetFilter );
+                                       @Nullable JsonObject targetFilter );
 
   /**
    * Flush the EntityManager that contains replicated entities.
@@ -73,7 +73,7 @@ public interface ReplicantSessionContext
    */
   void collectChannelData( @Nullable ReplicantSession session,
                            @Nonnull List<ChannelAddress> addresses,
-                           @Nullable Object filter,
+                           @Nullable JsonObject filter,
                            @Nonnull ChangeSet changeSet,
                            boolean isExplicitSubscribe );
 
@@ -90,8 +90,8 @@ public interface ReplicantSessionContext
    */
   void collectChannelDataForFilterChange( @Nonnull ReplicantSession session,
                                           @Nonnull List<ChannelAddress> addresses,
-                                          @Nonnull Object originalFilter,
-                                          @Nonnull Object newFilter,
+                                          @Nonnull JsonObject originalFilter,
+                                          @Nonnull JsonObject newFilter,
                                           @Nonnull ChangeSet changeSet );
 
   @Nullable
@@ -100,7 +100,7 @@ public interface ReplicantSessionContext
                                      @Nonnull EntityMessage message );
 
   boolean shouldFollowLink( @Nonnull ChannelAddress source,
-                            @Nullable Object sourceFilter,
+                            @Nullable JsonObject sourceFilter,
                             @Nonnull ChannelAddress target,
-                            @Nullable Object targetFilter );
+                            @Nullable JsonObject targetFilter );
 }

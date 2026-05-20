@@ -9,9 +9,6 @@ PROVIDED_DEPS = [
   :javax_annotation,
   :javax_javaee,
   :jetbrains_annotations,
-  :jackson_annotations,
-  :jackson_core,
-  :jackson_databind,
   :javax_json
 ]
 

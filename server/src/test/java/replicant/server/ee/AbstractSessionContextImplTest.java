@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.websocket.Session;
@@ -52,11 +53,11 @@ public class AbstractSessionContextImplTest
 
     final var exception =
       expectThrows( IllegalStateException.class,
-                    () -> context.deriveTargetFilter( message, source, "filter", target ) );
+                    () -> context.deriveTargetFilter( message, source, Json.createObjectBuilder().build(), target ) );
 
     assertEquals( exception.getMessage(),
                   "deriveTargetFilter called for link from " + source + " to " + target +
-                  " with source filter filter in the context of the entity message " + message +
+                  " with source filter {} in the context of the entity message " + message +
                   " but no such graph link exists or the target graph has no filter parameter" );
   }
 
@@ -70,13 +71,19 @@ public class AbstractSessionContextImplTest
 
     final var exception =
       expectThrows( IllegalStateException.class,
-                    () -> context.deriveTargetFilterInstanceId( message, source, "filter", target, Map.of( "k", "v" ) ) );
+                    () -> context.deriveTargetFilterInstanceId( message,
+                                                                source,
+                                                                Json.createObjectBuilder().add( "src", true ).build(),
+                                                                target,
+                                                                Json.createObjectBuilder()
+                                                                  .add( "target", true )
+                                                                  .build() ) );
 
     assertEquals( exception.getMessage(),
                   "deriveTargetFilterInstanceId called for link from " + source + " to " + target +
-                  " with source filter filter with target filter {k=v} in the context of the entity message " +
-                  message +
-                  " but no such graph link exists or the target graph does not require a filter instance id" );
+                  " with source filter {\"src\":true} with target filter {\"target\":true} in the context " +
+                  "of the entity message " + message + " but no such graph link exists or the target graph " +
+                  "does not require a filter instance id" );
   }
 
   @Test
@@ -86,7 +93,7 @@ public class AbstractSessionContextImplTest
     final var context = newContext( em );
     final var session = newSession();
     final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
-    final var filter = Map.of( "k", "v" );
+    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
     final var changeSet = new ChangeSet();
 
     context.collectChannelData( session, addresses, filter, changeSet, true );
@@ -298,21 +305,18 @@ public class AbstractSessionContextImplTest
                            "Type0",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true ),
       new ChannelMetaData( 1,
                            "Type1",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true ),
       new ChannelMetaData( 2,
                            "Instance2",
                            1,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true ) );
     @Nonnull
@@ -350,7 +354,7 @@ public class AbstractSessionContextImplTest
     @Override
     public void preSubscribe( @Nonnull final ReplicantSession session,
                               @Nonnull final ChannelAddress address,
-                              @Nullable final Object filter )
+                              @Nullable final JsonObject filter )
     {
     }
 
@@ -371,7 +375,7 @@ public class AbstractSessionContextImplTest
     @Override
     public void collectChannelData( @Nullable final ReplicantSession session,
                                     @Nonnull final List<ChannelAddress> addresses,
-                                    @Nullable final Object filter,
+                                    @Nullable final JsonObject filter,
                                     @Nonnull final ChangeSet changeSet,
                                     final boolean isExplicitSubscribe )
     {
@@ -391,8 +395,8 @@ public class AbstractSessionContextImplTest
     @Override
     public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
                                                    @Nonnull final List<ChannelAddress> addresses,
-                                                   @Nullable final Object originalFilter,
-                                                   @Nullable final Object newFilter,
+                                                   @Nullable final JsonObject originalFilter,
+                                                   @Nullable final JsonObject newFilter,
                                                    @Nonnull final ChangeSet changeSet )
     {
     }
@@ -408,9 +412,9 @@ public class AbstractSessionContextImplTest
 
     @Override
     public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
-                                     final Object sourceFilter,
+                                     @Nullable final JsonObject sourceFilter,
                                      @Nonnull final ChannelAddress target,
-                                     @Nullable final Object targetFilter )
+                                     @Nullable final JsonObject targetFilter )
     {
       return false;
     }

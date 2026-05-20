@@ -4,10 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.json.JsonObject;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -96,8 +94,6 @@ public final class ChannelMetaData
   private final Integer _instanceRootEntityTypeId;
   @Nonnull
   private final FilterType _filterType;
-  @Nullable
-  private final Function<JsonObject, Object> _filterParameterFactory;
   @Nonnull
   private final CacheType _cacheType;
   /**
@@ -114,7 +110,6 @@ public final class ChannelMetaData
                           @Nonnull final String name,
                           @Nullable final Integer instanceRootEntityTypeId,
                           @Nonnull final FilterType filterType,
-                          @Nullable final Function<JsonObject, Object> filterParameterFactory,
                           @Nonnull final CacheType cacheType,
                           final boolean external,
                           @Nonnull final ChannelMetaData... requiredTypeGraphs )
@@ -123,18 +118,9 @@ public final class ChannelMetaData
     _name = Objects.requireNonNull( name );
     _instanceRootEntityTypeId = instanceRootEntityTypeId;
     _filterType = Objects.requireNonNull( filterType );
-    _filterParameterFactory = filterParameterFactory;
     _cacheType = Objects.requireNonNull( cacheType );
     _external = external;
     _requiredTypeChannels = Objects.requireNonNull( requiredTypeGraphs );
-    if ( !requiresFilterParameter() && null != filterParameterFactory )
-    {
-      throw new IllegalArgumentException( "FilterParameterType specified but filterType is set to " + filterType );
-    }
-    else if ( requiresFilterParameter() && null == filterParameterFactory )
-    {
-      throw new IllegalArgumentException( "FilterParameterType not specified but filterType is set to " + filterType );
-    }
     for ( final var requiredTypeChannel : _requiredTypeChannels )
     {
       if ( requiredTypeChannel.isInstanceGraph() )
@@ -188,13 +174,6 @@ public final class ChannelMetaData
   public FilterType filterType()
   {
     return _filterType;
-  }
-
-  @Nonnull
-  public Function<JsonObject, Object> getFilterParameterFactory()
-  {
-    assert null != _filterParameterFactory;
-    return _filterParameterFactory;
   }
 
   public boolean isCacheable()

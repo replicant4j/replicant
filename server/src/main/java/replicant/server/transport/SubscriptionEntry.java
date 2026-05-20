@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.JsonObject;
 import replicant.server.ChannelAddress;
 
 /**
@@ -42,7 +43,7 @@ final class SubscriptionEntry
   private final Set<ChannelAddress> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
   private boolean _explicitlySubscribed;
   @Nullable
-  private Object _filter;
+  private JsonObject _filter;
 
   SubscriptionEntry( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
   {
@@ -85,7 +86,7 @@ final class SubscriptionEntry
    * may or may not have a filter.
    */
   @Nullable
-  Object getFilter()
+  JsonObject getFilter()
   {
     return _filter;
   }
@@ -97,7 +98,7 @@ final class SubscriptionEntry
    *
    * @param filter the filter.
    */
-  void setFilter( @Nullable final Object filter )
+  void setFilter( @Nullable final JsonObject filter )
   {
     _session.ensureLockedByCurrentThread();
     _filter = filter;

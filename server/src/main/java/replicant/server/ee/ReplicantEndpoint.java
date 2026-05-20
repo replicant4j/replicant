@@ -309,12 +309,12 @@ public class ReplicantEndpoint
   }
 
   @Nullable
-  private Object extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
+  private JsonObject extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
   {
     return channelMetaData.requiresFilterParameter() &&
            command.containsKey( Messages.Update.FILTER ) &&
            !command.isNull( Messages.Update.FILTER ) ?
-           channelMetaData.getFilterParameterFactory().apply( command.getJsonObject( Messages.Update.FILTER ) ) :
+           command.getJsonObject( Messages.Update.FILTER ) :
            null;
   }
 

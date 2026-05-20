@@ -1,14 +1,10 @@
 package replicant.server;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.json.Json;
-import javax.json.JsonObject;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAction.Action;
-import replicant.server.transport.TestFilter;
 import static org.testng.Assert.*;
 
 public class ChangeSetTest
@@ -82,7 +78,7 @@ public class ChangeSetTest
 
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
-    final var myFilter = new TestFilter( 23 );
+    final var myFilter = Json.createObjectBuilder().add( "k", "v" ).build();
     changeSet.mergeAction( new ChannelAddress( 1, 2 ), Action.ADD, myFilter );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
@@ -92,9 +88,7 @@ public class ChangeSetTest
     assertEquals( action.address().rootId(), (Integer) 2 );
     assertEquals( action.action(), Action.ADD );
 
-    final var filter =
-      Json.createBuilderFactory( null ).createObjectBuilder().add( "myField", 23 ).build();
-    assertEquals( action.filter(), filter );
+    assertEquals( action.filter(), myFilter );
   }
 
   @Test
@@ -186,7 +180,7 @@ public class ChangeSetTest
     final var address2 = new ChannelAddress( 1, 3 );
     final var address3 = new ChannelAddress( 1, 4 );
 
-    final var filter = new TestFilter( 23 );
+    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
 
     changeSet.mergeAction( address1, Action.ADD, filter );
     changeSet.mergeAction( address2, Action.REMOVE );

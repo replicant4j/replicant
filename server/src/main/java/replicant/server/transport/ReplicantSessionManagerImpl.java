@@ -656,9 +656,9 @@ public class ReplicantSessionManagerImpl
   @Nonnull
   private ChannelAddress resolveTargetAddress( @Nonnull final EntityMessage entityMessage,
                                                @Nonnull final ChannelAddress source,
-                                               @Nullable final Object sourceFilter,
+                                               @Nullable final JsonObject sourceFilter,
                                                @Nonnull final ChannelAddress target,
-                                               @Nullable final Object targetFilter )
+                                               @Nullable final JsonObject targetFilter )
   {
     if ( target.partial() )
     {
@@ -680,10 +680,10 @@ public class ReplicantSessionManagerImpl
    * Resolve the desired downstream targets for the source entry from the entity-owned links in the message.
    */
   @Nonnull
-  private Map<ChannelAddress, Object> resolveDesiredChannelLinkTargets( @Nonnull final EntityMessage entityMessage,
-                                                                        @Nonnull final SubscriptionEntry sourceEntry )
+  private Map<ChannelAddress, JsonObject> resolveDesiredChannelLinkTargets( @Nonnull final EntityMessage entityMessage,
+                                                                            @Nonnull final SubscriptionEntry sourceEntry )
   {
-    final var desiredTargets = new LinkedHashMap<ChannelAddress, Object>();
+    final var desiredTargets = new LinkedHashMap<ChannelAddress, JsonObject>();
     final var links = entityMessage.getLinks();
     if ( null != links )
     {
@@ -707,7 +707,7 @@ public class ReplicantSessionManagerImpl
   private void reconcileOwnedChannelLinks( @Nonnull final ReplicantSession session,
                                            @Nonnull final SubscriptionEntry sourceEntry,
                                            @Nonnull final LinkOwner owner,
-                                           @Nonnull final Map<ChannelAddress, Object> desiredTargets,
+                                           @Nonnull final Map<ChannelAddress, JsonObject> desiredTargets,
                                            @Nonnull final ChangeSet changeSet,
                                            @Nonnull final Set<ChannelLinkEntry> targets )
   {
@@ -763,7 +763,7 @@ public class ReplicantSessionManagerImpl
                                                            @Nonnull final LinkOwner owner,
                                                            @Nonnull final SubscriptionEntry sourceEntry,
                                                            @Nonnull final ChannelAddress target,
-                                                           @Nullable final Object filter )
+                                                           @Nullable final JsonObject filter )
   {
     final var targetEntry = session.findSubscriptionEntry( target );
     if ( null == targetEntry )
@@ -799,7 +799,7 @@ public class ReplicantSessionManagerImpl
   public void subscribe( @Nonnull final ReplicantSession session,
                          final int requestId,
                          @Nonnull final List<ChannelAddress> addresses,
-                         @Nullable final Object filter )
+                         @Nullable final JsonObject filter )
   {
     if ( InvariantUtil.isInvariantCheckingEnabled() )
     {
@@ -820,7 +820,7 @@ public class ReplicantSessionManagerImpl
 
   private void doSubscribe( @Nonnull final ReplicantSession session,
                             @Nonnull final List<ChannelAddress> addresses,
-                            @Nullable final Object filter,
+                            @Nullable final JsonObject filter,
                             @Nonnull final ChangeSet changeSet,
                             final boolean isExplicitSubscribe )
   {
@@ -840,7 +840,7 @@ public class ReplicantSessionManagerImpl
 
     final var newChannels = new ArrayList<ChannelAddress>();
     //OriginalFilter => Channels
-    final var channelsToUpdate = new HashMap<Object, List<ChannelAddress>>();
+    final var channelsToUpdate = new HashMap<JsonObject, List<ChannelAddress>>();
 
     for ( final var address : uniqueAddresses )
     {
@@ -970,7 +970,7 @@ public class ReplicantSessionManagerImpl
   private void subscribe( @Nonnull final ReplicantSession session,
                           @Nonnull final ChannelAddress address,
                           final boolean explicitlySubscribe,
-                          @Nullable final Object filter,
+                          @Nullable final JsonObject filter,
                           @Nonnull final ChangeSet changeSet )
   {
     final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
@@ -1393,7 +1393,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private record ResolvedChannelLink(@Nonnull ChannelAddress target, @Nullable Object filter)
+  private record ResolvedChannelLink(@Nonnull ChannelAddress target, @Nullable JsonObject filter)
   {
   }
 }

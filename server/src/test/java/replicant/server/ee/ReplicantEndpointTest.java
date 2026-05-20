@@ -2,7 +2,6 @@ package replicant.server.ee;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -604,36 +603,31 @@ public final class ReplicantEndpointTest
                                                              "type",
                                                              null,
                                                              ChannelMetaData.FilterType.NONE,
-                                                             null,
-                                                             ChannelMetaData.CacheType.NONE,
+                                                 ChannelMetaData.CacheType.NONE,
                                                              true );
     final var dynamicChannel = new ChannelMetaData( 1,
                                                                 "dynamic",
                                                                 1,
                                                                 ChannelMetaData.FilterType.DYNAMIC,
-                                                                json -> json,
-                                                                ChannelMetaData.CacheType.NONE,
+                                                    ChannelMetaData.CacheType.NONE,
                                                                 true );
     final var instancedChannel = new ChannelMetaData( 2,
                                                                   "instanced",
                                                                   2,
                                                                   ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
-                                                                  json -> json,
-                                                                  ChannelMetaData.CacheType.NONE,
+                                                      ChannelMetaData.CacheType.NONE,
                                                                   true );
     final var staticInstancedChannel = new ChannelMetaData( 4,
                                                                         "staticInstanced",
                                                                         4,
                                                                         ChannelMetaData.FilterType.STATIC_INSTANCED,
-                                                                        json -> json,
-                                                                        ChannelMetaData.CacheType.NONE,
+                                                            ChannelMetaData.CacheType.NONE,
                                                                         true );
     final var internalChannel = new ChannelMetaData( 3,
                                                                  "internal",
                                                                  null,
                                                                  ChannelMetaData.FilterType.NONE,
-                                                                 null,
-                                                                 ChannelMetaData.CacheType.NONE,
+                                                     ChannelMetaData.CacheType.NONE,
                                                                  false );
     return new SchemaMetaData( "Test",
                                typeChannel,

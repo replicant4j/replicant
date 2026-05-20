@@ -2,7 +2,6 @@ package replicant.server.transport;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -15,14 +14,13 @@ import javax.json.JsonObject;
 import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
-import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
+import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
@@ -317,11 +315,12 @@ public class ReplicantSessionTest
     session.getLock().lock();
     try
     {
-      session.recordSubscription( changeSet, address, Map.of( "k", "v" ), true );
+      final JsonObject filter = Json.createObjectBuilder().add( "k", "v" ).build();
+      session.recordSubscription( changeSet, address, filter, true );
 
       final var entry = session.getSubscriptionEntry( address );
       assertTrue( entry.isExplicitlySubscribed() );
-      assertEquals( entry.getFilter(), Map.of( "k", "v" ) );
+      assertEquals( entry.getFilter(), filter );
     }
     finally
     {
@@ -347,13 +346,14 @@ public class ReplicantSessionTest
     try
     {
       final var entry = session.createSubscriptionEntry( address );
-      entry.setFilter( Map.of( "old", "value" ) );
+      entry.setFilter( Json.createObjectBuilder().add( "old", "value" ).build() );
       assertFalse( entry.isExplicitlySubscribed() );
 
-      session.recordSubscription( changeSet, address, Map.of( "k", "v" ), true );
+      final var newFilter = Json.createObjectBuilder().add( "k", "v" ).build();
+      session.recordSubscription( changeSet, address, newFilter, true );
 
       assertTrue( entry.isExplicitlySubscribed() );
-      assertEquals( entry.getFilter(), Map.of( "k", "v" ) );
+      assertEquals( entry.getFilter(), newFilter );
     }
     finally
     {
@@ -443,7 +443,8 @@ public class ReplicantSessionTest
       session.createSubscriptionEntry( new ChannelAddress( 2 ) );
 
       expectThrows( AssertionError.class,
-                    () -> session.recordGraphScopedGraphLink( ChannelAddress.partial( 1, 2 ), new ChannelAddress( 2 ) ) );
+                    () -> session.recordGraphScopedGraphLink( ChannelAddress.partial( 1, 2 ),
+                                                              new ChannelAddress( 2 ) ) );
     }
     finally
     {
@@ -463,7 +464,8 @@ public class ReplicantSessionTest
       session.createSubscriptionEntry( new ChannelAddress( 2, 3 ) );
 
       expectThrows( AssertionError.class,
-                    () -> session.recordGraphScopedGraphLink( new ChannelAddress( 1, 2 ), new ChannelAddress( 2, 3 ) ) );
+                    () -> session.recordGraphScopedGraphLink( new ChannelAddress( 1, 2 ),
+                                                              new ChannelAddress( 2, 3 ) ) );
     }
     finally
     {
@@ -598,8 +600,9 @@ public class ReplicantSessionTest
     try
     {
       session.createSubscriptionEntry( address );
-      session.setFilter( address, Map.of( "k", "v" ) );
-      assertEquals( session.getFilter( address ), Map.of( "k", "v" ) );
+      final JsonObject filter = Json.createObjectBuilder().add( "k", "v" ).build();
+      session.setFilter( address, filter );
+      assertEquals( session.getFilter( address ), filter );
 
       session.setFilter( address, null );
       assertNull( session.getFilter( address ) );
@@ -771,7 +774,10 @@ public class ReplicantSessionTest
 
     assertEquals( changeSet.getChannelActions().size(), 3 );
     final var actions =
-      changeSet.getChannelActions().stream().map( ChannelAction::address ).collect( java.util.stream.Collectors.toSet() );
+      changeSet.getChannelActions()
+        .stream()
+        .map( ChannelAction::address )
+        .collect( java.util.stream.Collectors.toSet() );
     assertEquals( actions, Set.of( a, b, c ) );
   }
 

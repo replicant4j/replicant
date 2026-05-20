@@ -5,10 +5,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -49,7 +49,6 @@ public class ReplicantSessionManagerImplTest
                            "Source",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var targetChannel =
@@ -57,7 +56,6 @@ public class ReplicantSessionManagerImplTest
                            "Target",
                            1,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
@@ -86,19 +84,21 @@ public class ReplicantSessionManagerImplTest
     attributes.put( "ID", 1 );
     final var message = new EntityMessage( 1, 1, 0L, routingKeys, attributes, Set.of( link ) );
 
+    final var newFilter = Json.createObjectBuilder().add( "k", "v" ).build();
     final var packet = new Packet( false, null, null, null, List.of( message ), new ChangeSet() );
 
     session.getLock().lock();
     try
     {
       final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
-      sourceEntry.setFilter( "source-filter" );
+      final var originalFilter = Json.createObjectBuilder().add( "old", "value" ).build();
+      sourceEntry.setFilter( originalFilter );
 
       manager.sendChangeMessage( session, packet );
 
       final var targetEntry = session.findSubscriptionEntry( targetAddress );
       assertNotNull( targetEntry );
-      assertEquals( targetEntry.getFilter(), Map.of( "k", "v" ) );
+      assertEquals( targetEntry.getFilter(), newFilter );
       assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
       assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
     }
@@ -111,7 +111,7 @@ public class ReplicantSessionManagerImplTest
     assertEquals( collectCalls.size(), 1 );
     final var call = collectCalls.get( 0 );
     assertEquals( call.addresses(), List.of( targetAddress ) );
-    assertEquals( call.filter(), Map.of( "k", "v" ) );
+    assertEquals( call.filter(), newFilter );
     assertFalse( call.isExplicitSubscribe() );
   }
 
@@ -123,7 +123,6 @@ public class ReplicantSessionManagerImplTest
                            "Source",
                            1,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var targetChannel =
@@ -131,7 +130,6 @@ public class ReplicantSessionManagerImplTest
                            "Target",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
@@ -197,7 +195,6 @@ public class ReplicantSessionManagerImplTest
                                                "Source",
                                                null,
                                                ChannelMetaData.FilterType.NONE,
-                                               null,
                                                ChannelMetaData.CacheType.NONE,
                                                true ) );
     final var context = new TestSessionContext( schema );
@@ -226,7 +223,6 @@ public class ReplicantSessionManagerImplTest
                                                "Source",
                                                null,
                                                ChannelMetaData.FilterType.NONE,
-                                               null,
                                                ChannelMetaData.CacheType.NONE,
                                                true ) );
     final var context = new TestSessionContext( schema );
@@ -249,7 +245,6 @@ public class ReplicantSessionManagerImplTest
                            "Channel",
                            1,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", channel );
@@ -309,7 +304,6 @@ public class ReplicantSessionManagerImplTest
                            "Source",
                            1,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var targetChannel =
@@ -317,7 +311,6 @@ public class ReplicantSessionManagerImplTest
                            "Target",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
@@ -381,7 +374,6 @@ public class ReplicantSessionManagerImplTest
                            "Source",
                            1,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var targetChannel =
@@ -389,7 +381,6 @@ public class ReplicantSessionManagerImplTest
                            "Target",
                            null,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
@@ -452,7 +443,6 @@ public class ReplicantSessionManagerImplTest
                            "Source",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.INTERNAL,
                            true );
     final var schema = new SchemaMetaData( "Test", channel );
@@ -507,8 +497,6 @@ public class ReplicantSessionManagerImplTest
     private final SchemaMetaData _schema;
     @Nonnull
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
-    @Nonnull
-    private final List<DeriveTargetFilterInstanceIdCall> _deriveTargetFilterInstanceIdCalls = new ArrayList<>();
 
     private TestSessionContext( @Nonnull final SchemaMetaData schema )
     {
@@ -531,27 +519,27 @@ public class ReplicantSessionManagerImplTest
     @Override
     public void preSubscribe( @Nonnull final ReplicantSession session,
                               @Nonnull final ChannelAddress address,
-                              @Nullable final Object filter )
+                              @Nullable final JsonObject filter )
     {
     }
 
     @Nonnull
     @Override
-    public Object deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
-                                      @Nonnull final ChannelAddress source,
-                                      @Nullable final Object sourceFilter,
-                                      @Nonnull final ChannelAddress target )
+    public JsonObject deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
+                                          @Nonnull final ChannelAddress source,
+                                          @Nullable final JsonObject sourceFilter,
+                                          @Nonnull final ChannelAddress target )
     {
-      return Map.of( "k", "v" );
+      return Json.createObjectBuilder().add( "k", "v" ).build();
     }
 
     @Nonnull
     @Override
     public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
                                                 @Nonnull final ChannelAddress source,
-                                                @Nullable final Object sourceFilter,
+                                                @Nullable final JsonObject sourceFilter,
                                                 @Nonnull final ChannelAddress target,
-                                                @Nullable final Object targetFilter )
+                                                @Nullable final JsonObject targetFilter )
     {
       final var sourceInstanceId = source.filterInstanceId();
       return null == sourceInstanceId ? "fi-7" : sourceInstanceId;
@@ -574,7 +562,7 @@ public class ReplicantSessionManagerImplTest
     @Override
     public void collectChannelData( @Nullable final ReplicantSession session,
                                     @Nonnull final List<ChannelAddress> addresses,
-                                    @Nullable final Object filter,
+                                    @Nullable final JsonObject filter,
                                     @Nonnull final ChangeSet changeSet,
                                     final boolean isExplicitSubscribe )
     {
@@ -596,8 +584,8 @@ public class ReplicantSessionManagerImplTest
     @Override
     public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
                                                    @Nonnull final List<ChannelAddress> addresses,
-                                                   @Nullable final Object originalFilter,
-                                                   @Nullable final Object newFilter,
+                                                   @Nullable final JsonObject originalFilter,
+                                                   @Nullable final JsonObject newFilter,
                                                    @Nonnull final ChangeSet changeSet )
     {
     }
@@ -613,9 +601,9 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
-                                     final Object sourceFilter,
+                                     @Nullable final JsonObject sourceFilter,
                                      @Nonnull final ChannelAddress target,
-                                     @Nullable final Object targetFilter )
+                                     @Nullable final JsonObject targetFilter )
     {
       return true;
     }
@@ -628,16 +616,16 @@ public class ReplicantSessionManagerImplTest
   }
 
   private record BulkCollectCall(@Nonnull List<ChannelAddress> addresses,
-                                 @Nullable Object filter,
+                                 @Nullable JsonObject filter,
                                  boolean isExplicitSubscribe)
   {
   }
 
   private record DeriveTargetFilterInstanceIdCall(@Nonnull EntityMessage entityMessage,
                                                   @Nonnull ChannelAddress source,
-                                                  @Nullable Object sourceFilter,
+                                                  @Nullable JsonObject sourceFilter,
                                                   @Nonnull ChannelAddress target,
-                                                  @Nullable Object targetFilter)
+                                                  @Nullable JsonObject targetFilter)
   {
   }
 }

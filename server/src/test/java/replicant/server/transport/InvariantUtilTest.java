@@ -15,7 +15,6 @@ public final class InvariantUtilTest
                            "Source",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var instanced =
@@ -23,7 +22,6 @@ public final class InvariantUtilTest
                            "Target",
                            7,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", unfiltered, instanced );
@@ -40,7 +38,6 @@ public final class InvariantUtilTest
                            "Target",
                            7,
                            ChannelMetaData.FilterType.STATIC_INSTANCED,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", instanced );
@@ -57,7 +54,6 @@ public final class InvariantUtilTest
                            "Target",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", channel );
@@ -81,7 +77,6 @@ public final class InvariantUtilTest
                            "Source",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var target =
@@ -89,7 +84,6 @@ public final class InvariantUtilTest
                            "Target",
                            1,
                            ChannelMetaData.FilterType.STATIC,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", source, target );
@@ -109,7 +103,6 @@ public final class InvariantUtilTest
                            "Source",
                            null,
                            ChannelMetaData.FilterType.NONE,
-                           null,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var target =
@@ -117,7 +110,6 @@ public final class InvariantUtilTest
                            "Target",
                            1,
                            ChannelMetaData.FilterType.STATIC,
-                           json -> json,
                            ChannelMetaData.CacheType.NONE,
                            true );
     final var schema = new SchemaMetaData( "Test", source, target );
