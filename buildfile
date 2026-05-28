@@ -25,7 +25,7 @@ define 'replicant' do
   project.group = 'org.realityforge.replicant'
   compile.options.source = '17'
   compile.options.target = '17'
-  compile.options.lint = 'all,-processing,-serial'
+  compile.options.lint = 'all,-processing,-serial,-options,-deprecation,-this-escape'
   project.compile.options.warnings = true
   project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000)
 
