@@ -1,6 +1,8 @@
 # Change Log
 
-### Unreleased
+### [v6.193](https://github.com/replicant4j/replicant/tree/v6.193) (2026-05-29) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.192...v6.193)
+
+Changes in this release:
 
 * Replace `ReplicantMessageBrokerImpl` fixed-rate polling with demand-driven, container-managed drain tasks that
   coalesce work by session and bound per-session processing.
