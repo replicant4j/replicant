@@ -25,7 +25,7 @@ define 'replicant' do
   project.group = 'org.realityforge.replicant'
   compile.options.source = '17'
   compile.options.target = '17'
-  compile.options.lint = 'all,-processing,-serial,-options,-deprecation,-this-escape'
+  compile.options.lint = 'all,-processing,-serial,-options,-deprecation'
   project.compile.options.warnings = true
   project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000)
 
@@ -140,5 +140,5 @@ define 'replicant' do
 
   ipr.add_code_insight_settings
   ipr.add_nullable_manager
-  ipr.add_javac_settings('-Xlint:all,-processing,-serial -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
+  ipr.add_javac_settings('-Xlint:all,-processing,-serial,-options,-deprecation -Werror -Xmaxerrs 10000 -Xmaxwarns 10000')
 end
