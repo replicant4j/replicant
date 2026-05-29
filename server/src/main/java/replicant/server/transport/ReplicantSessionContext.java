@@ -18,6 +18,15 @@ public interface ReplicantSessionContext
   void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable JsonObject filter );
 
   /**
+   * Hook invoked before sending a change message to the given session.
+   * Used to optimise expansion of change messages prior to performing the normal expand cycle.
+   *
+   * @param session the session in which the change message is being sent. Must not be null.
+   * @param packet  the packet representing the change message to be sent. Must not be null.
+   */
+  void preSendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
+
+  /**
    * Derive a filter for the target channel based on the source channel and filter.
    *
    * @param entityMessage the entityMessage in the context of which the links is being created.

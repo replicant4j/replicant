@@ -491,6 +491,7 @@ public class ReplicantSessionManagerImpl
   @Override
   public void sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
   {
+    _context.preSendChangeMessage( session, packet );
     final var requestId = packet.requestId();
     final var response = packet.response();
     final var etag = packet.etag();

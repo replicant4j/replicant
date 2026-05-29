@@ -20,7 +20,9 @@ import javax.persistence.EntityManager;
 import org.intellij.lang.annotations.Language;
 import replicant.server.ChannelAddress;
 import replicant.server.EntityMessage;
+import replicant.server.transport.Packet;
 import replicant.server.transport.ReplicantChangeRecorder;
+import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionContext;
 
 /**
@@ -58,6 +60,11 @@ public abstract class AbstractSessionContextImpl
                                      " in the context of the entity message " + entityMessage +
                                      " but no such graph link exists or the target graph does not require a filter " +
                                      "instance id" );
+  }
+
+  @Override
+  public void preSendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  {
   }
 
   @Nonnull

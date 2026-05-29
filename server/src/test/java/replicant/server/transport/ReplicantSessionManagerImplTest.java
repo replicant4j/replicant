@@ -96,6 +96,7 @@ public class ReplicantSessionManagerImplTest
 
       manager.sendChangeMessage( session, packet );
 
+      assertEquals( context.getPreSendChangeMessages(), List.of( packet ) );
       final var targetEntry = session.findSubscriptionEntry( targetAddress );
       assertNotNull( targetEntry );
       assertEquals( targetEntry.getFilter(), newFilter );
@@ -497,6 +498,8 @@ public class ReplicantSessionManagerImplTest
     private final SchemaMetaData _schema;
     @Nonnull
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
+    @Nonnull
+    private final List<Packet> _preSendChangeMessages = new ArrayList<>();
 
     private TestSessionContext( @Nonnull final SchemaMetaData schema )
     {
@@ -521,6 +524,12 @@ public class ReplicantSessionManagerImplTest
                               @Nonnull final ChannelAddress address,
                               @Nullable final JsonObject filter )
     {
+    }
+
+    @Override
+    public void preSendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+    {
+      _preSendChangeMessages.add( packet );
     }
 
     @Nonnull
@@ -612,6 +621,12 @@ public class ReplicantSessionManagerImplTest
     List<BulkCollectCall> getBulkCollectCalls()
     {
       return _bulkCollectCalls;
+    }
+
+    @Nonnull
+    List<Packet> getPreSendChangeMessages()
+    {
+      return _preSendChangeMessages;
     }
   }
 
