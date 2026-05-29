@@ -1,0 +1,287 @@
+tasks:
+  - id: PLAN-01
+    title: Draft requirements and implementation plan for elastic broker drain
+    status: completed
+    priority: high
+    depends_on: []
+    acceptance_criteria:
+      - Requirements capture mission, scope, locked decisions, behavior expectations, quality gates, and open questions.
+      - Implementation plan captures phases, risks, mitigations, full gate, and decision log.
+      - Task board exists with implementation tasks and plan approval gate.
+    files_touched:
+      - changes/brokerElasticDrain/00-requirements.md
+      - changes/brokerElasticDrain/10-implementation-plan.md
+      - changes/brokerElasticDrain/20-task-board.yaml
+    evidence:
+      - command: "Design discussion with user"
+        result: "Resolved core scheduler decisions through Q-21; Q-22 initially remained open due README-only preference versus AGENTS.md repository rule."
+      - command: "Iterative plan review round 1"
+        result: "Accepted findings on lock-contention liveness, active-task atomicity, executor rejection retry, lifecycle, config contract, deterministic async tests, and CHANGELOG coverage."
+      - command: "Iterative plan review round 2"
+        result: "Accepted findings on test-seam sequencing and delayed-retry policy; moved test seam before scheduling tests and specified coalesced retry behavior."
+      - command: "Iterative plan review round 3"
+        result: "Accepted finding on test task dependencies; T7 now depends on the deterministic test seam and the scheduler/failure behavior implementation tasks."
+      - command: "User decision"
+        result: "User allowed AGENTS.md update as part of the plan, resolving Q-22."
+      - command: "Repeat iterative plan review round 1"
+        result: "Accepted findings on mid-batch closure, test-seam sequencing before API removal, and JNDI failure semantics."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: Q22
+    title: Resolve documentation target conflict
+    status: completed
+    priority: high
+    depends_on:
+      - PLAN-01
+    acceptance_criteria:
+      - Q-22 is resolved with user input.
+      - Requirements and plan record the selected documentation approach.
+      - Plan approval remains blocked until the decision is reflected.
+    files_touched:
+      - changes/brokerElasticDrain/00-requirements.md
+      - changes/brokerElasticDrain/10-implementation-plan.md
+      - changes/brokerElasticDrain/20-task-board.yaml
+    evidence:
+      - command: "User decision"
+        result: "Update AGENTS.md as part of the plan; README remains the deployer-facing configuration reference."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: PLAN-APPROVAL
+    title: Request and capture user review of the latest plan
+    status: completed
+    priority: high
+    depends_on:
+      - Q22
+    acceptance_criteria:
+      - User review of the latest plan is explicitly requested.
+      - User feedback is incorporated into planning artifacts.
+      - Plan status is changed from draft to accepted only after approval.
+    files_touched:
+      - changes/brokerElasticDrain/00-requirements.md
+      - changes/brokerElasticDrain/10-implementation-plan.md
+      - changes/brokerElasticDrain/20-task-board.yaml
+    evidence:
+      - command: "User review"
+        result: "User requested implementation after iterative plan review completed with no remaining findings."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T1
+    title: Refactor broker API and add session pending-packet helper
+    status: completed
+    priority: high
+    depends_on:
+      - T6
+    acceptance_criteria:
+      - "`ReplicantMessageBroker.processPendingSessions()` is removed."
+      - "Production callers still compile against `queueChangeMessage(...)`."
+      - "`ReplicantSession` exposes package-private `hasPendingPackets()`."
+      - Existing broker tests no longer depend on the removed manual drain API.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBroker.java
+      - server/src/main/java/replicant/server/transport/ReplicantSession.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Removed `processPendingSessions()` from `ReplicantMessageBroker`, added `ReplicantSession.hasPendingPackets()`, and rewrote broker tests away from manual drain calls."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T2
+    title: Add broker config resolution and validation
+    status: completed
+    priority: high
+    depends_on:
+      - T1
+    acceptance_criteria:
+      - Broker resolves max concurrent drain tasks, packets per run, and sessions per task at startup.
+      - Broker uses explicit JNDI lookup of `java:comp/env/<entry>` with defaults for missing entries.
+      - "`NameNotFoundException` for one entry uses that entry's default."
+      - "`NoInitialContextException` uses defaults for unresolved entries in unmanaged/test execution."
+      - "Other `NamingException` failures fail startup with useful messages."
+      - Broker accepts numeric and string values.
+      - Missing config uses defaults.
+      - Wrong-type, non-numeric, zero, and negative config values fail startup with useful messages.
+      - Tests cover defaults, numeric values, string values, missing entries, no initial context, naming failure, wrong types, non-numeric strings, and invalid values.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Added startup JNDI config resolution, defaults, value parsing, and failure handling for broker scheduler limits."
+      - command: "Implementation review round 1 fix"
+        result: "Added explicit negative-value configuration coverage."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T3
+    title: Implement demand-driven drain-task scheduling
+    status: completed
+    priority: high
+    depends_on:
+      - T2
+      - T6
+    acceptance_criteria:
+      - Fixed-rate scheduled polling is removed.
+      - "`queueChangeMessage(...)` schedules drain tasks after enqueueing."
+      - Active drain task accounting uses atomic reservation and respects `maxConcurrentDrainTasks` under concurrent enqueue.
+      - Executor submission failure rolls back accounting, keeps work queued, and schedules one coalesced delayed retry when not stopping.
+      - Delayed retry uses a 20ms default delay and one outstanding retry guard.
+      - Delayed retry callbacks no-op when stopping or when the queue is empty.
+      - Tests prove scheduling, concurrent reservation, and submission-failure behavior.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Replaced fixed-rate polling with queue-driven drain-task submission, atomic active-task reservation, and coalesced delayed retry handling."
+      - command: "Implementation review round 1 fix"
+        result: "Changed active drain task reservation to cap against tracked session work states rather than raw queue depth, preserving same-session coalescing while allowing new-session work to scale when another session is already running."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T4
+    title: Implement coalesced session state and bounded processing
+    status: completed
+    priority: high
+    depends_on:
+      - T3
+    acceptance_criteria:
+      - Broker coalesces outer session wakeups with `QUEUED` and `RUNNING` states.
+      - Workers claim sessions atomically.
+      - Workers process at most `maxPacketsPerRun` packets per session claim.
+      - Drain tasks process at most `maxSessionsPerDrainTask` sessions.
+      - Sessions with remaining packets are requeued at the tail.
+      - A drain task does not reclaim the same session after requeueing it due to `maxPacketsPerRun`.
+      - Tests cover coalescing, batch limits, task limits, and no duplicate same-session processing.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Added queued/running work-state transitions, per-session packet limits, per-task session limits, and same-session reclaim prevention within one drain task."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T5
+    title: Add lock-contention, closed-session, failure, and lifecycle handling
+    status: completed
+    priority: high
+    depends_on:
+      - T4
+    acceptance_criteria:
+      - "Lock contention uses `tryLock()` and tail requeue."
+      - A lock-contention-only drain pass schedules one coalesced delayed retry rather than a tight immediate reschedule loop.
+      - Closed sessions are removed from broker state and skipped.
+      - "Sessions closed by `sendChangeMessage(...)` mid-batch are not processed further and are not requeued."
+      - Packet processing failures close only the affected session and continue the drain task.
+      - "`preDestroy()` sets stopping, prevents future submissions, and allows active tasks to finish accounting normally."
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Added tryLock requeue, closed-session removal, mid-batch closure handling, packet failure isolation, delayed retry failure handling, and preDestroy stopping."
+      - command: "Implementation review round 1 fix"
+        result: "Added coverage for delayed retry callbacks no-oping when stopping or empty, and for packet failure not poisoning the rest of a single drain task."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T6
+    title: Add deterministic async broker test seam
+    status: completed
+    priority: high
+    depends_on:
+      - PLAN-APPROVAL
+    acceptance_criteria:
+      - Broker tests can capture or deterministically execute submitted drain tasks without the removed manual drain API.
+      - The test seam is package-private or test-visible and does not become production API.
+      - Existing broker tests are ready to migrate away from `processPendingSessions()`.
+    files_touched:
+      - server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Implementation"
+        result: "Added package-visible broker hooks for task submission, retry scheduling, config lookup, and scheduler state inspection used by tests."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T7
+    title: Rewrite and expand broker tests
+    status: completed
+    priority: high
+    depends_on:
+      - T6
+      - T5
+    acceptance_criteria:
+      - Broker tests cover queue-driven scheduling rather than manual drain calls.
+      - Tests cover concurrency, fairness, delayed retry, lifecycle, failure, config, and closed-session behavior.
+      - Targeted server test command passes.
+    files_touched:
+      - server/src/test/java/replicant/server/transport/ReplicantMessageBrokerImplTest.java
+    evidence:
+      - command: "Manual focused TestNG run for ReplicantMessageBrokerImplTest"
+        result: "Passed. 27 tests, 0 failures, 0 skips."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T8
+    title: Update broker scheduler documentation
+    status: completed
+    priority: medium
+    depends_on:
+      - Q22
+      - T7
+    acceptance_criteria:
+      - README documents broker tuning entries, defaults, and valid values.
+      - CHANGELOG documents the `ReplicantMessageBroker` hard API cut unless implementation proves it is not in a published artifact.
+      - AGENTS.md documents the concise broker architecture/runtime guidance approved in Q-22.
+    files_touched:
+      - README.md
+      - CHANGELOG.md
+      - AGENTS.md
+    evidence:
+      - command: "Documentation update"
+        result: "Updated README broker scheduling config, AGENTS runtime guidance, and CHANGELOG unreleased notes."
+    commit:
+      hash: not_required
+      message: not_required
+
+  - id: T9
+    title: Run final validation gates
+    status: completed
+    priority: high
+    depends_on:
+      - T8
+    acceptance_criteria:
+      - Targeted server tests pass.
+      - Full gate `bundle exec buildr test` passes or any failure is captured and triaged.
+      - Task board evidence is updated with command results.
+    files_touched:
+      - changes/brokerElasticDrain/20-task-board.yaml
+    evidence:
+      - command: "Manual javac compile of server main and test sources without -Werror"
+        result: "Passed with pre-existing JDK 21 source/target warnings."
+      - command: "Manual focused TestNG run for ReplicantMessageBrokerImplTest"
+        result: "Passed. 27 tests, 0 failures, 0 skips."
+      - command: "bundle exec buildr test"
+        result: "Still fails before code diagnostics because only JDK 21 is installed; javac emits 'system modules path not set in conjunction with -source 17' and -Werror promotes it to an error."
+      - command: "Iterative implementation review round 2"
+        result: "Passed with Findings: none. Subagent confirmed round 1 findings were addressed and only the already-triaged local JDK 21 full-gate blocker remains."
+      - command: "ruby -e \"require 'yaml'; YAML.load_file('changes/brokerElasticDrain/20-task-board.yaml'); puts 'yaml ok'\""
+        result: "Passed."
+    commit:
+      hash: not_required
+      message: not_required

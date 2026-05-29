@@ -51,6 +51,9 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - The active transport is CDI + WebSocket + JSON-P (`javax.json`).
   - The WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT`.
   - Session mutation is guarded by `ReplicantSession.getLock()`; follow the locking patterns in `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java` and `server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java`.
+  - `ReplicantMessageBrokerImpl` uses demand-driven drain tasks submitted to the container-managed scheduled executor.
+    Broker runtime tuning comes from `java:comp/env` entries under `replicant/broker/*`; keep README details in sync
+    when changing those knobs.
 
 ## Protocol and Hotspots
 
@@ -145,6 +148,10 @@ Diagnostics fixtures and invariants:
   - `replicant.validateChangeSetOnRead`
   - `replicant.validateEntitiesOnLoad`
   - `replicant.logger`
+- Server broker runtime entries include:
+  - `replicant/broker/maxConcurrentDrainTasks`
+  - `replicant/broker/maxPacketsPerRun`
+  - `replicant/broker/maxSessionsPerDrainTask`
 - Keep transport routes and message formats in sync with shared constants and message keys.
 - Prefer JSON-P builders and generators for message encoding rather than ad-hoc string concatenation.
 

@@ -9,8 +9,6 @@ import replicant.server.EntityMessage;
 
 public interface ReplicantMessageBroker
 {
-  void processPendingSessions();
-
   @Nonnull
   Packet queueChangeMessage( @Nonnull ReplicantSession session,
                            boolean altersExplicitSubscriptions,

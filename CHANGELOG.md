@@ -2,6 +2,11 @@
 
 ### Unreleased
 
+* Replace `ReplicantMessageBrokerImpl` fixed-rate polling with demand-driven, container-managed drain tasks that
+  coalesce work by session and bound per-session processing.
+* Remove the public `ReplicantMessageBroker.processPendingSessions()` drain hook; queued broker work is now scheduled
+  from `queueChangeMessage(...)`.
+
 ### [v6.192](https://github.com/replicant4j/replicant/tree/v6.192) (2026-05-20) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.191...v6.192)
 
 Changes in this release:

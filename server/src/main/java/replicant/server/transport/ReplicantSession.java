@@ -218,6 +218,11 @@ public final class ReplicantSession
     return null == packet ? _pendingPackets.poll() : packet;
   }
 
+  boolean hasPendingPackets()
+  {
+    return !_pendingSubscriptionPackets.isEmpty() || !_pendingPackets.isEmpty();
+  }
+
   /**
    * Send a packet to the client.
    *

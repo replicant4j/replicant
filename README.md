@@ -166,6 +166,24 @@ marked as an _incremental load_ rather than as a _bulk load_. The vast majority 
 in _incremental load_ change sets, but sometimes for the sake of performance subscribe service calls and
 other calls that result in mass change may result in _bulk load_ change sets.
 
+### Server-Side Broker Scheduling
+
+On the server, `ReplicantMessageBrokerImpl` queues pending packets on the target `ReplicantSession` and
+submits demand-driven drain tasks to the container-managed scheduled executor. The broker coalesces work by
+session, so one session is processed by at most one drain task at a time, and hot sessions are yielded after
+a bounded packet batch so other sessions can make progress.
+
+The broker reads optional component environment entries from `java:comp/env` during startup:
+
+* `replicant/broker/maxConcurrentDrainTasks`: maximum number of concurrent drain tasks. Defaults to
+  `max(2, Runtime.getRuntime().availableProcessors())`.
+* `replicant/broker/maxPacketsPerRun`: maximum packets processed for one session claim. Defaults to `64`.
+* `replicant/broker/maxSessionsPerDrainTask`: maximum session claims processed by one drain task. Defaults
+  to `64`.
+
+Each value must be at least `1`. Missing entries use the defaults. Values may be numeric JNDI entries or
+numeric strings; non-numeric strings, wrong types, and values below `1` fail startup.
+
 ## Client-Side Developer Components
 
 There are several replicant components that developers directly interact with in client-side code.
