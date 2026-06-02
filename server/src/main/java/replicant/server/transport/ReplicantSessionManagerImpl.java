@@ -491,6 +491,26 @@ public class ReplicantSessionManagerImpl
   @Override
   public void sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
   {
+    final var incomingEntityCount = packet.messages().size() + packet.changeSet().getChanges().size();
+    final var incomingChannelLinks =
+      packet
+        .messages()
+        .stream()
+        .map( EntityMessage::getLinks )
+        .filter( Objects::nonNull )
+        .flatMap( Collection::stream )
+        .distinct()
+        .count() +
+      packet
+        .changeSet()
+        .getChanges()
+        .stream()
+        .map( change -> change.getEntityMessage().getLinks() )
+        .filter( Objects::nonNull )
+        .flatMap( Collection::stream )
+        .distinct()
+        .count();
+
     _context.preSendChangeMessage( session, packet );
     final var requestId = packet.requestId();
     final var response = packet.response();
@@ -507,23 +527,6 @@ public class ReplicantSessionManagerImpl
     if ( changeSet.hasContent() )
     {
       final var start = System.nanoTime();
-      final var incomingEntityCount = messages.size() + changeSet.getChanges().size();
-      final var incomingChannelLinks =
-        messages
-          .stream()
-          .map( EntityMessage::getLinks )
-          .filter( Objects::nonNull )
-          .flatMap( Collection::stream )
-          .distinct()
-          .count() +
-        changeSet
-          .getChanges()
-          .stream()
-          .map( change -> change.getEntityMessage().getLinks() )
-          .filter( Objects::nonNull )
-          .flatMap( Collection::stream )
-          .distinct()
-          .count();
 
       final var expandCycleCount = completeMessageProcessing( session, changeSet );
       final var end = System.nanoTime();
