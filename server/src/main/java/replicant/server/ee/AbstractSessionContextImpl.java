@@ -29,7 +29,7 @@ import replicant.server.transport.ReplicantSessionContext;
  * Base class used to support implementation of SessionContext implementations.
  * Primarily it contains support for customizing bulk loads using SQL.
  */
-@SuppressWarnings( "SqlNoDataSourceInspection" )
+@SuppressWarnings( { "SqlNoDataSourceInspection", "SameParameterValue" } )
 public abstract class AbstractSessionContextImpl
   implements ReplicantChangeRecorder, ReplicantSessionContext
 {
@@ -74,6 +74,18 @@ public abstract class AbstractSessionContextImpl
   protected Connection connection()
   {
     return em().unwrap( Connection.class );
+  }
+
+  @Language( "TSQL" )
+  protected String generateTempIdTableFromIds( @Nonnull final Collection<Integer> idSet )
+  {
+    //noinspection SqlUnused
+    return "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
+           chunked( idSet.stream(), 900 )
+             .map( ids -> "INSERT INTO @Ids VALUES " +
+                          ids.stream().map( id -> "(" + id + ")" ).collect( Collectors.joining( "," ) ) )
+             .collect( Collectors.joining( "\n" ) ) +
+           "\n";
   }
 
   @Language( "TSQL" )

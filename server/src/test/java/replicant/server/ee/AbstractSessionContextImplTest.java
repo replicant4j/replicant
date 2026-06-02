@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
@@ -151,6 +152,36 @@ public class AbstractSessionContextImplTest
                     DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
                     INSERT INTO @Ids VALUES (11),(12),(13)
                     """ );
+  }
+
+  @Test
+  public void generateTempIdTableFromIds_buildsSql()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+
+    final var sql = context.generateTempIdTableFromIds( List.of( 11, 12, 13 ) );
+
+    assertEquals( sql,
+                  """
+                    DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
+                    INSERT INTO @Ids VALUES (11),(12),(13)
+                    """ );
+  }
+
+  @Test
+  public void generateTempIdTableFromIds_chunksLargeInput()
+  {
+    final var context = newContext( mock( EntityManager.class ) );
+    final var ids = IntStream.rangeClosed( 1, 901 ).boxed().toList();
+
+    final var sql = context.generateTempIdTableFromIds( ids );
+    final var statements = sql.split( "\n" );
+
+    assertEquals( statements.length, 3 );
+    assertEquals( statements[ 0 ], "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );" );
+    assertTrue( statements[ 1 ].startsWith( "INSERT INTO @Ids VALUES (1),(2),(3)," ) );
+    assertTrue( statements[ 1 ].endsWith( "(898),(899),(900)" ) );
+    assertEquals( statements[ 2 ], "INSERT INTO @Ids VALUES (901)" );
   }
 
   @Test
