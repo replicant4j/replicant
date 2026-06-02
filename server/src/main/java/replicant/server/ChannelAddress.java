@@ -34,13 +34,13 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   @Nonnull
   public static ChannelAddress of( final int channelId )
   {
-    return new ChannelAddress( channelId );
+    return new ChannelAddress( channelId, null, null, false );
   }
 
   @Nonnull
   public static ChannelAddress of( final int channelId, @Nullable final Integer rootId )
   {
-    return new ChannelAddress( channelId, rootId );
+    return new ChannelAddress( channelId, rootId, null, false );
   }
 
   @Nonnull
@@ -48,27 +48,12 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
                                    @Nullable final Integer rootId,
                                    @Nullable final String filterInstanceId )
   {
-    return new ChannelAddress( channelId, rootId, filterInstanceId );
+    return new ChannelAddress( channelId, rootId, filterInstanceId, false );
   }
 
   public ChannelAddress
   {
     assert !partial || null == filterInstanceId;
-  }
-
-  private ChannelAddress( final int channelId )
-  {
-    this( channelId, null, null, false );
-  }
-
-  public ChannelAddress( final int channelId, @Nullable final Integer rootId )
-  {
-    this( channelId, rootId, null, false );
-  }
-
-  public ChannelAddress( final int channelId, @Nullable final Integer rootId, @Nullable final String filterInstanceId )
-  {
-    this( channelId, rootId, filterInstanceId, false );
   }
 
   public boolean concrete()
