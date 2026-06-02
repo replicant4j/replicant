@@ -77,4 +77,12 @@ public interface ReplicantSessionManager
    * @param packet  the packet  associated with the change.
    */
   void sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
+
+  /**
+   * Clears any cached data associated with the system.
+   * This operation is typically called to free up resources or reset internal state.
+   * Implementations should ensure that any temporary or intermediate data stored in memory
+   * is purged, without impacting the operational integrity of established sessions or ongoing tasks.
+   */
+  void clearCache();
 }

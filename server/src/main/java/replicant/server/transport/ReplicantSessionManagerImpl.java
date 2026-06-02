@@ -1164,6 +1164,23 @@ public class ReplicantSessionManagerImpl
   }
 
   /**
+   * Clear entire cache
+   */
+  @Override
+  public void clearCache()
+  {
+    _cacheLock.writeLock().lock();
+    try
+    {
+      _cache.clear();
+    }
+    finally
+    {
+      _cacheLock.writeLock().unlock();
+    }
+  }
+
+  /**
    * Get the CacheEntry for specified channel. Note that the cache is not necessarily
    * loaded at this stage. This is done to avoid using a global lock while loading data for a
    * particular cache entry.
