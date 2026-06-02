@@ -27,8 +27,8 @@ public class ChangeTest
 
     final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final var change = new Change( message );
-    change.getChannels().add( new ChannelAddress( 1, 1 ) );
-    change.getChannels().add( new ChannelAddress( 2, 3 ) );
+    change.getChannels().add( ChannelAddress.of( 1, 1 ) );
+    change.getChannels().add( ChannelAddress.of( 2, 3 ) );
 
     final var duplicate = change.duplicate();
     assertEquals( duplicate.getKey(), change.getKey() );
@@ -52,18 +52,18 @@ public class ChangeTest
     final var change1 = new Change( message1 );
     final var change2 = new Change( message2 );
 
-    change1.getChannels().add( new ChannelAddress( 1, 1 ) );
-    change2.getChannels().add( new ChannelAddress( 2, 3 ) );
+    change1.getChannels().add( ChannelAddress.of( 1, 1 ) );
+    change2.getChannels().add( ChannelAddress.of( 2, 3 ) );
 
     assertEquals( change1.getChannels().size(), 1 );
-    assertFalse( change1.getChannels().contains( new ChannelAddress( 2, 3 ) ) );
+    assertFalse( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
     assertEquals( change1.getEntityMessage().getAttributeValues().get( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r2" );
 
     change1.merge( change2 );
 
     assertEquals( change1.getChannels().size(), 2 );
-    assertTrue( change1.getChannels().contains( new ChannelAddress( 2, 3 ) ) );
+    assertTrue( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
     assertEquals( change1.getEntityMessage().getAttributeValues().get( MessageTestUtil.ATTR_KEY1 ), "aZ" );
     assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r3" );
   }
@@ -75,7 +75,7 @@ public class ChangeTest
     final var typeID = 4;
 
     final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var address = new ChannelAddress( 7, 12, "instance-a" );
+    final var address = ChannelAddress.of( 7, 12, "instance-a" );
     final var change = new Change( message, address );
 
     assertEquals( change.getChannels().size(), 1 );
@@ -94,9 +94,9 @@ public class ChangeTest
     final var change1 = new Change( message1 );
     final var change2 = new Change( message2 );
 
-    final var addressA = new ChannelAddress( 5, 11, "inst-1" );
-    final var addressADuplicate = new ChannelAddress( 5, 11, "inst-1" );
-    final var addressB = new ChannelAddress( 5, 11, "inst-2" );
+    final var addressA = ChannelAddress.of( 5, 11, "inst-1" );
+    final var addressADuplicate = ChannelAddress.of( 5, 11, "inst-1" );
+    final var addressB = ChannelAddress.of( 5, 11, "inst-2" );
 
     change1.getChannels().add( addressA );
     change2.getChannels().add( addressADuplicate );

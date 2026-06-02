@@ -74,8 +74,8 @@ public class ReplicantSessionManagerImplTest
 
     final var session = new ReplicantSession( webSocketSession );
 
-    final var sourceAddress = new ChannelAddress( 0 );
-    final var targetAddress = new ChannelAddress( 1, 7, "fi-7" );
+    final var sourceAddress = ChannelAddress.of( 0 );
+    final var targetAddress = ChannelAddress.of( 1, 7, "fi-7" );
     final var link = new ChannelLink( sourceAddress, targetAddress, null, true );
 
     final var routingKeys = new HashMap<String, Serializable>();
@@ -144,8 +144,8 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
     final var session = new ReplicantSession( webSocketSession );
 
-    final var sourceAddress = new ChannelAddress( 0, 10 );
-    final var targetAddress = new ChannelAddress( 1 );
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
     final var link = new ChannelLink( sourceAddress, targetAddress );
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( "Source", new ArrayList<>( List.of( 10 ) ) );
@@ -257,9 +257,9 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.isOpen() ).thenReturn( true );
     final var session = new ReplicantSession( webSocketSession );
 
-    final var address1 = new ChannelAddress( 0, 1 );
-    final var address2 = new ChannelAddress( 0, 2 );
-    final var address3 = new ChannelAddress( 0, 3 );
+    final var address1 = ChannelAddress.of( 0, 1 );
+    final var address2 = ChannelAddress.of( 0, 2 );
+    final var address3 = ChannelAddress.of( 0, 3 );
 
     session.getLock().lock();
     try
@@ -325,8 +325,8 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
     final var session = new ReplicantSession( webSocketSession );
 
-    final var sourceAddress = new ChannelAddress( 0, 10 );
-    final var targetAddress = new ChannelAddress( 1 );
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
 
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( "Source", new ArrayList<>( List.of( 10 ) ) );
@@ -395,10 +395,10 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getBasicRemote() ).thenReturn( remote );
     final var session = new ReplicantSession( webSocketSession );
 
-    final var sourceAddressA = new ChannelAddress( 0, 10, "fi-a" );
-    final var sourceAddressB = new ChannelAddress( 0, 10, "fi-b" );
-    final var targetAddressA = new ChannelAddress( 1, null, "fi-a" );
-    final var targetAddressB = new ChannelAddress( 1, null, "fi-b" );
+    final var sourceAddressA = ChannelAddress.of( 0, 10, "fi-a" );
+    final var sourceAddressB = ChannelAddress.of( 0, 10, "fi-b" );
+    final var targetAddressA = ChannelAddress.of( 1, null, "fi-a" );
+    final var targetAddressB = ChannelAddress.of( 1, null, "fi-b" );
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( "Source", new ArrayList<>( List.of( 10 ) ) );
     final var deleteMessage = new EntityMessage( 10,

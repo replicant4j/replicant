@@ -23,9 +23,9 @@ public class ChangeSetTest
     final var change2 = new Change( message2 );
     final var change3 = new Change( message3 );
 
-    change1.getChannels().add( new ChannelAddress( 1, 1 ) );
-    change2.getChannels().add( new ChannelAddress( 2, 3 ) );
-    change3.getChannels().add( new ChannelAddress( 3, 42 ) );
+    change1.getChannels().add( ChannelAddress.of( 1, 1 ) );
+    change2.getChannels().add( ChannelAddress.of( 2, 3 ) );
+    change3.getChannels().add( ChannelAddress.of( 3, 42 ) );
 
     final var changeSet = new ChangeSet();
 
@@ -60,7 +60,7 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( new ChannelAction( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -79,7 +79,7 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final var myFilter = Json.createObjectBuilder().add( "k", "v" ).build();
-    changeSet.mergeAction( new ChannelAddress( 1, 2 ), Action.ADD, myFilter );
+    changeSet.mergeAction( ChannelAddress.of( 1, 2 ), Action.ADD, myFilter );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -126,7 +126,7 @@ public class ChangeSetTest
     changeSet.merge( change1 );
 
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( new ChannelAction( new ChannelAddress( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( new ChannelAction( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
 
     final var changeSet2 = new ChangeSet();
     changeSet2.merge( changeSet, true );
@@ -159,14 +159,14 @@ public class ChangeSetTest
     final var messageSet = new EntityMessageSet();
     messageSet.merge( message1 );
 
-    changeSet.merge( new ChannelAddress( 1 ), messageSet );
+    changeSet.merge( ChannelAddress.of( 1 ), messageSet );
 
     final var changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );
     final var change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
-    assertTrue( change.getChannels().contains( new ChannelAddress( 1 ) ) );
+    assertTrue( change.getChannels().contains( ChannelAddress.of( 1 ) ) );
   }
 
   @Test
@@ -176,9 +176,9 @@ public class ChangeSetTest
 
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
-    final var address1 = new ChannelAddress( 1, 2 );
-    final var address2 = new ChannelAddress( 1, 3 );
-    final var address3 = new ChannelAddress( 1, 4 );
+    final var address1 = ChannelAddress.of( 1, 2 );
+    final var address2 = ChannelAddress.of( 1, 3 );
+    final var address3 = ChannelAddress.of( 1, 4 );
 
     final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
 

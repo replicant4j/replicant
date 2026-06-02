@@ -3,7 +3,6 @@ package replicant.server;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -13,13 +12,13 @@ public class ChannelAddressTest
   @Test
   public void basicOperation()
   {
-    final var cd1 = new ChannelAddress( 1, 22, "a" );
-    final var cd2 = new ChannelAddress( 1, 22, "a" );
-    final var cd3 = new ChannelAddress( 1, 23, "a" );
-    final var cd4 = new ChannelAddress( 2 );
-    final var cd5 = new ChannelAddress( 3 );
-    final var cd6 = new ChannelAddress( 2 );
-    final var cd7 = new ChannelAddress( 1, 22, "b" );
+    final var cd1 = ChannelAddress.of( 1, 22, "a" );
+    final var cd2 = ChannelAddress.of( 1, 22, "a" );
+    final var cd3 = ChannelAddress.of( 1, 23, "a" );
+    final var cd4 = ChannelAddress.of( 2 );
+    final var cd5 = ChannelAddress.of( 3 );
+    final var cd6 = ChannelAddress.of( 2 );
+    final var cd7 = ChannelAddress.of( 1, 22, "b" );
 
     assertEquals( cd1.channelId(), 1 );
     assertEquals( cd1.rootId(), (Integer) 22 );
@@ -79,7 +78,7 @@ public class ChannelAddressTest
     assertFalse( address1.partial() );
     final var address2 = ChannelAddress.parse( "0#alpha" );
     assertEquals( address2.channelId(), 0 );
-    assertEquals( address2.rootId(), null );
+    assertNull( address2.rootId() );
     assertEquals( address2.filterInstanceId(), "alpha" );
     assertFalse( address2.partial() );
   }
@@ -99,7 +98,7 @@ public class ChannelAddressTest
   @Test
   public void compareTo_distinguishesPartialFromConcrete()
   {
-    final var concrete = new ChannelAddress( 1, 22 );
+    final var concrete = ChannelAddress.of( 1, 22 );
     final var partial = ChannelAddress.partial( 1, 22 );
 
     assertTrue( concrete.compareTo( partial ) < 0 );

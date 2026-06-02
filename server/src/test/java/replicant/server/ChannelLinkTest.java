@@ -9,7 +9,7 @@ public final class ChannelLinkTest
   @Test
   public void basicOperation()
   {
-    final var link = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 2 ) );
+    final var link = new ChannelLink( ChannelAddress.of( 22, 44 ), ChannelAddress.of( 1, 2 ) );
     assertEquals( link.source().channelId(), 22 );
     assertEquals( link.source().rootId(), (Integer) 44 );
     assertEquals( link.target().channelId(), 1 );
@@ -22,7 +22,7 @@ public final class ChannelLinkTest
   public void partialOperation()
   {
     final var link =
-      new ChannelLink( ChannelAddress.partial( 22, 44 ), new ChannelAddress( 1, 2 ), null, true );
+      new ChannelLink( ChannelAddress.partial( 22, 44 ), ChannelAddress.of( 1, 2 ), null, true );
 
     assertTrue( link.partial() );
     assertEquals( link.toString(), "[22.44?=>1.2?]" );
@@ -31,12 +31,12 @@ public final class ChannelLinkTest
   @Test
   public void hashcodeAndEquals()
   {
-    final var link1 = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 2 ) );
-    final var link2 = new ChannelLink( new ChannelAddress( 22, 44 ), new ChannelAddress( 1, 3 ) );
-    final var link3 = new ChannelLink( new ChannelAddress( 22, 77 ), new ChannelAddress( 1, 2 ) );
-    final var link4 = new ChannelLink( new ChannelAddress( 27 ), new ChannelAddress( 1, 2 ) );
-    final var link5 = new ChannelLink( new ChannelAddress( 27 ), new ChannelAddress( 1, 3 ) );
-    final var link6 = new ChannelLink( ChannelAddress.partial( 22, 44 ), new ChannelAddress( 1, 2 ), null, true );
+    final var link1 = new ChannelLink( ChannelAddress.of( 22, 44 ), ChannelAddress.of( 1, 2 ) );
+    final var link2 = new ChannelLink( ChannelAddress.of( 22, 44 ), ChannelAddress.of( 1, 3 ) );
+    final var link3 = new ChannelLink( ChannelAddress.of( 22, 77 ), ChannelAddress.of( 1, 2 ) );
+    final var link4 = new ChannelLink( ChannelAddress.of( 27 ), ChannelAddress.of( 1, 2 ) );
+    final var link5 = new ChannelLink( ChannelAddress.of( 27 ), ChannelAddress.of( 1, 3 ) );
+    final var link6 = new ChannelLink( ChannelAddress.partial( 22, 44 ), ChannelAddress.of( 1, 2 ), null, true );
 
     assertLinkEqual( link1, link1 );
     assertLinkEqual( link2, link2 );

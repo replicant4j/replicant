@@ -57,12 +57,12 @@ public final class JsonEncoderTest
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().add( "a", "b" ).build();
 
     final var change = new Change( message );
-    change.getChannels().add( new ChannelAddress( 1, null ) );
-    change.getChannels().add( new ChannelAddress( 2, 42 ) );
-    change.getChannels().add( new ChannelAddress( 3, 73 ) );
+    change.getChannels().add( ChannelAddress.of( 1, null ) );
+    change.getChannels().add( ChannelAddress.of( 2, 42 ) );
+    change.getChannels().add( ChannelAddress.of( 3, 73 ) );
     final var cs = new ChangeSet();
     cs.merge( change );
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, 77 ), Action.UPDATE, filter ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, 77 ), Action.UPDATE, filter ) );
     final var encoded = JsonEncoder.encodeChangeSet( requestId, response, etag, cs );
     final var changeSet = toJsonObject( encoded );
 
@@ -151,7 +151,7 @@ public final class JsonEncoderTest
   public void action_WithNoFilter()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.ADD, null ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, null ), Action.ADD, null ) );
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
@@ -162,7 +162,7 @@ public final class JsonEncoderTest
   public void channelAction_DELETE()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 45, null ), Action.DELETE, null ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, null ), Action.DELETE, null ) );
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
@@ -173,12 +173,12 @@ public final class JsonEncoderTest
   public void mixedChannelActions()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 1, null ), Action.ADD, null ) );
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 2, 5 ), Action.REMOVE, null ) );
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 3, 7, "inst" ), Action.UPDATE, null ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 1, null ), Action.ADD, null ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 2, 5 ), Action.REMOVE, null ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 3, 7, "inst" ), Action.UPDATE, null ) );
 
     final var filter = Json.createObjectBuilder().add( "a", "b" ).build();
-    cs.mergeAction( new ChannelAction( new ChannelAddress( 4, 9 ), Action.ADD, filter ) );
+    cs.mergeAction( new ChannelAction( ChannelAddress.of( 4, 9 ), Action.ADD, filter ) );
 
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
@@ -243,8 +243,8 @@ public final class JsonEncoderTest
     attributeData.put( "x", "y" );
     final var message = new EntityMessage( 1, 2, 0, routingKeys, attributeData, null );
     final var change = new Change( message );
-    change.getChannels().add( new ChannelAddress( 7, null, "fi" ) );
-    change.getChannels().add( new ChannelAddress( 8, 3, "fi-2" ) );
+    change.getChannels().add( ChannelAddress.of( 7, null, "fi" ) );
+    change.getChannels().add( ChannelAddress.of( 8, 3, "fi-2" ) );
     final var cs = new ChangeSet();
     cs.merge( change );
 
@@ -300,7 +300,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeUseCacheMessage()
   {
-    final var address = new ChannelAddress( 1, 2, "inst" );
+    final var address = ChannelAddress.of( 1, 2, "inst" );
     final var message = toJsonObject( JsonEncoder.encodeUseCacheMessage( address, "e1", 7 ) );
 
     assertEquals( message.getString( Messages.Common.TYPE ), Messages.S2C_Type.USE_CACHE );
@@ -312,7 +312,7 @@ public final class JsonEncoderTest
   @Test
   public void encodeUseCacheMessage_withoutRequestId()
   {
-    final var address = new ChannelAddress( 1, 2 );
+    final var address = ChannelAddress.of( 1, 2 );
     final var message = toJsonObject( JsonEncoder.encodeUseCacheMessage( address, "e1", null ) );
 
     assertEquals( message.getString( Messages.Common.TYPE ), Messages.S2C_Type.USE_CACHE );

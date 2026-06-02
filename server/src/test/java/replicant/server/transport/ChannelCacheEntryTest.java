@@ -10,7 +10,7 @@ public class ChannelCacheEntryTest
   @Test
   public void basicOperation()
   {
-    final var descriptor = new ChannelAddress( 1, null );
+    final var descriptor = ChannelAddress.of( 1, null );
     final var entry = new ChannelCacheEntry( descriptor );
     assertEquals( entry.getDescriptor(), descriptor );
 

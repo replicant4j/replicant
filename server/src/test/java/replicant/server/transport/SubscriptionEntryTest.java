@@ -3,15 +3,13 @@ package replicant.server.transport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.json.Json;
-import javax.json.JsonObject;
 import javax.websocket.Session;
-import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAddress;
+import replicant.server.ValueUtil;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -20,11 +18,11 @@ public class SubscriptionEntryTest
   @Test
   public void basicFlow()
   {
-    final var cd1 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final var cd2 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final var cd3 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final var cd4 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final var cd5 = new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd1 = ChannelAddress.of( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd2 = ChannelAddress.of( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd3 = ChannelAddress.of( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd4 = ChannelAddress.of( ValueUtil.randomInt(), ValueUtil.randomInt() );
+    final var cd5 = ChannelAddress.of( ValueUtil.randomInt(), ValueUtil.randomInt() );
 
     final var session = newSession();
     session.getLock().lock();
@@ -109,10 +107,10 @@ public class SubscriptionEntryTest
   @Test
   public void sorting()
   {
-    final var cd1 = new ChannelAddress( 1, 42 );
-    final var cd3 = new ChannelAddress( 1, 43 );
-    final var cd4 = new ChannelAddress( 2, null );
-    final var cd5 = new ChannelAddress( 3, null );
+    final var cd1 = ChannelAddress.of( 1, 42 );
+    final var cd3 = ChannelAddress.of( 1, 43 );
+    final var cd4 = ChannelAddress.of( 2, null );
+    final var cd5 = ChannelAddress.of( 3, null );
 
     final var session = newSession();
     final var entry1 = new SubscriptionEntry( session, cd1 );
@@ -131,8 +129,8 @@ public class SubscriptionEntryTest
   @Test
   public void ownerAwareOutwardSubscriptions_referenceCountSharedTargets()
   {
-    final var source = new ChannelAddress( 1, 1 );
-    final var target = new ChannelAddress( 2, 2 );
+    final var source = ChannelAddress.of( 1, 1 );
+    final var target = ChannelAddress.of( 2, 2 );
 
     final var session = newSession();
     session.getLock().lock();

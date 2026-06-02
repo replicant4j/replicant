@@ -26,7 +26,7 @@ public final class InvariantUtilTest
                            true );
     final var schema = new SchemaMetaData( "Test", unfiltered, instanced );
 
-    InvariantUtil.assertAddressMatchesChannelMetaData( schema, new ChannelAddress( 1, 2, "fi" ) );
+    InvariantUtil.assertAddressMatchesChannelMetaData( schema, ChannelAddress.of( 1, 2, "fi" ) );
     InvariantUtil.assertAddressMatchesChannelMetaData( schema, ChannelAddress.partial( 1, 2 ) );
   }
 
@@ -43,7 +43,7 @@ public final class InvariantUtilTest
     final var schema = new SchemaMetaData( "Test", instanced );
 
     expectThrows( AssertionError.class,
-                  () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, new ChannelAddress( 0, 2 ) ) );
+                  () -> InvariantUtil.assertAddressMatchesChannelMetaData( schema, ChannelAddress.of( 0, 2 ) ) );
   }
 
   @Test
@@ -66,7 +66,7 @@ public final class InvariantUtilTest
   public void channelLink_constructorRejectsConcreteLinkWithPartialAddress()
   {
     expectThrows( AssertionError.class,
-                  () -> new ChannelLink( ChannelAddress.partial( 0 ), new ChannelAddress( 1, 7, "fi" ) ) );
+                  () -> new ChannelLink( ChannelAddress.partial( 0 ), ChannelAddress.of( 1, 7, "fi" ) ) );
   }
 
   @Test
@@ -89,8 +89,8 @@ public final class InvariantUtilTest
     final var schema = new SchemaMetaData( "Test", source, target );
 
     InvariantUtil.assertLink( schema,
-                              new ChannelLink( new ChannelAddress( 0 ),
-                                               new ChannelAddress( 1, 7 ),
+                              new ChannelLink( ChannelAddress.of( 0 ),
+                                               ChannelAddress.of( 1, 7 ),
                                                null,
                                                true ) );
   }
@@ -116,7 +116,7 @@ public final class InvariantUtilTest
 
     expectThrows( AssertionError.class,
                   () -> InvariantUtil.assertLink( schema,
-                                                  new ChannelLink( new ChannelAddress( 0 ), new ChannelAddress( 1, 7 )
+                                                  new ChannelLink( ChannelAddress.of( 0 ), ChannelAddress.of( 1, 7 )
                                                   ) ) );
   }
 }

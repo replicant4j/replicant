@@ -3,7 +3,8 @@ package replicant.server;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId, boolean partial)
+public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId,
+                             boolean partial)
   implements Comparable<ChannelAddress>
 {
   @Nonnull
@@ -30,12 +31,32 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     return new ChannelAddress( channelId, rootId, null, true );
   }
 
+  @Nonnull
+  public static ChannelAddress of( final int channelId )
+  {
+    return new ChannelAddress( channelId );
+  }
+
+  @Nonnull
+  public static ChannelAddress of( final int channelId, @Nullable final Integer rootId )
+  {
+    return new ChannelAddress( channelId, rootId );
+  }
+
+  @Nonnull
+  public static ChannelAddress of( final int channelId,
+                                   @Nullable final Integer rootId,
+                                   @Nullable final String filterInstanceId )
+  {
+    return new ChannelAddress( channelId, rootId, filterInstanceId );
+  }
+
   public ChannelAddress
   {
     assert !partial || null == filterInstanceId;
   }
 
-  public ChannelAddress( final int channelId )
+  private ChannelAddress( final int channelId )
   {
     this( channelId, null, null, false );
   }

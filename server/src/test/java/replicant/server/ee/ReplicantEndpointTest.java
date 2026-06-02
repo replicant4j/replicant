@@ -209,8 +209,8 @@ public final class ReplicantEndpointTest
       (org.mockito.ArgumentCaptor<Map<ChannelAddress, String>>) (Object) org.mockito.ArgumentCaptor.forClass( Map.class );
     verify( fixture.sessionManager ).setETags( eq( fixture.replicantSession ), captor.capture() );
     final var captured = captor.getValue();
-    assertEquals( captured.get( new ChannelAddress( 1 ) ), "e1" );
-    assertEquals( captured.get( new ChannelAddress( 2, 3, "fi" ) ), "e2" );
+    assertEquals( captured.get( ChannelAddress.of( 1 ) ), "e1" );
+    assertEquals( captured.get( ChannelAddress.of( 2, 3, "fi" ) ), "e2" );
 
     final var response = getLastSentMessage( fixture );
     assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.OK );
@@ -243,7 +243,7 @@ public final class ReplicantEndpointTest
 
     verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
                                                 1,
-                                                Collections.singletonList( new ChannelAddress( 0 ) ),
+                                                Collections.singletonList( ChannelAddress.of( 0 ) ),
                                                 null );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
@@ -260,7 +260,7 @@ public final class ReplicantEndpointTest
 
     verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
                                                 2,
-                                                Collections.singletonList( new ChannelAddress( 1, 5 ) ),
+                                                Collections.singletonList( ChannelAddress.of( 1, 5 ) ),
                                                 filter );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
@@ -277,7 +277,7 @@ public final class ReplicantEndpointTest
 
     verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
                                                 3,
-                                                Collections.singletonList( new ChannelAddress( 0 ) ),
+                                                Collections.singletonList( ChannelAddress.of( 0 ) ),
                                                 null );
   }
 
@@ -335,7 +335,7 @@ public final class ReplicantEndpointTest
 
     verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
                                                 5,
-                                                Collections.singletonList( new ChannelAddress( 4, 7, "fi" ) ),
+                                                Collections.singletonList( ChannelAddress.of( 4, 7, "fi" ) ),
                                                 filter );
   }
 
@@ -354,7 +354,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    final var expected = Arrays.asList( new ChannelAddress( 2, 7, "fi" ), new ChannelAddress( 2, 8, "fi2" ) );
+    final var expected = Arrays.asList( ChannelAddress.of( 2, 7, "fi" ), ChannelAddress.of( 2, 8, "fi2" ) );
     verify( fixture.sessionManager ).subscribe( fixture.replicantSession, 4, expected, filter );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
@@ -415,7 +415,7 @@ public final class ReplicantEndpointTest
 
     verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession,
                                                   7,
-                                                  Collections.singletonList( new ChannelAddress( 1, 5 ) ) );
+                                                  Collections.singletonList( ChannelAddress.of( 1, 5 ) ) );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }
 
@@ -449,7 +449,7 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    final var expected = Arrays.asList( new ChannelAddress( 1, 1 ), new ChannelAddress( 1, 2 ) );
+    final var expected = Arrays.asList( ChannelAddress.of( 1, 1 ), ChannelAddress.of( 1, 2 ) );
     verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession, 8, expected );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
   }

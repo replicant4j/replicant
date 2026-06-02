@@ -666,7 +666,7 @@ public class ReplicantSessionManagerImpl
       assert entityMessage.isUpdate();
       final var filterInstanceId =
         _context.deriveTargetFilterInstanceId( entityMessage, source, sourceFilter, target, targetFilter );
-      final var concreteTarget = new ChannelAddress( target.channelId(), target.rootId(), filterInstanceId, false );
+      final var concreteTarget = ChannelAddress.of( target.channelId(), target.rootId(), filterInstanceId );
       InvariantUtil.assertConcreteAddress( getSchemaMetaData(), concreteTarget );
       return concreteTarget;
     }
@@ -1030,7 +1030,7 @@ public class ReplicantSessionManagerImpl
       assert requiredTypeChannel.isTypeGraph();
       // At the moment we propagate no filters ... which is fine
       assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.filterType();
-      final var address = new ChannelAddress( requiredTypeChannel.getChannelId() );
+      final var address = ChannelAddress.of( requiredTypeChannel.getChannelId() );
 
       // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
       if ( !session.isSubscriptionEntryPresent( address ) )
@@ -1083,7 +1083,7 @@ public class ReplicantSessionManagerImpl
         {
           if ( channel.isTypeGraph() && channel.isCacheable() )
           {
-            _cache.remove( new ChannelAddress( channel.getChannelId() ) );
+            _cache.remove( ChannelAddress.of( channel.getChannelId() ) );
           }
         }
       }
@@ -1285,7 +1285,7 @@ public class ReplicantSessionManagerImpl
         return
           rootIds
             .stream()
-            .map( rootId -> new ChannelAddress( channel.getChannelId(), rootId ) )
+            .map( rootId -> ChannelAddress.of( channel.getChannelId(), rootId ) )
             .collect( Collectors.toList() );
       }
       else
@@ -1297,7 +1297,7 @@ public class ReplicantSessionManagerImpl
     {
       if ( message.getRoutingKeys().containsKey( channel.getName() ) )
       {
-        return Collections.singletonList( new ChannelAddress( channel.getChannelId() ) );
+        return Collections.singletonList( ChannelAddress.of( channel.getChannelId() ) );
       }
       else
       {
@@ -1341,7 +1341,7 @@ public class ReplicantSessionManagerImpl
       {
         for ( final var rootId : rootIds )
         {
-          final var address = new ChannelAddress( channel.getChannelId(), rootId );
+          final var address = ChannelAddress.of( channel.getChannelId(), rootId );
           final var isFiltered =
             ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).filterType();
           processDeleteMessage( address, message, session, changeSet, isFiltered );

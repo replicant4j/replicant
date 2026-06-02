@@ -47,8 +47,8 @@ public class AbstractSessionContextImplTest
   public void deriveTargetFilter_throwsWhenNotOverridden()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final var source = new ChannelAddress( 1, 2 );
-    final var target = new ChannelAddress( 3, 4 );
+    final var source = ChannelAddress.of( 1, 2 );
+    final var target = ChannelAddress.of( 3, 4 );
     final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), null, null );
 
     final var exception =
@@ -65,7 +65,7 @@ public class AbstractSessionContextImplTest
   public void deriveTargetFilterInstanceId_throwsWhenNotOverridden()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final var source = new ChannelAddress( 1, 2, "fi" );
+    final var source = ChannelAddress.of( 1, 2, "fi" );
     final var target = ChannelAddress.partial( 3, 4 );
     final var message = new EntityMessage( 1, 2, 0, new HashMap<>(), new HashMap<>(), null );
 
@@ -92,7 +92,7 @@ public class AbstractSessionContextImplTest
     final var em = mock( EntityManager.class );
     final var context = newContext( em );
     final var session = newSession();
-    final var addresses = List.of( new ChannelAddress( 1, 2 ), new ChannelAddress( 3, 4 ) );
+    final var addresses = List.of( ChannelAddress.of( 1, 2 ), ChannelAddress.of( 3, 4 ) );
     final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
     final var changeSet = new ChangeSet();
 
@@ -140,9 +140,9 @@ public class AbstractSessionContextImplTest
   public void generateTempIdTable_buildsSql()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final var addresses = List.of( new ChannelAddress( 1, 11 ),
-                                   new ChannelAddress( 1, 12 ),
-                                   new ChannelAddress( 1, 13 ) );
+    final var addresses = List.of( ChannelAddress.of( 1, 11 ),
+                                   ChannelAddress.of( 1, 12 ),
+                                   ChannelAddress.of( 1, 13 ) );
 
     final var sql = context.generateTempIdTable( addresses );
 
@@ -157,9 +157,9 @@ public class AbstractSessionContextImplTest
   public void generateTempIdAndFilterIdTable_buildsSql()
   {
     final var context = newContext( mock( EntityManager.class ) );
-    final var addresses = List.of( new ChannelAddress( 1, 11, "fi-1" ),
-                                   new ChannelAddress( 1, 12, "fi-2" ),
-                                   new ChannelAddress( 1, 13, "fi-3" ) );
+    final var addresses = List.of( ChannelAddress.of( 1, 11, "fi-1" ),
+                                   ChannelAddress.of( 1, 12, "fi-2" ),
+                                   ChannelAddress.of( 1, 13, "fi-3" ) );
 
     final var sql = context.generateTempIdAndFilterIdTable( addresses );
 
