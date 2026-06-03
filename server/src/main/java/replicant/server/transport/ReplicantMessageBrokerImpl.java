@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedScheduledExecutorService;
@@ -93,29 +92,31 @@ public class ReplicantMessageBrokerImpl
 
   private void scheduleDrainTasks()
   {
-    if ( _stopping )
+    if ( !_stopping )
     {
-      return;
-    }
-    while ( !_queue.isEmpty() )
-    {
-      if ( !reserveDrainTask() )
+      while ( !_queue.isEmpty() )
       {
-        return;
-      }
-      try
-      {
-        submitDrainTask( this::runDrainTask );
-      }
-      catch ( final RuntimeException e )
-      {
-        _activeDrainTasks.decrementAndGet();
-        LOG.log( Level.SEVERE,
-                 e,
-                 () -> "Unable to submit Replicant drain task. queue.size=" + _queue.size() +
-                       " activeDrainTasks=" + _activeDrainTasks.get() );
-        scheduleDelayedRetry();
-        return;
+        if ( reserveDrainTask() )
+        {
+          try
+          {
+            submitDrainTask( this::runDrainTask );
+          }
+          catch ( final RuntimeException e )
+          {
+            _activeDrainTasks.decrementAndGet();
+            LOG.log( Level.SEVERE,
+                     e,
+                     () -> "Unable to submit Replicant drain task. queue.size=" + _queue.size() +
+                           " activeDrainTasks=" + _activeDrainTasks.get() );
+            scheduleDelayedRetry();
+            return;
+          }
+        }
+        else
+        {
+          return;
+        }
       }
     }
   }
@@ -237,17 +238,19 @@ public class ReplicantMessageBrokerImpl
     {
       lock.unlock();
     }
+    _workStates.remove( id, WorkState.RUNNING );
     if ( closeSession || !session.isOpen() )
     {
-      _workStates.remove( id, WorkState.RUNNING );
       return true;
     }
-    _workStates.remove( id, WorkState.RUNNING );
-    if ( session.hasPendingPackets() )
+    else
     {
-      enqueueSessionIfRequired( session );
+      if ( session.hasPendingPackets() )
+      {
+        enqueueSessionIfRequired( session );
+      }
+      return processedPacket;
     }
-    return processedPacket;
   }
 
   private void requeueRunningSession( @Nonnull final ReplicantSession session )
