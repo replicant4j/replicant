@@ -328,21 +328,9 @@ public class ReplicantMessageBrokerImpl
   }
 
   @VisibleForTesting
-  int getMaxConcurrentDrainTasks()
-  {
-    return _maxConcurrentDrainTasks;
-  }
-
-  @VisibleForTesting
   int getMaxPacketsPerRun()
   {
     return _maxPacketsPerRun;
-  }
-
-  @VisibleForTesting
-  int getMaxSessionsPerDrainTask()
-  {
-    return _maxSessionsPerDrainTask;
   }
 
   @VisibleForTesting
