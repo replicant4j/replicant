@@ -1,0 +1,507 @@
+load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_library = "java_library", _java_plugin = "java_plugin", _java_test = "java_test")
+load("//third_party/java:rules.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "arez",
+    exports = [
+        ":arez_core",
+        ":braincheck_core",
+        ":grim_annotations",
+    ],
+)
+
+alias(
+    name = "arez_processor_plugin",
+    actual = ":arez_processor__arez_processor_arezprocessor__plugin",
+)
+
+alias(
+    name = "grim_processor_plugin",
+    actual = ":grim_processor__grim_processor_grimprocessor__plugin",
+)
+
+java_library(
+    name = "react4j",
+    exports = [
+        ":react4j_core",
+    ],
+)
+
+alias(
+    name = "react4j_processor_plugin",
+    actual = ":react4j_processor__react4j_processor_react4jprocessor__plugin",
+)
+
+# --- depgen-generated targets start ---
+
+# DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.24
+
+# SHA256 of the configuration content that generated this content
+_CONFIG_SHA256 = "DB50DB36F381C54B43F4A5F67E05EBAD08336CE749D8EF5A1B165E80E7C97454"
+
+exports_files(["dependencies.yml"])
+
+# Dependency Graph Generated from the input data
+# +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# +- javax:javaee-api:jar:8.0 [compile]
+# +- org.gwtproject:gwt-user:jar:2.10.0 [compile]
+# +- org.gwtproject:gwt-dev:jar:2.10.0 [compile]
+# +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
+# +- org.glassfish:javax.json:jar:1.1 [compile]
+# |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
+# +- org.realityforge.arez:arez-core:jar:0.242 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
+# +- org.realityforge.arez:arez-processor:jar:0.242 [compile]
+# +- org.realityforge.arez:arez-extras-testng:jar:0.242 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# |  +- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
+# |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  \- org.realityforge.arez:arez-core:jar:0.242 [compile]
+# +- org.realityforge.react4j:react4j-core:jar:0.222 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
+# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
+# |  +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile]
+# |  +- org.realityforge.arez:arez-core:jar:0.241 [compile] (conflicts with 0.242)
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
+# |  \- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
+# +- org.realityforge.react4j:react4j-processor:jar:0.222 [compile]
+# +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
+# +- com.google.jsinterop:base:jar:1.0.0 [compile]
+# |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
+# +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
+# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
+# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# |  +- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
+# |  \- com.google.jsinterop:base:jar:1.0.0 [compile]
+# +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# |  \- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# +- org.realityforge.braincheck:braincheck-testng:jar:1.32.0 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
+# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# |  +- org.glassfish:javax.json:jar:1.1 [compile]
+# |  \- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
+# +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
+# |  \- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
+# +- org.realityforge.grim:grim-processor:jar:0.09 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
+# |  \- org.glassfish:javax.json:jar:1.1 [compile]
+# +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
+# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
+# |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
+# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.31.0 [compile] (conflicts with 1.32.0)
+# |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
+# +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
+# +- org.mockito:mockito-core:jar:4.5.1 [compile]
+# |  +- net.bytebuddy:byte-buddy:jar:1.12.9 [compile]
+# |  +- net.bytebuddy:byte-buddy-agent:jar:1.12.9 [compile]
+# |  \- org.objenesis:objenesis:jar:3.2 [runtime]
+# +- net.bytebuddy:byte-buddy:jar:1.12.9 [compile]
+# +- org.objenesis:objenesis:jar:3.2 [compile]
+# \- org.testng:testng:jar:7.10.2 [compile]
+#    +- org.slf4j:slf4j-api:jar:1.7.36 [compile]
+#    +- com.beust:jcommander:jar:1.82 [compile]
+#    +- org.webjars:jquery:jar:3.7.1 [runtime]
+#    +- com.google.inject:guice:jar:5.1.0 [compile, optional]
+#    \- org.yaml:snakeyaml:jar:2.2 [runtime, optional]
+
+_java_test(
+    name = "verify_config_sha256",
+    size = "small",
+    args = [
+        "--config-file",
+        "$(rootpath //third_party/java:dependencies.yml)",
+        "--verbose",
+        "hash",
+        "--verify-sha256",
+        _CONFIG_SHA256,
+    ],
+    data = ["//third_party/java:dependencies.yml"],
+    main_class = "org.realityforge.bazel.depgen.Main",
+    use_testrunner = False,
+    visibility = ["//visibility:private"],
+    runtime_deps = [":bazel_depgen"],
+)
+
+_java_binary(
+    name = "update_depgen_generated_outputs",
+    args = [
+        "--config-file",
+        "$(rootpath //third_party/java:dependencies.yml)",
+        "--verbose",
+        "generate",
+    ],
+    data = ["//third_party/java:dependencies.yml"],
+    main_class = "org.realityforge.bazel.depgen.Main",
+    tags = [
+        "local",
+        "manual",
+        "no-cache",
+        "no-remote",
+        "no-sandbox",
+    ],
+    visibility = ["//visibility:private"],
+    runtime_deps = [":bazel_depgen"],
+)
+
+_java_import(
+    name = "jcommander",
+    jars = ["@jcommander//file"],
+    srcjar = "@jcommander__sources//file",
+    tags = ["maven_coordinates=com.beust:jcommander:1.82"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "guice",
+    jars = ["@guice//file"],
+    srcjar = "@guice__sources//file",
+    tags = ["maven_coordinates=com.google.inject:guice:5.1.0"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "base",
+    jars = ["@base//file"],
+    srcjar = "@base__sources//file",
+    tags = ["maven_coordinates=com.google.jsinterop:base:1.0.0"],
+    deps = [":jsinterop_annotations"],
+)
+
+_java_import(
+    name = "jsinterop_annotations",
+    jars = ["@jsinterop_annotations//file"],
+    srcjar = "@jsinterop_annotations__sources//file",
+    tags = ["maven_coordinates=com.google.jsinterop:jsinterop-annotations:2.1.0"],
+)
+
+_java_import(
+    name = "javax_json_api",
+    jars = ["@javax_json_api//file"],
+    srcjar = "@javax_json_api__sources//file",
+    tags = ["maven_coordinates=javax.json:javax.json-api:1.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "javaee_api",
+    jars = ["@javaee_api//file"],
+    srcjar = "@javaee_api__sources//file",
+    tags = ["maven_coordinates=javax:javaee-api:8.0"],
+)
+
+_java_import(
+    name = "byte_buddy",
+    jars = ["@byte_buddy//file"],
+    srcjar = "@byte_buddy__sources//file",
+    tags = ["maven_coordinates=net.bytebuddy:byte-buddy:1.12.9"],
+)
+
+_java_import(
+    name = "byte_buddy_agent",
+    jars = ["@byte_buddy_agent//file"],
+    srcjar = "@byte_buddy_agent__sources//file",
+    tags = ["maven_coordinates=net.bytebuddy:byte-buddy-agent:1.12.9"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "javax_json",
+    jars = ["@javax_json//file"],
+    srcjar = "@javax_json__sources//file",
+    tags = ["maven_coordinates=org.glassfish:javax.json:1.1"],
+)
+
+_java_import(
+    name = "gwt_dev",
+    jars = ["@gwt_dev//file"],
+    srcjar = "@gwt_dev__sources//file",
+    tags = ["maven_coordinates=org.gwtproject:gwt-dev:2.10.0"],
+)
+
+_java_import(
+    name = "gwt_user",
+    jars = ["@gwt_user//file"],
+    srcjar = "@gwt_user__sources//file",
+    tags = ["maven_coordinates=org.gwtproject:gwt-user:2.10.0"],
+)
+
+_java_import(
+    name = "mockito_core",
+    jars = ["@mockito_core//file"],
+    srcjar = "@mockito_core__sources//file",
+    tags = ["maven_coordinates=org.mockito:mockito-core:4.5.1"],
+    runtime_deps = [":objenesis"],
+    deps = [
+        ":byte_buddy",
+        ":byte_buddy_agent",
+    ],
+)
+
+_java_import(
+    name = "objenesis",
+    jars = ["@objenesis//file"],
+    srcjar = "@objenesis__sources//file",
+    tags = ["maven_coordinates=org.objenesis:objenesis:3.2"],
+)
+
+_java_import(
+    name = "akasha_gwt",
+    jars = ["@akasha_gwt//file"],
+    srcjar = "@akasha_gwt__sources//file",
+    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.30"],
+    deps = [
+        ":base",
+        ":javaemul_internal_annotations",
+        ":javax_annotation",
+        ":jsinterop_annotations",
+        ":org_jetbrains_annotations",
+    ],
+)
+
+_java_import(
+    name = "arez_core",
+    jars = ["@arez_core//file"],
+    srcjar = "@arez_core__sources//file",
+    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.242"],
+    deps = [
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javax_annotation",
+        ":jsinterop_annotations",
+        ":org_jetbrains_annotations",
+    ],
+)
+
+_java_import(
+    name = "arez_extras_testng",
+    jars = ["@arez_extras_testng//file"],
+    srcjar = "@arez_extras_testng__sources//file",
+    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.242"],
+    deps = [
+        ":arez_core",
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javax_annotation",
+        ":testng",
+    ],
+)
+
+_java_import(
+    name = "arez_processor__plugin_library",
+    jars = ["@arez_processor//file"],
+    srcjar = "@arez_processor__sources//file",
+    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.242"],
+)
+
+_java_plugin(
+    name = "arez_processor__arez_processor_arezprocessor__plugin",
+    generates_api = True,
+    processor_class = "arez.processor.ArezProcessor",
+    visibility = ["//visibility:private"],
+    deps = [":arez_processor__plugin_library"],
+)
+
+_java_library(
+    name = "arez_processor",
+    exported_plugins = ["arez_processor__arez_processor_arezprocessor__plugin"],
+)
+
+_java_import(
+    name = "bazel_depgen",
+    jars = ["@bazel_depgen//file"],
+    tags = ["maven_coordinates=org.realityforge.bazel.depgen:bazel-depgen:0.24"],
+)
+
+_java_import(
+    name = "braincheck_core",
+    jars = ["@braincheck_core//file"],
+    srcjar = "@braincheck_core__sources//file",
+    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-core:1.32.0"],
+    deps = [
+        ":javax_annotation",
+        ":jsinterop_annotations",
+    ],
+)
+
+_java_import(
+    name = "braincheck_testng",
+    jars = ["@braincheck_testng//file"],
+    srcjar = "@braincheck_testng__sources//file",
+    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-testng:1.32.0"],
+    deps = [
+        ":javax_annotation",
+        ":javax_json",
+        ":jsinterop_annotations",
+        ":testng",
+    ],
+)
+
+_java_import(
+    name = "grim_annotations",
+    jars = ["@grim_annotations//file"],
+    srcjar = "@grim_annotations__sources//file",
+    tags = ["maven_coordinates=org.realityforge.grim:grim-annotations:0.09"],
+    deps = [":javax_annotation"],
+)
+
+_java_import(
+    name = "grim_processor__plugin_library",
+    jars = ["@grim_processor//file"],
+    srcjar = "@grim_processor__sources//file",
+    tags = ["maven_coordinates=org.realityforge.grim:grim-processor:0.09"],
+    deps = [
+        ":javax_annotation",
+        ":javax_json",
+    ],
+)
+
+_java_plugin(
+    name = "grim_processor__grim_processor_grimprocessor__plugin",
+    generates_api = True,
+    processor_class = "grim.processor.GrimProcessor",
+    visibility = ["//visibility:private"],
+    deps = [":grim_processor__plugin_library"],
+)
+
+_java_library(
+    name = "grim_processor",
+    exported_plugins = ["grim_processor__grim_processor_grimprocessor__plugin"],
+)
+
+_java_import(
+    name = "javaemul_internal_annotations",
+    jars = ["@javaemul_internal_annotations//file"],
+    srcjar = "@javaemul_internal_annotations__sources//file",
+    tags = ["maven_coordinates=org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:0.01"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "javax_annotation",
+    jars = ["@javax_annotation//file"],
+    srcjar = "@javax_annotation__sources//file",
+    tags = ["maven_coordinates=org.realityforge.javax.annotation:javax.annotation:1.1.1"],
+)
+
+_java_import(
+    name = "jndikit",
+    jars = ["@jndikit//file"],
+    srcjar = "@jndikit__sources//file",
+    tags = ["maven_coordinates=org.realityforge.jndikit:jndikit:1.4"],
+)
+
+_java_import(
+    name = "org_jetbrains_annotations",
+    jars = ["@org_jetbrains_annotations//file"],
+    srcjar = "@org_jetbrains_annotations__sources//file",
+    tags = ["maven_coordinates=org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0"],
+)
+
+_java_import(
+    name = "react4j_core",
+    jars = ["@react4j_core//file"],
+    srcjar = "@react4j_core__sources//file",
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.222"],
+    deps = [
+        ":akasha_gwt",
+        ":arez_core",
+        ":base",
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javaemul_internal_annotations",
+        ":javax_annotation",
+        ":jsinterop_annotations",
+        ":org_jetbrains_annotations",
+        ":zemeckis_core",
+    ],
+)
+
+_java_import(
+    name = "react4j_processor__plugin_library",
+    jars = ["@react4j_processor//file"],
+    srcjar = "@react4j_processor__sources//file",
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.222"],
+)
+
+_java_plugin(
+    name = "react4j_processor__react4j_processor_react4jprocessor__plugin",
+    generates_api = True,
+    processor_class = "react4j.processor.React4jProcessor",
+    visibility = ["//visibility:private"],
+    deps = [":react4j_processor__plugin_library"],
+)
+
+_java_library(
+    name = "react4j_processor",
+    exported_plugins = ["react4j_processor__react4j_processor_react4jprocessor__plugin"],
+)
+
+_java_import(
+    name = "zemeckis_core",
+    jars = ["@zemeckis_core//file"],
+    srcjar = "@zemeckis_core__sources//file",
+    tags = ["maven_coordinates=org.realityforge.zemeckis:zemeckis-core:0.14"],
+    deps = [
+        ":akasha_gwt",
+        ":base",
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javax_annotation",
+        ":jsinterop_annotations",
+        ":org_jetbrains_annotations",
+    ],
+)
+
+_java_import(
+    name = "slf4j_api",
+    jars = ["@slf4j_api//file"],
+    srcjar = "@slf4j_api__sources//file",
+    tags = ["maven_coordinates=org.slf4j:slf4j-api:1.7.36"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "testng",
+    jars = ["@testng//file"],
+    srcjar = "@testng__sources//file",
+    tags = ["maven_coordinates=org.testng:testng:7.10.2"],
+    runtime_deps = [":jquery"],
+    deps = [
+        ":jcommander",
+        ":slf4j_api",
+    ],
+)
+
+_java_import(
+    name = "jquery",
+    jars = ["@jquery//file"],
+    srcjar = "@jquery__sources//file",
+    tags = ["maven_coordinates=org.webjars:jquery:3.7.1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "snakeyaml",
+    jars = ["@snakeyaml//file"],
+    srcjar = "@snakeyaml__sources//file",
+    tags = ["maven_coordinates=org.yaml:snakeyaml:2.2"],
+    visibility = ["//visibility:private"],
+)
+
+# --- depgen-generated targets end ---

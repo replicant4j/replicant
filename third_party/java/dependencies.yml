@@ -1,0 +1,54 @@
+# DO NOT EDIT: Generated from build.yaml plus Bazel-only tool/runtime dependencies.
+
+repositories:
+  - name: central
+    url: https://repo.maven.apache.org/maven2
+options:
+  workspaceDirectory: ../..
+  nameStrategy: ArtifactId
+  repositoryNameStrategy: ArtifactId
+  repositoryRuleGenerationStrategy: module
+  targetGenerationStrategy: build
+  failOnMissingPom: false
+
+artifacts:
+  - coord: org.realityforge.javax.annotation:javax.annotation:1.1.1
+  - coord: javax:javaee-api:8.0
+    excludes:
+      - '*:*'
+
+  - coord: org.gwtproject:gwt-user:2.10.0
+    excludes:
+      - '*:*'
+  - coord: org.gwtproject:gwt-dev:2.10.0
+    excludes:
+      - '*:*'
+
+  - coord: org.realityforge.jndikit:jndikit:1.4
+  - coord: org.glassfish:javax.json:1.1
+
+  - coord: org.realityforge.arez:arez-core:0.242
+  - coord: org.realityforge.arez:arez-processor:0.242
+  - coord: org.realityforge.arez:arez-extras-testng:0.242
+
+  - coord: org.realityforge.react4j:react4j-core:0.222
+  - coord: org.realityforge.react4j:react4j-processor:0.222
+
+  - coord: com.google.jsinterop:jsinterop-annotations:2.1.0
+  - coord: com.google.jsinterop:base:1.0.0
+  - coord: org.realityforge.akasha:akasha-gwt:0.30
+
+  - coord: org.realityforge.braincheck:braincheck-core:1.32.0
+  - coord: org.realityforge.braincheck:braincheck-testng:1.32.0
+
+  - coord: org.realityforge.grim:grim-annotations:0.09
+  - coord: org.realityforge.grim:grim-processor:0.09
+
+  - coord: org.realityforge.zemeckis:zemeckis-core:0.14
+  - coord: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0
+
+  - coord: org.mockito:mockito-core:4.5.1
+  - coord: net.bytebuddy:byte-buddy:1.12.9
+  - coord: org.objenesis:objenesis:3.2
+
+  - coord: org.testng:testng:7.10.2

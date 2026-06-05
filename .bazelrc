@@ -1,0 +1,22 @@
+build --java_language_version=17
+build --java_runtime_version=local_jdk_21
+build --tool_java_language_version=17
+build --tool_java_runtime_version=local_jdk_21
+build --extra_toolchains=@local_jdk_21//:local_jdk_21_toolchain_java17_definition
+build --extra_toolchains=@local_jdk_21//:runtime_toolchain_definition
+build --extra_toolchains=@local_jdk_21//:bootstrap_runtime_toolchain_definition
+
+test --java_language_version=17
+test --java_runtime_version=local_jdk_21
+test --tool_java_language_version=17
+test --tool_java_runtime_version=local_jdk_21
+test --extra_toolchains=@local_jdk_21//:local_jdk_21_toolchain_java17_definition
+test --extra_toolchains=@local_jdk_21//:runtime_toolchain_definition
+test --extra_toolchains=@local_jdk_21//:bootstrap_runtime_toolchain_definition
+
+build --spawn_strategy=local
+build --strategy=Javac=worker
+build --strategy=JavaIjar=local
+build --strategy=JavaDeployJar=local
+build --strategy=JavaSourceJar=local
+build --strategy=Turbine=local

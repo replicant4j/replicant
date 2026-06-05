@@ -7,3 +7,4 @@
 /reports
 /target
 /tmp
+/bazel-*

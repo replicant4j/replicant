@@ -16,6 +16,34 @@ and a centralized event broker. To avoid the scenario where the UI is updated wh
 inconsistent state, changes are applied in changesets and only when the complete changeset has been applied are
 the changes propagated through the event broker.
 
+## Build
+
+Replicant currently has the existing Buildr build and a parallel Bazel build.
+
+The Buildr workflow remains:
+
+* Build all modules: `bundle exec buildr clean package`
+* Run all tests: `bundle exec buildr test`
+
+The Bazel workflow uses `./bazelw`, which pins Bazel through `.bazelversion`:
+
+* Build public output jars: `./bazelw build //client:client //server:server`
+* Run all Bazel tests: `./bazelw test //...`
+* Check Bazel file formatting: `./bazelw run //:buildifier_check`
+* Update Bazel file formatting: `./bazelw run //:buildifier`
+
+The public Bazel output libraries are `//client:client` and `//server:server`. Both output jars merge the
+internal shared classes from `//shared:shared_lib` and keep third-party jars separate from the merged outputs.
+
+Java dependencies for the Bazel build are managed by
+[bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml`.
+After changing that file, regenerate checked-in Bazel dependency outputs with:
+
+* `./bazelw run //third_party/java:update_depgen_generated_outputs`
+* `./bazelw test //third_party/java:verify_config_sha256`
+
+The Bazel build is a JVM build and test path. It does not replace the existing GWT compile/package workflow.
+
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly
 used with an Java EE server component and a GWT front-end but it was originally derived from a client-server
