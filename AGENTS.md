@@ -51,9 +51,12 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - The active transport is CDI + WebSocket + JSON-P (`javax.json`).
   - The WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT`.
   - Session mutation is guarded by `ReplicantSession.getLock()`; follow the locking patterns in `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java` and `server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java`.
-  - `ReplicantMessageBrokerImpl` uses demand-driven drain tasks submitted to the container-managed scheduled executor.
-    Broker runtime tuning comes from `java:comp/env` entries under `replicant/broker/*`; keep README details in sync
-    when changing those knobs.
+  - `ReplicantResources` exposes `@ReplicantSystem` CDI producers for the transaction registry, managed
+    executors, and broker tuning entries.
+  - `ReplicantMessageBrokerImpl` uses demand-driven drain tasks submitted to the container-managed executor.
+    Delayed retries and session maintenance use the container-managed scheduled executor. Broker runtime
+    tuning comes from `java:comp/env` entries under `replicant/broker/*`; keep README details in sync when
+    changing those knobs or managed executor JNDI names.
 
 ## Protocol and Hotspots
 
@@ -149,6 +152,8 @@ Diagnostics fixtures and invariants:
   - `replicant.validateEntitiesOnLoad`
   - `replicant.logger`
 - Server broker runtime entries include:
+  - `java:replicant/concurrent/ManagedExecutorService`
+  - `java:replicant/concurrent/ManagedScheduledExecutorService`
   - `replicant/broker/maxConcurrentDrainTasks`
   - `replicant/broker/maxPacketsPerRun`
   - `replicant/broker/maxSessionsPerDrainTask`

@@ -16,11 +16,12 @@ import replicant.server.transport.ReplicantChangeRecorder;
 public class ReplicantEntityChangeListener
 {
   /*
-   * The registry and recorder are actually accessed via JNDI. The @Resource/@Inject annotations are ignored in production as JPA 2.0 does not
+   * The registry and recorder are actually accessed via JNDI. The @Inject annotations are ignored in production as JPA 2.0 does not
    * support it. However our Guice based test infrastructure uses it to populate and avoid instantiation of JNDI
    * resources.
    */
-  @Resource
+  @Inject
+  @ReplicantSystem
   private TransactionSynchronizationRegistry _registry;
   @Inject
   private ReplicantChangeRecorder _recorder;

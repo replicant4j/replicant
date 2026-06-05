@@ -169,9 +169,16 @@ other calls that result in mass change may result in _bulk load_ change sets.
 ### Server-Side Broker Scheduling
 
 On the server, `ReplicantMessageBrokerImpl` queues pending packets on the target `ReplicantSession` and
-submits demand-driven drain tasks to the container-managed scheduled executor. The broker coalesces work by
-session, so one session is processed by at most one drain task at a time, and hot sessions are yielded after
-a bounded packet batch so other sessions can make progress.
+submits demand-driven drain tasks to the container-managed executor. Delayed retries and periodic session
+maintenance use the container-managed scheduled executor. `ReplicantResources` exposes both resources through
+qualified CDI producers. The broker coalesces work by session, so one session is processed by at most one
+drain task at a time, and hot sessions are yielded after a bounded packet batch so other sessions can make
+progress.
+
+Replicant expects these managed executor JNDI resources:
+
+* `java:replicant/concurrent/ManagedExecutorService`
+* `java:replicant/concurrent/ManagedScheduledExecutorService`
 
 The broker reads optional component environment entries from `java:comp/env` during startup:
 

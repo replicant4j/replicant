@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Add CDI-produced Replicant system resources for the server transaction registry, managed executors, and broker tuning
+  entries so transport components can use qualified injection instead of direct resource lookup.
+
 ### [v6.196](https://github.com/replicant4j/replicant/tree/v6.196) (2026-06-02) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.195...v6.196)
 
 Changes in this release:

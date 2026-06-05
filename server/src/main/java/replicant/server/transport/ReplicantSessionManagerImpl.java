@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -24,8 +25,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -45,6 +44,7 @@ import replicant.server.EntityMessage;
 import replicant.server.ServerConstants;
 import replicant.server.ee.EntityMessageCacheUtil;
 import replicant.server.ee.ReplicantContextHolder;
+import replicant.server.ee.ReplicantSystem;
 import replicant.server.json.JsonEncoder;
 
 @SuppressWarnings( "DuplicatedCode" )
@@ -64,15 +64,17 @@ public class ReplicantSessionManagerImpl
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
   @Nonnull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
-  @SuppressWarnings( { "CdiInjectionPointsInspection", "RedundantSuppression" } )
+  @SuppressWarnings( "CdiInjectionPointsInspection" )
   @Inject
   private ReplicantSessionContext _context;
-  @Resource
+  @Inject
+  @ReplicantSystem
   private TransactionSynchronizationRegistry _registry;
   @Inject
   private ReplicantMessageBroker _broker;
-  @Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
-  ManagedScheduledExecutorService _executor;
+  @Inject
+  @ReplicantSystem( "ScheduledExecutorService" )
+  private ScheduledExecutorService _scheduledExecutorService;
   @Nullable
   private ScheduledFuture<?> _removeClosedSessionsFuture;
   @Nullable
@@ -81,8 +83,9 @@ public class ReplicantSessionManagerImpl
   @PostConstruct
   void postConstruct()
   {
-    _removeClosedSessionsFuture = _executor.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, TimeUnit.MINUTES );
-    _pingSessionsFuture = _executor.scheduleAtFixedRate( this::pingSessions, 2, 1, TimeUnit.MINUTES );
+    _removeClosedSessionsFuture =
+      _scheduledExecutorService.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, TimeUnit.MINUTES );
+    _pingSessionsFuture = _scheduledExecutorService.scheduleAtFixedRate( this::pingSessions, 2, 1, TimeUnit.MINUTES );
   }
 
   @PreDestroy

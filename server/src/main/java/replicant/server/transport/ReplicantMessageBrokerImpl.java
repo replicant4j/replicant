@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,8 +15,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -24,6 +24,7 @@ import javax.websocket.CloseReason;
 import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
+import replicant.server.ee.ReplicantSystem;
 
 @ApplicationScoped
 @Transactional( Transactional.TxType.NOT_SUPPORTED )
@@ -45,13 +46,20 @@ public class ReplicantMessageBrokerImpl
   @VisibleForTesting
   @Inject
   ReplicantSessionManager _sessionManager;
-  @Resource( lookup = "java:comp/DefaultManagedScheduledExecutorService" )
-  private ManagedScheduledExecutorService _executor;
-  @Resource( lookup = "replicant/broker/maxConcurrentDrainTasks" )
+  @Inject
+  @ReplicantSystem( "ScheduledExecutorService" )
+  private ScheduledExecutorService _scheduledExecutorService;
+  @Inject
+  @ReplicantSystem( "ExecutorService" )
+  private ExecutorService _executorService;
+  @Inject
+  @ReplicantSystem( "broker/maxConcurrentDrainTasks" )
   private Integer _maxConcurrentDrainTasks;
-  @Resource( lookup = "replicant/broker/maxPacketsPerRun" )
+  @Inject
+  @ReplicantSystem( "broker/maxPacketsPerRun" )
   private Integer _maxPacketsPerRun;
-  @Resource( lookup = "replicant/broker/maxSessionsPerDrainTask" )
+  @Inject
+  @ReplicantSystem( "broker/maxSessionsPerDrainTask" )
   private Integer _maxSessionsPerDrainTask;
   private volatile boolean _stopping;
 
@@ -294,13 +302,13 @@ public class ReplicantMessageBrokerImpl
   @VisibleForTesting
   void submitDrainTask( @Nonnull final Runnable task )
   {
-    _executor.execute( task );
+    _executorService.execute( task );
   }
 
   @VisibleForTesting
   void scheduleRetryTask( @Nonnull final Runnable task )
   {
-    _executor.schedule( task, RETRY_DELAY, TimeUnit.MILLISECONDS );
+    _scheduledExecutorService.schedule( task, RETRY_DELAY, TimeUnit.MILLISECONDS );
   }
 
   @VisibleForTesting
