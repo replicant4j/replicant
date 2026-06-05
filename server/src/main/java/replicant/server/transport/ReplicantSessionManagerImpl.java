@@ -91,6 +91,10 @@ public class ReplicantSessionManagerImpl
   @PreDestroy
   void preDestroy()
   {
+    if ( LOG.isLoggable( Level.INFO ) )
+    {
+      LOG.log( Level.INFO, "event=session.manager.stop sessionCount=" + getSessions().size() );
+    }
     if ( null != _removeClosedSessionsFuture )
     {
       _removeClosedSessionsFuture.cancel( true );
@@ -274,17 +278,26 @@ public class ReplicantSessionManagerImpl
   @Override
   public void invalidateSession( @Nonnull final ReplicantSession session )
   {
+    var removed = false;
     _lock.writeLock().lock();
     try
     {
       if ( null != _sessions.remove( session.getId() ) )
       {
+        removed = true;
         session.close();
       }
     }
     finally
     {
       _lock.writeLock().unlock();
+    }
+    if ( LOG.isLoggable( removed ? Level.INFO : Level.FINE ) )
+    {
+      LOG.log( removed ? Level.INFO : Level.FINE,
+               "event=session.invalidate sessionId=" + session.getId() +
+               " removed=" + removed +
+               " sessionCount=" + getSessions().size() );
     }
   }
 
@@ -322,14 +335,23 @@ public class ReplicantSessionManagerImpl
   public ReplicantSession createSession( @Nonnull final Session webSocketSession )
   {
     final var session = new ReplicantSession( webSocketSession );
+    var sessionCount = 0;
     _lock.writeLock().lock();
     try
     {
       _sessions.put( session.getId(), session );
+      sessionCount = _sessions.size();
     }
     finally
     {
       _lock.writeLock().unlock();
+    }
+    if ( LOG.isLoggable( Level.INFO ) )
+    {
+      LOG.log( Level.INFO,
+               "event=session.create sessionId=" + session.getId() +
+               " webSocketSessionId=" + webSocketSession.getId() +
+               " sessionCount=" + sessionCount );
     }
     return session;
   }
@@ -363,10 +385,12 @@ public class ReplicantSessionManagerImpl
   @SuppressWarnings( "WeakerAccess" )
   public void removeAllSessions()
   {
+    var removedCount = 0;
     if ( _lock.writeLock().tryLock() )
     {
       try
       {
+        removedCount = _sessions.size();
         new ArrayList<>( _sessions.values() ).forEach( ReplicantSession::close );
         _sessions.clear();
       }
@@ -374,6 +398,10 @@ public class ReplicantSessionManagerImpl
       {
         _lock.writeLock().unlock();
       }
+    }
+    if ( LOG.isLoggable( Level.INFO ) && removedCount > 0 )
+    {
+      LOG.log( Level.INFO, "event=session.removeAll removedCount=" + removedCount + " sessionCount=0" );
     }
   }
 
@@ -383,6 +411,8 @@ public class ReplicantSessionManagerImpl
   @SuppressWarnings( "WeakerAccess" )
   public void removeClosedSessions()
   {
+    var removedCount = 0;
+    var sessionCount = 0;
     if ( _lock.writeLock().tryLock() )
     {
       try
@@ -394,13 +424,21 @@ public class ReplicantSessionManagerImpl
           if ( !session.getWebSocketSession().isOpen() )
           {
             iterator.remove();
+            removedCount++;
           }
         }
+        sessionCount = _sessions.size();
       }
       finally
       {
         _lock.writeLock().unlock();
       }
+    }
+    if ( LOG.isLoggable( Level.FINE ) && removedCount > 0 )
+    {
+      LOG.log( Level.FINE,
+               "event=session.removeClosed removedCount=" + removedCount +
+               " sessionCount=" + sessionCount );
     }
   }
 
@@ -492,7 +530,7 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  public boolean sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
   {
     final var incomingEntityCount = packet.messages().size() + packet.changeSet().getChanges().size();
     final var incomingChannelLinks =
@@ -522,6 +560,19 @@ public class ReplicantSessionManagerImpl
     final var changeSet = packet.changeSet();
 
     assert null == response || null != requestId;
+    if ( !session.isOpen() )
+    {
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=session.change.skip reason=sessionClosed sessionId=" + session.getId() +
+                 " requestId=" + requestId +
+                 " incomingEntityCount=" + incomingEntityCount +
+                 " incomingChannelLinkCount=" + incomingChannelLinks +
+                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() );
+      }
+      return false;
+    }
     processMessages( messages, session, changeSet );
 
     // ChangeSets that occur during a subscription that result in a use-cache message
@@ -550,17 +601,38 @@ public class ReplicantSessionManagerImpl
             .distinct()
             .count();
         final var actions = changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList();
-        LOG.log( level, "⮕ Session[" + session.getId() + "] :" +
-                        ( null != etag ? " eTag=" + etag : "" ) +
-                        ( null != etag ? " =" + requestId : "" ) +
-                        ( packet.altersExplicitSubscriptions() ? " 🔔" : "" ) +
-                        " Incoming[Count=" + incomingEntityCount + ",Links=" + incomingChannelLinks + "]" +
-                        " Outgoing[Count=" + outgoingEntityCount + ",Links=" + outgoingChannelLinks + "]" +
-                        " ExpandCycleCount=" + expandCycleCount +
-                        " ExpandTime=" + expansionDuration + "ms" +
-                        " Channels" + actions );
+        LOG.log( level,
+                 "event=session.change.send sessionId=" + session.getId() +
+                 " requestId=" + requestId +
+                 " etag=" + etag +
+                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() +
+                 " incomingEntityCount=" + incomingEntityCount +
+                 " incomingChannelLinkCount=" + incomingChannelLinks +
+                 " outgoingEntityCount=" + outgoingEntityCount +
+                 " outgoingChannelLinkCount=" + outgoingChannelLinks +
+                 " expandCycleCount=" + expandCycleCount +
+                 " expandTimeMs=" + expansionDuration +
+                 " channelActions=" + actions );
       }
       session.sendPacket( requestId, response, etag, changeSet );
+      return true;
+    }
+    else
+    {
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=session.change.skip reason=noContent sessionId=" + session.getId() +
+                 " requestId=" + requestId +
+                 " etag=" + etag +
+                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() +
+                 " incomingEntityCount=" + incomingEntityCount +
+                 " incomingChannelLinkCount=" + incomingChannelLinks +
+                 " messageCount=" + messages.size() +
+                 " changeCount=" + changeSet.getChanges().size() +
+                 " channelActionCount=" + changeSet.getChannelActions().size() );
+      }
+      return false;
     }
   }
 

@@ -75,8 +75,9 @@ public interface ReplicantSessionManager
    *
    * @param session the session
    * @param packet  the packet  associated with the change.
+   * @return true if the message was sent, false if the session is closed or packet did not need to be sent.
    */
-  void sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
+  boolean sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
 
   /**
    * Clears any cached data associated with the system.

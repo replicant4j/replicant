@@ -91,7 +91,7 @@ public class ReplicantMessageBrokerImplTest
     doAnswer( invocation -> {
       sendStarted.countDown();
       assertTrue( releaseSend.await( 10, TimeUnit.SECONDS ) );
-      return null;
+      return true;
     } ).when( broker._sessionManager ).sendChangeMessage( eq( session1 ), eq( packet1 ) );
 
     final var worker = broker.startNextDrainTaskInNewThread();
@@ -327,7 +327,7 @@ public class ReplicantMessageBrokerImplTest
     final var packet2 = queuePacket( broker, session );
     doAnswer( invocation -> {
       open.set( false );
-      return null;
+      return true;
     } ).when( broker._sessionManager ).sendChangeMessage( eq( session ), eq( packet1 ) );
 
     broker.runNextDrainTask();
@@ -527,6 +527,7 @@ public class ReplicantMessageBrokerImplTest
     public TestReplicantMessageBrokerImpl()
     {
       _sessionManager = mock( ReplicantSessionManager.class );
+      when( _sessionManager.sendChangeMessage( any(), any() ) ).thenReturn( true );
       setMaxConcurrentDrainTasks( Math.max( 2, Runtime.getRuntime().availableProcessors() ) );
       setMaxPacketsPerRun( 64 );
       setMaxSessionsPerDrainTask( 64 );

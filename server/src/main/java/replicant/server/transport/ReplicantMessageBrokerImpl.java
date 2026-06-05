@@ -67,6 +67,14 @@ public class ReplicantMessageBrokerImpl
   void preDestroy()
   {
     _stopping = true;
+    if ( LOG.isLoggable( Level.INFO ) )
+    {
+      LOG.log( Level.INFO,
+               "event=broker.stop queueSize=" + _queue.size() +
+               " activeDrainTasks=" + _activeDrainTasks.get() +
+               " workStateCount=" + _workStates.size() +
+               " retryScheduled=" + _retryScheduled.get() );
+    }
   }
 
   @Nonnull
@@ -81,27 +89,41 @@ public class ReplicantMessageBrokerImpl
   {
     final var packet = new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet );
     session.queuePacket( packet );
-    enqueueSessionIfRequired( session );
+    final var newlyQueued = enqueueSessionIfRequired( session );
     scheduleDrainTasks();
-    if ( LOG.isLoggable( Level.FINEST ) )
+    if ( LOG.isLoggable( Level.FINE ) )
     {
-      LOG.log( Level.FINEST, () -> "queueChangeMessage() queue.size=" + _queue.size() + " packet=" + packet );
+      LOG.log( Level.FINE,
+               "event=broker.packet.queue sessionId=" + session.getId() +
+               " requestId=" + requestId +
+               " messageCount=" + messages.size() +
+               " changeCount=" + changeSet.getChanges().size() +
+               " channelActionCount=" + changeSet.getChannelActions().size() +
+               " altersExplicitSubscriptions=" + altersExplicitSubscriptions +
+               " newlyQueued=" + newlyQueued +
+               " queueSize=" + _queue.size() +
+               " workStateCount=" + _workStates.size() +
+               " activeDrainTasks=" + _activeDrainTasks.get() );
     }
     return packet;
   }
 
-  private void enqueueSessionIfRequired( @Nonnull final ReplicantSession session )
+  private boolean enqueueSessionIfRequired( @Nonnull final ReplicantSession session )
   {
     if ( null == _workStates.putIfAbsent( session.getId(), WorkState.QUEUED ) )
     {
       _queue.add( session );
+      return true;
     }
+    return false;
   }
 
   private void scheduleDrainTasks()
   {
     if ( !_stopping )
     {
+      final var initialActiveDrainTasks = _activeDrainTasks.get();
+      var submittedDrainTasks = 0;
       while ( !_queue.isEmpty() )
       {
         if ( reserveDrainTask() )
@@ -109,22 +131,58 @@ public class ReplicantMessageBrokerImpl
           try
           {
             submitDrainTask( this::runDrainTask );
+            submittedDrainTasks++;
           }
           catch ( final RuntimeException e )
           {
             _activeDrainTasks.decrementAndGet();
-            LOG.log( Level.SEVERE,
-                     e,
-                     () -> "Unable to submit Replicant drain task. queue.size=" + _queue.size() +
-                           " activeDrainTasks=" + _activeDrainTasks.get() );
+            if ( LOG.isLoggable( Level.SEVERE ) )
+            {
+              LOG.log( Level.SEVERE,
+                       "event=broker.drain.submit.failed queueSize=" + _queue.size() +
+                       " activeDrainTasks=" + _activeDrainTasks.get() +
+                       " submittedDrainTasks=" + submittedDrainTasks +
+                       " retryRequested=true",
+                       e );
+            }
             scheduleDelayedRetry();
             return;
           }
         }
         else
         {
+          if ( LOG.isLoggable( Level.FINE ) )
+          {
+            LOG.log( Level.FINE,
+                     "event=broker.drain.schedule submittedDrainTasks=" + submittedDrainTasks +
+                     " initialActiveDrainTasks=" + initialActiveDrainTasks +
+                     " activeDrainTasks=" + _activeDrainTasks.get() +
+                     " queueSize=" + _queue.size() +
+                     " workStateCount=" + _workStates.size() +
+                     " maxConcurrentDrainTasks=" + _maxConcurrentDrainTasks );
+          }
           return;
         }
+      }
+      if ( LOG.isLoggable( Level.FINE ) && submittedDrainTasks > 0 )
+      {
+        LOG.log( Level.FINE,
+                 "event=broker.drain.schedule submittedDrainTasks=" + submittedDrainTasks +
+                 " initialActiveDrainTasks=" + initialActiveDrainTasks +
+                 " activeDrainTasks=" + _activeDrainTasks.get() +
+                 " queueSize=" + _queue.size() +
+                 " workStateCount=" + _workStates.size() +
+                 " maxConcurrentDrainTasks=" + _maxConcurrentDrainTasks );
+      }
+    }
+    else
+    {
+      if ( LOG.isLoggable( Level.INFO ) )
+      {
+        LOG.log( Level.INFO,
+                 "event=broker.drain.schedule.skip reason=stopping queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get() +
+                 " workStateCount=" + _workStates.size() );
       }
     }
   }
@@ -147,7 +205,9 @@ public class ReplicantMessageBrokerImpl
 
   private void runDrainTask()
   {
+    final var start = System.nanoTime();
     var madeProgress = false;
+    var retryRequested = false;
     try
     {
       madeProgress = drainQueuedSessions();
@@ -167,14 +227,31 @@ public class ReplicantMessageBrokerImpl
         }
         else
         {
+          retryRequested = true;
           scheduleDelayedRetry();
         }
+      }
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        final var durationMs = ( System.nanoTime() - start ) / 1000000L;
+        LOG.log( Level.FINE,
+                 "event=broker.drain.run durationMs=" + durationMs +
+                 " madeProgress=" + madeProgress +
+                 " retryRequested=" + retryRequested +
+                 " queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get() +
+                 " workStateCount=" + _workStates.size() +
+                 " retryScheduled=" + _retryScheduled.get() );
       }
     }
   }
 
   private boolean drainQueuedSessions()
   {
+    var sessionsPolled = 0;
+    var sessionsProcessed = 0;
+    var duplicateSessionsSkipped = 0;
+    var sessionsSkipped = 0;
     var madeProgress = false;
     final var processedSessionIds = new HashSet<String>();
     for ( var i = 0; i < _maxSessionsPerDrainTask; i++ )
@@ -184,15 +261,36 @@ public class ReplicantMessageBrokerImpl
       {
         break;
       }
-      if ( !processedSessionIds.add( session.getId() ) )
+      else
       {
-        _queue.add( session );
-        break;
+        sessionsPolled++;
+        if ( !processedSessionIds.add( session.getId() ) )
+        {
+          duplicateSessionsSkipped++;
+          _queue.add( session );
+          break;
+        }
+        else if ( processPendingSession( session ) )
+        {
+          sessionsProcessed++;
+          madeProgress = true;
+        }
+        else
+        {
+          sessionsSkipped++;
+        }
       }
-      if ( processPendingSession( session ) )
-      {
-        madeProgress = true;
-      }
+    }
+    if ( LOG.isLoggable( Level.FINE ) )
+    {
+      LOG.log( Level.FINE,
+               "event=broker.drain.sessions threadId=" + Thread.currentThread().getId() +
+               " sessionsPolled=" + sessionsPolled +
+               " sessionsProcessed=" + sessionsProcessed +
+               " duplicateSessionsSkipped=" + duplicateSessionsSkipped +
+               " sessionsSkipped=" + sessionsSkipped +
+               " queueSize=" + _queue.size() +
+               " maxSessionsPerDrainTask=" + _maxSessionsPerDrainTask );
     }
     return madeProgress;
   }
@@ -200,45 +298,93 @@ public class ReplicantMessageBrokerImpl
   private boolean processPendingSession( @Nonnull final ReplicantSession session )
   {
     final var id = session.getId();
-    LOG.log( Level.FINEST, () -> "Processing pending ChangeSets for session " + id );
+    if ( LOG.isLoggable( Level.FINEST ) )
+    {
+      LOG.log( Level.FINEST, "event=broker.session.process.start sessionId=" + id );
+    }
     if ( !_workStates.replace( id, WorkState.QUEUED, WorkState.RUNNING ) )
     {
+      if ( LOG.isLoggable( Level.FINEST ) )
+      {
+        LOG.log( Level.FINEST,
+                 "event=broker.session.process.skip reason=workStateMismatch sessionId=" + id +
+                 " queueSize=" + _queue.size() +
+                 " workStateCount=" + _workStates.size() );
+      }
       return false;
     }
     if ( !session.isOpen() )
     {
       _workStates.remove( id, WorkState.RUNNING );
+      if ( LOG.isLoggable( Level.FINEST ) )
+      {
+        LOG.log( Level.FINEST, "event=broker.session.process.skip reason=sessionClosed sessionId=" + id );
+      }
       return true;
     }
     final var lock = session.getLock();
     if ( !lock.tryLock() )
     {
       requeueRunningSession( session );
+      if ( LOG.isLoggable( Level.FINEST ) )
+      {
+        LOG.log( Level.FINEST,
+                 "event=broker.session.process.skip reason=lockContention sessionId=" + id +
+                 " requeued=true queueSize=" + _queue.size() );
+      }
       return false;
     }
     var processedPacket = false;
     var closeSession = false;
+    Packet currentPacket = null;
     try
     {
+      var packetsProcessed = 0;
+      var emptyPacketsSkipped = 0;
       for ( var i = 0; i < _maxPacketsPerRun; i++ )
       {
         final var packet = session.popPendingPacket();
+        currentPacket = packet;
         if ( null == packet )
         {
           break;
         }
-        processedPacket = true;
-        _sessionManager.sendChangeMessage( session, packet );
-        if ( !session.isOpen() )
+        else
         {
-          closeSession = true;
-          break;
+          processedPacket = true;
+          if ( _sessionManager.sendChangeMessage( session, packet ) )
+          {
+            packetsProcessed++;
+          }
+          else
+          {
+            emptyPacketsSkipped++;
+          }
+          if ( !session.isOpen() )
+          {
+            closeSession = true;
+            break;
+          }
         }
+      }
+      if ( LOG.isLoggable( Level.FINEST ) )
+      {
+        LOG.log( Level.FINEST,
+                 "event=broker.session.process.complete sessionId=" + id +
+                 " packetsProcessed=" + packetsProcessed +
+                 " emptyPacketsSkipped=" + emptyPacketsSkipped +
+                 " closeSession=" + closeSession +
+                 " hasPendingPackets=" + session.hasPendingPackets() );
       }
     }
     catch ( final Throwable t )
     {
-      LOG.log( Level.SEVERE, t, () -> "Error completing send of packet for session " + id );
+      if ( LOG.isLoggable( Level.SEVERE ) )
+      {
+        LOG.log( Level.SEVERE,
+                 "event=broker.packet.process.failed sessionId=" + id + " " + describePacket( currentPacket ),
+                 t );
+      }
       session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Packet processing failed" ) );
       closeSession = true;
     }
@@ -255,6 +401,12 @@ public class ReplicantMessageBrokerImpl
     {
       if ( session.hasPendingPackets() )
       {
+        if ( LOG.isLoggable( Level.FINEST ) )
+        {
+          LOG.log( Level.FINEST,
+                   "event=broker.session.requeue reason=pendingPackets sessionId=" + id +
+                   " queueSize=" + _queue.size() );
+        }
         enqueueSessionIfRequired( session );
       }
       return processedPacket;
@@ -266,26 +418,69 @@ public class ReplicantMessageBrokerImpl
     if ( _workStates.replace( session.getId(), WorkState.RUNNING, WorkState.QUEUED ) )
     {
       _queue.add( session );
+      if ( LOG.isLoggable( Level.FINEST ) )
+      {
+        LOG.log( Level.FINEST,
+                 "event=broker.session.requeue reason=lockContention sessionId=" + session.getId() +
+                 " queueSize=" + _queue.size() );
+      }
     }
   }
 
   private void scheduleDelayedRetry()
   {
-    if ( _stopping || _queue.isEmpty() || !_retryScheduled.compareAndSet( false, true ) )
+    if ( _stopping )
     {
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=broker.retry.schedule.skip reason=stopping queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get() );
+      }
+      return;
+    }
+    if ( _queue.isEmpty() )
+    {
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=broker.retry.schedule.skip reason=emptyQueue activeDrainTasks=" +
+                 _activeDrainTasks.get() );
+      }
+      return;
+    }
+    if ( !_retryScheduled.compareAndSet( false, true ) )
+    {
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=broker.retry.schedule.skip reason=alreadyScheduled queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get() );
+      }
       return;
     }
     try
     {
       scheduleRetryTask( this::runDelayedRetry );
+      if ( LOG.isLoggable( Level.FINE ) )
+      {
+        LOG.log( Level.FINE,
+                 "event=broker.retry.schedule delayMs=" + RETRY_DELAY +
+                 " queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get() +
+                 " workStateCount=" + _workStates.size() );
+      }
     }
     catch ( final RuntimeException e )
     {
       _retryScheduled.set( false );
-      LOG.log( Level.SEVERE,
-               e,
-               () -> "Unable to schedule Replicant drain retry. queue.size=" + _queue.size() +
-                     " activeDrainTasks=" + _activeDrainTasks.get() );
+      if ( LOG.isLoggable( Level.SEVERE ) )
+      {
+        LOG.log( Level.SEVERE,
+                 "event=broker.retry.schedule.failed queueSize=" + _queue.size() +
+                 " activeDrainTasks=" + _activeDrainTasks.get(),
+                 e );
+      }
     }
   }
 
@@ -297,6 +492,20 @@ public class ReplicantMessageBrokerImpl
     {
       scheduleDrainTasks();
     }
+  }
+
+  @Nonnull
+  private String describePacket( @Nullable final Packet packet )
+  {
+    if ( null == packet )
+    {
+      return "packetPresent=false";
+    }
+    return "packetPresent=true requestId=" + packet.requestId() +
+           " messageCount=" + packet.messages().size() +
+           " changeCount=" + packet.changeSet().getChanges().size() +
+           " channelActionCount=" + packet.changeSet().getChannelActions().size() +
+           " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions();
   }
 
   @VisibleForTesting
