@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
@@ -99,6 +100,7 @@ public final class RegistryUtil
   public static final class TestInitialContextFactory
     implements InitialContextFactory
   {
+    @Nullable
     private static MemoryContext c_context;
 
     @SuppressWarnings( { "rawtypes", "RedundantSuppression" } )

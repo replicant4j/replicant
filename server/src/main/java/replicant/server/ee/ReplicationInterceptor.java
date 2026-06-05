@@ -1,7 +1,5 @@
 package replicant.server.ee;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -10,7 +8,6 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ServerConstants;
-import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionManager;
 
 /**

@@ -1,7 +1,6 @@
 package replicant.server.ee;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Resource;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.naming.InitialContext;

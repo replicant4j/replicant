@@ -200,8 +200,7 @@ public final class ChannelMetaData
 
   @Contract( pure = true )
   @Nonnull
-  @UnmodifiableView
-  public Set<ChannelMetaData> getDependentChannels()
+  public @UnmodifiableView Set<ChannelMetaData> getDependentChannels()
   {
     return Collections.unmodifiableSet( _dependentChannels );
   }

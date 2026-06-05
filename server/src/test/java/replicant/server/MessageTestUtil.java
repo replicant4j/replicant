@@ -21,6 +21,10 @@ public final class MessageTestUtil
   @Nonnull
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
+  private MessageTestUtil()
+  {
+  }
+
   @Nonnull
   public static EntityMessage createMessage( final int id,
                                              final int typeID,

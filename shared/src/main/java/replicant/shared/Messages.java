@@ -4,6 +4,10 @@ import javax.annotation.Nonnull;
 
 public final class Messages
 {
+  private Messages()
+  {
+  }
+
   /**
    * Types of Server to Client messages.
    */

@@ -246,6 +246,7 @@ public class ReplicantMessageBrokerImpl
     }
   }
 
+  @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
   private boolean drainQueuedSessions()
   {
     var sessionsPolled = 0;

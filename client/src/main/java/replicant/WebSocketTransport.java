@@ -17,6 +17,7 @@ public final class WebSocketTransport
 {
   @Nonnull
   private final WebSocketConfig _config;
+  @Nullable
   private WebSocket _webSocket;
 
   public WebSocketTransport( @Nonnull final WebSocketConfig config )

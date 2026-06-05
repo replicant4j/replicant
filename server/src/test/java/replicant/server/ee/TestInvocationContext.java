@@ -3,6 +3,7 @@ package replicant.server.ee;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.interceptor.InvocationContext;
 
 public class TestInvocationContext
@@ -46,6 +47,7 @@ public class TestInvocationContext
   {
   }
 
+  @Nullable
   @Override
   public Map<String, Object> getContextData()
   {

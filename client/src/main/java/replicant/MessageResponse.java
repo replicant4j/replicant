@@ -31,6 +31,7 @@ final class MessageResponse
    * The current index into changes.
    */
   private int _entityChangeIndex;
+  @Nullable
   private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
   /**
    * The list of entities that have been changed during processing.

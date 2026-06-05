@@ -9,7 +9,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.*;
 
 @Listeners( MessageCollector.class )
 @ActionWrapper( enable = false )
@@ -94,8 +93,8 @@ public abstract class AbstractReplicantTest
         clazz = clazz.getSuperclass();
       }
     }
-    fail();
-    return null;
+
+    throw new AssertionError( "Field '" + fieldName + "' not found in class hierarchy" );
   }
 
   @SuppressWarnings( "SameParameterValue" )

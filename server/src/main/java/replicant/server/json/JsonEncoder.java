@@ -16,7 +16,6 @@ import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAction.Action;
 import replicant.server.ChannelAddress;
-import replicant.server.EntityMessage;
 import replicant.shared.Messages;
 
 /**

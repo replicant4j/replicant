@@ -188,6 +188,7 @@ public class ReplicantSessionManagerImpl
    * @param session       the session that initiated change if any.
    * @param requestId     the id of the request in the session that initiated change..
    */
+  @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
   private void startReplication( @Nonnull final String invocationKey,
                                  @Nullable final ReplicantSession session,
                                  @Nullable final Integer requestId )
@@ -221,6 +222,7 @@ public class ReplicantSessionManagerImpl
   /**
    * Complete a replication context and submit changes for replication.
    */
+  @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
   private void completeReplication( @Nonnull final String invocationKey )
   {
     if ( Status.STATUS_ACTIVE == _registry.getTransactionStatus() &&

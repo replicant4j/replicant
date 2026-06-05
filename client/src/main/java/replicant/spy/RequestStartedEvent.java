@@ -14,7 +14,6 @@ public final class RequestStartedEvent
   private final int _schemaId;
   @Nonnull
   private final String _schemaName;
-  @Nonnull
   private final int _requestId;
   @Nonnull
   private final String _name;
