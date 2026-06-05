@@ -1,7 +1,7 @@
 load("//third_party/java:java_single_jar.bzl", "java_single_jar")
-load("//third_party/java:rules.bzl", "java_library", "java_testng")
+load("//third_party/java:rules.bzl", "java_server_library", "java_testng")
 
-java_library(
+java_server_library(
     name = "server_lib",
     srcs = glob(["src/main/java/**/*.java"]),
     deps = [
@@ -13,7 +13,7 @@ java_library(
     ],
 )
 
-java_library(
+java_server_library(
     name = "server_test_support",
     srcs = glob(
         ["src/test/java/**/*.java"],

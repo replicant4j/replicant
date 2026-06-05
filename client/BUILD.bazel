@@ -1,5 +1,5 @@
 load("//third_party/java:java_single_jar.bzl", "java_single_jar")
-load("//third_party/java:rules.bzl", "PROCESSOR_JAVACOPTS", "java_library", "java_testng")
+load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=false",
@@ -16,7 +16,6 @@ CLIENT_TEST_DATA = ["src/test/java/replicant/diagnostic_messages.json"]
 java_library(
     name = "client_lib",
     srcs = glob(["src/main/java/**/*.java"]),
-    javacopts = PROCESSOR_JAVACOPTS,
     plugins = [
         "//third_party/java:arez_processor_plugin",
         "//third_party/java:grim_processor_plugin",

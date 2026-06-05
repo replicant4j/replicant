@@ -20,3 +20,68 @@ build --strategy=JavaIjar=local
 build --strategy=JavaDeployJar=local
 build --strategy=JavaSourceJar=local
 build --strategy=Turbine=local
+
+# Remove unused java header compilation
+build --nojava_header_compilation
+
+# Checks that a Java target explicitly declares all directly used targets as dependencies.
+test --experimental_strict_java_deps error
+build --experimental_strict_java_deps error
+
+# Explicitly specify a dependency to JUnit or Hamcrest in a java_test instead of accidentally obtaining from the TestRunner's deps
+test --explicit_java_test_deps
+build --explicit_java_test_deps
+
+build --host_copt=-Wno-deprecated-declarations
+build --host_cxxopt=-Wno-deprecated-declarations
+
+
+# Directories used by sandboxed non-worker execution may be reused to avoid unnecessary setup costs.
+# Save time on Sandbox creation and deletion when many of the same kind of action run during the
+# build.
+# No longer experimental in Bazel 6: https://github.com/bazelbuild/bazel/commit/c1a95501a5611878e5cc43a3cc531f2b9e47835b
+# Docs: https://bazel.build/reference/command-line-reference#flag--reuse_sandbox_directories
+build --reuse_sandbox_directories
+
+build --sandbox_default_allow_network=false
+
+# Attempt to build & test every target whose prerequisites were successfully built.
+# Docs: https://bazel.build/docs/user-manual#keep-going
+build --keep_going
+
+# Output test errors to stderr so users don't have to `cat` or open test failure log files when test
+# fail. This makes the log noiser in exchange for reducing the time-to-feedback on test failures for
+# users.
+# Docs: https://bazel.build/docs/user-manual#test-output
+test --test_output=errors
+
+# Generate the symlink tree as a peer directory
+# If we generate in the current directory, IDEA can start scanning an ultimately get locked up or crash
+# Generating symlinks in a separate location makes IDEA work with the risk that multiple rose projects in the
+# same directory is not possible without overriding this on a per user basis
+common --symlink_prefix=../replicant-bazel/
+
+# Do not stop at first error in build or analysis phase but keep going as long as prerequisites are successful
+test --keep_going
+
+# Do not embed build information in binaries. This reduces input volatility and maximizes build caching.
+build --nostamp
+
+# Change the behavior of bazel test to not bother building targets
+# which aren't dependencies of the tests.
+test --build_tests_only
+
+test --test_summary=detailed
+
+# Try to use the operating system's file watch service for local changes instead of scanning every file for a change
+build --watchfs
+build --experimental_windows_watchfs
+
+# filesets crossing package boundaries are reported as errors
+build --strict_filesets
+
+# If a command fails, print out the full command line.
+build --verbose_failures
+
+# Try and import a user specific configuration
+try-import %workspace%/user.bazelrc
