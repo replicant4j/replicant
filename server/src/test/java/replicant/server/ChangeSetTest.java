@@ -160,14 +160,15 @@ public class ChangeSetTest
     final var messageSet = new EntityMessageSet();
     messageSet.merge( message1 );
 
-    changeSet.merge( ChannelAddress.of( 1 ), messageSet );
+    final var address = ChannelAddress.of( 1 );
+    changeSet.merge( List.of( new Change( message1, address ) ) );
 
     final var changes = changeSet.getChanges();
     assertEquals( changes.size(), 1 );
     final var change = changes.iterator().next();
     assertEquals( change.getEntityMessage().getId(), id );
     assertEquals( change.getChannels().size(), 1 );
-    assertTrue( change.getChannels().contains( ChannelAddress.of( 1 ) ) );
+    assertTrue( change.getChannels().contains( address ) );
   }
 
   @Test

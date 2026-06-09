@@ -62,13 +62,6 @@ java_testng(
 )
 
 java_testng(
-    name = "change_util_test",
-    srcs = ["src/test/java/replicant/server/ChangeUtilTest.java"],
-    test_class = "replicant.server.ChangeUtilTest",
-    deps = [":server_test_support"],
-)
-
-java_testng(
     name = "channel_address_test",
     srcs = ["src/test/java/replicant/server/ChannelAddressTest.java"],
     test_class = "replicant.server.ChannelAddressTest",

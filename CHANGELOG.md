@@ -4,6 +4,7 @@
 
 * Centralize server transport filter equality checks around JSON-P `JsonObject` filters and cover subscription update
   matching behavior with focused tests.
+* Remove the unused server `ChangeUtil` helper and the `ChangeSet` merge overload that only delegated to it.
 
 ### [v6.197](https://github.com/replicant4j/replicant/tree/v6.197) (2026-06-05) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.196...v6.197)
 

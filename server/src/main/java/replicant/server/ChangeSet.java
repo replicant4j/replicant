@@ -163,11 +163,6 @@ public final class ChangeSet
     mergeActions( changeSet.getChannelActions() );
   }
 
-  public void merge( @Nonnull final ChannelAddress address, @Nonnull final EntityMessageSet messages )
-  {
-    merge( ChangeUtil.toChanges( messages.getEntityMessages(), address ) );
-  }
-
   @Nonnull
   public Collection<Change> getChanges()
   {
