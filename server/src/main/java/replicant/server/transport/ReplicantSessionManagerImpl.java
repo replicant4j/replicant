@@ -1085,7 +1085,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private boolean doFiltersNotMatch( final Object filter1, final Object filter2 )
+  private boolean doFiltersNotMatch( @Nullable final Object filter1, @Nullable final Object filter2 )
   {
     return ( null != filter2 || null != filter1 ) && ( null == filter2 || !filter2.equals( filter1 ) );
   }
