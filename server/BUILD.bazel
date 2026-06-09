@@ -154,8 +154,8 @@ java_testng(
 
 java_testng(
     name = "filter_util_test",
-    srcs = ["src/test/java/replicant/server/transport/FilterUtilTest.java"],
-    test_class = "replicant.server.transport.FilterUtilTest",
+    srcs = ["src/test/java/replicant/server/FilterUtilTest.java"],
+    test_class = "replicant.server.FilterUtilTest",
     deps = [":server_test_support"],
 )
 

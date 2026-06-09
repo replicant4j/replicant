@@ -41,6 +41,7 @@ import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
+import replicant.server.FilterUtil;
 import replicant.server.ServerConstants;
 import replicant.server.ee.EntityMessageCacheUtil;
 import replicant.server.ee.ReplicantContextHolder;

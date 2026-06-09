@@ -1,4 +1,4 @@
-package replicant.server.transport;
+package replicant.server;
 
 import javax.json.Json;
 import org.testng.annotations.Test;
