@@ -12,9 +12,9 @@ import javax.transaction.TransactionSynchronizationRegistry;
 @ApplicationScoped
 public class ReplicantResources
 {
-  @Resource( lookup = "java:replicant/concurrent/ManagedScheduledExecutorService" )
+  @Resource( lookup = "replicant/concurrent/ManagedScheduledExecutorService" )
   private ManagedScheduledExecutorService _managedScheduledExecutorService;
-  @Resource( lookup = "java:replicant/concurrent/ManagedExecutorService" )
+  @Resource( lookup = "replicant/concurrent/ManagedExecutorService" )
   private ManagedExecutorService _managedExecutorService;
   @Resource( lookup = "replicant/broker/maxConcurrentDrainTasks" )
   private Integer _maxConcurrentDrainTasks;
