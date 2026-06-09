@@ -35,11 +35,6 @@ public final class ChangeSet
     _required = required;
   }
 
-  public boolean isCacheResponse()
-  {
-    return null != _eTag;
-  }
-
   @Nullable
   public String getETag()
   {
