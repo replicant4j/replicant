@@ -943,7 +943,7 @@ public class ReplicantSessionManagerImpl
       else
       {
         final var existingFilter = entry.getFilter();
-        if ( doFiltersNotMatch( filter, existingFilter ) )
+        if ( !FilterUtil.filtersEqual( filter, existingFilter ) )
         {
           channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
         }
@@ -1070,7 +1070,7 @@ public class ReplicantSessionManagerImpl
       else if ( channelMetaData.filterType().isStaticFilter() )
       {
         final var existingFilter = entry.getFilter();
-        if ( doFiltersNotMatch( filter, existingFilter ) )
+        if ( !FilterUtil.filtersEqual( filter, existingFilter ) )
         {
           final var message =
             "Attempted to update filter on channel " + entry.address() + " from " + existingFilter +
@@ -1083,11 +1083,6 @@ public class ReplicantSessionManagerImpl
     {
       doSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
     }
-  }
-
-  private boolean doFiltersNotMatch( @Nullable final Object filter1, @Nullable final Object filter2 )
-  {
-    return ( null != filter2 || null != filter1 ) && ( null == filter2 || !filter2.equals( filter1 ) );
   }
 
   private void subscribeToRequiredTypeChannels( @Nonnull final ReplicantSession session,
