@@ -987,7 +987,7 @@ public class ReplicantSessionManagerImpl
             {
               session.setETag( newChannel, null );
               final var cacheChangeSet = new ChangeSet();
-              cacheChangeSet.merge( cacheEntry.getChangeSet(), true );
+              cacheChangeSet.merge( cacheEntry.getChangeSet() );
               //cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.ADD, filter );
               queueCachedChangeSet( session, cacheChangeSet );
               changeSet.setRequired( false );

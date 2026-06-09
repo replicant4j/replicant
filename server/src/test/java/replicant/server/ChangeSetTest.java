@@ -130,7 +130,7 @@ public class ChangeSetTest
     changeSet.mergeAction( new ChannelAction( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
 
     final var changeSet2 = new ChangeSet();
-    changeSet2.merge( changeSet, true );
+    changeSet2.merge( changeSet );
 
     final var changes = changeSet2.getChanges();
     assertEquals( changes.size(), 1 );
@@ -157,13 +157,8 @@ public class ChangeSetTest
 
     final var copyTarget = new ChangeSet();
     assertNull( copyTarget.getETag() );
-    copyTarget.merge( source, true );
+    copyTarget.merge( source );
     assertEquals( copyTarget.getETag(), eTag );
-
-    final var directTarget = new ChangeSet();
-    assertNull( directTarget.getETag() );
-    directTarget.merge( source, false );
-    assertEquals( directTarget.getETag(), eTag );
   }
 
   @Test

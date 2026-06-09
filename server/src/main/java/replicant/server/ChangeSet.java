@@ -143,7 +143,7 @@ public final class ChangeSet
     merge( change, false );
   }
 
-  public void merge( @Nonnull final Change change, final boolean copyOnMerge )
+  void merge( @Nonnull final Change change, final boolean copyOnMerge )
   {
     final var existing = _changes.get( change.getKey() );
     if ( null != existing )
@@ -156,10 +156,10 @@ public final class ChangeSet
     }
   }
 
-  public void merge( @Nonnull final ChangeSet changeSet, final boolean copyOnMerge )
+  public void merge( @Nonnull final ChangeSet changeSet )
   {
     _eTag = changeSet.getETag();
-    merge( changeSet.getChanges(), copyOnMerge );
+    merge( changeSet.getChanges(), true );
     mergeActions( changeSet.getChannelActions() );
   }
 
