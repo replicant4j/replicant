@@ -149,6 +149,24 @@ public class ChangeSetTest
   }
 
   @Test
+  public void merge_copiesETag()
+  {
+    final var eTag = "etag-1";
+    final var source = new ChangeSet();
+    source.setETag( eTag );
+
+    final var copyTarget = new ChangeSet();
+    assertNull( copyTarget.getETag() );
+    copyTarget.merge( source, true );
+    assertEquals( copyTarget.getETag(), eTag );
+
+    final var directTarget = new ChangeSet();
+    assertNull( directTarget.getETag() );
+    directTarget.merge( source, false );
+    assertEquals( directTarget.getETag(), eTag );
+  }
+
+  @Test
   public void mergeEntityMessageSet()
   {
     final var changeSet = new ChangeSet();
