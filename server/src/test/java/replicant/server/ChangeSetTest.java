@@ -281,12 +281,12 @@ public class ChangeSetTest
 
     final var addThenRemove = new ChangeSet();
     addThenRemove.mergeAction( address, Action.ADD, filter1 );
-    addThenRemove.mergeAction( address, Action.REMOVE, filter2 );
+    addThenRemove.mergeAction( address, Action.REMOVE );
 
     assertTrue( addThenRemove.getChannelActions().isEmpty() );
 
     final var removeThenAdd = new ChangeSet();
-    removeThenAdd.mergeAction( address, Action.REMOVE, filter1 );
+    removeThenAdd.mergeAction( address, Action.REMOVE );
     removeThenAdd.mergeAction( address, Action.ADD, filter2 );
 
     assertTrue( removeThenAdd.getChannelActions().isEmpty() );

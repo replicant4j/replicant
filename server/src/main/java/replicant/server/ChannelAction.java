@@ -36,4 +36,9 @@ public record ChannelAction(@Nonnull ChannelAddress address, @Nonnull Action act
   {
     return new ChannelAction( address, action, filter );
   }
+
+  public ChannelAction
+  {
+    assert ( Action.ADD == action || Action.UPDATE == action ) || null == filter;
+  }
 }
