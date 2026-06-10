@@ -71,12 +71,13 @@ public final class ChangeSet
 
   public void mergeAction( @Nonnull final ChannelAction action )
   {
+    final var actionType = action.action();
     /*
      * If we have a matching inverse action in actions list then we can remove
      * that action and avoid adding this action. This avoids scenario where there
      * are multiple actions for the same address and filter in ChangeSet.
      */
-    if ( ChannelAction.Action.ADD == action.action() )
+    if ( ChannelAction.Action.ADD == actionType )
     {
       if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.action() &&
                                           a.address().equals( action.address() ) &&
@@ -85,7 +86,7 @@ public final class ChangeSet
         return;
       }
     }
-    else if ( ChannelAction.Action.UPDATE == action.action() )
+    else if ( ChannelAction.Action.UPDATE == actionType )
     {
       // We have got an update for one we are adding so ignore the update
       if ( _channelActions.stream().anyMatch( a -> ChannelAction.Action.ADD == a.action() &&
@@ -95,7 +96,7 @@ public final class ChangeSet
         return;
       }
     }
-    else if ( ChannelAction.Action.REMOVE == action.action() )
+    else if ( ChannelAction.Action.REMOVE == actionType )
     {
       if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
                                           a.address().equals( action.address() ) &&
@@ -104,7 +105,7 @@ public final class ChangeSet
         return;
       }
     }
-    else if ( ChannelAction.Action.DELETE == action.action() )
+    else if ( ChannelAction.Action.DELETE == actionType )
     {
       final var removedAdd =
         _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
