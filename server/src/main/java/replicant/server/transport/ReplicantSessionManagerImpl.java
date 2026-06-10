@@ -648,6 +648,18 @@ public class ReplicantSessionManagerImpl
 
       while ( true )
       {
+        if ( LOG.isLoggable( Level.FINE ) )
+        {
+          LOG.log( Level.FINE,
+                   "event=session.change.send.expand sessionId=" +
+                   session.getId() +
+                   " cycle=" +
+                   expandCycleCount +
+                   " changes=" +
+                   changeSet.getChanges().size() +
+                   " channelActions=" +
+                   changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList() );
+        }
         expandCycleCount++;
         collectChannelLinksToFollow( session, changeSet, pending );
         if ( pending.isEmpty() )
