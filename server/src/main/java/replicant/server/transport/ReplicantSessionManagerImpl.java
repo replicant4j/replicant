@@ -658,7 +658,8 @@ public class ReplicantSessionManagerImpl
                    " changes=" +
                    changeSet.getChanges().size() +
                    " channelActions=" +
-                   changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList() );
+                   changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList() +
+                   " pending=" + pending.stream().map( e -> e.target().toString() ).toList() );
         }
         expandCycleCount++;
         collectChannelLinksToFollow( session, changeSet, pending );
