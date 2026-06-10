@@ -250,29 +250,6 @@ public class ChangeSetTest
   }
 
   @Test
-  public void mergeAction_mixedFilteredAndUnfilteredAddAndRemoveDoNotCancel()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
-
-    final var addThenRemove = new ChangeSet();
-    addThenRemove.mergeAction( address, Action.ADD, filter );
-    addThenRemove.mergeAction( address, Action.REMOVE );
-
-    assertEquals( addThenRemove.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.ADD, filter ),
-                           new ChannelAction( address, Action.REMOVE, null ) ) );
-
-    final var removeThenAdd = new ChangeSet();
-    removeThenAdd.mergeAction( address, Action.REMOVE );
-    removeThenAdd.mergeAction( address, Action.ADD, filter );
-
-    assertEquals( removeThenAdd.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.REMOVE, null ),
-                           new ChannelAction( address, Action.ADD, filter ) ) );
-  }
-
-  @Test
   public void mergeAction_filteredAddAndRemoveWithSameFilterCancel()
   {
     final var address = ChannelAddress.of( 1, 2 );
@@ -293,30 +270,6 @@ public class ChangeSetTest
   }
 
   @Test
-  public void mergeAction_filteredAddAndRemoveWithDifferentFiltersDoNotCancel()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter1 = Json.createObjectBuilder().add( "k", "v1" ).build();
-    final var filter2 = Json.createObjectBuilder().add( "k", "v2" ).build();
-
-    final var addThenRemove = new ChangeSet();
-    addThenRemove.mergeAction( address, Action.ADD, filter1 );
-    addThenRemove.mergeAction( address, Action.REMOVE, filter2 );
-
-    assertEquals( addThenRemove.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.ADD, filter1 ),
-                           new ChannelAction( address, Action.REMOVE, filter2 ) ) );
-
-    final var removeThenAdd = new ChangeSet();
-    removeThenAdd.mergeAction( address, Action.REMOVE, filter1 );
-    removeThenAdd.mergeAction( address, Action.ADD, filter2 );
-
-    assertEquals( removeThenAdd.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.REMOVE, filter1 ),
-                           new ChannelAction( address, Action.ADD, filter2 ) ) );
-  }
-
-  @Test
   public void mergeAction_unfilteredUpdateAfterAddIsIgnored()
   {
     final var address = ChannelAddress.of( 1, 2 );
@@ -325,22 +278,7 @@ public class ChangeSetTest
     changeSet.mergeAction( address, Action.ADD );
     changeSet.mergeAction( address, Action.UPDATE );
 
-    assertEquals( changeSet.getChannelActions(), List.of( new ChannelAction( address, Action.ADD, null ) ) );
-  }
-
-  @Test
-  public void mergeAction_mixedFilteredAndUnfilteredUpdateAfterAddIsRetained()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var changeSet = new ChangeSet();
-
-    changeSet.mergeAction( address, Action.ADD );
-    changeSet.mergeAction( address, Action.UPDATE, filter );
-
-    assertEquals( changeSet.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.ADD, null ),
-                           new ChannelAction( address, Action.UPDATE, filter ) ) );
+    assertEquals( changeSet.getChannelActions(), List.of( ChannelAction.of( address, Action.ADD ) ) );
   }
 
   @Test
@@ -358,7 +296,7 @@ public class ChangeSetTest
   }
 
   @Test
-  public void mergeAction_filteredUpdateAfterAddWithDifferentFilterIsRetained()
+  public void mergeAction_filteredUpdateAfterAddWithDifferentFilterIsMerged()
   {
     final var address = ChannelAddress.of( 1, 2 );
     final var filter1 = Json.createObjectBuilder().add( "k", "v1" ).build();
@@ -369,8 +307,7 @@ public class ChangeSetTest
     changeSet.mergeAction( address, Action.UPDATE, filter2 );
 
     assertEquals( changeSet.getChannelActions(),
-                  List.of( new ChannelAction( address, Action.ADD, filter1 ),
-                           new ChannelAction( address, Action.UPDATE, filter2 ) ) );
+                  List.of( ChannelAction.of( address, Action.ADD, filter2 ) ) );
   }
 
   private void assertAction( @Nonnull final ChangeSet changeSet,

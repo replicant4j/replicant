@@ -79,33 +79,46 @@ public final class ChangeSet
      */
     if ( ChannelAction.Action.ADD == actionType )
     {
-      if ( _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.action() &&
-                                          a.address().equals( action.address() ) &&
-                                          FilterUtil.filtersEqual( a.filter(), action.filter() ) ) )
+      final var removedRemove = _channelActions.removeIf( a -> ChannelAction.Action.REMOVE == a.action() &&
+                                                               a.address().equals( action.address() ) &&
+                                                               null == a.filter() );
+      _channelActions.removeIf( a -> a.address().equals( action.address() ) );
+      if ( removedRemove )
       {
         return;
       }
     }
     else if ( ChannelAction.Action.UPDATE == actionType )
     {
-      // We have got an update for one we are adding so ignore the update
-      if ( _channelActions.stream().anyMatch( a -> ChannelAction.Action.ADD == a.action() &&
-                                                   a.address().equals( action.address() ) &&
-                                                   FilterUtil.filtersEqual( a.filter(), action.filter() ) ) )
+      // We have got an update for one we are adding so ignore the update and maybe update the existing
+      final var newFilter = action.filter();
+      var flags = new boolean[ 1 ];
+      _channelActions.replaceAll( a -> {
+        final var address = a.address();
+        if ( ChannelAction.Action.ADD == a.action() && address.equals( action.address() ) )
+        {
+          flags[ 0 ] = true;
+          if ( FilterUtil.filtersEqual( a.filter(), newFilter ) )
+          {
+            return a;
+          }
+          else
+          {
+            return ChannelAction.of( address, ChannelAction.Action.ADD, newFilter );
+          }
+        }
+        else
+        {
+          return a;
+        }
+      } );
+      //noinspection ConstantValue
+      if ( flags[ 0 ] )
       {
         return;
       }
     }
-    else if ( ChannelAction.Action.REMOVE == actionType )
-    {
-      if ( _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
-                                          a.address().equals( action.address() ) &&
-                                          FilterUtil.filtersEqual( a.filter(), action.filter() ) ) )
-      {
-        return;
-      }
-    }
-    else if ( ChannelAction.Action.DELETE == actionType )
+    else if ( ChannelAction.Action.REMOVE == actionType || ChannelAction.Action.DELETE == actionType )
     {
       final var removedAdd =
         _channelActions.removeIf( a -> ChannelAction.Action.ADD == a.action() &&
