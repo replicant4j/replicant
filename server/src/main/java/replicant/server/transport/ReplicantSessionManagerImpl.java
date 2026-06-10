@@ -556,6 +556,7 @@ public class ReplicantSessionManagerImpl
         .count();
 
     _context.preSendChangeMessage( session, packet );
+
     final var requestId = packet.requestId();
     final var response = packet.response();
     final var etag = packet.etag();
