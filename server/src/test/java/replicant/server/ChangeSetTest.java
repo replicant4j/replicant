@@ -354,7 +354,7 @@ public class ChangeSetTest
     changeSet.mergeAction( address, Action.ADD, filter1 );
     changeSet.mergeAction( address, Action.UPDATE, filter2 );
 
-    assertEquals( changeSet.getChannelActions(), List.of( new ChannelAction( address, Action.ADD, filter1 ) ) );
+    assertEquals( changeSet.getChannelActions(), List.of( ChannelAction.of( address, Action.ADD, filter1 ) ) );
   }
 
   @Test
