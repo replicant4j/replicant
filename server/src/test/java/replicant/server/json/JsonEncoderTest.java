@@ -3,13 +3,9 @@ package replicant.server.json;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonValue;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
@@ -62,7 +58,7 @@ public final class JsonEncoderTest
     change.getChannels().add( ChannelAddress.of( 3, 73 ) );
     final var cs = new ChangeSet();
     cs.merge( change );
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, 77 ), Action.UPDATE, filter ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 45, 77 ), Action.UPDATE, filter ) );
     final var encoded = JsonEncoder.encodeChangeSet( requestId, response, etag, cs );
     final var changeSet = toJsonObject( encoded );
 
@@ -151,7 +147,7 @@ public final class JsonEncoderTest
   public void action_WithNoFilter()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, null ), Action.ADD, null ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 45, null ), Action.ADD ) );
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
@@ -162,7 +158,7 @@ public final class JsonEncoderTest
   public void channelAction_DELETE()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 45, null ), Action.DELETE, null ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 45, null ), Action.DELETE ) );
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );
 
@@ -173,12 +169,12 @@ public final class JsonEncoderTest
   public void mixedChannelActions()
   {
     final var cs = new ChangeSet();
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 1, null ), Action.ADD, null ) );
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 2, 5 ), Action.REMOVE, null ) );
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 3, 7, "inst" ), Action.UPDATE, null ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 1, null ), Action.ADD ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 2, 5 ), Action.REMOVE ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 3, 7, "inst" ), Action.UPDATE ) );
 
     final var filter = Json.createObjectBuilder().add( "a", "b" ).build();
-    cs.mergeAction( new ChannelAction( ChannelAddress.of( 4, 9 ), Action.ADD, filter ) );
+    cs.mergeAction( ChannelAction.of( ChannelAddress.of( 4, 9 ), Action.ADD, filter ) );
 
     final var changeSet = toJsonObject( JsonEncoder.encodeChangeSet( null, null, null, cs ) );
     assertNotNull( changeSet );

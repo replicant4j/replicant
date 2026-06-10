@@ -66,7 +66,7 @@ public final class ChangeSet
   {
     //noinspection ConstantValue
     assert ChannelAction.Action.DELETE != action || ChannelAction.Action.REMOVE != action || null == filter;
-    mergeAction( new ChannelAction( address, action, filter ) );
+    mergeAction( ChannelAction.of( address, action, filter ) );
   }
 
   public void mergeAction( @Nonnull final ChannelAction action )

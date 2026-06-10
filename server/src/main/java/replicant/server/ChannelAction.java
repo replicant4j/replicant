@@ -21,4 +21,19 @@ public record ChannelAction(@Nonnull ChannelAddress address, @Nonnull Action act
     // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
     DELETE
   }
+
+  @Nonnull
+  public static ChannelAction of( @Nonnull final ChannelAddress address,
+                                  @Nonnull final Action action )
+  {
+    return of( address, action, null );
+  }
+
+  @Nonnull
+  public static ChannelAction of( @Nonnull final ChannelAddress address,
+                                  @Nonnull final Action action,
+                                  @Nullable final JsonObject filter )
+  {
+    return new ChannelAction( address, action, filter );
+  }
 }

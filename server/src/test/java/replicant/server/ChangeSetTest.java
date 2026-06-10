@@ -61,7 +61,7 @@ public class ChangeSetTest
     assertEquals( changeSet.getChannelActions().size(), 0 );
 
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( new ChannelAction( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( ChannelAction.of( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
 
     assertEquals( changeSet.getChannelActions().size(), 1 );
 
@@ -127,7 +127,7 @@ public class ChangeSetTest
     changeSet.merge( change1 );
 
     final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( new ChannelAction( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
+    changeSet.mergeAction( ChannelAction.of( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
 
     final var changeSet2 = new ChangeSet();
     changeSet2.merge( changeSet );
