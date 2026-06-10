@@ -577,6 +577,13 @@ public class ReplicantSessionManagerImpl
       }
       return false;
     }
+    final var hasDeletes = messages.stream().anyMatch( EntityMessage::isDelete );
+    final var rootDeletedEntries =
+      hasDeletes ? collectRootDeletedEntries( messages, session ) : Collections.<ChannelAddress>emptySet();
+    if ( hasDeletes )
+    {
+      preserveOwnedChannelLinksBeforeDelete( messages, session, changeSet, rootDeletedEntries );
+    }
     processMessages( messages, session, changeSet );
 
     // ChangeSets that occur during a subscription that result in a use-cache message
@@ -586,7 +593,7 @@ public class ReplicantSessionManagerImpl
     {
       final var start = System.nanoTime();
 
-      final var expandCycleCount = completeMessageProcessing( session, changeSet );
+      final var expandCycleCount = completeMessageProcessing( session, changeSet, rootDeletedEntries );
       final var end = System.nanoTime();
       final var expansionDuration = ( end - start ) / 1000000;
 
@@ -640,7 +647,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private int completeMessageProcessing( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  private int completeMessageProcessing( @Nonnull final ReplicantSession session,
+                                         @Nonnull final ChangeSet changeSet,
+                                         @Nonnull final Set<ChannelAddress> rootDeletedEntries )
   {
     var expandCycleCount = 0;
     try
@@ -663,7 +672,7 @@ public class ReplicantSessionManagerImpl
                    " pending=" + pending.stream().map( e -> e.target().toString() ).toList() );
         }
         expandCycleCount++;
-        collectChannelLinksToFollow( session, changeSet, pending );
+        collectChannelLinksToFollow( session, changeSet, pending, rootDeletedEntries );
         if ( pending.isEmpty() )
         {
           break;
@@ -712,7 +721,8 @@ public class ReplicantSessionManagerImpl
    */
   private void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
                                             @Nonnull final ChangeSet changeSet,
-                                            @Nonnull final Set<ChannelLinkEntry> targets )
+                                            @Nonnull final Set<ChannelLinkEntry> targets,
+                                            @Nonnull final Set<ChannelAddress> rootDeletedEntries )
   {
     for ( final var change : changeSet.getChanges() )
     {
@@ -725,12 +735,9 @@ public class ReplicantSessionManagerImpl
           final var sourceEntry = session.findSubscriptionEntry( sourceAddress );
           if ( null != sourceEntry )
           {
-            reconcileOwnedChannelLinks( session,
-                                        sourceEntry,
-                                        owner,
-                                        resolveDesiredChannelLinkTargets( entityMessage, sourceEntry ),
-                                        changeSet,
-                                        targets );
+            final var desiredTargets = resolveDesiredChannelLinkTargets( entityMessage, sourceEntry );
+            desiredTargets.keySet().removeAll( rootDeletedEntries );
+            reconcileOwnedChannelLinks( session, sourceEntry, owner, desiredTargets, changeSet, targets );
           }
         }
       }
@@ -888,6 +895,136 @@ public class ReplicantSessionManagerImpl
     for ( final var message : messages )
     {
       processUpdateMessages( message, session, changeSet );
+    }
+  }
+
+  private void preserveOwnedChannelLinksBeforeDelete( @Nonnull final Collection<EntityMessage> messages,
+                                                      @Nonnull final ReplicantSession session,
+                                                      @Nonnull final ChangeSet changeSet,
+                                                      @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  {
+    for ( final var message : messages )
+    {
+      if ( message.isUpdate() )
+      {
+        preserveOwnedChannelLinksFromPacketMessage( message, session, rootDeletedEntries );
+      }
+    }
+    for ( final var change : changeSet.getChanges() )
+    {
+      final var message = change.getEntityMessage();
+      if ( message.isUpdate() )
+      {
+        final var owner = LinkOwner.entity( message.getTypeId(), message.getId() );
+        for ( final var sourceAddress : change.getChannels() )
+        {
+          final var sourceEntry = session.findSubscriptionEntry( sourceAddress );
+          if ( null != sourceEntry )
+          {
+            preserveOwnedChannelLinksForSourceEntry( message, session, sourceEntry, owner, rootDeletedEntries );
+          }
+        }
+      }
+    }
+  }
+
+  @Nonnull
+  private Set<ChannelAddress> collectRootDeletedEntries( @Nonnull final Collection<EntityMessage> messages,
+                                                         @Nonnull final ReplicantSession session )
+  {
+    final var rootDeletedEntries = new HashSet<ChannelAddress>();
+    final var schema = getSchemaMetaData();
+    final var instanceChannelCount = schema.getInstanceChannelCount();
+    for ( final var message : messages )
+    {
+      if ( message.isDelete() )
+      {
+        for ( var i = 0; i < instanceChannelCount; i++ )
+        {
+          final var channel = schema.getInstanceChannelByIndex( i );
+          @SuppressWarnings( "unchecked" )
+          final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
+          if ( null != rootIds )
+          {
+            for ( final var rootId : rootIds )
+            {
+              final var address = ChannelAddress.of( channel.getChannelId(), rootId );
+              final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+              for ( final var entry : session.findSubscriptionEntries( address.channelId(), address.rootId() ) )
+              {
+                final var entryAddress = entry.address();
+                final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
+                if ( null != m && m.isDelete() )
+                {
+                  if ( isEntityMessageChannelRoot( entry, address, m ) )
+                  {
+                    rootDeletedEntries.add( entryAddress );
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return rootDeletedEntries;
+  }
+
+  private void preserveOwnedChannelLinksFromPacketMessage( @Nonnull final EntityMessage message,
+                                                           @Nonnull final ReplicantSession session,
+                                                           @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  {
+    final var schema = getSchemaMetaData();
+    final var channelCount = schema.getChannelCount();
+    final var owner = LinkOwner.entity( message.getTypeId(), message.getId() );
+    for ( var i = 0; i < channelCount; i++ )
+    {
+      if ( schema.hasChannelMetaData( i ) )
+      {
+        final var channel = schema.getChannelMetaData( i );
+        final var addresses = extractChannelAddressesFromMessage( channel, message );
+        if ( null != addresses )
+        {
+          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+          for ( final var address : addresses )
+          {
+            for ( final var entry : session.findSubscriptionEntries( address.channelId(), address.rootId() ) )
+            {
+              final var entryAddress = entry.address();
+              final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
+              if ( null != m )
+              {
+                preserveOwnedChannelLinksForSourceEntry( message, session, entry, owner, rootDeletedEntries );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private void preserveOwnedChannelLinksForSourceEntry( @Nonnull final EntityMessage message,
+                                                        @Nonnull final ReplicantSession session,
+                                                        @Nonnull final SubscriptionEntry sourceEntry,
+                                                        @Nonnull final LinkOwner owner,
+                                                        @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  {
+    if ( !rootDeletedEntries.contains( sourceEntry.address() ) )
+    {
+      final var desiredTargets = resolveDesiredChannelLinkTargets( message, sourceEntry );
+      for ( final var entry : desiredTargets.entrySet() )
+      {
+        final var targetEntry = session.findSubscriptionEntry( entry.getKey() );
+        if ( null != targetEntry )
+        {
+          // An update can point at a graph whose root is deleted by the same packet; DELETE semantics must win.
+          if ( !rootDeletedEntries.contains( targetEntry.address() ) &&
+               FilterUtil.filtersEqual( entry.getValue(), targetEntry.getFilter() ) )
+          {
+            session.recordGraphLink( sourceEntry, targetEntry, owner );
+          }
+        }
+      }
     }
   }
 
@@ -1481,24 +1618,30 @@ public class ReplicantSessionManagerImpl
       // Process any deleted messages that are in scope for session
       if ( null != m && m.isDelete() )
       {
-        final var channel = getSchemaMetaData().getChannelMetaData( entryAddress );
-        final var owner = LinkOwner.entity( m.getTypeId(), m.getId() );
         var rootDeleted = false;
 
         // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
-        if ( channel.isInstanceGraph() &&
-             channel.getInstanceRootEntityTypeId() == m.getTypeId() &&
-             Objects.equals( address.rootId(), m.getId() ) )
+        if ( isEntityMessageChannelRoot( entry, address, m ) )
         {
           session.performUnsubscribe( entry, true, true, changeSet );
           rootDeleted = null == session.findSubscriptionEntry( entryAddress );
         }
         if ( !rootDeleted )
         {
-          session.delinkDownstreamSubscriptions( entry, owner, changeSet );
+          session.delinkDownstreamSubscriptions( entry, LinkOwner.entity( m.getTypeId(), m.getId() ), changeSet );
         }
       }
     }
+  }
+
+  private boolean isEntityMessageChannelRoot( @Nonnull final SubscriptionEntry entry,
+                                              @Nonnull final ChannelAddress address,
+                                              @Nonnull final EntityMessage message )
+  {
+    final var channel = getSchemaMetaData().getChannelMetaData( entry.address() );
+    return channel.isInstanceGraph() &&
+           channel.getInstanceRootEntityTypeId() == message.getTypeId() &&
+           Objects.equals( address.rootId(), message.getId() );
   }
 
   private record ResolvedChannelLink(@Nonnull ChannelAddress target, @Nullable JsonObject filter)

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -15,6 +16,7 @@ import javax.websocket.Session;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
@@ -184,6 +186,547 @@ public class ReplicantSessionManagerImplTest
     {
       session.getLock().unlock();
     }
+  }
+
+  @Test
+  public void sendChangeMessage_sameTargetReplacementFromPacketMessage_preservesWithoutTargetReload()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var oldOwner = LinkOwner.entity( 2, 100 );
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, targetAddress );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( targetAddress );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+
+      final var targetEntry = session.findSubscriptionEntry( targetAddress );
+      assertNotNull( targetEntry );
+      assertTrue( sourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
+      assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
+      assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
+  }
+
+  @Test
+  public void sendChangeMessage_sameTargetReplacementFromChangeSet_preservesWithoutTargetReload()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var oldOwner = LinkOwner.entity( 2, 100 );
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, targetAddress );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+    final var changeSet = new ChangeSet();
+    changeSet.merge( new Change( updateNew, sourceAddress ) );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( targetAddress );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld ), changeSet ) );
+
+      final var targetEntry = session.findSubscriptionEntry( targetAddress );
+      assertNotNull( targetEntry );
+      assertTrue( sourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
+      assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
+  }
+
+  @Test
+  public void sendChangeMessage_newTargetReplacement_isCollectedByNormalExpansion()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           3,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var oldTargetAddress = ChannelAddress.of( 1, 20 );
+    final var newTargetAddress = ChannelAddress.of( 1, 21 );
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, newTargetAddress );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( oldTargetAddress );
+      session.recordEntityScopedGraphLink( sourceAddress, oldTargetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+
+      assertNull( session.findSubscriptionEntry( oldTargetAddress ) );
+      final var newTargetEntry = session.findSubscriptionEntry( newTargetAddress );
+      assertNotNull( newTargetEntry );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( newTargetAddress ) );
+      assertTrue( newTargetEntry.getInwardSubscriptions().contains( sourceAddress ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    final var collectCalls = context.getBulkCollectCalls();
+    assertEquals( collectCalls.size(), 1 );
+    assertEquals( collectCalls.get( 0 ).addresses(), List.of( newTargetAddress ) );
+    assertNull( collectCalls.get( 0 ).filter() );
+    assertFalse( collectCalls.get( 0 ).isExplicitSubscribe() );
+  }
+
+  @Test
+  public void sendChangeMessage_filterMismatchReplacement_isCollectedWithNewFilterByNormalExpansion()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.DYNAMIC,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var oldFilter = Json.createObjectBuilder().add( "filter", "old" ).build();
+    final var newFilter = Json.createObjectBuilder().add( "filter", "new" ).build();
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, targetAddress, newFilter );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      final var targetEntry = session.createSubscriptionEntry( targetAddress );
+      targetEntry.setFilter( oldFilter );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+
+      final var reloadedTargetEntry = session.findSubscriptionEntry( targetAddress );
+      assertNotNull( reloadedTargetEntry );
+      assertEquals( reloadedTargetEntry.getFilter(), newFilter );
+      assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    final var collectCalls = context.getBulkCollectCalls();
+    assertEquals( collectCalls.size(), 1 );
+    assertEquals( collectCalls.get( 0 ).addresses(), List.of( targetAddress ) );
+    assertEquals( collectCalls.get( 0 ).filter(), newFilter );
+    assertFalse( collectCalls.get( 0 ).isExplicitSubscribe() );
+  }
+
+  @Test
+  public void sendChangeMessage_filteredOutSourceRoute_isNotPreserved()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.STATIC_INSTANCED,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var includedSourceAddress = ChannelAddress.of( 0, 10, "included" );
+    final var excludedSourceAddress = ChannelAddress.of( 0, 10, "excluded" );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var oldOwner = LinkOwner.entity( 2, 100 );
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( ChannelAddress.partial( 0, 10 ), targetAddress, null, true );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+    context.excludeFilterEntityMessageAddress( excludedSourceAddress );
+
+    session.getLock().lock();
+    try
+    {
+      final var includedSourceEntry = session.createSubscriptionEntry( includedSourceAddress );
+      final var excludedSourceEntry = session.createSubscriptionEntry( excludedSourceAddress );
+      includedSourceEntry.setExplicitlySubscribed( true );
+      excludedSourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( targetAddress );
+      session.recordEntityScopedGraphLink( includedSourceAddress, targetAddress, 2, 100 );
+      session.recordEntityScopedGraphLink( excludedSourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+
+      assertTrue( includedSourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
+      assertEquals( includedSourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
+      assertEquals( excludedSourceEntry.getOwnedOutwardSubscriptions( oldOwner ), Set.of( targetAddress ) );
+      assertTrue( excludedSourceEntry.getOwnedOutwardSubscriptions( newOwner ).isEmpty() );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
+  }
+
+  @Test
+  public void sendChangeMessage_shouldFollowLinkFalse_isNotPreserved()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.DYNAMIC,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    context.setShouldFollowLink( false );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var targetFilter = Json.createObjectBuilder().add( "filter", "current" ).build();
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, targetAddress, targetFilter );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      final var targetEntry = session.createSubscriptionEntry( targetAddress );
+      targetEntry.setFilter( targetFilter );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+
+      assertNull( session.findSubscriptionEntry( targetAddress ) );
+      assertTrue( sourceEntry.getOwnedOutwardSubscriptions( newOwner ).isEmpty() );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
+  }
+
+  @Test
+  public void sendChangeMessage_sourceRootDeleteWinsOverPreservation()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           null,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10 );
+    final var targetAddress = ChannelAddress.of( 1 );
+    final var link = new ChannelLink( sourceAddress, targetAddress );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteSourceRoot = new EntityMessage( 10,
+                                                    1,
+                                                    1L,
+                                                    instanceRouting( "Source", 10 ),
+                                                    null,
+                                                    null );
+
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( targetAddress );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 1, 10 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteSourceRoot, updateNew ),
+                                             new ChangeSet() ) );
+
+      assertNull( session.findSubscriptionEntry( sourceAddress ) );
+      assertNull( session.findSubscriptionEntry( targetAddress ) );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
+  }
+
+  @Test
+  public void sendChangeMessage_targetRootDeleteWinsOverPreservation()
+  {
+    final var sourceChannel =
+      new ChannelMetaData( 0,
+                           "Source",
+                           1,
+                           ChannelMetaData.FilterType.STATIC_INSTANCED,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var targetChannel =
+      new ChannelMetaData( 1,
+                           "Target",
+                           3,
+                           ChannelMetaData.FilterType.NONE,
+                           ChannelMetaData.CacheType.NONE,
+                           true );
+    final var schema = new SchemaMetaData( "Test", sourceChannel, targetChannel );
+    final var context = createManagerContext( schema );
+    final var manager = createManager( context, mock( ReplicantMessageBroker.class ) );
+    final var session = createOpenSession();
+
+    final var sourceAddress = ChannelAddress.of( 0, 10, "fi-source" );
+    final var targetAddress = ChannelAddress.of( 1, 20 );
+    final var newOwner = LinkOwner.entity( 2, 101 );
+    final var link = new ChannelLink( sourceAddress, targetAddress );
+    final var updateNew = new EntityMessage( 101,
+                                             2,
+                                             0L,
+                                             instanceRouting( "Source", 10 ),
+                                             attributes( 101 ),
+                                             Set.of( link ) );
+    final var deleteOld = new EntityMessage( 100,
+                                             2,
+                                             1L,
+                                             instanceRouting( "Source", 10 ),
+                                             null,
+                                             null );
+    final var deleteTargetRoot = new EntityMessage( 20,
+                                                    3,
+                                                    1L,
+                                                    instanceRouting( "Target", 20 ),
+                                                    null,
+                                                    null );
+    session.getLock().lock();
+    try
+    {
+      final var sourceEntry = session.createSubscriptionEntry( sourceAddress );
+      sourceEntry.setExplicitlySubscribed( true );
+      session.createSubscriptionEntry( targetAddress );
+      session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
+
+      manager.sendChangeMessage( session,
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, deleteTargetRoot, updateNew ),
+                                             new ChangeSet() ) );
+
+      assertNull( session.findSubscriptionEntry( targetAddress ) );
+      assertTrue( sourceEntry.getOwnedOutwardSubscriptions( newOwner ).isEmpty() );
+    }
+    finally
+    {
+      session.getLock().unlock();
+    }
+
+    assertTrue( context.getBulkCollectCalls().isEmpty() );
   }
 
   @Test
@@ -491,6 +1034,33 @@ public class ReplicantSessionManagerImplTest
     }
   }
 
+  @Nonnull
+  private ReplicantSession createOpenSession()
+  {
+    final var webSocketSession = mock( Session.class );
+    final var remote = mock( RemoteEndpoint.Basic.class );
+    when( webSocketSession.getId() ).thenReturn( "session-1" );
+    when( webSocketSession.isOpen() ).thenReturn( true );
+    when( webSocketSession.getBasicRemote() ).thenReturn( remote );
+    return new ReplicantSession( webSocketSession );
+  }
+
+  @Nonnull
+  private HashMap<String, Serializable> instanceRouting( @Nonnull final String channelName, final int rootId )
+  {
+    final var routingKeys = new HashMap<String, Serializable>();
+    routingKeys.put( channelName, new ArrayList<>( List.of( rootId ) ) );
+    return routingKeys;
+  }
+
+  @Nonnull
+  private HashMap<String, Serializable> attributes( final int id )
+  {
+    final var attributes = new HashMap<String, Serializable>();
+    attributes.put( "ID", id );
+    return attributes;
+  }
+
   private static final class TestSessionContext
     implements ReplicantSessionContext
   {
@@ -500,6 +1070,9 @@ public class ReplicantSessionManagerImplTest
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
     @Nonnull
     private final List<Packet> _preSendChangeMessages = new ArrayList<>();
+    @Nonnull
+    private final Set<ChannelAddress> _excludedFilterEntityMessageAddresses = new HashSet<>();
+    private boolean _shouldFollowLink = true;
 
     private TestSessionContext( @Nonnull final SchemaMetaData schema )
     {
@@ -599,12 +1172,16 @@ public class ReplicantSessionManagerImplTest
     {
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
                                               @Nonnull final ChannelAddress address,
                                               @Nonnull final EntityMessage message )
     {
+      if ( _excludedFilterEntityMessageAddresses.contains( address ) )
+      {
+        return null;
+      }
       return message;
     }
 
@@ -614,7 +1191,7 @@ public class ReplicantSessionManagerImplTest
                                      @Nonnull final ChannelAddress target,
                                      @Nullable final JsonObject targetFilter )
     {
-      return true;
+      return _shouldFollowLink;
     }
 
     @Nonnull
@@ -627,6 +1204,16 @@ public class ReplicantSessionManagerImplTest
     List<Packet> getPreSendChangeMessages()
     {
       return _preSendChangeMessages;
+    }
+
+    void excludeFilterEntityMessageAddress( @Nonnull final ChannelAddress address )
+    {
+      _excludedFilterEntityMessageAddresses.add( address );
+    }
+
+    void setShouldFollowLink( final boolean shouldFollowLink )
+    {
+      _shouldFollowLink = shouldFollowLink;
     }
   }
 
@@ -643,4 +1230,5 @@ public class ReplicantSessionManagerImplTest
                                                   @Nullable JsonObject targetFilter)
   {
   }
+
 }
