@@ -4,6 +4,10 @@ Buildr::ReleaseTool.define_release_task do |t|
   t.extract_version_from_changelog
   t.zapwhite
   t.ensure_git_clean
+  t.stage('BazelBuild', 'Build and test using Bazel') do
+    sh './bazelw build //...'
+    sh './bazelw test //...'
+  end
   t.build
   t.patch_changelog('replicant4j/replicant')
   t.tag_project
