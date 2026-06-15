@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Update the `org.realityforge.arez` artifacts to version `0.248`.
+* Update the `org.realityforge.react4j` artifacts to version `0.225`.
+* Update the `org.realityforge.akasha` artifacts to version `0.33`.
+
 ### [v6.199](https://github.com/replicant4j/replicant/tree/v6.199) (2026-06-10) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.198...v6.199)
 
 Changes in this release:

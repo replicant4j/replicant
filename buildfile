@@ -5,6 +5,18 @@ require 'buildr/single_intermediate_layout'
 
 Buildr::MavenCentral.define_publish_tasks(:profile_name => 'org.realityforge', :username => 'realityforge')
 
+
+FORMATTER_JDK_EXPORTS =
+  %w(
+    --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+    --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
+    --add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED
+    --add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED
+    --add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
+    --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+  )
+FORMATTER_JAVAC_EXPORTS = FORMATTER_JDK_EXPORTS.map { |option| "-J#{option}" }
+
 PROVIDED_DEPS = [
   :javax_annotation,
   :javax_javaee,
@@ -27,7 +39,7 @@ define 'replicant' do
   compile.options.target = '17'
   compile.options.lint = 'all,-processing,-serial,-options,-deprecation'
   project.compile.options.warnings = true
-  project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000)
+  project.compile.options.other = %w(-Werror -Xmaxerrs 10000 -Xmaxwarns 10000) + FORMATTER_JAVAC_EXPORTS
 
   project.version = ENV['PRODUCT_VERSION'] if ENV['PRODUCT_VERSION']
 
@@ -92,6 +104,7 @@ define 'replicant' do
     compile.with client_deps + [project('shared').package(:jar)]
 
     compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
+    compile.options.other = FORMATTER_JAVAC_EXPORTS
 
     package(:jar).enhance do |jar|
       jar.merge(project('shared').package(:jar))
