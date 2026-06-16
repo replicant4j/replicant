@@ -30,7 +30,7 @@ public class UpdateMessage
   @Nullable
   private Object response;
 
-  @GwtIncompatible
+  @JsOverlay
   @Nonnull
   public static UpdateMessage create( @Nullable final Integer requestId,
                                       @Nullable final String eTag,

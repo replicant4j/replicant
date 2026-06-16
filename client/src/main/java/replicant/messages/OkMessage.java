@@ -14,7 +14,7 @@ public final class OkMessage
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.OK;
 
-  @GwtIncompatible
+  @JsOverlay
   @Nonnull
   public static OkMessage create( final int requestId )
   {

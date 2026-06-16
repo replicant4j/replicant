@@ -23,7 +23,7 @@ public class UseCacheMessage
   @Nonnull
   private String etag;
 
-  @GwtIncompatible
+  @JsOverlay
   @Nonnull
   public static UseCacheMessage create( @Nullable final Integer requestId,
                                         @Nonnull final String channel,

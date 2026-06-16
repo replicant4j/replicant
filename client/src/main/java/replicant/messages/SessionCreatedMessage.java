@@ -20,7 +20,7 @@ public class SessionCreatedMessage
   @Nonnull
   private String sessionId;
 
-  @GwtIncompatible
+  @JsOverlay
   @Nonnull
   public static SessionCreatedMessage create( @Nonnull final String sessionId )
   {
