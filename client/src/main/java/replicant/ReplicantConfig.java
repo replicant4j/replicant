@@ -38,9 +38,19 @@ final class ReplicantConfig
     return ENABLE_NAMES;
   }
 
+  static void setEnableNames( final boolean enableNames )
+  {
+    ENABLE_NAMES = enableNames;
+  }
+
   static boolean checkInvariants()
   {
     return CHECK_INVARIANTS;
+  }
+
+  static void setCheckInvariants( final boolean checkInvariants )
+  {
+    CHECK_INVARIANTS = checkInvariants;
   }
 
   static boolean checkApiInvariants()
@@ -48,9 +58,19 @@ final class ReplicantConfig
     return CHECK_API_INVARIANTS;
   }
 
+  static void setCheckApiInvariants( final boolean checkApiInvariants )
+  {
+    CHECK_API_INVARIANTS = checkApiInvariants;
+  }
+
   static boolean areSpiesEnabled()
   {
     return ENABLE_SPIES;
+  }
+
+  static void setEnableSpies( final boolean enableSpies )
+  {
+    ENABLE_SPIES = enableSpies;
   }
 
   static boolean areZonesEnabled()
@@ -58,14 +78,29 @@ final class ReplicantConfig
     return ENABLE_ZONES;
   }
 
+  static void setEnableZones( final boolean enableZones )
+  {
+    ENABLE_ZONES = enableZones;
+  }
+
   static boolean shouldValidateEntitiesOnLoad()
   {
     return VALIDATE_ENTITIES_ON_LOAD;
   }
 
+  static void setValidateEntitiesOnLoad( final boolean validateEntitiesOnLoad )
+  {
+    VALIDATE_ENTITIES_ON_LOAD = validateEntitiesOnLoad;
+  }
+
   static boolean shouldValidateChangeSetOnRead()
   {
     return VALIDATE_CHANGE_SET_ON_READ;
+  }
+
+  static void setValidateChangeSetOnRead( final boolean validateChangeSetOnRead )
+  {
+    VALIDATE_CHANGE_SET_ON_READ = validateChangeSetOnRead;
   }
 
   static String loggerType()

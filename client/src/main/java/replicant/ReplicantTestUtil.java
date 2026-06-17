@@ -1,13 +1,9 @@
 package replicant;
 
-import java.lang.reflect.Field;
-import javax.annotation.Nonnull;
-
 /**
  * Utility class for interacting with Replicant config settings in tests.
  */
 @SuppressWarnings( "WeakerAccess" )
-@GwtIncompatible
 public final class ReplicantTestUtil
 {
   private ReplicantTestUtil()
@@ -69,7 +65,7 @@ public final class ReplicantTestUtil
    */
   public static void enableNames()
   {
-    setEnableNames( true );
+    ReplicantConfig.setEnableNames( true );
   }
 
   /**
@@ -77,17 +73,7 @@ public final class ReplicantTestUtil
    */
   public static void disableNames()
   {
-    setEnableNames( false );
-  }
-
-  /**
-   * Configure the `replicant.enable_names` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setEnableNames( final boolean value )
-  {
-    setConstant( "ENABLE_NAMES", value );
+    ReplicantConfig.setEnableNames( false );
   }
 
   /**
@@ -95,7 +81,7 @@ public final class ReplicantTestUtil
    */
   public static void validateChangeSetOnRead()
   {
-    setValidateChangeSetOnRead( true );
+    ReplicantConfig.setValidateChangeSetOnRead( true );
   }
 
   /**
@@ -103,17 +89,7 @@ public final class ReplicantTestUtil
    */
   public static void noValidateChangeSetOnRead()
   {
-    setValidateChangeSetOnRead( false );
-  }
-
-  /**
-   * Configure the `replicant.validateChangeSetOnRead` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setValidateChangeSetOnRead( final boolean value )
-  {
-    setConstant( "VALIDATE_CHANGE_SET_ON_READ", value );
+    ReplicantConfig.setValidateChangeSetOnRead( false );
   }
 
   /**
@@ -121,7 +97,7 @@ public final class ReplicantTestUtil
    */
   public static void validateEntitiesOnLoad()
   {
-    setValidateEntitiesOnLoad( true );
+    ReplicantConfig.setValidateEntitiesOnLoad( true );
   }
 
   /**
@@ -129,17 +105,7 @@ public final class ReplicantTestUtil
    */
   public static void noValidateEntitiesOnLoad()
   {
-    setValidateEntitiesOnLoad( false );
-  }
-
-  /**
-   * Configure the `replicant.validateEntitiesOnLoad` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setValidateEntitiesOnLoad( final boolean value )
-  {
-    setConstant( "VALIDATE_ENTITIES_ON_LOAD", value );
+    ReplicantConfig.setValidateEntitiesOnLoad( false );
   }
 
   /**
@@ -147,7 +113,7 @@ public final class ReplicantTestUtil
    */
   public static void checkInvariants()
   {
-    setCheckInvariants( true );
+    ReplicantConfig.setCheckInvariants( true );
   }
 
   /**
@@ -155,17 +121,7 @@ public final class ReplicantTestUtil
    */
   public static void noCheckInvariants()
   {
-    setCheckInvariants( false );
-  }
-
-  /**
-   * Configure the `replicant.check_invariants` setting.
-   *
-   * @param checkInvariants the "check invariants" setting.
-   */
-  private static void setCheckInvariants( final boolean checkInvariants )
-  {
-    setConstant( "CHECK_INVARIANTS", checkInvariants );
+    ReplicantConfig.setCheckInvariants( false );
   }
 
   /**
@@ -173,7 +129,7 @@ public final class ReplicantTestUtil
    */
   public static void checkApiInvariants()
   {
-    setCheckApiInvariants( true );
+    ReplicantConfig.setCheckApiInvariants( true );
   }
 
   /**
@@ -181,17 +137,7 @@ public final class ReplicantTestUtil
    */
   public static void noCheckApiInvariants()
   {
-    setCheckApiInvariants( false );
-  }
-
-  /**
-   * Configure the `replicant.check_api_invariants` setting.
-   *
-   * @param checkApiInvariants the "check invariants" setting.
-   */
-  private static void setCheckApiInvariants( final boolean checkApiInvariants )
-  {
-    setConstant( "CHECK_API_INVARIANTS", checkApiInvariants );
+    ReplicantConfig.setCheckApiInvariants( false );
   }
 
   /**
@@ -199,7 +145,7 @@ public final class ReplicantTestUtil
    */
   public static void enableSpies()
   {
-    setEnableSpies( true );
+    ReplicantConfig.setEnableSpies( true );
   }
 
   /**
@@ -207,17 +153,7 @@ public final class ReplicantTestUtil
    */
   public static void disableSpies()
   {
-    setEnableSpies( false );
-  }
-
-  /**
-   * Configure the "replicant.enable_spies" setting.
-   *
-   * @param value the setting.
-   */
-  private static void setEnableSpies( final boolean value )
-  {
-    setConstant( "ENABLE_SPIES", value );
+    ReplicantConfig.setEnableSpies( false );
   }
 
   /**
@@ -225,7 +161,7 @@ public final class ReplicantTestUtil
    */
   public static void enableZones()
   {
-    setEnableZones( true );
+    ReplicantConfig.setEnableZones( true );
   }
 
   /**
@@ -233,46 +169,6 @@ public final class ReplicantTestUtil
    */
   public static void disableZones()
   {
-    setEnableZones( false );
-  }
-
-  /**
-   * Configure the `replicant.enable_zones` setting.
-   *
-   * @param value the setting.
-   */
-  private static void setEnableZones( final boolean value )
-  {
-    setConstant( "ENABLE_ZONES", value );
-  }
-
-  /**
-   * Set the specified field name on ReplicantConfig.
-   */
-  @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
-  private static void setConstant( @Nonnull final String fieldName, final boolean value )
-  {
-    if ( !Replicant.isProductionMode() )
-    {
-      try
-      {
-        final Field field = ReplicantConfig.class.getDeclaredField( fieldName );
-        field.setAccessible( true );
-        field.set( null, value );
-      }
-      catch ( final NoSuchFieldException | IllegalAccessException e )
-      {
-        throw new IllegalStateException( "Unable to change constant " + fieldName, e );
-      }
-    }
-    else
-    {
-      /*
-       * This should not happen but if it does then just fail with an assertion or error.
-       */
-      assert !Replicant.isProductionMode();
-      throw new IllegalStateException( "Unable to change constant " + fieldName +
-                                       " as Replicant is in production mode" );
-    }
+    ReplicantConfig.setEnableZones( false );
   }
 }
