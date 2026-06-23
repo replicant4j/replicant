@@ -121,7 +121,7 @@ public abstract class AbstractSessionContextImpl
 
   @Nonnull
   @SuppressWarnings( { "SameParameterValue", "DataFlowIssue" } )
-  <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
+  protected <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
   {
     final var index = new AtomicInteger( 0 );
 
