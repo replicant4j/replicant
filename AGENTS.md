@@ -46,16 +46,16 @@ This guide captures the repo-specific rules and conventions for working effectiv
 - `shared/`
   - Keep transport path fragments, shared constants, and message keys centralized here.
   - Example files: `shared/src/main/java/replicant/shared/SharedConstants.java`, `shared/src/main/java/replicant/shared/Messages.java`.
-  - The Bazel target is `//shared:shared_lib`; it is internal and merged into the public client/server jars.
+  - The Bazel target is `//shared:shared_lib`; it is public for vendored downstream wrappers and merged into the public client/server jars.
 - `client/`
   - GWT modules live under `client/src/main/java/replicant/*.gwt.xml`.
   - JVM-only code must use the package-local `replicant.GwtIncompatible` annotation, or `replicant.messages.GwtIncompatible` inside the messages package.
   - Client and shared code must avoid `var`; use explicit local types.
-  - The public Bazel output target is `//client:client`, backed by private `//client:client_lib`.
+  - The public Bazel output target is `//client:client`; `//client:client_lib` is also public for vendored downstream JVM wrappers.
   - Bazel runs Arez, React4j, and Grim annotation processors for the JVM client compile.
 - `server/`
   - The active transport is CDI + WebSocket + JSON-P (`javax.json`).
-  - The public Bazel output target is `//server:server`, backed by private `//server:server_lib`.
+  - The public Bazel output target is `//server:server`; `//server:server_lib` is also public for vendored downstream JVM wrappers.
   - The WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT`.
   - Session mutation is guarded by `ReplicantSession.getLock()`; follow the locking patterns in `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java` and `server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java`.
   - `ReplicantResources` exposes `@ReplicantSystem` CDI producers for the transaction registry, managed

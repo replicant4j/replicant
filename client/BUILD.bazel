@@ -26,6 +26,7 @@ java_library(
         "src/main/java/**/*.gwt.xml",
         "src/main/java/**/*.java",
     ]),
+    visibility = ["//visibility:public"],
     deps = [
         "//shared:shared_lib",
         "//third_party/java:akasha_gwt",

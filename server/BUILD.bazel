@@ -4,6 +4,7 @@ load("//third_party/java:rules.bzl", "java_server_library", "java_testng")
 java_server_library(
     name = "server_lib",
     srcs = glob(["src/main/java/**/*.java"]),
+    visibility = ["//visibility:public"],
     deps = [
         "//shared:shared_lib",
         "//third_party/java:javaee_api",
