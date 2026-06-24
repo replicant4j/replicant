@@ -6,14 +6,6 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True
 
 bazel_dep(name = "rules_java", version = "9.6.1")
 
-java_repositories = use_extension("@rules_java//java:extensions.bzl", "java_repository")
-java_repositories.local(
-    name = "local_jdk",
-)
-use_repo(java_repositories, "local_jdk")
-
-register_toolchains("@local_jdk//:all")
-
 # --- depgen-generated repository rules start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.24

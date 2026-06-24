@@ -19,10 +19,10 @@ the changes propagated through the event broker.
 
 ## Build
 
-Replicant uses GitHub Actions for CI. The CI workflow is Bazel-based: it installs Temurin JDK 21, builds the
+Replicant uses GitHub Actions for CI. The CI workflow is Bazel-based: it installs Temurin JDK 17, builds the
 public output jars, runs all Bazel tests, and checks Bazel file formatting.
 
-The Bazel workflow requires JDK 21 on `JAVA_HOME` or `PATH` and uses `./bazelw`, which pins Bazel through
+The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`, which pins Bazel through
 `.bazelversion`:
 
 * Build public output jars: `./bazelw build //client:client //server:server`

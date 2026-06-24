@@ -28,7 +28,7 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `buildfile` defines the Buildr build.
   - `build.yaml` defines artifact coordinates and dependency versions.
   - `MODULE.bazel`, `.bazelrc`, `.bazelversion`, and `BUILD.bazel` define the parallel Bazel build.
-  - `bazelw` runs Bazel 8.7.0 via Bazelisk.
+  - `bazelw` runs Bazel 9.1.1 via Bazelisk.
   - `.github/workflows/ci.yml` defines the GitHub Actions CI workflow.
   - `third_party/java/dependencies.yml` is the depgen source for Bazel Java dependencies.
   - `tasks/*.rake` contains GWT, release, packaging, and diagnostic helper tasks.
@@ -118,14 +118,14 @@ Implementation hotspots:
 
 ## Build and Test
 
-Prerequisites: JDK 21 for Bazel. Buildr packaging and release workflows also require Ruby 2.7.x and Bundler.
+Prerequisites: JDK 17+ for Bazel. Buildr packaging and release workflows also require Ruby 2.7.x and Bundler.
 
 CI workflow:
 
 - GitHub Actions runs Bazel, not Buildr.
-- CI installs Temurin JDK 21, builds the public Bazel jars, runs all Bazel tests, and checks Bazel formatting.
+- CI installs Temurin JDK 17, builds the public Bazel jars, runs all Bazel tests, and checks Bazel formatting.
 
-- Bazel is pinned to 8.7.0 via `.bazelversion`; run it with `./bazelw`.
+- Bazel is pinned to 9.1.1 via `.bazelversion`; run it with `./bazelw`.
 - Build public Bazel jars: `./bazelw build //client:client //server:server`.
 - Run all Bazel tests, including depgen hash verification: `./bazelw test //...`.
 - Check Bazel formatting: `./bazelw run //:buildifier_check`.
@@ -148,8 +148,7 @@ Additional build notes:
   run `./bazelw run //third_party/java:update_depgen_generated_outputs` and
   `./bazelw test //third_party/java:verify_config_sha256`.
 - The Bazel public output jars merge `//shared:shared_lib` into `//client:client` and `//server:server`; third-party jars remain separate.
-- The Bazel toolchain emits Java 17 bytecode and uses the local JDK 21 resolved from `JAVA_HOME` or `PATH`
-  for Bazel Java tools.
+- The Bazel toolchain emits Java 17 bytecode.
 
 ### Testing Guidelines
 

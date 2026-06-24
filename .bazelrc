@@ -1,14 +1,8 @@
 build --java_language_version=17
-build --java_runtime_version=local_jdk
 build --tool_java_language_version=17
-build --tool_java_runtime_version=local_jdk
-build --extra_toolchains=@local_jdk//:all
 
 test --java_language_version=17
-test --java_runtime_version=local_jdk
 test --tool_java_language_version=17
-test --tool_java_runtime_version=local_jdk
-test --extra_toolchains=@local_jdk//:all
 
 build --spawn_strategy=local
 build --strategy=Javac=worker

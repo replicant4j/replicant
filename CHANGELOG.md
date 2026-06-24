@@ -5,6 +5,8 @@
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
 * Replace legacy CI configuration with a GitHub Actions workflow that runs the Bazel build, test suite, and
   buildifier check.
+* Update Bazel to version `9.1.1` and remove custom local JDK toolchain registration now that the standard
+  Bazel Java toolchain works with JDK 17.
 
 ### [v6.202](https://github.com/replicant4j/replicant/tree/v6.202) (2026-06-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.201...v6.202)
 
