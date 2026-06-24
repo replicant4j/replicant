@@ -191,7 +191,8 @@ Diagnostics fixtures and invariants:
 - Relevant properties:
   - `replicant.check_diagnostic_messages` verifies emitted diagnostics against the fixture file.
   - `replicant.output_fixture_data` rewrites fixture data when expected outputs intentionally change.
-  - `replicant.diagnostic_messages_file` points at the fixture JSON file.
+  - `replicant.diagnostic_messages_file` points at the fixture JSON file. Bazel test targets pass this via
+    `$(rootpath ...)` so the path works when Replicant is run as the main workspace or as a vendored external repo.
 - In IntelliJ, use the generated TestNG configurations such as `client - update invariant messages` when fixture updates are intentional.
 
 ## Runtime and Transport Notes

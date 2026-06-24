@@ -3,25 +3,10 @@ load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=false",
-    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+    "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
 ]
 
 CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
-
-TEST_LIBRARY_JAVACOPTS = [
-    "-XepDisableAllChecks",
-    "-Werror",
-    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
-    "-Xmaxerrs",
-    "10000",
-    "-Xmaxwarns",
-    "10000",
-]
-
-CLIENT_DIAGNOSTIC_TEST_JVM_FLAGS = [
-    "-Dreplicant.check_diagnostic_messages=true",
-    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
-]
 
 CLIENT_TEST_CLASSES = [
     "replicant.AreaOfInterestRequestTest",
@@ -165,7 +150,15 @@ native_java_library(
         "ValidatorTest.java",
         "ZoneTest.java",
     ],
-    javacopts = TEST_LIBRARY_JAVACOPTS,
+    javacopts = [
+        "-XepDisableAllChecks",
+        "-Werror",
+        "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
+        "-Xmaxerrs",
+        "10000",
+        "-Xmaxwarns",
+        "10000",
+    ],
     visibility = [
         "//client/src/test/java/replicant:__pkg__",
     ],
@@ -176,7 +169,10 @@ java_testng(
     name = "client_diagnostic_messages_test",
     srcs = ["DiagnosticMessagesSuite.java"],
     data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_DIAGNOSTIC_TEST_JVM_FLAGS,
+    jvm_flags = [
+        "-Dreplicant.check_diagnostic_messages=true",
+        "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
+    ],
     test_class = ",".join(CLIENT_TEST_CLASSES),
     deps = [
         ":client_tests_lib",

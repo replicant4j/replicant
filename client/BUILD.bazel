@@ -1,23 +1,6 @@
 load("//third_party/java:java_single_jar.bzl", "java_single_jar")
 load("//third_party/java:rules.bzl", "java_library")
 
-CLIENT_TEST_SUPPORT_EXPORTS = [
-    ":client_lib",
-    "//client/src/test/java/replicant:client_test_support_lib",
-    "//client/src/test/java/replicant/messages:messages_test_support_lib",
-    "//shared:shared_lib",
-    "//third_party/java:arez_core",
-    "//third_party/java:arez_extras_testng",
-    "//third_party/java:braincheck_core",
-    "//third_party/java:braincheck_testng",
-    "//third_party/java:byte_buddy",
-    "//third_party/java:javax_annotation",
-    "//third_party/java:javax_json",
-    "//third_party/java:mockito_core",
-    "//third_party/java:objenesis",
-    "//third_party/java:testng",
-]
-
 java_library(
     name = "client_lib",
     visibility = ["//visibility:public"],
@@ -30,7 +13,22 @@ java_library(
         "//client/src/test/java/replicant:__pkg__",
         "//client/src/test/java/replicant:__subpackages__",
     ],
-    exports = CLIENT_TEST_SUPPORT_EXPORTS,
+    exports = [
+        ":client_lib",
+        "//client/src/test/java/replicant:client_test_support_lib",
+        "//client/src/test/java/replicant/messages:messages_test_support_lib",
+        "//shared:shared_lib",
+        "//third_party/java:arez_core",
+        "//third_party/java:arez_extras_testng",
+        "//third_party/java:braincheck_core",
+        "//third_party/java:braincheck_testng",
+        "//third_party/java:byte_buddy",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+        "//third_party/java:mockito_core",
+        "//third_party/java:objenesis",
+        "//third_party/java:testng",
+    ],
 )
 
 java_single_jar(
