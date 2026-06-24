@@ -1,0 +1,8 @@
+load("//third_party/java:rules.bzl", "java_testng")
+
+java_testng(
+    name = "json_encoder_test",
+    srcs = ["JsonEncoderTest.java"],
+    test_class = "replicant.server.json.JsonEncoderTest",
+    deps = ["//server:server_test_support"],
+)

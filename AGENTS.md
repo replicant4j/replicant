@@ -18,6 +18,16 @@ This guide captures the repo-specific rules and conventions for working effectiv
 
 4. When the user reports a bug, start by writing or updating a test that reproduces it. Then fix the bug and prove the fix with a passing test.
 
+5. Do not use `glob()` in Bazel targets. List source files explicitly.
+
+6. Every Java source directory owns its own `BUILD.bazel`. Bazel targets must not list source files from child,
+   sibling, or parent directories.
+   - Exception: `client/src/main/java/replicant/BUILD.bazel` owns the aggregate client library and may list
+     sources and resources under `replicant.messages`, `replicant.react4j`, `replicant.spy`, and
+     `replicant.spy.tools`.
+
+7. Run `./bazelw run //:buildifier` after changing any `BUILD.bazel` file.
+
 ## Project Structure
 
 - Java modules:
@@ -47,20 +57,25 @@ This guide captures the repo-specific rules and conventions for working effectiv
 - `shared/`
   - Keep transport path fragments, shared constants, and message keys centralized here.
   - Example files: `shared/src/main/java/replicant/shared/SharedConstants.java`, `shared/src/main/java/replicant/shared/Messages.java`.
-  - The Bazel target is `//shared:shared_lib`; it is public for vendored downstream wrappers and merged into the public client/server jars.
+  - The public Bazel label is `//shared:shared_lib`; it aliases the package-owned
+    `//shared/src/main/java/replicant/shared:shared_lib` target and is merged into the public client/server jars.
 - `client/`
   - GWT modules live under `client/src/main/java/replicant/*.gwt.xml`.
   - JVM-only code must use the package-local `replicant.GwtIncompatible` annotation, or `replicant.messages.GwtIncompatible` inside the messages package.
   - Client and shared code must avoid `var`; use explicit local types.
   - The public Bazel output target is `//client:client`; `//client:client_lib` is also public for vendored downstream JVM wrappers.
+  - The source-owned client library is `//client/src/main/java/replicant:client_lib`; `//client:client_lib`
+    is a source-free public aggregate that exports it.
   - Bazel runs Arez, React4j, and Grim annotation processors for the JVM client compile.
 - `server/`
   - The active transport is CDI + WebSocket + JSON-P (`javax.json`).
   - The public Bazel output target is `//server:server`; `//server:server_lib` is also public for vendored downstream JVM wrappers.
   - The WebSocket endpoint lives at `"/api" + SharedConstants.REPLICANT_URL_FRAGMENT`.
+  - Runtime support shared by transport and EE lives under `server/src/main/java/replicant/server/runtime`.
+    Keep this package below both `transport` and `ee`; `transport` must not import `replicant.server.ee`.
   - Session mutation is guarded by `ReplicantSession.getLock()`; follow the locking patterns in `server/src/main/java/replicant/server/transport/ReplicantSessionManagerImpl.java` and `server/src/main/java/replicant/server/transport/ReplicantMessageBrokerImpl.java`.
-  - `ReplicantResources` exposes `@ReplicantSystem` CDI producers for the transaction registry, managed
-    executors, and broker tuning entries.
+  - `ReplicantResources` exposes `replicant.server.runtime.ReplicantSystem` CDI producers for the transaction
+    registry, managed executors, and broker tuning entries.
   - `ReplicantMessageBrokerImpl` uses demand-driven drain tasks submitted to the container-managed executor.
     Delayed retries and session maintenance use the container-managed scheduled executor. Broker runtime
     tuning comes from `java:comp/env` entries under `replicant/broker/*`; keep README details in sync when
@@ -148,6 +163,10 @@ Additional build notes:
   run `./bazelw run //third_party/java:update_depgen_generated_outputs` and
   `./bazelw test //third_party/java:verify_config_sha256`.
 - The Bazel public output jars merge `//shared:shared_lib` into `//client:client` and `//server:server`; third-party jars remain separate.
+- `//client:client_lib` is a source-free aggregate that exports the source-owned client library under
+  `client/src/main/java/replicant`.
+- `//server:server_lib` is a source-free aggregate that exports package-owned server libraries under
+  `server/src/main/java/replicant/server/**`; keep the package graph acyclic when adding dependencies.
 - The Bazel toolchain emits Java 17 bytecode.
 
 ### Testing Guidelines
@@ -157,10 +176,14 @@ Additional build notes:
 - Name tests with the `Test` suffix.
 - Run `./bazelw build //client:client //server:server`, `./bazelw test //...`, and
   `./bazelw run //:buildifier_check` before submitting changes unless the user explicitly asks you not to.
-- Bazel exposes one `java_testng` target per concrete TestNG test class. `client/src/test/java/replicant/AbstractReplicantTest.java`
-  is abstract support code and belongs in `//client:client_test_support`.
-- Client per-class Bazel tests disable diagnostic fixture comparison. `//client:client_diagnostic_messages_test`
-  runs the concrete client suite with the diagnostic fixture check enabled.
+- Bazel exposes one `java_testng` target per concrete TestNG test class.
+- Client and server `java_testng` targets live in the test source directory that owns each test class.
+- `client/src/test/java/replicant/AbstractReplicantTest.java` is abstract support code and belongs in
+  `//client/src/test/java/replicant:client_test_support_lib`; `//client:client_test_support` is a source-free
+  aggregate for client tests.
+- Client per-class Bazel tests disable diagnostic fixture comparison.
+  `//client/src/test/java/replicant:client_diagnostic_messages_test` runs the concrete client suite with the
+  diagnostic fixture check enabled.
 
 Diagnostics fixtures and invariants:
 

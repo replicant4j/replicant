@@ -1,0 +1,19 @@
+load("//third_party/java:rules.bzl", "java_server_library")
+
+java_server_library(
+    name = "json_lib",
+    srcs = [
+        "JsonEncoder.java",
+    ],
+    visibility = [
+        "//server:__pkg__",
+        "//server/src/main/java/replicant/server:__subpackages__",
+        "//server/src/test/java/replicant/server:__subpackages__",
+    ],
+    deps = [
+        "//server/src/main/java/replicant/server:server_core_lib",
+        "//shared:shared_lib",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+    ],
+)

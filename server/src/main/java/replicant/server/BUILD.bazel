@@ -1,0 +1,26 @@
+load("//third_party/java:rules.bzl", "java_server_library")
+
+java_server_library(
+    name = "server_core_lib",
+    srcs = [
+        "Change.java",
+        "ChangeSet.java",
+        "ChannelAction.java",
+        "ChannelAddress.java",
+        "ChannelLink.java",
+        "EntityMessage.java",
+        "EntityMessageSet.java",
+        "EntityMessageSorter.java",
+        "FilterUtil.java",
+        "ServerConstants.java",
+    ],
+    visibility = [
+        "//server:__pkg__",
+        "//server/src/main/java/replicant/server:__subpackages__",
+        "//server/src/test/java/replicant/server:__subpackages__",
+    ],
+    deps = [
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+    ],
+)

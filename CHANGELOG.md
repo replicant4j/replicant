@@ -7,6 +7,14 @@
   buildifier check.
 * Update Bazel to version `9.1.1` and remove custom local JDK toolchain registration now that the standard
   Bazel Java toolchain works with JDK 17.
+* Require explicit Bazel source ownership by replacing `glob()` source discovery with per-directory
+  `BUILD.bazel` source lists.
+* Move server runtime support types to `replicant.server.runtime` and split the server Bazel build into
+  package-owned Java libraries.
+* Replace shared-module source filegroups with a package-owned Bazel Java library while preserving `//shared:shared_lib`.
+* Move server TestNG targets into their owning test source packages and remove the remaining server Bazel filegroups.
+* Move client TestNG targets into their owning test source packages.
+* Move the client JVM library target next to the client sources and remove main-source Java filegroups.
 
 ### [v6.202](https://github.com/replicant4j/replicant/tree/v6.202) (2026-06-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.201...v6.202)
 

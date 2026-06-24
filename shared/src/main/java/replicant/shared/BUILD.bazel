@@ -1,0 +1,16 @@
+load("//third_party/java:rules.bzl", "java_library")
+
+java_library(
+    name = "shared_lib",
+    srcs = [
+        "Messages.java",
+        "SharedConstants.java",
+    ],
+    resource_strip_prefix = "shared/src/main/java",
+    resources = [
+        "Messages.java",
+        "SharedConstants.java",
+    ],
+    visibility = ["//shared:__pkg__"],
+    deps = ["//third_party/java:javax_annotation"],
+)

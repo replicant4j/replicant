@@ -1,10 +1,5 @@
-load("//third_party/java:rules.bzl", "java_library")
-
-java_library(
+alias(
     name = "shared_lib",
-    srcs = glob(["src/main/java/**/*.java"]),
-    resource_strip_prefix = "shared/src/main/java",
-    resources = glob(["src/main/java/**/*.java"]),
+    actual = "//shared/src/main/java/replicant/shared:shared_lib",
     visibility = ["//visibility:public"],
-    deps = ["//third_party/java:javax_annotation"],
 )

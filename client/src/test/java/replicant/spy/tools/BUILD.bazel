@@ -1,0 +1,50 @@
+load("@rules_java//java:defs.bzl", native_java_library = "java_library")
+load("//third_party/java:rules.bzl", "java_testng")
+
+CLIENT_TEST_JVM_FLAGS = [
+    "-Dreplicant.check_diagnostic_messages=false",
+    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+]
+
+CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
+
+TEST_LIBRARY_JAVACOPTS = [
+    "-XepDisableAllChecks",
+    "-Werror",
+    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
+    "-Xmaxerrs",
+    "10000",
+    "-Xmaxwarns",
+    "10000",
+]
+
+native_java_library(
+    name = "spy_tools_tests_lib",
+    srcs = [
+        "ReplicantSpyUtilTest.java",
+        "SpyEventProcessorTest.java",
+    ],
+    javacopts = TEST_LIBRARY_JAVACOPTS,
+    visibility = [
+        "//client/src/test/java/replicant:__pkg__",
+    ],
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_spy_util_test",
+    srcs = ["ReplicantSpyUtilTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.spy.tools.ReplicantSpyUtilTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "spy_event_processor_test",
+    srcs = ["SpyEventProcessorTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.spy.tools.SpyEventProcessorTest",
+    deps = ["//client:client_test_support"],
+)

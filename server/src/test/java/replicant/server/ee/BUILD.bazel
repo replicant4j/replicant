@@ -1,0 +1,52 @@
+load("//third_party/java:rules.bzl", "java_server_library", "java_testng")
+
+java_server_library(
+    name = "ee_test_support_lib",
+    srcs = [
+        "RegistryUtil.java",
+        "TestInvocationContext.java",
+    ],
+    visibility = ["//server:__pkg__"],
+    deps = [
+        "//server:server_lib",
+        "//third_party/java:javaee_api",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:jndikit",
+        "//third_party/java:testng",
+    ],
+)
+
+java_testng(
+    name = "abstract_session_context_impl_test",
+    srcs = ["AbstractSessionContextImplTest.java"],
+    test_class = "replicant.server.ee.AbstractSessionContextImplTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "entity_message_cache_util_test",
+    srcs = ["EntityMessageCacheUtilTest.java"],
+    test_class = "replicant.server.ee.EntityMessageCacheUtilTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_context_holder_test",
+    srcs = ["ReplicantContextHolderTest.java"],
+    test_class = "replicant.server.ee.ReplicantContextHolderTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_endpoint_test",
+    srcs = ["ReplicantEndpointTest.java"],
+    test_class = "replicant.server.ee.ReplicantEndpointTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_entity_change_listener_test",
+    srcs = ["ReplicantEntityChangeListenerTest.java"],
+    test_class = "replicant.server.ee.ReplicantEntityChangeListenerTest",
+    deps = ["//server:server_test_support"],
+)

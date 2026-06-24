@@ -1,0 +1,41 @@
+load("//third_party/java:rules.bzl", "java_server_library")
+
+java_server_library(
+    name = "transport_lib",
+    srcs = [
+        "AttemptedToUpdateStaticFilterException.java",
+        "ChannelCacheEntry.java",
+        "ChannelLinkEntry.java",
+        "ChannelMetaData.java",
+        "EntityReference.java",
+        "FilterResult.java",
+        "InvariantUtil.java",
+        "LinkOwner.java",
+        "Packet.java",
+        "ReplicantChangeRecorder.java",
+        "ReplicantMessageBroker.java",
+        "ReplicantMessageBrokerImpl.java",
+        "ReplicantSession.java",
+        "ReplicantSessionContext.java",
+        "ReplicantSessionManager.java",
+        "ReplicantSessionManagerImpl.java",
+        "SchemaMetaData.java",
+        "SubscribeResult.java",
+        "SubscriptionEntry.java",
+        "WebSocketUtil.java",
+    ],
+    visibility = [
+        "//server:__pkg__",
+        "//server/src/main/java/replicant/server:__subpackages__",
+        "//server/src/test/java/replicant/server:__subpackages__",
+    ],
+    deps = [
+        "//server/src/main/java/replicant/server:server_core_lib",
+        "//server/src/main/java/replicant/server/json:json_lib",
+        "//server/src/main/java/replicant/server/runtime:runtime_lib",
+        "//third_party/java:javaee_api",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+        "//third_party/java:org_jetbrains_annotations",
+    ],
+)

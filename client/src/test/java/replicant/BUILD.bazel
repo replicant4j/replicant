@@ -1,0 +1,494 @@
+load("@rules_java//java:defs.bzl", native_java_library = "java_library")
+load("//third_party/java:rules.bzl", "java_library", "java_testng")
+
+CLIENT_TEST_JVM_FLAGS = [
+    "-Dreplicant.check_diagnostic_messages=false",
+    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+]
+
+CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
+
+TEST_LIBRARY_JAVACOPTS = [
+    "-XepDisableAllChecks",
+    "-Werror",
+    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
+    "-Xmaxerrs",
+    "10000",
+    "-Xmaxwarns",
+    "10000",
+]
+
+CLIENT_DIAGNOSTIC_TEST_JVM_FLAGS = [
+    "-Dreplicant.check_diagnostic_messages=true",
+    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+]
+
+CLIENT_TEST_CLASSES = [
+    "replicant.AreaOfInterestRequestTest",
+    "replicant.AreaOfInterestServiceTest",
+    "replicant.AreaOfInterestTest",
+    "replicant.CacheEntryTest",
+    "replicant.ChannelAddressTest",
+    "replicant.ChannelChangeDescriptorTest",
+    "replicant.ChannelChangeTest",
+    "replicant.ChannelSchemaTest",
+    "replicant.ConnectionTest",
+    "replicant.ConnectorEntryTest",
+    "replicant.ConnectorStateTest",
+    "replicant.ConnectorTest",
+    "replicant.ConvergerTest",
+    "replicant.EntitySchemaTest",
+    "replicant.EntityServiceTest",
+    "replicant.EntityTest",
+    "replicant.MessageResponseTest",
+    "replicant.RateLimitedValueTest",
+    "replicant.ReplicantContextTest",
+    "replicant.ReplicantLoggerTest",
+    "replicant.ReplicantRuntimeTest",
+    "replicant.ReplicantServiceTest",
+    "replicant.ReplicantTest",
+    "replicant.ReplicantUtilTest",
+    "replicant.RequestEntryTest",
+    "replicant.RequestTest",
+    "replicant.SchemaServiceTest",
+    "replicant.SpyImplTest",
+    "replicant.SubscriptionServiceTest",
+    "replicant.SubscriptionTest",
+    "replicant.SystemSchemaTest",
+    "replicant.TransportContextImplTest",
+    "replicant.ValidatorTest",
+    "replicant.ZoneTest",
+    "replicant.messages.EntityChangeTest",
+    "replicant.messages.UpdateMessageTest",
+    "replicant.spy.AreaOfInterestCreatedEventTest",
+    "replicant.spy.AreaOfInterestDisposedEventTest",
+    "replicant.spy.AreaOfInterestFilterUpdatedEventTest",
+    "replicant.spy.AreaOfInterestStatusUpdatedEventTest",
+    "replicant.spy.ConnectFailureEventTest",
+    "replicant.spy.ConnectedEventTest",
+    "replicant.spy.DataLoadStatusTest",
+    "replicant.spy.DisconnectFailureEventTest",
+    "replicant.spy.DisconnectedEventTest",
+    "replicant.spy.ExecCompletedEventTest",
+    "replicant.spy.ExecRequestQueuedEventTest",
+    "replicant.spy.ExecStartedEventTest",
+    "replicant.spy.InSyncEventTest",
+    "replicant.spy.MessageProcessFailureEventTest",
+    "replicant.spy.MessageProcessedEventTest",
+    "replicant.spy.MessageReadFailureEventTest",
+    "replicant.spy.OutOfSyncEventTest",
+    "replicant.spy.RequestCompletedEventTest",
+    "replicant.spy.RequestStartedEventTest",
+    "replicant.spy.RestartEventTest",
+    "replicant.spy.SubscribeCompletedEventTest",
+    "replicant.spy.SubscribeRequestQueuedEventTest",
+    "replicant.spy.SubscribeStartedEventTest",
+    "replicant.spy.SubscriptionCreatedEventTest",
+    "replicant.spy.SubscriptionDisposedEventTest",
+    "replicant.spy.SubscriptionOrphanedEventTest",
+    "replicant.spy.SubscriptionUpdateCompletedEventTest",
+    "replicant.spy.SubscriptionUpdateRequestQueuedEventTest",
+    "replicant.spy.SubscriptionUpdateStartedEventTest",
+    "replicant.spy.SyncRequestEventTest",
+    "replicant.spy.UnsubscribeCompletedEventTest",
+    "replicant.spy.UnsubscribeRequestQueuedEventTest",
+    "replicant.spy.UnsubscribeStartedEventTest",
+    "replicant.spy.tools.ReplicantSpyUtilTest",
+    "replicant.spy.tools.SpyEventProcessorTest",
+]
+
+exports_files(
+    ["diagnostic_messages.json"],
+    visibility = ["//client/src/test/java/replicant:__subpackages__"],
+)
+
+java_library(
+    name = "client_test_support_lib",
+    srcs = [
+        "AbstractReplicantTest.java",
+        "MessageCollector.java",
+        "TestCacheService.java",
+        "TestLogger.java",
+        "TestSpyEventHandler.java",
+        "ValueUtil.java",
+    ],
+    visibility = ["//client:__pkg__"],
+    deps = [
+        "//client:client_lib",
+        "//shared:shared_lib",
+        "//third_party/java:arez_core",
+        "//third_party/java:arez_extras_testng",
+        "//third_party/java:braincheck_core",
+        "//third_party/java:braincheck_testng",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+        "//third_party/java:mockito_core",
+        "//third_party/java:testng",
+    ],
+)
+
+native_java_library(
+    name = "client_tests_lib",
+    srcs = [
+        "AreaOfInterestRequestTest.java",
+        "AreaOfInterestServiceTest.java",
+        "AreaOfInterestTest.java",
+        "CacheEntryTest.java",
+        "ChannelAddressTest.java",
+        "ChannelChangeDescriptorTest.java",
+        "ChannelChangeTest.java",
+        "ChannelSchemaTest.java",
+        "ConnectionTest.java",
+        "ConnectorEntryTest.java",
+        "ConnectorStateTest.java",
+        "ConnectorTest.java",
+        "ConvergerTest.java",
+        "EntitySchemaTest.java",
+        "EntityServiceTest.java",
+        "EntityTest.java",
+        "MessageResponseTest.java",
+        "RateLimitedValueTest.java",
+        "ReplicantContextTest.java",
+        "ReplicantLoggerTest.java",
+        "ReplicantRuntimeTest.java",
+        "ReplicantServiceTest.java",
+        "ReplicantTest.java",
+        "ReplicantUtilTest.java",
+        "RequestEntryTest.java",
+        "RequestTest.java",
+        "SchemaServiceTest.java",
+        "SpyImplTest.java",
+        "SubscriptionServiceTest.java",
+        "SubscriptionTest.java",
+        "SystemSchemaTest.java",
+        "TransportContextImplTest.java",
+        "ValidatorTest.java",
+        "ZoneTest.java",
+    ],
+    javacopts = TEST_LIBRARY_JAVACOPTS,
+    visibility = [
+        "//client/src/test/java/replicant:__pkg__",
+    ],
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "client_diagnostic_messages_test",
+    srcs = ["DiagnosticMessagesSuite.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_DIAGNOSTIC_TEST_JVM_FLAGS,
+    test_class = ",".join(CLIENT_TEST_CLASSES),
+    deps = [
+        ":client_tests_lib",
+        "//client:client_test_support",
+        "//client/src/test/java/replicant/messages:messages_tests_lib",
+        "//client/src/test/java/replicant/spy:spy_tests_lib",
+        "//client/src/test/java/replicant/spy/tools:spy_tools_tests_lib",
+    ],
+)
+
+java_testng(
+    name = "area_of_interest_request_test",
+    srcs = ["AreaOfInterestRequestTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.AreaOfInterestRequestTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "area_of_interest_service_test",
+    srcs = ["AreaOfInterestServiceTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.AreaOfInterestServiceTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "area_of_interest_test",
+    srcs = ["AreaOfInterestTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.AreaOfInterestTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "cache_entry_test",
+    srcs = ["CacheEntryTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.CacheEntryTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "channel_address_test",
+    srcs = ["ChannelAddressTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ChannelAddressTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "channel_change_descriptor_test",
+    srcs = ["ChannelChangeDescriptorTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ChannelChangeDescriptorTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "channel_change_test",
+    srcs = ["ChannelChangeTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ChannelChangeTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "channel_schema_test",
+    srcs = ["ChannelSchemaTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ChannelSchemaTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "connection_test",
+    srcs = ["ConnectionTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ConnectionTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "connector_entry_test",
+    srcs = ["ConnectorEntryTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ConnectorEntryTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "connector_state_test",
+    srcs = ["ConnectorStateTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ConnectorStateTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "connector_test",
+    srcs = ["ConnectorTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ConnectorTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "converger_test",
+    srcs = ["ConvergerTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ConvergerTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "entity_schema_test",
+    srcs = ["EntitySchemaTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.EntitySchemaTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "entity_service_test",
+    srcs = ["EntityServiceTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.EntityServiceTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "entity_test",
+    srcs = ["EntityTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.EntityTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "message_response_test",
+    srcs = ["MessageResponseTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.MessageResponseTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "rate_limited_value_test",
+    srcs = ["RateLimitedValueTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.RateLimitedValueTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_context_test",
+    srcs = ["ReplicantContextTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantContextTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_logger_test",
+    srcs = ["ReplicantLoggerTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantLoggerTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_runtime_test",
+    srcs = ["ReplicantRuntimeTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantRuntimeTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_service_test",
+    srcs = ["ReplicantServiceTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantServiceTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_test",
+    srcs = ["ReplicantTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "replicant_util_test",
+    srcs = ["ReplicantUtilTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicantUtilTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "request_entry_test",
+    srcs = ["RequestEntryTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.RequestEntryTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "request_test",
+    srcs = ["RequestTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.RequestTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "schema_service_test",
+    srcs = ["SchemaServiceTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SchemaServiceTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "spy_impl_test",
+    srcs = ["SpyImplTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SpyImplTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "subscription_service_test",
+    srcs = ["SubscriptionServiceTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SubscriptionServiceTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "subscription_test",
+    srcs = ["SubscriptionTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SubscriptionTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "system_schema_test",
+    srcs = ["SystemSchemaTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SystemSchemaTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "transport_context_impl_test",
+    srcs = ["TransportContextImplTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.TransportContextImplTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "validator_test",
+    srcs = ["ValidatorTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ValidatorTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "zone_test",
+    srcs = ["ZoneTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ZoneTest",
+    deps = ["//client:client_test_support"],
+)

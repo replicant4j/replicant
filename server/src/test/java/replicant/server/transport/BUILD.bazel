@@ -1,0 +1,64 @@
+load("//third_party/java:rules.bzl", "java_testng")
+
+java_testng(
+    name = "channel_cache_entry_test",
+    srcs = ["ChannelCacheEntryTest.java"],
+    test_class = "replicant.server.transport.ChannelCacheEntryTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "channel_meta_data_test",
+    srcs = ["ChannelMetaDataTest.java"],
+    test_class = "replicant.server.transport.ChannelMetaDataTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "invariant_util_test",
+    srcs = ["InvariantUtilTest.java"],
+    test_class = "replicant.server.transport.InvariantUtilTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "packet_test",
+    srcs = ["PacketTest.java"],
+    test_class = "replicant.server.transport.PacketTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_message_broker_impl_test",
+    srcs = ["ReplicantMessageBrokerImplTest.java"],
+    test_class = "replicant.server.transport.ReplicantMessageBrokerImplTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_session_manager_impl_test",
+    srcs = ["ReplicantSessionManagerImplTest.java"],
+    test_class = "replicant.server.transport.ReplicantSessionManagerImplTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "replicant_session_test",
+    srcs = ["ReplicantSessionTest.java"],
+    test_class = "replicant.server.transport.ReplicantSessionTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "schema_meta_data_test",
+    srcs = ["SchemaMetaDataTest.java"],
+    test_class = "replicant.server.transport.SchemaMetaDataTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "subscription_entry_test",
+    srcs = ["SubscriptionEntryTest.java"],
+    test_class = "replicant.server.transport.SubscriptionEntryTest",
+    deps = ["//server:server_test_support"],
+)

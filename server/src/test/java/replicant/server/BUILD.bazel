@@ -1,0 +1,71 @@
+load("//third_party/java:rules.bzl", "java_server_library", "java_testng")
+
+java_server_library(
+    name = "server_test_support_lib",
+    srcs = [
+        "MessageTestUtil.java",
+        "ValueUtil.java",
+    ],
+    visibility = ["//server:__pkg__"],
+    deps = [
+        "//server/src/main/java/replicant/server:server_core_lib",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:testng",
+    ],
+)
+
+java_testng(
+    name = "change_set_test",
+    srcs = ["ChangeSetTest.java"],
+    test_class = "replicant.server.ChangeSetTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "change_test",
+    srcs = ["ChangeTest.java"],
+    test_class = "replicant.server.ChangeTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "channel_address_test",
+    srcs = ["ChannelAddressTest.java"],
+    test_class = "replicant.server.ChannelAddressTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "channel_link_test",
+    srcs = ["ChannelLinkTest.java"],
+    test_class = "replicant.server.ChannelLinkTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "entity_message_set_test",
+    srcs = ["EntityMessageSetTest.java"],
+    test_class = "replicant.server.EntityMessageSetTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "entity_message_sorter_test",
+    srcs = ["EntityMessageSorterTest.java"],
+    test_class = "replicant.server.EntityMessageSorterTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "entity_message_test",
+    srcs = ["EntityMessageTest.java"],
+    test_class = "replicant.server.EntityMessageTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "filter_util_test",
+    srcs = ["FilterUtilTest.java"],
+    test_class = "replicant.server.FilterUtilTest",
+    deps = ["//server:server_test_support"],
+)
