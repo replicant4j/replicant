@@ -29,6 +29,7 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `build.yaml` defines artifact coordinates and dependency versions.
   - `MODULE.bazel`, `.bazelrc`, `.bazelversion`, and `BUILD.bazel` define the parallel Bazel build.
   - `bazelw` runs Bazel 8.7.0 via Bazelisk.
+  - `.github/workflows/ci.yml` defines the GitHub Actions CI workflow.
   - `third_party/java/dependencies.yml` is the depgen source for Bazel Java dependencies.
   - `tasks/*.rake` contains GWT, release, packaging, and diagnostic helper tasks.
   - `Gemfile` configures the Ruby/Buildr toolchain.
@@ -117,19 +118,24 @@ Implementation hotspots:
 
 ## Build and Test
 
-Prerequisites: JDK 17+, Ruby 2.7.x, and Bundler.
+Prerequisites: JDK 21 for Bazel. Buildr packaging and release workflows also require Ruby 2.7.x and Bundler.
 
-- Bootstrap once: `bundle install`
-- Build all modules: `bundle exec buildr clean package`
-- Run all tests: `bundle exec buildr test`
+CI workflow:
 
-Parallel Bazel workflow:
+- GitHub Actions runs Bazel, not Buildr.
+- CI installs Temurin JDK 21, builds the public Bazel jars, runs all Bazel tests, and checks Bazel formatting.
 
 - Bazel is pinned to 8.7.0 via `.bazelversion`; run it with `./bazelw`.
 - Build public Bazel jars: `./bazelw build //client:client //server:server`.
 - Run all Bazel tests, including depgen hash verification: `./bazelw test //...`.
 - Check Bazel formatting: `./bazelw run //:buildifier_check`.
 - Apply Bazel formatting: `./bazelw run //:buildifier`.
+
+Buildr workflow:
+
+- Bootstrap once: `bundle install`.
+- Build all modules locally for package/GWT workflows: `bundle exec buildr clean package`.
+- Run the Buildr test path when specifically validating Buildr behavior: `bundle exec buildr test`.
 
 Additional build notes:
 
@@ -142,14 +148,16 @@ Additional build notes:
   run `./bazelw run //third_party/java:update_depgen_generated_outputs` and
   `./bazelw test //third_party/java:verify_config_sha256`.
 - The Bazel public output jars merge `//shared:shared_lib` into `//client:client` and `//server:server`; third-party jars remain separate.
-- The Bazel toolchain emits Java 17 bytecode and uses the local OpenJDK 21 runtime configured in `.bazelrc`/`MODULE.bazel` for Bazel Java tools.
+- The Bazel toolchain emits Java 17 bytecode and uses the local JDK 21 resolved from `JAVA_HOME` or `PATH`
+  for Bazel Java tools.
 
 ### Testing Guidelines
 
 - Test framework: TestNG across modules.
 - Place tests under `*/src/test/java/...`.
 - Name tests with the `Test` suffix.
-- Run `bundle exec buildr test` before submitting changes unless the user explicitly asks you not to.
+- Run `./bazelw build //client:client //server:server`, `./bazelw test //...`, and
+  `./bazelw run //:buildifier_check` before submitting changes unless the user explicitly asks you not to.
 - Bazel exposes one `java_testng` target per concrete TestNG test class. `client/src/test/java/replicant/AbstractReplicantTest.java`
   is abstract support code and belongs in `//client:client_test_support`.
 - Client per-class Bazel tests disable diagnostic fixture comparison. `//client:client_diagnostic_messages_test`

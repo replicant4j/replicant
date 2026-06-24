@@ -3,6 +3,8 @@
 ### Unreleased
 
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
+* Replace legacy CI configuration with a GitHub Actions workflow that runs the Bazel build, test suite, and
+  buildifier check.
 
 ### [v6.202](https://github.com/replicant4j/replicant/tree/v6.202) (2026-06-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.201...v6.202)
 
@@ -1278,7 +1280,7 @@ Changes in this release:
 
 ### [v6.21](https://github.com/replicant4j/replicant/tree/v6.21) (2019-01-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.20...v6.21)
 
-* Remove deployment from TravisCI infrastructure as it is no longer feasible.
+* Remove deployment from legacy CI infrastructure as it is no longer feasible.
 * Update the `org.realityforge.arez` dependencies to version `0.122`.
 * Update the `org.realityforge.react4j` dependencies to version `0.110`.
 

@@ -1,6 +1,7 @@
 # Replicant
 
 [<img src="https://img.shields.io/maven-central/v/org.realityforge.replicant/replicant-client.svg?label=latest%20release"/>](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.realityforge.replicant%22%20a%3A%22replicant-client%22)
+[![CI](https://github.com/replicant4j/replicant/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/replicant4j/replicant/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/replicant4j/replicant/branch/master/graph/badge.svg)](https://codecov.io/gh/replicant4j/replicant)
 
 The replicant library aims to provide infrastructure for replicating a portion of a complex server-side
@@ -18,19 +19,21 @@ the changes propagated through the event broker.
 
 ## Build
 
-Replicant currently has the existing Buildr build and a parallel Bazel build.
+Replicant uses GitHub Actions for CI. The CI workflow is Bazel-based: it installs Temurin JDK 21, builds the
+public output jars, runs all Bazel tests, and checks Bazel file formatting.
 
-The Buildr workflow remains:
-
-* Build all modules: `bundle exec buildr clean package`
-* Run all tests: `bundle exec buildr test`
-
-The Bazel workflow uses `./bazelw`, which pins Bazel through `.bazelversion`:
+The Bazel workflow requires JDK 21 on `JAVA_HOME` or `PATH` and uses `./bazelw`, which pins Bazel through
+`.bazelversion`:
 
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Run all Bazel tests: `./bazelw test //...`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
 * Update Bazel file formatting: `./bazelw run //:buildifier`
+
+The Buildr workflow remains available for local GWT/package/release tasks:
+
+* Build all modules: `bundle exec buildr clean package`
+* Run all tests: `bundle exec buildr test`
 
 The public Bazel output libraries are `//client:client` and `//server:server`. Both output jars merge the
 internal shared classes from `//shared:shared_lib` and keep third-party jars separate from the merged outputs.
