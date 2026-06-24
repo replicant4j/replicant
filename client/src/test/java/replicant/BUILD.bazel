@@ -3,7 +3,7 @@ load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=false",
-    "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
+    "-Dreplicant.diagnostic_messages_file=$(rootpath //client/src/test/java/replicant:diagnostic_messages.json)",
 ]
 
 CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
@@ -171,7 +171,7 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = [
         "-Dreplicant.check_diagnostic_messages=true",
-        "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
+        "-Dreplicant.diagnostic_messages_file=$(rootpath //client/src/test/java/replicant:diagnostic_messages.json)",
     ],
     test_class = ",".join(CLIENT_TEST_CLASSES),
     deps = [
