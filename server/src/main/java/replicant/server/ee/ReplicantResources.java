@@ -8,6 +8,7 @@ import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.transaction.TransactionSynchronizationRegistry;
+import replicant.server.runtime.ReplicantSystem;
 
 @ApplicationScoped
 public class ReplicantResources

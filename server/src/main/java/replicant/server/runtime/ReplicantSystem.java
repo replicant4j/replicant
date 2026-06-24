@@ -1,4 +1,4 @@
-package replicant.server.ee;
+package replicant.server.runtime;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

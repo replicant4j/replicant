@@ -43,10 +43,10 @@ import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.FilterUtil;
 import replicant.server.ServerConstants;
-import replicant.server.ee.EntityMessageCacheUtil;
-import replicant.server.ee.ReplicantContextHolder;
-import replicant.server.ee.ReplicantSystem;
 import replicant.server.json.JsonEncoder;
+import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.ReplicantContextHolder;
+import replicant.server.runtime.ReplicantSystem;
 
 @SuppressWarnings( "DuplicatedCode" )
 @ApplicationScoped

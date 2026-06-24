@@ -3,9 +3,9 @@ package replicant.server.ee;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import replicant.server.ChangeSet;
-import replicant.server.EntityMessageSet;
 import replicant.server.ServerConstants;
+import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
 import static org.testng.Assert.*;
 
 public class EntityMessageCacheUtilTest

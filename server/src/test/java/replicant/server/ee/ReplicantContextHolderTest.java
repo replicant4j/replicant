@@ -1,6 +1,7 @@
 package replicant.server.ee;
 
 import org.testng.annotations.Test;
+import replicant.server.runtime.ReplicantContextHolder;
 import static org.testng.Assert.*;
 
 public class ReplicantContextHolderTest

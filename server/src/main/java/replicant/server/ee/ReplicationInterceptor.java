@@ -8,6 +8,7 @@ import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ServerConstants;
+import replicant.server.runtime.ReplicantContextHolder;
 import replicant.server.transport.ReplicantSessionManager;
 
 /**

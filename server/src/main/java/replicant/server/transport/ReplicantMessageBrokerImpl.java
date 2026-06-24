@@ -24,7 +24,7 @@ import javax.websocket.CloseReason;
 import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
-import replicant.server.ee.ReplicantSystem;
+import replicant.server.runtime.ReplicantSystem;
 
 @ApplicationScoped
 @Transactional( Transactional.TxType.NOT_SUPPORTED )

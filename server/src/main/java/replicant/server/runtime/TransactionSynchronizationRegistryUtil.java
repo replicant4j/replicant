@@ -1,4 +1,4 @@
-package replicant.server.ee;
+package replicant.server.runtime;
 
 import javax.annotation.Nonnull;
 import javax.naming.InitialContext;

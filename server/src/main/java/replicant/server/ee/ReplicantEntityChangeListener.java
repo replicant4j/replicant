@@ -9,6 +9,8 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
+import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.ReplicantSystem;
 import replicant.server.transport.ReplicantChangeRecorder;
 
 @SuppressWarnings( "BanJNDI" )

@@ -1,7 +1,6 @@
 package replicant.server.ee;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -11,6 +10,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.EntityMessage;
+import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
 import replicant.server.transport.ReplicantChangeRecorder;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;

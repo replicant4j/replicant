@@ -23,9 +23,9 @@ import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
 import replicant.server.EntityMessage;
 import replicant.server.ServerConstants;
-import replicant.server.ee.EntityMessageCacheUtil;
 import replicant.server.ee.RegistryUtil;
-import replicant.server.ee.TransactionSynchronizationRegistryUtil;
+import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
@@ -237,7 +237,12 @@ public class ReplicantSessionManagerImplTest
       session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
 
       manager.sendChangeMessage( session,
-                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, updateNew ),
+                                             new ChangeSet() ) );
 
       final var targetEntry = session.findSubscriptionEntry( targetAddress );
       assertNotNull( targetEntry );
@@ -370,7 +375,12 @@ public class ReplicantSessionManagerImplTest
       session.recordEntityScopedGraphLink( sourceAddress, oldTargetAddress, 2, 100 );
 
       manager.sendChangeMessage( session,
-                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, updateNew ),
+                                             new ChangeSet() ) );
 
       assertNull( session.findSubscriptionEntry( oldTargetAddress ) );
       final var newTargetEntry = session.findSubscriptionEntry( newTargetAddress );
@@ -441,7 +451,12 @@ public class ReplicantSessionManagerImplTest
       session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
 
       manager.sendChangeMessage( session,
-                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, updateNew ),
+                                             new ChangeSet() ) );
 
       final var reloadedTargetEntry = session.findSubscriptionEntry( targetAddress );
       assertNotNull( reloadedTargetEntry );
@@ -514,7 +529,12 @@ public class ReplicantSessionManagerImplTest
       session.recordEntityScopedGraphLink( excludedSourceAddress, targetAddress, 2, 100 );
 
       manager.sendChangeMessage( session,
-                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, updateNew ),
+                                             new ChangeSet() ) );
 
       assertTrue( includedSourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
       assertEquals( includedSourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
@@ -580,7 +600,12 @@ public class ReplicantSessionManagerImplTest
       session.recordEntityScopedGraphLink( sourceAddress, targetAddress, 2, 100 );
 
       manager.sendChangeMessage( session,
-                                 new Packet( false, null, null, null, List.of( deleteOld, updateNew ), new ChangeSet() ) );
+                                 new Packet( false,
+                                             null,
+                                             null,
+                                             null,
+                                             List.of( deleteOld, updateNew ),
+                                             new ChangeSet() ) );
 
       assertNull( session.findSubscriptionEntry( targetAddress ) );
       assertTrue( sourceEntry.getOwnedOutwardSubscriptions( newOwner ).isEmpty() );
