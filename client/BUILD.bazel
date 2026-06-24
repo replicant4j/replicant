@@ -3,12 +3,12 @@ load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=false",
-    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+    "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
 ]
 
 CLIENT_DIAGNOSTIC_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=true",
-    "-Dreplicant.diagnostic_messages_file=client/src/test/java/replicant/diagnostic_messages.json",
+    "-Dreplicant.diagnostic_messages_file=$(rootpath :src/test/java/replicant/diagnostic_messages.json)",
 ]
 
 CLIENT_TEST_DATA = ["src/test/java/replicant/diagnostic_messages.json"]
