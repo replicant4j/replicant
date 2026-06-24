@@ -6,23 +6,13 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True
 
 bazel_dep(name = "rules_java", version = "9.6.1")
 
-new_local_repository = use_repo_rule("@bazel_tools//tools/build_defs/repo:local.bzl", "new_local_repository")
-
-new_local_repository(
-    name = "local_jdk_21",
-    build_file_content = """
-load("@rules_java//toolchains:local_java_repository.bzl", "local_java_runtime")
-
-local_java_runtime(
-    name = "local_jdk_21",
-    java_home = "/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home",
-    version = "21",
+java_repositories = use_extension("@rules_java//java:extensions.bzl", "java_repository")
+java_repositories.local(
+    name = "local_jdk",
 )
-""",
-    path = "/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home",
-)
+use_repo(java_repositories, "local_jdk")
 
-register_toolchains("@local_jdk_21//:all")
+register_toolchains("@local_jdk//:all")
 
 # --- depgen-generated repository rules start ---
 
