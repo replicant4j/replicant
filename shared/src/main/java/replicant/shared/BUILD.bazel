@@ -1,16 +1,21 @@
 load("//third_party/java:rules.bzl", "java_library")
 
+SHARED_JAVA_SRCS = [
+    "Messages.java",
+    "SharedConstants.java",
+]
+
+filegroup(
+    name = "shared_j2cl_srcs",
+    srcs = SHARED_JAVA_SRCS,
+    visibility = ["//visibility:public"],
+)
+
 java_library(
     name = "shared_lib",
-    srcs = [
-        "Messages.java",
-        "SharedConstants.java",
-    ],
+    srcs = SHARED_JAVA_SRCS,
     resource_strip_prefix = "shared/src/main/java",
-    resources = [
-        "Messages.java",
-        "SharedConstants.java",
-    ],
+    resources = SHARED_JAVA_SRCS,
     visibility = ["//shared:__pkg__"],
     deps = ["//third_party/java:javax_annotation"],
 )

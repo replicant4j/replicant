@@ -1,20 +1,20 @@
 load("@rules_java//java/common:java_common.bzl", "java_common")
 load("@rules_java//java/common:java_info.bzl", "JavaInfo")
 
-def _is_third_party_jar(file):
+def _is_third_party_jar(ctx, file):
     owner = file.owner
-    if owner.workspace_name:
+    if owner.workspace_name and owner.workspace_name != ctx.label.workspace_name:
         return True
     package = owner.package
     return package == "third_party" or package.startswith("third_party/")
 
-def _split_jars(files):
+def _split_jars(ctx, files):
     non_third_party_jars = []
     third_party_jars = []
     for file in files:
         if not file.extension == "jar":
             fail("unexpected file type in java_single_jar.deps: %s" % file.path)
-        if _is_third_party_jar(file):
+        if _is_third_party_jar(ctx, file):
             third_party_jars.append(file)
         else:
             non_third_party_jars.append(file)
@@ -28,7 +28,7 @@ def _java_single_jar(ctx):
             files = dep[JavaInfo].transitive_runtime_jars.to_list()
         else:
             files = dep[DefaultInfo].files.to_list()
-        runtime_jars, third_party_jars = _split_jars(files)
+        runtime_jars, third_party_jars = _split_jars(ctx, files)
         transitive_inputs.append(runtime_jars)
         transitive_third_party_inputs.append(third_party_jars)
 
