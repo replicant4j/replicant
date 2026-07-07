@@ -47,9 +47,7 @@ test --test_output=errors
 
 # Generate the symlink tree as a peer directory
 # If we generate in the current directory, IDEA can start scanning an ultimately get locked up or crash
-# Generating symlinks in a separate location makes IDEA work with the risk that multiple rose projects in the
-# same directory is not possible without overriding this on a per user basis
-common --symlink_prefix=../replicant-bazel/
+common --symlink_prefix=../.bazel/replicant/
 
 # Do not stop at first error in build or analysis phase but keep going as long as prerequisites are successful
 test --keep_going
