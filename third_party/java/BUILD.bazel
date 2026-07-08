@@ -39,56 +39,56 @@ alias(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.24
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "DB50DB36F381C54B43F4A5F67E05EBAD08336CE749D8EF5A1B165E80E7C97454"
+_CONFIG_SHA256 = "05AA413E9681AAEE5C6AF5540B9E726BF4445E22E60A910B44C20DCA4C0ECFDA"
 
 exports_files(["dependencies.yml"])
 
 # Dependency Graph Generated from the input data
 # +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # +- javax:javaee-api:jar:8.0 [compile]
-# +- org.gwtproject:gwt-user:jar:2.10.0 [compile]
-# +- org.gwtproject:gwt-dev:jar:2.10.0 [compile]
+# +- org.gwtproject:gwt-user:jar:2.13.1 [compile]
+# +- org.gwtproject:gwt-dev:jar:2.13.1 [compile]
 # +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
 # +- org.glassfish:javax.json:jar:1.1 [compile]
 # |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
-# +- org.realityforge.arez:arez-core:jar:0.242 [compile]
+# +- org.realityforge.arez:arez-core:jar:0.249 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
 # |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# +- org.realityforge.arez:arez-processor:jar:0.242 [compile]
-# +- org.realityforge.arez:arez-extras-testng:jar:0.242 [compile]
+# +- org.realityforge.arez:arez-processor:jar:0.249 [compile]
+# +- org.realityforge.arez:arez-extras-testng:jar:0.249 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
-# |  \- org.realityforge.arez:arez-core:jar:0.242 [compile]
-# +- org.realityforge.react4j:react4j-core:jar:0.222 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
+# |  \- org.realityforge.arez:arez-core:jar:0.249 [compile]
+# +- org.realityforge.react4j:react4j-core:jar:0.226 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile]
-# |  +- org.realityforge.arez:arez-core:jar:0.241 [compile] (conflicts with 0.242)
-# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
+# |  +- org.realityforge.arez:arez-core:jar:0.249 [compile]
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile]
 # |  \- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
-# +- org.realityforge.react4j:react4j-processor:jar:0.222 [compile]
+# +- org.realityforge.react4j:react4j-processor:jar:0.226 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
-# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
+# +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile]
+# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
 # |  \- com.google.jsinterop:base:jar:1.0.0 [compile]
-# +- org.realityforge.braincheck:braincheck-core:jar:1.32.0 [compile]
+# +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.braincheck:braincheck-testng:jar:1.32.0 [compile]
+# +- org.realityforge.braincheck:braincheck-testng:jar:1.33.0 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- org.glassfish:javax.json:jar:1.1 [compile]
@@ -103,8 +103,8 @@ exports_files(["dependencies.yml"])
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.31.0 [compile] (conflicts with 1.32.0)
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile] (conflicts with 0.33)
+# |  +- org.realityforge.braincheck:braincheck-core:jar:1.31.0 [compile] (conflicts with 1.33.0)
 # |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # +- org.mockito:mockito-core:jar:4.5.1 [compile]
@@ -231,14 +231,14 @@ _java_import(
     name = "gwt_dev",
     jars = ["@gwt_dev//file"],
     srcjar = "@gwt_dev__sources//file",
-    tags = ["maven_coordinates=org.gwtproject:gwt-dev:2.10.0"],
+    tags = ["maven_coordinates=org.gwtproject:gwt-dev:2.13.1"],
 )
 
 _java_import(
     name = "gwt_user",
     jars = ["@gwt_user//file"],
     srcjar = "@gwt_user__sources//file",
-    tags = ["maven_coordinates=org.gwtproject:gwt-user:2.10.0"],
+    tags = ["maven_coordinates=org.gwtproject:gwt-user:2.13.1"],
 )
 
 _java_import(
@@ -264,7 +264,7 @@ _java_import(
     name = "akasha_gwt",
     jars = ["@akasha_gwt//file"],
     srcjar = "@akasha_gwt__sources//file",
-    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.30"],
+    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.33"],
     deps = [
         ":base",
         ":javaemul_internal_annotations",
@@ -278,7 +278,7 @@ _java_import(
     name = "arez_core",
     jars = ["@arez_core//file"],
     srcjar = "@arez_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.242"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.249"],
     deps = [
         ":braincheck_core",
         ":grim_annotations",
@@ -292,7 +292,7 @@ _java_import(
     name = "arez_extras_testng",
     jars = ["@arez_extras_testng//file"],
     srcjar = "@arez_extras_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.242"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.249"],
     deps = [
         ":arez_core",
         ":braincheck_core",
@@ -306,7 +306,7 @@ _java_import(
     name = "arez_processor__plugin_library",
     jars = ["@arez_processor//file"],
     srcjar = "@arez_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.242"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.249"],
 )
 
 _java_plugin(
@@ -332,7 +332,7 @@ _java_import(
     name = "braincheck_core",
     jars = ["@braincheck_core//file"],
     srcjar = "@braincheck_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-core:1.32.0"],
+    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-core:1.33.0"],
     deps = [
         ":javax_annotation",
         ":jsinterop_annotations",
@@ -343,7 +343,7 @@ _java_import(
     name = "braincheck_testng",
     jars = ["@braincheck_testng//file"],
     srcjar = "@braincheck_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-testng:1.32.0"],
+    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-testng:1.33.0"],
     deps = [
         ":javax_annotation",
         ":javax_json",
@@ -417,7 +417,7 @@ _java_import(
     name = "react4j_core",
     jars = ["@react4j_core//file"],
     srcjar = "@react4j_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.222"],
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.226"],
     deps = [
         ":akasha_gwt",
         ":arez_core",
@@ -436,7 +436,7 @@ _java_import(
     name = "react4j_processor__plugin_library",
     jars = ["@react4j_processor//file"],
     srcjar = "@react4j_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.222"],
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.226"],
 )
 
 _java_plugin(

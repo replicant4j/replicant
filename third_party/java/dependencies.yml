@@ -17,29 +17,29 @@ artifacts:
     excludes:
       - '*:*'
 
-  - coord: org.gwtproject:gwt-user:2.10.0
+  - coord: org.gwtproject:gwt-user:2.13.1
     excludes:
       - '*:*'
-  - coord: org.gwtproject:gwt-dev:2.10.0
+  - coord: org.gwtproject:gwt-dev:2.13.1
     excludes:
       - '*:*'
 
   - coord: org.realityforge.jndikit:jndikit:1.4
   - coord: org.glassfish:javax.json:1.1
 
-  - coord: org.realityforge.arez:arez-core:0.242
-  - coord: org.realityforge.arez:arez-processor:0.242
-  - coord: org.realityforge.arez:arez-extras-testng:0.242
+  - coord: org.realityforge.arez:arez-core:0.249
+  - coord: org.realityforge.arez:arez-processor:0.249
+  - coord: org.realityforge.arez:arez-extras-testng:0.249
 
-  - coord: org.realityforge.react4j:react4j-core:0.222
-  - coord: org.realityforge.react4j:react4j-processor:0.222
+  - coord: org.realityforge.react4j:react4j-core:0.226
+  - coord: org.realityforge.react4j:react4j-processor:0.226
 
   - coord: com.google.jsinterop:jsinterop-annotations:2.1.0
   - coord: com.google.jsinterop:base:1.0.0
-  - coord: org.realityforge.akasha:akasha-gwt:0.30
+  - coord: org.realityforge.akasha:akasha-gwt:0.33
 
-  - coord: org.realityforge.braincheck:braincheck-core:1.32.0
-  - coord: org.realityforge.braincheck:braincheck-testng:1.32.0
+  - coord: org.realityforge.braincheck:braincheck-core:1.33.0
+  - coord: org.realityforge.braincheck:braincheck-testng:1.33.0
 
   - coord: org.realityforge.grim:grim-annotations:0.09
   - coord: org.realityforge.grim:grim-processor:0.09
