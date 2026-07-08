@@ -7,4 +7,6 @@
 /reports
 /target
 /tmp
-/bazel-*
+
+# Local user configuration
+/user.bazelrc

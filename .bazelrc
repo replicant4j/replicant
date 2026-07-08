@@ -72,4 +72,4 @@ build --strict_filesets
 build --verbose_failures
 
 # Try and import a user specific configuration
-try-import %workspace%/user.bazelrc
+try-import %workspace%/.bazelrc.user
