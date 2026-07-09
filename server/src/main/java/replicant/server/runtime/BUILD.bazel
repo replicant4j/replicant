@@ -15,7 +15,8 @@ java_server_library(
     ],
     deps = [
         "//server/src/main/java/replicant/server:server_core_lib",
-        "//third_party/java:javaee_api",
+        "//third_party/java:jakarta_inject",
+        "//third_party/java:jakarta_transaction_api",
         "//third_party/java:javax_annotation",
     ],
 )

@@ -13,7 +13,20 @@ options:
 
 artifacts:
   - coord: org.realityforge.javax.annotation:javax.annotation:1.1.1
-  - coord: javax:javaee-api:8.0
+  - coord: jakarta.annotation:jakarta.annotation-api:1.3.5
+  - coord: jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2
+    excludes:
+      - 'jakarta.el:jakarta.el-api'
+  - coord: javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.1
+  - coord: org.glassfish.hk2.external:jakarta.inject:2.6.1
+  - coord: jakarta.interceptor:jakarta.interceptor-api:1.2.5
+    excludes:
+      - 'jakarta.ejb:jakarta.ejb-api'
+  - coord: javax.persistence:javax.persistence-api:2.2
+  - coord: jakarta.transaction:jakarta.transaction-api:1.3.3
+    excludes:
+      - '*:*'
+  - coord: jakarta.websocket:jakarta.websocket-api:1.1.2
     excludes:
       - '*:*'
 

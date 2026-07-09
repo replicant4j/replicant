@@ -19,7 +19,14 @@ FORMATTER_JAVAC_EXPORTS = FORMATTER_JDK_EXPORTS.map { |option| "-J#{option}" }
 
 PROVIDED_DEPS = [
   :javax_annotation,
-  :javax_javaee,
+  :jakarta_annotation_api,
+  :jakarta_enterprise_cdi_api,
+  :javax_enterprise_concurrent_api,
+  :jakarta_inject,
+  :jakarta_interceptor_api,
+  :javax_persistence_api,
+  :jakarta_transaction_api,
+  :jakarta_websocket_api,
   :jetbrains_annotations,
   :javax_json
 ]

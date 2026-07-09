@@ -39,13 +39,24 @@ alias(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "84453F6AC838A8702DAE5E107C56CF82DEF01A7902C18D206B9372745D6732A9"
+_CONFIG_SHA256 = "5CBB7473C4EBD89550E7A6CD0694BEA6E34A4E9B12F1A1EDB64FBC2C91C794DE"
 
 exports_files(["dependencies.yml"])
 
 # Dependency Graph Generated from the input data
 # +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
-# +- javax:javaee-api:jar:8.0 [compile]
+# +- jakarta.annotation:jakarta.annotation-api:jar:1.3.5 [compile]
+# +- jakarta.enterprise:jakarta.enterprise.cdi-api:jar:2.0.2 [compile]
+# |  +- jakarta.interceptor:jakarta.interceptor-api:jar:1.2.5 [compile]
+# |  \- jakarta.inject:jakarta.inject-api:jar:1.0 [compile]
+# +- javax.enterprise.concurrent:javax.enterprise.concurrent-api:jar:1.1 [compile]
+# +- org.glassfish.hk2.external:jakarta.inject:jar:2.6.1 [compile]
+# |  \- javax.inject:javax.inject:jar:1 [compile, optional]
+# +- jakarta.interceptor:jakarta.interceptor-api:jar:1.2.5 [compile]
+# |  \- jakarta.annotation:jakarta.annotation-api:jar:1.3.5 [compile]
+# +- javax.persistence:javax.persistence-api:jar:2.2 [compile]
+# +- jakarta.transaction:jakarta.transaction-api:jar:1.3.3 [compile]
+# +- jakarta.websocket:jakarta.websocket-api:jar:1.1.2 [compile]
 # +- org.gwtproject:gwt-user:jar:2.13.1 [compile]
 # +- org.gwtproject:gwt-dev:jar:2.13.1 [compile]
 # +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
@@ -191,6 +202,69 @@ _java_import(
 )
 
 _java_import(
+    name = "jakarta_annotation_api",
+    jars = ["@jakarta_annotation_api//file"],
+    srcjar = "@jakarta_annotation_api__sources//file",
+    tags = ["maven_coordinates=jakarta.annotation:jakarta.annotation-api:1.3.5"],
+)
+
+_java_import(
+    name = "jakarta_enterprise_cdi_api",
+    jars = ["@jakarta_enterprise_cdi_api//file"],
+    srcjar = "@jakarta_enterprise_cdi_api__sources//file",
+    tags = ["maven_coordinates=jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2"],
+    deps = [
+        ":jakarta_inject_api",
+        ":jakarta_interceptor_api",
+    ],
+)
+
+_java_import(
+    name = "jakarta_inject_api",
+    jars = ["@jakarta_inject_api//file"],
+    srcjar = "@jakarta_inject_api__sources//file",
+    tags = ["maven_coordinates=jakarta.inject:jakarta.inject-api:1.0"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "jakarta_interceptor_api",
+    jars = ["@jakarta_interceptor_api//file"],
+    srcjar = "@jakarta_interceptor_api__sources//file",
+    tags = ["maven_coordinates=jakarta.interceptor:jakarta.interceptor-api:1.2.5"],
+    deps = [":jakarta_annotation_api"],
+)
+
+_java_import(
+    name = "jakarta_transaction_api",
+    jars = ["@jakarta_transaction_api//file"],
+    srcjar = "@jakarta_transaction_api__sources//file",
+    tags = ["maven_coordinates=jakarta.transaction:jakarta.transaction-api:1.3.3"],
+)
+
+_java_import(
+    name = "jakarta_websocket_api",
+    jars = ["@jakarta_websocket_api//file"],
+    srcjar = "@jakarta_websocket_api__sources//file",
+    tags = ["maven_coordinates=jakarta.websocket:jakarta.websocket-api:1.1.2"],
+)
+
+_java_import(
+    name = "javax_enterprise_concurrent_api",
+    jars = ["@javax_enterprise_concurrent_api//file"],
+    srcjar = "@javax_enterprise_concurrent_api__sources//file",
+    tags = ["maven_coordinates=javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.1"],
+)
+
+_java_import(
+    name = "javax_inject",
+    jars = ["@javax_inject//file"],
+    srcjar = "@javax_inject__sources//file",
+    tags = ["maven_coordinates=javax.inject:javax.inject:1"],
+    visibility = ["//visibility:private"],
+)
+
+_java_import(
     name = "javax_json_api",
     jars = ["@javax_json_api//file"],
     srcjar = "@javax_json_api__sources//file",
@@ -199,10 +273,10 @@ _java_import(
 )
 
 _java_import(
-    name = "javaee_api",
-    jars = ["@javaee_api//file"],
-    srcjar = "@javaee_api__sources//file",
-    tags = ["maven_coordinates=javax:javaee-api:8.0"],
+    name = "javax_persistence_api",
+    jars = ["@javax_persistence_api//file"],
+    srcjar = "@javax_persistence_api__sources//file",
+    tags = ["maven_coordinates=javax.persistence:javax.persistence-api:2.2"],
 )
 
 _java_import(
@@ -218,6 +292,13 @@ _java_import(
     srcjar = "@byte_buddy_agent__sources//file",
     tags = ["maven_coordinates=net.bytebuddy:byte-buddy-agent:1.12.9"],
     visibility = ["//visibility:private"],
+)
+
+_java_import(
+    name = "jakarta_inject",
+    jars = ["@jakarta_inject//file"],
+    srcjar = "@jakarta_inject__sources//file",
+    tags = ["maven_coordinates=org.glassfish.hk2.external:jakarta.inject:2.6.1"],
 )
 
 _java_import(
