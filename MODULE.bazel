@@ -371,30 +371,30 @@ _http_file(
 
 _http_file(
     name = "react4j_core",
-    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.226/react4j-core-0.226.jar",
-    sha256 = "d13f863a2aba56405e884ed49b519571b0f4c19958943489b56826356a7f2c0d",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.226/react4j-core-0.226.jar"],
+    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.227/react4j-core-0.227.jar",
+    sha256 = "6ea0d1f7de561d97e186c29362806ae1aa955888beb134c5aa52a77dea919b82",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.227/react4j-core-0.227.jar"],
 )
 
 _http_file(
     name = "react4j_core__sources",
-    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.226/react4j-core-0.226-sources.jar",
-    sha256 = "ab0263cdf87eee120a92e20e2ea9542989e20265d04d378bb8d8081a3125b9f8",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.226/react4j-core-0.226-sources.jar"],
+    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.227/react4j-core-0.227-sources.jar",
+    sha256 = "4e91e9fa4a39259618f0f49bc24bb9dbcf4b6c208ef98eadf3ea3108c5bb30af",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.227/react4j-core-0.227-sources.jar"],
 )
 
 _http_file(
     name = "react4j_processor",
-    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.226/react4j-processor-0.226.jar",
-    sha256 = "16d91901c8013d1c22077732a6bea7b9f2c5692ed71b17cbd056a5d77085aa01",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.226/react4j-processor-0.226.jar"],
+    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.227/react4j-processor-0.227.jar",
+    sha256 = "cb2c9425ddbd056fe2d5cc1f30ecdc914f4221a45e575c86f2c99fa003e973c4",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.227/react4j-processor-0.227.jar"],
 )
 
 _http_file(
     name = "react4j_processor__sources",
-    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.226/react4j-processor-0.226-sources.jar",
-    sha256 = "ae09f0f4a83e62985b72e538dbbfda0a50ebe332f3cddc2e87761739afc0a88b",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.226/react4j-processor-0.226-sources.jar"],
+    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.227/react4j-processor-0.227-sources.jar",
+    sha256 = "896d9d07b7489095f597c7a890e11b9c13c02baf6aa956dfa0ef9c6fa89a59d9",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.227/react4j-processor-0.227-sources.jar"],
 )
 
 _http_file(
