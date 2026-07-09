@@ -15,6 +15,7 @@
 * Move server TestNG targets into their owning test source packages and remove the remaining server Bazel filegroups.
 * Move client TestNG targets into their owning test source packages.
 * Move the client JVM library target next to the client sources and remove main-source Java filegroups.
+* Update the `org.realityforge.arez` artifacts to version `0.250`.
 
 ### [v6.202](https://github.com/replicant4j/replicant/tree/v6.202) (2026-06-17) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.201...v6.202)
 
