@@ -25,6 +25,7 @@ java_server_library(
         "//server/src/main/java/replicant/server/runtime:runtime_lib",
         "//server/src/main/java/replicant/server/transport:transport_lib",
         "//shared:shared_lib",
+        "//third_party/java:enterprise_concurrent_api",
         "//third_party/java:jakarta_annotation_api",
         "//third_party/java:jakarta_enterprise_cdi_api",
         "//third_party/java:jakarta_inject",
@@ -32,9 +33,8 @@ java_server_library(
         "//third_party/java:jakarta_transaction_api",
         "//third_party/java:jakarta_websocket_api",
         "//third_party/java:javax_annotation",
-        "//third_party/java:javax_enterprise_concurrent_api",
         "//third_party/java:javax_json",
-        "//third_party/java:javax_persistence_api",
         "//third_party/java:org_jetbrains_annotations",
+        "//third_party/java:persistence_api",
     ],
 )

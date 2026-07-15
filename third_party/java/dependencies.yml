@@ -18,11 +18,20 @@ artifacts:
     excludes:
       - 'jakarta.el:jakarta.el-api'
   - coord: javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.1
+    java:
+      name: enterprise_concurrent_api
+  - coord: javax.inject:javax.inject:1
+    java:
+      name: inject
+    visibility:
+      - '//visibility:private'
   - coord: org.glassfish.hk2.external:jakarta.inject:2.6.1
   - coord: jakarta.interceptor:jakarta.interceptor-api:1.2.5
     excludes:
       - 'jakarta.ejb:jakarta.ejb-api'
   - coord: javax.persistence:javax.persistence-api:2.2
+    java:
+      name: persistence_api
   - coord: jakarta.transaction:jakarta.transaction-api:1.3.3
     excludes:
       - '*:*'
@@ -40,12 +49,12 @@ artifacts:
   - coord: org.realityforge.jndikit:jndikit:1.4
   - coord: org.glassfish:javax.json:1.1
 
-  - coord: org.realityforge.arez:arez-core:0.250
-  - coord: org.realityforge.arez:arez-processor:0.250
-  - coord: org.realityforge.arez:arez-extras-testng:0.250
+  - coord: org.realityforge.arez:arez-core:0.252
+  - coord: org.realityforge.arez:arez-processor:0.252
+  - coord: org.realityforge.arez:arez-extras-testng:0.252
 
-  - coord: org.realityforge.react4j:react4j-core:0.227
-  - coord: org.realityforge.react4j:react4j-processor:0.227
+  - coord: org.realityforge.react4j:react4j-core:0.228
+  - coord: org.realityforge.react4j:react4j-processor:0.228
 
   - coord: com.google.jsinterop:jsinterop-annotations:2.1.0
   - coord: com.google.jsinterop:base:1.0.0

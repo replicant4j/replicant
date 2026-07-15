@@ -39,7 +39,7 @@ alias(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "5CBB7473C4EBD89550E7A6CD0694BEA6E34A4E9B12F1A1EDB64FBC2C91C794DE"
+_CONFIG_SHA256 = "2CD0ECF118C7408F671E0979DCFFAE7A37294B9C131FD14AA4AC14524621DD7B"
 
 exports_files(["dependencies.yml"])
 
@@ -50,6 +50,7 @@ exports_files(["dependencies.yml"])
 # |  +- jakarta.interceptor:jakarta.interceptor-api:jar:1.2.5 [compile]
 # |  \- jakarta.inject:jakarta.inject-api:jar:1.0 [compile]
 # +- javax.enterprise.concurrent:javax.enterprise.concurrent-api:jar:1.1 [compile]
+# +- javax.inject:javax.inject:jar:1 [compile]
 # +- org.glassfish.hk2.external:jakarta.inject:jar:2.6.1 [compile]
 # |  \- javax.inject:javax.inject:jar:1 [compile, optional]
 # +- jakarta.interceptor:jakarta.interceptor-api:jar:1.2.5 [compile]
@@ -62,20 +63,20 @@ exports_files(["dependencies.yml"])
 # +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
 # +- org.glassfish:javax.json:jar:1.1 [compile]
 # |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
-# +- org.realityforge.arez:arez-core:jar:0.250 [compile]
+# +- org.realityforge.arez:arez-core:jar:0.252 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
 # |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# +- org.realityforge.arez:arez-processor:jar:0.250 [compile]
-# +- org.realityforge.arez:arez-extras-testng:jar:0.250 [compile]
+# +- org.realityforge.arez:arez-processor:jar:0.252 [compile]
+# +- org.realityforge.arez:arez-extras-testng:jar:0.252 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
-# |  \- org.realityforge.arez:arez-core:jar:0.250 [compile]
-# +- org.realityforge.react4j:react4j-core:jar:0.227 [compile]
+# |  \- org.realityforge.arez:arez-core:jar:0.252 [compile]
+# +- org.realityforge.react4j:react4j-core:jar:0.228 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
@@ -83,10 +84,10 @@ exports_files(["dependencies.yml"])
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile]
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile]
-# |  +- org.realityforge.arez:arez-core:jar:0.250 [compile]
+# |  +- org.realityforge.arez:arez-core:jar:0.251 [compile] (conflicts with 0.252)
 # |  +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile]
 # |  \- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
-# +- org.realityforge.react4j:react4j-processor:jar:0.227 [compile]
+# +- org.realityforge.react4j:react4j-processor:jar:0.228 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
@@ -250,14 +251,14 @@ _java_import(
 )
 
 _java_import(
-    name = "javax_enterprise_concurrent_api",
+    name = "enterprise_concurrent_api",
     jars = ["@javax_enterprise_concurrent_api//file"],
     srcjar = "@javax_enterprise_concurrent_api__sources//file",
     tags = ["maven_coordinates=javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.1"],
 )
 
 _java_import(
-    name = "javax_inject",
+    name = "inject",
     jars = ["@javax_inject//file"],
     srcjar = "@javax_inject__sources//file",
     tags = ["maven_coordinates=javax.inject:javax.inject:1"],
@@ -273,7 +274,7 @@ _java_import(
 )
 
 _java_import(
-    name = "javax_persistence_api",
+    name = "persistence_api",
     jars = ["@javax_persistence_api//file"],
     srcjar = "@javax_persistence_api__sources//file",
     tags = ["maven_coordinates=javax.persistence:javax.persistence-api:2.2"],
@@ -359,7 +360,7 @@ _java_import(
     name = "arez_core",
     jars = ["@arez_core//file"],
     srcjar = "@arez_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.250"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.252"],
     deps = [
         ":braincheck_core",
         ":grim_annotations",
@@ -373,7 +374,7 @@ _java_import(
     name = "arez_extras_testng",
     jars = ["@arez_extras_testng//file"],
     srcjar = "@arez_extras_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.250"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.252"],
     deps = [
         ":arez_core",
         ":braincheck_core",
@@ -387,7 +388,7 @@ _java_import(
     name = "arez_processor__plugin_library",
     jars = ["@arez_processor//file"],
     srcjar = "@arez_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.250"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.252"],
 )
 
 _java_plugin(
@@ -498,7 +499,7 @@ _java_import(
     name = "react4j_core",
     jars = ["@react4j_core//file"],
     srcjar = "@react4j_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.227"],
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.228"],
     deps = [
         ":akasha_gwt",
         ":arez_core",
@@ -517,7 +518,7 @@ _java_import(
     name = "react4j_processor__plugin_library",
     jars = ["@react4j_processor//file"],
     srcjar = "@react4j_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.227"],
+    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.228"],
 )
 
 _java_plugin(
