@@ -26,13 +26,6 @@ build --host_copt=-Wno-deprecated-declarations
 build --host_cxxopt=-Wno-deprecated-declarations
 
 
-# Directories used by sandboxed non-worker execution may be reused to avoid unnecessary setup costs.
-# Save time on Sandbox creation and deletion when many of the same kind of action run during the
-# build.
-# No longer experimental in Bazel 6: https://github.com/bazelbuild/bazel/commit/c1a95501a5611878e5cc43a3cc531f2b9e47835b
-# Docs: https://bazel.build/reference/command-line-reference#flag--reuse_sandbox_directories
-build --reuse_sandbox_directories
-
 build --sandbox_default_allow_network=false
 
 # Attempt to build & test every target whose prerequisites were successfully built.

@@ -1,5 +1,4 @@
-load("@rules_java//java/common:java_common.bzl", "java_common")
-load("@rules_java//java/common:java_info.bzl", "JavaInfo")
+load("@rules_java//java:defs.bzl", "JavaInfo", "java_common")
 
 def _is_third_party_jar(ctx, file):
     owner = file.owner
