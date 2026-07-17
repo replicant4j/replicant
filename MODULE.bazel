@@ -8,7 +8,7 @@ bazel_dep(name = "rules_java", version = "9.7.0")
 
 # --- depgen-generated repository rules start ---
 
-# DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.26
+# DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.28
 
 _http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
@@ -378,9 +378,9 @@ _http_file(
 
 _http_file(
     name = "bazel_depgen",
-    downloaded_file_path = "org/realityforge/bazel/depgen/bazel-depgen/0.26/bazel-depgen-0.26-all.jar",
-    sha256 = "217987b5d60162bf6afe78a838b64818abef511852e39b094824e0b01a9bbd8c",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/bazel/depgen/bazel-depgen/0.26/bazel-depgen-0.26-all.jar"],
+    downloaded_file_path = "org/realityforge/bazel/depgen/bazel-depgen/0.28/bazel-depgen-0.28-all.jar",
+    sha256 = "3cf783d1b92d859a0702e5c87060bf74e4b95c5c91657252dc6c210022fa688f",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/bazel/depgen/bazel-depgen/0.28/bazel-depgen-0.28-all.jar"],
 )
 
 _http_file(

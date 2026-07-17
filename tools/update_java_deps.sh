@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="0.26"
+VERSION="0.28"
 URL="https://repo.maven.apache.org/maven2/org/realityforge/bazel/depgen/bazel-depgen/${VERSION}/bazel-depgen-${VERSION}-all.jar"
 OUTPUT_BASE="$(cd "${ROOT}" && bazel info output_base)"
 TOOLS_DIR="${OUTPUT_BASE}/.depgen-tools"
