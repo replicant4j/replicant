@@ -322,16 +322,16 @@ _http_file(
 
 _http_file(
     name = "akasha_gwt",
-    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.33/akasha-gwt-0.33.jar",
-    sha256 = "07fe392886ea0b5d91407307b6c61cf54c0a7a0c43495567909030bbaf21f6b3",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.33/akasha-gwt-0.33.jar"],
+    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34.jar",
+    sha256 = "94b8d1b5a9f6098be93a36d5d28221c8df1c74582a59e267824f7c053b3cb66b",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34.jar"],
 )
 
 _http_file(
     name = "akasha_gwt__sources",
-    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.33/akasha-gwt-0.33-sources.jar",
-    sha256 = "1021ef011aca1f38226af4b0dc1cda1613754cadf353a22b8cb9090a9dae7d26",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.33/akasha-gwt-0.33-sources.jar"],
+    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34-sources.jar",
+    sha256 = "5332850b4daaf4f4fff239fd70dc281c57c31df242cc055738f223e9070c222c",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34-sources.jar"],
 )
 
 _http_file(

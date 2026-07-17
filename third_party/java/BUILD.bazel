@@ -39,7 +39,7 @@ alias(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.28
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "32EC5726F7A93F8C48F8C7CC332B3C3CA14DC056E975545875929B382A27D3D7"
+_CONFIG_SHA256 = "B2B288476F7C34EDEAF0848086B0DCBA5A58B5616594F609443C91DAAFA41AA5"
 
 exports_files(["dependencies.yml"])
 
@@ -85,13 +85,13 @@ exports_files(["dependencies.yml"])
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile]
 # |  +- org.realityforge.arez:arez-core:jar:0.251 [compile] (conflicts with 0.252)
-# |  +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile]
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile] (conflicts with 0.34)
 # |  \- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
 # +- org.realityforge.react4j:react4j-processor:jar:0.228 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile]
+# +- org.realityforge.akasha:akasha-gwt:jar:0.34 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
@@ -115,7 +115,7 @@ exports_files(["dependencies.yml"])
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile] (conflicts with 0.33)
+# |  +- org.realityforge.akasha:akasha-gwt:jar:0.30 [compile] (conflicts with 0.34)
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.31.0 [compile] (conflicts with 1.33.0)
 # |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
@@ -346,7 +346,7 @@ _java_import(
     name = "akasha_gwt",
     jars = ["@akasha_gwt//file"],
     srcjar = "@akasha_gwt__sources//file",
-    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.33"],
+    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.34"],
     deps = [
         ":base",
         ":javaemul_internal_annotations",

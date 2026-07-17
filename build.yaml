@@ -32,7 +32,7 @@ artifacts:
 
   jsinterop_base: com.google.jsinterop:base:jar:1.0.0
 
-  akasha: org.realityforge.akasha:akasha-gwt:jar:0.33
+  akasha: org.realityforge.akasha:akasha-gwt:jar:0.34
 
   braincheck_core: org.realityforge.braincheck:braincheck-core:jar:1.33.0
   braincheck_testng: org.realityforge.braincheck:braincheck-testng:jar:1.33.0
