@@ -40,9 +40,9 @@ internal shared classes from `//shared:shared_lib` and keep third-party jars sep
 
 Java dependencies for the Bazel build are managed by
 [bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml`.
-After changing that file, regenerate checked-in Bazel dependency outputs with:
+After changing that file, regenerate the checked-in Bazel dependency outputs and lockfile with:
 
-* `./bazelw run //third_party/java:update_depgen_generated_outputs`
+* `tools/update_java_deps.sh`
 * `./bazelw test //third_party/java:verify_config_sha256`
 
 The Bazel build is a JVM build and test path. It does not replace the existing GWT compile/package workflow.
