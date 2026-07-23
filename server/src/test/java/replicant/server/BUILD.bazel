@@ -15,56 +15,56 @@ java_server_library(
 )
 
 java_testng(
-    name = "change_set_test",
+    name = "ChangeSetTest",
     srcs = ["ChangeSetTest.java"],
     test_class = "replicant.server.ChangeSetTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "change_test",
+    name = "ChangeTest",
     srcs = ["ChangeTest.java"],
     test_class = "replicant.server.ChangeTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "channel_address_test",
+    name = "ChannelAddressTest",
     srcs = ["ChannelAddressTest.java"],
     test_class = "replicant.server.ChannelAddressTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "channel_link_test",
+    name = "ChannelLinkTest",
     srcs = ["ChannelLinkTest.java"],
     test_class = "replicant.server.ChannelLinkTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "entity_message_set_test",
+    name = "EntityMessageSetTest",
     srcs = ["EntityMessageSetTest.java"],
     test_class = "replicant.server.EntityMessageSetTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "entity_message_sorter_test",
+    name = "EntityMessageSorterTest",
     srcs = ["EntityMessageSorterTest.java"],
     test_class = "replicant.server.EntityMessageSorterTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "entity_message_test",
+    name = "EntityMessageTest",
     srcs = ["EntityMessageTest.java"],
     test_class = "replicant.server.EntityMessageTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "filter_util_test",
+    name = "FilterUtilTest",
     srcs = ["FilterUtilTest.java"],
     test_class = "replicant.server.FilterUtilTest",
     deps = ["//server:server_test_support"],

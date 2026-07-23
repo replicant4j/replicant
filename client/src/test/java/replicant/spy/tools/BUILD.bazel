@@ -32,7 +32,7 @@ native_java_library(
 )
 
 java_testng(
-    name = "replicant_spy_util_test",
+    name = "ReplicantSpyUtilTest",
     srcs = ["ReplicantSpyUtilTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -41,7 +41,7 @@ java_testng(
 )
 
 java_testng(
-    name = "spy_event_processor_test",
+    name = "SpyEventProcessorTest",
     srcs = ["SpyEventProcessorTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,

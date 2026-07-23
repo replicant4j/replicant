@@ -63,7 +63,7 @@ native_java_library(
 )
 
 java_testng(
-    name = "area_of_interest_created_event_test",
+    name = "AreaOfInterestCreatedEventTest",
     srcs = ["AreaOfInterestCreatedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -72,7 +72,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_disposed_event_test",
+    name = "AreaOfInterestDisposedEventTest",
     srcs = ["AreaOfInterestDisposedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -81,7 +81,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_filter_updated_event_test",
+    name = "AreaOfInterestFilterUpdatedEventTest",
     srcs = ["AreaOfInterestFilterUpdatedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -90,7 +90,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_status_updated_event_test",
+    name = "AreaOfInterestStatusUpdatedEventTest",
     srcs = ["AreaOfInterestStatusUpdatedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -99,7 +99,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connect_failure_event_test",
+    name = "ConnectFailureEventTest",
     srcs = ["ConnectFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -108,7 +108,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connected_event_test",
+    name = "ConnectedEventTest",
     srcs = ["ConnectedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -117,7 +117,7 @@ java_testng(
 )
 
 java_testng(
-    name = "data_load_status_test",
+    name = "DataLoadStatusTest",
     srcs = ["DataLoadStatusTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -126,7 +126,7 @@ java_testng(
 )
 
 java_testng(
-    name = "disconnect_failure_event_test",
+    name = "DisconnectFailureEventTest",
     srcs = ["DisconnectFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -135,7 +135,7 @@ java_testng(
 )
 
 java_testng(
-    name = "disconnected_event_test",
+    name = "DisconnectedEventTest",
     srcs = ["DisconnectedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -144,7 +144,7 @@ java_testng(
 )
 
 java_testng(
-    name = "exec_completed_event_test",
+    name = "ExecCompletedEventTest",
     srcs = ["ExecCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -153,7 +153,7 @@ java_testng(
 )
 
 java_testng(
-    name = "exec_request_queued_event_test",
+    name = "ExecRequestQueuedEventTest",
     srcs = ["ExecRequestQueuedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -162,7 +162,7 @@ java_testng(
 )
 
 java_testng(
-    name = "exec_started_event_test",
+    name = "ExecStartedEventTest",
     srcs = ["ExecStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -171,7 +171,7 @@ java_testng(
 )
 
 java_testng(
-    name = "in_sync_event_test",
+    name = "InSyncEventTest",
     srcs = ["InSyncEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -180,7 +180,7 @@ java_testng(
 )
 
 java_testng(
-    name = "message_process_failure_event_test",
+    name = "MessageProcessFailureEventTest",
     srcs = ["MessageProcessFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -189,7 +189,7 @@ java_testng(
 )
 
 java_testng(
-    name = "message_processed_event_test",
+    name = "MessageProcessedEventTest",
     srcs = ["MessageProcessedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -198,7 +198,7 @@ java_testng(
 )
 
 java_testng(
-    name = "message_read_failure_event_test",
+    name = "MessageReadFailureEventTest",
     srcs = ["MessageReadFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -207,7 +207,7 @@ java_testng(
 )
 
 java_testng(
-    name = "out_of_sync_event_test",
+    name = "OutOfSyncEventTest",
     srcs = ["OutOfSyncEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -216,7 +216,7 @@ java_testng(
 )
 
 java_testng(
-    name = "request_completed_event_test",
+    name = "RequestCompletedEventTest",
     srcs = ["RequestCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -225,7 +225,7 @@ java_testng(
 )
 
 java_testng(
-    name = "request_started_event_test",
+    name = "RequestStartedEventTest",
     srcs = ["RequestStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -234,7 +234,7 @@ java_testng(
 )
 
 java_testng(
-    name = "restart_event_test",
+    name = "RestartEventTest",
     srcs = ["RestartEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -243,7 +243,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscribe_completed_event_test",
+    name = "SubscribeCompletedEventTest",
     srcs = ["SubscribeCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -252,7 +252,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscribe_request_queued_event_test",
+    name = "SubscribeRequestQueuedEventTest",
     srcs = ["SubscribeRequestQueuedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -261,7 +261,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscribe_started_event_test",
+    name = "SubscribeStartedEventTest",
     srcs = ["SubscribeStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -270,7 +270,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_created_event_test",
+    name = "SubscriptionCreatedEventTest",
     srcs = ["SubscriptionCreatedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -279,7 +279,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_disposed_event_test",
+    name = "SubscriptionDisposedEventTest",
     srcs = ["SubscriptionDisposedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -288,7 +288,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_orphaned_event_test",
+    name = "SubscriptionOrphanedEventTest",
     srcs = ["SubscriptionOrphanedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -297,7 +297,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_update_completed_event_test",
+    name = "SubscriptionUpdateCompletedEventTest",
     srcs = ["SubscriptionUpdateCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -306,7 +306,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_update_request_queued_event_test",
+    name = "SubscriptionUpdateRequestQueuedEventTest",
     srcs = ["SubscriptionUpdateRequestQueuedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -315,7 +315,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_update_started_event_test",
+    name = "SubscriptionUpdateStartedEventTest",
     srcs = ["SubscriptionUpdateStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -324,7 +324,7 @@ java_testng(
 )
 
 java_testng(
-    name = "sync_request_event_test",
+    name = "SyncRequestEventTest",
     srcs = ["SyncRequestEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -333,7 +333,7 @@ java_testng(
 )
 
 java_testng(
-    name = "unsubscribe_completed_event_test",
+    name = "UnsubscribeCompletedEventTest",
     srcs = ["UnsubscribeCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -342,7 +342,7 @@ java_testng(
 )
 
 java_testng(
-    name = "unsubscribe_request_queued_event_test",
+    name = "UnsubscribeRequestQueuedEventTest",
     srcs = ["UnsubscribeRequestQueuedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -351,7 +351,7 @@ java_testng(
 )
 
 java_testng(
-    name = "unsubscribe_started_event_test",
+    name = "UnsubscribeStartedEventTest",
     srcs = ["UnsubscribeStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,

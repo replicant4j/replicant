@@ -176,7 +176,8 @@ Additional build notes:
 - Name tests with the `Test` suffix.
 - Run `./bazelw build //client:client //server:server`, `./bazelw test //...`, and
   `./bazelw run //:buildifier_check` before submitting changes unless the user explicitly asks you not to.
-- Bazel exposes one `java_testng` target per concrete TestNG test class.
+- Bazel exposes one `java_testng` target per concrete TestNG test class; name the target after its source file without
+  the `.java` suffix.
 - Client and server `java_testng` targets live in the test source directory that owns each test class.
 - `client/src/test/java/replicant/AbstractReplicantTest.java` is abstract support code and belongs in
   `//client/src/test/java/replicant:client_test_support_lib`; `//client:client_test_support` is a source-free

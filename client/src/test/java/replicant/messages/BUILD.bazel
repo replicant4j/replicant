@@ -44,7 +44,7 @@ native_java_library(
 )
 
 java_testng(
-    name = "entity_change_test",
+    name = "EntityChangeTest",
     srcs = ["EntityChangeTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -53,7 +53,7 @@ java_testng(
 )
 
 java_testng(
-    name = "update_message_test",
+    name = "UpdateMessageTest",
     srcs = ["UpdateMessageTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,

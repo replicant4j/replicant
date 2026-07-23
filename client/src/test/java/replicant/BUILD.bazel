@@ -184,7 +184,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_request_test",
+    name = "AreaOfInterestRequestTest",
     srcs = ["AreaOfInterestRequestTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -193,7 +193,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_service_test",
+    name = "AreaOfInterestServiceTest",
     srcs = ["AreaOfInterestServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -202,7 +202,7 @@ java_testng(
 )
 
 java_testng(
-    name = "area_of_interest_test",
+    name = "AreaOfInterestTest",
     srcs = ["AreaOfInterestTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -211,7 +211,7 @@ java_testng(
 )
 
 java_testng(
-    name = "cache_entry_test",
+    name = "CacheEntryTest",
     srcs = ["CacheEntryTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -220,7 +220,7 @@ java_testng(
 )
 
 java_testng(
-    name = "channel_address_test",
+    name = "ChannelAddressTest",
     srcs = ["ChannelAddressTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -229,7 +229,7 @@ java_testng(
 )
 
 java_testng(
-    name = "channel_change_descriptor_test",
+    name = "ChannelChangeDescriptorTest",
     srcs = ["ChannelChangeDescriptorTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -238,7 +238,7 @@ java_testng(
 )
 
 java_testng(
-    name = "channel_change_test",
+    name = "ChannelChangeTest",
     srcs = ["ChannelChangeTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -247,7 +247,7 @@ java_testng(
 )
 
 java_testng(
-    name = "channel_schema_test",
+    name = "ChannelSchemaTest",
     srcs = ["ChannelSchemaTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -256,7 +256,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connection_test",
+    name = "ConnectionTest",
     srcs = ["ConnectionTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -265,7 +265,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connector_entry_test",
+    name = "ConnectorEntryTest",
     srcs = ["ConnectorEntryTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -274,7 +274,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connector_state_test",
+    name = "ConnectorStateTest",
     srcs = ["ConnectorStateTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -283,7 +283,7 @@ java_testng(
 )
 
 java_testng(
-    name = "connector_test",
+    name = "ConnectorTest",
     srcs = ["ConnectorTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -292,7 +292,7 @@ java_testng(
 )
 
 java_testng(
-    name = "converger_test",
+    name = "ConvergerTest",
     srcs = ["ConvergerTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -301,7 +301,7 @@ java_testng(
 )
 
 java_testng(
-    name = "entity_schema_test",
+    name = "EntitySchemaTest",
     srcs = ["EntitySchemaTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -310,7 +310,7 @@ java_testng(
 )
 
 java_testng(
-    name = "entity_service_test",
+    name = "EntityServiceTest",
     srcs = ["EntityServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -319,7 +319,7 @@ java_testng(
 )
 
 java_testng(
-    name = "entity_test",
+    name = "EntityTest",
     srcs = ["EntityTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -328,7 +328,7 @@ java_testng(
 )
 
 java_testng(
-    name = "message_response_test",
+    name = "MessageResponseTest",
     srcs = ["MessageResponseTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -337,7 +337,7 @@ java_testng(
 )
 
 java_testng(
-    name = "rate_limited_value_test",
+    name = "RateLimitedValueTest",
     srcs = ["RateLimitedValueTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -346,7 +346,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_context_test",
+    name = "ReplicantContextTest",
     srcs = ["ReplicantContextTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -355,7 +355,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_logger_test",
+    name = "ReplicantLoggerTest",
     srcs = ["ReplicantLoggerTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -364,7 +364,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_runtime_test",
+    name = "ReplicantRuntimeTest",
     srcs = ["ReplicantRuntimeTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -373,7 +373,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_service_test",
+    name = "ReplicantServiceTest",
     srcs = ["ReplicantServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -382,7 +382,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_test",
+    name = "ReplicantTest",
     srcs = ["ReplicantTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -391,7 +391,7 @@ java_testng(
 )
 
 java_testng(
-    name = "replicant_util_test",
+    name = "ReplicantUtilTest",
     srcs = ["ReplicantUtilTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -400,7 +400,7 @@ java_testng(
 )
 
 java_testng(
-    name = "request_entry_test",
+    name = "RequestEntryTest",
     srcs = ["RequestEntryTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -409,7 +409,7 @@ java_testng(
 )
 
 java_testng(
-    name = "request_test",
+    name = "RequestTest",
     srcs = ["RequestTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -418,7 +418,7 @@ java_testng(
 )
 
 java_testng(
-    name = "schema_service_test",
+    name = "SchemaServiceTest",
     srcs = ["SchemaServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -427,7 +427,7 @@ java_testng(
 )
 
 java_testng(
-    name = "spy_impl_test",
+    name = "SpyImplTest",
     srcs = ["SpyImplTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -436,7 +436,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_service_test",
+    name = "SubscriptionServiceTest",
     srcs = ["SubscriptionServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -445,7 +445,7 @@ java_testng(
 )
 
 java_testng(
-    name = "subscription_test",
+    name = "SubscriptionTest",
     srcs = ["SubscriptionTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -454,7 +454,7 @@ java_testng(
 )
 
 java_testng(
-    name = "system_schema_test",
+    name = "SystemSchemaTest",
     srcs = ["SystemSchemaTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -463,7 +463,7 @@ java_testng(
 )
 
 java_testng(
-    name = "transport_context_impl_test",
+    name = "TransportContextImplTest",
     srcs = ["TransportContextImplTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -472,7 +472,7 @@ java_testng(
 )
 
 java_testng(
-    name = "validator_test",
+    name = "ValidatorTest",
     srcs = ["ValidatorTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
@@ -481,7 +481,7 @@ java_testng(
 )
 
 java_testng(
-    name = "zone_test",
+    name = "ZoneTest",
     srcs = ["ZoneTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
