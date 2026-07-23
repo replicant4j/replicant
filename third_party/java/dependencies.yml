@@ -49,9 +49,9 @@ artifacts:
   - coord: org.realityforge.jndikit:jndikit:1.4
   - coord: org.glassfish:javax.json:1.1
 
-  - coord: org.realityforge.arez:arez-core:0.252
-  - coord: org.realityforge.arez:arez-processor:0.252
-  - coord: org.realityforge.arez:arez-extras-testng:0.252
+  - coord: org.realityforge.arez:arez-core:0.254
+  - coord: org.realityforge.arez:arez-processor:0.254
+  - coord: org.realityforge.arez:arez-extras-testng:0.254
 
   - coord: org.realityforge.react4j:react4j-core:0.228
   - coord: org.realityforge.react4j:react4j-processor:0.228
@@ -60,8 +60,8 @@ artifacts:
   - coord: com.google.jsinterop:base:1.0.0
   - coord: org.realityforge.akasha:akasha-gwt:0.34
 
-  - coord: org.realityforge.braincheck:braincheck-core:1.33.0
-  - coord: org.realityforge.braincheck:braincheck-testng:1.33.0
+  - coord: org.realityforge.braincheck:braincheck-core:1.35.0
+  - coord: org.realityforge.braincheck:braincheck-testng:1.35.0
 
   - coord: org.realityforge.grim:grim-annotations:0.09
   - coord: org.realityforge.grim:grim-processor:0.09

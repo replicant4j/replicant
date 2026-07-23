@@ -350,44 +350,44 @@ _http_file(
 
 _http_file(
     name = "arez_core",
-    downloaded_file_path = "org/realityforge/arez/arez-core/0.252/arez-core-0.252.jar",
-    sha256 = "e589d2782e3e30344e908ddcc4909af7f34d39272948a0c1eae418e4cbbdbff0",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.252/arez-core-0.252.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-core/0.253/arez-core-0.253.jar",
+    sha256 = "4ccbc60b0673c88a5081d6e5a8b288ff2bcc66ee96782d2bc103d955e9238ec2",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.253/arez-core-0.253.jar"],
 )
 
 _http_file(
     name = "arez_core__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-core/0.252/arez-core-0.252-sources.jar",
-    sha256 = "af07d0012600a5c55c75730bf3a9fe6446cda4df3efc49a3d0a5a57c4f2780e5",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.252/arez-core-0.252-sources.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-core/0.253/arez-core-0.253-sources.jar",
+    sha256 = "baec3025381458611acf262a59e49f27101e496282d7868ee93c76cf7e4eff99",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.253/arez-core-0.253-sources.jar"],
 )
 
 _http_file(
     name = "arez_extras_testng",
-    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.252/arez-extras-testng-0.252.jar",
-    sha256 = "c25551f891648f499d6d030e3c823dd7c78e2b3abc2b787cf3d98a336d7a34f0",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.252/arez-extras-testng-0.252.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.253/arez-extras-testng-0.253.jar",
+    sha256 = "79f628dfe686743e42f1f520595fcfa104c3e2f1e7d313fea3c86c67dbf35d41",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.253/arez-extras-testng-0.253.jar"],
 )
 
 _http_file(
     name = "arez_extras_testng__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.252/arez-extras-testng-0.252-sources.jar",
-    sha256 = "a752f3812b5fd5bffc08a3a2dfc130908864f4e3376a9521a12f30d97d606923",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.252/arez-extras-testng-0.252-sources.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.253/arez-extras-testng-0.253-sources.jar",
+    sha256 = "f35991a88241792fa0c563311fc27103936b477fc3fd40245e546071ef6058fa",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.253/arez-extras-testng-0.253-sources.jar"],
 )
 
 _http_file(
     name = "arez_processor",
-    downloaded_file_path = "org/realityforge/arez/arez-processor/0.252/arez-processor-0.252.jar",
-    sha256 = "1823b3387340de6f33735bf392ee60cc28c5c9f7ebfb44c76049717b51c67539",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.252/arez-processor-0.252.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-processor/0.253/arez-processor-0.253.jar",
+    sha256 = "524c085ba1fbdef499520174ecbcf9094f5c8c9cdf976c40d18c68947e5ae472",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.253/arez-processor-0.253.jar"],
 )
 
 _http_file(
     name = "arez_processor__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-processor/0.252/arez-processor-0.252-sources.jar",
-    sha256 = "56d27f0f4669333424ae1b6626870a3a1fff227e0345d561b0b68658efc70595",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.252/arez-processor-0.252-sources.jar"],
+    downloaded_file_path = "org/realityforge/arez/arez-processor/0.253/arez-processor-0.253-sources.jar",
+    sha256 = "d58603bc05862cb515912c69d0eb6d92de184599bef58eb69f37416b98a66428",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.253/arez-processor-0.253-sources.jar"],
 )
 
 _http_file(
@@ -399,30 +399,30 @@ _http_file(
 
 _http_file(
     name = "braincheck_core",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.33.0/braincheck-core-1.33.0.jar",
-    sha256 = "a3b261ae44b67916f117767997a10be2786cd5b37dce44b58fc48f1d3b064833",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.33.0/braincheck-core-1.33.0.jar"],
+    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0.jar",
+    sha256 = "6d37351d8be23c2dd5b0c06a75cf6d1eaf70a8cad9300ce4bcf2d2d92de74b94",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0.jar"],
 )
 
 _http_file(
     name = "braincheck_core__sources",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.33.0/braincheck-core-1.33.0-sources.jar",
-    sha256 = "1ce2f8e9e44ce56510feb90e334e1c710bb0bb10560467e45d6110890ab6d325",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.33.0/braincheck-core-1.33.0-sources.jar"],
+    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0-sources.jar",
+    sha256 = "2111c57c8b83e4e0e75dfe6f00b13dedd7c8484a91f8331fbd00c657cc9ed9d2",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0-sources.jar"],
 )
 
 _http_file(
     name = "braincheck_testng",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.33.0/braincheck-testng-1.33.0.jar",
-    sha256 = "24df22692ee409c07a05611d87e26cefef3bb23492ec08e53aa21e190a46158e",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.33.0/braincheck-testng-1.33.0.jar"],
+    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0.jar",
+    sha256 = "927179a7588ab3c5f9411e4dd6f6cd98efba5177cd0c0e1489cb633f9145bbb2",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0.jar"],
 )
 
 _http_file(
     name = "braincheck_testng__sources",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.33.0/braincheck-testng-1.33.0-sources.jar",
-    sha256 = "c3a19efb16e60d3bcffb01419b23837bbc2416c5cd8b12aa576be1e9050f8df0",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.33.0/braincheck-testng-1.33.0-sources.jar"],
+    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0-sources.jar",
+    sha256 = "ec75ee71c935a231ac6c20a23eb28485b2e864e45cd9582facab62aa89d32172",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0-sources.jar"],
 )
 
 _http_file(
