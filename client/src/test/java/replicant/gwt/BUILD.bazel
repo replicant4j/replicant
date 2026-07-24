@@ -1,0 +1,21 @@
+load("//third_party/java:rules.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "smoke",
+    srcs = [
+        "SmokeEntryPoint.java",
+        "package-info.java",
+    ],
+    resources = [
+        "React4jSmoke.gwt.xml",
+        "ReplicantDebugSmoke.gwt.xml",
+        "ReplicantDevSmoke.gwt.xml",
+        "ReplicantSmoke.gwt.xml",
+    ],
+    deps = [
+        "//client:client_lib",
+        "//third_party/java:gwt_user",
+    ],
+)

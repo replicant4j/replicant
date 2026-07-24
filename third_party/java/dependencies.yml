@@ -12,6 +12,134 @@ options:
   failOnMissingPom: false
 
 artifacts:
+  - coord: colt:colt:1.2.0
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: com.google.code.gson:gson:2.11.0
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: com.google.code.findbugs:jsr305:3.0.2
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: com.ibm.icu:icu4j:71.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: commons-collections:commons-collections:3.2.2
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: commons-io:commons-io:2.4
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: javax.annotation:javax.annotation-api:1.2
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: javax.servlet:javax.servlet-api:3.1.0
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: javax.validation:validation-api:1.0.0.GA
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.apache.ant:ant:1.9.7
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jdt:ecj:3.33.0
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jdt:org.eclipse.jdt.core:3.33.0
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-annotations:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-continuation:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-http:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-io:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-jndi:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-plus:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-security:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-server:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-servlet:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-servlets:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-util:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-webapp:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.eclipse.jetty:jetty-xml:9.4.58.v20250814
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.ow2.asm:asm:9.7.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.ow2.asm:asm-analysis:9.7.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.ow2.asm:asm-commons:9.7.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.ow2.asm:asm-tree:9.7.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.ow2.asm:asm-util:9.7.1
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: org.w3c.css:sac:1.3
+    includeSource: false
+    excludes:
+      - '*:*'
+  - coord: tapestry:tapestry:4.0.2
+    includeSource: false
+    excludes:
+      - '*:*'
   - coord: com.uber.nullaway:nullaway:0.13.7
     includeSource: false
   - coord: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava

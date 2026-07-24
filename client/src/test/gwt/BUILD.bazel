@@ -1,0 +1,93 @@
+load("//tools/gwt:defs.bzl", "gwt_compile")
+
+package(default_visibility = ["//visibility:public"])
+
+GWT_COMPILER_ARGS = [
+    "-draftCompile",
+    "-logLevel",
+    "WARN",
+    "-optimize",
+    "0",
+    "-sourceLevel",
+    "17",
+]
+
+GWT_TOOL_DEPS = [
+    "//third_party/java:ant",
+    "//third_party/java:asm",
+    "//third_party/java:asm_analysis",
+    "//third_party/java:asm_commons",
+    "//third_party/java:asm_tree",
+    "//third_party/java:asm_util",
+    "//third_party/java:colt",
+    "//third_party/java:commons_collections",
+    "//third_party/java:commons_io",
+    "//third_party/java:ecj",
+    "//third_party/java:gson",
+    "//third_party/java:gwt_dev",
+    "//third_party/java:gwt_user",
+    "//third_party/java:icu4j",
+    "//third_party/java:javax_annotation_api",
+    "//third_party/java:javax_servlet_api",
+    "//third_party/java:jetty_annotations",
+    "//third_party/java:jetty_continuation",
+    "//third_party/java:jetty_http",
+    "//third_party/java:jetty_io",
+    "//third_party/java:jetty_jndi",
+    "//third_party/java:jetty_plus",
+    "//third_party/java:jetty_security",
+    "//third_party/java:jetty_server",
+    "//third_party/java:jetty_servlet",
+    "//third_party/java:jetty_servlets",
+    "//third_party/java:jetty_util",
+    "//third_party/java:jetty_webapp",
+    "//third_party/java:jetty_xml",
+    "//third_party/java:jsinterop_annotations",
+    "//third_party/java:jsr305",
+    "//third_party/java:org_eclipse_jdt_core",
+    "//third_party/java:sac",
+    "//third_party/java:tapestry",
+    "//third_party/java:validation_api",
+]
+
+gwt_compile(
+    name = "replicant_gwt_assets",
+    compiler_args = GWT_COMPILER_ARGS,
+    modules = ["replicant.gwt.ReplicantSmoke"],
+    tool_deps = GWT_TOOL_DEPS,
+    deps = ["//client/src/test/java/replicant/gwt:smoke"],
+)
+
+gwt_compile(
+    name = "replicant_dev_gwt_assets",
+    compiler_args = GWT_COMPILER_ARGS,
+    modules = ["replicant.gwt.ReplicantDevSmoke"],
+    tool_deps = GWT_TOOL_DEPS,
+    deps = ["//client/src/test/java/replicant/gwt:smoke"],
+)
+
+gwt_compile(
+    name = "replicant_debug_gwt_assets",
+    compiler_args = GWT_COMPILER_ARGS,
+    modules = ["replicant.gwt.ReplicantDebugSmoke"],
+    tool_deps = GWT_TOOL_DEPS,
+    deps = ["//client/src/test/java/replicant/gwt:smoke"],
+)
+
+gwt_compile(
+    name = "react4j_gwt_assets",
+    compiler_args = GWT_COMPILER_ARGS,
+    modules = ["replicant.gwt.React4jSmoke"],
+    tool_deps = GWT_TOOL_DEPS,
+    deps = ["//client/src/test/java/replicant/gwt:smoke"],
+)
+
+filegroup(
+    name = "all_gwt_assets",
+    srcs = [
+        ":react4j_gwt_assets",
+        ":replicant_debug_gwt_assets",
+        ":replicant_dev_gwt_assets",
+        ":replicant_gwt_assets",
+    ],
+)

@@ -1,0 +1,5 @@
+<module>
+  <inherits name='replicant.react4j.React4j'/>
+  <source path='' includes='SmokeEntryPoint.java'/>
+  <entry-point class='replicant.gwt.SmokeEntryPoint'/>
+</module>

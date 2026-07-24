@@ -28,6 +28,7 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
 * Optimized-link the full J2CL client graph: `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke`
+* Compile all four real GWT module variants: `./bazelw build //client/src/test/gwt:all_gwt_assets`
 * Run all Bazel tests: `./bazelw test //...`
 * Run the current repository gate: `tools/check.sh`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
@@ -38,7 +39,7 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 For IntelliJ IDEA, import `tools/intellij/.managed.bazelproject` with the Bazel plugin. Legacy `.ipr`, `.iml`,
 and `.iws` project metadata is not part of the project model.
 
-The legacy Buildr workflow remains available only while the real GWT compiler path is migrated:
+The legacy Buildr workflow remains temporarily available during the final cutover:
 
 * Build all modules: `bundle exec buildr clean package`
 * Run all tests: `bundle exec buildr test`
@@ -60,7 +61,7 @@ signed Maven Central bundle with `tools/package_maven_central.sh <version>` and 
 [`tools/release/README.md`](tools/release/README.md) for the complete release and recovery workflow.
 
 The full client and shared graph, including generated Arez sources, is permanently verified with an optimized J2CL
-link. The Bazel build does not yet replace the existing GWT compiler workflow.
+link and real GWT 2.13.1 compiler builds for Replicant, ReplicantDev, ReplicantDebug, and React4j.
 
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly

@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T10
+current_focus: T11
 
 tasks:
   - id: T01
@@ -301,7 +301,7 @@ tasks:
 
   - id: T10
     title: Add four GWT compiler smoke builds
-    status: pending
+    status: completed
     priority: high
     depends_on: [T09]
     requirements: [R6, R10]
@@ -323,7 +323,12 @@ tasks:
         proves: all four GWT compiler outputs
       - command: tools/check.sh
         proves: compiler smoke builds remain gated
-    evidence: []
+    evidence:
+      - BrainCheck's Rose-derived GWT aspect was imported without behavioral changes
+      - Replicant, ReplicantDev, ReplicantDebug, and React4j all compiled with the real GWT 2.13.1 compiler in Java 17 source mode
+      - Every generated GWT classpath contained client/src/main/java/replicant/libclient_lib-gensrc.jar
+      - ./bazelw build //client/src/test/gwt:all_gwt_assets produced all four non-empty output archives
+      - tools/check.sh passed all 300 builds, all 101 tests, the optimized J2CL link, and all four GWT compiler outputs
 
   - id: T11
     title: Align CI and complete repository gate
@@ -435,3 +440,7 @@ history:
     task: T08
     commit: 1454be7a
     note: Added Bazel-owned Maven Central release artifacts, generated-source plumbing, and hardened release lifecycle tooling.
+  - timestamp: "2026-07-24"
+    task: T09
+    commit: b1a80db6
+    note: Pinned J2CL and added the optimized full-client link with deterministic dependency source-jar compatibility transforms.
