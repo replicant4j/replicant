@@ -1,5 +1,4 @@
-load("@rules_java//java:defs.bzl", native_java_library = "java_library")
-load("//third_party/java:rules.bzl", "java_testng")
+load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
     "-Dreplicant.check_diagnostic_messages=false",
@@ -8,17 +7,7 @@ CLIENT_TEST_JVM_FLAGS = [
 
 CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
 
-TEST_LIBRARY_JAVACOPTS = [
-    "-XepDisableAllChecks",
-    "-Werror",
-    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
-    "-Xmaxerrs",
-    "10000",
-    "-Xmaxwarns",
-    "10000",
-]
-
-native_java_library(
+java_library(
     name = "spy_tests_lib",
     srcs = [
         "AreaOfInterestCreatedEventTest.java",
@@ -55,7 +44,6 @@ native_java_library(
         "UnsubscribeRequestQueuedEventTest.java",
         "UnsubscribeStartedEventTest.java",
     ],
-    javacopts = TEST_LIBRARY_JAVACOPTS,
     visibility = [
         "//client/src/test/java/replicant:__pkg__",
     ],

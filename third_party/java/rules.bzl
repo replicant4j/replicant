@@ -1,13 +1,12 @@
-load("@rules_java//java:defs.bzl", _java_library = "java_library", _java_test = "java_test")
+load(
+    "@rules_java//java:defs.bzl",
+    _java_binary = "java_binary",
+    _java_library = "java_library",
+    _java_test = "java_test",
+)
 
-_JAVA_BAZELRC_JAVACOPTS = [
-    "-XepExcludedPaths:.*/external/.*",
-    "-Werror",
-    "-Aarez.warnings_as_errors=true",
-    "-Aarez.persist.warnings_as_errors=true",
-    "-Asting.warnings_as_errors=true",
-    "-Areact4j.warnings_as_errors=true",
-    "-Xlint:all,-processing,-serial,-options,-path,-classfile,-this-escape",
+_ERROR_PRONE_JAVACOPTS = [
+    "-XepExcludedPaths:(.*/external/.*|.*/_javac/.*/.*_sources/.*)",
     "-Xep:AlmostJavadoc:ERROR",
     "-Xep:AlreadyChecked:ERROR",
     "-Xep:AmbiguousMethodReference:ERROR",
@@ -19,96 +18,129 @@ _JAVA_BAZELRC_JAVACOPTS = [
     "-Xep:AssignmentExpression:ERROR",
     "-Xep:AttemptedNegativeZero:ERROR",
     "-Xep:BadComparable:ERROR",
-    "-Xep:BadInstanceof:ERROR",
     "-Xep:BadImport:ERROR",
+    "-Xep:BadInstanceof:ERROR",
     "-Xep:BareDotMetacharacter:ERROR",
     "-Xep:BigDecimalEquals:ERROR",
     "-Xep:BigDecimalLiteralDouble:ERROR",
     "-Xep:BoxedPrimitiveConstructor:ERROR",
-    "-Xep:DeprecatedVariable:ERROR",
+    "-Xep:CheckedExceptionNotThrown:ERROR",
     "-Xep:ClassCanBeStatic:ERROR",
+    "-Xep:ClassName:ERROR",
+    "-Xep:ComparisonContractViolated:ERROR",
+    "-Xep:ConstantField:ERROR",
+    "-Xep:DefaultLocale:ERROR",
+    "-Xep:DeprecatedVariable:ERROR",
     "-Xep:DuplicateBranches:ERROR",
     "-Xep:EmptyBlockTag:ERROR",
     "-Xep:EmptyCatch:ERROR",
+    "-Xep:EmptyIf:ERROR",
     "-Xep:EmptyTopLevelDeclaration:ERROR",
+    "-Xep:EqualsBrokenForNull:ERROR",
+    "-Xep:EqualsMissingNullable:ERROR",
+    "-Xep:FieldCanBeLocal:ERROR",
+    "-Xep:FieldCanBeStatic:ERROR",
     "-Xep:Finalize:ERROR",
+    "-Xep:ForEachIterable:ERROR",
     "-Xep:InconsistentHashCode:ERROR",
-    "-Xep:NotJavadoc:ERROR",
+    "-Xep:InsecureCryptoUsage:ERROR",
+    "-Xep:LongLiteralLowerCaseSuffix:ERROR",
+    "-Xep:MissingBraces:ERROR",
+    "-Xep:MissingOverride:ERROR",
+    "-Xep:MissingRuntimeRetention:ERROR",
+    "-Xep:MixedArrayDimensions:ERROR",
+    "-Xep:MultiVariableDeclaration:ERROR",
+    "-Xep:MultipleTopLevelClasses:ERROR",
     "-Xep:NonOverridingEquals:ERROR",
+    "-Xep:NotJavadoc:ERROR",
     "-Xep:NullOptional:ERROR",
     "-Xep:NullablePrimitive:ERROR",
     "-Xep:NullablePrimitiveArray:ERROR",
     "-Xep:NullableTypeParameter:ERROR",
     "-Xep:NullableWildcard:ERROR",
+    "-Xep:PackageLocation:ERROR",
+    "-Xep:ParameterMissingNullable:ERROR",
     "-Xep:ParameterName:ERROR",
-    "-Xep:EmptyIf:ERROR",
+    "-Xep:PrimitiveArrayPassedToVarargsMethod:ERROR",
+    "-Xep:PublicApiNamedStreamShouldReturnStream:ERROR",
+    "-Xep:RedundantOverride:ERROR",
+    "-Xep:RedundantThrows:ERROR",
+    "-Xep:RemoveUnusedImports:ERROR",
     "-Xep:ReturnAtTheEndOfVoidFunction:ERROR",
     "-Xep:ReturnFromVoid:ERROR",
+    "-Xep:ReturnMissingNullable:ERROR",
+    "-Xep:ReturnsNullCollection:ERROR",
     "-Xep:SelfAlwaysReturnsThis:ERROR",
-    "-Xep:ToStringReturnsNull:ERROR",
-    "-Xep:UnnecessaryMethodReference:ERROR",
-    "-Xep:UnusedLabel:ERROR",
-    "-Xep:UnsynchronizedOverridesSynchronized:ERROR",
-    "-Xep:UnusedTypeParameter:ERROR",
-    "-Xep:ClassName:ERROR",
-    "-Xep:UseCorrectAssertInTests:ERROR",
-    "-Xep:SystemExitOutsideMain:ERROR",
-    "-Xep:MissingRuntimeRetention:ERROR",
-    "-Xep:LongLiteralLowerCaseSuffix:ERROR",
-    "-Xep:AnnotationPosition:ERROR",
-    "-Xep:RedundantThrows:ERROR",
-    "-Xep:RedundantOverride:ERROR",
     "-Xep:SunApi:ERROR",
+    "-Xep:SystemExitOutsideMain:ERROR",
+    "-Xep:TimeUnitMismatch:ERROR",
+    "-Xep:ToStringReturnsNull:ERROR",
     "-Xep:UnnecessarilyVisible:ERROR",
     "-Xep:UnnecessaryAnonymousClass:ERROR",
-    "-Xep:UsingJsr305CheckReturnValue:ERROR",
-    "-Xep:ConstantField:ERROR",
-    "-Xep:EqualsMissingNullable:ERROR",
-    "-Xep:FieldCanBeStatic:ERROR",
-    "-Xep:ForEachIterable:ERROR",
-    "-Xep:MissingBraces:ERROR",
-    "-Xep:MixedArrayDimensions:ERROR",
-    "-Xep:MultiVariableDeclaration:ERROR",
-    "-Xep:MultipleTopLevelClasses:ERROR",
-    "-Xep:PackageLocation:ERROR",
-    "-Xep:PublicApiNamedStreamShouldReturnStream:ERROR",
-    "-Xep:RemoveUnusedImports:ERROR",
-    "-Xep:ReturnsNullCollection:ERROR",
     "-Xep:UnnecessaryBoxedAssignment:ERROR",
+    "-Xep:UnnecessaryMethodReference:ERROR",
+    "-Xep:UnnecessaryOptionalGet:ERROR",
+    "-Xep:UnsafeLocaleUsage:ERROR",
+    "-Xep:UnsynchronizedOverridesSynchronized:ERROR",
+    "-Xep:UnusedLabel:ERROR",
+    "-Xep:UnusedTypeParameter:ERROR",
+    "-Xep:UseCorrectAssertInTests:ERROR",
+    "-Xep:UsingJsr305CheckReturnValue:ERROR",
     "-Xep:VoidMissingNullable:ERROR",
-    "-Xep:ReturnMissingNullable:ERROR",
-    "-Xep:FieldCanBeLocal:ERROR",
-    "-Xep:ParameterMissingNullable:ERROR",
-    "-Xep:PrivateConstructorForUtilityClass:ERROR",
-    "-Xep:FieldMissingNullable:ERROR",
-    "-Xep:UnnecessaryDefaultInEnumSwitch:ERROR",
-    "-Xep:UnnecessaryBoxedVariable:ERROR",
+    "-Xep:BanClassLoader:ERROR",
+    "-Xep:BanSerializableRead:ERROR",
     "-Xep:FieldCanBeFinal:ERROR",
+    "-Xep:FieldMissingNullable:ERROR",
+    "-Xep:InterruptedExceptionSwallowed:ERROR",
+    "-Xep:PrivateConstructorForUtilityClass:ERROR",
+    "-Xep:UnnecessaryDefaultInEnumSwitch:ERROR",
 ]
 
-_SERVER_BAZELRC_JAVACOPTS = ["-Xep:Varifier:ERROR"]
+_TEST_ERROR_PRONE_JAVACOPTS = [
+    "-Xep:MockitoDoSetup:ERROR",
+]
 
-_STRICT_JAVACOPTS = [
-    "-XepDisableAllChecks",
+_JAVA_JAVACOPTS = [
+    "--release",
+    "17",
     "-Werror",
-    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
-    "-Xmaxerrs",
-    "10000",
-    "-Xmaxwarns",
-    "10000",
+    "-Aarez.warnings_as_errors=true",
+    "-Aarez.persist.warnings_as_errors=true",
+    "-Asting.warnings_as_errors=true",
+    "-Areact4j.warnings_as_errors=true",
+    "-Xlint:all,-processing,-serial,-path,-options,-classfile,-this-escape",
+] + _ERROR_PRONE_JAVACOPTS
+
+_SERVER_JAVACOPTS = [
+    "-Xep:Varifier:ERROR",
+]
+
+_JAVA_TEST_JVM_FLAGS = [
+    "-ea",
+    "-Dbraincheck.environment=development",
+    "-Darez.environment=development",
+    "-Dreplicant.environment=development",
+    "-Dzemeckis.environment=development",
 ]
 
 def java_library(name, javacopts = [], **kwargs):
     _java_library(
         name = name,
-        javacopts = javacopts + _STRICT_JAVACOPTS + _JAVA_BAZELRC_JAVACOPTS,
+        javacopts = _JAVA_JAVACOPTS + javacopts,
         **kwargs
     )
 
 def java_server_library(name, javacopts = [], **kwargs):
     java_library(
         name = name,
-        javacopts = javacopts + _SERVER_BAZELRC_JAVACOPTS,
+        javacopts = _SERVER_JAVACOPTS + javacopts,
+        **kwargs
+    )
+
+def java_binary(name, javacopts = [], **kwargs):
+    _java_binary(
+        name = name,
+        javacopts = _JAVA_JAVACOPTS + _SERVER_JAVACOPTS + javacopts,
         **kwargs
     )
 
@@ -119,8 +151,11 @@ def java_testng(name, srcs, test_class, deps = [], runtime_deps = [], jvm_flags 
         "use_testrunner",
         "args",
     ]:
-        if arg in filtered_kwargs.keys():
+        if arg in filtered_kwargs:
             filtered_kwargs.pop(arg)
+
+    size = filtered_kwargs.pop("size") if "size" in filtered_kwargs else "small"
+    server_javacopts = _SERVER_JAVACOPTS if native.package_name().startswith("server/") else []
 
     _java_test(
         name = name,
@@ -134,14 +169,9 @@ def java_testng(name, srcs, test_class, deps = [], runtime_deps = [], jvm_flags 
         deps = deps + [
             "//third_party/java:testng",
         ],
-        javacopts = javacopts + _STRICT_JAVACOPTS,
-        jvm_flags = jvm_flags + [
-            "-ea",
-            "-Dbraincheck.environment=development",
-            "-Darez.environment=development",
-            "-Dreplicant.environment=development",
-            "-Dzemeckis.environment=development",
-        ],
+        javacopts = _JAVA_JAVACOPTS + _TEST_ERROR_PRONE_JAVACOPTS + server_javacopts + javacopts,
+        jvm_flags = _JAVA_TEST_JVM_FLAGS + jvm_flags,
         runtime_deps = runtime_deps,
+        size = size,
         **filtered_kwargs
     )

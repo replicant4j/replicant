@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T02
+current_focus: T04
 
 tasks:
   - id: T01
@@ -59,7 +59,7 @@ tasks:
 
   - id: T02
     title: Fix strict Error Prone findings
-    status: in_progress
+    status: completed
     priority: high
     depends_on: [T01]
     requirements: [R2]
@@ -76,11 +76,15 @@ tasks:
         proves: no source finding remains before enforcement
       - command: ./bazelw test //...
         proves: source fixes preserve behavior
-    evidence: []
+    evidence:
+      - Full BrainCheck Error Prone policy compiled all 177 targets after source fixes
+      - Client/shared Java contains zero local var declarations
+      - Server production and tests compile with Varifier enabled
+      - ./bazelw test //... passed with 96 of 96 tests before policy enforcement
 
   - id: T03
     title: Enable strict Error Prone
-    status: pending
+    status: completed
     priority: high
     depends_on: [T02]
     requirements: [R2]
@@ -99,11 +103,16 @@ tasks:
         proves: production targets satisfy enforced policy
       - command: ./bazelw test //...
         proves: test targets satisfy enforced policy
-    evidence: []
+    evidence:
+      - ./bazelw build //... passed for all 177 targets with the full policy
+      - ./bazelw test //... passed with 96 of 96 tests
+      - ./bazelw run //:buildifier_check passed
+      - Client/shared Java var scan returned no matches while server Java retained inferred locals
+      - Bazel query found no Java test target whose size was not small
 
   - id: T04
     title: Migrate to JSpecify and enforce NullAway
-    status: pending
+    status: in_progress
     priority: high
     depends_on: [T03]
     requirements: [R3, R7]
@@ -367,3 +376,11 @@ history:
   - timestamp: "2026-07-24"
     task: planning
     note: Requirements review passed after user-directed completion; implementation design and task board accepted for execution.
+  - timestamp: "2026-07-24"
+    task: T01
+    commit: 35d1bf4f
+    note: Captured the immutable Buildr baseline and aligned Bazel 9.2.0 with the remote JDK 25 tool runtime.
+  - timestamp: "2026-07-24"
+    task: T02
+    commit: 43058b88
+    note: Fixed strict Error Prone findings and restored explicit local types throughout client/shared Java.

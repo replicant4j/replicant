@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", native_java_library = "java_library")
 load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
@@ -7,16 +6,6 @@ CLIENT_TEST_JVM_FLAGS = [
 ]
 
 CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
-
-TEST_LIBRARY_JAVACOPTS = [
-    "-XepDisableAllChecks",
-    "-Werror",
-    "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
-    "-Xmaxerrs",
-    "10000",
-    "-Xmaxwarns",
-    "10000",
-]
 
 java_library(
     name = "messages_test_support_lib",
@@ -30,13 +19,12 @@ java_library(
     ],
 )
 
-native_java_library(
+java_library(
     name = "messages_tests_lib",
     srcs = [
         "EntityChangeTest.java",
         "UpdateMessageTest.java",
     ],
-    javacopts = TEST_LIBRARY_JAVACOPTS,
     visibility = [
         "//client/src/test/java/replicant:__pkg__",
     ],

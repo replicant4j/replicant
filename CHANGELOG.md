@@ -4,13 +4,14 @@
 
 * Use the deterministic Zemeckis JVM scheduler in client tests and restore reliable coverage of delayed
   `AreaOfInterest` disposal.
+* Enforce the current strict Error Prone policy across production and test targets, retain inferred local types in
+  server/JVM tooling, and require explicit local types in GWT-compatible client/shared code.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
 * Replace legacy CI configuration with a GitHub Actions workflow that runs the Bazel build, test suite, and
   buildifier check.
-* Update Bazel to version `9.1.1` and remove custom local JDK toolchain registration now that the standard
-  Bazel Java toolchain works with JDK 17.
+* Update Bazel to version `9.2.0`, use remote JDK 25 for build tooling, and retain Java 17 library bytecode.
 * Require explicit Bazel source ownership by replacing `glob()` source discovery with per-directory
   `BUILD.bazel` source lists.
 * Move server runtime support types to `replicant.server.runtime` and split the server Bazel build into

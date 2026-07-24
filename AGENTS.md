@@ -38,7 +38,7 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `buildfile` defines the Buildr build.
   - `build.yaml` defines artifact coordinates and dependency versions.
   - `MODULE.bazel`, `.bazelrc`, `.bazelversion`, and `BUILD.bazel` define the parallel Bazel build.
-  - `bazelw` runs Bazel 9.1.1 via Bazelisk.
+  - `bazelw` runs Bazel 9.2.0 via Bazelisk.
   - `.github/workflows/ci.yml` defines the GitHub Actions CI workflow.
   - `third_party/java/dependencies.yml` is the depgen source for Bazel Java dependencies.
   - `tasks/*.rake` contains GWT, release, packaging, and diagnostic helper tasks.
@@ -47,8 +47,8 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - Production code lives under `*/src/main/java/...`.
   - Tests live under `*/src/test/java/...`.
 - Generated sources:
-  - Annotation processor outputs checked in for GWT compatibility live under `client/generated/processors/main/java/...`.
-  - Do not hand-edit generated sources.
+  - Bazel generates annotation processor outputs; generated Java remains untracked.
+  - Do not hand-edit files under local generated-output directories.
 - Documentation:
   - Keep `README.md`, `CHANGELOG.md`, and `AGENTS.md` aligned with user-visible or workflow-relevant changes.
 
@@ -118,18 +118,21 @@ Implementation hotspots:
 
 ### Java Conventions
 
-- The build targets Java 17 and compiles with `-Xlint:all,-processing,-serial` and `-Werror`. Fix warnings or suppress them narrowly with justification.
+- The build targets Java 17 and compiles with strict Error Prone,
+  `-Xlint:all,-processing,-serial,-path,-options,-classfile,-this-escape`, and `-Werror`. Fix findings or suppress
+  them narrowly with justification.
 - Use `@Nonnull` and `@Nullable` from `javax.annotation` for nullability.
 - On JAX-RS-style validation boundaries, prefer `@NotNull` from `javax.validation` when that style is already in use. Do not add new REST-specific guidance to this file unless the codebase adds REST resources again.
 - Use `final` where practical.
-- Use `final var` for local variables in `server/` code and under `*/src/test/java/...` unless Java requires an explicit type or the explicit type materially improves clarity.
-- Never use `var` in `client/` or `shared/`; use explicit local types there.
+- Use `final var` for local variables in server production/tests and JVM-only tooling unless Java requires an
+  explicit type or the explicit type materially improves clarity.
+- Never use `var` in client/shared production or tests; use explicit local types there.
 - Public API changes should include matching Javadoc updates. Keep package documentation in `package-info.java` aligned with the code.
 
 ### Generated Code
 
-- Do not hand-edit files under `client/generated/processors/main/java/...`.
-- If annotation processor output changes, regenerate or update the generated sources consistently with the source change that required it.
+- Do not hand-edit or commit files under `client/generated/processors/main/java/...`.
+- Bazel owns annotation processor output and regenerates it from maintained sources.
 
 ## Build and Test
 
@@ -140,7 +143,7 @@ CI workflow:
 - GitHub Actions runs Bazel, not Buildr.
 - CI installs Temurin JDK 17, builds the public Bazel jars, runs all Bazel tests, and checks Bazel formatting.
 
-- Bazel is pinned to 9.1.1 via `.bazelversion`; run it with `./bazelw`.
+- Bazel is pinned to 9.2.0 via `.bazelversion`; run it with `./bazelw`.
 - Build public Bazel jars: `./bazelw build //client:client //server:server`.
 - Run all Bazel tests, including depgen hash verification: `./bazelw test //...`.
 - Check Bazel formatting: `./bazelw run //:buildifier_check`.
@@ -167,7 +170,7 @@ Additional build notes:
   `client/src/main/java/replicant`.
 - `//server:server_lib` is a source-free aggregate that exports package-owned server libraries under
   `server/src/main/java/replicant/server/**`; keep the package graph acyclic when adding dependencies.
-- The Bazel toolchain emits Java 17 bytecode.
+- Bazel uses remote JDK 25 for Java build tools and emits Java 17 bytecode for project targets.
 
 ### Testing Guidelines
 

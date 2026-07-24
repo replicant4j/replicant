@@ -1,4 +1,3 @@
-load("@rules_java//java:defs.bzl", native_java_library = "java_library")
 load("//third_party/java:rules.bzl", "java_library", "java_testng")
 
 CLIENT_TEST_JVM_FLAGS = [
@@ -113,7 +112,7 @@ java_library(
     ],
 )
 
-native_java_library(
+java_library(
     name = "client_tests_lib",
     srcs = [
         "AreaOfInterestRequestTest.java",
@@ -150,15 +149,6 @@ native_java_library(
         "TransportContextImplTest.java",
         "ValidatorTest.java",
         "ZoneTest.java",
-    ],
-    javacopts = [
-        "-XepDisableAllChecks",
-        "-Werror",
-        "-Xlint:all,-processing,-serial,-options,-deprecation,-this-escape",
-        "-Xmaxerrs",
-        "10000",
-        "-Xmaxwarns",
-        "10000",
     ],
     visibility = [
         "//client/src/test/java/replicant:__pkg__",
