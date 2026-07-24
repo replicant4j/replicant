@@ -10,6 +10,7 @@ java_server_library(
         "//server:__pkg__",
         "//server/src/main/java/replicant/server:__subpackages__",
         "//server/src/test/java/replicant/server:__subpackages__",
+        "//tools/release:__pkg__",
     ],
     deps = [
         "//server/src/main/java/replicant/server:server_core_lib",

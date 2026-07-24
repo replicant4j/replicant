@@ -44,6 +44,7 @@ test --test_output=errors
 # Generate the symlink tree as a peer directory
 # If we generate in the current directory, IDEA can start scanning an ultimately get locked up or crash
 common --symlink_prefix=../.bazel/replicant/
+common --flag_alias=release_version=//tools/release:version
 
 # Do not stop at first error in build or analysis phase but keep going as long as prerequisites are successful
 test --keep_going

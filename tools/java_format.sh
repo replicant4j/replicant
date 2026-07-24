@@ -20,7 +20,7 @@ trap 'rm -f "${args_file}"' EXIT
 
 while IFS= read -r source_file; do
   printf '%s/%s\n' "${ROOT}" "${source_file}" >> "${args_file}"
-done < <(rg --files -g '*.java' client shared server | sort)
+done < <(rg --files -g '*.java' client shared server tools | sort)
 
 if [[ ! -s "${args_file}" ]]; then
   exit 0

@@ -1,0 +1,157 @@
+load("//third_party/java:rules.bzl", "java_binary", "java_test")
+
+package(default_visibility = ["//visibility:public"])
+
+MAVEN_ARTIFACT_ARGS = [
+    "$(rootpath //tools/release:release_version)",
+    "$(rootpath //tools/release:replicant_client_jar)",
+    "$(rootpath //tools/release:replicant_client_sources_jar)",
+    "$(rootpath //tools/release:replicant_client_javadoc_jar)",
+    "$(rootpath //tools/release:replicant_client_pom)",
+    "$(rootpath //tools/release:replicant_server_jar)",
+    "$(rootpath //tools/release:replicant_server_sources_jar)",
+    "$(rootpath //tools/release:replicant_server_javadoc_jar)",
+    "$(rootpath //tools/release:replicant_server_pom)",
+]
+
+MAVEN_ARTIFACT_DATA = [
+    "//tools/release:release_version",
+    "//tools/release:replicant_client_jar",
+    "//tools/release:replicant_client_javadoc_jar",
+    "//tools/release:replicant_client_pom",
+    "//tools/release:replicant_client_sources_jar",
+    "//tools/release:replicant_server_jar",
+    "//tools/release:replicant_server_javadoc_jar",
+    "//tools/release:replicant_server_pom",
+    "//tools/release:replicant_server_sources_jar",
+]
+
+PARITY_FIXTURE_ARGS = [
+    "$(rootpath //plans/bazel-migration/baseline:replicant-client-main.entries)",
+    "$(rootpath //plans/bazel-migration/baseline:replicant-client-sources.entries)",
+    "$(rootpath //plans/bazel-migration/baseline:replicant-client.pom)",
+    "$(rootpath //plans/bazel-migration/baseline:replicant-server-main.entries)",
+    "$(rootpath //plans/bazel-migration/baseline:replicant-server-sources.entries)",
+    "$(rootpath //plans/bazel-migration/baseline:replicant-server.pom)",
+]
+
+PARITY_FIXTURE_DATA = [
+    "//plans/bazel-migration/baseline:replicant-client-main.entries",
+    "//plans/bazel-migration/baseline:replicant-client-sources.entries",
+    "//plans/bazel-migration/baseline:replicant-client.pom",
+    "//plans/bazel-migration/baseline:replicant-server-main.entries",
+    "//plans/bazel-migration/baseline:replicant-server-sources.entries",
+    "//plans/bazel-migration/baseline:replicant-server.pom",
+]
+
+DIST_ARTIFACT_ARGS = [
+    "$(rootpath :test-version.txt)",
+] + MAVEN_ARTIFACT_ARGS[1:]
+
+java_binary(
+    name = "jar_builder",
+    srcs = [
+        "JarBuilder.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.release.JarBuilder",
+)
+
+java_binary(
+    name = "javadoc_jar_builder",
+    srcs = [
+        "JavadocJarBuilder.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.release.JavadocJarBuilder",
+)
+
+java_binary(
+    name = "dist",
+    srcs = [
+        "DistBuilder.java",
+        "package-info.java",
+    ],
+    args = [
+        "--version-file",
+        "$(rootpath //tools/release:release_version)",
+        "--artifact",
+        "replicant-client:jar=$(rootpath //tools/release:replicant_client_jar)",
+        "--artifact",
+        "replicant-client:sources=$(rootpath //tools/release:replicant_client_sources_jar)",
+        "--artifact",
+        "replicant-client:javadoc=$(rootpath //tools/release:replicant_client_javadoc_jar)",
+        "--artifact",
+        "replicant-client:pom=$(rootpath //tools/release:replicant_client_pom)",
+        "--artifact",
+        "replicant-server:jar=$(rootpath //tools/release:replicant_server_jar)",
+        "--artifact",
+        "replicant-server:sources=$(rootpath //tools/release:replicant_server_sources_jar)",
+        "--artifact",
+        "replicant-server:javadoc=$(rootpath //tools/release:replicant_server_javadoc_jar)",
+        "--artifact",
+        "replicant-server:pom=$(rootpath //tools/release:replicant_server_pom)",
+    ],
+    data = MAVEN_ARTIFACT_DATA,
+    main_class = "org.realityforge.replicant.release.DistBuilder",
+)
+
+java_binary(
+    name = "release_lifecycle",
+    srcs = [
+        "ReleaseLifecycleTool.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.release.ReleaseLifecycleTool",
+)
+
+java_test(
+    name = "release_artifacts_integration_test",
+    size = "small",
+    srcs = [
+        "ReleaseArtifactsIntegrationTest.java",
+        "package-info.java",
+    ],
+    args = MAVEN_ARTIFACT_ARGS + PARITY_FIXTURE_ARGS,
+    data = MAVEN_ARTIFACT_DATA + PARITY_FIXTURE_DATA,
+    main_class = "org.realityforge.replicant.release.ReleaseArtifactsIntegrationTest",
+    use_testrunner = False,
+)
+
+java_test(
+    name = "dist_builder_test",
+    size = "small",
+    srcs = [
+        "DistBuilder.java",
+        "DistBuilderTest.java",
+        "package-info.java",
+    ],
+    args = DIST_ARTIFACT_ARGS,
+    data = MAVEN_ARTIFACT_DATA + [":test-version.txt"],
+    main_class = "org.realityforge.replicant.release.DistBuilderTest",
+    use_testrunner = False,
+)
+
+java_test(
+    name = "jar_builder_test",
+    size = "small",
+    srcs = [
+        "JarBuilder.java",
+        "JarBuilderTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.release.JarBuilderTest",
+    use_testrunner = False,
+)
+
+java_test(
+    name = "release_lifecycle_tool_test",
+    size = "small",
+    srcs = [
+        "ReleaseLifecycleTool.java",
+        "ReleaseLifecycleToolTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.release.ReleaseLifecycleToolTest",
+    use_testrunner = False,
+)

@@ -17,5 +17,8 @@ java_library(
     srcs = SHARED_JAVA_SRCS,
     resource_strip_prefix = "shared/src/main/java",
     resources = SHARED_JAVA_SRCS,
-    visibility = ["//shared:__pkg__"],
+    visibility = [
+        "//shared:__pkg__",
+        "//tools/release:__pkg__",
+    ],
 )

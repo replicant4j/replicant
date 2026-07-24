@@ -266,6 +266,16 @@ CLIENT_RESOURCES = [
     "spy/tools/package-info.java",
 ]
 
+exports_files(
+    [
+        "Replicant.gwt.xml",
+        "ReplicantDebug.gwt.xml",
+        "ReplicantDev.gwt.xml",
+        "react4j/React4j.gwt.xml",
+    ],
+    visibility = ["//tools/release:__pkg__"],
+)
+
 filegroup(
     name = "client_j2cl_srcs",
     srcs = CLIENT_JAVA_SRCS,
@@ -282,7 +292,10 @@ java_library(
     ],
     resource_strip_prefix = "client/src/main/java",
     resources = CLIENT_RESOURCES,
-    visibility = ["//client:__pkg__"],
+    visibility = [
+        "//client:__pkg__",
+        "//tools/release:__pkg__",
+    ],
     deps = [
         "//shared:shared_lib",
         "//third_party/java:akasha_gwt",

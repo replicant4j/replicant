@@ -26,6 +26,7 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 `.bazelversion`:
 
 * Build public output jars: `./bazelw build //client:client //server:server`
+* Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
 * Run all Bazel tests: `./bazelw test //...`
 * Run the current repository gate: `tools/check.sh`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
@@ -36,7 +37,7 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 For IntelliJ IDEA, import `tools/intellij/.managed.bazelproject` with the Bazel plugin. Legacy `.ipr`, `.iml`,
 and `.iws` project metadata is not part of the project model.
 
-The Buildr workflow remains available for local GWT/package/release tasks:
+The legacy Buildr workflow remains available only while the real GWT compiler path is migrated:
 
 * Build all modules: `bundle exec buildr clean package`
 * Run all tests: `bundle exec buildr test`
@@ -52,7 +53,12 @@ outputs and lockfile with:
 * `tools/update_java_deps.sh`
 * `./bazelw test //third_party/java:verify_config_sha256`
 
-The Bazel build is a JVM build and test path. It does not replace the existing GWT compile/package workflow.
+The Bazel release targets build the client/server main, source, Javadoc, and POM artifacts. Generated Arez sources
+remain untracked and are included in the client main and source jars; published jars exclude `BUILD.bazel`. Create a
+signed Maven Central bundle with `tools/package_maven_central.sh <version>` and see
+[`tools/release/README.md`](tools/release/README.md) for the complete release and recovery workflow.
+
+The Bazel build does not yet replace the existing GWT compiler workflow.
 
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly

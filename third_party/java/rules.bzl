@@ -169,6 +169,18 @@ def java_binary(name, srcs = [], deps = [], plugins = [], javacopts = [], **kwar
         **kwargs
     )
 
+def java_test(name, srcs = [], deps = [], plugins = [], javacopts = [], jvm_flags = [], **kwargs):
+    nullaway_enabled = _has_sources(srcs)
+    _java_test(
+        name = name,
+        srcs = srcs,
+        deps = _with_jspecify(deps) if nullaway_enabled else deps,
+        javacopts = _JAVA_JAVACOPTS + _TEST_ERROR_PRONE_JAVACOPTS + _SERVER_JAVACOPTS + javacopts,
+        jvm_flags = _JAVA_TEST_JVM_FLAGS + jvm_flags,
+        plugins = _with_nullaway(plugins) if nullaway_enabled else plugins,
+        **kwargs
+    )
+
 def java_testng(name, srcs, test_class, deps = [], runtime_deps = [], jvm_flags = [], javacopts = [], **kwargs):
     filtered_kwargs = dict(kwargs)
     for arg in [

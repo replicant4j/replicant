@@ -1,0 +1,236 @@
+load(
+    ":release.bzl",
+    "java_generated_source_jars",
+    "release_jar",
+    "release_javadoc_jar",
+    "release_pom",
+    "release_source_jar",
+    "release_version",
+    "release_version_file",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+CLIENT = "//client/src/main/java/replicant:client_lib"
+
+SHARED = "//shared/src/main/java/replicant/shared:shared_lib"
+
+SERVER_TARGETS = [
+    "//server/src/main/java/replicant/server:server_core_lib",
+    "//server/src/main/java/replicant/server/ee:ee_lib",
+    "//server/src/main/java/replicant/server/ee:handshake_auth_lib",
+    "//server/src/main/java/replicant/server/json:json_lib",
+    "//server/src/main/java/replicant/server/runtime:runtime_lib",
+    "//server/src/main/java/replicant/server/transport:transport_lib",
+]
+
+release_version(
+    name = "version",
+    build_setting_default = "0.0.0-SNAPSHOT",
+)
+
+alias(
+    name = "jar_builder",
+    actual = "//tools/release/org/realityforge/replicant/release:jar_builder",
+)
+
+alias(
+    name = "javadoc_jar_builder",
+    actual = "//tools/release/org/realityforge/replicant/release:javadoc_jar_builder",
+)
+
+alias(
+    name = "dist",
+    actual = "//tools/release/org/realityforge/replicant/release:dist",
+)
+
+alias(
+    name = "release_lifecycle",
+    actual = "//tools/release/org/realityforge/replicant/release:release_lifecycle",
+)
+
+java_generated_source_jars(
+    name = "client_generated_sources",
+    java_targets = [CLIENT],
+)
+
+release_jar(
+    name = "replicant_client_jar",
+    out = "replicant-client.jar",
+    jars = [":client_generated_sources"],
+    java_targets = [
+        CLIENT,
+        SHARED,
+    ],
+    resource_entries = ["META-INF/LICENSE"],
+    resource_files = ["//:LICENSE"],
+)
+
+release_source_jar(
+    name = "replicant_client_sources_jar",
+    out = "replicant-client-sources.jar",
+    jars = [":client_generated_sources"],
+    java_targets = [
+        CLIENT,
+        SHARED,
+    ],
+    resource_entries = [
+        "replicant/Replicant.gwt.xml",
+        "replicant/ReplicantDebug.gwt.xml",
+        "replicant/ReplicantDev.gwt.xml",
+        "replicant/react4j/React4j.gwt.xml",
+    ],
+    resource_files = [
+        "//client/src/main/java/replicant:Replicant.gwt.xml",
+        "//client/src/main/java/replicant:ReplicantDebug.gwt.xml",
+        "//client/src/main/java/replicant:ReplicantDev.gwt.xml",
+        "//client/src/main/java/replicant:react4j/React4j.gwt.xml",
+    ],
+)
+
+release_javadoc_jar(
+    name = "replicant_client_javadoc_jar",
+    out = "replicant-client-javadoc.jar",
+    classpath = [
+        "//third_party/java:akasha_gwt",
+        "//third_party/java:arez_core",
+        "//third_party/java:base",
+        "//third_party/java:braincheck_core",
+        "//third_party/java:grim_annotations",
+        "//third_party/java:gwt_user",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:jsinterop_annotations",
+        "//third_party/java:jspecify",
+        "//third_party/java:org_jetbrains_annotations",
+        "//third_party/java:react4j_core",
+        "//third_party/java:zemeckis_core",
+    ],
+    java_targets = [
+        CLIENT,
+        SHARED,
+    ],
+)
+
+release_pom(
+    name = "replicant_client_pom",
+    out = "replicant-client.pom",
+    artifact_id = "replicant-client",
+    dependencies = [
+        "org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0",
+        "org.realityforge.akasha:akasha-gwt:0.34",
+        "org.realityforge.react4j:react4j-core:0.228",
+        "org.realityforge.arez:arez-core:0.254",
+        "org.realityforge.grim:grim-annotations:0.09",
+        "org.realityforge.zemeckis:zemeckis-core:0.17",
+        "org.jspecify:jspecify:1.0.0",
+        "com.google.jsinterop:base:1.0.0",
+        "com.google.jsinterop:jsinterop-annotations:2.1.0",
+        "org.realityforge.braincheck:braincheck-core:1.35.0",
+    ],
+    description = "replicant:client",
+    display_name = "replicant:client",
+    provided_dependencies = [
+        "org.gwtproject:gwt-user:2.13.1",
+    ],
+)
+
+release_jar(
+    name = "replicant_server_jar",
+    out = "replicant-server.jar",
+    java_targets = SERVER_TARGETS + [SHARED],
+    resource_entries = ["META-INF/LICENSE"],
+    resource_files = ["//:LICENSE"],
+    source_java_targets = [SHARED],
+)
+
+release_source_jar(
+    name = "replicant_server_sources_jar",
+    out = "replicant-server-sources.jar",
+    java_targets = SERVER_TARGETS + [SHARED],
+)
+
+release_javadoc_jar(
+    name = "replicant_server_javadoc_jar",
+    out = "replicant-server-javadoc.jar",
+    classpath = [
+        "//third_party/java:enterprise_concurrent_api",
+        "//third_party/java:jakarta_annotation_api",
+        "//third_party/java:jakarta_enterprise_cdi_api",
+        "//third_party/java:jakarta_inject",
+        "//third_party/java:jakarta_interceptor_api",
+        "//third_party/java:jakarta_transaction_api",
+        "//third_party/java:jakarta_websocket_api",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:javax_json",
+        "//third_party/java:jspecify",
+        "//third_party/java:org_jetbrains_annotations",
+        "//third_party/java:persistence_api",
+    ],
+    java_targets = SERVER_TARGETS + [SHARED],
+)
+
+release_pom(
+    name = "replicant_server_pom",
+    out = "replicant-server.pom",
+    artifact_id = "replicant-server",
+    description = "replicant:server",
+    display_name = "replicant:server",
+    isolated_provided_dependencies = [
+        "org.jspecify:jspecify:1.0.0",
+        "org.realityforge.javax.annotation:javax.annotation:1.1.1",
+        "jakarta.annotation:jakarta.annotation-api:1.3.5",
+        "jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2",
+        "javax.enterprise.concurrent:javax.enterprise.concurrent-api:1.1",
+        "org.glassfish.hk2.external:jakarta.inject:2.6.1",
+        "jakarta.interceptor:jakarta.interceptor-api:1.2.5",
+        "javax.persistence:javax.persistence-api:2.2",
+        "jakarta.transaction:jakarta.transaction-api:1.3.3",
+        "jakarta.websocket:jakarta.websocket-api:1.1.2",
+        "org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0",
+        "org.glassfish:javax.json:1.1",
+    ],
+)
+
+release_version_file(
+    name = "release_version",
+    out = "release-version.txt",
+)
+
+filegroup(
+    name = "maven_artifacts",
+    srcs = [
+        ":replicant_client_jar",
+        ":replicant_client_javadoc_jar",
+        ":replicant_client_pom",
+        ":replicant_client_sources_jar",
+        ":replicant_server_jar",
+        ":replicant_server_javadoc_jar",
+        ":replicant_server_pom",
+        ":replicant_server_sources_jar",
+    ],
+)
+
+test_suite(
+    name = "release_artifacts_integration_test",
+    tests = ["//tools/release/org/realityforge/replicant/release:release_artifacts_integration_test"],
+)
+
+test_suite(
+    name = "dist_builder_test",
+    tests = ["//tools/release/org/realityforge/replicant/release:dist_builder_test"],
+)
+
+test_suite(
+    name = "release_lifecycle_tool_test",
+    tests = ["//tools/release/org/realityforge/replicant/release:release_lifecycle_tool_test"],
+)
+
+test_suite(
+    name = "all_tests",
+    tests = [
+        ":dist_builder_test",
+        ":release_artifacts_integration_test",
+        ":release_lifecycle_tool_test",
+        "//tools/release/org/realityforge/replicant/release:jar_builder_test",
+    ],
+)

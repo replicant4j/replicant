@@ -19,6 +19,7 @@ java_server_library(
         "//server:__pkg__",
         "//server/src/main/java/replicant/server:__subpackages__",
         "//server/src/test/java/replicant/server:__subpackages__",
+        "//tools/release:__pkg__",
     ],
     deps = [
         ":handshake_auth_lib",
@@ -50,6 +51,7 @@ java_server_library(
     visibility = [
         "//server:__pkg__",
         "//server/src/test/java/replicant/server/ee:__pkg__",
+        "//tools/release:__pkg__",
     ],
     deps = [
         "//server/src/main/java/replicant/server/transport:transport_lib",

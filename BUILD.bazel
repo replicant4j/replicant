@@ -1,5 +1,7 @@
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 
+exports_files(["LICENSE"])
+
 WARNINGS = [
     "+unsorted-dict-items",
     "-module-docstring",

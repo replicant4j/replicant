@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T08
+current_focus: T09
 
 tasks:
   - id: T01
@@ -227,7 +227,7 @@ tasks:
 
   - id: T08
     title: Add generated-source plumbing and Maven Central release tooling
-    status: pending
+    status: completed
     priority: high
     depends_on: [T07]
     requirements: [R6, R7, R8, R15, R16, R17]
@@ -259,7 +259,13 @@ tasks:
         proves: explicit release-tool behavior
       - command: temporary Buildr-to-Bazel parity suite with ephemeral GPG key
         proves: accepted migration output contract
-    evidence: []
+    evidence:
+      - Bazel built all eight client/server main, source, Javadoc, and POM artifacts at the explicit 6.999 version
+      - The temporary Buildr-to-Bazel parity test passed for archive entries, manifests, POMs, and Javadocs
+      - Client main and source jars contain Bazel-generated Arez Java while every published jar excludes BUILD.bazel
+      - Release tooling tests passed at both the default snapshot version and explicit 6.999 release version
+      - An ephemeral real GPG key verified all eight detached signatures, 32 MD5/SHA-1 digests, 48 staged files, and 48 matching zip entries
+      - ./bazelw run //:buildifier passed after all release BUILD changes
 
   - id: T09
     title: Add full-client J2CL optimized link
@@ -416,3 +422,7 @@ history:
     task: T06
     commit: bc3ced06
     note: Isolated Palantir Java Format 2.93.0 and enforced formatting through the repository gate.
+  - timestamp: "2026-07-24"
+    task: T07
+    commit: e66b1798
+    note: Replaced legacy IntelliJ metadata with the managed Bazel project view used by BrainCheck.

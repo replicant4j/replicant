@@ -35,6 +35,24 @@ When submitting pull requests, make sure to do the following:
 * Maintain the same code style.
 * Maintain the same level of test coverage or improve it.
 
+## Maven Central release
+
+The Maven Central release workflow is documented in [tools/release/README.md](tools/release/README.md). Run the full
+project verification before packaging or releasing:
+
+```bash
+tools/check.sh
+```
+
+Create the signed Maven Central upload zip with:
+
+```bash
+tools/package_maven_central.sh 6.203
+```
+
+`GPG_USER` selects the signing key and optional `GPG_PASS` supplies the passphrase. Pass `--gpg-key-id KEYID` to
+override `GPG_USER`.
+
 ## Additional Resources
 
 * [General GitHub documentation](http://help.github.com/)

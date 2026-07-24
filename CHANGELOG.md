@@ -10,6 +10,8 @@
   and enforce NullAway across production and test targets.
 * Format maintained Java with Palantir Java Format 2.93.0 and enforce it through the local repository gate.
 * Replace the legacy IntelliJ project model with a managed Bazel project view.
+* Add Bazel-owned Maven Central artifacts and release tooling, including generated Arez sources in client
+  publication jars while excluding `BUILD.bazel`.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

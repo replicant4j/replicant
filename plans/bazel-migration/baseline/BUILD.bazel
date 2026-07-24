@@ -1,0 +1,10 @@
+package(default_visibility = ["//tools/release:__subpackages__"])
+
+exports_files([
+    "replicant-client-main.entries",
+    "replicant-client-sources.entries",
+    "replicant-client.pom",
+    "replicant-server-main.entries",
+    "replicant-server-sources.entries",
+    "replicant-server.pom",
+])
