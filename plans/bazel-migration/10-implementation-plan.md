@@ -129,10 +129,11 @@ processor invocation.
 
 ### Bazel BSP and IntelliJ
 
-Copy BrainCheck's Bazel BSP support and managed project view, adapting roots and
-targets for `client`, `shared`, `server`, tests, and release tooling. Delete the
-tracked `.ipr`, `.iml`, and `.iws` files and their obsolete ignore/configuration
-rules. Bazel becomes the sole IDE project model.
+Adopt BrainCheck's checked-in managed Bazel project view, adapting source roots
+for `client`, `shared`, `server`, tests, and release tooling. IntelliJ's
+plugin-generated `.bazelbsp` and `.idea` state remains local and untracked.
+Delete legacy `.ipr`, `.iml`, and `.iws` files and their obsolete
+ignore/configuration rules. Bazel becomes the sole IDE project model.
 
 ### Maven Artifacts and Release Lifecycle
 

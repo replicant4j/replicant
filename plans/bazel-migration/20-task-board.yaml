@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T07
+current_focus: T08
 
 tasks:
   - id: T01
@@ -199,16 +199,15 @@ tasks:
       - tools/check.sh passed dependency regeneration, buildifier, Java formatting, NullMarked coverage, all 204 builds, and all 96 tests
 
   - id: T07
-    title: Replace legacy IntelliJ metadata with Bazel BSP
-    status: pending
+    title: Replace legacy IntelliJ metadata with a managed Bazel view
+    status: completed
     priority: medium
     depends_on: [T06]
     requirements: [R5]
     acceptance_criteria:
-      - Bazel BSP and managed project view cover all maintained source/tool roots
+      - Managed Bazel project view covers all maintained source/tool roots
       - Tracked ipr/iml/iws files and obsolete rules are absent
     files_touched:
-      - .bazelbsp/**
       - tools/intellij/**
       - "**/*.ipr"
       - "**/*.iml"
@@ -219,8 +218,12 @@ tasks:
       - command: tracked legacy IDEA metadata scan
         proves: no legacy project files remain
       - command: tools/check.sh
-        proves: BSP addition does not break repository gate
-    evidence: []
+        proves: managed project view addition does not break repository gate
+    evidence:
+      - tools/intellij/.managed.bazelproject matches the BrainCheck convention and covers client, shared, server, tests, and release tooling
+      - Tracked and worktree scans found no ipr, iml, or iws files after the hard cut
+      - .gitignore contains no legacy IntelliJ project suffix rules
+      - tools/check.sh passed all 204 builds and all 96 tests
 
   - id: T08
     title: Add generated-source plumbing and Maven Central release tooling
@@ -409,3 +412,7 @@ history:
     task: T05
     commit: d878338e
     note: Applied Palantir Java Format 2.93.0 to all tracked client, shared, and server Java sources.
+  - timestamp: "2026-07-24"
+    task: T06
+    commit: bc3ced06
+    note: Isolated Palantir Java Format 2.93.0 and enforced formatting through the repository gate.

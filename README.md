@@ -33,6 +33,9 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 * Check Java formatting: `tools/java_format.sh check`
 * Update Java formatting: `tools/java_format.sh write`
 
+For IntelliJ IDEA, import `tools/intellij/.managed.bazelproject` with the Bazel plugin. Legacy `.ipr`, `.iml`,
+and `.iws` project metadata is not part of the project model.
+
 The Buildr workflow remains available for local GWT/package/release tasks:
 
 * Build all modules: `bundle exec buildr clean package`

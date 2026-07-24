@@ -42,6 +42,7 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `.github/workflows/ci.yml` defines the GitHub Actions CI workflow.
   - `third_party/java/dependencies.yml` is the depgen source for Bazel Java dependencies.
   - `tools/java-format/dependencies.yml` isolates the pinned Palantir Java formatter dependency graph.
+  - `tools/intellij/.managed.bazelproject` is the shared IntelliJ Bazel project view.
   - `tasks/*.rake` contains GWT, release, packaging, and diagnostic helper tasks.
   - `Gemfile` configures the Ruby/Buildr toolchain.
 - Source layout:
@@ -159,6 +160,8 @@ CI workflow:
 - Apply Bazel formatting: `./bazelw run //:buildifier`.
 - Check Java formatting: `tools/java_format.sh check`.
 - Apply Java formatting: `tools/java_format.sh write`.
+- Import `tools/intellij/.managed.bazelproject` with IntelliJ IDEA's Bazel plugin; do not recreate legacy
+  `.ipr`, `.iml`, or `.iws` project metadata.
 
 Buildr workflow:
 
