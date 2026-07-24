@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Use the deterministic Zemeckis JVM scheduler in client tests and restore reliable coverage of delayed
+  `AreaOfInterest` disposal.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
 * Replace legacy CI configuration with a GitHub Actions workflow that runs the Bazel build, test suite, and

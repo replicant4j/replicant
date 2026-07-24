@@ -140,6 +140,7 @@ def java_testng(name, srcs, test_class, deps = [], runtime_deps = [], jvm_flags 
             "-Dbraincheck.environment=development",
             "-Darez.environment=development",
             "-Dreplicant.environment=development",
+            "-Dzemeckis.environment=development",
         ],
         runtime_deps = runtime_deps,
         **filtered_kwargs
