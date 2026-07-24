@@ -2,7 +2,7 @@ package replicant;
 
 import arez.Arez;
 import arez.SchedulerLock;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.realityforge.braincheck.BrainCheckConfig;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -105,7 +105,7 @@ public final class Replicant
    *
    * @return the ReplicantContext.
    */
-  @Nonnull
+  @NonNull
   public static ReplicantContext context()
   {
     return areZonesEnabled() ? ReplicantZoneHolder.context() : ReplicantContextHolder.context();
@@ -117,7 +117,7 @@ public final class Replicant
    *
    * @return the new zone.
    */
-  @Nonnull
+  @NonNull
   public static Zone createZone()
   {
     if ( shouldCheckApiInvariants() )
@@ -134,7 +134,7 @@ public final class Replicant
   /**
    * Save the old zone and make the specified zone the current zone.
    */
-  static void activateZone( @Nonnull final Zone zone )
+  static void activateZone( @NonNull final Zone zone )
   {
     ReplicantZoneHolder.activateZone( zone );
   }
@@ -144,7 +144,7 @@ public final class Replicant
    * This takes the zone that was current when {@link #activateZone(Zone)} was called for the active zone
    * and restores it to being the current zone.
    */
-  static void deactivateZone( @Nonnull final Zone zone )
+  static void deactivateZone( @NonNull final Zone zone )
   {
     ReplicantZoneHolder.deactivateZone( zone );
   }
@@ -154,7 +154,7 @@ public final class Replicant
    *
    * @return the current zone.
    */
-  @Nonnull
+  @NonNull
   static Zone currentZone()
   {
     return ReplicantZoneHolder.currentZone();

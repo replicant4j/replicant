@@ -1,6 +1,7 @@
 package replicant;
 
 import java.util.function.Consumer;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -10,6 +11,7 @@ public class ConnectorEntryTest
   static class TestConsumer
     implements Consumer<Connector>
   {
+    @Nullable
     private Connector _connector;
 
     @Override

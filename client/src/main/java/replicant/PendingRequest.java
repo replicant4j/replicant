@@ -1,20 +1,20 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 final class PendingRequest
 {
   @Nullable
   private final String _name;
-  @Nonnull
+  @NonNull
   private final SafeProcedure _callback;
   @Nullable
   private final ResponseHandler _responseHandler;
 
   PendingRequest( @Nullable final String name,
-                  @Nonnull final SafeProcedure callback,
+                  @NonNull final SafeProcedure callback,
                   @Nullable final ResponseHandler responseHandler )
   {
     _name = name;
@@ -28,7 +28,7 @@ final class PendingRequest
     return _name;
   }
 
-  @Nonnull
+  @NonNull
   SafeProcedure getCallback()
   {
     return _callback;

@@ -13,8 +13,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -27,7 +28,7 @@ abstract class EntityService
   // Entity map: Type => ID
   private final Map<Class<?>, Map<Integer, Entity>> _entities = new HashMap<>();
 
-  @Nonnull
+  @NonNull
   static EntityService create( @Nullable final ReplicantContext context )
   {
     return new Arez_EntityService( context );
@@ -55,7 +56,7 @@ abstract class EntityService
    *
    * @return the collection of entity types.
    */
-  @Nonnull
+  @NonNull
   Collection<Class<?>> findAllEntityTypes()
   {
     return getEntities().keySet();
@@ -69,7 +70,7 @@ abstract class EntityService
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
+  Entity findEntityByTypeAndId( @NonNull final Class<?> type, final int id )
   {
     final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
@@ -93,8 +94,8 @@ abstract class EntityService
     }
   }
 
-  @Nonnull
-  List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
+  @NonNull
+  List<Entity> findAllEntitiesByType( @NonNull final Class<?> type )
   {
     final Map<Integer, Entity> typeMap = getEntities().get( type );
     return null == typeMap ? Collections.emptyList() : CollectionsUtil.asList( typeMap.values().stream() );
@@ -105,7 +106,7 @@ abstract class EntityService
    *
    * @param entity the entity.
    */
-  void unlinkEntity( @Nonnull final Entity entity )
+  void unlinkEntity( @NonNull final Entity entity )
   {
     getEntitiesObservableValue().preReportChanged();
 
@@ -117,8 +118,7 @@ abstract class EntityService
       invariant( () -> null != typeMap,
                  () -> "Entity type " + entityType.getSimpleName() + " not present in EntityService" );
     }
-    assert null != typeMap;
-    final Entity removed = typeMap.remove( id );
+    final Entity removed = Objects.requireNonNull( typeMap ).remove( id );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed, () -> "Entity instance " + entity + " not present in EntityService" );
@@ -140,8 +140,8 @@ abstract class EntityService
    * @param id   the id of the entity.
    * @return the existing Entity if it exists, otherwise the newly created entity.
    */
-  @Nonnull
-  Entity findOrCreateEntity( @Nullable final String name, @Nonnull final Class<?> type, final int id )
+  @NonNull
+  Entity findOrCreateEntity( @Nullable final String name, @NonNull final Class<?> type, final int id )
   {
     final Map<Integer, Entity> typeMap = _entities.get( type );
     if ( null == typeMap )
@@ -165,10 +165,10 @@ abstract class EntityService
     }
   }
 
-  @Nonnull
-  private Entity createEntity( @Nonnull final Map<Integer, Entity> typeMap,
+  @NonNull
+  private Entity createEntity( @NonNull final Map<Integer, Entity> typeMap,
                                @Nullable final String name,
-                               @Nonnull final Class<?> type,
+                               @NonNull final Class<?> type,
                                final int id )
   {
     getEntitiesObservableValue().preReportChanged();
@@ -182,12 +182,12 @@ abstract class EntityService
     return entity;
   }
 
-  private void destroy( @Nonnull final Entity entity )
+  private void destroy( @NonNull final Entity entity )
   {
     unlinkEntity( entity );
   }
 
-  private void detachEntity( @Nonnull final Entity entity )
+  private void detachEntity( @NonNull final Entity entity )
   {
     DisposeNotifier.asDisposeNotifier( entity ).removeOnDisposeListener( this, true );
   }

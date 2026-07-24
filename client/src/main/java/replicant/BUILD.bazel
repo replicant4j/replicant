@@ -88,6 +88,7 @@ CLIENT_JAVA_SRCS = [
     "messages/UseCacheMessage.java",
     "messages/package-info.java",
     "react4j/ReplicantSubscription.java",
+    "react4j/package-info.java",
     "spy/AreaOfInterestCreatedEvent.java",
     "spy/AreaOfInterestDisposedEvent.java",
     "spy/AreaOfInterestFilterUpdatedEvent.java",
@@ -127,6 +128,7 @@ CLIENT_JAVA_SRCS = [
     "spy/tools/ConsoleSpyEventProcessor.java",
     "spy/tools/CssRules.java",
     "spy/tools/ReplicantSpyUtil.java",
+    "spy/tools/package-info.java",
 ]
 
 CLIENT_RESOURCES = [
@@ -221,6 +223,7 @@ CLIENT_RESOURCES = [
     "messages/package-info.java",
     "react4j/React4j.gwt.xml",
     "react4j/ReplicantSubscription.java",
+    "react4j/package-info.java",
     "spy/AreaOfInterestCreatedEvent.java",
     "spy/AreaOfInterestDisposedEvent.java",
     "spy/AreaOfInterestFilterUpdatedEvent.java",
@@ -260,6 +263,7 @@ CLIENT_RESOURCES = [
     "spy/tools/ConsoleSpyEventProcessor.java",
     "spy/tools/CssRules.java",
     "spy/tools/ReplicantSpyUtil.java",
+    "spy/tools/package-info.java",
 ]
 
 filegroup(
@@ -287,6 +291,7 @@ java_library(
         "//third_party/java:braincheck_core",
         "//third_party/java:grim_annotations",
         "//third_party/java:gwt_user",
+        # Arez 0.254 generated sources still use javax.annotation nullness types.
         "//third_party/java:javax_annotation",
         "//third_party/java:jsinterop_annotations",
         "//third_party/java:org_jetbrains_annotations",

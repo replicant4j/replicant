@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class EntityMessage
 {
@@ -22,7 +22,7 @@ public final class EntityMessage
    * the path to the root of the instance graph. The map will also contain the
    * the id of any instance roots for graphs that graph_link to this entity.
    */
-  @Nonnull
+  @NonNull
   private final Map<String, Serializable> _routingKeys;
   @Nullable
   private Set<ChannelLink> _links;
@@ -33,7 +33,7 @@ public final class EntityMessage
   public EntityMessage( final int id,
                         final int typeId,
                         final long timestamp,
-                        @Nonnull final Map<String, Serializable> routingKeys,
+                        @NonNull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues )
   {
     this( id, typeId, timestamp, routingKeys, attributeValues, null );
@@ -42,7 +42,7 @@ public final class EntityMessage
   public EntityMessage( final int id,
                         final int typeId,
                         final long timestamp,
-                        @Nonnull final Map<String, Serializable> routingKeys,
+                        @NonNull final Map<String, Serializable> routingKeys,
                         @Nullable final Map<String, Serializable> attributeValues,
                         @Nullable final Set<ChannelLink> links )
   {
@@ -86,7 +86,7 @@ public final class EntityMessage
     return _attributeValues;
   }
 
-  @Nonnull
+  @NonNull
   public Map<String, Serializable> getRoutingKeys()
   {
     return _routingKeys;
@@ -98,7 +98,7 @@ public final class EntityMessage
     return _links;
   }
 
-  @Nonnull
+  @NonNull
   public EntityMessage duplicate()
   {
     final var message =
@@ -107,7 +107,7 @@ public final class EntityMessage
     return message;
   }
 
-  @Nonnull
+  @NonNull
   public EntityMessage toDelete()
   {
     final var message = duplicate();
@@ -118,7 +118,7 @@ public final class EntityMessage
     return message;
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public String toString()
   {
@@ -131,7 +131,7 @@ public final class EntityMessage
            ")";
   }
 
-  public void merge( @Nonnull final EntityMessage message )
+  public void merge( @NonNull final EntityMessage message )
   {
     mergeTimestamp( message );
     mergeRoutingKeys( message );
@@ -147,7 +147,7 @@ public final class EntityMessage
     assertInvariants();
   }
 
-  private void mergeTimestamp( @Nonnull final EntityMessage message )
+  private void mergeTimestamp( @NonNull final EntityMessage message )
   {
     if ( message.getTimestamp() > getTimestamp() )
     {
@@ -156,7 +156,7 @@ public final class EntityMessage
   }
 
   @SuppressWarnings( "unchecked" )
-  private void mergeRoutingKeys( @Nonnull final EntityMessage message )
+  private void mergeRoutingKeys( @NonNull final EntityMessage message )
   {
     final var routingKeys = message.getRoutingKeys();
     for ( final var entry : routingKeys.entrySet() )
@@ -182,7 +182,7 @@ public final class EntityMessage
     }
   }
 
-  private void mergeAttributeValues( @Nonnull final EntityMessage message )
+  private void mergeAttributeValues( @NonNull final EntityMessage message )
   {
     final var attributeValues = message.getAttributeValues();
     if ( null == attributeValues )
@@ -199,7 +199,7 @@ public final class EntityMessage
     }
   }
 
-  private void mergeLinks( @Nonnull final EntityMessage message )
+  private void mergeLinks( @NonNull final EntityMessage message )
   {
     final var links = message.getLinks();
     if ( null != links )

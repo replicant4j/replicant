@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -50,7 +50,7 @@ public final class ChannelSchema
   /**
    * The filtering applied to the channel.
    */
-  @Nonnull
+  @NonNull
   private final FilterType _filterType;
   /**
    * The hook to filter entities when filter changes. This should be null unless {@link #_filterType} is
@@ -75,11 +75,11 @@ public final class ChannelSchema
   public ChannelSchema( final int id,
                         @Nullable final String name,
                         @Nullable final Class<?> instanceType,
-                        @Nonnull final FilterType filterType,
+                        @NonNull final FilterType filterType,
                         @Nullable final SubscriptionUpdateEntityFilter<?> filter,
                         final boolean cacheable,
                         final boolean external,
-                        @Nonnull final List<EntitySchema> entities )
+                        @NonNull final List<EntitySchema> entities )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -122,7 +122,7 @@ public final class ChannelSchema
    *
    * @return the name of the channel.
    */
-  @Nonnull
+  @NonNull
   public String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -130,8 +130,7 @@ public final class ChannelSchema
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    assert null != _name;
-    return _name;
+    return Objects.requireNonNull( _name );
   }
 
   /**
@@ -170,7 +169,7 @@ public final class ChannelSchema
    *
    * @return the type of filtering applied to channel.
    */
-  @Nonnull
+  @NonNull
   public FilterType getFilterType()
   {
     return _filterType;
@@ -214,7 +213,7 @@ public final class ChannelSchema
    *
    * @return the entities transmitted over the channel.
    */
-  @Nonnull
+  @NonNull
   public List<EntitySchema> getEntities()
   {
     return CollectionsUtil.wrap( _entities );
@@ -232,7 +231,7 @@ public final class ChannelSchema
     return _entities.stream().filter( e -> e.getId() == entityId ).findAny().orElse( null );
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelLinkSchema> getOutwardChannelLinks()
   {
     return

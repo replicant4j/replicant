@@ -3,13 +3,14 @@ package replicant.server.ee;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import javax.interceptor.InvocationContext;
 
 public class TestInvocationContext
   implements InvocationContext
 {
   public static final Object RESULT = new Object();
+  @Nullable
   private Runnable _runnable;
   private boolean _invoked;
 
@@ -19,19 +20,19 @@ public class TestInvocationContext
   }
 
   @Override
-  public Object getTarget()
+  public @Nullable Object getTarget()
   {
     return null;
   }
 
   @Override
-  public Method getMethod()
+  public @Nullable Method getMethod()
   {
     return null;
   }
 
   @Override
-  public Constructor<?> getConstructor()
+  public @Nullable Constructor<?> getConstructor()
   {
     return null;
   }
@@ -72,7 +73,7 @@ public class TestInvocationContext
   }
 
   @Override
-  public Object getTimer()
+  public @Nullable Object getTimer()
   {
     return null;
   }

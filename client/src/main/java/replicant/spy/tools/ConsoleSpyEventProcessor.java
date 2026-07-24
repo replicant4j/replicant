@@ -1,7 +1,7 @@
 package replicant.spy.tools;
 
 import akasha.Console;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
 import replicant.FilterUtil;
 import replicant.Subscription;
@@ -106,7 +106,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSyncRequest( @Nonnull final SyncRequestEvent e )
+  protected void onSyncRequest( @NonNull final SyncRequestEvent e )
   {
     log( "%cSync requested. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
@@ -116,7 +116,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onInSync( @Nonnull final InSyncEvent e )
+  protected void onInSync( @NonNull final InSyncEvent e )
   {
     log( "%cSync completed. Backend synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
@@ -126,7 +126,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onOutOfSync( @Nonnull final OutOfSyncEvent e )
+  protected void onOutOfSync( @NonNull final OutOfSyncEvent e )
   {
     log( "%cSync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR );
   }
@@ -136,7 +136,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onRequestStarted( @Nonnull final RequestStartedEvent e )
+  protected void onRequestStarted( @NonNull final RequestStartedEvent e )
   {
     log( "%cRequest started. System: " + e.getName() + " Request: " + e.getName() +
          " RequestId: " + e.getRequestId(), CONNECTOR_COLOR );
@@ -147,7 +147,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onRequestCompleted( @Nonnull final RequestCompletedEvent e )
+  protected void onRequestCompleted( @NonNull final RequestCompletedEvent e )
   {
     final String changeSetDescription =
       !e.isExpectingResults() ? "No Change set expected." :
@@ -163,7 +163,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onConnected( @Nonnull final ConnectedEvent e )
+  protected void onConnected( @NonNull final ConnectedEvent e )
   {
     log( "%cConnector Connected. System: " + e.getSchemaName(), CONNECTOR_COLOR );
   }
@@ -173,7 +173,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onConnectFailure( @Nonnull final ConnectFailureEvent e )
+  protected void onConnectFailure( @NonNull final ConnectFailureEvent e )
   {
     log( "%cConnector Connect Failed. System: " + e.getSchemaName(), ERROR_COLOR );
   }
@@ -183,7 +183,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onDisconnected( @Nonnull final DisconnectedEvent e )
+  protected void onDisconnected( @NonNull final DisconnectedEvent e )
   {
     log( "%cConnector Disconnected. System: " + e.getSchemaName(), CONNECTOR_COLOR );
   }
@@ -193,7 +193,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onDisconnectFailure( @Nonnull final DisconnectFailureEvent e )
+  protected void onDisconnectFailure( @NonNull final DisconnectFailureEvent e )
   {
     log( "%cConnector Disconnect Failed. System: " + e.getSchemaName(),
          ERROR_COLOR );
@@ -204,7 +204,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onMessageProcessed( @Nonnull final MessageProcessedEvent e )
+  protected void onMessageProcessed( @NonNull final MessageProcessedEvent e )
   {
     log( "%cConnector Processed Message " + e.getDataLoadStatus(), CONNECTOR_COLOR );
   }
@@ -214,7 +214,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onMessageProcessFailure( @Nonnull final MessageProcessFailureEvent e )
+  protected void onMessageProcessFailure( @NonNull final MessageProcessFailureEvent e )
   {
     log( "%cConnector Error Processing Message. System: " +
          e.getSchemaName() + " Error: " + e.getError(), ERROR_COLOR );
@@ -225,7 +225,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onMessageReadFailure( @Nonnull final MessageReadFailureEvent e )
+  protected void onMessageReadFailure( @NonNull final MessageReadFailureEvent e )
   {
     log( "%cConnector Error Reading Message. System: " + e.getSchemaName(), ERROR_COLOR );
   }
@@ -235,7 +235,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onRestart( @Nonnull final RestartEvent e )
+  protected void onRestart( @NonNull final RestartEvent e )
   {
     log( "%cConnector attempting to disconnect and restart due to error. System: " + e.getSchemaName(), ERROR_COLOR );
   }
@@ -245,7 +245,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscribeCompleted( @Nonnull final SubscribeCompletedEvent e )
+  protected void onSubscribeCompleted( @NonNull final SubscribeCompletedEvent e )
   {
     log( "%cConnector completed subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -256,7 +256,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscribeStarted( @Nonnull final SubscribeStartedEvent e )
+  protected void onSubscribeStarted( @NonNull final SubscribeStartedEvent e )
   {
     log( "%cConnector started subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -267,7 +267,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionUpdateCompleted( @Nonnull final SubscriptionUpdateCompletedEvent e )
+  protected void onSubscriptionUpdateCompleted( @NonNull final SubscriptionUpdateCompletedEvent e )
   {
     log( "%cConnector completed subscription update. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -278,7 +278,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionUpdateStarted( @Nonnull final SubscriptionUpdateStartedEvent e )
+  protected void onSubscriptionUpdateStarted( @NonNull final SubscriptionUpdateStartedEvent e )
   {
     log( "%cConnector started subscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -289,7 +289,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onUnsubscribeCompleted( @Nonnull final UnsubscribeCompletedEvent e )
+  protected void onUnsubscribeCompleted( @NonNull final UnsubscribeCompletedEvent e )
   {
     log( "%cConnector completed unsubscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -300,7 +300,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onUnsubscribeStarted( @Nonnull final UnsubscribeStartedEvent e )
+  protected void onUnsubscribeStarted( @NonNull final UnsubscribeStartedEvent e )
   {
     log( "%cConnector started unsubscribe. System: " + e.getSchemaName() +
          " Address: " + e.getAddress(), CONNECTOR_COLOR );
@@ -311,7 +311,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onAreaOfInterestCreated( @Nonnull final AreaOfInterestCreatedEvent e )
+  protected void onAreaOfInterestCreated( @NonNull final AreaOfInterestCreatedEvent e )
   {
     final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
     final Object filter = areaOfInterest.getFilter();
@@ -324,7 +324,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onAreaOfInterestFilterUpdated( @Nonnull final AreaOfInterestFilterUpdatedEvent e )
+  protected void onAreaOfInterestFilterUpdated( @NonNull final AreaOfInterestFilterUpdatedEvent e )
   {
     final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
     final Object filter = areaOfInterest.getFilter();
@@ -338,7 +338,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onAreaOfInterestStatusUpdated( @Nonnull final AreaOfInterestStatusUpdatedEvent e )
+  protected void onAreaOfInterestStatusUpdated( @NonNull final AreaOfInterestStatusUpdatedEvent e )
   {
     final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
     final Object filter = areaOfInterest.getFilter();
@@ -352,7 +352,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onAreaOfInterestDisposed( @Nonnull final AreaOfInterestDisposedEvent e )
+  protected void onAreaOfInterestDisposed( @NonNull final AreaOfInterestDisposedEvent e )
   {
     log( "%cAreaOfInterest Disposed " + e.getAreaOfInterest().getAddress(), AREA_OF_INTEREST_COLOR );
   }
@@ -362,7 +362,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscribeRequestQueued( @Nonnull final SubscribeRequestQueuedEvent e )
+  protected void onSubscribeRequestQueued( @NonNull final SubscribeRequestQueuedEvent e )
   {
     final Object filter = e.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
@@ -374,7 +374,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionUpdateRequestQueued( @Nonnull final SubscriptionUpdateRequestQueuedEvent e )
+  protected void onSubscriptionUpdateRequestQueued( @NonNull final SubscriptionUpdateRequestQueuedEvent e )
   {
     final Object filter = e.getFilter();
     final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString( filter );
@@ -386,7 +386,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onUnsubscribeRequestQueued( @Nonnull final UnsubscribeRequestQueuedEvent e )
+  protected void onUnsubscribeRequestQueued( @NonNull final UnsubscribeRequestQueuedEvent e )
   {
     log( "%cUnsubscribe Request Queued " + e.getAddress(), SUBSCRIPTION_COLOR );
   }
@@ -396,7 +396,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionCreated( @Nonnull final SubscriptionCreatedEvent e )
+  protected void onSubscriptionCreated( @NonNull final SubscriptionCreatedEvent e )
   {
     final Subscription subscription = e.getSubscription();
     final Object filter = subscription.getFilter();
@@ -409,7 +409,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionDisposed( @Nonnull final SubscriptionDisposedEvent e )
+  protected void onSubscriptionDisposed( @NonNull final SubscriptionDisposedEvent e )
   {
     log( "%cSubscription Disposed " + e.getSubscription().address(), SUBSCRIPTION_COLOR );
   }
@@ -419,7 +419,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onSubscriptionOrphaned( @Nonnull final SubscriptionOrphanedEvent e )
+  protected void onSubscriptionOrphaned( @NonNull final SubscriptionOrphanedEvent e )
   {
     log( "%cSubscription Orphaned " + e.getSubscription().address(), SUBSCRIPTION_COLOR );
   }
@@ -429,7 +429,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onExecStarted( @Nonnull final ExecStartedEvent e )
+  protected void onExecStarted( @NonNull final ExecStartedEvent e )
   {
     log( "%cExec Started " + e.getCommand(), EXEC_COLOR );
   }
@@ -439,7 +439,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onExecCompleted( @Nonnull final ExecCompletedEvent e )
+  protected void onExecCompleted( @NonNull final ExecCompletedEvent e )
   {
     log( "%cExec Completed " + e.getCommand(), EXEC_COLOR );
   }
@@ -449,7 +449,7 @@ public class ConsoleSpyEventProcessor
    *
    * @param e the event.
    */
-  protected void onExecRequestQueued( @Nonnull final ExecRequestQueuedEvent e )
+  protected void onExecRequestQueued( @NonNull final ExecRequestQueuedEvent e )
   {
     log( "%cExec Request Queued  " + e.getCommand(), EXEC_COLOR );
   }
@@ -460,13 +460,13 @@ public class ConsoleSpyEventProcessor
    * @param message the message.
    * @param styling the styling parameter. It is assumed that the message has a %c somewhere in it to identify the start of the styling.
    */
-  protected void log( @Nonnull final String message, @CssRules @Nonnull final String styling )
+  protected void log( @NonNull final String message, @CssRules @NonNull final String styling )
   {
     Console.log( message, styling );
   }
 
   @Override
-  protected void handleUnhandledEvent( @Nonnull final Object event )
+  protected void handleUnhandledEvent( @NonNull final Object event )
   {
     Console.log( event );
   }

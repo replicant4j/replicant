@@ -1,22 +1,22 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public final class Request
 {
-  @Nonnull
+  @NonNull
   private final Connection _connection;
-  @Nonnull
+  @NonNull
   private final RequestEntry _entry;
 
-  Request( @Nonnull final Connection connection, @Nonnull final RequestEntry entry )
+  Request( @NonNull final Connection connection, @NonNull final RequestEntry entry )
   {
     _connection = Objects.requireNonNull( connection );
     _entry = Objects.requireNonNull( entry );
   }
 
-  @Nonnull
+  @NonNull
   public String getConnectionId()
   {
     return _connection.ensureConnectionId();

@@ -3,7 +3,7 @@ package replicant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -15,11 +15,11 @@ final class SpyImpl
   /**
    * The list of spy handlers to call when an event is received.
    */
-  @Nonnull
+  @NonNull
   private final List<SpyEventHandler> _spyEventHandlers = new ArrayList<>();
 
   @Override
-  public void addSpyEventHandler( @Nonnull final SpyEventHandler handler )
+  public void addSpyEventHandler( @NonNull final SpyEventHandler handler )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -31,7 +31,7 @@ final class SpyImpl
   }
 
   @Override
-  public void removeSpyEventHandler( @Nonnull final SpyEventHandler handler )
+  public void removeSpyEventHandler( @NonNull final SpyEventHandler handler )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -43,7 +43,7 @@ final class SpyImpl
   }
 
   @Override
-  public void reportSpyEvent( @Nonnull final Object event )
+  public void reportSpyEvent( @NonNull final Object event )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -73,7 +73,7 @@ final class SpyImpl
     return Replicant.areSpiesEnabled() && !getSpyEventHandlers().isEmpty();
   }
 
-  @Nonnull
+  @NonNull
   List<SpyEventHandler> getSpyEventHandlers()
   {
     return _spyEventHandlers;

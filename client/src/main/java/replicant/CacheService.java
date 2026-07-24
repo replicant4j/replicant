@@ -1,15 +1,15 @@
 package replicant;
 
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service for caching raw data downloaded from the server.
  */
 public interface CacheService
 {
-  @Nonnull
+  @NonNull
   Set<ChannelAddress> keySet( int schemaId );
 
   /**
@@ -19,7 +19,7 @@ public interface CacheService
    * @return the etag or null if not cached.
    */
   @Nullable
-  String lookupEtag( @Nonnull ChannelAddress address );
+  String lookupEtag( @NonNull ChannelAddress address );
 
   /**
    * Lookup cached content for the specified address.
@@ -28,7 +28,7 @@ public interface CacheService
    * @return the cached resource or null if not cached.
    */
   @Nullable
-  CacheEntry lookup( @Nonnull ChannelAddress address );
+  CacheEntry lookup( @NonNull ChannelAddress address );
 
   /**
    * Store content in cache.
@@ -38,7 +38,7 @@ public interface CacheService
    * @param content the content of resource.
    * @return true if successfully cached, false otherwise.
    */
-  boolean store( @Nonnull ChannelAddress address, @Nonnull String eTag, @Nonnull Object content );
+  boolean store( @NonNull ChannelAddress address, @NonNull String eTag, @NonNull Object content );
 
   /**
    * Remove and invalidate cached resource.
@@ -46,5 +46,5 @@ public interface CacheService
    * @param address the address.
    * @return if resource has been removed from cache, false if resource was not cached.
    */
-  boolean invalidate( @Nonnull ChannelAddress address );
+  boolean invalidate( @NonNull ChannelAddress address );
 }

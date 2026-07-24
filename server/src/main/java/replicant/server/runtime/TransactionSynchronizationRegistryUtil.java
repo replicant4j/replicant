@@ -1,6 +1,6 @@
 package replicant.server.runtime;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
@@ -16,7 +16,7 @@ public final class TransactionSynchronizationRegistryUtil
    */
   private static final String REGISTRY_KEY = "java:comp/TransactionSynchronizationRegistry";
 
-  @Nonnull
+  @NonNull
   @SuppressWarnings( "BanJNDI" )
   public static TransactionSynchronizationRegistry lookup()
   {

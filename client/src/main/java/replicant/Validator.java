@@ -4,8 +4,8 @@ import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.component.Verifiable;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -15,7 +15,7 @@ import static org.realityforge.braincheck.Guards.*;
 abstract class Validator
   extends ReplicantService
 {
-  @Nonnull
+  @NonNull
   static Validator create( @Nullable final ReplicantContext context )
   {
     return new Arez_Validator( context );

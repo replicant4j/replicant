@@ -1,7 +1,7 @@
 package replicant;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
 
 public interface TransportContext
@@ -19,7 +19,7 @@ public interface TransportContext
    *
    * @param message the message.
    */
-  void onMessageReceived( @Nonnull ServerToClientMessage message );
+  void onMessageReceived( @NonNull ServerToClientMessage message );
 
   /**
    * Notify the Connector that there was an error from the Transport.

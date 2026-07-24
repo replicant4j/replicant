@@ -1,7 +1,7 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -18,7 +18,7 @@ public final class AuthTokenMessage
   private String token;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static AuthTokenMessage create( final int req, @Nullable final String token )
   {
     final AuthTokenMessage message = new AuthTokenMessage();

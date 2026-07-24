@@ -1,6 +1,6 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -15,7 +15,7 @@ public final class OkMessage
   public static final String TYPE = Messages.S2C_Type.OK;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static OkMessage create( final int requestId )
   {
     final OkMessage message = new OkMessage();

@@ -4,4 +4,7 @@
  * highly inter-dependent but they are kept separated as production builds
  * typically compile out everything in this package when spies are disabled.
  */
+@NullMarked
 package replicant.spy;
+
+import org.jspecify.annotations.NullMarked;

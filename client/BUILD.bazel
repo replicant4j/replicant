@@ -23,7 +23,6 @@ java_library(
         "//third_party/java:braincheck_core",
         "//third_party/java:braincheck_testng",
         "//third_party/java:byte_buddy",
-        "//third_party/java:javax_annotation",
         "//third_party/java:javax_json",
         "//third_party/java:mockito_core",
         "//third_party/java:objenesis",

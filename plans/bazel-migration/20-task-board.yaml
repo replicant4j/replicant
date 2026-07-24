@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T04
+current_focus: T05
 
 tasks:
   - id: T01
@@ -112,7 +112,7 @@ tasks:
 
   - id: T04
     title: Migrate to JSpecify and enforce NullAway
-    status: in_progress
+    status: completed
     priority: high
     depends_on: [T03]
     requirements: [R3, R7]
@@ -139,7 +139,14 @@ tasks:
         proves: legacy JVM publication fallback remains functional
       - command: ./bazelw test //...
         proves: NullAway and behavior checks pass
-    evidence: []
+    evidence:
+      - tools/check_null_marked_packages.sh passed for every maintained production and test package
+      - ./bazelw build //client:client //server:server passed with NullAway and explicit null marking
+      - ./bazelw test //... passed with 96 of 96 tests
+      - ./bazelw run //:buildifier_check passed
+      - Client/shared Java var scan returned no matches
+      - bundle exec buildr clean package PRODUCT_VERSION=6.999 GWT=skip TEST=no produced all JVM publication artifacts
+      - The temporary client POM contains JSpecify and excludes javax.annotation; the server POM contains both for EE annotations
 
   - id: T05
     title: Apply Palantir Java formatting
@@ -384,3 +391,7 @@ history:
     task: T02
     commit: 43058b88
     note: Fixed strict Error Prone findings and restored explicit local types throughout client/shared Java.
+  - timestamp: "2026-07-24"
+    task: T03
+    commit: 68da5851
+    note: Enforced the full strict Error Prone policy, server/JVM Varifier, and small TestNG target defaults.

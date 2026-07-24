@@ -1,40 +1,40 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Record of data stored in the local cache.
  */
 public final class CacheEntry
 {
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
-  @Nonnull
+  @NonNull
   private final String _eTag;
-  @Nonnull
+  @NonNull
   private final String _content;
 
-  public CacheEntry( @Nonnull final ChannelAddress address, @Nonnull final String eTag, @Nonnull final String content )
+  public CacheEntry( @NonNull final ChannelAddress address, @NonNull final String eTag, @NonNull final String content )
   {
     _address = Objects.requireNonNull( address );
     _eTag = Objects.requireNonNull( eTag );
     _content = Objects.requireNonNull( content );
   }
 
-  @Nonnull
+  @NonNull
   public ChannelAddress getAddress()
   {
     return _address;
   }
 
-  @Nonnull
+  @NonNull
   public String getETag()
   {
     return _eTag;
   }
 
-  @Nonnull
+  @NonNull
   public String getContent()
   {
     return _content;

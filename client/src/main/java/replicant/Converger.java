@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -46,7 +46,7 @@ abstract class Converger
     NO_ACTION
   }
 
-  @Nonnull
+  @NonNull
   static Converger create( @Nullable final ReplicantContext context )
   {
     return new Arez_Converger( context );
@@ -177,10 +177,10 @@ abstract class Converger
   }
 
   @arez.annotations.Action( requireNewTransaction = true, verifyRequired = false )
-  @Nonnull
-  Action convergeAreaOfInterest( @Nonnull final AreaOfInterest areaOfInterest,
+  @NonNull
+  Action convergeAreaOfInterest( @NonNull final AreaOfInterest areaOfInterest,
                                  @Nullable final AreaOfInterest groupTemplate,
-                                 @Nullable final AreaOfInterestRequest.Type groupAction )
+                                 final AreaOfInterestRequest.@Nullable Type groupAction )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -230,7 +230,8 @@ abstract class Converger
           return Action.IN_PROGRESS;
         }
 
-        if ( !FilterUtil.filtersEqual( filter, subscription.getFilter() ) )
+        final Subscription existingSubscription = Objects.requireNonNull( subscription );
+        if ( !FilterUtil.filtersEqual( filter, existingSubscription.getFilter() ) )
         {
           final SystemSchema schema = getReplicantContext().getSchemaService().getById( address.schemaId() );
           final ChannelSchema.FilterType filterType = schema.getChannel( address.channelId() ).getFilterType();
@@ -246,7 +247,7 @@ abstract class Converger
             */
             if ( Replicant.shouldCheckInvariants() )
             {
-              invariant( subscription::isExplicitSubscription,
+              invariant( existingSubscription::isExplicitSubscription,
                          () -> "Replicant-0083: Attempting to update channel " + address + " but channel does not " +
                                "allow dynamic updates of filter and channel has not been explicitly subscribed." );
             }
@@ -274,7 +275,7 @@ abstract class Converger
            */
           if ( AreaOfInterest.Status.NOT_ASKED == areaOfInterest.getStatus() )
           {
-            if ( subscription.isExplicitSubscription() )
+            if ( existingSubscription.isExplicitSubscription() )
             {
               areaOfInterest.updateAreaOfInterest( AreaOfInterest.Status.LOADED, null );
             }
@@ -290,10 +291,10 @@ abstract class Converger
     return Action.NO_ACTION;
   }
 
-  boolean canGroup( @Nonnull final AreaOfInterest groupTemplate,
-                    @Nullable final AreaOfInterestRequest.Type groupAction,
-                    @Nonnull final AreaOfInterest areaOfInterest,
-                    @Nullable final AreaOfInterestRequest.Type action )
+  boolean canGroup( @NonNull final AreaOfInterest groupTemplate,
+                    final AreaOfInterestRequest.@Nullable Type groupAction,
+                    @NonNull final AreaOfInterest areaOfInterest,
+                    final AreaOfInterestRequest.@Nullable Type action )
   {
     if ( null != groupAction && null != action && !groupAction.equals( action ) )
     {
@@ -326,8 +327,8 @@ abstract class Converger
     removeOrphanSubscriptions( subscriptionService.getInstanceSubscriptions(), expected );
   }
 
-  private void removeOrphanSubscriptions( @Nonnull final Collection<Subscription> subscriptions,
-                                          @Nonnull final Set<ChannelAddress> expected )
+  private void removeOrphanSubscriptions( @NonNull final Collection<Subscription> subscriptions,
+                                          @NonNull final Set<ChannelAddress> expected )
   {
     subscriptions
       .stream()
@@ -341,12 +342,12 @@ abstract class Converger
       .forEachOrdered( this::removeOrphanSubscription );
   }
 
-  private void removeOrphanSubscription( @Nonnull final ChannelAddress address )
+  private void removeOrphanSubscription( @NonNull final ChannelAddress address )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
-      final Subscription subscription = getReplicantContext().findSubscription( address );
-      assert null != subscription;
+      final Subscription subscription =
+        Objects.requireNonNull( getReplicantContext().findSubscription( address ) );
       getReplicantContext().getSpy().reportSpyEvent( new SubscriptionOrphanedEvent( subscription ) );
     }
     getReplicantRuntime().getConnector( address.schemaId() ).requestUnsubscribe( address );
@@ -357,14 +358,14 @@ abstract class Converger
    *
    * @return true if connector for address has a remove pending for address or the connector is not connected.
    */
-  private boolean isRemovePending( @Nonnull final ChannelAddress address )
+  private boolean isRemovePending( @NonNull final ChannelAddress address )
   {
     final Connector connector = getReplicantRuntime().getConnector( address.schemaId() );
     return ConnectorState.CONNECTED != connector.getState() ||
            connector.isAreaOfInterestRequestPending( AreaOfInterestRequest.Type.REMOVE, address, null );
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantRuntime getReplicantRuntime()
   {
     return getReplicantContext().getRuntime();

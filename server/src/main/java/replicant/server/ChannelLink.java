@@ -1,23 +1,23 @@
 package replicant.server;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 
 /**
  * A representation indicating that an entity message will cause another channel to be subscribed.
  */
-public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddress target,
+public record ChannelLink(@NonNull ChannelAddress source, @NonNull ChannelAddress target,
                           @Nullable JsonObject targetFilter,
                           boolean partial)
 {
-  public ChannelLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
+  public ChannelLink( @NonNull final ChannelAddress source, @NonNull final ChannelAddress target )
   {
     this( source, target, null );
   }
 
-  public ChannelLink( @Nonnull final ChannelAddress source,
-                      @Nonnull final ChannelAddress target,
+  public ChannelLink( @NonNull final ChannelAddress source,
+                      @NonNull final ChannelAddress target,
                       @Nullable final JsonObject targetFilter )
   {
     this( source, target, targetFilter, false );
@@ -34,7 +34,7 @@ public record ChannelLink(@Nonnull ChannelAddress source, @Nonnull ChannelAddres
     return null != targetFilter;
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public String toString()
   {

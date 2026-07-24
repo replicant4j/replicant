@@ -3,7 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 
@@ -14,22 +14,22 @@ import replicant.ChannelAddress;
 public final class AreaOfInterestStatusUpdatedEvent
   implements SerializableEvent
 {
-  @Nonnull
+  @NonNull
   private final AreaOfInterest _areaOfInterest;
 
-  public AreaOfInterestStatusUpdatedEvent( @Nonnull final AreaOfInterest areaOfInterest )
+  public AreaOfInterestStatusUpdatedEvent( @NonNull final AreaOfInterest areaOfInterest )
   {
     _areaOfInterest = Objects.requireNonNull( areaOfInterest );
   }
 
-  @Nonnull
+  @NonNull
   public AreaOfInterest getAreaOfInterest()
   {
     return _areaOfInterest;
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "AreaOfInterest.StatusUpdated" );
     final AreaOfInterest areaOfInterest = getAreaOfInterest();

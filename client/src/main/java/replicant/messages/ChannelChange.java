@@ -1,7 +1,7 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -10,6 +10,7 @@ import jsinterop.annotations.JsType;
  * A message fragment defining an action on a channel.
  */
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
+@SuppressWarnings( "NullAway.Init" )
 public class ChannelChange
 {
   private String channel;
@@ -22,7 +23,7 @@ public class ChannelChange
    * @return the new ChannelChange.
    */
   @JsOverlay
-  public static ChannelChange create( @Nonnull final String channelAction, @Nullable final Object filter )
+  public static ChannelChange create( @NonNull final String channelAction, @Nullable final Object filter )
   {
     final ChannelChange channel = new ChannelChange();
     channel.channel = channelAction;
@@ -40,7 +41,7 @@ public class ChannelChange
    * @return the channel action description.
    */
   @JsOverlay
-  @Nonnull
+  @NonNull
   public final String getChannel()
   {
     return channel;

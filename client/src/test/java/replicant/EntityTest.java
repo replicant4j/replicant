@@ -2,7 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -378,14 +378,14 @@ public class EntityTest
     assertEquals( exception.getMessage(), "Unable to locate subscription for channel 1.0.1 on entity A/123" );
   }
 
-  @Nonnull
+  @NonNull
   private Subscription createSubscription()
   {
     return createSubscription( new ChannelAddress( 1, 0 ) );
   }
 
-  @Nonnull
-  private Subscription createSubscription( @Nonnull final ChannelAddress address )
+  @NonNull
+  private Subscription createSubscription( @NonNull final ChannelAddress address )
   {
     return Subscription.create( null, address, null, true );
   }

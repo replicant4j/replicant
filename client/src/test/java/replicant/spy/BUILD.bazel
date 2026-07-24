@@ -43,6 +43,7 @@ java_library(
         "UnsubscribeCompletedEventTest.java",
         "UnsubscribeRequestQueuedEventTest.java",
         "UnsubscribeStartedEventTest.java",
+        "package-info.java",
     ],
     visibility = [
         "//client/src/test/java/replicant:__pkg__",

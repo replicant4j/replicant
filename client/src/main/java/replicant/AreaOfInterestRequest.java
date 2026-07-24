@@ -1,8 +1,8 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 final class AreaOfInterestRequest
@@ -12,16 +12,16 @@ final class AreaOfInterestRequest
     ADD, REMOVE, UPDATE
   }
 
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
-  @Nonnull
+  @NonNull
   private final Type _type;
   @Nullable
   private final Object _filter;
   private int _requestId;
 
-  AreaOfInterestRequest( @Nonnull final ChannelAddress address,
-                         @Nonnull final Type type,
+  AreaOfInterestRequest( @NonNull final ChannelAddress address,
+                         @NonNull final Type type,
                          @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -36,13 +36,13 @@ final class AreaOfInterestRequest
     _requestId = -1;
   }
 
-  @Nonnull
+  @NonNull
   ChannelAddress getAddress()
   {
     return _address;
   }
 
-  @Nonnull
+  @NonNull
   Type getType()
   {
     return _type;
@@ -74,7 +74,7 @@ final class AreaOfInterestRequest
     _requestId = -1;
   }
 
-  boolean match( @Nonnull final Type action, @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  boolean match( @NonNull final Type action, @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     return getType().equals( action ) &&
            getAddress().equals( address ) &&

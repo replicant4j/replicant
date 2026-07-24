@@ -2,7 +2,7 @@ package replicant;
 
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Metadata that describes the link from an entity in one channel to another channel.
@@ -32,13 +32,13 @@ public final class ChannelLinkSchema
    * It is expected that the attributes are immutable and all but the first are non-null.(Unlike Domgen where
    * the path omits the first attribute, this path includes the entire path)
    */
-  @Nonnull
+  @NonNull
   private final String[] _path;
 
   public ChannelLinkSchema( final int sourceChannelId,
                             final int targetChannelId,
                             final boolean auto,
-                            @Nonnull final String[] path )
+                            @NonNull final String[] path )
   {
     _sourceChannelId = sourceChannelId;
     _targetChannelId = targetChannelId;
@@ -61,7 +61,7 @@ public final class ChannelLinkSchema
     return _auto;
   }
 
-  @Nonnull
+  @NonNull
   public String[] getPath()
   {
     return _path;

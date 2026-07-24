@@ -12,6 +12,7 @@ java_library(
     srcs = [
         "ReplicantSpyUtilTest.java",
         "SpyEventProcessorTest.java",
+        "package-info.java",
     ],
     visibility = [
         "//client/src/test/java/replicant:__pkg__",

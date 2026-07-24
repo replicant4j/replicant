@@ -5,8 +5,8 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.enterprise.event.Event;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -521,7 +521,7 @@ public final class ReplicantEndpointTest
     assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE );
   }
 
-  private void assertInvalidSubscribe( @Nonnull final String address, @Nonnull final String message )
+  private void assertInvalidSubscribe( @NonNull final String address, @NonNull final String message )
     throws Exception
   {
     final var fixture = newFixture();
@@ -539,7 +539,7 @@ public final class ReplicantEndpointTest
     assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), message );
   }
 
-  @Nonnull
+  @NonNull
   private String createPingCommand( final int requestId )
   {
     return Json.createObjectBuilder()
@@ -549,8 +549,8 @@ public final class ReplicantEndpointTest
       .toString();
   }
 
-  @Nonnull
-  private JsonObject createSubscribeCommand( @Nonnull final String channel,
+  @NonNull
+  private JsonObject createSubscribeCommand( @NonNull final String channel,
                                              final int requestId,
                                              @Nullable final JsonObject filter )
   {
@@ -565,8 +565,8 @@ public final class ReplicantEndpointTest
     return builder.build();
   }
 
-  @Nonnull
-  private JsonObject getLastSentMessage( @Nonnull final EndpointFixture fixture )
+  @NonNull
+  private JsonObject getLastSentMessage( @NonNull final EndpointFixture fixture )
   {
     final var captor = org.mockito.ArgumentCaptor.forClass( String.class );
     try
@@ -581,14 +581,14 @@ public final class ReplicantEndpointTest
     return Json.createReader( new StringReader( message ) ).readObject();
   }
 
-  @Nonnull
+  @NonNull
   private EndpointFixture newFixture()
   {
     return newFixture( new ReplicantEndpoint() );
   }
 
-  @Nonnull
-  private EndpointFixture newFixture( @Nonnull final ReplicantEndpoint endpoint )
+  @NonNull
+  private EndpointFixture newFixture( @NonNull final ReplicantEndpoint endpoint )
   {
     final var sessionManager = mock( ReplicantSessionManager.class );
     final var addedEvent = ReplicantEndpointTest.<ReplicantSessionAdded>mockEvent();
@@ -626,7 +626,7 @@ public final class ReplicantEndpointTest
                                 authorization );
   }
 
-  @Nonnull
+  @NonNull
   private SchemaMetaData newSchemaMetaData()
   {
     final var typeChannel = new ChannelMetaData( 0,
@@ -667,7 +667,7 @@ public final class ReplicantEndpointTest
                                staticInstancedChannel );
   }
 
-  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
+  private void setField( @NonNull final Object target, @NonNull final String name, @Nullable final Object value )
   {
     try
     {
@@ -681,7 +681,7 @@ public final class ReplicantEndpointTest
     }
   }
 
-  private Object getField( @Nonnull final Object target, @Nonnull final String name )
+  private Object getField( @NonNull final Object target, @NonNull final String name )
   {
     try
     {
@@ -695,13 +695,13 @@ public final class ReplicantEndpointTest
     }
   }
 
-  private record EndpointFixture(@Nonnull ReplicantEndpoint endpoint, @Nonnull ReplicantSessionManager sessionManager,
-                                 @Nonnull Event<ReplicantSessionAdded> addedEvent,
-                                 @Nonnull Event<ReplicantSessionUpdated> updatedEvent,
-                                 @Nonnull Event<ReplicantSessionRemoved> removedEvent, @Nonnull Session session,
-                                 @Nonnull RemoteEndpoint.Basic remote, @Nonnull String sessionId,
-                                 @Nonnull ReplicantSession replicantSession,
-                                 @Nonnull TestAuthorization authorization)
+  private record EndpointFixture(@NonNull ReplicantEndpoint endpoint, @NonNull ReplicantSessionManager sessionManager,
+                                 @NonNull Event<ReplicantSessionAdded> addedEvent,
+                                 @NonNull Event<ReplicantSessionUpdated> updatedEvent,
+                                 @NonNull Event<ReplicantSessionRemoved> removedEvent, @NonNull Session session,
+                                 RemoteEndpoint.@NonNull Basic remote, @NonNull String sessionId,
+                                 @NonNull ReplicantSession replicantSession,
+                                 @NonNull TestAuthorization authorization)
   {
   }
 
@@ -711,7 +711,7 @@ public final class ReplicantEndpointTest
     private boolean valid = true;
 
     @Override
-    public boolean runIfValid( @Nonnull final Action action )
+    public boolean runIfValid( @NonNull final Action action )
       throws IOException
     {
       if ( valid )
@@ -722,7 +722,7 @@ public final class ReplicantEndpointTest
       return false;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Object getPrincipal()
     {

@@ -1,13 +1,13 @@
 package replicant.server.transport;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import replicant.server.ChannelAddress;
 
-record ChannelLinkEntry(@Nonnull LinkOwner owner,
-                        @Nonnull ChannelAddress source,
-                        @Nonnull ChannelAddress target,
+record ChannelLinkEntry(@NonNull LinkOwner owner,
+                        @NonNull ChannelAddress source,
+                        @NonNull ChannelAddress target,
                         @Nullable JsonObject filter)
 {
   ChannelLinkEntry

@@ -12,8 +12,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -23,7 +23,7 @@ import static org.realityforge.braincheck.Guards.*;
 public abstract class Entity
   extends ReplicantService
 {
-  @Nonnull
+  @NonNull
   private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
   /**
    * A human consumable name for Entity. It should be non-null if {@link Replicant#areNamesEnabled()} returns
@@ -31,14 +31,15 @@ public abstract class Entity
    */
   @Nullable
   private final String _name;
-  @Nonnull
+  @NonNull
   private final Class<?> _type;
   private final int _id;
+  @Nullable
   private Object _userObject;
 
   static Entity create( @Nullable final ReplicantContext context,
                         @Nullable final String name,
-                        @Nonnull final Class<?> type,
+                        @NonNull final Class<?> type,
                         final int id )
   {
     return new Arez_Entity( context, name, type, id );
@@ -46,7 +47,7 @@ public abstract class Entity
 
   Entity( @Nullable final ReplicantContext context,
           @Nullable final String name,
-          @Nonnull final Class<?> type,
+          @NonNull final Class<?> type,
           final int id )
   {
     super( context );
@@ -68,7 +69,7 @@ public abstract class Entity
    *
    * @return the name of the Entity.
    */
-  @Nonnull
+  @NonNull
   public String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -76,11 +77,10 @@ public abstract class Entity
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0009: Entity.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    assert null != _name;
-    return _name;
+    return Objects.requireNonNull( _name );
   }
 
-  @Nonnull
+  @NonNull
   public Class<?> getType()
   {
     return _type;
@@ -91,7 +91,7 @@ public abstract class Entity
     return _id;
   }
 
-  @Nonnull
+  @NonNull
   public Object getUserObject()
   {
     final Object userObject = maybeUserObject();
@@ -100,8 +100,7 @@ public abstract class Entity
       apiInvariant( () -> null != userObject,
                     () -> "Replicant-0071: Entity.getUserObject() invoked when no userObject present" );
     }
-    assert null != userObject;
-    return userObject;
+    return Objects.requireNonNull( userObject );
   }
 
   @Observable( name = "userObject" )
@@ -121,7 +120,7 @@ public abstract class Entity
    *
    * @return the subscriptions.
    */
-  @Nonnull
+  @NonNull
   @Observable( expectSetter = false )
   public Collection<Subscription> getSubscriptions()
   {
@@ -135,7 +134,7 @@ public abstract class Entity
   /**
    * Link to subscription if not already subscribed, ignore otherwise.
    */
-  void tryLinkToSubscription( @Nonnull final Subscription subscription )
+  void tryLinkToSubscription( @NonNull final Subscription subscription )
   {
     if ( !_subscriptions.containsKey( subscription.address() ) )
     {
@@ -148,7 +147,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  void linkToSubscription( @Nonnull final Subscription subscription )
+  void linkToSubscription( @NonNull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -161,7 +160,7 @@ public abstract class Entity
     subscription.linkSubscriptionToEntity( this );
   }
 
-  private void linkEntityToSubscription( @Nonnull final Subscription subscription )
+  private void linkEntityToSubscription( @NonNull final Subscription subscription )
   {
     getSubscriptionsObservableValue().preReportChanged();
     final ChannelAddress address = subscription.address();
@@ -181,7 +180,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  public void delinkFromFilteringSubscription( @Nonnull final Subscription subscription )
+  public void delinkFromFilteringSubscription( @NonNull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -198,7 +197,7 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  void delinkFromSubscription( @Nonnull final Subscription subscription )
+  void delinkFromSubscription( @NonNull final Subscription subscription )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -219,12 +218,12 @@ public abstract class Entity
    *
    * @param subscription the subscription.
    */
-  void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription )
+  void delinkSubscriptionFromEntity( @NonNull final Subscription subscription )
   {
     delinkSubscriptionFromEntity( subscription, true );
   }
 
-  private void delinkSubscriptionFromEntity( @Nonnull final Subscription subscription,
+  private void delinkSubscriptionFromEntity( @NonNull final Subscription subscription,
                                              final boolean disposeEntityIfNoSubscriptions )
   {
     getSubscriptionsObservableValue().preReportChanged();

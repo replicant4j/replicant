@@ -1,6 +1,6 @@
 package replicant.server;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -66,13 +66,13 @@ public final class ChannelLinkTest
     assertLinkNotEqual( link5, link6 );
   }
 
-  private void assertLinkEqual( @Nonnull final ChannelLink link1, @Nonnull final ChannelLink link2 )
+  private void assertLinkEqual( @NonNull final ChannelLink link1, @NonNull final ChannelLink link2 )
   {
     assertEquals( link1, link2 );
     assertEquals( link1.hashCode(), link2.hashCode() );
   }
 
-  private void assertLinkNotEqual( @Nonnull final ChannelLink link1, @Nonnull final ChannelLink link2 )
+  private void assertLinkNotEqual( @NonNull final ChannelLink link1, @NonNull final ChannelLink link2 )
   {
     assertNotEquals( link1, link2 );
     assertNotEquals( link1.hashCode(), link2.hashCode() );

@@ -3,7 +3,7 @@ package replicant;
 import arez.Disposable;
 import java.util.Objects;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Container describing the Container and state in client.
@@ -18,7 +18,7 @@ final class ConnectorEntry
   static final int REGEN_TIME_IN_SECONDS = 1;
   static final int REQUIRED_REGEN_PER_SECOND = REGEN_TIME_IN_SECONDS * ACTION_COST;
   static final int OPTIONAL_REGEN_PER_SECOND = REQUIRED_REGEN_PER_SECOND / 5;
-  @Nonnull
+  @NonNull
   private final Connector _connector;
   /**
    * Does the system require this DataLoader to be present to be operational.
@@ -26,7 +26,7 @@ final class ConnectorEntry
   private boolean _required;
   private final RateLimitedValue _rateLimiter;
 
-  ConnectorEntry( @Nonnull final Connector connector, final boolean required )
+  ConnectorEntry( @NonNull final Connector connector, final boolean required )
   {
     _connector = Objects.requireNonNull( connector );
     _required = required;
@@ -35,12 +35,12 @@ final class ConnectorEntry
     _rateLimiter = new RateLimitedValue( System.currentTimeMillis(), regenRate, ACTION_COST * 2 );
   }
 
-  boolean attemptAction( @Nonnull final Consumer<Connector> action )
+  boolean attemptAction( @NonNull final Consumer<Connector> action )
   {
     return getRateLimiter().attempt( System.currentTimeMillis(), ACTION_COST, () -> action.accept( getConnector() ) );
   }
 
-  @Nonnull
+  @NonNull
   RateLimitedValue getRateLimiter()
   {
     return _rateLimiter;
@@ -51,7 +51,7 @@ final class ConnectorEntry
    *
    * @return the Connector the entry represents.
    */
-  @Nonnull
+  @NonNull
   Connector getConnector()
   {
     return _connector;

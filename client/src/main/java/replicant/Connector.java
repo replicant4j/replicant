@@ -23,8 +23,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.ErrorMessage;
@@ -69,14 +69,14 @@ abstract class Connector
   /**
    * The schema that defines data-API used to interact with datasource.
    */
-  @Nonnull
+  @NonNull
   private final SystemSchema _schema;
   /**
    * The transport that connects to the backend system.
    */
-  @Nonnull
+  @NonNull
   private final Transport _transport;
-  @Nonnull
+  @NonNull
   private ConnectorState _state = ConnectorState.DISCONNECTED;
   /**
    * The current connection managed by the connector, if any.
@@ -120,17 +120,17 @@ abstract class Connector
   @Nullable
   private TransportContextImpl _context;
 
-  @Nonnull
+  @NonNull
   static Connector create( @Nullable final ReplicantContext context,
-                           @Nonnull final SystemSchema schema,
-                           @Nonnull final Transport transport )
+                           @NonNull final SystemSchema schema,
+                           @NonNull final Transport transport )
   {
     return new Arez_Connector( context, schema, transport );
   }
 
   Connector( @Nullable final ReplicantContext context,
-             @Nonnull final SystemSchema schema,
-             @Nonnull final Transport transport )
+             @NonNull final SystemSchema schema,
+             @NonNull final Transport transport )
   {
     super( context );
     _schema = Objects.requireNonNull( schema );
@@ -202,13 +202,13 @@ abstract class Connector
    *
    * @return the schema associated with the connector.
    */
-  @Nonnull
+  @NonNull
   SystemSchema getSchema()
   {
     return _schema;
   }
 
-  void onConnection( @Nonnull final String connectionId )
+  void onConnection( @NonNull final String connectionId )
   {
     final Connection connection = Connection.create( this );
     connection.setConnectionId( connectionId );
@@ -286,7 +286,7 @@ abstract class Connector
     }
   }
 
-  @Nonnull
+  @NonNull
   Connection ensureConnection()
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -294,11 +294,10 @@ abstract class Connector
       invariant( () -> null != _connection,
                  () -> "Replicant-0031: Connector.ensureConnection() when no connection is present." );
     }
-    assert null != _connection;
-    return _connection;
+    return Objects.requireNonNull( _connection );
   }
 
-  @Nonnull
+  @NonNull
   private MessageResponse ensureCurrentMessageResponse()
   {
     return ensureConnection().ensureCurrentMessageResponse();
@@ -339,8 +338,8 @@ abstract class Connector
    * Return true if an area of interest action with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
-                                          @Nonnull final ChannelAddress address,
+  boolean isAreaOfInterestRequestPending( final AreaOfInterestRequest.@NonNull Type action,
+                                          @NonNull final ChannelAddress address,
                                           @Nullable final Object filter )
   {
     return null != _connection && _connection.isAreaOfInterestRequestPending( action, address, filter );
@@ -349,8 +348,8 @@ abstract class Connector
   /**
    * Return the index of last matching Type in pending aoi actions list.
    */
-  int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
-                                               @Nonnull final ChannelAddress address,
+  int lastIndexOfPendingAreaOfInterestRequest( final AreaOfInterestRequest.@NonNull Type action,
+                                               @NonNull final ChannelAddress address,
                                                @Nullable final Object filter )
   {
     return null == _connection ? -1 : _connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter );
@@ -366,7 +365,7 @@ abstract class Connector
     tryTriggerMessageScheduler();
   }
 
-  void requestExec( @Nonnull final String command,
+  void requestExec( @NonNull final String command,
                     @Nullable final Object payload,
                     @Nullable final ResponseHandler responseHandler )
   {
@@ -380,7 +379,7 @@ abstract class Connector
     tryTriggerMessageScheduler();
   }
 
-  void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  void requestSubscribe( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -391,7 +390,7 @@ abstract class Connector
     tryTriggerMessageScheduler();
   }
 
-  void requestSubscriptionUpdate( @Nonnull final ChannelAddress address,
+  void requestSubscriptionUpdate( @NonNull final ChannelAddress address,
                                   @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -414,7 +413,7 @@ abstract class Connector
     }
   }
 
-  void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  void requestUnsubscribe( @NonNull final ChannelAddress address )
   {
     validateFilterInstanceId( address );
     ensureConnection().requestUnsubscribe( address );
@@ -435,7 +434,7 @@ abstract class Connector
     context().task( this::triggerMessageScheduler );
   }
 
-  private void validateFilterInstanceId( @Nonnull final ChannelAddress address )
+  private void validateFilterInstanceId( @NonNull final ChannelAddress address )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -660,14 +659,14 @@ abstract class Connector
     }
   }
 
-  @Nonnull
+  @NonNull
   @Observable( readOutsideTransaction = Feature.ENABLE )
   ConnectorState getState()
   {
     return _state;
   }
 
-  void setState( @Nonnull final ConnectorState state )
+  void setState( @NonNull final ConnectorState state )
   {
     _state = Objects.requireNonNull( state );
     if ( ConnectorState.ERROR == _state ||
@@ -752,9 +751,9 @@ abstract class Connector
                              " but the channel does not have a DYNAMIC filter." );
           }
         }
-        assert null != subscription;
-        subscription.setFilter( filter );
-        updateSubscriptionForFilteredEntities( subscription );
+        final Subscription existingSubscription = Objects.requireNonNull( subscription );
+        existingSubscription.setFilter( filter );
+        updateSubscriptionForFilteredEntities( existingSubscription );
         response.incChannelUpdateCount();
       }
     }
@@ -799,7 +798,7 @@ abstract class Connector
    * @param subscription the subscription that was updated.
    */
   @SuppressWarnings( "unchecked" )
-  void updateSubscriptionForFilteredEntities( @Nonnull final Subscription subscription )
+  void updateSubscriptionForFilteredEntities( @NonNull final Subscription subscription )
   {
     final ChannelAddress address = subscription.address();
     final ChannelSchema channel = getSchema().getChannel( address.channelId() );
@@ -818,8 +817,8 @@ abstract class Connector
       if ( !entities.isEmpty() )
       {
         @SuppressWarnings( "rawtypes" )
-        final SubscriptionUpdateEntityFilter updateFilter = channel.getFilter();
-        assert null != updateFilter;
+        final SubscriptionUpdateEntityFilter updateFilter =
+          Objects.requireNonNull( channel.getFilter() );
         final Object filter = subscription.getFilter();
         for ( final Entity entity : entities )
         {
@@ -868,7 +867,7 @@ abstract class Connector
       final ResponseHandler responseHandler = request.getResponseHandler();
       if ( null != responseHandler )
       {
-        responseHandler.onResponse( updateMessage.getResponse() );
+        responseHandler.onResponse( Objects.requireNonNull( updateMessage.getResponse() ) );
       }
     }
 
@@ -880,8 +879,9 @@ abstract class Connector
     connection.setCurrentMessageResponse( null );
     if ( null != execRequest )
     {
-      connection.markExecRequestAsComplete( requestId );
-      onExecCompleted( execRequest.getCommand(), requestId );
+      final int completedRequestId = Objects.requireNonNull( requestId );
+      connection.markExecRequestAsComplete( completedRequestId );
+      onExecCompleted( execRequest.getCommand(), completedRequestId );
     }
     onMessageProcessed( response );
     callPostMessageResponseActionIfPresent();
@@ -944,7 +944,7 @@ abstract class Connector
 
   // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in AreaOfInterest
   @Action( reportParameters = false )
-  void completeAreaOfInterestRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void completeAreaOfInterestRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     requests.forEach( areaOfInterestRequest -> {
       final ChannelAddress address = areaOfInterestRequest.getAddress();
@@ -985,7 +985,7 @@ abstract class Connector
   }
 
   @Action
-  void removeExplicitSubscriptions( @Nonnull final List<AreaOfInterestRequest> requests )
+  void removeExplicitSubscriptions( @NonNull final List<AreaOfInterestRequest> requests )
   {
     requests.forEach( request -> {
       if ( Replicant.shouldCheckInvariants() )
@@ -1003,7 +1003,7 @@ abstract class Connector
   }
 
   @Action( verifyRequired = false )
-  void removeUnneededUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void removeUnneededUpdateRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( a -> {
       final ChannelAddress address = a.getAddress();
@@ -1031,7 +1031,7 @@ abstract class Connector
   }
 
   @Action( verifyRequired = false )
-  void removeUnneededRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void removeUnneededRemoveRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     requests.removeIf( request -> {
       final ChannelAddress address = request.getAddress();
@@ -1064,8 +1064,8 @@ abstract class Connector
     } );
   }
 
-  private void cacheMessageIfPossible( @Nonnull final MessageResponse response,
-                                       @Nonnull final UpdateMessage changeSet )
+  private void cacheMessageIfPossible( @NonNull final MessageResponse response,
+                                       @NonNull final UpdateMessage changeSet )
   {
     final String eTag = changeSet.getETag();
     final CacheService cacheService = getReplicantContext().getCacheService();
@@ -1267,7 +1267,7 @@ abstract class Connector
     }
   }
 
-  void progressAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressAreaOfInterestAddRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     // We very deliberately do not strip out requests even if there is a local subscription.
     // If the local subscription matched exactly the request would not make it to here and
@@ -1288,7 +1288,7 @@ abstract class Connector
     }
   }
 
-  void progressAreaOfInterestAddRequest( @Nonnull final AreaOfInterestRequest request )
+  void progressAreaOfInterestAddRequest( @NonNull final AreaOfInterestRequest request )
   {
     final ChannelAddress address = request.getAddress();
     onSubscribeStarted( address );
@@ -1297,7 +1297,7 @@ abstract class Connector
     request.markAsInProgress( ensureConnection().getLastTxRequestId() );
   }
 
-  void progressBulkAreaOfInterestAddRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressBulkAreaOfInterestAddRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     final List<ChannelAddress> addresses =
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
@@ -1308,7 +1308,7 @@ abstract class Connector
     requests.forEach( r -> r.markAsInProgress( requestId ) );
   }
 
-  void progressAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressAreaOfInterestUpdateRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededUpdateRequests( requests );
 
@@ -1326,7 +1326,7 @@ abstract class Connector
     }
   }
 
-  void progressAreaOfInterestUpdateRequest( @Nonnull final AreaOfInterestRequest request )
+  void progressAreaOfInterestUpdateRequest( @NonNull final AreaOfInterestRequest request )
   {
     final ChannelAddress address = request.getAddress();
     onSubscriptionUpdateStarted( address );
@@ -1338,7 +1338,7 @@ abstract class Connector
     request.markAsInProgress( requestId );
   }
 
-  void progressBulkAreaOfInterestUpdateRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressBulkAreaOfInterestUpdateRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     final List<ChannelAddress> addresses =
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
@@ -1352,7 +1352,7 @@ abstract class Connector
     requests.forEach( r -> r.markAsInProgress( requestId ) );
   }
 
-  void progressAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressAreaOfInterestRemoveRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     removeUnneededRemoveRequests( requests );
 
@@ -1370,7 +1370,7 @@ abstract class Connector
     }
   }
 
-  void progressAreaOfInterestRemoveRequest( @Nonnull final AreaOfInterestRequest request )
+  void progressAreaOfInterestRemoveRequest( @NonNull final AreaOfInterestRequest request )
   {
     final ChannelAddress address = request.getAddress();
     onUnsubscribeStarted( address );
@@ -1379,7 +1379,7 @@ abstract class Connector
     request.markAsInProgress( ensureConnection().getLastTxRequestId() );
   }
 
-  void progressBulkAreaOfInterestRemoveRequests( @Nonnull final List<AreaOfInterestRequest> requests )
+  void progressBulkAreaOfInterestRemoveRequests( @NonNull final List<AreaOfInterestRequest> requests )
   {
     final List<ChannelAddress> addresses =
       requests.stream().map( AreaOfInterestRequest::getAddress ).collect( Collectors.toList() );
@@ -1469,7 +1469,7 @@ abstract class Connector
    *
    * @param message the message.
    */
-  void onMessageReceived( @Nonnull final ServerToClientMessage message )
+  void onMessageReceived( @NonNull final ServerToClientMessage message )
   {
     final Connection connection = ensureConnection();
 
@@ -1543,7 +1543,7 @@ abstract class Connector
    *
    * @param response the message response.
    */
-  void onMessageProcessed( @Nonnull final MessageResponse response )
+  void onMessageProcessed( @NonNull final MessageResponse response )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1557,7 +1557,7 @@ abstract class Connector
    *
    * @param command the exec request command.
    */
-  void onExecStarted( @Nonnull final String command, final int requestId )
+  void onExecStarted( @NonNull final String command, final int requestId )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1571,7 +1571,7 @@ abstract class Connector
    *
    * @param command the exec request command.
    */
-  void onExecCompleted( @Nonnull final String command, final int requestId )
+  void onExecCompleted( @NonNull final String command, final int requestId )
   {
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
     {
@@ -1584,7 +1584,7 @@ abstract class Connector
    * Called when a data load has resulted in a failure.
    */
   @Action( verifyRequired = false )
-  void onMessageProcessFailure( @Nonnull final Throwable error )
+  void onMessageProcessFailure( @NonNull final Throwable error )
   {
     final String message = ReplicantUtil.safeGetString( () -> "Exception processing replicant message." );
     ReplicantLogger.log( message, error );
@@ -1640,7 +1640,7 @@ abstract class Connector
   }
 
   @Action
-  void onSubscribeStarted( @Nonnull final ChannelAddress address )
+  void onSubscribeStarted( @NonNull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.LOADING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1651,7 +1651,7 @@ abstract class Connector
   }
 
   @Action
-  void onSubscribeCompleted( @Nonnull final ChannelAddress address )
+  void onSubscribeCompleted( @NonNull final ChannelAddress address )
   {
     final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus() )
@@ -1666,7 +1666,7 @@ abstract class Connector
   }
 
   @Action
-  void onUnsubscribeStarted( @Nonnull final ChannelAddress address )
+  void onUnsubscribeStarted( @NonNull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1677,7 +1677,7 @@ abstract class Connector
   }
 
   @Action
-  void onUnsubscribeCompleted( @Nonnull final ChannelAddress address )
+  void onUnsubscribeCompleted( @NonNull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UNLOADED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1688,7 +1688,7 @@ abstract class Connector
   }
 
   @Action
-  void onSubscriptionUpdateStarted( @Nonnull final ChannelAddress address )
+  void onSubscriptionUpdateStarted( @NonNull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATING );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1699,7 +1699,7 @@ abstract class Connector
   }
 
   @Action
-  void onSubscriptionUpdateCompleted( @Nonnull final ChannelAddress address )
+  void onSubscriptionUpdateCompleted( @NonNull final ChannelAddress address )
   {
     updateAreaOfInterest( address, AreaOfInterest.Status.UPDATED );
     if ( Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents() )
@@ -1709,8 +1709,8 @@ abstract class Connector
     }
   }
 
-  private void updateAreaOfInterest( @Nonnull final ChannelAddress address,
-                                     @Nonnull final AreaOfInterest.Status status )
+  private void updateAreaOfInterest( @NonNull final ChannelAddress address,
+                                     final AreaOfInterest.@NonNull Status status )
   {
     final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
@@ -1719,14 +1719,14 @@ abstract class Connector
     }
   }
 
-  @Nonnull
+  @NonNull
   ReplicantRuntime getReplicantRuntime()
   {
     return getReplicantContext().getRuntime();
   }
 
   @ContextRef
-  @Nonnull
+  @NonNull
   abstract ArezContext context();
 
   @Override
@@ -1753,7 +1753,7 @@ abstract class Connector
     return _connection;
   }
 
-  @Nonnull
+  @NonNull
   Transport getTransport()
   {
     return _transport;

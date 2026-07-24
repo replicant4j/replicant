@@ -3,8 +3,9 @@ package replicant.server;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.testng.Assert.*;
 
 /**
@@ -12,20 +13,20 @@ import static org.testng.Assert.*;
  */
 public final class MessageTestUtil
 {
-  @Nonnull
+  @NonNull
   static final String ROUTING_KEY1 = "ROUTING_KEY1";
-  @Nonnull
+  @NonNull
   static final String ROUTING_KEY2 = "ROUTING_KEY2";
-  @Nonnull
+  @NonNull
   public static final String ATTR_KEY1 = "ATTR_KEY1";
-  @Nonnull
+  @NonNull
   public static final String ATTR_KEY2 = "ATTR_KEY2";
 
   private MessageTestUtil()
   {
   }
 
-  @Nonnull
+  @NonNull
   public static EntityMessage createMessage( final int id,
                                              final int typeID,
                                              final long timestamp,
@@ -37,7 +38,7 @@ public final class MessageTestUtil
     return createMessage( id, typeID, timestamp, null, r1, r2, a1, a2 );
   }
 
-  @Nonnull
+  @NonNull
   static EntityMessage createMessage( final int id,
                                       final int typeID,
                                       final long timestamp,
@@ -60,11 +61,11 @@ public final class MessageTestUtil
     final var attributeValues = ( null == a1 && null == a2 ) ? null : new HashMap<String, Serializable>();
     if ( null != a1 )
     {
-      attributeValues.put( ATTR_KEY1, a1 );
+      Objects.requireNonNull( attributeValues ).put( ATTR_KEY1, a1 );
     }
     if ( null != a2 )
     {
-      attributeValues.put( ATTR_KEY2, a2 );
+      Objects.requireNonNull( attributeValues ).put( ATTR_KEY2, a2 );
     }
 
     final HashSet<ChannelLink> links;
@@ -81,17 +82,17 @@ public final class MessageTestUtil
     return new EntityMessage( id, typeID, timestamp, routingKeys, attributeValues, links );
   }
 
-  static void assertAttributeValue( @Nonnull final EntityMessage message,
-                                    @Nonnull final String key,
+  static void assertAttributeValue( @NonNull final EntityMessage message,
+                                    @NonNull final String key,
                                     @Nullable final String value )
   {
     final var values = message.getAttributeValues();
     assertNotNull( values );
-    assertEquals( values.get( key ), value );
+    assertEquals( Objects.requireNonNull( values ).get( key ), value );
   }
 
-  static void assertRouteValue( @Nonnull final EntityMessage message,
-                                @Nonnull final String key,
+  static void assertRouteValue( @NonNull final EntityMessage message,
+                                @NonNull final String key,
                                 @Nullable final String value )
   {
     assertEquals( message.getRoutingKeys().get( key ), value );

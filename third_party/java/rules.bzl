@@ -5,6 +5,9 @@ load(
     _java_test = "java_test",
 )
 
+_JSPECIFY = "//third_party/java:jspecify"
+_NULLAWAY_PLUGIN = "//third_party/java:nullaway_plugin"
+
 _ERROR_PRONE_JAVACOPTS = [
     "-XepExcludedPaths:(.*/external/.*|.*/_javac/.*/.*_sources/.*)",
     "-Xep:AlmostJavadoc:ERROR",
@@ -104,6 +107,10 @@ _JAVA_JAVACOPTS = [
     "--release",
     "17",
     "-Werror",
+    "-Xep:NullAway:ERROR",
+    "-Xep:RequireExplicitNullMarking:ERROR",
+    "-XepOpt:NullAway:OnlyNullMarked=true",
+    "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true",
     "-Aarez.warnings_as_errors=true",
     "-Aarez.persist.warnings_as_errors=true",
     "-Asting.warnings_as_errors=true",
@@ -123,24 +130,42 @@ _JAVA_TEST_JVM_FLAGS = [
     "-Dzemeckis.environment=development",
 ]
 
-def java_library(name, javacopts = [], **kwargs):
+def _with_jspecify(deps):
+    return [_JSPECIFY] + deps if _JSPECIFY not in deps else deps
+
+def _with_nullaway(plugins):
+    return [_NULLAWAY_PLUGIN] + plugins if _NULLAWAY_PLUGIN not in plugins else plugins
+
+def _has_sources(srcs):
+    return len(srcs) > 0
+
+def java_library(name, srcs = [], deps = [], plugins = [], javacopts = [], **kwargs):
+    nullaway_enabled = _has_sources(srcs)
     _java_library(
         name = name,
+        srcs = srcs,
+        deps = _with_jspecify(deps) if nullaway_enabled else deps,
         javacopts = _JAVA_JAVACOPTS + javacopts,
+        plugins = _with_nullaway(plugins) if nullaway_enabled else plugins,
         **kwargs
     )
 
-def java_server_library(name, javacopts = [], **kwargs):
+def java_server_library(name, srcs = [], javacopts = [], **kwargs):
     java_library(
         name = name,
+        srcs = srcs,
         javacopts = _SERVER_JAVACOPTS + javacopts,
         **kwargs
     )
 
-def java_binary(name, javacopts = [], **kwargs):
+def java_binary(name, srcs = [], deps = [], plugins = [], javacopts = [], **kwargs):
+    nullaway_enabled = _has_sources(srcs)
     _java_binary(
         name = name,
+        srcs = srcs,
+        deps = _with_jspecify(deps) if nullaway_enabled else deps,
         javacopts = _JAVA_JAVACOPTS + _SERVER_JAVACOPTS + javacopts,
+        plugins = _with_nullaway(plugins) if nullaway_enabled else plugins,
         **kwargs
     )
 
@@ -159,18 +184,19 @@ def java_testng(name, srcs, test_class, deps = [], runtime_deps = [], jvm_flags 
 
     _java_test(
         name = name,
-        srcs = srcs,
+        srcs = srcs + ["package-info.java"],
         use_testrunner = False,
         main_class = "org.testng.TestNG",
         args = [
             "-testclass",
             test_class,
         ],
-        deps = deps + [
+        deps = _with_jspecify(deps + [
             "//third_party/java:testng",
-        ],
+        ]),
         javacopts = _JAVA_JAVACOPTS + _TEST_ERROR_PRONE_JAVACOPTS + server_javacopts + javacopts,
         jvm_flags = _JAVA_TEST_JVM_FLAGS + jvm_flags,
+        plugins = [_NULLAWAY_PLUGIN],
         runtime_deps = runtime_deps,
         size = size,
         **filtered_kwargs

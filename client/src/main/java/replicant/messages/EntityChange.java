@@ -1,7 +1,8 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -10,10 +11,12 @@ import jsinterop.annotations.JsType;
  * A change to an entity.
  */
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
+@SuppressWarnings( "NullAway.Init" )
 public class EntityChange
 {
   private String id;
   private String[] channels;
+  @Nullable
   private EntityChangeData data;
 
   /**
@@ -22,8 +25,8 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
-  @Nonnull
-  public static EntityChange create( final int type, final int id, @Nonnull final String[] channels )
+  @NonNull
+  public static EntityChange create( final int type, final int id, @NonNull final String[] channels )
   {
     final EntityChange change = new EntityChange();
     change.id = type + "." + id;
@@ -37,10 +40,10 @@ public class EntityChange
    * @return the new EntityChange.
    */
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static EntityChange create( final int type,
                                      final int id,
-                                     @Nonnull final String[] channels,
+                                     @NonNull final String[] channels,
                                      @Nullable final EntityChangeData data )
   {
     final EntityChange change = create( type, id, channels );
@@ -95,11 +98,10 @@ public class EntityChange
    *
    * @return true if the data is present.
    */
-  @Nonnull
+  @NonNull
   @JsOverlay
   public final EntityChangeData getData()
   {
-    assert null != data;
-    return data;
+    return Objects.requireNonNull( data );
   }
 }

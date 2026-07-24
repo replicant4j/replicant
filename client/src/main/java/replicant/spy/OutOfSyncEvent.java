@@ -2,7 +2,7 @@ package replicant.spy;
 
 import arez.spy.SerializableEvent;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Notification when a Connector requested synchronized but is out of synchronization with the backend.
@@ -23,7 +23,7 @@ public final class OutOfSyncEvent
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Connector.OutOfSync" );
     map.put( "schema.id", getSchemaId() );

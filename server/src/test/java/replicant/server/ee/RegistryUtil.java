@@ -3,8 +3,9 @@ package replicant.server.ee;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
@@ -51,7 +52,7 @@ public final class RegistryUtil
   public static class TestTransactionSynchronizationRegistry
     implements TransactionSynchronizationRegistry
   {
-    @Nonnull
+    @NonNull
     private final Map<Object, Object> _resources = new HashMap<>();
     private boolean _rollbackOnly;
 
@@ -68,7 +69,7 @@ public final class RegistryUtil
     }
 
     @Override
-    public Object getResource( final Object key )
+    public @Nullable Object getResource( final Object key )
     {
       return _resources.get( key );
     }
@@ -116,7 +117,7 @@ public final class RegistryUtil
 
     private static MemoryContext getContext()
     {
-      return c_context;
+      return Objects.requireNonNull( c_context );
     }
 
     private static void reset()

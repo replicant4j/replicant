@@ -121,7 +121,11 @@ Implementation hotspots:
 - The build targets Java 17 and compiles with strict Error Prone,
   `-Xlint:all,-processing,-serial,-path,-options,-classfile,-this-escape`, and `-Werror`. Fix findings or suppress
   them narrowly with justification.
-- Use `@Nonnull` and `@Nullable` from `javax.annotation` for nullability.
+- Mark every maintained Java package with JSpecify `@NullMarked`, and use JSpecify `@NonNull` and `@Nullable` for
+  exceptions to the package default.
+- `javax.annotation` remains only for server EE lifecycle/resource annotations and as a build-time dependency for
+  the legacy nullness imports emitted by the current Arez processor. Do not use its nullness annotations in
+  maintained source.
 - On JAX-RS-style validation boundaries, prefer `@NotNull` from `javax.validation` when that style is already in use. Do not add new REST-specific guidance to this file unless the codebase adds REST resources again.
 - Use `final` where practical.
 - Use `final var` for local variables in server production/tests and JVM-only tooling unless Java requires an
@@ -133,6 +137,8 @@ Implementation hotspots:
 
 - Do not hand-edit or commit files under `client/generated/processors/main/java/...`.
 - Bazel owns annotation processor output and regenerates it from maintained sources.
+- NullAway treats `@Generated` processor output as unannotated because Arez 0.254 still emits legacy
+  `javax.annotation` nullness metadata.
 
 ## Build and Test
 
@@ -146,6 +152,7 @@ CI workflow:
 - Bazel is pinned to 9.2.0 via `.bazelversion`; run it with `./bazelw`.
 - Build public Bazel jars: `./bazelw build //client:client //server:server`.
 - Run all Bazel tests, including depgen hash verification: `./bazelw test //...`.
+- Check that every maintained Java package is explicitly null-marked: `tools/check_null_marked_packages.sh`.
 - Check Bazel formatting: `./bazelw run //:buildifier_check`.
 - Apply Bazel formatting: `./bazelw run //:buildifier`.
 

@@ -1,29 +1,29 @@
 package replicant.messages;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NotNullFieldNotInitialized", "unused" } )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init", "unused" } )
 public final class BulkSubscribeMessage
   extends ClientToServerMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.BULK_SUB;
-  @Nonnull
+  @NonNull
   private String[] channels;
   @Nullable
   private Object filter;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static BulkSubscribeMessage create( final int req,
-                                             @Nonnull final String[] channels,
+                                             @NonNull final String[] channels,
                                              @Nullable final Object filter )
   {
     final BulkSubscribeMessage message = new BulkSubscribeMessage();

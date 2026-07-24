@@ -2,7 +2,7 @@ package replicant;
 
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
@@ -376,8 +376,8 @@ public class AreaOfInterestTest
     assertTrue( Disposable.isDisposed( areaOfInterest ) );
   }
 
-  @Nonnull
-  private AreaOfInterest createAreaOfInterest( @Nonnull final ChannelAddress address )
+  @NonNull
+  private AreaOfInterest createAreaOfInterest( @NonNull final ChannelAddress address )
   {
     return AreaOfInterest.create( Replicant.areZonesEnabled() ? Replicant.context() : null, address, null );
   }

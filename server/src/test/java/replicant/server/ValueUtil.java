@@ -1,11 +1,11 @@
 package replicant.server;
 
 import java.util.Random;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public final class ValueUtil
 {
-  @Nonnull
+  @NonNull
   private static final Random c_random = new Random();
 
   private ValueUtil()
@@ -17,7 +17,7 @@ public final class ValueUtil
     return c_random.nextInt();
   }
 
-  @Nonnull
+  @NonNull
   public static String randomString()
   {
     final var sb = new StringBuilder();

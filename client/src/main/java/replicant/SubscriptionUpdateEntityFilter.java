@@ -1,7 +1,7 @@
 package replicant;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface that used during subscription updates to remove Entities from subscriptions
@@ -19,5 +19,5 @@ public interface SubscriptionUpdateEntityFilter<T>
    * @param filter the filter.
    * @param entity the entity to match.
    */
-  boolean doesEntityMatchFilter( @Nullable T filter, @Nonnull Entity entity );
+  boolean doesEntityMatchFilter( @Nullable T filter, @NonNull Entity entity );
 }

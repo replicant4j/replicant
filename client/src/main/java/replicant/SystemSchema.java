@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -29,18 +29,18 @@ public final class SystemSchema
   /**
    * The entities within the system.
    */
-  @Nonnull
+  @NonNull
   private final ChannelSchema[] _channels;
   /**
    * The entities within the system.
    */
-  @Nonnull
+  @NonNull
   private final EntitySchema[] _entities;
 
   public SystemSchema( final int id,
                        @Nullable final String name,
-                       @Nonnull final ChannelSchema[] channels,
-                       @Nonnull final EntitySchema[] entities )
+                       @NonNull final ChannelSchema[] channels,
+                       @NonNull final EntitySchema[] entities )
   {
     this( id, name, null, channels, entities );
   }
@@ -48,8 +48,8 @@ public final class SystemSchema
   public SystemSchema( final int id,
                        @Nullable final String name,
                        @Nullable final OnEntityUpdateAction onEntityUpdateAction,
-                       @Nonnull final ChannelSchema[] channels,
-                       @Nonnull final EntitySchema[] entities )
+                       @NonNull final ChannelSchema[] channels,
+                       @NonNull final EntitySchema[] entities )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -100,7 +100,7 @@ public final class SystemSchema
    *
    * @return the name of the SystemSchema.
    */
-  @Nonnull
+  @NonNull
   public String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -108,8 +108,7 @@ public final class SystemSchema
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0052: SystemSchema.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    assert null != _name;
-    return _name;
+    return Objects.requireNonNull( _name );
   }
 
   @Nullable
@@ -135,7 +134,7 @@ public final class SystemSchema
    * @param typeId the entity type id.
    * @return the entity matching typeId.
    */
-  @Nonnull
+  @NonNull
   public EntitySchema getEntity( final int typeId )
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -171,7 +170,7 @@ public final class SystemSchema
    * @param channelId the channel id.
    * @return the Channel matching channelId.
    */
-  @Nonnull
+  @NonNull
   public ChannelSchema getChannel( final int channelId )
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -184,7 +183,7 @@ public final class SystemSchema
     return _channels[ channelId ];
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelLinkSchema> getInwardChannelLinks( final int channelId, final int entityId )
   {
     return
@@ -204,7 +203,7 @@ public final class SystemSchema
         .collect( Collectors.toList() );
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelLinkSchema> getInwardChannelLinks( final int channelId )
   {
     return
@@ -223,7 +222,7 @@ public final class SystemSchema
         .collect( Collectors.toList() );
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelLinkSchema> getOutwardChannelLinks( final int channelId )
   {
     return

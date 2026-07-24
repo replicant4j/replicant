@@ -4,9 +4,10 @@ import arez.Arez;
 import arez.Disposable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -14,19 +15,19 @@ import static org.realityforge.braincheck.Guards.*;
  */
 public final class ReplicantContext
 {
-  @Nonnull
+  @NonNull
   private final AreaOfInterestService _areaOfInterestService;
-  @Nonnull
+  @NonNull
   private final EntityService _entityService;
-  @Nonnull
+  @NonNull
   private final SubscriptionService _subscriptionService;
-  @Nonnull
+  @NonNull
   private final ReplicantRuntime _runtime;
-  @Nonnull
+  @NonNull
   private final Converger _converger;
-  @Nonnull
+  @NonNull
   private final Validator _validator;
-  @Nonnull
+  @NonNull
   private final SchemaService _schemaService;
   /**
    * Support infrastructure for spy events.
@@ -73,8 +74,8 @@ public final class ReplicantContext
    * @param schema    the schema defining datasource.
    * @param transport the transport.
    */
-  @Nonnull
-  public Disposable registerConnector( @Nonnull final SystemSchema schema, @Nonnull final Transport transport )
+  @NonNull
+  public Disposable registerConnector( @NonNull final SystemSchema schema, @NonNull final Transport transport )
   {
     return Disposable.asDisposable( Connector.create( Replicant.areZonesEnabled() ? this : null, schema, transport ) );
   }
@@ -84,7 +85,7 @@ public final class ReplicantContext
    *
    * @return the collection of AreaOfInterest that have been declared.
    */
-  @Nonnull
+  @NonNull
   public List<AreaOfInterest> getAreasOfInterest()
   {
     return getAreaOfInterestService().getAreasOfInterest();
@@ -97,7 +98,7 @@ public final class ReplicantContext
    * @return the AreaOfInterest that matches if any.
    */
   @Nullable
-  public AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
+  public AreaOfInterest findAreaOfInterestByAddress( @NonNull final ChannelAddress address )
   {
     return getAreaOfInterestService().findAreaOfInterestByAddress( address );
   }
@@ -110,8 +111,8 @@ public final class ReplicantContext
    * @param filter  the filter that is used to define the channel.
    * @return the AreaOfInterest.
    */
-  @Nonnull
-  public AreaOfInterest createOrUpdateAreaOfInterest( @Nonnull final ChannelAddress address,
+  @NonNull
+  public AreaOfInterest createOrUpdateAreaOfInterest( @NonNull final ChannelAddress address,
                                                       @Nullable final Object filter )
   {
     return getAreaOfInterestService().createOrUpdateAreaOfInterest( address, filter );
@@ -125,13 +126,13 @@ public final class ReplicantContext
    * @return the Entity if it exists, null otherwise.
    */
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
+  public Entity findEntityByTypeAndId( @NonNull final Class<?> type, final int id )
   {
     return getEntityService().findEntityByTypeAndId( type, id );
   }
 
-  @Nonnull
-  public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
+  @NonNull
+  public List<Entity> findAllEntitiesByType( @NonNull final Class<?> type )
   {
     return getEntityService().findAllEntitiesByType( type );
   }
@@ -144,7 +145,7 @@ public final class ReplicantContext
    *
    * @return the collection of entity types.
    */
-  @Nonnull
+  @NonNull
   public Collection<Class<?>> findAllEntityTypes()
   {
     return getEntityService().findAllEntityTypes();
@@ -155,7 +156,7 @@ public final class ReplicantContext
    *
    * @return the collection of type subscriptions.
    */
-  @Nonnull
+  @NonNull
   public List<Subscription> getTypeSubscriptions()
   {
     return getSubscriptionService().getTypeSubscriptions();
@@ -166,7 +167,7 @@ public final class ReplicantContext
    *
    * @return the collection of instance subscriptions.
    */
-  @Nonnull
+  @NonNull
   public Collection<Subscription> getInstanceSubscriptions()
   {
     return getSubscriptionService().getInstanceSubscriptions();
@@ -179,7 +180,7 @@ public final class ReplicantContext
    * @param channelId the channel id.
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
-  @Nonnull
+  @NonNull
   public Set<Integer> getInstanceSubscriptionIds( final int schemaId, final int channelId )
   {
     return getSubscriptionService().getInstanceSubscriptionIds( schemaId, channelId );
@@ -195,7 +196,7 @@ public final class ReplicantContext
    * @return the subscription if it exists, null otherwise.
    */
   @Nullable
-  public Subscription findSubscription( @Nonnull final ChannelAddress address )
+  public Subscription findSubscription( @NonNull final ChannelAddress address )
   {
     return getSubscriptionService().findSubscription( address );
   }
@@ -205,7 +206,7 @@ public final class ReplicantContext
    *
    * @return the SystemSchema instances registered with the context.
    */
-  @Nonnull
+  @NonNull
   public Collection<SystemSchema> getSchemas()
   {
     return getSchemaService().getSchemas();
@@ -230,7 +231,7 @@ public final class ReplicantContext
    * @param schemaId the id of the schema.
    * @return the schema.
    */
-  @Nonnull
+  @NonNull
   public SystemSchema getSchemaById( final int schemaId )
   {
     return getSchemaService().getById( schemaId );
@@ -253,7 +254,7 @@ public final class ReplicantContext
    *
    * @return the spy associated with context.
    */
-  @Nonnull
+  @NonNull
   public Spy getSpy()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -261,8 +262,7 @@ public final class ReplicantContext
       apiInvariant( Replicant::areSpiesEnabled,
                     () -> "Replicant-0021: Attempting to get Spy but spies are not enabled." );
     }
-    assert null != _spy;
-    return _spy;
+    return Objects.requireNonNull( _spy );
   }
 
   /**
@@ -350,7 +350,7 @@ public final class ReplicantContext
    *
    * @return the actual state of the context.
    */
-  @Nonnull
+  @NonNull
   public RuntimeState getState()
   {
     return getRuntime().getState();
@@ -393,7 +393,7 @@ public final class ReplicantContext
    * @param responseHandler the ResponseHandler invoked when a response is received.
    */
   public void exec( final int schemaId,
-                    @Nonnull final String command,
+                    @NonNull final String command,
                     @Nullable final Object payload,
                     @Nullable final ResponseHandler responseHandler )
   {
@@ -426,7 +426,7 @@ public final class ReplicantContext
    *
    * @return the underlying AreaOfInterestService.
    */
-  @Nonnull
+  @NonNull
   AreaOfInterestService getAreaOfInterestService()
   {
     return _areaOfInterestService;
@@ -437,7 +437,7 @@ public final class ReplicantContext
    *
    * @return the underlying EntityService.
    */
-  @Nonnull
+  @NonNull
   EntityService getEntityService()
   {
     return _entityService;
@@ -448,7 +448,7 @@ public final class ReplicantContext
    *
    * @return the underlying SubscriptionService.
    */
-  @Nonnull
+  @NonNull
   SubscriptionService getSubscriptionService()
   {
     return _subscriptionService;
@@ -459,7 +459,7 @@ public final class ReplicantContext
    *
    * @return the underlying ReplicantRuntime.
    */
-  @Nonnull
+  @NonNull
   ReplicantRuntime getRuntime()
   {
     return _runtime;
@@ -470,7 +470,7 @@ public final class ReplicantContext
    *
    * @return the underlying Converger.
    */
-  @Nonnull
+  @NonNull
   Converger getConverger()
   {
     return _converger;
@@ -481,7 +481,7 @@ public final class ReplicantContext
    *
    * @return the underlying SchemaService.
    */
-  @Nonnull
+  @NonNull
   SchemaService getSchemaService()
   {
     return _schemaService;
@@ -492,7 +492,7 @@ public final class ReplicantContext
    *
    * @return the underlying Validator.
    */
-  @Nonnull
+  @NonNull
   Validator getValidator()
   {
     return _validator;

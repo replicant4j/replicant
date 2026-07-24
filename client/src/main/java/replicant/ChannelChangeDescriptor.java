@@ -1,8 +1,8 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ChannelChange;
 import replicant.shared.Messages;
 
@@ -13,28 +13,28 @@ final class ChannelChangeDescriptor
     ADD, REMOVE, UPDATE, DELETE
   }
 
-  @Nonnull
+  @NonNull
   private final Type _type;
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
   @Nullable
   private final Object _filter;
 
-  @Nonnull
-  static ChannelChangeDescriptor from( final int schema, @Nonnull final String channelAction )
+  @NonNull
+  static ChannelChangeDescriptor from( final int schema, @NonNull final String channelAction )
   {
     return from( schema, channelAction, null );
   }
 
-  @Nonnull
-  static ChannelChangeDescriptor from( final int schema, @Nonnull final ChannelChange channelChange )
+  @NonNull
+  static ChannelChangeDescriptor from( final int schema, @NonNull final ChannelChange channelChange )
   {
     return from( schema, channelChange.getChannel(), channelChange.getFilter() );
   }
 
-  @Nonnull
+  @NonNull
   private static ChannelChangeDescriptor from( final int schema,
-                                               @Nonnull final String channelAction,
+                                               @NonNull final String channelAction,
                                                @Nullable final Object filter )
   {
     try
@@ -49,8 +49,8 @@ final class ChannelChangeDescriptor
     }
   }
 
-  @Nonnull
-  private static Type actionToType( @Nonnull final String channelAction )
+  @NonNull
+  private static Type actionToType( @NonNull final String channelAction )
   {
     assert !channelAction.isEmpty();
     final char commandCode = channelAction.charAt( 0 );
@@ -67,8 +67,8 @@ final class ChannelChangeDescriptor
     return type;
   }
 
-  private ChannelChangeDescriptor( @Nonnull final Type type,
-                                   @Nonnull final ChannelAddress address,
+  private ChannelChangeDescriptor( @NonNull final Type type,
+                                   @NonNull final ChannelAddress address,
                                    @Nullable final Object filter )
   {
     _type = Objects.requireNonNull( type );
@@ -76,13 +76,13 @@ final class ChannelChangeDescriptor
     _filter = filter;
   }
 
-  @Nonnull
+  @NonNull
   Type getType()
   {
     return _type;
   }
 
-  @Nonnull
+  @NonNull
   ChannelAddress getAddress()
   {
     return _address;

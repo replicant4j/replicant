@@ -1,12 +1,12 @@
 package replicant.server.ee;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.websocket.Session;
 import replicant.server.transport.ReplicantSessionAuthorization;
 
 public interface ReplicantHandshakeAuthenticator
 {
   @Nullable
-  ReplicantSessionAuthorization authenticate( @Nonnull Session webSocketSession );
+  ReplicantSessionAuthorization authenticate( @NonNull Session webSocketSession );
 }

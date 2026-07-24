@@ -3,22 +3,22 @@ package replicant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class TestCacheService
   implements CacheService
 {
-  @Nonnull
+  @NonNull
   private final Map<Integer, Map<ChannelAddress, CacheEntry>> _data = new HashMap<>();
 
-  @Nonnull
+  @NonNull
   private Map<ChannelAddress, CacheEntry> getSystemCache( final int schemaId )
   {
     return _data.computeIfAbsent( schemaId, v -> new HashMap<>() );
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public Set<ChannelAddress> keySet( final int schemaId )
   {
@@ -27,7 +27,7 @@ public class TestCacheService
 
   @Nullable
   @Override
-  public String lookupEtag( @Nonnull final ChannelAddress address )
+  public String lookupEtag( @NonNull final ChannelAddress address )
   {
     final CacheEntry entry = getSystemCache( address.schemaId() ).get( address );
     return null != entry ? entry.getETag() : null;
@@ -35,22 +35,22 @@ public class TestCacheService
 
   @Nullable
   @Override
-  public CacheEntry lookup( @Nonnull final ChannelAddress address )
+  public CacheEntry lookup( @NonNull final ChannelAddress address )
   {
     return getSystemCache( address.schemaId() ).get( address );
   }
 
   @Override
-  public boolean store( @Nonnull final ChannelAddress address,
-                        @Nonnull final String eTag,
-                        @Nonnull final Object content )
+  public boolean store( @NonNull final ChannelAddress address,
+                        @NonNull final String eTag,
+                        @NonNull final Object content )
   {
     getSystemCache( address.schemaId() ).put( address, new CacheEntry( address, eTag, String.valueOf( content ) ) );
     return true;
   }
 
   @Override
-  public boolean invalidate( @Nonnull final ChannelAddress address )
+  public boolean invalidate( @NonNull final ChannelAddress address )
   {
     final Map<ChannelAddress, CacheEntry> systemCache = getSystemCache( address.schemaId() );
     if ( !systemCache.containsKey( address ) )

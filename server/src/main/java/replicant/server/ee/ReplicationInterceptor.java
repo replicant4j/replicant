@@ -1,6 +1,6 @@
 package replicant.server.ee;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
@@ -35,8 +35,8 @@ public class ReplicationInterceptor
     return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, context::proceed );
   }
 
-  @Nonnull
-  private String getInvocationKey( @Nonnull final InvocationContext context )
+  @NonNull
+  private String getInvocationKey( @NonNull final InvocationContext context )
   {
     final var method = context.getMethod();
     if ( null != method )

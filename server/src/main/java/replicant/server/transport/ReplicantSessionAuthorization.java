@@ -1,14 +1,14 @@
 package replicant.server.transport;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public interface ReplicantSessionAuthorization
 {
-  boolean runIfValid( @Nonnull Action action )
+  boolean runIfValid( @NonNull Action action )
     throws IOException;
 
-  @Nonnull
+  @NonNull
   Object getPrincipal();
 
   void touchActivity();

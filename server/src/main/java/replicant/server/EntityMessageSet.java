@@ -3,24 +3,24 @@ package replicant.server;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public final class EntityMessageSet
 {
-  @Nonnull
+  @NonNull
   private final LinkedHashMap<String, EntityMessage> _entities = new LinkedHashMap<>();
 
-  public boolean containsEntityMessage( final int typeID, @Nonnull final Serializable id )
+  public boolean containsEntityMessage( final int typeID, @NonNull final Serializable id )
   {
     return _entities.containsKey( toKey( typeID, id ) );
   }
 
-  public void mergeAll( @Nonnull final Collection<EntityMessage> messages )
+  public void mergeAll( @NonNull final Collection<EntityMessage> messages )
   {
     mergeAll( messages, false );
   }
 
-  public void mergeAll( @Nonnull final Collection<EntityMessage> messages, final boolean copyOnMerge )
+  public void mergeAll( @NonNull final Collection<EntityMessage> messages, final boolean copyOnMerge )
   {
     for ( final var message : messages )
     {
@@ -28,12 +28,12 @@ public final class EntityMessageSet
     }
   }
 
-  public void merge( @Nonnull final EntityMessage message )
+  public void merge( @NonNull final EntityMessage message )
   {
     merge( message, false );
   }
 
-  public void merge( @Nonnull final EntityMessage message, final boolean copyOnMerge )
+  public void merge( @NonNull final EntityMessage message, final boolean copyOnMerge )
   {
     final var key = toKey( message.getTypeId(), message.getId() );
     final var existing = _entities.get( key );
@@ -47,14 +47,14 @@ public final class EntityMessageSet
     }
   }
 
-  @Nonnull
+  @NonNull
   public Collection<EntityMessage> getEntityMessages()
   {
     return _entities.values();
   }
 
-  @Nonnull
-  private String toKey( final int typeID, @Nonnull final Serializable id )
+  @NonNull
+  private String toKey( final int typeID, @NonNull final Serializable id )
   {
     return typeID + "#" + id;
   }

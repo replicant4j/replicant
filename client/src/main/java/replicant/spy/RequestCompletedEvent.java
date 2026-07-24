@@ -3,7 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Notification when a Request completes.
@@ -12,18 +12,18 @@ public final class RequestCompletedEvent
   implements SerializableEvent
 {
   private final int _schemaId;
-  @Nonnull
+  @NonNull
   private final String _schemaName;
   private final int _requestId;
-  @Nonnull
+  @NonNull
   private final String _name;
   private final boolean _expectingResults;
   private final boolean _resultsArrived;
 
   public RequestCompletedEvent( final int schemaId,
-                                @Nonnull final String schemaName,
+                                @NonNull final String schemaName,
                                 final int requestId,
-                                @Nonnull final String name,
+                                @NonNull final String name,
                                 final boolean expectingResults,
                                 final boolean resultsArrived )
   {
@@ -40,7 +40,7 @@ public final class RequestCompletedEvent
     return _schemaId;
   }
 
-  @Nonnull
+  @NonNull
   public String getSchemaName()
   {
     return _schemaName;
@@ -51,7 +51,7 @@ public final class RequestCompletedEvent
     return _requestId;
   }
 
-  @Nonnull
+  @NonNull
   public String getName()
   {
     return _name;
@@ -68,7 +68,7 @@ public final class RequestCompletedEvent
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Connector.RequestCompleted" );
     map.put( "schema.id", getSchemaId() );

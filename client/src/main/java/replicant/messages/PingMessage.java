@@ -1,6 +1,6 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -15,7 +15,7 @@ public final class PingMessage
   public static final String TYPE = Messages.C2S_Type.PING;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static PingMessage create( final int req )
   {
     final PingMessage message = new PingMessage();

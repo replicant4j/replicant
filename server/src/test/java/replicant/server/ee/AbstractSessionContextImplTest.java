@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
@@ -309,13 +309,13 @@ public class AbstractSessionContextImplTest
     assertEquals( context.toDateString( value ), expected );
   }
 
-  @Nonnull
-  private TestSessionContext newContext( @Nonnull final EntityManager em )
+  @NonNull
+  private TestSessionContext newContext( @NonNull final EntityManager em )
   {
     return new TestSessionContext( em );
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantSession newSession()
   {
     final var webSocketSession = mock( Session.class );
@@ -327,9 +327,9 @@ public class AbstractSessionContextImplTest
   private static final class TestSessionContext
     extends AbstractSessionContextImpl
   {
-    @Nonnull
+    @NonNull
     private final EntityManager _em;
-    @Nonnull
+    @NonNull
     private final SchemaMetaData _schema = new SchemaMetaData(
       "Test",
       new ChannelMetaData( 0,
@@ -350,26 +350,26 @@ public class AbstractSessionContextImplTest
                            ChannelMetaData.FilterType.NONE,
                            ChannelMetaData.CacheType.NONE,
                            true ) );
-    @Nonnull
+    @NonNull
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
-    @Nonnull
+    @NonNull
     private final Map<Object, EntityMessage> _messages = new HashMap<>();
-    @Nonnull
+    @NonNull
     private final List<ConvertCall> _convertCalls = new ArrayList<>();
 
-    private TestSessionContext( @Nonnull final EntityManager em )
+    private TestSessionContext( @NonNull final EntityManager em )
     {
       _em = em;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected EntityManager em()
     {
       return _em;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public SchemaMetaData getSchemaMetaData()
     {
@@ -377,14 +377,14 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public boolean isAuthorized( @Nonnull final ReplicantSession session )
+    public boolean isAuthorized( @NonNull final ReplicantSession session )
     {
       return true;
     }
 
     @Override
-    public void preSubscribe( @Nonnull final ReplicantSession session,
-                              @Nonnull final ChannelAddress address,
+    public void preSubscribe( @NonNull final ReplicantSession session,
+                              @NonNull final ChannelAddress address,
                               @Nullable final JsonObject filter )
     {
     }
@@ -396,8 +396,8 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public void execCommand( @Nonnull final ReplicantSession session,
-                             @Nonnull final String command,
+    public void execCommand( @NonNull final ReplicantSession session,
+                             @NonNull final String command,
                              final int requestId,
                              @Nullable final JsonObject payload )
     {
@@ -405,9 +405,9 @@ public class AbstractSessionContextImplTest
 
     @Override
     public void collectChannelData( @Nullable final ReplicantSession session,
-                                    @Nonnull final List<ChannelAddress> addresses,
+                                    @NonNull final List<ChannelAddress> addresses,
                                     @Nullable final JsonObject filter,
-                                    @Nonnull final ChangeSet changeSet,
+                                    @NonNull final ChangeSet changeSet,
                                     final boolean isExplicitSubscribe )
     {
       _bulkCollectCalls.add( new BulkCollectCall( session, addresses, filter, changeSet, isExplicitSubscribe ) );
@@ -415,7 +415,7 @@ public class AbstractSessionContextImplTest
 
     @Nullable
     @Override
-    protected EntityMessage convertToEntityMessage( @Nonnull final Object object,
+    protected EntityMessage convertToEntityMessage( @NonNull final Object object,
                                                     final boolean isUpdate,
                                                     final boolean isInitialLoad )
     {
@@ -424,44 +424,44 @@ public class AbstractSessionContextImplTest
     }
 
     @Override
-    public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final List<ChannelAddress> addresses,
+    public void collectChannelDataForFilterChange( @NonNull final ReplicantSession session,
+                                                   @NonNull final List<ChannelAddress> addresses,
                                                    @Nullable final JsonObject originalFilter,
                                                    @Nullable final JsonObject newFilter,
-                                                   @Nonnull final ChangeSet changeSet )
+                                                   @NonNull final ChangeSet changeSet )
     {
     }
 
     @Nullable
     @Override
-    public EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
-                                              @Nonnull final ChannelAddress address,
-                                              @Nonnull final EntityMessage message )
+    public EntityMessage filterEntityMessage( @NonNull final ReplicantSession session,
+                                              @NonNull final ChannelAddress address,
+                                              @NonNull final EntityMessage message )
     {
       return null;
     }
 
     @Override
-    public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
+    public boolean shouldFollowLink( @NonNull final ChannelAddress source,
                                      @Nullable final JsonObject sourceFilter,
-                                     @Nonnull final ChannelAddress target,
+                                     @NonNull final ChannelAddress target,
                                      @Nullable final JsonObject targetFilter )
     {
       return false;
     }
 
-    @Nonnull
+    @NonNull
     List<BulkCollectCall> getBulkCollectCalls()
     {
       return _bulkCollectCalls;
     }
 
-    void registerMessageForObject( @Nonnull final Object object, @Nonnull final EntityMessage message )
+    void registerMessageForObject( @NonNull final Object object, @NonNull final EntityMessage message )
     {
       _messages.put( object, message );
     }
 
-    @Nonnull
+    @NonNull
     List<ConvertCall> getConvertCalls()
     {
       return _convertCalls;
@@ -469,14 +469,14 @@ public class AbstractSessionContextImplTest
   }
 
   private record BulkCollectCall(@Nullable ReplicantSession session,
-                                 @Nonnull List<ChannelAddress> addresses,
+                                 @NonNull List<ChannelAddress> addresses,
                                  @Nullable Object filter,
-                                 @Nonnull ChangeSet changeSet,
+                                 @NonNull ChangeSet changeSet,
                                  boolean explicitSubscribe)
   {
   }
 
-  private record ConvertCall(@Nonnull Object object, boolean isUpdate, boolean isInitialLoad)
+  private record ConvertCall(@NonNull Object object, boolean isUpdate, boolean isInitialLoad)
   {
   }
 }

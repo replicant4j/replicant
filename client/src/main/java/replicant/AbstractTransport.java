@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
 import replicant.messages.AuthTokenMessage;
@@ -47,7 +47,7 @@ public abstract class AbstractTransport
   }
 
   @Override
-  public final void updateEtagsSync( @Nonnull final Map<String, String> channelToEtagMap )
+  public final void updateEtagsSync( @NonNull final Map<String, String> channelToEtagMap )
   {
     final JsPropertyMap<Object> map = JsPropertyMap.of();
     channelToEtagMap.forEach( map::set );
@@ -56,7 +56,7 @@ public abstract class AbstractTransport
   }
 
   @Override
-  public void requestExec( @Nonnull final String command,
+  public void requestExec( @NonNull final String command,
                            @Nullable final Object payload,
                            @Nullable final ResponseHandler responseHandler )
   {
@@ -65,21 +65,21 @@ public abstract class AbstractTransport
   }
 
   @Override
-  public final void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  public final void requestSubscribe( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     final int requestId = newRequestId( toRequestKey( "Subscribe", address ), null );
     sendRemoteMessage( SubscribeMessage.create( requestId, address.asChannelDescriptor(), filter ) );
   }
 
   @Override
-  public final void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  public final void requestUnsubscribe( @NonNull final ChannelAddress address )
   {
     final int requestId = newRequestId( toRequestKey( "Unsubscribe", address ), null );
     sendRemoteMessage( UnsubscribeMessage.create( requestId, address.asChannelDescriptor() ) );
   }
 
   @Override
-  public final void requestBulkSubscribe( @Nonnull final List<ChannelAddress> addresses,
+  public final void requestBulkSubscribe( @NonNull final List<ChannelAddress> addresses,
                                           @Nullable final Object filter )
   {
     final int requestId = newRequestId( toRequestKey( "BulkSubscribe", addresses ), null );
@@ -88,7 +88,7 @@ public abstract class AbstractTransport
   }
 
   @Override
-  public final void requestBulkUnsubscribe( @Nonnull final List<ChannelAddress> addresses )
+  public final void requestBulkUnsubscribe( @NonNull final List<ChannelAddress> addresses )
   {
     final int requestId = newRequestId( toRequestKey( "BulkUnsubscribe", addresses ), null );
     final String[] channels = addresses.stream().map( ChannelAddress::asChannelDescriptor ).toArray( String[]::new );
@@ -96,7 +96,7 @@ public abstract class AbstractTransport
   }
 
   @Override
-  public final void requestConnect( @Nonnull final TransportContext context )
+  public final void requestConnect( @NonNull final TransportContext context )
   {
     _transportContext = Objects.requireNonNull( context );
     doConnect();
@@ -109,7 +109,7 @@ public abstract class AbstractTransport
     _transportContext = null;
   }
 
-  protected final void onMessageReceived( @Nonnull final ServerToClientMessage message )
+  protected final void onMessageReceived( @NonNull final ServerToClientMessage message )
   {
     // if connection has been disconnected whilst poller request was in flight then ignore response
     if ( null != _transportContext )
@@ -137,7 +137,7 @@ public abstract class AbstractTransport
   }
 
   @Nullable
-  private String toRequestKey( @Nonnull final String requestType, @Nonnull final Collection<ChannelAddress> addresses )
+  private String toRequestKey( @NonNull final String requestType, @NonNull final Collection<ChannelAddress> addresses )
   {
     if ( Replicant.areNamesEnabled() )
     {
@@ -151,7 +151,7 @@ public abstract class AbstractTransport
   }
 
   @Nullable
-  private String toRequestKey( @Nonnull final String requestType, @Nonnull final ChannelAddress address )
+  private String toRequestKey( @NonNull final String requestType, @NonNull final ChannelAddress address )
   {
     return Replicant.areNamesEnabled() ? requestType + ":" + address : null;
   }
@@ -165,8 +165,7 @@ public abstract class AbstractTransport
                             final boolean syncRequest,
                             @Nullable final ResponseHandler responseHandler )
   {
-    assert null != _transportContext;
-    return _transportContext.newRequestId( name, syncRequest, responseHandler );
+    return Objects.requireNonNull( _transportContext ).newRequestId( name, syncRequest, responseHandler );
   }
 
   @Nullable
@@ -177,7 +176,7 @@ public abstract class AbstractTransport
 
   protected abstract void doConnect();
 
-  protected abstract void sendRemoteMessage( @Nonnull Object message );
+  protected abstract void sendRemoteMessage( @NonNull Object message );
 
   protected abstract void doDisconnect();
 }

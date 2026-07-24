@@ -5,8 +5,9 @@ import arez.Disposable;
 import arez.SchedulerLock;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -51,27 +52,24 @@ final class ReplicantZoneHolder
    *
    * @return the ReplicantContext.
    */
-  @Nonnull
+  @NonNull
   static ReplicantContext context()
   {
-    assert null != c_zone;
-    return c_zone.getContext();
+    return Objects.requireNonNull( c_zone ).getContext();
   }
 
   /**
    * Save the old zone and make the specified zone the current zone.
    */
   @SuppressWarnings( "ConstantConditions" )
-  static void activateZone( @Nonnull final Zone zone )
+  static void activateZone( @NonNull final Zone zone )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( Replicant::areZonesEnabled,
                  () -> "Replicant-0002: Invoked Replicant.activateZone() but zones are not enabled." );
     }
-    assert null != c_zoneStack;
-    assert null != zone;
-    c_zoneStack.add( c_zone );
+    Objects.requireNonNull( c_zoneStack ).add( Objects.requireNonNull( c_zone ) );
     c_zone = zone;
   }
 
@@ -80,7 +78,7 @@ final class ReplicantZoneHolder
    * This takes the zone that was current when {@link #activateZone(Zone)} was called for the active zone
    * and restores it to being the current zone.
    */
-  static void deactivateZone( @Nonnull final Zone zone )
+  static void deactivateZone( @NonNull final Zone zone )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -91,8 +89,8 @@ final class ReplicantZoneHolder
     {
       apiInvariant( () -> c_zone == zone, () -> "Replicant-0004: Attempted to deactivate zone that is not active." );
     }
-    assert null != c_zoneStack;
-    c_zone = c_zoneStack.isEmpty() ? c_defaultZone : c_zoneStack.remove( c_zoneStack.size() - 1 );
+    final List<Zone> zoneStack = Objects.requireNonNull( c_zoneStack );
+    c_zone = zoneStack.isEmpty() ? c_defaultZone : zoneStack.remove( zoneStack.size() - 1 );
   }
 
   /**
@@ -100,7 +98,7 @@ final class ReplicantZoneHolder
    *
    * @return the current zone.
    */
-  @Nonnull
+  @NonNull
   static Zone currentZone()
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -108,8 +106,7 @@ final class ReplicantZoneHolder
       invariant( Replicant::areZonesEnabled,
                  () -> "Replicant-0005: Invoked Replicant.currentZone() but zones are not enabled." );
     }
-    assert null != c_zone;
-    return c_zone;
+    return Objects.requireNonNull( c_zone );
   }
 
   /**
@@ -133,17 +130,15 @@ final class ReplicantZoneHolder
     lock.dispose();
   }
 
-  @Nonnull
+  @NonNull
   static Zone getDefaultZone()
   {
-    assert null != c_defaultZone;
-    return c_defaultZone;
+    return Objects.requireNonNull( c_defaultZone );
   }
 
-  @Nonnull
+  @NonNull
   static List<Zone> getZoneStack()
   {
-    assert null != c_zoneStack;
-    return c_zoneStack;
+    return Objects.requireNonNull( c_zoneStack );
   }
 }

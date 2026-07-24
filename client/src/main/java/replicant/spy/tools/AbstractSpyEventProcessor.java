@@ -3,7 +3,7 @@ package replicant.spy.tools;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import replicant.Replicant;
 import replicant.SpyEventHandler;
 import static org.realityforge.braincheck.Guards.*;
@@ -20,7 +20,7 @@ public abstract class AbstractSpyEventProcessor
   /**
    * The processors that can be delegated to.
    */
-  @Nonnull
+  @NonNull
   private final Map<Class<?>, Consumer<?>> _processors = new HashMap<>();
 
   /**
@@ -30,7 +30,7 @@ public abstract class AbstractSpyEventProcessor
    * @param type      the type of the event to register.
    * @param processor the processor to handle event with.
    */
-  protected final <T> void on( @Nonnull final Class<T> type, @Nonnull final Consumer<T> processor )
+  protected final <T> void on( @NonNull final Class<T> type, @NonNull final Consumer<T> processor )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -48,7 +48,7 @@ public abstract class AbstractSpyEventProcessor
    */
   @Override
   @SuppressWarnings( { "ConstantConditions", "unchecked" } )
-  public final void onSpyEvent( @Nonnull final Object event )
+  public final void onSpyEvent( @NonNull final Object event )
   {
     assert null != event;
     final Consumer<Object> processor = (Consumer<Object>) _processors.get( event.getClass() );
@@ -67,7 +67,7 @@ public abstract class AbstractSpyEventProcessor
    *
    * @param event the unhandled event.
    */
-  protected void handleUnhandledEvent( @Nonnull final Object event )
+  protected void handleUnhandledEvent( @NonNull final Object event )
   {
   }
 }

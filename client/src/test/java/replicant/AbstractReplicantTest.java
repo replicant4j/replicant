@@ -3,8 +3,9 @@ package replicant;
 import arez.testng.ActionWrapper;
 import arez.testng.ArezTestSupport;
 import java.lang.reflect.Field;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
@@ -36,8 +37,8 @@ public abstract class AbstractReplicantTest
     ArezTestSupport.super.postTest();
   }
 
-  @Nonnull
-  final Connection newConnection( @Nonnull final Connector connector )
+  @NonNull
+  final Connection newConnection( @NonNull final Connector connector )
   {
     connector.onConnection( ValueUtil.randomString() );
     final Connection connection = connector.ensureConnection();
@@ -45,8 +46,8 @@ public abstract class AbstractReplicantTest
     return connection;
   }
 
-  @Nonnull
-  final Entity findOrCreateEntity( @Nonnull final Class<?> type, final int id )
+  @NonNull
+  final Entity findOrCreateEntity( @NonNull final Class<?> type, final int id )
   {
     return safeAction( () -> Replicant
       .context()
@@ -56,8 +57,8 @@ public abstract class AbstractReplicantTest
                            id ) );
   }
 
-  @Nonnull
-  protected final Subscription createSubscription( @Nonnull final ChannelAddress address,
+  @NonNull
+  protected final Subscription createSubscription( @NonNull final ChannelAddress address,
                                                    @Nullable final Object filter,
                                                    final boolean explicitSubscription )
   {
@@ -66,21 +67,20 @@ public abstract class AbstractReplicantTest
       .createSubscription( address, filter, explicitSubscription ) );
   }
 
-  @Nonnull
+  @NonNull
   final TestLogger getTestLogger()
   {
-    return (TestLogger) getProxyLogger().getLogger();
+    return (TestLogger) Objects.requireNonNull( getProxyLogger().getLogger() );
   }
 
-  @Nonnull
-  private ReplicantLogger.ProxyLogger getProxyLogger()
+  private ReplicantLogger.@NonNull ProxyLogger getProxyLogger()
   {
     return (ReplicantLogger.ProxyLogger) ReplicantLogger.getLogger();
   }
 
   @SuppressWarnings( "NonJREEmulationClassesInClientCode" )
-  @Nonnull
-  private Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
+  @NonNull
+  private Field toField( @NonNull final Class<?> type, @NonNull final String fieldName )
   {
     Class<?> clazz = type;
     while ( null != clazz && Object.class != clazz )
@@ -102,7 +102,7 @@ public abstract class AbstractReplicantTest
 
   @SuppressWarnings( "SameParameterValue" )
   @Nullable
-  final Object getFieldValue( @Nonnull final Object object, @Nonnull final String fieldName )
+  final Object getFieldValue( @NonNull final Object object, @NonNull final String fieldName )
   {
     try
     {
@@ -114,7 +114,7 @@ public abstract class AbstractReplicantTest
     }
   }
 
-  @Nonnull
+  @NonNull
   protected final TestSpyEventHandler registerTestSpyEventHandler()
   {
     final TestSpyEventHandler handler = new TestSpyEventHandler();
@@ -122,13 +122,13 @@ public abstract class AbstractReplicantTest
     return handler;
   }
 
-  @Nonnull
+  @NonNull
   protected final SystemSchema newSchema()
   {
     return newSchema( ValueUtil.randomInt() );
   }
 
-  @Nonnull
+  @NonNull
   final SystemSchema newSchema( final int schemaId )
   {
     final ChannelSchema[] channels = new ChannelSchema[ 0 ];
@@ -139,19 +139,19 @@ public abstract class AbstractReplicantTest
                              entities );
   }
 
-  @Nonnull
+  @NonNull
   final Connector createConnector()
   {
     return createConnector( newSchema( 1 ) );
   }
 
-  @Nonnull
-  final Connector createConnector( @Nonnull final SystemSchema schema )
+  @NonNull
+  final Connector createConnector( @NonNull final SystemSchema schema )
   {
     return (Connector) Replicant.context().registerConnector( schema, mock( Transport.class ) );
   }
 
-  @Nonnull
+  @NonNull
   final Connection createConnection()
   {
     final Connection connection = Connection.create( createConnector() );

@@ -11,6 +11,7 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import replicant.server.runtime.ReplicantSystem;
 
 @ApplicationScoped
+@SuppressWarnings( "NullAway.Init" )
 public class ReplicantResources
 {
   @Resource( lookup = "replicant/concurrent/ManagedScheduledExecutorService" )

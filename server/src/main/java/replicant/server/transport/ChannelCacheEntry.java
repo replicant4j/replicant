@@ -3,38 +3,41 @@ package replicant.server.transport;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
 
 final class ChannelCacheEntry
 {
-  @Nonnull
+  @NonNull
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  @Nonnull
+  @NonNull
   private final ChannelAddress _descriptor;
+  @Nullable
   private String _cacheKey;
+  @Nullable
   private ChangeSet _changeSet;
 
-  ChannelCacheEntry( @Nonnull final ChannelAddress address )
+  ChannelCacheEntry( @NonNull final ChannelAddress address )
   {
     assert address.concrete();
     _descriptor = Objects.requireNonNull( address );
   }
 
-  @Nonnull
+  @NonNull
   ReadWriteLock getLock()
   {
     return _lock;
   }
 
-  @Nonnull
+  @NonNull
   ChannelAddress getDescriptor()
   {
     return _descriptor;
   }
 
-  void init( @Nonnull final String cacheKey, @Nonnull final ChangeSet changeSet )
+  void init( @NonNull final String cacheKey, @NonNull final ChangeSet changeSet )
   {
     _cacheKey = Objects.requireNonNull( cacheKey );
     _changeSet = Objects.requireNonNull( changeSet );
@@ -45,13 +48,13 @@ final class ChannelCacheEntry
     return null != _cacheKey;
   }
 
-  @Nonnull
+  @NonNull
   String getCacheKey()
   {
     return Objects.requireNonNull( _cacheKey );
   }
 
-  @Nonnull
+  @NonNull
   ChangeSet getChangeSet()
   {
     return Objects.requireNonNull( _changeSet );

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import org.intellij.lang.annotations.Language;
@@ -33,12 +33,12 @@ import replicant.server.transport.ReplicantSessionContext;
 public abstract class AbstractSessionContextImpl
   implements ReplicantChangeRecorder, ReplicantSessionContext
 {
-  @Nonnull
+  @NonNull
   @Override
-  public JsonObject deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
-                                        @Nonnull final ChannelAddress source,
+  public JsonObject deriveTargetFilter( @NonNull final EntityMessage entityMessage,
+                                        @NonNull final ChannelAddress source,
                                         @Nullable final JsonObject sourceFilter,
-                                        @Nonnull final ChannelAddress target )
+                                        @NonNull final ChannelAddress target )
   {
     throw new IllegalStateException( "deriveTargetFilter called for link from " + source + " to " + target +
                                      ( null == sourceFilter ? "" : " with source filter " + sourceFilter ) +
@@ -46,12 +46,12 @@ public abstract class AbstractSessionContextImpl
                                      " but no such graph link exists or the target graph has no filter parameter" );
   }
 
-  @Nonnull
+  @NonNull
   @Override
-  public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                              @Nonnull final ChannelAddress source,
+  public String deriveTargetFilterInstanceId( @NonNull final EntityMessage entityMessage,
+                                              @NonNull final ChannelAddress source,
                                               @Nullable final JsonObject sourceFilter,
-                                              @Nonnull final ChannelAddress target,
+                                              @NonNull final ChannelAddress target,
                                               @Nullable final JsonObject targetFilter )
   {
     throw new IllegalStateException( "deriveTargetFilterInstanceId called for link from " + source + " to " + target +
@@ -63,21 +63,21 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Override
-  public void preSendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  public void preSendChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
   {
   }
 
-  @Nonnull
+  @NonNull
   protected abstract EntityManager em();
 
-  @Nonnull
+  @NonNull
   protected Connection connection()
   {
     return em().unwrap( Connection.class );
   }
 
   @Language( "TSQL" )
-  protected String generateTempIdTableFromIds( @Nonnull final Collection<Integer> idSet )
+  protected String generateTempIdTableFromIds( @NonNull final Collection<Integer> idSet )
   {
     //noinspection SqlUnused
     return "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n" +
@@ -89,7 +89,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Language( "TSQL" )
-  protected String generateTempIdTable( @Nonnull final Collection<ChannelAddress> addresses )
+  protected String generateTempIdTable( @NonNull final Collection<ChannelAddress> addresses )
   {
     //noinspection SqlUnused
     return
@@ -103,7 +103,7 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Language( "TSQL" )
-  protected String generateTempIdAndFilterIdTable( @Nonnull final Collection<ChannelAddress> addresses )
+  protected String generateTempIdAndFilterIdTable( @NonNull final Collection<ChannelAddress> addresses )
   {
     //noinspection SqlUnused
     return
@@ -119,9 +119,9 @@ public abstract class AbstractSessionContextImpl
       "\n";
   }
 
-  @Nonnull
+  @NonNull
   @SuppressWarnings( { "SameParameterValue", "DataFlowIssue" } )
-  protected <T> Stream<List<T>> chunked( @Nonnull final Stream<T> stream, final int chunkSize )
+  protected <T> Stream<List<T>> chunked( @NonNull final Stream<T> stream, final int chunkSize )
   {
     final var index = new AtomicInteger( 0 );
 
@@ -144,29 +144,29 @@ public abstract class AbstractSessionContextImpl
    * @return the converted {@link EntityMessage}, or null if the conversion cannot be performed
    */
   @Nullable
-  protected abstract EntityMessage convertToEntityMessage( @Nonnull final Object object,
+  protected abstract EntityMessage convertToEntityMessage( @NonNull final Object object,
                                                            final boolean isUpdate,
                                                            final boolean isInitialLoad );
 
   @Nullable
   @Override
-  public EntityMessage convertToEntityMessage( @Nonnull final Object object, final boolean isUpdate )
+  public EntityMessage convertToEntityMessage( @NonNull final Object object, final boolean isUpdate )
   {
     return convertToEntityMessage( object, isUpdate, false );
   }
 
   @SuppressWarnings( "unchecked" )
-  protected void addInstanceRootRouterKey( @Nonnull final Map<String, Serializable> routerKeys,
-                                           @Nonnull final String key,
-                                           @Nonnull final Integer id )
+  protected void addInstanceRootRouterKey( @NonNull final Map<String, Serializable> routerKeys,
+                                           @NonNull final String key,
+                                           @NonNull final Integer id )
   {
     ( (List<Integer>) routerKeys.computeIfAbsent( key, v -> new ArrayList<>() ) ).add( id );
   }
 
-  protected int decodeIntAttribute( @Nonnull final ResultSet resultSet,
-                                    @Nonnull final Map<String, Serializable> attributeValues,
-                                    @Nonnull final String key,
-                                    @Nonnull final String columnLabel )
+  protected int decodeIntAttribute( @NonNull final ResultSet resultSet,
+                                    @NonNull final Map<String, Serializable> attributeValues,
+                                    @NonNull final String key,
+                                    @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = resultSet.getInt( columnLabel );
@@ -175,10 +175,10 @@ public abstract class AbstractSessionContextImpl
   }
 
   @Nullable
-  protected Integer decodeNullableIntAttribute( @Nonnull final ResultSet resultSet,
-                                                @Nonnull final Map<String, Serializable> attributeValues,
-                                                @Nonnull final String key,
-                                                @Nonnull final String columnLabel )
+  protected Integer decodeNullableIntAttribute( @NonNull final ResultSet resultSet,
+                                                @NonNull final Map<String, Serializable> attributeValues,
+                                                @NonNull final String key,
+                                                @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = (Integer) resultSet.getObject( columnLabel );
@@ -189,19 +189,19 @@ public abstract class AbstractSessionContextImpl
     return value;
   }
 
-  protected void decodeTimestampAttribute( @Nonnull final ResultSet resultSet,
-                                           @Nonnull final Map<String, Serializable> attributeValues,
-                                           @Nonnull final String key,
-                                           @Nonnull final String columnLabel )
+  protected void decodeTimestampAttribute( @NonNull final ResultSet resultSet,
+                                           @NonNull final Map<String, Serializable> attributeValues,
+                                           @NonNull final String key,
+                                           @NonNull final String columnLabel )
     throws SQLException
   {
     attributeValues.put( key, resultSet.getTimestamp( columnLabel ).getTime() );
   }
 
-  protected void decodeNullableTimestampAttribute( @Nonnull final ResultSet resultSet,
-                                                   @Nonnull final Map<String, Serializable> attributeValues,
-                                                   @Nonnull final String key,
-                                                   @Nonnull final String columnLabel )
+  protected void decodeNullableTimestampAttribute( @NonNull final ResultSet resultSet,
+                                                   @NonNull final Map<String, Serializable> attributeValues,
+                                                   @NonNull final String key,
+                                                   @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = resultSet.getTimestamp( columnLabel );
@@ -211,19 +211,19 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
-  protected void decodeDateAttribute( @Nonnull final ResultSet resultSet,
-                                      @Nonnull final Map<String, Serializable> attributeValues,
-                                      @Nonnull final String key,
-                                      @Nonnull final String columnLabel )
+  protected void decodeDateAttribute( @NonNull final ResultSet resultSet,
+                                      @NonNull final Map<String, Serializable> attributeValues,
+                                      @NonNull final String key,
+                                      @NonNull final String columnLabel )
     throws SQLException
   {
     attributeValues.put( key, toDateString( resultSet.getDate( columnLabel ) ) );
   }
 
-  protected void decodeNullableDateAttribute( @Nonnull final ResultSet resultSet,
-                                              @Nonnull final Map<String, Serializable> attributeValues,
-                                              @Nonnull final String key,
-                                              @Nonnull final String columnLabel )
+  protected void decodeNullableDateAttribute( @NonNull final ResultSet resultSet,
+                                              @NonNull final Map<String, Serializable> attributeValues,
+                                              @NonNull final String key,
+                                              @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = resultSet.getDate( columnLabel );
@@ -233,8 +233,8 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
-  @Nonnull
-  protected String toDateString( @Nonnull final Date value )
+  @NonNull
+  protected String toDateString( @NonNull final Date value )
   {
     return
       new Date( value.getTime() )
@@ -244,19 +244,19 @@ public abstract class AbstractSessionContextImpl
         .toString();
   }
 
-  protected void decodeStringAttribute( @Nonnull final ResultSet resultSet,
-                                        @Nonnull final Map<String, Serializable> attributeValues,
-                                        @Nonnull final String key,
-                                        @Nonnull final String columnLabel )
+  protected void decodeStringAttribute( @NonNull final ResultSet resultSet,
+                                        @NonNull final Map<String, Serializable> attributeValues,
+                                        @NonNull final String key,
+                                        @NonNull final String columnLabel )
     throws SQLException
   {
     attributeValues.put( key, resultSet.getString( columnLabel ) );
   }
 
-  protected void decodeNullableStringAttribute( @Nonnull final ResultSet resultSet,
-                                                @Nonnull final Map<String, Serializable> attributeValues,
-                                                @Nonnull final String key,
-                                                @Nonnull final String columnLabel )
+  protected void decodeNullableStringAttribute( @NonNull final ResultSet resultSet,
+                                                @NonNull final Map<String, Serializable> attributeValues,
+                                                @NonNull final String key,
+                                                @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = resultSet.getString( columnLabel );
@@ -266,19 +266,19 @@ public abstract class AbstractSessionContextImpl
     }
   }
 
-  protected void decodeBooleanAttribute( @Nonnull final ResultSet resultSet,
-                                         @Nonnull final Map<String, Serializable> attributeValues,
-                                         @Nonnull final String key,
-                                         @Nonnull final String columnLabel )
+  protected void decodeBooleanAttribute( @NonNull final ResultSet resultSet,
+                                         @NonNull final Map<String, Serializable> attributeValues,
+                                         @NonNull final String key,
+                                         @NonNull final String columnLabel )
     throws SQLException
   {
     attributeValues.put( key, resultSet.getBoolean( columnLabel ) );
   }
 
-  protected void decodeNullableBooleanAttribute( @Nonnull final ResultSet resultSet,
-                                                 @Nonnull final Map<String, Serializable> attributeValues,
-                                                 @Nonnull final String key,
-                                                 @Nonnull final String columnLabel )
+  protected void decodeNullableBooleanAttribute( @NonNull final ResultSet resultSet,
+                                                 @NonNull final Map<String, Serializable> attributeValues,
+                                                 @NonNull final String key,
+                                                 @NonNull final String columnLabel )
     throws SQLException
   {
     final var value = (Boolean) resultSet.getObject( columnLabel );

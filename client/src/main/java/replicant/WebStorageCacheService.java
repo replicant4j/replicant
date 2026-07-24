@@ -7,8 +7,8 @@ import akasha.core.JsObject;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
 
@@ -20,9 +20,9 @@ import jsinterop.base.JsPropertyMap;
 public final class WebStorageCacheService
   implements CacheService
 {
-  @Nonnull
+  @NonNull
   static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
-  @Nonnull
+  @NonNull
   private final Storage _storage;
 
   /**
@@ -40,7 +40,7 @@ public final class WebStorageCacheService
    *
    * @param context the replicant context.
    */
-  public static void install( @Nonnull final ReplicantContext context )
+  public static void install( @NonNull final ReplicantContext context )
   {
     install( context, WindowGlobal.localStorage() );
   }
@@ -51,17 +51,17 @@ public final class WebStorageCacheService
    * @param context the replicant context.
    * @param storage the store used to cache data.
    */
-  public static void install( @Nonnull final ReplicantContext context, @Nonnull final Storage storage )
+  public static void install( @NonNull final ReplicantContext context, @NonNull final Storage storage )
   {
     Objects.requireNonNull( context ).setCacheService( new WebStorageCacheService( storage ) );
   }
 
-  WebStorageCacheService( @Nonnull final Storage storage )
+  WebStorageCacheService( @NonNull final Storage storage )
   {
     _storage = Objects.requireNonNull( storage );
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public Set<ChannelAddress> keySet( final int schemaId )
   {
@@ -72,14 +72,14 @@ public final class WebStorageCacheService
 
   @Nullable
   @Override
-  public String lookupEtag( @Nonnull final ChannelAddress address )
+  public String lookupEtag( @NonNull final ChannelAddress address )
   {
     return getIndex( address.schemaId() ).get( Objects.requireNonNull( address ).asChannelDescriptor() );
   }
 
   @Nullable
   @Override
-  public CacheEntry lookup( @Nonnull final ChannelAddress address )
+  public CacheEntry lookup( @NonNull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
     final String eTag = getIndex( address.schemaId() ).get( address.asChannelDescriptor() );
@@ -95,9 +95,9 @@ public final class WebStorageCacheService
   }
 
   @Override
-  public boolean store( @Nonnull final ChannelAddress address,
-                        @Nonnull final String eTag,
-                        @Nonnull final Object content )
+  public boolean store( @NonNull final ChannelAddress address,
+                        @NonNull final String eTag,
+                        @NonNull final Object content )
   {
     Objects.requireNonNull( address );
     Objects.requireNonNull( eTag );
@@ -119,7 +119,7 @@ public final class WebStorageCacheService
     }
   }
 
-  private void saveIndex( final int schemaId, @Nonnull final JsPropertyMap<String> index )
+  private void saveIndex( final int schemaId, @NonNull final JsPropertyMap<String> index )
   {
     final Storage storage = getStorage();
     final String key = indexKey( schemaId );
@@ -134,7 +134,7 @@ public final class WebStorageCacheService
   }
 
   @Override
-  public boolean invalidate( @Nonnull final ChannelAddress address )
+  public boolean invalidate( @NonNull final ChannelAddress address )
   {
     Objects.requireNonNull( address );
     final int schemaId = address.schemaId();
@@ -153,13 +153,13 @@ public final class WebStorageCacheService
     }
   }
 
-  @Nonnull
+  @NonNull
   Storage getStorage()
   {
     return _storage;
   }
 
-  @Nonnull
+  @NonNull
   private JsPropertyMap<String> getIndex( final int schemaId )
   {
     final JsPropertyMap<String> index = findIndex( schemaId );
@@ -173,7 +173,7 @@ public final class WebStorageCacheService
     return null == indexData ? null : Js.uncheckedCast( JSON.parse( indexData ) );
   }
 
-  @Nonnull
+  @NonNull
   private String indexKey( final int schemaId )
   {
     return ETAG_INDEX + '-' + schemaId;

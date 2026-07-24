@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import replicant.server.ChannelAddress;
 
@@ -19,39 +19,39 @@ import replicant.server.ChannelAddress;
 final class SubscriptionEntry
   implements Comparable<SubscriptionEntry>
 {
-  @Nonnull
+  @NonNull
   private final ReplicantSession _session;
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
   /**
    * This is a list of channels that this auto-subscribed to.
    */
-  @Nonnull
+  @NonNull
   private final Set<ChannelAddress> _outwardSubscriptions = new HashSet<>();
-  @Nonnull
+  @NonNull
   private final Set<ChannelAddress> _roOutwardSubscriptions = Collections.unmodifiableSet( _outwardSubscriptions );
-  @Nonnull
+  @NonNull
   private final Map<LinkOwner, Set<ChannelAddress>> _ownedOutwardSubscriptions = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final Map<ChannelAddress, Integer> _outwardSubscriptionReferenceCounts = new HashMap<>();
   /**
    * This is a list of channels that auto-subscribed to this channel.
    */
-  @Nonnull
+  @NonNull
   private final Set<ChannelAddress> _inwardSubscriptions = new HashSet<>();
-  @Nonnull
+  @NonNull
   private final Set<ChannelAddress> _roInwardSubscriptions = Collections.unmodifiableSet( _inwardSubscriptions );
   private boolean _explicitlySubscribed;
   @Nullable
   private JsonObject _filter;
 
-  SubscriptionEntry( @Nonnull final ReplicantSession session, @Nonnull final ChannelAddress address )
+  SubscriptionEntry( @NonNull final ReplicantSession session, @NonNull final ChannelAddress address )
   {
     _session = Objects.requireNonNull( session );
     _address = Objects.requireNonNull( address );
   }
 
-  @Nonnull
+  @NonNull
   ChannelAddress address()
   {
     return _address;
@@ -107,14 +107,14 @@ final class SubscriptionEntry
   /**
    * Return the channels that were subscribed as a result of subscribing to this channel.
    */
-  @Nonnull
+  @NonNull
   Set<ChannelAddress> getOutwardSubscriptions()
   {
     return _roOutwardSubscriptions;
   }
 
-  @Nonnull
-  Set<ChannelAddress> getOwnedOutwardSubscriptions( @Nonnull final LinkOwner owner )
+  @NonNull
+  Set<ChannelAddress> getOwnedOutwardSubscriptions( @NonNull final LinkOwner owner )
   {
     assert null != owner;
     _session.ensureLockedByCurrentThread();
@@ -125,9 +125,9 @@ final class SubscriptionEntry
   /**
    * Register the specified channel as outward links. Returns the set of links that were actually added.
    */
-  @Nonnull
-  ChannelAddress[] registerOutwardSubscriptions( @Nonnull final LinkOwner owner,
-                                                 @Nonnull final ChannelAddress... channels )
+  @NonNull
+  ChannelAddress[] registerOutwardSubscriptions( @NonNull final LinkOwner owner,
+                                                 @NonNull final ChannelAddress... channels )
   {
     assert null != owner;
     _session.ensureLockedByCurrentThread();
@@ -151,9 +151,9 @@ final class SubscriptionEntry
   /**
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
-  @Nonnull
-  ChannelAddress[] deregisterOutwardSubscriptions( @Nonnull final LinkOwner owner,
-                                                   @Nonnull final ChannelAddress... channels )
+  @NonNull
+  ChannelAddress[] deregisterOutwardSubscriptions( @NonNull final LinkOwner owner,
+                                                   @NonNull final ChannelAddress... channels )
   {
     assert null != owner;
     _session.ensureLockedByCurrentThread();
@@ -169,8 +169,7 @@ final class SubscriptionEntry
       {
         if ( owned.remove( channel ) )
         {
-          final var existing = _outwardSubscriptionReferenceCounts.get( channel );
-          assert null != existing;
+          final var existing = Objects.requireNonNull( _outwardSubscriptionReferenceCounts.get( channel ) );
           assert existing > 0;
           if ( 1 == existing )
           {
@@ -195,8 +194,8 @@ final class SubscriptionEntry
   /**
    * Deregister the specified channels from all graph-link owners. Returns the set of links that were actually deregistered.
    */
-  @Nonnull
-  ChannelAddress[] deregisterAllOutwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  @NonNull
+  ChannelAddress[] deregisterAllOutwardSubscriptions( @NonNull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final var results = new ArrayList<ChannelAddress>( channels.length );
@@ -218,7 +217,7 @@ final class SubscriptionEntry
   /**
    * Return the channels that were auto-subscribed to the current channel.
    */
-  @Nonnull
+  @NonNull
   Set<ChannelAddress> getInwardSubscriptions()
   {
     return _roInwardSubscriptions;
@@ -227,8 +226,8 @@ final class SubscriptionEntry
   /**
    * Register the specified channel as inward links. Returns the set of links that were actually added.
    */
-  @Nonnull
-  ChannelAddress[] registerInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  @NonNull
+  ChannelAddress[] registerInwardSubscriptions( @NonNull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final var results = new ArrayList<ChannelAddress>( channels.length );
@@ -246,8 +245,8 @@ final class SubscriptionEntry
   /**
    * Deregister the specified channels as outward links. Returns the set of links that were actually deregistered.
    */
-  @Nonnull
-  ChannelAddress[] deregisterInwardSubscriptions( @Nonnull final ChannelAddress... channels )
+  @NonNull
+  ChannelAddress[] deregisterInwardSubscriptions( @NonNull final ChannelAddress... channels )
   {
     _session.ensureLockedByCurrentThread();
     final var results = new ArrayList<ChannelAddress>( channels.length );
@@ -263,7 +262,7 @@ final class SubscriptionEntry
   }
 
   @Override
-  public int compareTo( @Nonnull final SubscriptionEntry o )
+  public int compareTo( @NonNull final SubscriptionEntry o )
   {
     return address().compareTo( o.address() );
   }

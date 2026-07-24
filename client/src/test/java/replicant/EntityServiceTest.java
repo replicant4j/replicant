@@ -1,6 +1,7 @@
 package replicant;
 
 import arez.Disposable;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -276,7 +277,7 @@ public class EntityServiceTest
       safeAction( () -> assertEquals( service.findAllEntityTypes().size(), 1 ) );
       safeAction( () -> assertEquals( service.findAllEntitiesByType( A.class ).size(), 1 ) );
       safeAction( () -> assertNotNull( service.findEntityByTypeAndId( A.class, 1 ) ) );
-      safeAction( () -> assertEquals( service.getEntities().get( A.class ).size(), 1 ) );
+      safeAction( () -> assertEquals( Objects.requireNonNull( service.getEntities().get( A.class ) ).size(), 1 ) );
     }
 
     // Dispose entity

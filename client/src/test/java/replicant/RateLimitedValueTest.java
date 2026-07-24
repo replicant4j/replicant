@@ -1,5 +1,6 @@
 package replicant;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -81,6 +82,6 @@ public class RateLimitedValueTest
 
   private Object getLastRegenTime( final RateLimitedValue value )
   {
-    return getFieldValue( value, "_lastRegenTime" );
+    return Objects.requireNonNull( getFieldValue( value, "_lastRegenTime" ) );
   }
 }

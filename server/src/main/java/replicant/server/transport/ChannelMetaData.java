@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -88,31 +88,31 @@ public final class ChannelMetaData
   }
 
   private final int _channelId;
-  @Nonnull
+  @NonNull
   private final String _name;
   @Nullable
   private final Integer _instanceRootEntityTypeId;
-  @Nonnull
+  @NonNull
   private final FilterType _filterType;
-  @Nonnull
+  @NonNull
   private final CacheType _cacheType;
   /**
    * Flag indicating whether the channel can be subscribed to, externally.
    * i.e. Can this be explicitly subscribed.
    */
   private final boolean _external;
-  @Nonnull
+  @NonNull
   private final ChannelMetaData[] _requiredTypeChannels;
-  @Nonnull
+  @NonNull
   private final Set<ChannelMetaData> _dependentChannels = new HashSet<>();
 
   public ChannelMetaData( final int channelId,
-                          @Nonnull final String name,
+                          @NonNull final String name,
                           @Nullable final Integer instanceRootEntityTypeId,
-                          @Nonnull final FilterType filterType,
-                          @Nonnull final CacheType cacheType,
+                          @NonNull final FilterType filterType,
+                          @NonNull final CacheType cacheType,
                           final boolean external,
-                          @Nonnull final ChannelMetaData... requiredTypeGraphs )
+                          @NonNull final ChannelMetaData... requiredTypeGraphs )
   {
     _channelId = channelId;
     _name = Objects.requireNonNull( name );
@@ -137,7 +137,7 @@ public final class ChannelMetaData
     return _channelId;
   }
 
-  @Nonnull
+  @NonNull
   public String getName()
   {
     return _name;
@@ -163,14 +163,13 @@ public final class ChannelMetaData
     return filterType().isInstancedFilter();
   }
 
-  @Nonnull
+  @NonNull
   public Integer getInstanceRootEntityTypeId()
   {
-    assert null != _instanceRootEntityTypeId;
-    return _instanceRootEntityTypeId;
+    return Objects.requireNonNull( _instanceRootEntityTypeId );
   }
 
-  @Nonnull
+  @NonNull
   public FilterType filterType()
   {
     return _filterType;
@@ -181,7 +180,7 @@ public final class ChannelMetaData
     return CacheType.NONE != _cacheType;
   }
 
-  @Nonnull
+  @NonNull
   public CacheType getCacheType()
   {
     return _cacheType;
@@ -192,14 +191,14 @@ public final class ChannelMetaData
     return _external;
   }
 
-  @Nonnull
+  @NonNull
   public ChannelMetaData[] getRequiredTypeChannels()
   {
     return _requiredTypeChannels;
   }
 
   @Contract( pure = true )
-  @Nonnull
+  @NonNull
   public @UnmodifiableView Set<ChannelMetaData> getDependentChannels()
   {
     return Collections.unmodifiableSet( _dependentChannels );

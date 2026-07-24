@@ -1,7 +1,7 @@
 package replicant;
 
 import grim.annotations.OmitType;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Location of all compile time configuration settings for framework.
@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 @OmitType
 final class ReplicantConfig
 {
-  @Nonnull
+  @NonNull
   private static final ConfigProvider PROVIDER = new ConfigProvider();
   private static final boolean JVM = PROVIDER.isJvm();
   private static boolean PRODUCTION_MODE = PROVIDER.isProductionMode();
@@ -21,7 +21,7 @@ final class ReplicantConfig
   private static boolean VALIDATE_CHANGE_SET_ON_READ = PROVIDER.validateChangeSetOnRead();
   private static boolean VALIDATE_ENTITIES_ON_LOAD = PROVIDER.validateEntitiesOnLoad();
   private static boolean ENABLE_SPIES = PROVIDER.enableSpies();
-  @Nonnull
+  @NonNull
   private static final String LOGGER_TYPE = PROVIDER.loggerType();
 
   private ReplicantConfig()
@@ -176,7 +176,7 @@ final class ReplicantConfig
     }
 
     @GwtIncompatible
-    @Nonnull
+    @NonNull
     @Override
     String loggerType()
     {
@@ -234,7 +234,7 @@ final class ReplicantConfig
       return "true" == System.getProperty( "replicant.enable_spies" );
     }
 
-    @Nonnull
+    @NonNull
     String loggerType()
     {
       /*

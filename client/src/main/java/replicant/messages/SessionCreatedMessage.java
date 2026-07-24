@@ -1,7 +1,7 @@
 package replicant.messages;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -10,19 +10,19 @@ import replicant.shared.Messages;
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
-@SuppressWarnings( "NotNullFieldNotInitialized" )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init" } )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class SessionCreatedMessage
   extends ServerToClientMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.SESSION_CREATED;
-  @Nonnull
+  @NonNull
   private String sessionId;
 
   @JsOverlay
-  @Nonnull
-  public static SessionCreatedMessage create( @Nonnull final String sessionId )
+  @NonNull
+  public static SessionCreatedMessage create( @NonNull final String sessionId )
   {
     final SessionCreatedMessage changeSet = new SessionCreatedMessage();
     changeSet.type = TYPE;
@@ -32,7 +32,7 @@ public class SessionCreatedMessage
   }
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public final String getSessionId()
   {
     return sessionId;

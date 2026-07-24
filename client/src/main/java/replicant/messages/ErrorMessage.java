@@ -1,6 +1,6 @@
 package replicant.messages;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;

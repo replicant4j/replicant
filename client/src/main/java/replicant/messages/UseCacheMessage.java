@@ -1,8 +1,8 @@
 package replicant.messages;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -11,23 +11,23 @@ import replicant.shared.Messages;
 /**
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
-@SuppressWarnings( "NotNullFieldNotInitialized" )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init" } )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public class UseCacheMessage
   extends ServerToClientMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.S2C_Type.USE_CACHE;
-  @Nonnull
+  @NonNull
   private String channel;
-  @Nonnull
+  @NonNull
   private String etag;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static UseCacheMessage create( @Nullable final Integer requestId,
-                                        @Nonnull final String channel,
-                                        @Nonnull final String eTag )
+                                        @NonNull final String channel,
+                                        @NonNull final String eTag )
   {
     final UseCacheMessage changeSet = new UseCacheMessage();
     changeSet.type = TYPE;
@@ -38,14 +38,14 @@ public class UseCacheMessage
   }
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public final String getChannel()
   {
     return channel;
   }
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public final String getEtag()
   {
     return etag;

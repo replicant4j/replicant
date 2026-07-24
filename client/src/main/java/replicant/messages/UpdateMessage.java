@@ -1,8 +1,9 @@
 package replicant.messages;
 
 import java.util.HashSet;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -21,22 +22,19 @@ public class UpdateMessage
   public static final String TYPE = Messages.S2C_Type.UPDATE;
   @Nullable
   private String etag;
-  @Nullable
-  private String[] channels;
-  @Nullable
-  private ChannelChange[] fchannels;
-  @Nullable
-  private EntityChange[] changes;
+  private String @Nullable [] channels;
+  private ChannelChange @Nullable [] fchannels;
+  private EntityChange @Nullable [] changes;
   @Nullable
   private Object response;
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public static UpdateMessage create( @Nullable final Integer requestId,
                                       @Nullable final String eTag,
-                                      @Nullable final String[] channels,
-                                      @Nullable final ChannelChange[] fchannels,
-                                      @Nullable final EntityChange[] entityChanges,
+                                      final String @Nullable [] channels,
+                                      final ChannelChange @Nullable [] fchannels,
+                                      final EntityChange @Nullable [] entityChanges,
                                       @Nullable final Object response )
   {
     final UpdateMessage updateMessage = new UpdateMessage();
@@ -76,7 +74,7 @@ public class UpdateMessage
    *
    * @return the channel changes.
    */
-  @Nonnull
+  @NonNull
   @JsOverlay
   public final String[] getChannels()
   {
@@ -85,8 +83,7 @@ public class UpdateMessage
       apiInvariant( () -> null != channels,
                     () -> "Replicant-0013: UpdateMessage.getChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasChannels()." );
     }
-    assert null != channels;
-    return channels;
+    return Objects.requireNonNull( channels );
   }
 
   /**
@@ -106,7 +103,7 @@ public class UpdateMessage
    *
    * @return the channel changes.
    */
-  @Nonnull
+  @NonNull
   @JsOverlay
   public final ChannelChange[] getFilteredChannels()
   {
@@ -115,8 +112,7 @@ public class UpdateMessage
       apiInvariant( () -> null != fchannels,
                     () -> "Replicant-0030: UpdateMessage.getFilteredChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasFilteredChannels()." );
     }
-    assert null != fchannels;
-    return fchannels;
+    return Objects.requireNonNull( fchannels );
   }
 
   /**
@@ -136,7 +132,7 @@ public class UpdateMessage
    *
    * @return the entity changes.
    */
-  @Nonnull
+  @NonNull
   @JsOverlay
   public final EntityChange[] getEntityChanges()
   {
@@ -145,8 +141,7 @@ public class UpdateMessage
       apiInvariant( () -> null != changes,
                     () -> "Replicant-0012: UpdateMessage.getEntityChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasEntityChanges()." );
     }
-    assert null != changes;
-    return changes;
+    return Objects.requireNonNull( changes );
   }
 
   /**

@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.TreeMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionDisposedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -31,27 +31,27 @@ public abstract class Subscription
   extends ReplicantService
   implements Comparable<Subscription>
 {
-  @Nonnull
+  @NonNull
   private final Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
 
-  @Nonnull
+  @NonNull
   static Subscription create( @Nullable final ReplicantContext context,
-                              @Nonnull final ChannelAddress address,
+                              @NonNull final ChannelAddress address,
                               @Nullable final Object filter,
                               final boolean explicitSubscription )
   {
     return new Arez_Subscription( context, address, filter, explicitSubscription );
   }
 
-  Subscription( @Nullable final ReplicantContext context, @Nonnull final ChannelAddress address )
+  Subscription( @Nullable final ReplicantContext context, @NonNull final ChannelAddress address )
   {
     super( context );
     _address = Objects.requireNonNull( address );
   }
 
-  @Nonnull
+  @NonNull
   public ChannelAddress address()
   {
     return _address;
@@ -68,21 +68,21 @@ public abstract class Subscription
 
   public abstract void setExplicitSubscription( boolean explicitSubscription );
 
-  @Nonnull
+  @NonNull
   @Observable( expectSetter = false )
   Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> getEntities()
   {
     return _entities;
   }
 
-  @Nonnull
+  @NonNull
   public Collection<Class<?>> findAllEntityTypes()
   {
     return getEntities().keySet();
   }
 
-  @Nonnull
-  public List<Entity> findAllEntitiesByType( @Nonnull final Class<?> type )
+  @NonNull
+  public List<Entity> findAllEntitiesByType( @NonNull final Class<?> type )
   {
     final Map<Integer, EntitySubscriptionEntry> typeMap = getEntities().get( type );
     return null == typeMap ?
@@ -91,7 +91,7 @@ public abstract class Subscription
   }
 
   @Nullable
-  public Entity findEntityByTypeAndId( @Nonnull final Class<?> type, final int id )
+  public Entity findEntityByTypeAndId( @NonNull final Class<?> type, final int id )
   {
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( type );
     if ( null == typeMap )
@@ -122,7 +122,7 @@ public abstract class Subscription
    *
    * @return the instance root.
    */
-  @Nonnull
+  @NonNull
   public Object getInstanceRoot()
   {
     final ChannelSchema channel = getChannelSchema();
@@ -136,16 +136,15 @@ public abstract class Subscription
                  () -> "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel " +
                        _address + " but channel has not supplied expected id." );
     }
-    assert null != rootId;
-    final Entity entity = findEntityByTypeAndId( Objects.requireNonNull( channel.getInstanceType() ), rootId );
+    final Entity entity =
+      findEntityByTypeAndId( Objects.requireNonNull( channel.getInstanceType() ), Objects.requireNonNull( rootId ) );
     if ( Replicant.shouldCheckApiInvariants() )
     {
       invariant( () -> null != entity,
                  () -> "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel " +
                        _address + " but entity is not present." );
     }
-    assert null != entity;
-    return entity.getUserObject();
+    return Objects.requireNonNull( entity ).getUserObject();
   }
 
   /**
@@ -153,7 +152,7 @@ public abstract class Subscription
    *
    * @return the channel schema for subscription.
    */
-  @Nonnull
+  @NonNull
   public ChannelSchema getChannelSchema()
   {
     return getReplicantContext()
@@ -166,12 +165,12 @@ public abstract class Subscription
   abstract ObservableValue<?> getEntitiesObservableValue();
 
   @Override
-  public int compareTo( @Nonnull final Subscription o )
+  public int compareTo( @NonNull final Subscription o )
   {
     return address().compareTo( o.address() );
   }
 
-  void linkSubscriptionToEntity( @Nonnull final Entity entity )
+  void linkSubscriptionToEntity( @NonNull final Entity entity )
   {
     getEntitiesObservableValue().preReportChanged();
     final Class<?> type = entity.getType();
@@ -184,8 +183,8 @@ public abstract class Subscription
     }
   }
 
-  private void createSubscriptionEntry( @Nonnull final Map<Integer, EntitySubscriptionEntry> typeMap,
-                                        @Nonnull final Entity entity )
+  private void createSubscriptionEntry( @NonNull final Map<Integer, EntitySubscriptionEntry> typeMap,
+                                        @NonNull final Entity entity )
   {
     typeMap.put( entity.getId(), EntitySubscriptionEntry.create( entity ) );
     DisposeNotifier
@@ -194,14 +193,14 @@ public abstract class Subscription
     getEntitiesObservableValue().reportChanged();
   }
 
-  void delinkEntityFromSubscription( @Nonnull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
+  void delinkEntityFromSubscription( @NonNull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
   {
     getEntitiesObservableValue().preReportChanged();
     detachEntity( entity, disposeEntityIfNoSubscriptions );
     getEntitiesObservableValue().reportChanged();
   }
 
-  private void detachEntity( @Nonnull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
+  private void detachEntity( @NonNull final Entity entity, final boolean disposeEntityIfNoSubscriptions )
   {
     final Class<?> entityType = entity.getType();
     final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get( entityType );
@@ -212,8 +211,7 @@ public abstract class Subscription
                  () -> "Entity type " + entityType.getSimpleName() + " not present in subscription " +
                        "to channel " + address );
     }
-    assert null != typeMap;
-    final EntitySubscriptionEntry removed = typeMap.remove( entity.getId() );
+    final EntitySubscriptionEntry removed = Objects.requireNonNull( typeMap ).remove( entity.getId() );
     if ( Replicant.shouldCheckInvariants() )
     {
       invariant( () -> null != removed,

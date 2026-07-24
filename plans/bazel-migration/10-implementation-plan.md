@@ -84,7 +84,11 @@ Replace nullness imports and annotations with JSpecify, add `@NullMarked`
 package declarations, and enable NullAway plus explicit-null-marking checks
 with `OnlyNullMarked=true`. Retain the Java EE `javax.annotation` dependency
 only in targets and the server POM that still need `PostConstruct`,
-`PreDestroy`, `Priority`, or `Resource`.
+`PreDestroy`, `Priority`, or `Resource`. The client compile target also retains
+a build-only direct dependency because the latest Arez processor still emits
+legacy `javax.annotation` imports; this dependency is excluded from the client
+POM, whose normal Arez dependency already supplies it transitively to source
+consumers.
 
 During this phase, temporarily add JSpecify to Buildr's dependency metadata and
 the client/server compile/POM configuration while retaining the server's

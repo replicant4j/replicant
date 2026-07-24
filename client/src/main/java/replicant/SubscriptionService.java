@@ -17,10 +17,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionCreatedEvent;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -32,14 +33,14 @@ abstract class SubscriptionService
   extends ReplicantService
 {
   //SystemId -> ChannelId -> RootId -> FilterInstanceId => Entry
-  @Nonnull
+  @NonNull
   private final Map<Integer, Map<Integer, Map<Integer, Map<String, Subscription>>>> _instanceSubscriptions =
     new HashMap<>();
   //SystemId -> ChannelId -> FilterInstanceId => Entry
-  @Nonnull
+  @NonNull
   private final Map<Integer, Map<Integer, Map<String, Subscription>>> _typeSubscriptions = new HashMap<>();
 
-  @Nonnull
+  @NonNull
   static SubscriptionService create( @Nullable final ReplicantContext context )
   {
     return new Arez_SubscriptionService( context );
@@ -55,7 +56,7 @@ abstract class SubscriptionService
    *
    * @return the collection of type subscriptions.
    */
-  @Nonnull
+  @NonNull
   @Observable( expectSetter = false )
   List<Subscription> getTypeSubscriptions()
   {
@@ -75,7 +76,7 @@ abstract class SubscriptionService
    *
    * @return the collection of instance subscriptions.
    */
-  @Nonnull
+  @NonNull
   @Observable( expectSetter = false )
   Collection<Subscription> getInstanceSubscriptions()
   {
@@ -98,7 +99,7 @@ abstract class SubscriptionService
    * @param channelId the channel id.
    * @return the set of ids for all instance subscriptions with specified channel type.
    */
-  @Nonnull
+  @NonNull
   Set<Integer> getInstanceSubscriptionIds( final int schemaId, final int channelId )
   {
     getInstanceSubscriptionsObservableValue().reportObserved();
@@ -123,8 +124,8 @@ abstract class SubscriptionService
    * @param explicitSubscription if subscription was explicitly requested by the client.
    * @return the subscription.
    */
-  @Nonnull
-  Subscription createSubscription( @Nonnull final ChannelAddress address,
+  @NonNull
+  Subscription createSubscription( @NonNull final ChannelAddress address,
                                    @Nullable final Object filter,
                                    final boolean explicitSubscription )
   {
@@ -176,13 +177,13 @@ abstract class SubscriptionService
     return subscription;
   }
 
-  private void destroy( @Nonnull final Subscription subscription )
+  private void destroy( @NonNull final Subscription subscription )
   {
     detachSubscription( subscription );
     unlinkSubscription( subscription.address() );
   }
 
-  private void detachSubscription( @Nonnull final Subscription subscription )
+  private void detachSubscription( @NonNull final Subscription subscription )
   {
     DisposeNotifier.asDisposeNotifier( subscription ).removeOnDisposeListener( this, true );
   }
@@ -197,7 +198,7 @@ abstract class SubscriptionService
    * @return the subscription if it exists, null otherwise.
    */
   @Nullable
-  Subscription findSubscription( @Nonnull final ChannelAddress address )
+  Subscription findSubscription( @NonNull final ChannelAddress address )
   {
     final int schemaId = address.schemaId();
     final int channelId = address.channelId();
@@ -284,8 +285,8 @@ abstract class SubscriptionService
    * @param address the channel address.
    * @return the subscription.
    */
-  @Nonnull
-  Subscription unlinkSubscription( @Nonnull final ChannelAddress address )
+  @NonNull
+  Subscription unlinkSubscription( @NonNull final ChannelAddress address )
   {
     final int schemaId = address.schemaId();
     final int channelId = address.channelId();
@@ -299,9 +300,9 @@ abstract class SubscriptionService
       final Subscription subscription = null == instanceMap ? null : instanceMap.remove( filterInstanceId );
       if ( null != instanceMap && instanceMap.isEmpty() )
       {
-        map.remove( channelId );
+        Objects.requireNonNull( map ).remove( channelId );
       }
-      if ( null != subscription && map.isEmpty() )
+      if ( null != subscription && Objects.requireNonNull( map ).isEmpty() )
       {
         _typeSubscriptions.remove( schemaId );
       }
@@ -315,9 +316,8 @@ abstract class SubscriptionService
                    () -> "Replicant-0063: unlinkSubscription invoked with address " + address +
                          " but subscription has not already been disposed." );
       }
-      assert null != subscription;
       getTypeSubscriptionsObservableValue().reportChanged();
-      return subscription;
+      return Objects.requireNonNull( subscription );
     }
     else
     {
@@ -329,11 +329,11 @@ abstract class SubscriptionService
       final Subscription subscription = null == filterMap ? null : filterMap.remove( filterInstanceId );
       if ( null != filterMap && filterMap.isEmpty() )
       {
-        instanceMap.remove( rootId );
+        Objects.requireNonNull( instanceMap ).remove( rootId );
       }
-      if ( null != subscription && instanceMap.isEmpty() )
+      if ( null != subscription && Objects.requireNonNull( instanceMap ).isEmpty() )
       {
-        channelMap.remove( channelId );
+        Objects.requireNonNull( channelMap ).remove( channelId );
         if ( channelMap.isEmpty() )
         {
           _instanceSubscriptions.remove( schemaId );
@@ -349,9 +349,8 @@ abstract class SubscriptionService
                    () -> "Replicant-0061: unlinkSubscription invoked with address " + address +
                          " but subscription has not already been disposed." );
       }
-      assert null != subscription;
       getInstanceSubscriptionsObservableValue().reportChanged();
-      return subscription;
+      return Objects.requireNonNull( subscription );
     }
   }
 

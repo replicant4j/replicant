@@ -1,8 +1,8 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -26,7 +26,7 @@ abstract class ReplicantService
     _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
   }
 
-  @Nonnull
+  @NonNull
   protected final ReplicantContext getReplicantContext()
   {
     return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();

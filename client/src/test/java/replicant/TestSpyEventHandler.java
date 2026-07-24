@@ -3,13 +3,13 @@ package replicant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import static org.testng.Assert.*;
 
 public final class TestSpyEventHandler
   implements SpyEventHandler
 {
-  @Nonnull
+  @NonNull
   private final List<Object> _events = new ArrayList<>();
   /**
    * When ussing assertNextEvent this tracks the index that we are up to.
@@ -17,7 +17,7 @@ public final class TestSpyEventHandler
   private int _currentAssertIndex;
 
   @Override
-  public void onSpyEvent( @Nonnull final Object event )
+  public void onSpyEvent( @NonNull final Object event )
   {
     _events.add( event );
   }
@@ -25,8 +25,8 @@ public final class TestSpyEventHandler
   /**
    * Assert Event exists in list and return it.
    */
-  @Nonnull
-  <T> T assertEvent( @Nonnull final Class<T> type )
+  @NonNull
+  <T> T assertEvent( @NonNull final Class<T> type )
   {
     for ( final Object event : _events )
     {
@@ -35,15 +35,14 @@ public final class TestSpyEventHandler
         return type.cast( event );
       }
     }
-    fail( "Unable to locate event of type " + type + " in event list " + _events );
-    return null;
+    throw new AssertionError( "Unable to locate event of type " + type + " in event list " + _events );
   }
 
   /**
    * Assert Event at index is of specific type and return it.
    */
-  @Nonnull
-  <T> T assertEvent( @Nonnull final Class<T> type, final int index )
+  @NonNull
+  <T> T assertEvent( @NonNull final Class<T> type, final int index )
   {
     assertTrue( eventCount() > index );
     final Object event = _events.get( index );
@@ -67,8 +66,8 @@ public final class TestSpyEventHandler
    * Assert "next" Event is of specific type.
    * Increment the next counter.
    */
-  @Nonnull
-  <T> T assertNextEvent( @Nonnull final Class<T> type )
+  @NonNull
+  <T> T assertNextEvent( @NonNull final Class<T> type )
   {
     final T event = assertEvent( type, _currentAssertIndex );
     _currentAssertIndex++;
@@ -79,8 +78,8 @@ public final class TestSpyEventHandler
    * Assert "next" Event is of specific type.
    * Increment the next counter, run action.
    */
-  @Nonnull
-  public <T> T assertNextEvent( @Nonnull final Class<T> type, @Nonnull final Consumer<T> action )
+  @NonNull
+  public <T> T assertNextEvent( @NonNull final Class<T> type, @NonNull final Consumer<T> action )
   {
     final T event = assertEvent( type, _currentAssertIndex );
     _currentAssertIndex++;

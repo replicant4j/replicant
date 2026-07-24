@@ -3,7 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import replicant.ChannelAddress;
 import replicant.Subscription;
 
@@ -13,22 +13,22 @@ import replicant.Subscription;
 public final class SubscriptionDisposedEvent
   implements SerializableEvent
 {
-  @Nonnull
+  @NonNull
   private final Subscription _subscription;
 
-  public SubscriptionDisposedEvent( @Nonnull final Subscription subscription )
+  public SubscriptionDisposedEvent( @NonNull final Subscription subscription )
   {
     _subscription = Objects.requireNonNull( subscription );
   }
 
-  @Nonnull
+  @NonNull
   public Subscription getSubscription()
   {
     return _subscription;
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Subscription.Disposed" );
     final ChannelAddress address = getSubscription().address();

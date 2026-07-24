@@ -3,8 +3,8 @@ package replicant.server.transport;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import javax.websocket.Session;
 import replicant.server.ChannelAddress;
@@ -19,18 +19,18 @@ public interface ReplicantSessionManager
    * @return the associated session or null if no such session.
    */
   @Nullable
-  ReplicantSession getSession( @Nonnull String sessionId );
+  ReplicantSession getSession( @NonNull String sessionId );
 
-  <T> T runRequest( @Nonnull String invocationKey,
+  <T> T runRequest( @NonNull String invocationKey,
                     @Nullable ReplicantSession session,
                     @Nullable Integer requestId,
-                    @Nonnull Callable<T> action )
+                    @NonNull Callable<T> action )
     throws Exception;
 
-  boolean isAuthorized( @Nonnull ReplicantSession session );
+  boolean isAuthorized( @NonNull ReplicantSession session );
 
-  void execCommand( @Nonnull ReplicantSession session,
-                    @Nonnull String command,
+  void execCommand( @NonNull ReplicantSession session,
+                    @NonNull String command,
                     int requestId,
                     @Nullable JsonObject payload );
 
@@ -39,7 +39,7 @@ public interface ReplicantSessionManager
    *
    * @param session the session.
    */
-  void invalidateSession( @Nonnull ReplicantSession session );
+  void invalidateSession( @NonNull ReplicantSession session );
 
   /**
    * Create replicant session for specified WebSocket session.
@@ -47,26 +47,26 @@ public interface ReplicantSessionManager
    *
    * @return the new session.
    */
-  @Nonnull
-  ReplicantSession createSession( @Nonnull Session webSocketSession,
-                                   @Nonnull ReplicantSessionAuthorization authorization );
+  @NonNull
+  ReplicantSession createSession( @NonNull Session webSocketSession,
+                                   @NonNull ReplicantSessionAuthorization authorization );
 
   /**
    * @return the metadata for replicant system.
    */
-  @Nonnull
+  @NonNull
   SchemaMetaData getSchemaMetaData();
 
-  void setETags( @Nonnull ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags );
+  void setETags( @NonNull ReplicantSession session, @NonNull final Map<ChannelAddress, String> eTags );
 
-  void subscribe( @Nonnull ReplicantSession session,
+  void subscribe( @NonNull ReplicantSession session,
                   int requestId,
-                  @Nonnull List<ChannelAddress> addresses,
+                  @NonNull List<ChannelAddress> addresses,
                   @Nullable JsonObject filter );
 
-  void unsubscribe( @Nonnull ReplicantSession session,
+  void unsubscribe( @NonNull ReplicantSession session,
                     int requestId,
-                    @Nonnull List<ChannelAddress> addresses );
+                    @NonNull List<ChannelAddress> addresses );
 
   /**
    * Send the "Change" message to the client.
@@ -78,7 +78,7 @@ public interface ReplicantSessionManager
    * @param packet  the packet  associated with the change.
    * @return true if the message was sent, false if the session is closed or packet did not need to be sent.
    */
-  boolean sendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
+  boolean sendChangeMessage( @NonNull ReplicantSession session, @NonNull Packet packet );
 
   /**
    * Clears any cached data associated with the system.

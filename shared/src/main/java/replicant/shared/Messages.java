@@ -1,6 +1,6 @@
 package replicant.shared;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public final class Messages
 {
@@ -13,19 +13,19 @@ public final class Messages
    */
   public static final class S2C_Type
   {
-    @Nonnull
+    @NonNull
     public static final String UPDATE = "update";
-    @Nonnull
+    @NonNull
     public static final String USE_CACHE = "use-cache";
-    @Nonnull
+    @NonNull
     public static final String SESSION_CREATED = "session-created";
-    @Nonnull
+    @NonNull
     public static final String OK = "ok";
-    @Nonnull
+    @NonNull
     public static final String MALFORMED_MESSAGE = "malformed-message";
-    @Nonnull
+    @NonNull
     public static final String UNKNOWN_REQUEST_TYPE = "unknown-request-type";
-    @Nonnull
+    @NonNull
     public static final String ERROR = "error";
 
     private S2C_Type()
@@ -38,21 +38,21 @@ public final class Messages
    */
   public static final class C2S_Type
   {
-    @Nonnull
+    @NonNull
     public static final String AUTH = "auth";
-    @Nonnull
+    @NonNull
     public static final String ETAGS = "etags";
-    @Nonnull
+    @NonNull
     public static final String PING = "ping";
-    @Nonnull
+    @NonNull
     public static final String SUB = "sub";
-    @Nonnull
+    @NonNull
     public static final String UNSUB = "unsub";
-    @Nonnull
+    @NonNull
     public static final String BULK_SUB = "bulk-sub";
-    @Nonnull
+    @NonNull
     public static final String BULK_UNSUB = "bulk-unsub";
-    @Nonnull
+    @NonNull
     public static final String EXEC = "exec";
 
     private C2S_Type()
@@ -62,13 +62,13 @@ public final class Messages
 
   public static final class Common
   {
-    @Nonnull
+    @NonNull
     public static final String TYPE = "type";
-    @Nonnull
+    @NonNull
     public static final String REQUEST_ID = "requestId";
-    @Nonnull
+    @NonNull
     public static final String CHANNEL = "channel";
-    @Nonnull
+    @NonNull
     public static final String COMMAND = "command";
 
     private Common()
@@ -78,11 +78,11 @@ public final class Messages
 
   public static final class S2C_Common
   {
-    @Nonnull
+    @NonNull
     public static final String SESSION_ID = "sessionId";
-    @Nonnull
+    @NonNull
     public static final String ETAG = "etag";
-    @Nonnull
+    @NonNull
     public static final String MESSAGE = "message";
 
     private S2C_Common()
@@ -97,21 +97,21 @@ public final class Messages
     public static final char CHANNEL_ACTION_UPDATE = '=';
     // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
     public static final char CHANNEL_ACTION_DELETE = '!';
-    @Nonnull
+    @NonNull
     public static final String CHANGES = "changes";
-    @Nonnull
+    @NonNull
     public static final String ENTITY_ID = "id";
-    @Nonnull
+    @NonNull
     public static final String DATA = "data";
-    @Nonnull
+    @NonNull
     public static final String FILTERED_CHANNEL_ACTIONS = "fchannels";
-    @Nonnull
+    @NonNull
     public static final String CHANNEL_ACTIONS = "channels";
-    @Nonnull
+    @NonNull
     public static final String RESPONSE = "response";
-    @Nonnull
+    @NonNull
     public static final String CHANNELS = "channels";
-    @Nonnull
+    @NonNull
     public static final String FILTER = "filter";
 
     private Update()
@@ -121,7 +121,7 @@ public final class Messages
 
   public static final class Etags
   {
-    @Nonnull
+    @NonNull
     public static final String ETAGS = "etags";
 
     private Etags()
@@ -131,7 +131,7 @@ public final class Messages
 
   public static final class Auth
   {
-    @Nonnull
+    @NonNull
     public static final String TOKEN = "token";
 
     private Auth()
@@ -141,7 +141,7 @@ public final class Messages
 
   public static final class Exec
   {
-    @Nonnull
+    @NonNull
     public static final String PAYLOAD = "payload";
 
     private Exec()

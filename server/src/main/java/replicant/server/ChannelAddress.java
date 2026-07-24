@@ -1,14 +1,14 @@
 package replicant.server;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId,
                              boolean partial)
   implements Comparable<ChannelAddress>
 {
-  @Nonnull
-  public static ChannelAddress parse( @Nonnull final String name )
+  @NonNull
+  public static ChannelAddress parse( @NonNull final String name )
   {
     final var instanceOffset = name.indexOf( '#' );
     final var channelPart = -1 == instanceOffset ? name : name.substring( 0, instanceOffset );
@@ -19,31 +19,31 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     return new ChannelAddress( channelId, rootId, filterInstanceId, false );
   }
 
-  @Nonnull
+  @NonNull
   public static ChannelAddress partial( final int channelId )
   {
     return new ChannelAddress( channelId, null, null, true );
   }
 
-  @Nonnull
+  @NonNull
   public static ChannelAddress partial( final int channelId, @Nullable final Integer rootId )
   {
     return new ChannelAddress( channelId, rootId, null, true );
   }
 
-  @Nonnull
+  @NonNull
   public static ChannelAddress of( final int channelId )
   {
     return new ChannelAddress( channelId, null, null, false );
   }
 
-  @Nonnull
+  @NonNull
   public static ChannelAddress of( final int channelId, @Nullable final Integer rootId )
   {
     return new ChannelAddress( channelId, rootId, null, false );
   }
 
-  @Nonnull
+  @NonNull
   public static ChannelAddress of( final int channelId,
                                    @Nullable final Integer rootId,
                                    @Nullable final String filterInstanceId )
@@ -67,7 +67,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
   }
 
   @Override
-  public int compareTo( @Nonnull final ChannelAddress other )
+  public int compareTo( @NonNull final ChannelAddress other )
   {
     final var channelDiff = Integer.compare( channelId(), other.channelId() );
     if ( 0 != channelDiff )
@@ -133,7 +133,7 @@ public record ChannelAddress(int channelId, @Nullable Integer rootId, @Nullable 
     }
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public String toString()
   {

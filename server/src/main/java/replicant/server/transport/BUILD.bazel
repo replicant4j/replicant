@@ -24,6 +24,7 @@ java_server_library(
         "SubscribeResult.java",
         "SubscriptionEntry.java",
         "WebSocketUtil.java",
+        "package-info.java",
     ],
     visibility = [
         "//server:__pkg__",

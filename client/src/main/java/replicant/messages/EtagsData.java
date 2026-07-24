@@ -2,7 +2,7 @@ package replicant.messages;
 
 import akasha.core.JsObject;
 import akasha.lang.JsArray;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -22,7 +22,7 @@ public interface EtagsData
    * @return true if the etag is present.
    */
   @JsOverlay
-  default boolean containsChannel( @Nonnull final String key )
+  default boolean containsChannel( @NonNull final String key )
   {
     return Js.asPropertyMap( this ).has( key );
   }
@@ -39,9 +39,9 @@ public interface EtagsData
     return keys.asArray( new String[ keys.length ] );
   }
 
-  @Nonnull
+  @NonNull
   @JsOverlay
-  default String getEtag( @Nonnull final String key )
+  default String getEtag( @NonNull final String key )
   {
     final Any any = Js.asPropertyMap( this ).getAsAny( key );
     assert null != any;

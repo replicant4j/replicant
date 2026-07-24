@@ -13,8 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestFilterUpdatedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -34,7 +34,7 @@ abstract class AreaOfInterestService
   /**
    * A set of all the AreasOfInterest.
    */
-  @Nonnull
+  @NonNull
   private final Set<AreaOfInterest> _areasOfInterest = new HashSet<>();
 
   AreaOfInterestService( @Nullable final ReplicantContext context )
@@ -47,7 +47,7 @@ abstract class AreaOfInterestService
    *
    * @return an instance of the AreaOfInterestService.
    */
-  @Nonnull
+  @NonNull
   static AreaOfInterestService create( @Nullable final ReplicantContext context )
   {
     return new Arez_AreaOfInterestService( context );
@@ -58,7 +58,7 @@ abstract class AreaOfInterestService
    *
    * @return the collection of AreaOfInterest that have been declared.
    */
-  @Nonnull
+  @NonNull
   List<AreaOfInterest> getAreasOfInterest()
   {
     return CollectionsUtil.asList( areasOfInterest() );
@@ -71,7 +71,7 @@ abstract class AreaOfInterestService
    * @return the AreaOfInterest that matches if any.
    */
   @Nullable
-  AreaOfInterest findAreaOfInterestByAddress( @Nonnull final ChannelAddress address )
+  AreaOfInterest findAreaOfInterestByAddress( @NonNull final ChannelAddress address )
   {
     return areasOfInterest().filter( e -> e.getAddress().equals( address ) ).findAny().orElse( null );
   }
@@ -84,8 +84,8 @@ abstract class AreaOfInterestService
    * @param filter  the filter that is used to define the channel.
    * @return the AreaOfInterest.
    */
-  @Nonnull
-  AreaOfInterest createOrUpdateAreaOfInterest( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  @NonNull
+  AreaOfInterest createOrUpdateAreaOfInterest( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress( address );
     if ( null != areaOfInterest )
@@ -121,7 +121,7 @@ abstract class AreaOfInterestService
    *
    * @param areaOfInterest the areaOfInterest to register.
    */
-  void attach( @Nonnull final AreaOfInterest areaOfInterest )
+  void attach( @NonNull final AreaOfInterest areaOfInterest )
   {
     if ( Arez.shouldCheckApiInvariants() )
     {
@@ -154,7 +154,7 @@ abstract class AreaOfInterestService
    * @param areaOfInterest the areaOfInterest.
    * @return true if the specified areaOfInterest is contained in the container, false otherwise.
    */
-  boolean contains( @Nonnull final AreaOfInterest areaOfInterest )
+  boolean contains( @NonNull final AreaOfInterest areaOfInterest )
   {
     getAreasOfInterestObservableValue().reportObserved();
     return _areasOfInterest.contains( areaOfInterest );
@@ -166,7 +166,7 @@ abstract class AreaOfInterestService
    *
    * @param areaOfInterest the areaOfInterest to detach.
    */
-  private void detach( @Nonnull final AreaOfInterest areaOfInterest )
+  private void detach( @NonNull final AreaOfInterest areaOfInterest )
   {
     // This method has been extracted to try and avoid GWT inlining into invoker
     if ( _areasOfInterest.remove( areaOfInterest ) )
@@ -188,17 +188,17 @@ abstract class AreaOfInterestService
    * @return the underlying areasOfInterest.
    */
   @Observable( expectSetter = false )
-  @Nonnull
+  @NonNull
   public Stream<AreaOfInterest> areasOfInterest()
   {
     return _areasOfInterest.stream();
   }
 
   @ObservableValueRef
-  @Nonnull
+  @NonNull
   abstract ObservableValue<Stream<AreaOfInterest>> getAreasOfInterestObservableValue();
 
-  private void doAttach( @Nonnull final AreaOfInterest areaOfInterest )
+  private void doAttach( @NonNull final AreaOfInterest areaOfInterest )
   {
     DisposeNotifier
       .asDisposeNotifier( areaOfInterest )
@@ -209,7 +209,7 @@ abstract class AreaOfInterestService
       }, true );
   }
 
-  private void doDetach( @Nonnull final AreaOfInterest areaOfInterest, final boolean disposeOnDetach )
+  private void doDetach( @NonNull final AreaOfInterest areaOfInterest, final boolean disposeOnDetach )
   {
     DisposeNotifier.asDisposeNotifier( areaOfInterest ).removeOnDisposeListener( this, true );
     if ( disposeOnDetach )

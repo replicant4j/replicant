@@ -8,8 +8,8 @@ import arez.annotations.Memoize;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.react4j.ReplicantSubscription;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
@@ -109,11 +109,11 @@ public abstract class AreaOfInterest
     }
   }
 
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
   @Nullable
   private Object _filter;
-  @Nonnull
+  @NonNull
   private Status _status = Status.NOT_ASKED;
   /**
    * The {@link ReplicantSubscription} class uses reference counting to determine whether an AreaOfInterest
@@ -122,16 +122,16 @@ public abstract class AreaOfInterest
    */
   private int _refCount;
 
-  @Nonnull
+  @NonNull
   static AreaOfInterest create( @Nullable final ReplicantContext context,
-                                @Nonnull final ChannelAddress address,
+                                @NonNull final ChannelAddress address,
                                 @Nullable final Object filter )
   {
     return new Arez_AreaOfInterest( context, address, filter );
   }
 
   AreaOfInterest( @Nullable final ReplicantContext context,
-                  @Nonnull final ChannelAddress address,
+                  @NonNull final ChannelAddress address,
                   @Nullable final Object filter )
   {
     super( context );
@@ -176,7 +176,7 @@ public abstract class AreaOfInterest
     }
   }
 
-  @Nonnull
+  @NonNull
   public ChannelAddress getAddress()
   {
     return _address;
@@ -195,13 +195,13 @@ public abstract class AreaOfInterest
   }
 
   @Observable( readOutsideTransaction = Feature.ENABLE )
-  @Nonnull
+  @NonNull
   public Status getStatus()
   {
     return _status;
   }
 
-  void setStatus( @Nonnull final Status status )
+  void setStatus( @NonNull final Status status )
   {
     _status = Objects.requireNonNull( status );
   }
@@ -224,7 +224,7 @@ public abstract class AreaOfInterest
    * Update the status of the AreaOfInterest.
    */
   @Action
-  void updateAreaOfInterest( @Nonnull final Status status, @Nullable final Throwable error )
+  void updateAreaOfInterest( @NonNull final Status status, @Nullable final Throwable error )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -258,7 +258,7 @@ public abstract class AreaOfInterest
   /**
    * @see #shouldExpectNoSubscription(Status)
    */
-  private boolean shouldExpectSubscription( @Nonnull final Status status )
+  private boolean shouldExpectSubscription( @NonNull final Status status )
   {
     return Status.LOADED == status ||
            Status.UPDATING == status ||
@@ -273,7 +273,7 @@ public abstract class AreaOfInterest
    * statuses. In particular NOT_ASKED and LOADING can potentially have a subscription when we are working
    * through the process of notifying server of explicit subscription when there is a local implicit subscription.
    */
-  private boolean shouldExpectNoSubscription( @Nonnull final Status status )
+  private boolean shouldExpectNoSubscription( @NonNull final Status status )
   {
     return Status.UNLOADED == status;
   }

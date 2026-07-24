@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utilities for integration across different datasources.
@@ -30,7 +30,7 @@ public class SubscriptionUtil
                                                            final int targetSystemId,
                                                            final int targetChannelId,
                                                            @Nullable final Object filter,
-                                                           @Nonnull final Function<Integer, Stream<Integer>> sourceIdToTargetIds )
+                                                           @NonNull final Function<Integer, Stream<Integer>> sourceIdToTargetIds )
   {
     // Need to check both subscription and filters are identical.
     // If they are not the next step will either update the filters or add subscriptions

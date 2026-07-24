@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
@@ -23,7 +23,7 @@ final class MessageResponse
   /**
    * The message to process.
    */
-  @Nonnull
+  @NonNull
   private final ServerToClientMessage _message;
   @Nullable
   private final RequestEntry _request;
@@ -37,8 +37,9 @@ final class MessageResponse
    * The list of entities that have been changed during processing.
    * Used to provide a hook to perform local internal filtered subscription management.
    */
-  @Nonnull
+  @NonNull
   private final LinkedList<Object> _entitiesChanged = new LinkedList<>();
+  @Nullable
   private List<ChannelChangeDescriptor> _parsedChannelChanges;
   private boolean _worldValidated;
   private boolean _channelActionsProcessed;
@@ -51,7 +52,7 @@ final class MessageResponse
   private int _entityLinkCount;
 
   MessageResponse( final int schemaId,
-                   @Nonnull final ServerToClientMessage message,
+                   @NonNull final ServerToClientMessage message,
                    @Nullable final RequestEntry request )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -180,12 +181,12 @@ final class MessageResponse
     }
   }
 
-  void setParsedChannelChanges( @Nonnull final List<ChannelChangeDescriptor> parsedChannelChanges )
+  void setParsedChannelChanges( @NonNull final List<ChannelChangeDescriptor> parsedChannelChanges )
   {
     _parsedChannelChanges = Objects.requireNonNull( parsedChannelChanges );
   }
 
-  @Nonnull
+  @NonNull
   List<ChannelChangeDescriptor> getChannelChanges()
   {
     assert UpdateMessage.TYPE.equals( _message.getType() );
@@ -195,7 +196,7 @@ final class MessageResponse
     {
       _parsedChannelChanges = toChannelChanges( changeSet );
     }
-    return _parsedChannelChanges;
+    return Objects.requireNonNull( _parsedChannelChanges );
   }
 
   void markChannelActionsProcessed()
@@ -218,11 +219,11 @@ final class MessageResponse
     }
   }
 
-  void changeProcessed( @Nonnull final Object entity )
+  void changeProcessed( @NonNull final Object entity )
   {
     if ( entity instanceof Linkable )
     {
-      _entitiesToLink.add( (Linkable) entity );
+      Objects.requireNonNull( _entitiesToLink ).add( (Linkable) entity );
     }
     _entitiesChanged.add( entity );
   }
@@ -237,8 +238,7 @@ final class MessageResponse
   {
     if ( areEntityLinksPending() )
     {
-      assert null != _entitiesToLink;
-      return _entitiesToLink.remove();
+      return Objects.requireNonNull( _entitiesToLink ).remove();
     }
     else
     {
@@ -270,7 +270,7 @@ final class MessageResponse
     _entitiesChanged.clear();
   }
 
-  @Nonnull
+  @NonNull
   ServerToClientMessage getMessage()
   {
     return _message;
@@ -289,7 +289,7 @@ final class MessageResponse
     return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
   }
 
-  @Nonnull
+  @NonNull
   DataLoadStatus toStatus()
   {
     assert Replicant.areSpiesEnabled();
@@ -320,8 +320,8 @@ final class MessageResponse
     }
   }
 
-  @Nonnull
-  private List<ChannelChangeDescriptor> toChannelChanges( @Nonnull final UpdateMessage changeSet )
+  @NonNull
+  private List<ChannelChangeDescriptor> toChannelChanges( @NonNull final UpdateMessage changeSet )
   {
     final List<ChannelChangeDescriptor> changes = new ArrayList<>();
 

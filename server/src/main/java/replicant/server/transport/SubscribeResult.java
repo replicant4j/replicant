@@ -1,6 +1,6 @@
 package replicant.server.transport;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record SubscribeResult(boolean channelRootDeleted, @Nullable String cacheKey)
 {

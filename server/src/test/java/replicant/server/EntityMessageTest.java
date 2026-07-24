@@ -2,6 +2,7 @@ package replicant.server;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Set;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
@@ -71,8 +72,9 @@ public final class EntityMessageTest
     assertEquals( message.getTypeId(), typeID );
     assertEquals( message.getTimestamp(), 2 );
     assertNotNull( message.getLinks() );
-    assertEquals( message.getLinks().size(), 1 );
-    final var channelLink = message.getLinks().iterator().next();
+    final var links = Objects.requireNonNull( message.getLinks() );
+    assertEquals( links.size(), 1 );
+    final var channelLink = links.iterator().next();
     assertEquals( channelLink.source().channelId(), 1 );
     assertEquals( channelLink.source().rootId(), (Integer) 2 );
     assertEquals( channelLink.target().channelId(), 47 );

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 @OmitType( unless = "arez.collections_properties_unmodifiable" )
 final class CollectionsUtil
@@ -17,26 +17,26 @@ final class CollectionsUtil
   {
   }
 
-  @Nonnull
-  static <T> Collection<T> wrap( @Nonnull Collection<T> collection )
+  @NonNull
+  static <T> Collection<T> wrap( @NonNull Collection<T> collection )
   {
     return Arez.areCollectionsPropertiesUnmodifiable() ? Collections.unmodifiableCollection( collection ) : collection;
   }
 
-  @Nonnull
-  static <T> Set<T> wrap( @Nonnull Set<T> set )
+  @NonNull
+  static <T> Set<T> wrap( @NonNull Set<T> set )
   {
     return Arez.areCollectionsPropertiesUnmodifiable() ? Collections.unmodifiableSet( set ) : set;
   }
 
-  @Nonnull
-  static <T> List<T> wrap( @Nonnull List<T> list )
+  @NonNull
+  static <T> List<T> wrap( @NonNull List<T> list )
   {
     return Arez.areCollectionsPropertiesUnmodifiable() ? Collections.unmodifiableList( list ) : list;
   }
 
-  @Nonnull
-  static <T> List<T> asList( @Nonnull Stream<T> stream )
+  @NonNull
+  static <T> List<T> asList( @NonNull Stream<T> stream )
   {
     return wrap( stream.collect( Collectors.toList() ) );
   }

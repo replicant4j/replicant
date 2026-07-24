@@ -3,8 +3,9 @@ package replicant.server.ee;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -46,7 +47,7 @@ public class ReplicantEntityChangeListenerTest
 
     final var set = EntityMessageCacheUtil.lookupEntityMessageSet();
     assertNotNull( set );
-    assertTrue( set.containsEntityMessage( 7, 11 ) );
+    assertTrue( Objects.requireNonNull( set ).containsEntityMessage( 7, 11 ) );
     verify( recorder ).convertToEntityMessage( entity, true );
   }
 
@@ -81,7 +82,7 @@ public class ReplicantEntityChangeListenerTest
 
     final var set = EntityMessageCacheUtil.lookupEntityMessageSet();
     assertNotNull( set );
-    assertTrue( set.containsEntityMessage( 8, 12 ) );
+    assertTrue( Objects.requireNonNull( set ).containsEntityMessage( 8, 12 ) );
     verify( recorder ).convertToEntityMessage( entity, false );
   }
 
@@ -101,9 +102,9 @@ public class ReplicantEntityChangeListenerTest
     verify( recorder ).convertToEntityMessage( entity, false );
   }
 
-  @Nonnull
-  private ReplicantEntityChangeListener newListener( @Nonnull final TransactionSynchronizationRegistry registry,
-                                                     @Nonnull final ReplicantChangeRecorder recorder )
+  @NonNull
+  private ReplicantEntityChangeListener newListener( @NonNull final TransactionSynchronizationRegistry registry,
+                                                     @NonNull final ReplicantChangeRecorder recorder )
   {
     final var listener = new ReplicantEntityChangeListener();
     setField( listener, "_registry", registry );
@@ -111,7 +112,7 @@ public class ReplicantEntityChangeListenerTest
     return listener;
   }
 
-  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
+  private void setField( @NonNull final Object target, @NonNull final String name, @Nullable final Object value )
   {
     try
     {

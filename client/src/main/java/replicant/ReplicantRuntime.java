@@ -12,15 +12,15 @@ import arez.component.DisposeNotifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import zemeckis.Zemeckis;
 import static org.realityforge.braincheck.Guards.*;
 
 @ArezComponent( disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE )
 abstract class ReplicantRuntime
 {
-  @Nonnull
+  @NonNull
   private final List<ConnectorEntry> _connectors = new ArrayList<>();
   private boolean _active = true;
   /**
@@ -29,7 +29,7 @@ abstract class ReplicantRuntime
   @Nullable
   private String _authToken;
 
-  @Nonnull
+  @NonNull
   static ReplicantRuntime create()
   {
     return new Arez_ReplicantRuntime();
@@ -74,7 +74,7 @@ abstract class ReplicantRuntime
   }
 
   @Action
-  void registerConnector( @Nonnull final Connector connector )
+  void registerConnector( @NonNull final Connector connector )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -92,14 +92,14 @@ abstract class ReplicantRuntime
     getConnectorsObservableValue().reportChanged();
   }
 
-  void deregisterConnector( @Nonnull final Connector connector )
+  void deregisterConnector( @NonNull final Connector connector )
   {
     getConnectorsObservableValue().preReportChanged();
     detachConnector( connector );
     getConnectorsObservableValue().reportChanged();
   }
 
-  private void detachConnector( @Nonnull final Connector connector )
+  private void detachConnector( @NonNull final Connector connector )
   {
     if ( Replicant.shouldCheckInvariants() )
     {
@@ -157,7 +157,7 @@ abstract class ReplicantRuntime
    *
    * @return the state of the runtime.
    */
-  @Nonnull
+  @NonNull
   @Memoize( readOutsideTransaction = Feature.ENABLE )
   RuntimeState getState()
   {
@@ -263,13 +263,13 @@ abstract class ReplicantRuntime
   /**
    * Retrieve the Connector service associated with the schema.
    */
-  @Nonnull
+  @NonNull
   Connector getConnector( final int schemaId )
   {
     return getConnectorEntryBySchemaId( schemaId ).getConnector();
   }
 
-  @Nonnull
+  @NonNull
   ConnectorEntry getConnectorEntryBySchemaId( final int schemaId )
   {
     final ConnectorEntry entry = findConnectorEntryBySchemaId( schemaId );
@@ -278,8 +278,7 @@ abstract class ReplicantRuntime
       invariant( () -> null != entry,
                  () -> "Replicant-0007: Unable to locate Connector by schemaId " + schemaId );
     }
-    assert null != entry;
-    return entry;
+    return Objects.requireNonNull( entry );
   }
 
   @Nullable

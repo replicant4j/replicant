@@ -2,7 +2,7 @@ package replicant.server;
 
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.json.Json;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAction.Action;
@@ -310,9 +310,9 @@ public class ChangeSetTest
                   List.of( ChannelAction.of( address, Action.ADD, filter2 ) ) );
   }
 
-  private void assertAction( @Nonnull final ChangeSet changeSet,
-                             @Nonnull final Action action,
-                             @Nonnull final ChannelAddress address )
+  private void assertAction( @NonNull final ChangeSet changeSet,
+                             @NonNull final Action action,
+                             @NonNull final ChannelAddress address )
   {
     assertTrue( changeSet.getChannelActions()
                   .stream()

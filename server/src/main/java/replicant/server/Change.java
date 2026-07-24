@@ -3,54 +3,54 @@ package replicant.server;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public class Change
 {
-  @Nonnull
+  @NonNull
   private final String _key;
-  @Nonnull
+  @NonNull
   private final EntityMessage _entityMessage;
-  @Nonnull
+  @NonNull
   private final Set<ChannelAddress> _channels = new LinkedHashSet<>();
 
-  public Change( @Nonnull final EntityMessage entityMessage )
+  public Change( @NonNull final EntityMessage entityMessage )
   {
     _key = entityMessage.getTypeId() + "#" + entityMessage.getId();
     _entityMessage = Objects.requireNonNull( entityMessage );
   }
 
-  public Change( @Nonnull final EntityMessage entityMessage, @Nonnull final ChannelAddress address )
+  public Change( @NonNull final EntityMessage entityMessage, @NonNull final ChannelAddress address )
   {
     this( entityMessage );
     _channels.add( Objects.requireNonNull( address ) );
   }
 
-  @Nonnull
+  @NonNull
   public String getKey()
   {
     return _key;
   }
 
-  @Nonnull
+  @NonNull
   public EntityMessage getEntityMessage()
   {
     return _entityMessage;
   }
 
-  @Nonnull
+  @NonNull
   public Set<ChannelAddress> getChannels()
   {
     return _channels;
   }
 
-  public void merge( @Nonnull final Change other )
+  public void merge( @NonNull final Change other )
   {
     getEntityMessage().merge( other.getEntityMessage() );
     getChannels().addAll( other.getChannels() );
   }
 
-  @Nonnull
+  @NonNull
   public Change duplicate()
   {
     final var change = new Change( getEntityMessage().duplicate() );

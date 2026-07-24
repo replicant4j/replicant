@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
@@ -1692,8 +1693,7 @@ public final class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
     final Subscription subscription =
-      Replicant.context().findSubscription( address );
-    assertNotNull( subscription );
+      Objects.requireNonNull( Replicant.context().findSubscription( address ) );
     assertEquals( subscription.address(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
     safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
@@ -1729,8 +1729,7 @@ public final class ConnectorTest
 
     final ChannelAddress address = new ChannelAddress( 1, channelId, rootId );
     final Subscription subscription =
-      Replicant.context().findSubscription( address );
-    assertNotNull( subscription );
+      Objects.requireNonNull( Replicant.context().findSubscription( address ) );
     assertEquals( subscription.address(), address );
     safeAction( () -> assertEquals( subscription.getFilter(), filter ) );
     safeAction( () -> assertFalse( subscription.isExplicitSubscription() ) );
@@ -1769,8 +1768,7 @@ public final class ConnectorTest
     assertFalse( response.needsChannelChangesProcessed() );
 
     final Subscription subscription =
-      Replicant.context().findSubscription( address );
-    assertNotNull( subscription );
+      Objects.requireNonNull( Replicant.context().findSubscription( address ) );
     assertEquals( subscription.address(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
@@ -1814,8 +1812,7 @@ public final class ConnectorTest
     assertEquals( response.getChannelAddCount(), 1 );
 
     final Subscription subscription =
-      Replicant.context().findSubscription( address );
-    assertNotNull( subscription );
+      Objects.requireNonNull( Replicant.context().findSubscription( address ) );
     assertEquals( subscription.address(), address );
     safeAction( () -> assertNull( subscription.getFilter() ) );
     safeAction( () -> assertTrue( subscription.isExplicitSubscription() ) );
@@ -3788,28 +3785,27 @@ public final class ConnectorTest
     assertEquals( request.getPayload(), payload );
   }
 
-  @Nonnull
-  private RequestEntry newRequest( @Nonnull final Connection connection )
+  @NonNull
+  private RequestEntry newRequest( @NonNull final Connection connection )
   {
     return connection.newRequest( ValueUtil.randomString(), false, null );
   }
 
-  @Nonnull
-  private MessageResponse setCurrentMessageResponse( @Nonnull final Connection connection,
-                                                     @Nonnull final ServerToClientMessage message )
+  @NonNull
+  private MessageResponse setCurrentMessageResponse( @NonNull final Connection connection,
+                                                     @NonNull final ServerToClientMessage message )
   {
     return setCurrentMessageResponse( connection, message, null );
   }
 
-  @Nonnull
-  private MessageResponse setCurrentMessageResponse( @Nonnull final Connection connection,
-                                                     @Nonnull final ServerToClientMessage message,
+  @NonNull
+  private MessageResponse setCurrentMessageResponse( @NonNull final Connection connection,
+                                                     @NonNull final ServerToClientMessage message,
                                                      @Nullable final RequestEntry request )
   {
     connection.enqueueResponse( message, request );
     connection.selectNextMessageResponse();
     final MessageResponse response = connection.getCurrentMessageResponse();
-    assert null != response;
-    return response;
+    return Objects.requireNonNull( response );
   }
 }

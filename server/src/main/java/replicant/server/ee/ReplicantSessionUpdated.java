@@ -1,7 +1,7 @@
 package replicant.server.ee;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
-public record ReplicantSessionUpdated(@Nonnull String clientSessionId)
+public record ReplicantSessionUpdated(@NonNull String clientSessionId)
 {
 }

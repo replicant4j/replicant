@@ -3,8 +3,8 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.ChannelAddress;
 
 /**
@@ -13,18 +13,18 @@ import replicant.ChannelAddress;
 public final class SubscriptionUpdateRequestQueuedEvent
   implements SerializableEvent
 {
-  @Nonnull
+  @NonNull
   private final ChannelAddress _address;
   @Nullable
   private final Object _filter;
 
-  public SubscriptionUpdateRequestQueuedEvent( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  public SubscriptionUpdateRequestQueuedEvent( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     _address = Objects.requireNonNull( address );
     _filter = filter;
   }
 
-  @Nonnull
+  @NonNull
   public ChannelAddress getAddress()
   {
     return _address;
@@ -37,7 +37,7 @@ public final class SubscriptionUpdateRequestQueuedEvent
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Connector.SubscriptionUpdateRequestQueued" );
     final ChannelAddress address = getAddress();

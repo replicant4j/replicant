@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.EntityChangeData;
 import static org.realityforge.braincheck.Guards.*;
 
@@ -28,8 +28,8 @@ public final class EntitySchema
      * @param id   the entity identifier.
      * @param data the state to use to create entity.
      */
-    @Nonnull
-    T createEntity( int id, @Nonnull EntityChangeData data );
+    @NonNull
+    T createEntity( int id, @NonNull EntityChangeData data );
   }
 
   /**
@@ -46,7 +46,7 @@ public final class EntitySchema
      * @param entity the entity.
      * @param data   the state to use to create entity.
      */
-    void updateEntity( @Nonnull T entity, @Nonnull EntityChangeData data );
+    void updateEntity( @NonNull T entity, @NonNull EntityChangeData data );
   }
 
   /**
@@ -62,12 +62,12 @@ public final class EntitySchema
   /**
    * The java-type of the entity.
    */
-  @Nonnull
+  @NonNull
   private final Class<?> _type;
   /**
    * The function to create entity.
    */
-  @Nonnull
+  @NonNull
   private final Creator<?> _creator;
   /**
    * The function to update entity.
@@ -75,15 +75,15 @@ public final class EntitySchema
    */
   @Nullable
   private final Updater<?> _updater;
-  @Nonnull
+  @NonNull
   private final ChannelLinkSchema[] _channelLinks;
 
   public <T> EntitySchema( final int id,
                            @Nullable final String name,
-                           @Nonnull final Class<T> type,
-                           @Nonnull final Creator<T> creator,
+                           @NonNull final Class<T> type,
+                           @NonNull final Creator<T> creator,
                            @Nullable final Updater<T> updater,
-                           @Nonnull final ChannelLinkSchema[] channelLinks )
+                           @NonNull final ChannelLinkSchema[] channelLinks )
   {
     if ( Replicant.shouldCheckApiInvariants() )
     {
@@ -116,7 +116,7 @@ public final class EntitySchema
    *
    * @return the name of the channel.
    */
-  @Nonnull
+  @NonNull
   public String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -124,8 +124,7 @@ public final class EntitySchema
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0050: EntitySchema.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    assert null != _name;
-    return _name;
+    return Objects.requireNonNull( _name );
   }
 
   /**
@@ -133,7 +132,7 @@ public final class EntitySchema
    *
    * @return the java type of entity.
    */
-  @Nonnull
+  @NonNull
   public Class<?> getType()
   {
     return _type;
@@ -144,7 +143,7 @@ public final class EntitySchema
    *
    * @return the function to create entity.
    */
-  @Nonnull
+  @NonNull
   public Creator<?> getCreator()
   {
     return _creator;
@@ -161,13 +160,13 @@ public final class EntitySchema
     return _updater;
   }
 
-  @Nonnull
+  @NonNull
   public ChannelLinkSchema[] getChannelLinks()
   {
     return _channelLinks;
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelLinkSchema> getOutwardChannelLinks( final int channelId )
   {
     return

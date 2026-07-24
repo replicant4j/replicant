@@ -1,24 +1,24 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NotNullFieldNotInitialized", "unused" } )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init", "unused" } )
 public final class EtagsMessage
   extends ClientToServerMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.ETAGS;
-  @Nonnull
+  @NonNull
   private EtagsData etags;
 
   @JsOverlay
-  @Nonnull
-  public static EtagsMessage create( final int req, @Nonnull final EtagsData etags )
+  @NonNull
+  public static EtagsMessage create( final int req, @NonNull final EtagsData etags )
   {
     final EtagsMessage message = new EtagsMessage();
     message.type = TYPE;

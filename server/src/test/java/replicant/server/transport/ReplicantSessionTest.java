@@ -6,9 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.CloseReason;
@@ -332,7 +333,7 @@ public class ReplicantSessionTest
     assertEquals( action.address(), address );
     assertEquals( action.action(), ChannelAction.Action.ADD );
     assertNotNull( action.filter() );
-    assertEquals( action.filter().getString( "k" ), "v" );
+    assertEquals( Objects.requireNonNull( action.filter() ).getString( "k" ), "v" );
   }
 
   @Test
@@ -835,15 +836,15 @@ public class ReplicantSessionTest
   }
 
   @SuppressWarnings( "DataFlowIssue" )
-  @Nonnull
+  @NonNull
   private Map<ChannelAddress, SubscriptionEntry> getSubscriptions( final ReplicantSession session )
   {
-    return getField( session, "_subscriptions" );
+    return Objects.requireNonNull( getField( session, "_subscriptions" ) );
   }
 
   @SuppressWarnings( { "SameParameterValue", "unchecked" } )
   @Nullable
-  private <T> T getField( @Nonnull final ReplicantSession session, @Nonnull final String fieldName )
+  private <T> T getField( @NonNull final ReplicantSession session, @NonNull final String fieldName )
   {
     try
     {

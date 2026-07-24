@@ -1,12 +1,12 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 final class ExecRequest
 {
-  @Nonnull
+  @NonNull
   private final String _command;
   @Nullable
   private final Object _payload;
@@ -14,7 +14,7 @@ final class ExecRequest
   private final ResponseHandler _responseHandler;
   private int _requestId;
 
-  ExecRequest( @Nonnull final String command,
+  ExecRequest( @NonNull final String command,
                @Nullable final Object payload,
                @Nullable final ResponseHandler responseHandler )
   {
@@ -24,7 +24,7 @@ final class ExecRequest
     _requestId = -1;
   }
 
-  @Nonnull
+  @NonNull
   String getCommand()
   {
     return _command;

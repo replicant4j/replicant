@@ -1,8 +1,8 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -44,7 +44,7 @@ final class RequestEntry
     return _syncRequest;
   }
 
-  @Nonnull
+  @NonNull
   String getName()
   {
     if ( Replicant.shouldCheckApiInvariants() )
@@ -52,8 +52,7 @@ final class RequestEntry
       apiInvariant( Replicant::areNamesEnabled,
                     () -> "Replicant-0043: RequestEntry.getName() invoked when Replicant.areNamesEnabled() is false" );
     }
-    assert null != _name;
-    return _name;
+    return Objects.requireNonNull( _name );
   }
 
   @Nullable

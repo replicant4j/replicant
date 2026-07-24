@@ -11,11 +11,11 @@ java_library(
     name = "messages_test_support_lib",
     srcs = [
         "EntityChangeDataImpl.java",
+        "package-info.java",
     ],
     visibility = ["//client:__pkg__"],
     deps = [
         "//client:client_lib",
-        "//third_party/java:javax_annotation",
     ],
 )
 
@@ -24,6 +24,7 @@ java_library(
     srcs = [
         "EntityChangeTest.java",
         "UpdateMessageTest.java",
+        "package-info.java",
     ],
     visibility = [
         "//client/src/test/java/replicant:__pkg__",

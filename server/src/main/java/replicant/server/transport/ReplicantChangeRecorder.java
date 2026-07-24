@@ -1,7 +1,7 @@
 package replicant.server.transport;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.server.EntityMessage;
 
 public interface ReplicantChangeRecorder
@@ -14,5 +14,5 @@ public interface ReplicantChangeRecorder
    * @return the converted {@link EntityMessage}, or null if the conversion cannot be performed
    */
   @Nullable
-  EntityMessage convertToEntityMessage( @Nonnull final Object object, final boolean isUpdate );
+  EntityMessage convertToEntityMessage( @NonNull final Object object, final boolean isUpdate );
 }

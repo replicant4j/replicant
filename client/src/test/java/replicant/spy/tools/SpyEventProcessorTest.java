@@ -2,7 +2,7 @@ package replicant.spy.tools;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import static org.testng.Assert.*;
@@ -16,7 +16,7 @@ public class SpyEventProcessorTest
     int _handleUnhandledEventCallCount;
 
     @Override
-    protected void handleUnhandledEvent( @Nonnull final Object event )
+    protected void handleUnhandledEvent( @NonNull final Object event )
     {
       super.handleUnhandledEvent( event );
       _handleUnhandledEventCallCount += 1;

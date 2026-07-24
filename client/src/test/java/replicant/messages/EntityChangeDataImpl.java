@@ -1,7 +1,8 @@
 package replicant.messages;
 
 import java.util.HashMap;
-import javax.annotation.Nonnull;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An implementation of EntityChangeData suitable for use within the JVM.
@@ -18,37 +19,37 @@ public class EntityChangeDataImpl
   }
 
   @Override
-  public boolean containsKey( @Nonnull final String key )
+  public boolean containsKey( @NonNull final String key )
   {
     return _data.containsKey( key );
   }
 
   @Override
-  public boolean isNull( @Nonnull final String key )
+  public boolean isNull( @NonNull final String key )
   {
     assert _data.containsKey( key );
     return null == _data.get( key );
   }
 
   @Override
-  public int getIntegerValue( @Nonnull final String key )
+  public int getIntegerValue( @NonNull final String key )
   {
     assert _data.containsKey( key );
-    return (int) _data.get( key );
+    return (int) Objects.requireNonNull( _data.get( key ) );
   }
 
-  @Nonnull
+  @NonNull
   @Override
-  public String getStringValue( @Nonnull final String key )
+  public String getStringValue( @NonNull final String key )
   {
     assert _data.containsKey( key );
-    return (String) _data.get( key );
+    return (String) Objects.requireNonNull( _data.get( key ) );
   }
 
   @Override
-  public boolean getBooleanValue( @Nonnull final String key )
+  public boolean getBooleanValue( @NonNull final String key )
   {
     assert _data.containsKey( key );
-    return (Boolean) _data.get( key );
+    return (Boolean) Objects.requireNonNull( _data.get( key ) );
   }
 }

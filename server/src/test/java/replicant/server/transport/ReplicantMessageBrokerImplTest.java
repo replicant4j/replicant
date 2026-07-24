@@ -7,8 +7,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.Json;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
@@ -460,21 +460,21 @@ public class ReplicantMessageBrokerImplTest
     assertEquals( broker.getActiveDrainTaskCount(), 2 );
   }
 
-  private void verifySendOnce( @Nonnull final ReplicantMessageBroker broker,
-                               @Nonnull final ReplicantSession session,
-                               @Nonnull final Packet packet )
+  private void verifySendOnce( @NonNull final ReplicantMessageBroker broker,
+                               @NonNull final ReplicantSession session,
+                               @NonNull final Packet packet )
   {
     verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, times( 1 ) )
       .sendChangeMessage( eq( session ), eq( packet ) );
   }
 
-  private void verifyNoSend( @Nonnull final ReplicantMessageBroker broker )
+  private void verifyNoSend( @NonNull final ReplicantMessageBroker broker )
   {
     verify( ( (TestReplicantMessageBrokerImpl) broker )._sessionManager, never() ).sendChangeMessage( any(), any() );
   }
 
-  @Nonnull
-  private Packet queuePacket( @Nonnull final ReplicantMessageBroker broker, @Nonnull final ReplicantSession session )
+  @NonNull
+  private Packet queuePacket( @NonNull final ReplicantMessageBroker broker, @NonNull final ReplicantSession session )
   {
     return broker.queueChangeMessage( session,
                                       false,
@@ -487,14 +487,14 @@ public class ReplicantMessageBrokerImplTest
                                       new ChangeSet() );
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantSession newSession()
   {
     return newSession( new AtomicBoolean( true ) );
   }
 
-  @Nonnull
-  private ReplicantSession newSession( @Nonnull final AtomicBoolean open )
+  @NonNull
+  private ReplicantSession newSession( @NonNull final AtomicBoolean open )
   {
     final var session = mock( Session.class );
     when( session.isOpen() ).thenAnswer( invocation -> open.get() );
@@ -520,9 +520,9 @@ public class ReplicantMessageBrokerImplTest
   private static class TestReplicantMessageBrokerImpl
     extends ReplicantMessageBrokerImpl
   {
-    @Nonnull
+    @NonNull
     private final List<Runnable> _drainTasks = Collections.synchronizedList( new ArrayList<>() );
-    @Nonnull
+    @NonNull
     private final List<Runnable> _retryTasks = Collections.synchronizedList( new ArrayList<>() );
     @Nullable
     private RuntimeException _submitFailure;
@@ -539,7 +539,7 @@ public class ReplicantMessageBrokerImplTest
     }
 
     @Override
-    void submitDrainTask( @Nonnull final Runnable task )
+    void submitDrainTask( @NonNull final Runnable task )
     {
       if ( null != _submitFailure )
       {
@@ -551,7 +551,7 @@ public class ReplicantMessageBrokerImplTest
     }
 
     @Override
-    void scheduleRetryTask( @Nonnull final Runnable task )
+    void scheduleRetryTask( @NonNull final Runnable task )
     {
       if ( null != _retryFailure )
       {
@@ -583,7 +583,7 @@ public class ReplicantMessageBrokerImplTest
       startNextDrainTaskInNewThread().join();
     }
 
-    @Nonnull
+    @NonNull
     DrainTaskThread startNextDrainTaskInNewThread()
     {
       final var failure = new AtomicReference<Throwable>();
@@ -603,12 +603,12 @@ public class ReplicantMessageBrokerImplTest
 
     private static class DrainTaskThread
     {
-      @Nonnull
+      @NonNull
       private final Thread _thread;
-      @Nonnull
+      @NonNull
       private final AtomicReference<Throwable> _failure;
 
-      DrainTaskThread( @Nonnull final Thread thread, @Nonnull final AtomicReference<Throwable> failure )
+      DrainTaskThread( @NonNull final Thread thread, @NonNull final AtomicReference<Throwable> failure )
       {
         _thread = thread;
         _failure = failure;

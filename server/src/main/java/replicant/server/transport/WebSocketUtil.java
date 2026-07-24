@@ -1,7 +1,7 @@
 package replicant.server.transport;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.websocket.Session;
 
 @SuppressWarnings( "WeakerAccess" )
@@ -11,7 +11,7 @@ public final class WebSocketUtil
   {
   }
 
-  public static boolean sendText( @Nonnull final Session session, @Nonnull final String message )
+  public static boolean sendText( @NonNull final Session session, @NonNull final String message )
   {
     if ( session.isOpen() )
     {

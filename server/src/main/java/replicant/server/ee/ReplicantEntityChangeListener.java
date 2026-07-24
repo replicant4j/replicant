@@ -1,6 +1,6 @@
 package replicant.server.ee;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
@@ -66,7 +66,7 @@ public class ReplicantEntityChangeListener
   }
 
   @SuppressWarnings( "unchecked" )
-  @Nonnull
+  @NonNull
   private static <T> T lookup( final String key )
   {
     try
@@ -80,7 +80,7 @@ public class ReplicantEntityChangeListener
     }
   }
 
-  @Nonnull
+  @NonNull
   private TransactionSynchronizationRegistry getRegistry()
   {
     if ( null == _registry )
@@ -90,7 +90,7 @@ public class ReplicantEntityChangeListener
     return _registry;
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantChangeRecorder getRecorder()
   {
     if ( null == _recorder )

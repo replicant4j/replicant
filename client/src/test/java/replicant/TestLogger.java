@@ -2,26 +2,26 @@ package replicant;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 final class TestLogger
   implements ReplicantLogger.Logger
 {
   static final class LogEntry
   {
-    @Nonnull
+    @NonNull
     private final String _message;
     @Nullable
     private final Throwable _throwable;
 
-    LogEntry( @Nonnull final String message, @Nullable final Throwable throwable )
+    LogEntry( @NonNull final String message, @Nullable final Throwable throwable )
     {
       _message = message;
       _throwable = throwable;
     }
 
-    @Nonnull
+    @NonNull
     String getMessage()
     {
       return _message;
@@ -34,16 +34,16 @@ final class TestLogger
     }
   }
 
-  @Nonnull
+  @NonNull
   private final List<LogEntry> _entries = new ArrayList<>();
 
   @Override
-  public void log( @Nonnull final String message, @Nullable final Throwable throwable )
+  public void log( @NonNull final String message, @Nullable final Throwable throwable )
   {
     _entries.add( new LogEntry( message, throwable ) );
   }
 
-  @Nonnull
+  @NonNull
   List<LogEntry> getEntries()
   {
     return _entries;

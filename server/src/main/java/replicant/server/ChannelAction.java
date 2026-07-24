@@ -1,13 +1,13 @@
 package replicant.server;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 
 /**
  * A record of a change in channel subscriptions.
  */
-public record ChannelAction(@Nonnull ChannelAddress address, @Nonnull Action action, @Nullable JsonObject filter)
+public record ChannelAction(@NonNull ChannelAddress address, @NonNull Action action, @Nullable JsonObject filter)
 {
   public enum Action
   {
@@ -22,16 +22,16 @@ public record ChannelAction(@Nonnull ChannelAddress address, @Nonnull Action act
     DELETE
   }
 
-  @Nonnull
-  public static ChannelAction of( @Nonnull final ChannelAddress address,
-                                  @Nonnull final Action action )
+  @NonNull
+  public static ChannelAction of( @NonNull final ChannelAddress address,
+                                  @NonNull final Action action )
   {
     return of( address, action, null );
   }
 
-  @Nonnull
-  public static ChannelAction of( @Nonnull final ChannelAddress address,
-                                  @Nonnull final Action action,
+  @NonNull
+  public static ChannelAction of( @NonNull final ChannelAddress address,
+                                  @NonNull final Action action,
                                   @Nullable final JsonObject filter )
   {
     return new ChannelAction( address, action, filter );

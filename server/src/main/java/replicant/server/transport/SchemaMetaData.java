@@ -2,19 +2,19 @@ package replicant.server.transport;
 
 import java.util.Objects;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import replicant.server.ChannelAddress;
 
 public final class SchemaMetaData
 {
-  @Nonnull
+  @NonNull
   private final String _name;
-  @Nonnull
+  @NonNull
   private final ChannelMetaData[] _channels;
-  @Nonnull
+  @NonNull
   private final ChannelMetaData[] _instanceChannels;
 
-  public SchemaMetaData( @Nonnull final String name, @Nonnull final ChannelMetaData... channels )
+  public SchemaMetaData( @NonNull final String name, @NonNull final ChannelMetaData... channels )
   {
     for ( var i = 0; i < channels.length; i++ )
     {
@@ -34,7 +34,7 @@ public final class SchemaMetaData
         .toArray( ChannelMetaData[]::new );
   }
 
-  @Nonnull
+  @NonNull
   public String getName()
   {
     return _name;
@@ -45,8 +45,8 @@ public final class SchemaMetaData
     return _channels.length;
   }
 
-  @Nonnull
-  public ChannelMetaData getChannelMetaData( @Nonnull final ChannelAddress address )
+  @NonNull
+  public ChannelMetaData getChannelMetaData( @NonNull final ChannelAddress address )
   {
     return getChannelMetaData( address.channelId() );
   }
@@ -54,7 +54,7 @@ public final class SchemaMetaData
   /**
    * @return the channel metadata.
    */
-  @Nonnull
+  @NonNull
   public ChannelMetaData getChannelMetaData( final int channelId )
   {
     if ( !hasChannelMetaData( channelId ) )
@@ -74,7 +74,7 @@ public final class SchemaMetaData
     return _instanceChannels.length;
   }
 
-  @Nonnull
+  @NonNull
   public ChannelMetaData getInstanceChannelByIndex( final int index )
   {
     return _instanceChannels[ index ];

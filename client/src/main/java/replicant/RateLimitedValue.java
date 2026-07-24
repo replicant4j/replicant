@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 final class RateLimitedValue
 {
@@ -76,7 +76,7 @@ final class RateLimitedValue
     }
   }
 
-  boolean attempt( final long now, final double costInTokens, @Nonnull final Runnable action )
+  boolean attempt( final long now, final double costInTokens, @NonNull final Runnable action )
   {
     if ( consume( now, costInTokens ) )
     {

@@ -1,7 +1,7 @@
 package replicant;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsMethod;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -23,12 +23,12 @@ final class ReplicantLogger
   /**
    * Log a message with an optional exception.
    */
-  static void log( @Nonnull final String message, @Nullable final Throwable throwable )
+  static void log( @NonNull final String message, @Nullable final Throwable throwable )
   {
     c_logger.log( message, throwable );
   }
 
-  @Nonnull
+  @NonNull
   static Logger getLogger()
   {
     return c_logger;
@@ -41,7 +41,7 @@ final class ReplicantLogger
    */
   interface Logger
   {
-    void log( @Nonnull String message, @Nullable Throwable throwable );
+    void log( @NonNull String message, @Nullable Throwable throwable );
   }
 
   /**
@@ -51,7 +51,7 @@ final class ReplicantLogger
     implements Logger
   {
     @Override
-    public void log( @Nonnull final String message, @Nullable final Throwable throwable )
+    public void log( @NonNull final String message, @Nullable final Throwable throwable )
     {
     }
   }
@@ -64,7 +64,7 @@ final class ReplicantLogger
   {
     @GwtIncompatible
     @Override
-    public void log( @Nonnull final String message, @Nullable final Throwable throwable )
+    public void log( @NonNull final String message, @Nullable final Throwable throwable )
     {
       System.out.println( message );
       if ( null != throwable )
@@ -88,7 +88,7 @@ final class ReplicantLogger
     implements Logger
   {
     @Override
-    public void log( @Nonnull final String message, @Nullable final Throwable throwable )
+    public void log( @NonNull final String message, @Nullable final Throwable throwable )
     {
       NativeJsLoggerUtil.log( message );
       if ( null != throwable )
@@ -104,20 +104,22 @@ final class ReplicantLogger
   static final class ProxyLogger
     implements Logger
   {
+    @Nullable
     private Logger _logger;
 
+    @Nullable
     Logger getLogger()
     {
       return _logger;
     }
 
-    void setLogger( final Logger logger )
+    void setLogger( @Nullable final Logger logger )
     {
       _logger = logger;
     }
 
     @Override
-    public void log( @Nonnull final String message, @Nullable final Throwable throwable )
+    public void log( @NonNull final String message, @Nullable final Throwable throwable )
     {
       if ( null != _logger )
       {

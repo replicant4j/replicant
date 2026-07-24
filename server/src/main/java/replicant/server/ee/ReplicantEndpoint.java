@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ import replicant.shared.SharedConstants;
 @Transactional
 public class ReplicantEndpoint
 {
-  @Nonnull
+  @NonNull
   protected static final Logger LOG = Logger.getLogger( ReplicantEndpoint.class.getName() );
   @Inject
   private ReplicantSessionManager _sessionManager;
@@ -51,7 +51,7 @@ public class ReplicantEndpoint
   private Event<ReplicantSessionRemoved> _replicantSessionRemovedEvent;
 
   @OnOpen
-  public void onOpen( @Nonnull final Session session )
+  public void onOpen( @NonNull final Session session )
     throws IOException
   {
     final var authorization = _handshakeAuthenticator.authenticate( session );
@@ -84,7 +84,7 @@ public class ReplicantEndpoint
 
   @OnMessage
   @Transactional
-  public void command( @Nonnull final Session session, @Nonnull final String message )
+  public void command( @NonNull final Session session, @NonNull final String message )
     throws IOException
   {
     final ReplicantSession replicantSession;
@@ -126,9 +126,9 @@ public class ReplicantEndpoint
     }
   }
 
-  private void processCommand( @Nonnull final ReplicantSession replicantSession,
-                               @Nonnull final JsonObject command,
-                               @Nonnull final String type,
+  private void processCommand( @NonNull final ReplicantSession replicantSession,
+                               @NonNull final JsonObject command,
+                               @NonNull final String type,
                                final int requestId )
     throws IOException
   {
@@ -180,7 +180,7 @@ public class ReplicantEndpoint
     }
   }
 
-  private void sendOk( @Nonnull final Session session, final int requestId )
+  private void sendOk( @NonNull final Session session, final int requestId )
   {
     WebSocketUtil.sendText( session, JsonEncoder.encodeOkMessage( requestId ) );
   }
@@ -202,7 +202,7 @@ public class ReplicantEndpoint
     }
   }
 
-  private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+  private void onETags( @NonNull final ReplicantSession session, @NonNull final JsonObject command )
   {
     final var eTags = new HashMap<ChannelAddress, String>();
     for ( final var entry : command.getJsonObject( Messages.Etags.ETAGS ).entrySet() )
@@ -216,17 +216,17 @@ public class ReplicantEndpoint
     sendOk( session.getWebSocketSession(), command.getInt( Messages.Common.REQUEST_ID ) );
   }
 
-  private void onMalformedMessage( @Nonnull final ReplicantSession replicantSession, @Nonnull final String message )
+  private void onMalformedMessage( @NonNull final ReplicantSession replicantSession, @NonNull final String message )
   {
     closeWithError( replicantSession, "Malformed message", JsonEncoder.encodeMalformedMessageMessage( message ) );
   }
 
-  private void onUnknownType( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+  private void onUnknownType( @NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command )
   {
     closeWithError( replicantSession, "Unknown request type", JsonEncoder.encodeUnknownRequestType( command ) );
   }
 
-  private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+  private void onSubscribe( @NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command )
     throws IOException
   {
     final var address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
@@ -239,9 +239,9 @@ public class ReplicantEndpoint
     }
   }
 
-  private boolean checkSubscribeRequest( @Nonnull final ReplicantSession replicantSession,
-                                         @Nonnull final ChannelMetaData channelMetaData,
-                                         @Nonnull final ChannelAddress address )
+  private boolean checkSubscribeRequest( @NonNull final ReplicantSession replicantSession,
+                                         @NonNull final ChannelMetaData channelMetaData,
+                                         @NonNull final ChannelAddress address )
     throws IOException
   {
     if ( !channelMetaData.isExternal() )
@@ -266,7 +266,7 @@ public class ReplicantEndpoint
   }
 
   @SuppressWarnings( "DuplicatedCode" )
-  private void onBulkSubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+  private void onBulkSubscribe( @NonNull final ReplicantSession session, @NonNull final JsonObject command )
     throws IOException
   {
     final var addresses = extractChannels( command );
@@ -294,8 +294,8 @@ public class ReplicantEndpoint
     }
   }
 
-  @Nonnull
-  private ChannelAddress[] extractChannels( @Nonnull final JsonObject command )
+  @NonNull
+  private ChannelAddress[] extractChannels( @NonNull final JsonObject command )
   {
     final var channels = command.getJsonArray( Messages.Update.CHANNELS );
     final var channelCount = channels.size();
@@ -308,7 +308,7 @@ public class ReplicantEndpoint
   }
 
   @Nullable
-  private JsonObject extractFilter( @Nonnull final ChannelMetaData channelMetaData, @Nonnull final JsonObject command )
+  private JsonObject extractFilter( @NonNull final ChannelMetaData channelMetaData, @NonNull final JsonObject command )
   {
     return channelMetaData.requiresFilterParameter() &&
            command.containsKey( Messages.Update.FILTER ) &&
@@ -317,7 +317,7 @@ public class ReplicantEndpoint
            null;
   }
 
-  private void onUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
+  private void onUnsubscribe( @NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command )
     throws IOException
   {
     final var address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
@@ -330,7 +330,7 @@ public class ReplicantEndpoint
   }
 
   @SuppressWarnings( "DuplicatedCode" )
-  private void onBulkUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
+  private void onBulkUnsubscribe( @NonNull final ReplicantSession session, @NonNull final JsonObject command )
     throws IOException
   {
     final var addresses = extractChannels( command );
@@ -357,9 +357,9 @@ public class ReplicantEndpoint
     }
   }
 
-  private boolean checkUnsubscribeRequest( @Nonnull final ReplicantSession replicantSession,
-                                           @Nonnull final ChannelMetaData channelMetaData,
-                                           @Nonnull final ChannelAddress address )
+  private boolean checkUnsubscribeRequest( @NonNull final ReplicantSession replicantSession,
+                                           @NonNull final ChannelMetaData channelMetaData,
+                                           @NonNull final ChannelAddress address )
     throws IOException
   {
     if ( !channelMetaData.isExternal() )
@@ -383,9 +383,9 @@ public class ReplicantEndpoint
     }
   }
 
-  private boolean validateFilterInstanceId( @Nonnull final ReplicantSession session,
-                                            @Nonnull final ChannelMetaData channelMetaData,
-                                            @Nonnull final ChannelAddress address )
+  private boolean validateFilterInstanceId( @NonNull final ReplicantSession session,
+                                            @NonNull final ChannelMetaData channelMetaData,
+                                            @NonNull final ChannelAddress address )
     throws IOException
   {
     final boolean hasInstanceId = null != address.filterInstanceId();
@@ -413,7 +413,7 @@ public class ReplicantEndpoint
   }
 
   @Nullable
-  private ReplicantSession findReplicantSession( @Nonnull final Session session )
+  private ReplicantSession findReplicantSession( @NonNull final Session session )
   {
     try
     {
@@ -429,8 +429,8 @@ public class ReplicantEndpoint
     }
   }
 
-  @Nonnull
-  private ReplicantSession getReplicantSession( @Nonnull final Session session )
+  @NonNull
+  private ReplicantSession getReplicantSession( @NonNull final Session session )
   {
     final var replicantSession = findReplicantSession( session );
     if ( null != replicantSession )
@@ -444,7 +444,7 @@ public class ReplicantEndpoint
   }
 
   @OnError
-  public void onError( @Nonnull final Session session, @Nonnull final Throwable error )
+  public void onError( @NonNull final Session session, @NonNull final Throwable error )
     throws IOException
   {
     if ( LOG.isLoggable( Level.INFO ) )
@@ -455,13 +455,13 @@ public class ReplicantEndpoint
     sendErrorAndClose( session, error.toString() );
   }
 
-  private void sendErrorAndClose( @Nonnull final ReplicantSession session, @Nonnull final String message )
+  private void sendErrorAndClose( @NonNull final ReplicantSession session, @NonNull final String message )
     throws IOException
   {
     sendErrorAndClose( session.getWebSocketSession(), message );
   }
 
-  private void sendErrorAndClose( @Nonnull final Session session, @Nonnull final String message )
+  private void sendErrorAndClose( @NonNull final Session session, @NonNull final String message )
     throws IOException
   {
     if ( session.isOpen() )
@@ -477,7 +477,7 @@ public class ReplicantEndpoint
   }
 
   @OnClose
-  public void onClose( @Nonnull final Session session )
+  public void onClose( @NonNull final Session session )
   {
     final var replicantSession = findReplicantSession( session );
     if ( null == replicantSession )
@@ -496,22 +496,22 @@ public class ReplicantEndpoint
     }
   }
 
-  @Nonnull
+  @NonNull
   private ChannelMetaData getChannelMetaData( final int channelId )
   {
     return _sessionManager.getSchemaMetaData().getChannelMetaData( channelId );
   }
 
-  private void closeWithError( @Nonnull final ReplicantSession replicantSession,
-                               @Nonnull final String reason,
-                               @Nonnull final String message )
+  private void closeWithError( @NonNull final ReplicantSession replicantSession,
+                               @NonNull final String reason,
+                               @NonNull final String message )
   {
     WebSocketUtil.sendText( replicantSession.getWebSocketSession(), message );
     replicantSession.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, reason ) );
     closeReplicantSession( replicantSession );
   }
 
-  private void closeReplicantSession( @Nonnull final ReplicantSession replicantSession )
+  private void closeReplicantSession( @NonNull final ReplicantSession replicantSession )
   {
     _replicantSessionRemovedEvent.fire( new ReplicantSessionRemoved( replicantSession.getId() ) );
     _sessionManager.invalidateSession( replicantSession );

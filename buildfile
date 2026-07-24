@@ -18,6 +18,7 @@ FORMATTER_JDK_EXPORTS =
 FORMATTER_JAVAC_EXPORTS = FORMATTER_JDK_EXPORTS.map { |option| "-J#{option}" }
 
 PROVIDED_DEPS = [
+  :jspecify,
   :javax_annotation,
   :jakarta_annotation_api,
   :jakarta_enterprise_cdi_api,
@@ -55,7 +56,7 @@ define 'replicant' do
   pom.add_developer('realityforge', 'Peter Donald')
 
   define 'shared' do
-    compile.with :javax_annotation
+    compile.with :jspecify
 
     package(:jar).tap do |j|
       j.include("#{project._(:source, :main, :java)}/*")
@@ -99,7 +100,7 @@ define 'replicant' do
                 :gwt_user,
                 :grim_annotations,
                 :zemeckis,
-                :javax_annotation,
+                :jspecify,
                 :jsinterop_base,
                 :jsinterop_annotations,
                 :braincheck_core)
@@ -108,7 +109,8 @@ define 'replicant' do
     pom.provided_dependencies.concat [:gwt_user]
     pom.dependency_filter = Proc.new {|dep| dep[:scope].to_s != 'test' && client_deps.include?(dep[:artifact]) }
 
-    compile.with client_deps + [project('shared').package(:jar)]
+    # Arez 0.254 generated sources still import javax.annotation nullness types.
+    compile.with client_deps + [:javax_annotation, project('shared').package(:jar)]
 
     compile.options[:processor_path] << [:arez_processor, :react4j_processor, :grim_processor, :javax_json]
     compile.options.other = FORMATTER_JAVAC_EXPORTS

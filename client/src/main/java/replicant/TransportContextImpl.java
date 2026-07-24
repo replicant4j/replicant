@@ -4,19 +4,19 @@ import akasha.VisibilityState;
 import akasha.WindowGlobal;
 import arez.Disposable;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SessionCreatedMessage;
 
 final class TransportContextImpl
   implements TransportContext, Disposable
 {
-  @Nonnull
+  @NonNull
   private final Connector _connector;
   private boolean _disposed;
 
-  TransportContextImpl( @Nonnull final Connector connector )
+  TransportContextImpl( @NonNull final Connector connector )
   {
     _connector = Objects.requireNonNull( connector );
   }
@@ -43,7 +43,7 @@ final class TransportContextImpl
   }
 
   @Override
-  public void onMessageReceived( @Nonnull final ServerToClientMessage message )
+  public void onMessageReceived( @NonNull final ServerToClientMessage message )
   {
     if ( isNotDisposed() )
     {

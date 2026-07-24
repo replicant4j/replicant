@@ -4,6 +4,7 @@ java_server_library(
     name = "json_lib",
     srcs = [
         "JsonEncoder.java",
+        "package-info.java",
     ],
     visibility = [
         "//server:__pkg__",
@@ -13,7 +14,6 @@ java_server_library(
     deps = [
         "//server/src/main/java/replicant/server:server_core_lib",
         "//shared:shared_lib",
-        "//third_party/java:javax_annotation",
         "//third_party/java:javax_json",
     ],
 )

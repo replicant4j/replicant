@@ -22,8 +22,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -56,15 +56,15 @@ import replicant.server.runtime.ReplicantSystem;
 public class ReplicantSessionManagerImpl
   implements ReplicantSessionManager
 {
-  @Nonnull
+  @NonNull
   private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
-  @Nonnull
+  @NonNull
   private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  @Nonnull
+  @NonNull
   private final Map<String, ReplicantSession> _sessions = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
-  @Nonnull
+  @NonNull
   private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
   @SuppressWarnings( "CdiInjectionPointsInspection" )
   @Inject
@@ -111,10 +111,10 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public <T> T runRequest( @Nonnull final String invocationKey,
+  public <T> T runRequest( @NonNull final String invocationKey,
                            @Nullable final ReplicantSession session,
                            @Nullable final Integer requestId,
-                           @Nonnull final Callable<T> action )
+                           @NonNull final Callable<T> action )
     throws Exception
   {
     startReplication( invocationKey, session, requestId );
@@ -128,10 +128,10 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void sessionLockingRequest( @Nonnull final String invocationKey,
-                                      @Nonnull final ReplicantSession session,
+  private void sessionLockingRequest( @NonNull final String invocationKey,
+                                      @NonNull final ReplicantSession session,
                                       @Nullable final Integer requestId,
-                                      @Nonnull final Runnable action )
+                                      @NonNull final Runnable action )
   {
     final var lock = session.getLock();
     try
@@ -158,24 +158,24 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public boolean isAuthorized( @Nonnull final ReplicantSession session )
+  public boolean isAuthorized( @NonNull final ReplicantSession session )
   {
     return _context.isAuthorized( session );
   }
 
   @Override
-  public void execCommand( @Nonnull final ReplicantSession session,
-                           @Nonnull final String command,
+  public void execCommand( @NonNull final ReplicantSession session,
+                           @NonNull final String command,
                            final int requestId,
                            @Nullable final JsonObject payload )
   {
     _context.execCommand( session, command, requestId, payload );
   }
 
-  private void sessionUpdateRequest( @Nonnull final String invocationKey,
-                                     @Nonnull final ReplicantSession session,
+  private void sessionUpdateRequest( @NonNull final String invocationKey,
+                                     @NonNull final ReplicantSession session,
                                      final int requestId,
-                                     @Nonnull final Runnable action )
+                                     @NonNull final Runnable action )
   {
     sessionLockingRequest( invocationKey, session, requestId, () -> {
       _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
@@ -191,7 +191,7 @@ public class ReplicantSessionManagerImpl
    * @param requestId     the id of the request in the session that initiated change..
    */
   @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
-  private void startReplication( @Nonnull final String invocationKey,
+  private void startReplication( @NonNull final String invocationKey,
                                  @Nullable final ReplicantSession session,
                                  @Nullable final Integer requestId )
   {
@@ -225,7 +225,7 @@ public class ReplicantSessionManagerImpl
    * Complete a replication context and submit changes for replication.
    */
   @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
-  private void completeReplication( @Nonnull final String invocationKey )
+  private void completeReplication( @NonNull final String invocationKey )
   {
     if ( Status.STATUS_ACTIVE == _registry.getTransactionStatus() &&
          !_registry.getRollbackOnly() &&
@@ -271,7 +271,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @Nonnull
+  @NonNull
   @Override
   public SchemaMetaData getSchemaMetaData()
   {
@@ -280,7 +280,7 @@ public class ReplicantSessionManagerImpl
 
   @SuppressWarnings( "resource" )
   @Override
-  public void invalidateSession( @Nonnull final ReplicantSession session )
+  public void invalidateSession( @NonNull final ReplicantSession session )
   {
     var removed = false;
     _lock.writeLock().lock();
@@ -307,7 +307,7 @@ public class ReplicantSessionManagerImpl
 
   @Override
   @Nullable
-  public ReplicantSession getSession( @Nonnull final String sessionId )
+  public ReplicantSession getSession( @NonNull final String sessionId )
   {
     _lock.readLock().lock();
     try
@@ -320,7 +320,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @Nonnull
+  @NonNull
   Set<ReplicantSession> getSessions()
   {
     _lock.readLock().lock();
@@ -335,9 +335,9 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  @Nonnull
-  public ReplicantSession createSession( @Nonnull final Session webSocketSession,
-                                          @Nonnull final ReplicantSessionAuthorization authorization )
+  @NonNull
+  public ReplicantSession createSession( @NonNull final Session webSocketSession,
+                                          @NonNull final ReplicantSessionAuthorization authorization )
   {
     final var session = new ReplicantSession( webSocketSession, authorization );
     var sessionCount = 0;
@@ -456,7 +456,7 @@ public class ReplicantSessionManagerImpl
    * @param session   the session.
    * @param changeSet the messages to be sent along to the client.
    */
-  private void queueCachedChangeSet( @Nonnull final ReplicantSession session, @Nonnull final ChangeSet changeSet )
+  private void queueCachedChangeSet( @NonNull final ReplicantSession session, @NonNull final ChangeSet changeSet )
   {
     final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
     _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
@@ -473,7 +473,7 @@ public class ReplicantSessionManagerImpl
   private boolean saveEntityMessages( @Nullable final String sessionId,
                                       @Nullable final Integer requestId,
                                       @Nullable final JsonValue response,
-                                      @Nonnull final Collection<EntityMessage> messages,
+                                      @NonNull final Collection<EntityMessage> messages,
                                       @Nullable final ChangeSet sessionChanges )
   {
     var impactsInitiator = false;
@@ -535,7 +535,7 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public boolean sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  public boolean sendChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
   {
     final var sent = new AtomicBoolean();
     try
@@ -549,7 +549,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private boolean sendAuthorizedChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  private boolean sendAuthorizedChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
   {
     final var incomingEntityCount = packet.messages().size() + packet.changeSet().getChanges().size();
     final var incomingChannelLinks =
@@ -663,9 +663,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private int completeMessageProcessing( @Nonnull final ReplicantSession session,
-                                         @Nonnull final ChangeSet changeSet,
-                                         @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  private int completeMessageProcessing( @NonNull final ReplicantSession session,
+                                         @NonNull final ChangeSet changeSet,
+                                         @NonNull final Set<ChannelAddress> rootDeletedEntries )
   {
     var expandCycleCount = 0;
     try
@@ -697,7 +697,7 @@ public class ReplicantSessionManagerImpl
           pending
             .stream()
             .min( Comparator.comparing( ChannelLinkEntry::target ) )
-            .orElse( null );
+            .orElseThrow();
         final var target = entry.target();
         final var toSubscribe =
           target.hasRootId() ?
@@ -735,10 +735,10 @@ public class ReplicantSessionManagerImpl
   /**
    * Collect a list of ChannelLinks in change set that may need to be followed.
    */
-  private void collectChannelLinksToFollow( @Nonnull final ReplicantSession session,
-                                            @Nonnull final ChangeSet changeSet,
-                                            @Nonnull final Set<ChannelLinkEntry> targets,
-                                            @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  private void collectChannelLinksToFollow( @NonNull final ReplicantSession session,
+                                            @NonNull final ChangeSet changeSet,
+                                            @NonNull final Set<ChannelLinkEntry> targets,
+                                            @NonNull final Set<ChannelAddress> rootDeletedEntries )
   {
     for ( final var change : changeSet.getChanges() )
     {
@@ -760,7 +760,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private boolean matchesSourceAddress( @Nonnull final ChannelAddress template, @Nonnull final ChannelAddress address )
+  private boolean matchesSourceAddress( @NonNull final ChannelAddress template, @NonNull final ChannelAddress address )
   {
     if ( template.partial() )
     {
@@ -772,11 +772,11 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @Nonnull
-  private ChannelAddress resolveTargetAddress( @Nonnull final EntityMessage entityMessage,
-                                               @Nonnull final ChannelAddress source,
+  @NonNull
+  private ChannelAddress resolveTargetAddress( @NonNull final EntityMessage entityMessage,
+                                               @NonNull final ChannelAddress source,
                                                @Nullable final JsonObject sourceFilter,
-                                               @Nonnull final ChannelAddress target,
+                                               @NonNull final ChannelAddress target,
                                                @Nullable final JsonObject targetFilter )
   {
     if ( target.partial() )
@@ -798,9 +798,9 @@ public class ReplicantSessionManagerImpl
   /**
    * Resolve the desired downstream targets for the source entry from the entity-owned links in the message.
    */
-  @Nonnull
-  private Map<ChannelAddress, JsonObject> resolveDesiredChannelLinkTargets( @Nonnull final EntityMessage entityMessage,
-                                                                            @Nonnull final SubscriptionEntry sourceEntry )
+  @NonNull
+  private Map<ChannelAddress, JsonObject> resolveDesiredChannelLinkTargets( @NonNull final EntityMessage entityMessage,
+                                                                            @NonNull final SubscriptionEntry sourceEntry )
   {
     final var desiredTargets = new LinkedHashMap<ChannelAddress, JsonObject>();
     final var links = entityMessage.getLinks();
@@ -823,12 +823,12 @@ public class ReplicantSessionManagerImpl
     return desiredTargets;
   }
 
-  private void reconcileOwnedChannelLinks( @Nonnull final ReplicantSession session,
-                                           @Nonnull final SubscriptionEntry sourceEntry,
-                                           @Nonnull final LinkOwner owner,
-                                           @Nonnull final Map<ChannelAddress, JsonObject> desiredTargets,
-                                           @Nonnull final ChangeSet changeSet,
-                                           @Nonnull final Set<ChannelLinkEntry> targets )
+  private void reconcileOwnedChannelLinks( @NonNull final ReplicantSession session,
+                                           @NonNull final SubscriptionEntry sourceEntry,
+                                           @NonNull final LinkOwner owner,
+                                           @NonNull final Map<ChannelAddress, JsonObject> desiredTargets,
+                                           @NonNull final ChangeSet changeSet,
+                                           @NonNull final Set<ChannelLinkEntry> targets )
   {
     final var existingTargets = new HashSet<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) );
     for ( final var existingTarget : existingTargets )
@@ -851,9 +851,9 @@ public class ReplicantSessionManagerImpl
   }
 
   @Nullable
-  private ResolvedChannelLink resolveChannelLinkIfRequired( @Nonnull final EntityMessage entityMessage,
-                                                            @Nonnull final SubscriptionEntry sourceEntry,
-                                                            @Nonnull final ChannelLink link )
+  private ResolvedChannelLink resolveChannelLinkIfRequired( @NonNull final EntityMessage entityMessage,
+                                                            @NonNull final SubscriptionEntry sourceEntry,
+                                                            @NonNull final ChannelLink link )
   {
     final var source = sourceEntry.address();
     InvariantUtil.assertConcreteAddress( getSchemaMetaData(), source );
@@ -878,10 +878,10 @@ public class ReplicantSessionManagerImpl
   }
 
   @Nullable
-  private ChannelLinkEntry createOrUpdateChannelLinkEntry( @Nonnull final ReplicantSession session,
-                                                           @Nonnull final LinkOwner owner,
-                                                           @Nonnull final SubscriptionEntry sourceEntry,
-                                                           @Nonnull final ChannelAddress target,
+  private ChannelLinkEntry createOrUpdateChannelLinkEntry( @NonNull final ReplicantSession session,
+                                                           @NonNull final LinkOwner owner,
+                                                           @NonNull final SubscriptionEntry sourceEntry,
+                                                           @NonNull final ChannelAddress target,
                                                            @Nullable final JsonObject filter )
   {
     final var targetEntry = session.findSubscriptionEntry( target );
@@ -899,9 +899,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void processMessages( @Nonnull final Collection<EntityMessage> messages,
-                                @Nonnull final ReplicantSession session,
-                                @Nonnull final ChangeSet changeSet )
+  private void processMessages( @NonNull final Collection<EntityMessage> messages,
+                                @NonNull final ReplicantSession session,
+                                @NonNull final ChangeSet changeSet )
   {
     for ( final var message : messages )
     {
@@ -914,10 +914,10 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void preserveOwnedChannelLinksBeforeDelete( @Nonnull final Collection<EntityMessage> messages,
-                                                      @Nonnull final ReplicantSession session,
-                                                      @Nonnull final ChangeSet changeSet,
-                                                      @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  private void preserveOwnedChannelLinksBeforeDelete( @NonNull final Collection<EntityMessage> messages,
+                                                      @NonNull final ReplicantSession session,
+                                                      @NonNull final ChangeSet changeSet,
+                                                      @NonNull final Set<ChannelAddress> rootDeletedEntries )
   {
     for ( final var message : messages )
     {
@@ -944,9 +944,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  @Nonnull
-  private Set<ChannelAddress> collectRootDeletedEntries( @Nonnull final Collection<EntityMessage> messages,
-                                                         @Nonnull final ReplicantSession session )
+  @NonNull
+  private Set<ChannelAddress> collectRootDeletedEntries( @NonNull final Collection<EntityMessage> messages,
+                                                         @NonNull final ReplicantSession session )
   {
     final var rootDeletedEntries = new HashSet<ChannelAddress>();
     final var schema = getSchemaMetaData();
@@ -986,9 +986,9 @@ public class ReplicantSessionManagerImpl
     return rootDeletedEntries;
   }
 
-  private void preserveOwnedChannelLinksFromPacketMessage( @Nonnull final EntityMessage message,
-                                                           @Nonnull final ReplicantSession session,
-                                                           @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  private void preserveOwnedChannelLinksFromPacketMessage( @NonNull final EntityMessage message,
+                                                           @NonNull final ReplicantSession session,
+                                                           @NonNull final Set<ChannelAddress> rootDeletedEntries )
   {
     final var schema = getSchemaMetaData();
     final var channelCount = schema.getChannelCount();
@@ -1019,11 +1019,11 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void preserveOwnedChannelLinksForSourceEntry( @Nonnull final EntityMessage message,
-                                                        @Nonnull final ReplicantSession session,
-                                                        @Nonnull final SubscriptionEntry sourceEntry,
-                                                        @Nonnull final LinkOwner owner,
-                                                        @Nonnull final Set<ChannelAddress> rootDeletedEntries )
+  private void preserveOwnedChannelLinksForSourceEntry( @NonNull final EntityMessage message,
+                                                        @NonNull final ReplicantSession session,
+                                                        @NonNull final SubscriptionEntry sourceEntry,
+                                                        @NonNull final LinkOwner owner,
+                                                        @NonNull final Set<ChannelAddress> rootDeletedEntries )
   {
     if ( !rootDeletedEntries.contains( sourceEntry.address() ) )
     {
@@ -1045,9 +1045,9 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void subscribe( @Nonnull final ReplicantSession session,
+  public void subscribe( @NonNull final ReplicantSession session,
                          final int requestId,
-                         @Nonnull final List<ChannelAddress> addresses,
+                         @NonNull final List<ChannelAddress> addresses,
                          @Nullable final JsonObject filter )
   {
     if ( InvariantUtil.isInvariantCheckingEnabled() )
@@ -1067,10 +1067,10 @@ public class ReplicantSessionManagerImpl
     } );
   }
 
-  private void doSubscribe( @Nonnull final ReplicantSession session,
-                            @Nonnull final List<ChannelAddress> addresses,
+  private void doSubscribe( @NonNull final ReplicantSession session,
+                            @NonNull final List<ChannelAddress> addresses,
                             @Nullable final JsonObject filter,
-                            @Nonnull final ChangeSet changeSet,
+                            @NonNull final ChangeSet changeSet,
                             final boolean isExplicitSubscribe )
   {
     final var uniqueAddresses = addresses.stream().distinct().toList();
@@ -1195,8 +1195,11 @@ public class ReplicantSessionManagerImpl
 
         if ( channel.filterType().isDynamicFilter() )
         {
-          assert null != filter;
-          _context.collectChannelDataForFilterChange( session, updateAddresses, originalFilter, filter, changeSet );
+          _context.collectChannelDataForFilterChange( session,
+                                                      updateAddresses,
+                                                      originalFilter,
+                                                      Objects.requireNonNull( filter ),
+                                                      changeSet );
         }
         else
         {
@@ -1210,17 +1213,17 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void setETags( @Nonnull final ReplicantSession session, @Nonnull final Map<ChannelAddress, String> eTags )
+  public void setETags( @NonNull final ReplicantSession session, @NonNull final Map<ChannelAddress, String> eTags )
   {
     sessionLockingRequest( "setEtags()", session, null, () -> session.setETags( eTags ) );
   }
 
   @SuppressWarnings( "SameParameterValue" )
-  private void subscribe( @Nonnull final ReplicantSession session,
-                          @Nonnull final ChannelAddress address,
+  private void subscribe( @NonNull final ReplicantSession session,
+                          @NonNull final ChannelAddress address,
                           final boolean explicitlySubscribe,
                           @Nullable final JsonObject filter,
-                          @Nonnull final ChangeSet changeSet )
+                          @NonNull final ChangeSet changeSet )
   {
     final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
 
@@ -1253,8 +1256,8 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void subscribeToRequiredTypeChannels( @Nonnull final ReplicantSession session,
-                                                @Nonnull final ChannelMetaData channelMetaData )
+  private void subscribeToRequiredTypeChannels( @NonNull final ReplicantSession session,
+                                                @NonNull final ChannelMetaData channelMetaData )
   {
     final var requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
     if ( LOG.isLoggable( Level.FINE ) && requiredTypeChannels.length > 0 )
@@ -1305,7 +1308,7 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void deleteCacheEntry( @Nonnull final ChannelAddress address )
+  private void deleteCacheEntry( @NonNull final ChannelAddress address )
   {
     InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     _cacheLock.writeLock().lock();
@@ -1343,7 +1346,7 @@ public class ReplicantSessionManagerImpl
    * each channel cached.
    */
   @Nullable
-  private ChannelCacheEntry tryGetCacheEntry( @Nonnull final ChannelAddress address )
+  private ChannelCacheEntry tryGetCacheEntry( @NonNull final ChannelAddress address )
   {
     InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     final var metaData = getSchemaMetaData().getChannelMetaData( address );
@@ -1383,8 +1386,7 @@ public class ReplicantSessionManagerImpl
           .filter( a -> a.address().equals( address ) )
           .findFirst()
           .orElse( null );
-      assert null != channelAction;
-      final var action = channelAction.action();
+      final var action = Objects.requireNonNull( channelAction ).action();
       // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
       if ( ChannelAction.Action.DELETE == action )
       {
@@ -1395,8 +1397,7 @@ public class ReplicantSessionManagerImpl
       {
         // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
         assert ChannelAction.Action.ADD == action;
-        assert null != cacheKey;
-        entry.init( cacheKey, changeSet );
+        entry.init( Objects.requireNonNull( cacheKey ), changeSet );
         return entry;
       }
     }
@@ -1428,7 +1429,7 @@ public class ReplicantSessionManagerImpl
    * loaded at this stage. This is done to avoid using a global lock while loading data for a
    * particular cache entry.
    */
-  private ChannelCacheEntry getCacheEntry( @Nonnull final ChannelAddress address )
+  private ChannelCacheEntry getCacheEntry( @NonNull final ChannelAddress address )
   {
     InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
     _cacheLock.readLock().lock();
@@ -1464,9 +1465,9 @@ public class ReplicantSessionManagerImpl
   }
 
   @Override
-  public void unsubscribe( @Nonnull final ReplicantSession session,
+  public void unsubscribe( @NonNull final ReplicantSession session,
                            final int requestId,
-                           @Nonnull final List<ChannelAddress> addresses )
+                           @NonNull final List<ChannelAddress> addresses )
   {
     if ( InvariantUtil.isInvariantCheckingEnabled() )
     {
@@ -1484,7 +1485,7 @@ public class ReplicantSessionManagerImpl
     } );
   }
 
-  private void processCachePurge( @Nonnull final EntityMessage message )
+  private void processCachePurge( @NonNull final EntityMessage message )
   {
     final var schema = getSchemaMetaData();
     final var channelCount = schema.getChannelCount();
@@ -1508,9 +1509,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void processUpdateMessages( @Nonnull final EntityMessage message,
-                                      @Nonnull final ReplicantSession session,
-                                      @Nonnull final ChangeSet changeSet )
+  private void processUpdateMessages( @NonNull final EntityMessage message,
+                                      @NonNull final ReplicantSession session,
+                                      @NonNull final ChangeSet changeSet )
   {
     final var schema = getSchemaMetaData();
     final var channelCount = schema.getChannelCount();
@@ -1533,8 +1534,8 @@ public class ReplicantSessionManagerImpl
   }
 
   @Nullable
-  private List<ChannelAddress> extractChannelAddressesFromMessage( @Nonnull final ChannelMetaData channel,
-                                                                   @Nonnull final EntityMessage message )
+  private List<ChannelAddress> extractChannelAddressesFromMessage( @NonNull final ChannelMetaData channel,
+                                                                   @NonNull final EntityMessage message )
   {
     if ( channel.isInstanceGraph() )
     {
@@ -1566,10 +1567,10 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void processUpdateMessage( @Nonnull final ChannelAddress address,
-                                     @Nonnull final EntityMessage message,
-                                     @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChangeSet changeSet,
+  private void processUpdateMessage( @NonNull final ChannelAddress address,
+                                     @NonNull final EntityMessage message,
+                                     @NonNull final ReplicantSession session,
+                                     @NonNull final ChangeSet changeSet,
                                      final boolean isFiltered )
   {
     final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
@@ -1586,9 +1587,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private void processDeleteMessages( @Nonnull final EntityMessage message,
-                                      @Nonnull final ReplicantSession session,
-                                      @Nonnull final ChangeSet changeSet )
+  private void processDeleteMessages( @NonNull final EntityMessage message,
+                                      @NonNull final ReplicantSession session,
+                                      @NonNull final ChangeSet changeSet )
   {
     final var schema = getSchemaMetaData();
     final var instanceChannelCount = schema.getInstanceChannelCount();
@@ -1619,10 +1620,10 @@ public class ReplicantSessionManagerImpl
    * @param changeSet  for changeSet for session.
    * @param isFiltered a flag indicating that the graph is filtered.
    */
-  private void processDeleteMessage( @Nonnull final ChannelAddress address,
-                                     @Nonnull final EntityMessage message,
-                                     @Nonnull final ReplicantSession session,
-                                     @Nonnull final ChangeSet changeSet,
+  private void processDeleteMessage( @NonNull final ChannelAddress address,
+                                     @NonNull final EntityMessage message,
+                                     @NonNull final ReplicantSession session,
+                                     @NonNull final ChangeSet changeSet,
                                      final boolean isFiltered )
   {
     final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
@@ -1650,9 +1651,9 @@ public class ReplicantSessionManagerImpl
     }
   }
 
-  private boolean isEntityMessageChannelRoot( @Nonnull final SubscriptionEntry entry,
-                                              @Nonnull final ChannelAddress address,
-                                              @Nonnull final EntityMessage message )
+  private boolean isEntityMessageChannelRoot( @NonNull final SubscriptionEntry entry,
+                                              @NonNull final ChannelAddress address,
+                                              @NonNull final EntityMessage message )
   {
     final var channel = getSchemaMetaData().getChannelMetaData( entry.address() );
     return channel.isInstanceGraph() &&
@@ -1660,7 +1661,7 @@ public class ReplicantSessionManagerImpl
            Objects.equals( address.rootId(), message.getId() );
   }
 
-  private record ResolvedChannelLink(@Nonnull ChannelAddress target, @Nullable JsonObject filter)
+  private record ResolvedChannelLink(@NonNull ChannelAddress target, @Nullable JsonObject filter)
   {
   }
 }

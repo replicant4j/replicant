@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Objects;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.testng.annotations.Test;
@@ -43,7 +44,7 @@ public final class JsonEncoderTest
     final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
     final var values = message.getAttributeValues();
     assertNotNull( values );
-    values.put( "key3", date );
+    Objects.requireNonNull( values ).put( "key3", date );
 
     final var requestId = 1;
     final var response =
@@ -265,7 +266,7 @@ public final class JsonEncoderTest
 
     final var exception =
       expectThrows( IllegalStateException.class, () -> JsonEncoder.encodeChangeSet( null, null, null, cs ) );
-    assertTrue( exception.getMessage().startsWith( "Unable to encode:" ) );
+    assertTrue( Objects.requireNonNull( exception.getMessage() ).startsWith( "Unable to encode:" ) );
   }
 
   @Test

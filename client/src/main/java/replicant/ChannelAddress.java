@@ -1,8 +1,8 @@
 package replicant;
 
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A channel address is immutable reference that defines the channel address.
@@ -69,13 +69,13 @@ public final class ChannelAddress
     return Replicant.areNamesEnabled() ? getName() : super.toString();
   }
 
-  @Nonnull
+  @NonNull
   public String getName()
   {
     return schemaId() + "." + asChannelDescriptor();
   }
 
-  @Nonnull
+  @NonNull
   public String asChannelDescriptor()
   {
     final StringBuilder sb = new StringBuilder().append( channelId() );
@@ -90,14 +90,14 @@ public final class ChannelAddress
     return sb.toString();
   }
 
-  @Nonnull
+  @NonNull
   public String getCacheKey()
   {
     return "RC-" + getName();
   }
 
-  @Nonnull
-  public static ChannelAddress parse( final int schema, @Nonnull final String channel )
+  @NonNull
+  public static ChannelAddress parse( final int schema, @NonNull final String channel )
   {
     final int instanceOffset = channel.indexOf( '#' );
     final String channelPart = -1 == instanceOffset ? channel : channel.substring( 0, instanceOffset );
@@ -109,7 +109,7 @@ public final class ChannelAddress
   }
 
   @Override
-  public boolean equals( final Object o )
+  public boolean equals( @Nullable final Object o )
   {
     if ( this == o )
     {
@@ -140,7 +140,7 @@ public final class ChannelAddress
   }
 
   @Override
-  public int compareTo( @Nonnull final ChannelAddress o )
+  public int compareTo( @NonNull final ChannelAddress o )
   {
     final int systemDiff = Integer.compare( schemaId(), o.schemaId() );
     if ( 0 != systemDiff )

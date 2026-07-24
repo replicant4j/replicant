@@ -2,8 +2,8 @@ package replicant;
 
 import akasha.core.JSON;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Simple utility that is extracted so it can be replaced by the GWT compiler.
@@ -17,7 +17,7 @@ public final class FilterUtil
     return c_support.filtersEqual( filter1, filter2 );
   }
 
-  @Nonnull
+  @NonNull
   public static String filterToString( @Nullable final Object filter )
   {
     return c_support.filterToString( filter );
@@ -36,7 +36,7 @@ public final class FilterUtil
       return Objects.equals( filter1String, filter2String );
     }
 
-    @Nonnull
+    @NonNull
     String filterToString( @Nullable final Object filter )
     {
       return null == filter ? "" : JSON.stringify( filter );
@@ -57,7 +57,7 @@ public final class FilterUtil
     }
 
     @GwtIncompatible
-    @Nonnull
+    @NonNull
     @Override
     String filterToString( @Nullable final Object filter )
     {

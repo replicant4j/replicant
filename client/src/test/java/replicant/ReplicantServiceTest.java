@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 

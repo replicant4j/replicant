@@ -2,8 +2,8 @@ package replicant;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.shared.SharedConstants;
 
 public final class WebSocketConfig
@@ -11,7 +11,7 @@ public final class WebSocketConfig
   /**
    * The url of websocket. Typically something like ws://example.com/myapp/api
    */
-  @Nonnull
+  @NonNull
   private final String _url;
   /**
    * The remote call accepts a runnable that is used to invoke the remote invocation.
@@ -26,21 +26,21 @@ public final class WebSocketConfig
   @Nullable
   private final Supplier<String> _authenticationTokenGenerator;
 
-  @Nonnull
-  public static WebSocketConfig create( @Nonnull final String baseURL )
+  @NonNull
+  public static WebSocketConfig create( @NonNull final String baseURL )
   {
     return create( baseURL, null, null );
   }
 
-  @Nonnull
-  public static WebSocketConfig create( @Nonnull final String baseURL,
+  @NonNull
+  public static WebSocketConfig create( @NonNull final String baseURL,
                                         @Nullable final Consumer<Runnable> remoteCallWrapper,
                                         @Nullable final Supplier<String> authenticationTokenGenerator )
   {
     return new WebSocketConfig( baseURL, remoteCallWrapper, authenticationTokenGenerator );
   }
 
-  private WebSocketConfig( @Nonnull final String url,
+  private WebSocketConfig( @NonNull final String url,
                            @Nullable final Consumer<Runnable> remoteCallWrapper,
                            @Nullable final Supplier<String> authenticationTokenGenerator )
   {
@@ -49,7 +49,7 @@ public final class WebSocketConfig
     _authenticationTokenGenerator = authenticationTokenGenerator;
   }
 
-  @Nonnull
+  @NonNull
   public String getUrl()
   {
     return _url;
@@ -61,7 +61,7 @@ public final class WebSocketConfig
     return null != _authenticationTokenGenerator ? _authenticationTokenGenerator.get() : null;
   }
 
-  public void remote( @Nonnull final Runnable action )
+  public void remote( @NonNull final Runnable action )
   {
     if ( null == _remoteCallWrapper )
     {

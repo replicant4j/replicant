@@ -1,6 +1,6 @@
 package replicant.spy;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import replicant.Replicant;
 
 /**

@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Enum describing possible states of a Connector.
@@ -38,7 +38,7 @@ public enum ConnectorState
    *
    * @return true if state is one of <code>DISCONNECTING</code> or <code>CONNECTING</code>.
    */
-  public static boolean isTransitionState( @Nonnull final ConnectorState state )
+  public static boolean isTransitionState( @NonNull final ConnectorState state )
   {
     return DISCONNECTING == state || CONNECTING == state;
   }

@@ -1,6 +1,6 @@
 package replicant.server.transport;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
@@ -18,12 +18,12 @@ final class InvariantUtil
     return ASSERTIONS_ENABLED;
   }
 
-  static void assertConcreteAddress( @Nonnull final ChannelAddress address )
+  static void assertConcreteAddress( @NonNull final ChannelAddress address )
   {
     assert address.concrete();
   }
 
-  static void assertConcreteAddress( @Nonnull final SchemaMetaData schema, @Nonnull final ChannelAddress address )
+  static void assertConcreteAddress( @NonNull final SchemaMetaData schema, @NonNull final ChannelAddress address )
   {
     if ( isInvariantCheckingEnabled() )
     {
@@ -33,8 +33,8 @@ final class InvariantUtil
   }
 
   @VisibleForTesting
-  static void assertAddressMatchesChannelMetaData( @Nonnull final SchemaMetaData schema,
-                                                   @Nonnull final ChannelAddress address )
+  static void assertAddressMatchesChannelMetaData( @NonNull final SchemaMetaData schema,
+                                                   @NonNull final ChannelAddress address )
   {
     if ( isInvariantCheckingEnabled() )
     {
@@ -42,8 +42,8 @@ final class InvariantUtil
     }
   }
 
-  private static void assertAddressMatchesChannelMetaData( @Nonnull final ChannelMetaData channel,
-                                                           @Nonnull final ChannelAddress address )
+  private static void assertAddressMatchesChannelMetaData( @NonNull final ChannelMetaData channel,
+                                                           @NonNull final ChannelAddress address )
   {
     if ( channel.isTypeGraph() )
     {
@@ -69,7 +69,7 @@ final class InvariantUtil
     }
   }
 
-  static void assertLink( @Nonnull final SchemaMetaData schema, @Nonnull final ChannelLink link )
+  static void assertLink( @NonNull final SchemaMetaData schema, @NonNull final ChannelLink link )
   {
     if ( isInvariantCheckingEnabled() )
     {

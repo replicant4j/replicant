@@ -17,8 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.websocket.CloseReason;
@@ -31,23 +31,23 @@ import replicant.server.json.JsonEncoder;
 public final class ReplicantSession
   implements Serializable, Closeable
 {
-  @Nonnull
+  @NonNull
   private static final Logger LOG = Logger.getLogger( ReplicantSession.class.getName() );
-  @Nonnull
+  @NonNull
   private final Session _webSocketSession;
   @Nullable
   private final ReplicantSessionAuthorization _authorization;
-  @Nonnull
+  @NonNull
   private final Map<ChannelAddress, String> _eTags = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final Map<ChannelKey, Set<SubscriptionEntry>> _subscriptionsByChannel = new HashMap<>();
-  @Nonnull
+  @NonNull
   private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
-  @Nonnull
+  @NonNull
   private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
-  @Nonnull
+  @NonNull
   private final ReentrantLock _lock = new ReentrantLock( true );
   @Nullable
   private String _authToken;
@@ -55,12 +55,12 @@ public final class ReplicantSession
   private Object _userObject;
   private boolean _authorizationClosed;
 
-  public ReplicantSession( @Nonnull final Session webSocketSession )
+  public ReplicantSession( @NonNull final Session webSocketSession )
   {
     this( webSocketSession, null );
   }
 
-  public ReplicantSession( @Nonnull final Session webSocketSession,
+  public ReplicantSession( @NonNull final Session webSocketSession,
                            @Nullable final ReplicantSessionAuthorization authorization )
   {
     _webSocketSession = Objects.requireNonNull( webSocketSession );
@@ -86,7 +86,7 @@ public final class ReplicantSession
     close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Action interrupted" ) );
   }
 
-  public void close( @Nonnull final CloseReason closeReason )
+  public void close( @NonNull final CloseReason closeReason )
   {
     releaseAuthorization();
     if ( isOpen() )
@@ -167,7 +167,7 @@ public final class ReplicantSession
     return _webSocketSession.isOpen();
   }
 
-  @Nonnull
+  @NonNull
   public Session getWebSocketSession()
   {
     return _webSocketSession;
@@ -191,19 +191,19 @@ public final class ReplicantSession
   /**
    * @return an opaque ID representing session.
    */
-  @Nonnull
+  @NonNull
   public String getId()
   {
     return getWebSocketSession().getId();
   }
 
-  @Nonnull
+  @NonNull
   public ReentrantLock getLock()
   {
     return _lock;
   }
 
-  public boolean runIfValid( @Nonnull final ReplicantSessionAuthorization.Action action )
+  public boolean runIfValid( final ReplicantSessionAuthorization.@NonNull Action action )
     throws IOException
   {
     if ( null == _authorization )
@@ -231,7 +231,7 @@ public final class ReplicantSession
     }
   }
 
-  void queuePacket( @Nonnull final Packet packet )
+  void queuePacket( @NonNull final Packet packet )
   {
     if ( packet.altersExplicitSubscriptions() )
     {
@@ -276,7 +276,7 @@ public final class ReplicantSession
   public void sendPacket( @Nullable final Integer requestId,
                           @Nullable final JsonValue response,
                           @Nullable final String etag,
-                          @Nonnull final ChangeSet changeSet )
+                          @NonNull final ChangeSet changeSet )
   {
     assert null == response || null != requestId;
     ensureLockedByCurrentThread();
@@ -298,13 +298,13 @@ public final class ReplicantSession
   }
 
   @Nullable
-  String getETag( @Nonnull final ChannelAddress address )
+  String getETag( @NonNull final ChannelAddress address )
   {
     assert address.concrete();
     return _eTags.get( address );
   }
 
-  public void setETags( @Nonnull final Map<ChannelAddress, String> etags )
+  public void setETags( @NonNull final Map<ChannelAddress, String> etags )
   {
     ensureLockedByCurrentThread();
     _eTags.clear();
@@ -314,7 +314,7 @@ public final class ReplicantSession
     }
   }
 
-  void setETag( @Nonnull final ChannelAddress address, @Nullable final String eTag )
+  void setETag( @NonNull final ChannelAddress address, @Nullable final String eTag )
   {
     ensureLockedByCurrentThread();
     assert address.concrete();
@@ -332,8 +332,8 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @SuppressWarnings( "WeakerAccess" )
-  @Nonnull
-  SubscriptionEntry getSubscriptionEntry( @Nonnull final ChannelAddress address )
+  @NonNull
+  SubscriptionEntry getSubscriptionEntry( @NonNull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     assert address.concrete();
@@ -352,7 +352,7 @@ public final class ReplicantSession
    * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
    * session and the target must be a concrete type-graph address.</p>
    */
-  public void recordGraphScopedGraphLink( @Nonnull final ChannelAddress source, @Nonnull final ChannelAddress target )
+  public void recordGraphScopedGraphLink( @NonNull final ChannelAddress source, @NonNull final ChannelAddress target )
   {
     assert !target.hasRootId();
     recordGraphLink( source, target, LinkOwner.graph() );
@@ -369,17 +369,17 @@ public final class ReplicantSession
    * follow-link processing and should not be recorded through this API unless the developer is using postSubscribe
    * hooks to optimize data loads.</p>
    */
-  public void recordEntityScopedGraphLink( @Nonnull final ChannelAddress source,
-                                           @Nonnull final ChannelAddress target,
+  public void recordEntityScopedGraphLink( @NonNull final ChannelAddress source,
+                                           @NonNull final ChannelAddress target,
                                            final int entityTypeId,
                                            final int entityId )
   {
     recordGraphLink( source, target, LinkOwner.entity( entityTypeId, entityId ) );
   }
 
-  private void recordGraphLink( @Nonnull final ChannelAddress source,
-                                @Nonnull final ChannelAddress target,
-                                @Nonnull final LinkOwner owner )
+  private void recordGraphLink( @NonNull final ChannelAddress source,
+                                @NonNull final ChannelAddress target,
+                                @NonNull final LinkOwner owner )
   {
     InvariantUtil.assertConcreteAddress( source );
     InvariantUtil.assertConcreteAddress( target );
@@ -388,9 +388,9 @@ public final class ReplicantSession
     recordGraphLink( sourceEntry, targetEntry, owner );
   }
 
-  void recordGraphLink( @Nonnull final SubscriptionEntry sourceEntry,
-                        @Nonnull final SubscriptionEntry targetEntry,
-                        @Nonnull final LinkOwner owner )
+  void recordGraphLink( @NonNull final SubscriptionEntry sourceEntry,
+                        @NonNull final SubscriptionEntry targetEntry,
+                        @NonNull final LinkOwner owner )
   {
     InvariantUtil.assertConcreteAddress( sourceEntry.address() );
     InvariantUtil.assertConcreteAddress( targetEntry.address() );
@@ -402,8 +402,8 @@ public final class ReplicantSession
     }
   }
 
-  public void recordSubscriptions( @Nonnull final ChangeSet changeSet,
-                                   @Nonnull final Collection<ChannelAddress> addresses,
+  public void recordSubscriptions( @NonNull final ChangeSet changeSet,
+                                   @NonNull final Collection<ChannelAddress> addresses,
                                    @Nullable final JsonObject filter,
                                    final boolean explicitSubscribe )
   {
@@ -413,8 +413,8 @@ public final class ReplicantSession
     }
   }
 
-  public void recordSubscription( @Nonnull final ChangeSet changeSet,
-                                  @Nonnull final ChannelAddress address,
+  public void recordSubscription( @NonNull final ChangeSet changeSet,
+                                  @NonNull final ChannelAddress address,
                                   @Nullable final JsonObject filter,
                                   final boolean explicitSubscribe )
   {
@@ -430,13 +430,13 @@ public final class ReplicantSession
   }
 
   @Nullable
-  public JsonObject getFilter( @Nonnull final ChannelAddress address )
+  public JsonObject getFilter( @NonNull final ChannelAddress address )
   {
     assert address.concrete();
     return getSubscriptionEntry( address ).getFilter();
   }
 
-  public void setFilter( @Nonnull final ChannelAddress address, @Nullable final JsonObject filter )
+  public void setFilter( @NonNull final ChannelAddress address, @Nullable final JsonObject filter )
   {
     assert address.concrete();
     getSubscriptionEntry( address ).setFilter( filter );
@@ -447,8 +447,8 @@ public final class ReplicantSession
    *
    * @throws IllegalStateException if subscription already exists.
    */
-  @Nonnull
-  SubscriptionEntry createSubscriptionEntry( @Nonnull final ChannelAddress address )
+  @NonNull
+  SubscriptionEntry createSubscriptionEntry( @NonNull final ChannelAddress address )
   {
     assert address.concrete();
     if ( !_subscriptions.containsKey( address ) )
@@ -472,7 +472,7 @@ public final class ReplicantSession
    * Return subscription entry for specified channel.
    */
   @Nullable
-  SubscriptionEntry findSubscriptionEntry( @Nonnull final ChannelAddress address )
+  SubscriptionEntry findSubscriptionEntry( @NonNull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     assert address.concrete();
@@ -482,13 +482,13 @@ public final class ReplicantSession
   /**
    * Return true if specified channel is present.
    */
-  public boolean isSubscriptionEntryPresent( @Nonnull final ChannelAddress address )
+  public boolean isSubscriptionEntryPresent( @NonNull final ChannelAddress address )
   {
     ensureLockedByCurrentThread();
     return null != findSubscriptionEntry( address );
   }
 
-  @Nonnull
+  @NonNull
   List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
   {
     ensureLockedByCurrentThread();
@@ -496,7 +496,7 @@ public final class ReplicantSession
     return null == entries ? Collections.emptyList() : entries.stream().toList();
   }
 
-  void bulkUnsubscribe( @Nonnull final List<ChannelAddress> addresses, @Nonnull final ChangeSet sessionChanges )
+  void bulkUnsubscribe( @NonNull final List<ChannelAddress> addresses, @NonNull final ChangeSet sessionChanges )
   {
     for ( final var address : addresses )
     {
@@ -505,7 +505,7 @@ public final class ReplicantSession
     }
   }
 
-  private void unsubscribe( @Nonnull final ChannelAddress address, @Nonnull final ChangeSet changeSet )
+  private void unsubscribe( @NonNull final ChannelAddress address, @NonNull final ChangeSet changeSet )
   {
     final var entry = findSubscriptionEntry( address );
     if ( null != entry )
@@ -514,10 +514,10 @@ public final class ReplicantSession
     }
   }
 
-  void performUnsubscribe( @Nonnull final SubscriptionEntry entry,
+  void performUnsubscribe( @NonNull final SubscriptionEntry entry,
                            final boolean explicitUnsubscribe,
                            final boolean delete,
-                           @Nonnull final ChangeSet changeSet )
+                           @NonNull final ChangeSet changeSet )
   {
     assert entry.address().concrete();
     if ( explicitUnsubscribe )
@@ -535,19 +535,19 @@ public final class ReplicantSession
     }
   }
 
-  public void delinkDownstreamSubscription( @Nonnull final ChannelAddress upstream,
-                                            @Nonnull final ChannelAddress downstream,
-                                            @Nonnull final ChangeSet changeSet )
+  public void delinkDownstreamSubscription( @NonNull final ChannelAddress upstream,
+                                            @NonNull final ChannelAddress downstream,
+                                            @NonNull final ChangeSet changeSet )
   {
     assert upstream.concrete();
     assert downstream.concrete();
     delinkDownstreamSubscription( getSubscriptionEntry( upstream ), LinkOwner.graph(), downstream, changeSet );
   }
 
-  void delinkDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
-                                     @Nonnull final LinkOwner owner,
-                                     @Nonnull final ChannelAddress downstream,
-                                     @Nonnull final ChangeSet changeSet )
+  void delinkDownstreamSubscription( @NonNull final SubscriptionEntry sourceEntry,
+                                     @NonNull final LinkOwner owner,
+                                     @NonNull final ChannelAddress downstream,
+                                     @NonNull final ChangeSet changeSet )
   {
     assert sourceEntry.address().concrete();
     assert downstream.concrete();
@@ -563,9 +563,9 @@ public final class ReplicantSession
     }
   }
 
-  void delinkDownstreamSubscriptions( @Nonnull final SubscriptionEntry sourceEntry,
-                                      @Nonnull final LinkOwner owner,
-                                      @Nonnull final ChangeSet changeSet )
+  void delinkDownstreamSubscriptions( @NonNull final SubscriptionEntry sourceEntry,
+                                      @NonNull final LinkOwner owner,
+                                      @NonNull final ChangeSet changeSet )
   {
     assert sourceEntry.address().concrete();
     for ( final var downstream : new ArrayList<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) ) )
@@ -574,9 +574,9 @@ public final class ReplicantSession
     }
   }
 
-  private void delinkAllDownstreamSubscription( @Nonnull final SubscriptionEntry sourceEntry,
-                                                @Nonnull final ChannelAddress downstream,
-                                                @Nonnull final ChangeSet changeSet )
+  private void delinkAllDownstreamSubscription( @NonNull final SubscriptionEntry sourceEntry,
+                                                @NonNull final ChannelAddress downstream,
+                                                @NonNull final ChangeSet changeSet )
   {
     assert sourceEntry.address().concrete();
     assert downstream.concrete();
@@ -595,7 +595,7 @@ public final class ReplicantSession
   /**
    * Delete specified subscription entry.
    */
-  boolean deleteSubscriptionEntry( @Nonnull final SubscriptionEntry entry )
+  boolean deleteSubscriptionEntry( @NonNull final SubscriptionEntry entry )
   {
     ensureLockedByCurrentThread();
     final var address = entry.address();

@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
@@ -256,8 +256,7 @@ public class ConnectionTest
     }
 
     {
-      final ExecRequest request = connection.nextExecRequest();
-      assertNotNull( request );
+      final ExecRequest request = Objects.requireNonNull( connection.nextExecRequest() );
       assertEquals( request.getCommand(), command );
       assertEquals( request.getPayload(), payload );
       assertEquals( request.getRequestId(), -1 );
@@ -659,7 +658,7 @@ public class ConnectionTest
 
   private void assertRequestPendingState( final Connection connection,
                                           final ChannelAddress address,
-                                          final Object filter,
+                                          @Nullable final Object filter,
                                           final boolean hasAdd,
                                           final boolean hasUpdate,
                                           final boolean hasRemove,
@@ -675,18 +674,18 @@ public class ConnectionTest
     assertRequestPendingIndex( connection, AreaOfInterestRequest.Type.REMOVE, address, null, removeIndex );
   }
 
-  private void assertRequestPendingIndex( @Nonnull final Connection connection,
-                                          @Nonnull final AreaOfInterestRequest.Type action,
-                                          @Nonnull final ChannelAddress address,
+  private void assertRequestPendingIndex( @NonNull final Connection connection,
+                                          final AreaOfInterestRequest.@NonNull Type action,
+                                          @NonNull final ChannelAddress address,
                                           @Nullable final Object filter,
                                           final int expected )
   {
     assertEquals( connection.lastIndexOfPendingAreaOfInterestRequest( action, address, filter ), expected );
   }
 
-  private void assertRequestPending( @Nonnull final Connection connection,
-                                     @Nonnull final AreaOfInterestRequest.Type action,
-                                     @Nonnull final ChannelAddress address,
+  private void assertRequestPending( @NonNull final Connection connection,
+                                     final AreaOfInterestRequest.@NonNull Type action,
+                                     @NonNull final ChannelAddress address,
                                      @Nullable final Object filter,
                                      final boolean expected )
   {

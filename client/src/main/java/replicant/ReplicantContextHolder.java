@@ -2,8 +2,9 @@ package replicant;
 
 import arez.Arez;
 import arez.Disposable;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A utility class that contains reference to singleton context when zones are disabled.
@@ -42,11 +43,10 @@ final class ReplicantContextHolder
    *
    * @return the ReplicantContext.
    */
-  @Nonnull
+  @NonNull
   static ReplicantContext context()
   {
-    assert null != c_context;
-    return c_context;
+    return Objects.requireNonNull( c_context );
   }
 
   /**

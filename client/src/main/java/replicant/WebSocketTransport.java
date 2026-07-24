@@ -4,8 +4,8 @@ import akasha.MessageEvent;
 import akasha.WebSocket;
 import akasha.core.JSON;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
@@ -15,12 +15,12 @@ import replicant.shared.Messages;
 public final class WebSocketTransport
   extends AbstractTransport
 {
-  @Nonnull
+  @NonNull
   private final WebSocketConfig _config;
   @Nullable
   private WebSocket _webSocket;
 
-  public WebSocketTransport( @Nonnull final WebSocketConfig config )
+  public WebSocketTransport( @NonNull final WebSocketConfig config )
   {
     _config = Objects.requireNonNull( config );
   }
@@ -35,7 +35,7 @@ public final class WebSocketTransport
     _webSocket.onclose = e -> onDisconnect();
   }
 
-  private void handleMessageEvent( @Nonnull final MessageEvent e )
+  private void handleMessageEvent( @NonNull final MessageEvent e )
   {
     final Any data = e.data();
     if ( null == data )
@@ -74,7 +74,7 @@ public final class WebSocketTransport
     }
   }
 
-  private static boolean isKnownMessageType( @Nonnull final String type )
+  private static boolean isKnownMessageType( @NonNull final String type )
   {
     return Messages.S2C_Type.UPDATE.equals( type ) ||
            Messages.S2C_Type.USE_CACHE.equals( type ) ||
@@ -86,7 +86,7 @@ public final class WebSocketTransport
   }
 
   @Nullable
-  private static ServerToClientMessage tryParseMessage( @Nonnull final Any data )
+  private static ServerToClientMessage tryParseMessage( @NonNull final Any data )
   {
     final String kind = Js.typeof( data );
     Any parsed;
@@ -142,7 +142,7 @@ public final class WebSocketTransport
   }
 
   @Override
-  protected void sendRemoteMessage( @Nonnull final Object message )
+  protected void sendRemoteMessage( @NonNull final Object message )
   {
     _config.remote( () -> {
       // Attempts to perform a send can occur when there is no connection.

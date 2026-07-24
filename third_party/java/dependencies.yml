@@ -12,6 +12,13 @@ options:
   failOnMissingPom: false
 
 artifacts:
+  - coord: com.uber.nullaway:nullaway:0.13.7
+    includeSource: false
+  - coord: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+    includeSource: false
+  - coord: org.jspecify:jspecify:1.0.0
+    excludes:
+      - '*:*'
   - coord: org.realityforge.javax.annotation:javax.annotation:1.1.1
   - coord: jakarta.annotation:jakarta.annotation-api:1.3.5
   - coord: jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2

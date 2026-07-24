@@ -3,7 +3,7 @@ package replicant;
 import arez.Arez;
 import arez.Disposable;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -545,7 +545,7 @@ public class ReplicantRuntimeTest
                        ConnectorState.DISCONNECTING );
   }
 
-  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
+  private void assertUpdateState( @NonNull final RuntimeState expectedSystemState,
                                   final boolean isActive )
   {
     ReplicantTestUtil.resetState();
@@ -564,7 +564,7 @@ public class ReplicantRuntimeTest
     schedulerLock.dispose();
   }
 
-  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState, @Nonnull final ConnectorState state )
+  private void assertUpdateState( @NonNull final RuntimeState expectedSystemState, @NonNull final ConnectorState state )
   {
     ReplicantTestUtil.resetState();
 
@@ -577,8 +577,8 @@ public class ReplicantRuntimeTest
     schedulerLock.dispose();
   }
 
-  @Nonnull
-  private Connector createConnectorInState( @Nonnull final ConnectorState state )
+  @NonNull
+  private Connector createConnectorInState( @NonNull final ConnectorState state )
   {
     final Connector connector = createConnector( newSchema() );
     if ( ConnectorState.CONNECTED == state )
@@ -589,9 +589,9 @@ public class ReplicantRuntimeTest
     return connector;
   }
 
-  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final ConnectorState service1State,
-                                  @Nonnull final ConnectorState service2State )
+  private void assertUpdateState( @NonNull final RuntimeState expectedSystemState,
+                                  @NonNull final ConnectorState service1State,
+                                  @NonNull final ConnectorState service2State )
   {
     ReplicantTestUtil.resetState();
 
@@ -605,10 +605,10 @@ public class ReplicantRuntimeTest
     schedulerLock.dispose();
   }
 
-  private void assertUpdateState( @Nonnull final RuntimeState expectedSystemState,
-                                  @Nonnull final ConnectorState service1State,
-                                  @Nonnull final ConnectorState service2State,
-                                  @Nonnull final ConnectorState service3State )
+  private void assertUpdateState( @NonNull final RuntimeState expectedSystemState,
+                                  @NonNull final ConnectorState service1State,
+                                  @NonNull final ConnectorState service2State,
+                                  @NonNull final ConnectorState service3State )
   {
     ReplicantTestUtil.resetState();
 

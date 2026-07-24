@@ -3,7 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Notification when a Connector processed a message from a DataSource.
@@ -12,13 +12,13 @@ public final class MessageProcessedEvent
   implements SerializableEvent
 {
   private final int _schemaId;
-  @Nonnull
+  @NonNull
   private final String _schemaName;
-  @Nonnull
+  @NonNull
   private final DataLoadStatus _dataLoadStatus;
 
-  public MessageProcessedEvent( final int schemaId, @Nonnull final String schemaName,
-                                @Nonnull final DataLoadStatus dataLoadStatus )
+  public MessageProcessedEvent( final int schemaId, @NonNull final String schemaName,
+                                @NonNull final DataLoadStatus dataLoadStatus )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
@@ -30,20 +30,20 @@ public final class MessageProcessedEvent
     return _schemaId;
   }
 
-  @Nonnull
+  @NonNull
   public String getSchemaName()
   {
     return _schemaName;
   }
 
-  @Nonnull
+  @NonNull
   public DataLoadStatus getDataLoadStatus()
   {
     return _dataLoadStatus;
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Connector.MessageProcess" );
     map.put( "schema.id", getSchemaId() );

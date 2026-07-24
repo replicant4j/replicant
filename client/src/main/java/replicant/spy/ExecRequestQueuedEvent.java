@@ -3,7 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Notification when a Connector queues an Exec message.
@@ -12,14 +12,14 @@ public final class ExecRequestQueuedEvent
   implements SerializableEvent
 {
   private final int _schemaId;
-  @Nonnull
+  @NonNull
   private final String _schemaName;
-  @Nonnull
+  @NonNull
   private final String _command;
 
   public ExecRequestQueuedEvent( final int schemaId,
-                                 @Nonnull final String schemaName,
-                                 @Nonnull final String command )
+                                 @NonNull final String schemaName,
+                                 @NonNull final String command )
   {
     _schemaId = schemaId;
     _schemaName = Objects.requireNonNull( schemaName );
@@ -31,20 +31,20 @@ public final class ExecRequestQueuedEvent
     return _schemaId;
   }
 
-  @Nonnull
+  @NonNull
   public String getSchemaName()
   {
     return _schemaName;
   }
 
-  @Nonnull
+  @NonNull
   public String getCommand()
   {
     return _command;
   }
 
   @Override
-  public void toMap( @Nonnull final Map<String, Object> map )
+  public void toMap( @NonNull final Map<String, Object> map )
   {
     map.put( "type", "Connector.ExecRequestQueued" );
     map.put( "schema.id", getSchemaId() );

@@ -4,7 +4,7 @@ import arez.annotations.ArezComponent;
 import arez.annotations.ComponentDependency;
 import arez.annotations.Feature;
 import java.util.Objects;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An observable structure that contains reference to Entity used from within Subscription.
@@ -18,12 +18,12 @@ abstract class EntitySubscriptionEntry
   /**
    * The underlying entity.
    */
-  @Nonnull
+  @NonNull
   @ComponentDependency
   final Entity _entity;
 
-  @Nonnull
-  static EntitySubscriptionEntry create( @Nonnull final Entity entity )
+  @NonNull
+  static EntitySubscriptionEntry create( @NonNull final Entity entity )
   {
     return new Arez_EntitySubscriptionEntry( entity );
   }
@@ -33,7 +33,7 @@ abstract class EntitySubscriptionEntry
    *
    * @param entity the entity.
    */
-  EntitySubscriptionEntry( @Nonnull final Entity entity )
+  EntitySubscriptionEntry( @NonNull final Entity entity )
   {
     _entity = Objects.requireNonNull( entity );
   }
@@ -43,7 +43,7 @@ abstract class EntitySubscriptionEntry
    *
    * @return the entity the entry represents.
    */
-  @Nonnull
+  @NonNull
   Entity getEntity()
   {
     return _entity;

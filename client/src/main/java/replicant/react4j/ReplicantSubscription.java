@@ -6,8 +6,8 @@ import arez.annotations.ComponentDependency;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import arez.annotations.SuppressArezWarnings;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import react4j.annotations.PostMountOrUpdate;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
@@ -83,6 +83,6 @@ public abstract class ReplicantSubscription
     }
   }
 
-  @Nonnull
+  @NonNull
   protected abstract ChannelAddress getAddress();
 }

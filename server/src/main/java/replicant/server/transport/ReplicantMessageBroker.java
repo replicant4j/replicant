@@ -1,20 +1,20 @@
 package replicant.server.transport;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonValue;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
 
 public interface ReplicantMessageBroker
 {
-  @Nonnull
-  Packet queueChangeMessage( @Nonnull ReplicantSession session,
+  @NonNull
+  Packet queueChangeMessage( @NonNull ReplicantSession session,
                            boolean altersExplicitSubscriptions,
                            @Nullable Integer requestId,
                            @Nullable JsonValue response,
                            @Nullable String etag,
-                           @Nonnull Collection<EntityMessage> messages,
-                           @Nonnull ChangeSet changeSet );
+                           @NonNull Collection<EntityMessage> messages,
+                           @NonNull ChangeSet changeSet );
 }

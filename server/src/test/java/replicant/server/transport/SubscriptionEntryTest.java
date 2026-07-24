@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import javax.json.Json;
 import javax.websocket.Session;
 import org.testng.annotations.Test;
@@ -162,7 +162,7 @@ public class SubscriptionEntryTest
     }
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantSession newSession()
   {
     return new ReplicantSession( mock( Session.class ) );

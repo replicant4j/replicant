@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides ordering of EntityMessages so as to ensure their correct processing when retrieved from the database
@@ -22,8 +22,8 @@ public final class EntityMessageSorter
   {
   }
 
-  @Nonnull
-  public static List<EntityMessage> sort( @Nonnull final Collection<EntityMessage> messages )
+  @NonNull
+  public static List<EntityMessage> sort( @NonNull final Collection<EntityMessage> messages )
   {
     final var sortedMessages = new ArrayList<>( messages );
     sortedMessages.sort( COMPARATOR );
@@ -33,7 +33,7 @@ public final class EntityMessageSorter
   public static final EntityMessageSorter COMPARATOR = new EntityMessageSorter();
 
   @Override
-  public int compare( @Nonnull final EntityMessage o1, @Nonnull final EntityMessage o2 )
+  public int compare( @NonNull final EntityMessage o1, @NonNull final EntityMessage o2 )
   {
     if ( o1.isDelete() )
     {

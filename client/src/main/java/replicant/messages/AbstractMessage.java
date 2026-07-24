@@ -1,6 +1,6 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -8,11 +8,11 @@ import jsinterop.annotations.JsType;
 /**
  * The abstract message that messages conform to.
  */
-@SuppressWarnings( "NotNullFieldNotInitialized" )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init" } )
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
 public abstract class AbstractMessage
 {
-  @Nonnull
+  @NonNull
   String type;
 
   /**
@@ -20,7 +20,7 @@ public abstract class AbstractMessage
    *
    * @return the type of the message.
    */
-  @Nonnull
+  @NonNull
   @JsOverlay
   public final String getType()
   {

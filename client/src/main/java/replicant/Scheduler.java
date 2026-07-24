@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import zemeckis.Zemeckis;
 
 /**
@@ -10,7 +10,7 @@ final class Scheduler
 {
   private static final SchedulerSupport c_support = new SchedulerSupport();
 
-  static void schedule( @Nonnull final SafeFunction<Boolean> command )
+  static void schedule( @NonNull final SafeFunction<Boolean> command )
   {
     c_support.schedule( command );
   }
@@ -23,7 +23,7 @@ final class Scheduler
   {
     @GwtIncompatible
     @Override
-    void schedule( @Nonnull final SafeFunction<Boolean> command )
+    void schedule( @NonNull final SafeFunction<Boolean> command )
     {
       //noinspection StatementWithEmptyBody
       while ( command.call() )
@@ -34,7 +34,7 @@ final class Scheduler
 
   private static abstract class AbstractSchedulerSupport
   {
-    void schedule( @Nonnull final SafeFunction<Boolean> command )
+    void schedule( @NonNull final SafeFunction<Boolean> command )
     {
       final long end = System.currentTimeMillis() + 14;
       while ( System.currentTimeMillis() < end )

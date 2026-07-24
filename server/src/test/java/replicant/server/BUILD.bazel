@@ -5,11 +5,11 @@ java_server_library(
     srcs = [
         "MessageTestUtil.java",
         "ValueUtil.java",
+        "package-info.java",
     ],
     visibility = ["//server:__pkg__"],
     deps = [
         "//server/src/main/java/replicant/server:server_core_lib",
-        "//third_party/java:javax_annotation",
         "//third_party/java:testng",
     ],
 )

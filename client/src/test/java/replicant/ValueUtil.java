@@ -1,18 +1,18 @@
 package replicant;
 
 import java.util.Random;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 public final class ValueUtil
 {
-  @Nonnull
+  @NonNull
   private static final Random c_random = new Random();
 
   private ValueUtil()
   {
   }
 
-  @Nonnull
+  @NonNull
   public static Random getRandom()
   {
     return c_random;
@@ -28,7 +28,7 @@ public final class ValueUtil
     return c_random.nextInt();
   }
 
-  @Nonnull
+  @NonNull
   public static String randomString()
   {
     final StringBuilder sb = new StringBuilder();

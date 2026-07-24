@@ -1,5 +1,6 @@
 package replicant.server;
 
+import java.util.Objects;
 import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
@@ -57,14 +58,16 @@ public class ChangeTest
 
     assertEquals( change1.getChannels().size(), 1 );
     assertFalse( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
-    assertEquals( change1.getEntityMessage().getAttributeValues().get( MessageTestUtil.ATTR_KEY1 ), "a1" );
+    assertEquals( Objects.requireNonNull( change1.getEntityMessage().getAttributeValues() )
+                    .get( MessageTestUtil.ATTR_KEY1 ), "a1" );
     assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r2" );
 
     change1.merge( change2 );
 
     assertEquals( change1.getChannels().size(), 2 );
     assertTrue( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
-    assertEquals( change1.getEntityMessage().getAttributeValues().get( MessageTestUtil.ATTR_KEY1 ), "aZ" );
+    assertEquals( Objects.requireNonNull( change1.getEntityMessage().getAttributeValues() )
+                    .get( MessageTestUtil.ATTR_KEY1 ), "aZ" );
     assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r3" );
   }
 

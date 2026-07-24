@@ -7,6 +7,7 @@ java_server_library(
         "ReplicantContextHolder.java",
         "ReplicantSystem.java",
         "TransactionSynchronizationRegistryUtil.java",
+        "package-info.java",
     ],
     visibility = [
         "//server:__pkg__",
@@ -17,6 +18,5 @@ java_server_library(
         "//server/src/main/java/replicant/server:server_core_lib",
         "//third_party/java:jakarta_inject",
         "//third_party/java:jakarta_transaction_api",
-        "//third_party/java:javax_annotation",
     ],
 )

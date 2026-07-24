@@ -1,20 +1,20 @@
 package replicant.server.transport;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 record LinkOwner(@Nullable EntityReference entityReference)
 {
-  @Nonnull
+  @NonNull
   private static final LinkOwner GRAPH = new LinkOwner( null );
 
-  @Nonnull
+  @NonNull
   static LinkOwner graph()
   {
     return GRAPH;
   }
 
-  @Nonnull
+  @NonNull
   static LinkOwner entity( final int entityTypeId, final int entityId )
   {
     return new LinkOwner( new EntityReference( entityTypeId, entityId ) );

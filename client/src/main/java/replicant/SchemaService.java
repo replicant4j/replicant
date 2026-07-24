@@ -3,8 +3,9 @@ package replicant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import static org.realityforge.braincheck.Guards.*;
 
 /**
@@ -24,7 +25,7 @@ final class SchemaService
    *
    * @return the schemas associated with the service.
    */
-  @Nonnull
+  @NonNull
   Collection<SystemSchema> getSchemas()
   {
     return CollectionsUtil.wrap( _schemas.values() );
@@ -49,7 +50,7 @@ final class SchemaService
    * @param schemaId the id of the schema.
    * @return the schema.
    */
-  @Nonnull
+  @NonNull
   SystemSchema getById( final int schemaId )
   {
     final SystemSchema schema = findById( schemaId );
@@ -57,8 +58,7 @@ final class SchemaService
     {
       invariant( () -> null != schema, () -> "Replicant-0059: Unable to locate SystemSchema with id " + schemaId );
     }
-    assert null != schema;
-    return schema;
+    return Objects.requireNonNull( schema );
   }
 
   /**
@@ -67,7 +67,7 @@ final class SchemaService
    *
    * @param schema the schema to register.
    */
-  void registerSchema( @Nonnull final SystemSchema schema )
+  void registerSchema( @NonNull final SystemSchema schema )
   {
     final int schemaId = schema.getId();
     if ( Replicant.shouldCheckInvariants() )
@@ -79,7 +79,7 @@ final class SchemaService
     _schemas.put( schemaId, schema );
   }
 
-  void deregisterSchema( @Nonnull final SystemSchema schema )
+  void deregisterSchema( @NonNull final SystemSchema schema )
   {
     final int schemaId = schema.getId();
     if ( Replicant.shouldCheckInvariants() )

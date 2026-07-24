@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
 import replicant.spy.RequestStartedEvent;
 import static org.realityforge.braincheck.Guards.*;
@@ -28,7 +28,7 @@ abstract class Connection
   /**
    * The containing Connector.
    */
-  @Nonnull
+  @NonNull
   @ComponentDependency
   final Connector _connector;
   /**
@@ -56,31 +56,30 @@ abstract class Connection
    * The current requests being processed. This list can contain multiple requests if they
    * are candidates for bulk actions.
    */
-  @Nonnull
+  @NonNull
   private final List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
   /**
    * The exec requests that have been sent to server and we are waiting for a return.
    */
-  @Nonnull
+  @NonNull
   private final Map<Integer, ExecRequest> _activeExecRequests = new HashMap<>();
 
-  @Nonnull
-  static Connection create( @Nonnull final Connector connector )
+  @NonNull
+  static Connection create( @NonNull final Connector connector )
   {
     return new Arez_Connection( connector );
   }
 
-  Connection( @Nonnull final Connector connector )
+  Connection( @NonNull final Connector connector )
   {
     _connector = Objects.requireNonNull( connector );
   }
 
-  @Nonnull
+  @NonNull
   String ensureConnectionId()
   {
     final String connectionId = getConnectionId();
-    assert null != connectionId;
-    return connectionId;
+    return Objects.requireNonNull( connectionId );
   }
 
   /**
@@ -90,44 +89,44 @@ abstract class Connection
   @Nullable
   abstract String getConnectionId();
 
-  abstract void setConnectionId( @Nonnull String connectionId );
+  abstract void setConnectionId( @NonNull String connectionId );
 
-  @Nonnull
+  @NonNull
   Connector getConnector()
   {
     return _connector;
   }
 
-  void requestExec( @Nonnull final String command,
+  void requestExec( @NonNull final String command,
                     @Nullable final Object payload,
                     @Nullable final ResponseHandler responseHandler )
   {
     _pendingExecRequests.add( new ExecRequest( command, payload, responseHandler ) );
   }
 
-  void requestSubscribe( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  void requestSubscribe( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.ADD, filter );
   }
 
-  void requestSubscriptionUpdate( @Nonnull final ChannelAddress address, @Nullable final Object filter )
+  void requestSubscriptionUpdate( @NonNull final ChannelAddress address, @Nullable final Object filter )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.UPDATE, filter );
   }
 
-  void requestUnsubscribe( @Nonnull final ChannelAddress address )
+  void requestUnsubscribe( @NonNull final ChannelAddress address )
   {
     enqueueAreaOfInterestRequest( address, AreaOfInterestRequest.Type.REMOVE, null );
   }
 
-  private void enqueueAreaOfInterestRequest( @Nonnull final ChannelAddress address,
-                                             @Nonnull final AreaOfInterestRequest.Type action,
+  private void enqueueAreaOfInterestRequest( @NonNull final ChannelAddress address,
+                                             final AreaOfInterestRequest.@NonNull Type action,
                                              @Nullable final Object filter )
   {
     _pendingAreaOfInterestRequests.add( new AreaOfInterestRequest( address, action, filter ) );
   }
 
-  void enqueueResponse( @Nonnull final ServerToClientMessage message, @Nullable final RequestEntry request )
+  void enqueueResponse( @NonNull final ServerToClientMessage message, @Nullable final RequestEntry request )
   {
     _pendingResponses.add( new MessageResponse( _connector.getSchema().getId(), message, request ) );
   }
@@ -136,8 +135,8 @@ abstract class Connection
    * Return true if an area of interest request with specified parameters is pending or being processed.
    * When the action parameter is DELETE the filter parameter is ignored.
    */
-  boolean isAreaOfInterestRequestPending( @Nonnull final AreaOfInterestRequest.Type action,
-                                          @Nonnull final ChannelAddress address,
+  boolean isAreaOfInterestRequestPending( final AreaOfInterestRequest.@NonNull Type action,
+                                          @NonNull final ChannelAddress address,
                                           @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -154,8 +153,8 @@ abstract class Connection
   /**
    * Return the index of last matching Type in pending aoi request list.
    */
-  int lastIndexOfPendingAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest.Type action,
-                                               @Nonnull final ChannelAddress address,
+  int lastIndexOfPendingAreaOfInterestRequest( final AreaOfInterestRequest.@NonNull Type action,
+                                               @NonNull final ChannelAddress address,
                                                @Nullable final Object filter )
   {
     if ( Replicant.shouldCheckInvariants() )
@@ -186,7 +185,7 @@ abstract class Connection
     }
   }
 
-  @Nonnull
+  @NonNull
   RequestEntry newRequest( @Nullable final String name,
                            final boolean syncRequest,
                            @Nullable final ResponseHandler responseHandler )
@@ -208,7 +207,7 @@ abstract class Connection
     return request;
   }
 
-  @Nonnull
+  @NonNull
   RequestEntry getRequest( final int requestId )
   {
     final RequestEntry entry = _requests.get( requestId );
@@ -218,7 +217,7 @@ abstract class Connection
                     () -> "Replicant-0066: Unable to locate request with id '" + requestId + "' specified " +
                           "by message. Existing Requests: " + getRequests() );
     }
-    return entry;
+    return Objects.requireNonNull( entry );
   }
 
   Map<Integer, RequestEntry> getRequests()
@@ -247,11 +246,10 @@ abstract class Connection
     return _currentMessageResponse;
   }
 
-  @Nonnull
+  @NonNull
   MessageResponse ensureCurrentMessageResponse()
   {
-    assert null != _currentMessageResponse;
-    return _currentMessageResponse;
+    return Objects.requireNonNull( _currentMessageResponse );
   }
 
   /**
@@ -306,7 +304,7 @@ abstract class Connection
     _currentMessageResponse = currentMessageResponse;
   }
 
-  @Nonnull
+  @NonNull
   List<AreaOfInterestRequest> getActiveAreaOfInterestRequests()
   {
     return CollectionsUtil.wrap( _currentAreaOfInterestRequests );
@@ -317,7 +315,7 @@ abstract class Connection
    * currently being processed and there are pending requests then derive the next batch of
    * requests and set them as current.
    */
-  @Nonnull
+  @NonNull
   List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests()
   {
     if ( _currentAreaOfInterestRequests.isEmpty() && !_pendingAreaOfInterestRequests.isEmpty() )
@@ -339,19 +337,19 @@ abstract class Connection
     return _pendingExecRequests.isEmpty() ? null : _pendingExecRequests.removeFirst();
   }
 
-  @Nonnull
+  @NonNull
   List<ExecRequest> getPendingExecRequests()
   {
     return _pendingExecRequests;
   }
 
-  void recordActiveExecRequest( @Nonnull final ExecRequest execRequest )
+  void recordActiveExecRequest( @NonNull final ExecRequest execRequest )
   {
     assert execRequest.isInProgress();
     _activeExecRequests.put( execRequest.getRequestId(), execRequest );
   }
 
-  @Nonnull
+  @NonNull
   Map<Integer, ExecRequest> getActiveExecRequests()
   {
     return _activeExecRequests;
@@ -374,8 +372,8 @@ abstract class Connection
    * Return true if the match request can be grouped with the template request and sent to the backend using a
    * single network message.
    */
-  boolean canGroupRequests( @Nonnull final AreaOfInterestRequest template,
-                            @Nonnull final AreaOfInterestRequest match )
+  boolean canGroupRequests( @NonNull final AreaOfInterestRequest template,
+                            @NonNull final AreaOfInterestRequest match )
   {
     final CacheService cacheService = _connector.getReplicantContext().getCacheService();
     return null != template.getAddress().rootId() &&
@@ -402,7 +400,7 @@ abstract class Connection
     _currentAreaOfInterestRequests.clear();
   }
 
-  void injectCurrentAreaOfInterestRequest( @Nonnull final AreaOfInterestRequest request )
+  void injectCurrentAreaOfInterestRequest( @NonNull final AreaOfInterestRequest request )
   {
     _currentAreaOfInterestRequests.add( request );
   }

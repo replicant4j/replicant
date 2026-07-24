@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * An isolated Replicant context.
@@ -10,7 +10,7 @@ public final class Zone
   /**
    * The underlying context for zone.
    */
-  @Nonnull
+  @NonNull
   private final ReplicantContext _context = new ReplicantContext();
 
   /**
@@ -18,7 +18,7 @@ public final class Zone
    *
    * @return the context for the zone.
    */
-  @Nonnull
+  @NonNull
   public ReplicantContext getContext()
   {
     return _context;
@@ -45,7 +45,7 @@ public final class Zone
    * @param action the function to execute.
    * @return the value returned from function.
    */
-  public <T> T safeRun( @Nonnull final SafeFunction<T> action )
+  public <T> T safeRun( @NonNull final SafeFunction<T> action )
   {
     Replicant.activateZone( this );
     try
@@ -67,7 +67,7 @@ public final class Zone
    * @return the value returned from function.
    * @throws Throwable if the function throws an exception.
    */
-  public <T> T run( @Nonnull final Function<T> action )
+  public <T> T run( @NonNull final Function<T> action )
     throws Throwable
   {
     Replicant.activateZone( this );
@@ -87,7 +87,7 @@ public final class Zone
    *
    * @param action the procedure to execute.
    */
-  public void safeRun( @Nonnull final SafeProcedure action )
+  public void safeRun( @NonNull final SafeProcedure action )
   {
     Replicant.activateZone( this );
     try
@@ -107,7 +107,7 @@ public final class Zone
    * @param action the procedure to execute.
    * @throws Throwable if the procedure throws an exception.
    */
-  public void run( @Nonnull final Procedure action )
+  public void run( @NonNull final Procedure action )
     throws Throwable
   {
     Replicant.activateZone( this );

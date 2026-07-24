@@ -1,8 +1,8 @@
 package replicant.server.transport;
 
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
@@ -10,12 +10,12 @@ import replicant.server.EntityMessage;
 
 public interface ReplicantSessionContext
 {
-  @Nonnull
+  @NonNull
   SchemaMetaData getSchemaMetaData();
 
-  boolean isAuthorized( @Nonnull ReplicantSession session );
+  boolean isAuthorized( @NonNull ReplicantSession session );
 
-  void preSubscribe( @Nonnull ReplicantSession session, @Nonnull ChannelAddress address, @Nullable JsonObject filter );
+  void preSubscribe( @NonNull ReplicantSession session, @NonNull ChannelAddress address, @Nullable JsonObject filter );
 
   /**
    * Hook invoked before sending a change message to the given session.
@@ -24,7 +24,7 @@ public interface ReplicantSessionContext
    * @param session the session in which the change message is being sent. Must not be null.
    * @param packet  the packet representing the change message to be sent. Must not be null.
    */
-  void preSendChangeMessage( @Nonnull ReplicantSession session, @Nonnull Packet packet );
+  void preSendChangeMessage( @NonNull ReplicantSession session, @NonNull Packet packet );
 
   /**
    * Derive a filter for the target channel based on the source channel and filter.
@@ -35,11 +35,11 @@ public interface ReplicantSessionContext
    * @param target        the target channel.
    * @return the filter for the target channel.
    */
-  @Nonnull
-  JsonObject deriveTargetFilter( @Nonnull EntityMessage entityMessage,
-                                 @Nonnull ChannelAddress source,
+  @NonNull
+  JsonObject deriveTargetFilter( @NonNull EntityMessage entityMessage,
+                                 @NonNull ChannelAddress source,
                                  @Nullable JsonObject sourceFilter,
-                                 @Nonnull ChannelAddress target );
+                                 @NonNull ChannelAddress target );
 
   /**
    * Derive the target filter instance id for a partially specified target address.
@@ -51,11 +51,11 @@ public interface ReplicantSessionContext
    * @param targetFilter  the target filter if already known, null otherwise.
    * @return the filter instance id for the target channel.
    */
-  @Nonnull
-  String deriveTargetFilterInstanceId( @Nonnull EntityMessage entityMessage,
-                                       @Nonnull ChannelAddress source,
+  @NonNull
+  String deriveTargetFilterInstanceId( @NonNull EntityMessage entityMessage,
+                                       @NonNull ChannelAddress source,
                                        @Nullable JsonObject sourceFilter,
-                                       @Nonnull ChannelAddress target,
+                                       @NonNull ChannelAddress target,
                                        @Nullable JsonObject targetFilter );
 
   /**
@@ -65,8 +65,8 @@ public interface ReplicantSessionContext
    */
   boolean flushOpenEntityManager();
 
-  void execCommand( @Nonnull ReplicantSession session,
-                    @Nonnull String command,
+  void execCommand( @NonNull ReplicantSession session,
+                    @NonNull String command,
                     int requestId,
                     @Nullable JsonObject payload );
 
@@ -81,9 +81,9 @@ public interface ReplicantSessionContext
    * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
    */
   void collectChannelData( @Nullable ReplicantSession session,
-                           @Nonnull List<ChannelAddress> addresses,
+                           @NonNull List<ChannelAddress> addresses,
                            @Nullable JsonObject filter,
-                           @Nonnull ChangeSet changeSet,
+                           @NonNull ChangeSet changeSet,
                            boolean isExplicitSubscribe );
 
   /**
@@ -97,19 +97,19 @@ public interface ReplicantSessionContext
    * @param newFilter      the new filter to apply to the channels.
    * @param changeSet      the changeSet to add the collected data to.
    */
-  void collectChannelDataForFilterChange( @Nonnull ReplicantSession session,
-                                          @Nonnull List<ChannelAddress> addresses,
-                                          @Nonnull JsonObject originalFilter,
-                                          @Nonnull JsonObject newFilter,
-                                          @Nonnull ChangeSet changeSet );
+  void collectChannelDataForFilterChange( @NonNull ReplicantSession session,
+                                          @NonNull List<ChannelAddress> addresses,
+                                          @NonNull JsonObject originalFilter,
+                                          @NonNull JsonObject newFilter,
+                                          @NonNull ChangeSet changeSet );
 
   @Nullable
-  EntityMessage filterEntityMessage( @Nonnull ReplicantSession session,
-                                     @Nonnull ChannelAddress address,
-                                     @Nonnull EntityMessage message );
+  EntityMessage filterEntityMessage( @NonNull ReplicantSession session,
+                                     @NonNull ChannelAddress address,
+                                     @NonNull EntityMessage message );
 
-  boolean shouldFollowLink( @Nonnull ChannelAddress source,
+  boolean shouldFollowLink( @NonNull ChannelAddress source,
                             @Nullable JsonObject sourceFilter,
-                            @Nonnull ChannelAddress target,
+                            @NonNull ChannelAddress target,
                             @Nullable JsonObject targetFilter );
 }

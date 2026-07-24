@@ -1,7 +1,7 @@
 package replicant.server.runtime;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.transaction.TransactionSynchronizationRegistry;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessageSet;
@@ -25,8 +25,8 @@ public final class EntityMessageCacheUtil
   {
   }
 
-  @Nonnull
-  public static EntityMessageSet getEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  @NonNull
+  public static EntityMessageSet getEntityMessageSet( @NonNull final TransactionSynchronizationRegistry r )
   {
     var messageSet = EntityMessageCacheUtil.<EntityMessageSet>lookup( r, KEY );
     if ( null == messageSet )
@@ -50,19 +50,19 @@ public final class EntityMessageCacheUtil
   }
 
   @Nullable
-  public static EntityMessageSet removeEntityMessageSet( @Nonnull final TransactionSynchronizationRegistry r )
+  public static EntityMessageSet removeEntityMessageSet( @NonNull final TransactionSynchronizationRegistry r )
   {
     return remove( r, KEY );
   }
 
-  @Nonnull
+  @NonNull
   public static ChangeSet getSessionChanges()
   {
     return getSessionChanges( TransactionSynchronizationRegistryUtil.lookup() );
   }
 
-  @Nonnull
-  public static ChangeSet getSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
+  @NonNull
+  public static ChangeSet getSessionChanges( @NonNull final TransactionSynchronizationRegistry r )
   {
     var changes = EntityMessageCacheUtil.<ChangeSet>lookup( r, SESSION_KEY );
     if ( null == changes )
@@ -80,7 +80,7 @@ public final class EntityMessageCacheUtil
   }
 
   @Nullable
-  public static ChangeSet lookupSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
+  public static ChangeSet lookupSessionChanges( @NonNull final TransactionSynchronizationRegistry r )
   {
     return lookup( r, SESSION_KEY );
   }
@@ -92,12 +92,12 @@ public final class EntityMessageCacheUtil
   }
 
   @Nullable
-  public static ChangeSet removeSessionChanges( @Nonnull final TransactionSynchronizationRegistry r )
+  public static ChangeSet removeSessionChanges( @NonNull final TransactionSynchronizationRegistry r )
   {
     return remove( r, SESSION_KEY );
   }
 
-  private static <T> T remove( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
+  private static <T> T remove( @NonNull final TransactionSynchronizationRegistry r, @NonNull final String key )
   {
     final var messageSet = EntityMessageCacheUtil.<T>lookup( r, key );
     if ( null != messageSet )
@@ -108,7 +108,7 @@ public final class EntityMessageCacheUtil
   }
 
   @SuppressWarnings( "unchecked" )
-  private static <T> T lookup( @Nonnull final TransactionSynchronizationRegistry r, @Nonnull final String key )
+  private static <T> T lookup( @NonNull final TransactionSynchronizationRegistry r, @NonNull final String key )
   {
     final var invocationContext = r.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
     if ( null == invocationContext )

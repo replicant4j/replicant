@@ -6,15 +6,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 
 public final class ChangeSet
 {
-  @Nonnull
+  @NonNull
   private final List<ChannelAction> _channelActions = new LinkedList<>();
-  @Nonnull
+  @NonNull
   private final Map<String, Change> _changes = new LinkedHashMap<>();
   private boolean _required;
   @Nullable
@@ -41,13 +41,13 @@ public final class ChangeSet
     return _eTag;
   }
 
-  public void setETag( @Nonnull final String eTag )
+  public void setETag( @NonNull final String eTag )
   {
     assert null == _eTag;
     _eTag = Objects.requireNonNull( eTag );
   }
 
-  public void mergeActions( @Nonnull final Collection<ChannelAction> actions )
+  public void mergeActions( @NonNull final Collection<ChannelAction> actions )
   {
     for ( final var action : actions )
     {
@@ -55,13 +55,13 @@ public final class ChangeSet
     }
   }
 
-  public void mergeAction( @Nonnull final ChannelAddress address, @Nonnull final ChannelAction.Action action )
+  public void mergeAction( @NonNull final ChannelAddress address, final ChannelAction.@NonNull Action action )
   {
     mergeAction( address, action, null );
   }
 
-  public void mergeAction( @Nonnull final ChannelAddress address,
-                           @Nonnull final ChannelAction.Action action,
+  public void mergeAction( @NonNull final ChannelAddress address,
+                           final ChannelAction.@NonNull Action action,
                            @Nullable final JsonObject filter )
   {
     //noinspection ConstantValue
@@ -69,7 +69,7 @@ public final class ChangeSet
     mergeAction( ChannelAction.of( address, action, filter ) );
   }
 
-  public void mergeAction( @Nonnull final ChannelAction action )
+  public void mergeAction( @NonNull final ChannelAction action )
   {
     final var actionType = action.action();
     /*
@@ -133,18 +133,18 @@ public final class ChangeSet
     _channelActions.add( action );
   }
 
-  @Nonnull
+  @NonNull
   public List<ChannelAction> getChannelActions()
   {
     return _channelActions;
   }
 
-  public void merge( @Nonnull final Collection<Change> changes )
+  public void merge( @NonNull final Collection<Change> changes )
   {
     merge( changes, false );
   }
 
-  private void merge( @Nonnull final Collection<Change> changes, final boolean copyOnMerge )
+  private void merge( @NonNull final Collection<Change> changes, final boolean copyOnMerge )
   {
     for ( final var change : changes )
     {
@@ -152,12 +152,12 @@ public final class ChangeSet
     }
   }
 
-  public void merge( @Nonnull final Change change )
+  public void merge( @NonNull final Change change )
   {
     merge( change, false );
   }
 
-  void merge( @Nonnull final Change change, final boolean copyOnMerge )
+  void merge( @NonNull final Change change, final boolean copyOnMerge )
   {
     final var existing = _changes.get( change.getKey() );
     if ( null != existing )
@@ -170,14 +170,14 @@ public final class ChangeSet
     }
   }
 
-  public void merge( @Nonnull final ChangeSet changeSet )
+  public void merge( @NonNull final ChangeSet changeSet )
   {
     _eTag = changeSet.getETag();
     merge( changeSet.getChanges(), true );
     mergeActions( changeSet.getChannelActions() );
   }
 
-  @Nonnull
+  @NonNull
   public Collection<Change> getChanges()
   {
     return _changes.values();

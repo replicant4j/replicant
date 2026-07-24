@@ -2,8 +2,8 @@ package replicant.server.runtime;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A mechanism for passing context data from the servlet/ejb tier to the ejb tier.
@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  */
 public final class ReplicantContextHolder
 {
-  @Nonnull
+  @NonNull
   private static final ThreadLocal<Map<String, Object>> c_context = new ThreadLocal<>();
 
   private ReplicantContextHolder()
@@ -27,7 +27,7 @@ public final class ReplicantContextHolder
    * @param key  the key.
    * @param data the data.
    */
-  public static void put( @Nonnull final String key, @Nullable final Object data )
+  public static void put( @NonNull final String key, @Nullable final Object data )
   {
     if ( null == c_context.get() )
     {
@@ -56,7 +56,7 @@ public final class ReplicantContextHolder
    * @return the context data if any, else null.
    */
   @Nullable
-  public static Object get( @Nonnull final String key )
+  public static Object get( @NonNull final String key )
   {
     final var map = c_context.get();
     return null == map ? null : map.get( key );

@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Interface for receiving spy events.
@@ -13,5 +13,5 @@ public interface SpyEventHandler
    *
    * @param event the event that occurred.
    */
-  void onSpyEvent( @Nonnull Object event );
+  void onSpyEvent( @NonNull Object event );
 }

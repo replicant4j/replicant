@@ -13,6 +13,7 @@ java_server_library(
         "ReplicantSessionUpdated.java",
         "Replicate.java",
         "ReplicationInterceptor.java",
+        "package-info.java",
     ],
     visibility = [
         "//server:__pkg__",
@@ -42,7 +43,10 @@ java_server_library(
 
 java_server_library(
     name = "handshake_auth_lib",
-    srcs = ["ReplicantHandshakeAuthenticator.java"],
+    srcs = [
+        "ReplicantHandshakeAuthenticator.java",
+        "package-info.java",
+    ],
     visibility = [
         "//server:__pkg__",
         "//server/src/test/java/replicant/server/ee:__pkg__",

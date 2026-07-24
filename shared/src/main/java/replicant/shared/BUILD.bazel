@@ -3,6 +3,7 @@ load("//third_party/java:rules.bzl", "java_library")
 SHARED_JAVA_SRCS = [
     "Messages.java",
     "SharedConstants.java",
+    "package-info.java",
 ]
 
 filegroup(
@@ -17,5 +18,4 @@ java_library(
     resource_strip_prefix = "shared/src/main/java",
     resources = SHARED_JAVA_SRCS,
     visibility = ["//shared:__pkg__"],
-    deps = ["//third_party/java:javax_annotation"],
 )

@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.RemoteEndpoint;
@@ -114,8 +115,7 @@ public class ReplicantSessionManagerImplTest
       manager.sendChangeMessage( session, packet );
 
       assertEquals( context.getPreSendChangeMessages(), List.of( packet ) );
-      final var targetEntry = session.findSubscriptionEntry( targetAddress );
-      assertNotNull( targetEntry );
+      final var targetEntry = Objects.requireNonNull( session.findSubscriptionEntry( targetAddress ) );
       assertEquals( targetEntry.getFilter(), newFilter );
       assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
       assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
@@ -190,8 +190,7 @@ public class ReplicantSessionManagerImplTest
 
       manager.sendChangeMessage( session, new Packet( false, null, null, null, List.of( deleteA ), new ChangeSet() ) );
 
-      final var targetEntry = session.findSubscriptionEntry( targetAddress );
-      assertNotNull( targetEntry );
+      final var targetEntry = Objects.requireNonNull( session.findSubscriptionEntry( targetAddress ) );
       assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
       assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
       assertTrue( sourceEntry.getOwnedOutwardSubscriptions( LinkOwner.entity( 2, 100 ) ).isEmpty() );
@@ -259,8 +258,7 @@ public class ReplicantSessionManagerImplTest
                                              List.of( deleteOld, updateNew ),
                                              new ChangeSet() ) );
 
-      final var targetEntry = session.findSubscriptionEntry( targetAddress );
-      assertNotNull( targetEntry );
+      final var targetEntry = Objects.requireNonNull( session.findSubscriptionEntry( targetAddress ) );
       assertTrue( sourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
       assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
       assertTrue( sourceEntry.getOutwardSubscriptions().contains( targetAddress ) );
@@ -327,8 +325,7 @@ public class ReplicantSessionManagerImplTest
       manager.sendChangeMessage( session,
                                  new Packet( false, null, null, null, List.of( deleteOld ), changeSet ) );
 
-      final var targetEntry = session.findSubscriptionEntry( targetAddress );
-      assertNotNull( targetEntry );
+      final var targetEntry = Objects.requireNonNull( session.findSubscriptionEntry( targetAddress ) );
       assertTrue( sourceEntry.getOwnedOutwardSubscriptions( oldOwner ).isEmpty() );
       assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
       assertTrue( targetEntry.getInwardSubscriptions().contains( sourceAddress ) );
@@ -398,8 +395,7 @@ public class ReplicantSessionManagerImplTest
                                              new ChangeSet() ) );
 
       assertNull( session.findSubscriptionEntry( oldTargetAddress ) );
-      final var newTargetEntry = session.findSubscriptionEntry( newTargetAddress );
-      assertNotNull( newTargetEntry );
+      final var newTargetEntry = Objects.requireNonNull( session.findSubscriptionEntry( newTargetAddress ) );
       assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( newTargetAddress ) );
       assertTrue( newTargetEntry.getInwardSubscriptions().contains( sourceAddress ) );
     }
@@ -473,8 +469,7 @@ public class ReplicantSessionManagerImplTest
                                              List.of( deleteOld, updateNew ),
                                              new ChangeSet() ) );
 
-      final var reloadedTargetEntry = session.findSubscriptionEntry( targetAddress );
-      assertNotNull( reloadedTargetEntry );
+      final var reloadedTargetEntry = Objects.requireNonNull( session.findSubscriptionEntry( targetAddress ) );
       assertEquals( reloadedTargetEntry.getFilter(), newFilter );
       assertEquals( sourceEntry.getOwnedOutwardSubscriptions( newOwner ), Set.of( targetAddress ) );
     }
@@ -873,8 +868,7 @@ public class ReplicantSessionManagerImplTest
       session.getLock().unlock();
     }
 
-    final var sessionChanges = EntityMessageCacheUtil.lookupSessionChanges();
-    assertNotNull( sessionChanges );
+    final var sessionChanges = Objects.requireNonNull( EntityMessageCacheUtil.lookupSessionChanges() );
     assertEquals( sessionChanges.getChannelActions().size(), 2 );
     assertEquals( sessionChanges.getChannelActions().get( 0 ).action(), ChannelAction.Action.REMOVE );
     assertEquals( sessionChanges.getChannelActions().get( 1 ).action(), ChannelAction.Action.REMOVE );
@@ -1043,9 +1037,9 @@ public class ReplicantSessionManagerImplTest
     assertTrue( exception.getCause() instanceof AssertionError );
   }
 
-  @Nonnull
-  private ReplicantSessionManagerImpl createManager( @Nonnull final TestSessionContext context,
-                                                     @Nonnull final ReplicantMessageBroker broker )
+  @NonNull
+  private ReplicantSessionManagerImpl createManager( @NonNull final TestSessionContext context,
+                                                     @NonNull final ReplicantMessageBroker broker )
   {
     final var manager = new ReplicantSessionManagerImpl();
     setField( manager, "_context", context );
@@ -1054,13 +1048,13 @@ public class ReplicantSessionManagerImplTest
     return manager;
   }
 
-  @Nonnull
-  private TestSessionContext createManagerContext( @Nonnull final SchemaMetaData schema )
+  @NonNull
+  private TestSessionContext createManagerContext( @NonNull final SchemaMetaData schema )
   {
     return new TestSessionContext( schema );
   }
 
-  private void setField( @Nonnull final Object target, @Nonnull final String name, @Nullable final Object value )
+  private void setField( @NonNull final Object target, @NonNull final String name, @Nullable final Object value )
   {
     try
     {
@@ -1074,7 +1068,7 @@ public class ReplicantSessionManagerImplTest
     }
   }
 
-  @Nonnull
+  @NonNull
   private ReplicantSession createOpenSession()
   {
     final var webSocketSession = mock( Session.class );
@@ -1085,15 +1079,15 @@ public class ReplicantSessionManagerImplTest
     return new ReplicantSession( webSocketSession );
   }
 
-  @Nonnull
-  private HashMap<String, Serializable> instanceRouting( @Nonnull final String channelName, final int rootId )
+  @NonNull
+  private HashMap<String, Serializable> instanceRouting( @NonNull final String channelName, final int rootId )
   {
     final var routingKeys = new HashMap<String, Serializable>();
     routingKeys.put( channelName, new ArrayList<>( List.of( rootId ) ) );
     return routingKeys;
   }
 
-  @Nonnull
+  @NonNull
   private HashMap<String, Serializable> attributes( final int id )
   {
     final var attributes = new HashMap<String, Serializable>();
@@ -1104,22 +1098,22 @@ public class ReplicantSessionManagerImplTest
   private static final class TestSessionContext
     implements ReplicantSessionContext
   {
-    @Nonnull
+    @NonNull
     private final SchemaMetaData _schema;
-    @Nonnull
+    @NonNull
     private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
-    @Nonnull
+    @NonNull
     private final List<Packet> _preSendChangeMessages = new ArrayList<>();
-    @Nonnull
+    @NonNull
     private final Set<ChannelAddress> _excludedFilterEntityMessageAddresses = new HashSet<>();
     private boolean _shouldFollowLink = true;
 
-    private TestSessionContext( @Nonnull final SchemaMetaData schema )
+    private TestSessionContext( @NonNull final SchemaMetaData schema )
     {
       _schema = schema;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public SchemaMetaData getSchemaMetaData()
     {
@@ -1127,40 +1121,40 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public boolean isAuthorized( @Nonnull final ReplicantSession session )
+    public boolean isAuthorized( @NonNull final ReplicantSession session )
     {
       return true;
     }
 
     @Override
-    public void preSubscribe( @Nonnull final ReplicantSession session,
-                              @Nonnull final ChannelAddress address,
+    public void preSubscribe( @NonNull final ReplicantSession session,
+                              @NonNull final ChannelAddress address,
                               @Nullable final JsonObject filter )
     {
     }
 
     @Override
-    public void preSendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+    public void preSendChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
     {
       _preSendChangeMessages.add( packet );
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    public JsonObject deriveTargetFilter( @Nonnull final EntityMessage entityMessage,
-                                          @Nonnull final ChannelAddress source,
+    public JsonObject deriveTargetFilter( @NonNull final EntityMessage entityMessage,
+                                          @NonNull final ChannelAddress source,
                                           @Nullable final JsonObject sourceFilter,
-                                          @Nonnull final ChannelAddress target )
+                                          @NonNull final ChannelAddress target )
     {
       return Json.createObjectBuilder().add( "k", "v" ).build();
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    public String deriveTargetFilterInstanceId( @Nonnull final EntityMessage entityMessage,
-                                                @Nonnull final ChannelAddress source,
+    public String deriveTargetFilterInstanceId( @NonNull final EntityMessage entityMessage,
+                                                @NonNull final ChannelAddress source,
                                                 @Nullable final JsonObject sourceFilter,
-                                                @Nonnull final ChannelAddress target,
+                                                @NonNull final ChannelAddress target,
                                                 @Nullable final JsonObject targetFilter )
     {
       final var sourceInstanceId = source.filterInstanceId();
@@ -1174,8 +1168,8 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public void execCommand( @Nonnull final ReplicantSession session,
-                             @Nonnull final String command,
+    public void execCommand( @NonNull final ReplicantSession session,
+                             @NonNull final String command,
                              final int requestId,
                              @Nullable final JsonObject payload )
     {
@@ -1183,9 +1177,9 @@ public class ReplicantSessionManagerImplTest
 
     @Override
     public void collectChannelData( @Nullable final ReplicantSession session,
-                                    @Nonnull final List<ChannelAddress> addresses,
+                                    @NonNull final List<ChannelAddress> addresses,
                                     @Nullable final JsonObject filter,
-                                    @Nonnull final ChangeSet changeSet,
+                                    @NonNull final ChangeSet changeSet,
                                     final boolean isExplicitSubscribe )
     {
       _bulkCollectCalls.add( new BulkCollectCall( addresses, filter, isExplicitSubscribe ) );
@@ -1204,19 +1198,19 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public void collectChannelDataForFilterChange( @Nonnull final ReplicantSession session,
-                                                   @Nonnull final List<ChannelAddress> addresses,
+    public void collectChannelDataForFilterChange( @NonNull final ReplicantSession session,
+                                                   @NonNull final List<ChannelAddress> addresses,
                                                    @Nullable final JsonObject originalFilter,
                                                    @Nullable final JsonObject newFilter,
-                                                   @Nonnull final ChangeSet changeSet )
+                                                   @NonNull final ChangeSet changeSet )
     {
     }
 
     @Nullable
     @Override
-    public EntityMessage filterEntityMessage( @Nonnull final ReplicantSession session,
-                                              @Nonnull final ChannelAddress address,
-                                              @Nonnull final EntityMessage message )
+    public EntityMessage filterEntityMessage( @NonNull final ReplicantSession session,
+                                              @NonNull final ChannelAddress address,
+                                              @NonNull final EntityMessage message )
     {
       if ( _excludedFilterEntityMessageAddresses.contains( address ) )
       {
@@ -1226,27 +1220,27 @@ public class ReplicantSessionManagerImplTest
     }
 
     @Override
-    public boolean shouldFollowLink( @Nonnull final ChannelAddress source,
+    public boolean shouldFollowLink( @NonNull final ChannelAddress source,
                                      @Nullable final JsonObject sourceFilter,
-                                     @Nonnull final ChannelAddress target,
+                                     @NonNull final ChannelAddress target,
                                      @Nullable final JsonObject targetFilter )
     {
       return _shouldFollowLink;
     }
 
-    @Nonnull
+    @NonNull
     List<BulkCollectCall> getBulkCollectCalls()
     {
       return _bulkCollectCalls;
     }
 
-    @Nonnull
+    @NonNull
     List<Packet> getPreSendChangeMessages()
     {
       return _preSendChangeMessages;
     }
 
-    void excludeFilterEntityMessageAddress( @Nonnull final ChannelAddress address )
+    void excludeFilterEntityMessageAddress( @NonNull final ChannelAddress address )
     {
       _excludedFilterEntityMessageAddresses.add( address );
     }
@@ -1257,16 +1251,16 @@ public class ReplicantSessionManagerImplTest
     }
   }
 
-  private record BulkCollectCall(@Nonnull List<ChannelAddress> addresses,
+  private record BulkCollectCall(@NonNull List<ChannelAddress> addresses,
                                  @Nullable JsonObject filter,
                                  boolean isExplicitSubscribe)
   {
   }
 
-  private record DeriveTargetFilterInstanceIdCall(@Nonnull EntityMessage entityMessage,
-                                                  @Nonnull ChannelAddress source,
+  private record DeriveTargetFilterInstanceIdCall(@NonNull EntityMessage entityMessage,
+                                                  @NonNull ChannelAddress source,
                                                   @Nullable JsonObject sourceFilter,
-                                                  @Nonnull ChannelAddress target,
+                                                  @NonNull ChannelAddress target,
                                                   @Nullable JsonObject targetFilter)
   {
   }

@@ -5,13 +5,13 @@ java_server_library(
     srcs = [
         "RegistryUtil.java",
         "TestInvocationContext.java",
+        "package-info.java",
     ],
     visibility = ["//server:__pkg__"],
     deps = [
         "//server:server_lib",
         "//third_party/java:jakarta_interceptor_api",
         "//third_party/java:jakarta_transaction_api",
-        "//third_party/java:javax_annotation",
         "//third_party/java:jndikit",
         "//third_party/java:testng",
     ],

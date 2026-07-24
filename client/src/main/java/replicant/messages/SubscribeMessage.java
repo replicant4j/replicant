@@ -1,27 +1,27 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NotNullFieldNotInitialized", "unused" } )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init", "unused" } )
 public final class SubscribeMessage
   extends ClientToServerMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.SUB;
-  @Nonnull
+  @NonNull
   private String channel;
   @Nullable
   private Object filter;
 
   @JsOverlay
-  @Nonnull
-  public static SubscribeMessage create( final int req, @Nonnull final String ch, @Nullable final Object filter )
+  @NonNull
+  public static SubscribeMessage create( final int req, @NonNull final String ch, @Nullable final Object filter )
   {
     final SubscribeMessage message = new SubscribeMessage();
     message.type = TYPE;

@@ -1,6 +1,6 @@
 package replicant;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Interface for interacting with spy system.
@@ -13,7 +13,7 @@ public interface Spy
    *
    * @param handler the spy handler.
    */
-  void addSpyEventHandler( @Nonnull SpyEventHandler handler );
+  void addSpyEventHandler( @NonNull SpyEventHandler handler );
 
   /**
    * Remove spy handler from list of existing handlers.
@@ -21,7 +21,7 @@ public interface Spy
    *
    * @param handler the spy handler.
    */
-  void removeSpyEventHandler( @Nonnull SpyEventHandler handler );
+  void removeSpyEventHandler( @NonNull SpyEventHandler handler );
 
   /**
    * Return true if spy events will be propagated.
@@ -36,5 +36,5 @@ public interface Spy
    *
    * @param event the event that occurred.
    */
-  void reportSpyEvent( @Nonnull Object event );
+  void reportSpyEvent( @NonNull Object event );
 }

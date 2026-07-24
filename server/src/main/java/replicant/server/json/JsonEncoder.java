@@ -6,8 +6,9 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Objects;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -25,7 +26,7 @@ import replicant.shared.Messages;
 public final class JsonEncoder
 {
   // Use constant to avoid slow filesystem access when serializing a message.
-  @Nonnull
+  @NonNull
   private static final JsonGeneratorFactory FACTORY = Json.createGeneratorFactory( null );
 
   private JsonEncoder()
@@ -42,11 +43,11 @@ public final class JsonEncoder
    * @param changeSet the changeSet being encoded.
    * @return the encoded change set.
    */
-  @Nonnull
+  @NonNull
   public static String encodeChangeSet( @Nullable final Integer requestId,
                                         @Nullable final JsonValue response,
                                         @Nullable final String etag,
-                                        @Nonnull final ChangeSet changeSet )
+                                        @NonNull final ChangeSet changeSet )
   {
     final var writer = new StringWriter();
     final var generator = FACTORY.createGenerator( writer );
@@ -115,8 +116,7 @@ public final class JsonEncoder
         if ( entityMessage.isUpdate() )
         {
           generator.writeStartObject( Messages.Update.DATA );
-          final var values = entityMessage.getAttributeValues();
-          assert null != values;
+          final var values = Objects.requireNonNull( entityMessage.getAttributeValues() );
           for ( final var entry : values.entrySet() )
           {
             writeField( generator, entry.getKey(), entry.getValue(), dateFormat );
@@ -132,8 +132,8 @@ public final class JsonEncoder
     return writer.toString();
   }
 
-  @Nonnull
-  public static String toDescriptor( @Nonnull final ChannelAction channelAction )
+  @NonNull
+  public static String toDescriptor( @NonNull final ChannelAction channelAction )
   {
     assert channelAction.address().concrete();
     final var action = channelAction.action();
@@ -146,10 +146,10 @@ public final class JsonEncoder
   }
 
   @SuppressWarnings( "StatementWithEmptyBody" )
-  private static void writeField( @Nonnull final JsonGenerator generator,
-                                  @Nonnull final String key,
+  private static void writeField( @NonNull final JsonGenerator generator,
+                                  @NonNull final String key,
                                   @Nullable final Serializable serializable,
-                                  @Nonnull final SimpleDateFormat dateFormat )
+                                  @NonNull final SimpleDateFormat dateFormat )
   {
     if ( serializable instanceof String )
     {
@@ -185,9 +185,9 @@ public final class JsonEncoder
     }
   }
 
-  @Nonnull
-  public static String encodeUseCacheMessage( @Nonnull final ChannelAddress address,
-                                              @Nonnull final String eTag,
+  @NonNull
+  public static String encodeUseCacheMessage( @NonNull final ChannelAddress address,
+                                              @NonNull final String eTag,
                                               @Nullable final Integer requestId )
   {
     assert address.concrete();
@@ -204,8 +204,8 @@ public final class JsonEncoder
     return asString( response.build() );
   }
 
-  @Nonnull
-  public static String encodeSessionCreatedMessage( @Nonnull final String sessionId )
+  @NonNull
+  public static String encodeSessionCreatedMessage( @NonNull final String sessionId )
   {
     return asString( Json
                        .createObjectBuilder()
@@ -214,7 +214,7 @@ public final class JsonEncoder
                        .build() );
   }
 
-  @Nonnull
+  @NonNull
   public static String encodeOkMessage( final int requestId )
   {
     return asString( Json
@@ -224,8 +224,8 @@ public final class JsonEncoder
                        .build() );
   }
 
-  @Nonnull
-  public static String encodeMalformedMessageMessage( @Nonnull final String message )
+  @NonNull
+  public static String encodeMalformedMessageMessage( @NonNull final String message )
   {
     return asString( Json
                        .createObjectBuilder()
@@ -234,8 +234,8 @@ public final class JsonEncoder
                        .build() );
   }
 
-  @Nonnull
-  public static String encodeUnknownRequestType( @Nonnull final JsonObject command )
+  @NonNull
+  public static String encodeUnknownRequestType( @NonNull final JsonObject command )
   {
     return asString( Json
                        .createObjectBuilder()
@@ -244,8 +244,8 @@ public final class JsonEncoder
                        .build() );
   }
 
-  @Nonnull
-  public static String encodeErrorMessage( @Nonnull final String message )
+  @NonNull
+  public static String encodeErrorMessage( @NonNull final String message )
   {
     return asString( Json
                        .createObjectBuilder()
@@ -254,8 +254,8 @@ public final class JsonEncoder
                        .build() );
   }
 
-  @Nonnull
-  private static String asString( @Nonnull final JsonObject message )
+  @NonNull
+  private static String asString( @NonNull final JsonObject message )
   {
     final var writer = new StringWriter();
     final var jsonWriter = Json.createWriter( writer );

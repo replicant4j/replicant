@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Typed;
@@ -32,16 +32,16 @@ import replicant.server.runtime.ReplicantSystem;
 public class ReplicantMessageBrokerImpl
   implements ReplicantMessageBroker
 {
-  @Nonnull
+  @NonNull
   private static final Logger LOG = Logger.getLogger( ReplicantMessageBrokerImpl.class.getName() );
   private static final long RETRY_DELAY = 20L;
-  @Nonnull
+  @NonNull
   private final BlockingQueue<ReplicantSession> _queue = new LinkedBlockingQueue<>();
-  @Nonnull
+  @NonNull
   private final ConcurrentHashMap<String, WorkState> _workStates = new ConcurrentHashMap<>();
-  @Nonnull
+  @NonNull
   private final AtomicInteger _activeDrainTasks = new AtomicInteger();
-  @Nonnull
+  @NonNull
   private final AtomicBoolean _retryScheduled = new AtomicBoolean();
   @VisibleForTesting
   @Inject
@@ -77,15 +77,15 @@ public class ReplicantMessageBrokerImpl
     }
   }
 
-  @Nonnull
+  @NonNull
   @Override
-  public Packet queueChangeMessage( @Nonnull final ReplicantSession session,
+  public Packet queueChangeMessage( @NonNull final ReplicantSession session,
                                     final boolean altersExplicitSubscriptions,
                                     @Nullable final Integer requestId,
                                     @Nullable final JsonValue response,
                                     @Nullable final String etag,
-                                    @Nonnull final Collection<EntityMessage> messages,
-                                    @Nonnull final ChangeSet changeSet )
+                                    @NonNull final Collection<EntityMessage> messages,
+                                    @NonNull final ChangeSet changeSet )
   {
     final var packet = new Packet( altersExplicitSubscriptions, requestId, response, etag, messages, changeSet );
     session.queuePacket( packet );
@@ -108,7 +108,7 @@ public class ReplicantMessageBrokerImpl
     return packet;
   }
 
-  private boolean enqueueSessionIfRequired( @Nonnull final ReplicantSession session )
+  private boolean enqueueSessionIfRequired( @NonNull final ReplicantSession session )
   {
     if ( null == _workStates.putIfAbsent( session.getId(), WorkState.QUEUED ) )
     {
@@ -296,7 +296,7 @@ public class ReplicantMessageBrokerImpl
     return madeProgress;
   }
 
-  private boolean processPendingSession( @Nonnull final ReplicantSession session )
+  private boolean processPendingSession( @NonNull final ReplicantSession session )
   {
     final var id = session.getId();
     if ( LOG.isLoggable( Level.FINEST ) )
@@ -414,7 +414,7 @@ public class ReplicantMessageBrokerImpl
     }
   }
 
-  private void requeueRunningSession( @Nonnull final ReplicantSession session )
+  private void requeueRunningSession( @NonNull final ReplicantSession session )
   {
     if ( _workStates.replace( session.getId(), WorkState.RUNNING, WorkState.QUEUED ) )
     {
@@ -495,7 +495,7 @@ public class ReplicantMessageBrokerImpl
     }
   }
 
-  @Nonnull
+  @NonNull
   private String describePacket( @Nullable final Packet packet )
   {
     if ( null == packet )
@@ -510,13 +510,13 @@ public class ReplicantMessageBrokerImpl
   }
 
   @VisibleForTesting
-  void submitDrainTask( @Nonnull final Runnable task )
+  void submitDrainTask( @NonNull final Runnable task )
   {
     _executorService.execute( task );
   }
 
   @VisibleForTesting
-  void scheduleRetryTask( @Nonnull final Runnable task )
+  void scheduleRetryTask( @NonNull final Runnable task )
   {
     _scheduledExecutorService.schedule( task, RETRY_DELAY, TimeUnit.MILLISECONDS );
   }

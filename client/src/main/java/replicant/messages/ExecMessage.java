@@ -1,27 +1,27 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import replicant.shared.Messages;
 
 @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "Object" )
-@SuppressWarnings( { "NotNullFieldNotInitialized", "unused" } )
+@SuppressWarnings( { "NotNullFieldNotInitialized", "NullAway.Init", "unused" } )
 public final class ExecMessage
   extends ClientToServerMessage
 {
   @JsOverlay
   public static final String TYPE = Messages.C2S_Type.EXEC;
-  @Nonnull
+  @NonNull
   private String command;
   @Nullable
   private Object payload;
 
   @JsOverlay
-  @Nonnull
-  public static ExecMessage create( final int req, @Nonnull final String command, @Nullable final Object payload )
+  @NonNull
+  public static ExecMessage create( final int req, @NonNull final String command, @Nullable final Object payload )
   {
     final ExecMessage message = new ExecMessage();
     message.type = TYPE;
@@ -35,7 +35,7 @@ public final class ExecMessage
   }
 
   @JsOverlay
-  @Nonnull
+  @NonNull
   public String getCommand()
   {
     return command;

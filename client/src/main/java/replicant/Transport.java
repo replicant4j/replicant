@@ -2,8 +2,8 @@ package replicant;
 
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The transport is responsible for communicating with the backend system.
@@ -13,7 +13,7 @@ public interface Transport
   /**
    * Perform the connection.
    */
-  void requestConnect( @Nonnull TransportContext context );
+  void requestConnect( @NonNull TransportContext context );
 
   /**
    * This method is invoked by the Connector when the connection
@@ -38,15 +38,15 @@ public interface Transport
 
   void updateAuthToken( @Nullable String authToken );
 
-  void updateEtagsSync( @Nonnull Map<String, String> channelToEtagMap );
+  void updateEtagsSync( @NonNull Map<String, String> channelToEtagMap );
 
-  void requestExec( @Nonnull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler );
+  void requestExec( @NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler );
 
-  void requestSubscribe( @Nonnull ChannelAddress address, @Nullable Object filter );
+  void requestSubscribe( @NonNull ChannelAddress address, @Nullable Object filter );
 
-  void requestUnsubscribe( @Nonnull ChannelAddress address );
+  void requestUnsubscribe( @NonNull ChannelAddress address );
 
-  void requestBulkSubscribe( @Nonnull List<ChannelAddress> addresses, @Nullable Object filter );
+  void requestBulkSubscribe( @NonNull List<ChannelAddress> addresses, @Nullable Object filter );
 
-  void requestBulkUnsubscribe( @Nonnull List<ChannelAddress> addresses );
+  void requestBulkUnsubscribe( @NonNull List<ChannelAddress> addresses );
 }

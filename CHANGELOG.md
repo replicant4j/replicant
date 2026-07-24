@@ -6,6 +6,8 @@
   `AreaOfInterest` disposal.
 * Enforce the current strict Error Prone policy across production and test targets, retain inferred local types in
   server/JVM tooling, and require explicit local types in GWT-compatible client/shared code.
+* Replace maintained `javax.annotation` nullness annotations with JSpecify, explicitly null-mark every Java package,
+  and enforce NullAway across production and test targets.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

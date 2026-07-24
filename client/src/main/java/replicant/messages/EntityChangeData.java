@@ -1,6 +1,6 @@
 package replicant.messages;
 
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -19,7 +19,7 @@ public interface EntityChangeData
    * @return true if the data is present.
    */
   @JsOverlay
-  default boolean containsKey( @Nonnull final String key )
+  default boolean containsKey( @NonNull final String key )
   {
     return Js.asPropertyMap( this ).has( key );
   }
@@ -31,7 +31,7 @@ public interface EntityChangeData
    * @return true if the data is null.
    */
   @JsOverlay
-  default boolean isNull( @Nonnull final String key )
+  default boolean isNull( @NonNull final String key )
   {
     return null == Js.asPropertyMap( this ).getAsAny( key );
   }
@@ -43,20 +43,20 @@ public interface EntityChangeData
    * @return true if the data is null.
    */
   @JsOverlay
-  default int getIntegerValue( @Nonnull final String key )
+  default int getIntegerValue( @NonNull final String key )
   {
     return Js.asPropertyMap( this ).getAsAny( key ).asInt();
   }
 
-  @Nonnull
+  @NonNull
   @JsOverlay
-  default String getStringValue( @Nonnull final String key )
+  default String getStringValue( @NonNull final String key )
   {
     return Js.asPropertyMap( this ).getAsAny( key ).asString();
   }
 
   @JsOverlay
-  default boolean getBooleanValue( @Nonnull final String key )
+  default boolean getBooleanValue( @NonNull final String key )
   {
     return Js.asPropertyMap( this ).getAsAny( key ).asBoolean();
   }
