@@ -17,14 +17,14 @@ public class SubscriptionDisposedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final var filter = ValueUtil.randomString();
-    final var subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
+    final String filter = ValueUtil.randomString();
+    final Subscription subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
 
-    final var event = new SubscriptionDisposedEvent( subscription );
+    final SubscriptionDisposedEvent event = new SubscriptionDisposedEvent( subscription );
 
     assertEquals( event.getSubscription(), subscription );
 
-    final var data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "Subscription.Disposed" );

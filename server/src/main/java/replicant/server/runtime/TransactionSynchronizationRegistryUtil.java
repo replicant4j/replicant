@@ -17,6 +17,7 @@ public final class TransactionSynchronizationRegistryUtil
   private static final String REGISTRY_KEY = "java:comp/TransactionSynchronizationRegistry";
 
   @Nonnull
+  @SuppressWarnings( "BanJNDI" )
   public static TransactionSynchronizationRegistry lookup()
   {
     try

@@ -11,11 +11,11 @@ public class SyncRequestEventTest
   @Test
   public void basicOperation()
   {
-    final var event = new SyncRequestEvent( 23 );
+    final SyncRequestEvent event = new SyncRequestEvent( 23 );
 
     assertEquals( event.getSchemaId(), 23 );
 
-    final var data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.SyncRequest" );

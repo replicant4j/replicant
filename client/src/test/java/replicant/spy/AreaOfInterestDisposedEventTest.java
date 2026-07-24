@@ -18,16 +18,16 @@ public class AreaOfInterestDisposedEventTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final var address = new ChannelAddress( 1, 2 );
-    final var filter = ValueUtil.randomString();
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 2 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
-    final var event = new AreaOfInterestDisposedEvent( areaOfInterest );
+    final AreaOfInterestDisposedEvent event = new AreaOfInterestDisposedEvent( areaOfInterest );
 
     assertEquals( event.getAreaOfInterest(), areaOfInterest );
 
-    final var data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<>();
     safeAction( () -> event.toMap( data ) );
 
     assertEquals( data.get( "type" ), "AreaOfInterest.Disposed" );

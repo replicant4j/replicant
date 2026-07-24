@@ -16,7 +16,7 @@ public class ReplicantUtilTest
   @Test
   public void safeGetString_generatesError()
   {
-    final var text = ReplicantUtil.safeGetString( () -> {
+    final String text = ReplicantUtil.safeGetString( () -> {
       throw new RuntimeException( "X" );
     } );
     assertTrue( text.startsWith( "Exception generated whilst attempting to get supplied message.\n" +
@@ -26,16 +26,16 @@ public class ReplicantUtilTest
   @Test
   public void throwableToString()
   {
-    final var text = ReplicantUtil.throwableToString( new RuntimeException( "X" ) );
+    final String text = ReplicantUtil.throwableToString( new RuntimeException( "X" ) );
     assertTrue( text.startsWith( "java.lang.RuntimeException: X\n" ) );
   }
 
   @Test
   public void throwableToString_with_NestedThrowable()
   {
-    final var exception =
+    final RuntimeException exception =
       new RuntimeException( "X", new IOException( "Y" ) );
-    final var text = ReplicantUtil.throwableToString( exception );
+    final String text = ReplicantUtil.throwableToString( exception );
     assertTrue( text.startsWith( "java.lang.RuntimeException: X\n" ) );
     assertTrue( text.contains( "\nCaused by: java.io.IOException: Y\n" ) );
   }

@@ -9,11 +9,11 @@ public class CacheEntryTest
   @Test
   public void basicOperation()
   {
-    final var address =
+    final ChannelAddress address =
       new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt() );
-    final var eTag = ValueUtil.randomString();
-    final var content = ValueUtil.randomString();
-    final var entry = new CacheEntry( address, eTag, content );
+    final String eTag = ValueUtil.randomString();
+    final String content = ValueUtil.randomString();
+    final CacheEntry entry = new CacheEntry( address, eTag, content );
 
     assertEquals( entry.getAddress(), address );
     assertEquals( entry.getETag(), eTag );

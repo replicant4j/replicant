@@ -40,7 +40,7 @@ public abstract class AbstractReplicantTest
   final Connection newConnection( @Nonnull final Connector connector )
   {
     connector.onConnection( ValueUtil.randomString() );
-    final var connection = connector.ensureConnection();
+    final Connection connection = connector.ensureConnection();
     connection.setConnectionId( ValueUtil.randomString() );
     return connection;
   }
@@ -82,12 +82,12 @@ public abstract class AbstractReplicantTest
   @Nonnull
   private Field toField( @Nonnull final Class<?> type, @Nonnull final String fieldName )
   {
-    var clazz = type;
+    Class<?> clazz = type;
     while ( null != clazz && Object.class != clazz )
     {
       try
       {
-        final var field = clazz.getDeclaredField( fieldName );
+        final Field field = clazz.getDeclaredField( fieldName );
         field.setAccessible( true );
         return field;
       }
@@ -117,7 +117,7 @@ public abstract class AbstractReplicantTest
   @Nonnull
   protected final TestSpyEventHandler registerTestSpyEventHandler()
   {
-    final var handler = new TestSpyEventHandler();
+    final TestSpyEventHandler handler = new TestSpyEventHandler();
     Replicant.context().getSpy().addSpyEventHandler( handler );
     return handler;
   }
@@ -131,8 +131,8 @@ public abstract class AbstractReplicantTest
   @Nonnull
   final SystemSchema newSchema( final int schemaId )
   {
-    final var channels = new ChannelSchema[ 0 ];
-    final var entities = new EntitySchema[ 0 ];
+    final ChannelSchema[] channels = new ChannelSchema[ 0 ];
+    final EntitySchema[] entities = new EntitySchema[ 0 ];
     return new SystemSchema( schemaId,
                              replicant.Replicant.areNamesEnabled() ? ValueUtil.randomString() : null,
                              channels,
@@ -154,7 +154,7 @@ public abstract class AbstractReplicantTest
   @Nonnull
   final Connection createConnection()
   {
-    final var connection = Connection.create( createConnector() );
+    final Connection connection = Connection.create( createConnector() );
     connection.setConnectionId( ValueUtil.randomString() );
     return connection;
   }

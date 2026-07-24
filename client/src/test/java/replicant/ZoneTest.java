@@ -12,14 +12,14 @@ public class ZoneTest
   {
     ReplicantTestUtil.enableZones();
 
-    final var zone1 = Replicant.createZone();
+    final Zone zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
     assertFalse( zone1.isActive() );
 
-    final var expected = ValueUtil.randomString();
-    final var actual = zone1.safeRun( () -> {
+    final String expected = ValueUtil.randomString();
+    final String actual = zone1.safeRun( () -> {
       assertEquals( zone1.getContext(), Replicant.context() );
       assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
       assertTrue( zone1.isActive() );
@@ -37,7 +37,7 @@ public class ZoneTest
   {
     ReplicantTestUtil.enableZones();
 
-    final var zone1 = Replicant.createZone();
+    final Zone zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
@@ -58,7 +58,7 @@ public class ZoneTest
   {
     ReplicantTestUtil.enableZones();
 
-    final var zone1 = Replicant.createZone();
+    final Zone zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
@@ -80,13 +80,13 @@ public class ZoneTest
   {
     ReplicantTestUtil.enableZones();
 
-    final var zone1 = Replicant.createZone();
+    final Zone zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
     assertFalse( zone1.isActive() );
 
-    final var procedure = (Procedure) () -> {
+    final Procedure procedure = () -> {
       assertEquals( zone1.getContext(), Replicant.context() );
       assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
       assertTrue( zone1.isActive() );
@@ -104,13 +104,13 @@ public class ZoneTest
   {
     ReplicantTestUtil.enableZones();
 
-    final var zone1 = Replicant.createZone();
+    final Zone zone1 = Replicant.createZone();
 
     assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
     assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
     assertFalse( zone1.isActive() );
 
-    final var procedure = (Procedure) () -> {
+    final Procedure procedure = () -> {
       assertEquals( zone1.getContext(), Replicant.context() );
       assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
       assertTrue( zone1.isActive() );

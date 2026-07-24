@@ -15,22 +15,8 @@ public class ChannelCacheEntryTest
     assertEquals( entry.getDescriptor(), descriptor );
 
     assertNotNull( entry.getLock() );
-    try
-    {
-      entry.getCacheKey();
-      fail( "Should have raised exception as not initialized" );
-    }
-    catch ( final NullPointerException ignored )
-    {
-    }
-    try
-    {
-      entry.getChangeSet();
-      fail( "Should have raised exception as not initialized" );
-    }
-    catch ( final NullPointerException ignored )
-    {
-    }
+    expectThrows( NullPointerException.class, entry::getCacheKey );
+    expectThrows( NullPointerException.class, entry::getChangeSet );
 
     final var changeSet = new ChangeSet();
     entry.init( "X", changeSet );

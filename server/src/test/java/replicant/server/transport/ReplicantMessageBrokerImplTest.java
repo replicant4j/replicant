@@ -132,6 +132,11 @@ public class ReplicantMessageBrokerImplTest
           assertTrue( start.await( 10, TimeUnit.SECONDS ) );
           queuePacket( broker, newSession() );
         }
+        catch ( final InterruptedException e )
+        {
+          Thread.currentThread().interrupt();
+          failure.compareAndSet( null, e );
+        }
         catch ( final Throwable t )
         {
           failure.compareAndSet( null, t );

@@ -8,7 +8,7 @@ public class ReplicantContextHolderTest
 {
   @Test
   public void basicWorkflow()
-    throws Exception
+    throws InterruptedException
   {
     final var key = "X";
     final var value = "1";

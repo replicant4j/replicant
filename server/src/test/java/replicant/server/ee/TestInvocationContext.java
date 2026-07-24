@@ -71,6 +71,7 @@ public class TestInvocationContext
     return _invoked;
   }
 
+  @Override
   public Object getTimer()
   {
     return null;

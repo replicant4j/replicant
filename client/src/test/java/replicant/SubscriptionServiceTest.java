@@ -13,13 +13,13 @@ public class SubscriptionServiceTest
   @Test
   public void typeSubscriptions()
   {
-    final var address1 = new ChannelAddress( 1, 0 );
-    final var address2 = new ChannelAddress( 1, 1 );
-    final var address3 = new ChannelAddress( 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 2 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var findSubscriptionAddress1CallCount = new AtomicInteger();
+    final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -30,7 +30,7 @@ public class SubscriptionServiceTest
       findSubscriptionAddress1CallCount.incrementAndGet();
     } );
 
-    final var findSubscriptionAddress2CallCount = new AtomicInteger();
+    final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -40,7 +40,7 @@ public class SubscriptionServiceTest
       findSubscriptionAddress2CallCount.incrementAndGet();
     } );
 
-    final var getInstanceSubscriptionsCallCount = new AtomicInteger();
+    final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -49,7 +49,7 @@ public class SubscriptionServiceTest
       getInstanceSubscriptionsCallCount.incrementAndGet();
     } );
 
-    final var getTypeSubscriptionsCallCount = new AtomicInteger();
+    final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -109,7 +109,7 @@ public class SubscriptionServiceTest
     // Should only reschedule `getTypeSubscriptions()`
     {
       safeAction( () -> {
-        final var subscription = service.findSubscription( address3 );
+        final Subscription subscription = service.findSubscription( address3 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
 
@@ -132,7 +132,7 @@ public class SubscriptionServiceTest
     // Should reschedule `getTypeSubscriptions()` and findSubscription( address2 )
     {
       safeAction( () -> {
-        final var subscription = service.findSubscription( address2 );
+        final Subscription subscription = service.findSubscription( address2 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
 
@@ -165,10 +165,10 @@ public class SubscriptionServiceTest
   @Test
   public void typeSubscriptions_withFilterInstanceId()
   {
-    final var address1 = new ChannelAddress( 1, 0, null, "fi1" );
-    final var address2 = new ChannelAddress( 1, 0, null, "fi2" );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null, "fi1" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, null, "fi2" );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> {
       service.createSubscription( address1, null, true );
@@ -180,7 +180,7 @@ public class SubscriptionServiceTest
     safeAction( () -> assertEquals( service.getTypeSubscriptions().size(), 2 ) );
 
     safeAction( () -> {
-      final var subscription = service.findSubscription( address1 );
+      final Subscription subscription = service.findSubscription( address1 );
       assertNotNull( subscription );
       Disposable.dispose( subscription );
     } );
@@ -193,10 +193,10 @@ public class SubscriptionServiceTest
   @Test
   public void typeSubscriptions_emptyFilterInstanceId()
   {
-    final var address1 = new ChannelAddress( 1, 0, null, "" );
-    final var address2 = new ChannelAddress( 1, 0, null, null );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, null, "" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, null, null );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> {
       service.createSubscription( address1, null, true );
@@ -211,13 +211,13 @@ public class SubscriptionServiceTest
   @Test
   public void instanceSubscriptions()
   {
-    final var address1 = new ChannelAddress( 1, 0, 1 );
-    final var address2 = new ChannelAddress( 1, 0, 2 );
-    final var address3 = new ChannelAddress( 1, 1, ValueUtil.randomInt() );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, ValueUtil.randomInt() );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var findSubscriptionAddress1CallCount = new AtomicInteger();
+    final AtomicInteger findSubscriptionAddress1CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -228,7 +228,7 @@ public class SubscriptionServiceTest
       findSubscriptionAddress1CallCount.incrementAndGet();
     } );
 
-    final var findSubscriptionAddress2CallCount = new AtomicInteger();
+    final AtomicInteger findSubscriptionAddress2CallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -238,7 +238,7 @@ public class SubscriptionServiceTest
       findSubscriptionAddress2CallCount.incrementAndGet();
     } );
 
-    final var getInstanceSubscriptionsCallCount = new AtomicInteger();
+    final AtomicInteger getInstanceSubscriptionsCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -247,7 +247,7 @@ public class SubscriptionServiceTest
       getInstanceSubscriptionsCallCount.incrementAndGet();
     } );
 
-    final var getTypeSubscriptionsCallCount = new AtomicInteger();
+    final AtomicInteger getTypeSubscriptionsCallCount = new AtomicInteger();
     observer( () -> {
       if ( Disposable.isNotDisposed( service ) )
       {
@@ -315,7 +315,7 @@ public class SubscriptionServiceTest
     // Should only reschedule `getInstanceSubscriptions()`
     {
       safeAction( () -> {
-        final var subscription = service.findSubscription( address3 );
+        final Subscription subscription = service.findSubscription( address3 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
 
@@ -341,7 +341,7 @@ public class SubscriptionServiceTest
     // Should reschedule `getInstanceSubscriptions()` and findSubscription( address2 )
     {
       safeAction( () -> {
-        final var subscription = service.findSubscription( address2 );
+        final Subscription subscription = service.findSubscription( address2 );
         assertNotNull( subscription );
         Disposable.dispose( subscription );
 
@@ -377,11 +377,11 @@ public class SubscriptionServiceTest
   @Test
   public void instanceSubscriptions_withFilterInstanceId()
   {
-    final var address1 = new ChannelAddress( 1, 0, 7, "fi1" );
-    final var address2 = new ChannelAddress( 1, 0, 7, "fi2" );
-    final var address3 = new ChannelAddress( 1, 0, 8, "fi1" );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 7, "fi1" );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 7, "fi2" );
+    final ChannelAddress address3 = new ChannelAddress( 1, 0, 8, "fi1" );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> {
       service.createSubscription( address1, null, true );
@@ -396,7 +396,7 @@ public class SubscriptionServiceTest
     safeAction( () -> assertEquals( service.getInstanceSubscriptionIds( 1, 0 ).size(), 2 ) );
 
     safeAction( () -> {
-      final var subscription = service.findSubscription( address2 );
+      final Subscription subscription = service.findSubscription( address2 );
       assertNotNull( subscription );
       Disposable.dispose( subscription );
     } );
@@ -411,13 +411,13 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_instanceChannel_NoFilter_Explicit()
   {
-    final var address = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, no filter, explicit subscription
     safeAction( () -> {
-      final var subscription = service.createSubscription( address, null, true );
+      final Subscription subscription = service.createSubscription( address, null, true );
       assertEquals( subscription.address(), address );
       assertNull( subscription.getFilter() );
       assertTrue( subscription.isExplicitSubscription() );
@@ -427,15 +427,15 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_instanceChannel_Filter_NoExplicit()
   {
-    final var address = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 2 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // instance channel, filter, not explicit subscription
     safeAction( () -> {
-      final var filter = ValueUtil.randomString();
-      final var explicitSubscription = false;
-      final var subscription = service.createSubscription( address, filter, explicitSubscription );
+      final String filter = ValueUtil.randomString();
+      final boolean explicitSubscription = false;
+      final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
       assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
@@ -445,15 +445,15 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_typeChannel_NoFilter_NoExplicit()
   {
-    final var address = new ChannelAddress( 1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, no filter, no explicit subscription
     safeAction( () -> {
-      final var filter = (String) null;
-      final var explicitSubscription = false;
-      final var subscription = service.createSubscription( address, filter, explicitSubscription );
+      final String filter = null;
+      final boolean explicitSubscription = false;
+      final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
       assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
@@ -463,15 +463,15 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_typeChannel_Filter_Explicit()
   {
-    final var address = new ChannelAddress( 1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     // type channel, filter, explicit subscription
     safeAction( () -> {
-      final var filter = ValueUtil.randomString();
-      final var explicitSubscription = true;
-      final var subscription = service.createSubscription( address, filter, explicitSubscription );
+      final String filter = ValueUtil.randomString();
+      final boolean explicitSubscription = true;
+      final Subscription subscription = service.createSubscription( address, filter, explicitSubscription );
       assertEquals( subscription.address(), address );
       assertEquals( subscription.getFilter(), filter );
       assertEquals( subscription.isExplicitSubscription(), explicitSubscription );
@@ -481,50 +481,50 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscription_generatesSpyEvent()
   {
-    final var address = new ChannelAddress( 1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
-    final var service = SubscriptionService.create( null );
-    final var handler = registerTestSpyEventHandler();
+    final SubscriptionService service = SubscriptionService.create( null );
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var subscription =
+    final Subscription subscription =
       safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
 
     handler.assertEventCount( 1 );
 
-    final var event = handler.assertNextEvent( SubscriptionCreatedEvent.class );
+    final SubscriptionCreatedEvent event = handler.assertNextEvent( SubscriptionCreatedEvent.class );
     assertEquals( event.getSubscription(), subscription );
   }
 
   @Test
   public void disposeSubscription_generatesSpyEvent()
   {
-    final var address = new ChannelAddress( 1, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 1 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var subscription =
+    final Subscription subscription =
       safeAction( () -> service.createSubscription( address, ValueUtil.randomString(), true ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
     Disposable.dispose( subscription );
 
     handler.assertEventCount( 1 );
 
-    final var event = handler.assertNextEvent( SubscriptionDisposedEvent.class );
+    final SubscriptionDisposedEvent event = handler.assertNextEvent( SubscriptionDisposedEvent.class );
     assertEquals( event.getSubscription(), subscription );
   }
 
   @Test
   public void createSubscription_alreadyExists()
   {
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> service.createSubscription( address, null, true ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.createSubscription( address, null, true ) ) );
 
@@ -535,11 +535,11 @@ public class SubscriptionServiceTest
   @Test
   public void removeSubscription_typeSubscription_noExist()
   {
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
@@ -550,13 +550,13 @@ public class SubscriptionServiceTest
   @Test
   public void removeSubscription_typeSubscription_notDisposed()
   {
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> service.createSubscription( address, null, true ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
@@ -567,11 +567,11 @@ public class SubscriptionServiceTest
   @Test
   public void removeSubscription_instanceSubscription_noExist()
   {
-    final var address = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 1 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
@@ -582,14 +582,14 @@ public class SubscriptionServiceTest
   @Test
   public void removeSubscription_instanceSubscription_noExist_butSameChannelTypeExists()
   {
-    final var address1 = new ChannelAddress( 1, 0, 1 );
-    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> service.createSubscription( address2, null, true ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkSubscription( address1 ) ) );
 
@@ -600,13 +600,13 @@ public class SubscriptionServiceTest
   @Test
   public void removeSubscription_instanceSubscription_notDisposed()
   {
-    final var address = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address = new ChannelAddress( 1, 0, 2 );
 
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
     safeAction( () -> service.createSubscription( address, null, true ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> service.unlinkSubscription( address ) ) );
 
@@ -617,7 +617,7 @@ public class SubscriptionServiceTest
   @Test
   public void createSubscriptionServicePassingContextWhenNoZones()
   {
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> SubscriptionService.create( Replicant.context() ) );
 
@@ -630,16 +630,16 @@ public class SubscriptionServiceTest
   {
     createConnector();
 
-    final var entityService = Replicant.context().getEntityService();
-    final var subscriptionService = Replicant.context().getSubscriptionService();
+    final EntityService entityService = Replicant.context().getEntityService();
+    final SubscriptionService subscriptionService = Replicant.context().getSubscriptionService();
 
-    final var subscription1 =
+    final Subscription subscription1 =
       safeAction( () -> subscriptionService.createSubscription( new ChannelAddress( 1, 0, 1 ), null, true ) );
-    final var subscription2 =
+    final Subscription subscription2 =
       safeAction( () -> subscriptionService.createSubscription( new ChannelAddress( 1, 0, 2 ), null, true ) );
 
-    final var entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
-    final var entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "A/1", A.class, 1 ) );
+    final Entity entity2 = safeAction( () -> entityService.findOrCreateEntity( "A/2", A.class, 2 ) );
 
     safeAction( () -> entity1.linkToSubscription( subscription1 ) );
     safeAction( () -> entity2.linkToSubscription( subscription1 ) );
@@ -667,11 +667,11 @@ public class SubscriptionServiceTest
   @Test
   public void disposeService_disposesFilterInstanceSubscriptions()
   {
-    final var service = SubscriptionService.create( null );
+    final SubscriptionService service = SubscriptionService.create( null );
 
-    final var typeSubscription =
+    final Subscription typeSubscription =
       safeAction( () -> service.createSubscription( new ChannelAddress( 1, 0, null, "fi" ), null, true ) );
-    final var instanceSubscription =
+    final Subscription instanceSubscription =
       safeAction( () -> service.createSubscription( new ChannelAddress( 1, 0, 2, "fi" ), null, true ) );
 
     assertFalse( Disposable.isDisposed( typeSubscription ) );

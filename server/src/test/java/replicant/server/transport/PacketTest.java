@@ -1,13 +1,11 @@
 package replicant.server.transport;
 
 import java.util.ArrayList;
-import java.util.List;
 import javax.json.Json;
-import javax.json.JsonValue;
-import replicant.server.ValueUtil;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
+import replicant.server.ValueUtil;
 import static org.testng.Assert.*;
 
 public class PacketTest

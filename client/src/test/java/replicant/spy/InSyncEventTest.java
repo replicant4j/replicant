@@ -11,11 +11,11 @@ public class InSyncEventTest
   @Test
   public void basicOperation()
   {
-    final var event = new InSyncEvent( 23 );
+    final InSyncEvent event = new InSyncEvent( 23 );
 
     assertEquals( event.getSchemaId(), 23 );
 
-    final var data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.InSync" );

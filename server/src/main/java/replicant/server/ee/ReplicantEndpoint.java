@@ -146,14 +146,7 @@ public class ReplicantEndpoint
       }
       else if ( Messages.C2S_Type.ETAGS.equals( type ) )
       {
-        try
-        {
-          onETags( replicantSession, command );
-        }
-        catch ( final InterruptedException ignored )
-        {
-          replicantSession.closeDueToInterrupt();
-        }
+        onETags( replicantSession, command );
       }
       else if ( Messages.C2S_Type.PING.equals( type ) )
       {
@@ -161,47 +154,19 @@ public class ReplicantEndpoint
       }
       else if ( Messages.C2S_Type.SUB.equals( type ) )
       {
-        try
-        {
-          onSubscribe( replicantSession, command );
-        }
-        catch ( final InterruptedException ignored )
-        {
-          replicantSession.closeDueToInterrupt();
-        }
+        onSubscribe( replicantSession, command );
       }
       else if ( Messages.C2S_Type.BULK_SUB.equals( type ) )
       {
-        try
-        {
-          onBulkSubscribe( replicantSession, command );
-        }
-        catch ( final InterruptedException ignored )
-        {
-          replicantSession.closeDueToInterrupt();
-        }
+        onBulkSubscribe( replicantSession, command );
       }
       else if ( Messages.C2S_Type.UNSUB.equals( type ) )
       {
-        try
-        {
-          onUnsubscribe( replicantSession, command );
-        }
-        catch ( final InterruptedException ignored )
-        {
-          replicantSession.closeDueToInterrupt();
-        }
+        onUnsubscribe( replicantSession, command );
       }
       else if ( Messages.C2S_Type.BULK_UNSUB.equals( type ) )
       {
-        try
-        {
-          onBulkUnsubscribe( replicantSession, command );
-        }
-        catch ( final InterruptedException ignored )
-        {
-          replicantSession.closeDueToInterrupt();
-        }
+        onBulkUnsubscribe( replicantSession, command );
       }
       else
       {
@@ -238,7 +203,6 @@ public class ReplicantEndpoint
   }
 
   private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
-    throws InterruptedException
   {
     final var eTags = new HashMap<ChannelAddress, String>();
     for ( final var entry : command.getJsonObject( Messages.Etags.ETAGS ).entrySet() )
@@ -263,7 +227,7 @@ public class ReplicantEndpoint
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException, InterruptedException
+    throws IOException
   {
     final var address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
     final var channelMetaData = getChannelMetaData( address.channelId() );
@@ -303,7 +267,7 @@ public class ReplicantEndpoint
 
   @SuppressWarnings( "DuplicatedCode" )
   private void onBulkSubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
-    throws IOException, InterruptedException
+    throws IOException
   {
     final var addresses = extractChannels( command );
     if ( 0 != addresses.length )
@@ -354,7 +318,7 @@ public class ReplicantEndpoint
   }
 
   private void onUnsubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-    throws IOException, InterruptedException
+    throws IOException
   {
     final var address = ChannelAddress.parse( command.getString( Messages.Common.CHANNEL ) );
     final var channelMetaData = getChannelMetaData( address.channelId() );
@@ -367,7 +331,7 @@ public class ReplicantEndpoint
 
   @SuppressWarnings( "DuplicatedCode" )
   private void onBulkUnsubscribe( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
-    throws IOException, InterruptedException
+    throws IOException
   {
     final var addresses = extractChannels( command );
     if ( 0 != addresses.length )

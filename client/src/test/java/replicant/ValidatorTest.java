@@ -17,8 +17,8 @@ public class ValidatorTest
   @Test
   public void entitiesAllValid()
   {
-    final var entityService = Replicant.context().getEntityService();
-    final var entity1 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
     safeAction( () -> entity1.setUserObject( new MyEntity( null ) ) );
     safeAction( () -> entityService.findOrCreateEntity( "MyEntity/2", MyEntity.class, 2 ) );
 
@@ -29,12 +29,12 @@ public class ValidatorTest
   @Test
   public void invalidEntity()
   {
-    final var entityService = Replicant.context().getEntityService();
-    final var entity1 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
-    final var error = new Exception();
+    final EntityService entityService = Replicant.context().getEntityService();
+    final Entity entity1 = safeAction( () -> entityService.findOrCreateEntity( "MyEntity/1", MyEntity.class, 1 ) );
+    final Exception error = new Exception();
     safeAction( () -> entity1.setUserObject( new MyEntity( error ) ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Validator.create( null ).validateEntities() );
 
     assertEquals( exception.getMessage(),

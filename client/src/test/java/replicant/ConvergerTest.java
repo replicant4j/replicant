@@ -29,8 +29,8 @@ public class ConvergerTest
   @Test
   public void construct_withUnnecessaryContext()
   {
-    final var context = Replicant.context();
-    final var exception =
+    final ReplicantContext context = Replicant.context();
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> Converger.create( context ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
@@ -39,8 +39,8 @@ public class ConvergerTest
   @Test
   public void getReplicantContext()
   {
-    final var context = Replicant.context();
-    final var converger = context.getConverger();
+    final ReplicantContext context = Replicant.context();
+    final Converger converger = context.getConverger();
     assertEquals( converger.getReplicantContext(), context );
     assertNull( getFieldValue( converger, "_context" ) );
   }
@@ -51,8 +51,8 @@ public class ConvergerTest
     ReplicantTestUtil.enableZones();
     ReplicantTestUtil.resetState();
 
-    final var context = Replicant.context();
-    final var converger = context.getConverger();
+    final ReplicantContext context = Replicant.context();
+    final Converger converger = context.getConverger();
     assertEquals( converger.getReplicantContext(), context );
     assertEquals( getFieldValue( converger, "_context" ), context );
   }
@@ -60,12 +60,12 @@ public class ConvergerTest
   @Test
   public void preConvergeAction()
   {
-    final var c = Replicant.context().getConverger();
+    final Converger c = Replicant.context().getConverger();
 
     // should do nothing ...
     c.preConverge();
 
-    final var callCount = new AtomicInteger();
+    final AtomicInteger callCount = new AtomicInteger();
 
     safeAction( () -> c.setPreConvergeAction( callCount::incrementAndGet ) );
 
@@ -87,12 +87,12 @@ public class ConvergerTest
   @Test
   public void convergeCompleteAction()
   {
-    final var c = Replicant.context().getConverger();
+    final Converger c = Replicant.context().getConverger();
 
     // should do nothing ...
     safeAction( c::convergeComplete );
 
-    final var callCount = new AtomicInteger();
+    final AtomicInteger callCount = new AtomicInteger();
 
     safeAction( () -> c.setConvergeCompleteAction( callCount::incrementAndGet ) );
 
@@ -114,11 +114,11 @@ public class ConvergerTest
   @Test
   public void canGroup()
   {
-    final var c = Replicant.context().getConverger();
+    final Converger c = Replicant.context().getConverger();
 
     safeAction( () -> {
-      final var address = new ChannelAddress( 1, 0 );
-      final var areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, null );
+      final ChannelAddress address = new ChannelAddress( 1, 0 );
+      final AreaOfInterest areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest( address, null );
 
       assertTrue( c.canGroup( areaOfInterest,
                               AreaOfInterestRequest.Type.ADD,
@@ -157,15 +157,15 @@ public class ConvergerTest
                               areaOfInterest,
                               AreaOfInterestRequest.Type.REMOVE ) );
 
-      final var channel2 = new ChannelAddress( 1, 0, 2 );
-      final var areaOfInterest2 = Replicant.context().createOrUpdateAreaOfInterest( channel2, null );
+      final ChannelAddress channel2 = new ChannelAddress( 1, 0, 2 );
+      final AreaOfInterest areaOfInterest2 = Replicant.context().createOrUpdateAreaOfInterest( channel2, null );
       assertTrue( c.canGroup( areaOfInterest,
                               AreaOfInterestRequest.Type.ADD,
                               areaOfInterest2,
                               AreaOfInterestRequest.Type.ADD ) );
 
-      final var address3 = new ChannelAddress( 1, 1, 1 );
-      final var areaOfInterest3 = Replicant.context().createOrUpdateAreaOfInterest( address3, null );
+      final ChannelAddress address3 = new ChannelAddress( 1, 1, 1 );
+      final AreaOfInterest areaOfInterest3 = Replicant.context().createOrUpdateAreaOfInterest( address3, null );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest3,
@@ -179,8 +179,8 @@ public class ConvergerTest
                                areaOfInterest3,
                                AreaOfInterestRequest.Type.REMOVE ) );
 
-      final var address4 = new ChannelAddress( 1, 0, 1 );
-      final var areaOfInterest4 = Replicant.context().createOrUpdateAreaOfInterest( address4, "Filter" );
+      final ChannelAddress address4 = new ChannelAddress( 1, 0, 1 );
+      final AreaOfInterest areaOfInterest4 = Replicant.context().createOrUpdateAreaOfInterest( address4, "Filter" );
       assertFalse( c.canGroup( areaOfInterest,
                                AreaOfInterestRequest.Type.ADD,
                                areaOfInterest4,
@@ -196,26 +196,26 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
-      final var subscription = createSubscription( address, null, true );
+      final Subscription subscription = createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final var handler = registerTestSpyEventHandler();
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       Replicant.context().getConverger().removeOrphanSubscriptions();
 
-      final var requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
+      final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
       assertEquals( requests.size(), 1 );
-      final var request = requests.get( 0 );
+      final AreaOfInterestRequest request = requests.get( 0 );
       assertEquals( request.getType(), AreaOfInterestRequest.Type.REMOVE );
       assertEquals( request.getAddress(), address );
 
@@ -231,13 +231,13 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscription_whenManyPresent()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
 
     pauseScheduler();
     connector.pauseMessageScheduler();
 
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -247,17 +247,17 @@ public class ConvergerTest
       Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 4 ), null );
       Replicant.context().createOrUpdateAreaOfInterest( new ChannelAddress( 1, 1, 5 ), null );
 
-      final var subscription = createSubscription( address, null, true );
+      final Subscription subscription = createSubscription( address, null, true );
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final var handler = registerTestSpyEventHandler();
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       Replicant.context().getConverger().removeOrphanSubscriptions();
 
-      final var requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
+      final List<AreaOfInterestRequest> requests = connector.ensureConnection().getPendingAreaOfInterestRequests();
       assertEquals( requests.size(), 1 );
-      final var request = requests.get( 0 );
+      final AreaOfInterestRequest request = requests.get( 0 );
       assertEquals( request.getType(), AreaOfInterestRequest.Type.REMOVE );
       assertEquals( request.getAddress(), address );
 
@@ -273,8 +273,8 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenConnectorDisconnected()
   {
-    final var connector = createConnector();
-    final var address = new ChannelAddress( 1, 0 );
+    final Connector connector = createConnector();
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -282,7 +282,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.DISCONNECTED );
 
-      final var handler = registerTestSpyEventHandler();
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       Replicant.context().getConverger().removeOrphanSubscriptions();
 
@@ -293,9 +293,9 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionImplicit()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -303,7 +303,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final var handler = registerTestSpyEventHandler();
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       Replicant.context().getConverger().removeOrphanSubscriptions();
 
@@ -314,9 +314,9 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenSubscriptionExpected()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     safeAction( () -> {
 
@@ -327,7 +327,7 @@ public class ConvergerTest
 
       connector.setState( ConnectorState.CONNECTED );
 
-      final var handler = registerTestSpyEventHandler();
+      final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
       Replicant.context().getConverger().removeOrphanSubscriptions();
 
@@ -338,18 +338,18 @@ public class ConvergerTest
   @Test
   public void removeOrphanSubscriptions_whenRemoveIsPending()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     connector.pauseMessageScheduler();
 
-    final var address = new ChannelAddress( 1, 0 );
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
 
     createSubscription( address, null, true );
 
     // Enqueue remove request
     connector.requestUnsubscribe( address );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     Replicant.context().getConverger().removeOrphanSubscriptions();
     handler.assertEventCount( 0 );
@@ -358,20 +358,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     pauseScheduler();
     connector.pauseMessageScheduler();
 
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
@@ -383,18 +383,18 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_alreadySubscribed()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
     createSubscription( address, null, true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.NO_ACTION );
@@ -409,20 +409,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribing()
   {
-    final var connector = createConnector();
-    final var connection = newConnection( connector );
+    final Connector connector = createConnector();
+    final Connection connection = newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     connection.injectCurrentAreaOfInterestRequest( new AreaOfInterestRequest( address,
                                                                               AreaOfInterestRequest.Type.ADD,
                                                                               null ) );
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -433,20 +433,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_addPending()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
 
     connector.requestSubscribe( address, null );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -457,7 +457,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_updatePending()
   {
-    final var channelSchema =
+    final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -465,24 +465,24 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          false,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var filter = ValueUtil.randomString();
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final Object filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
     createSubscription( address, ValueUtil.randomString(), true );
 
     connector.requestSubscriptionUpdate( address, filter );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.IN_PROGRESS );
@@ -493,7 +493,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_requestSubscriptionUpdate()
   {
-    final var channelSchema =
+    final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -501,22 +501,22 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          false,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var filter = ValueUtil.randomString();
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
     createSubscription( address, ValueUtil.randomString(), true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_UPDATE );
@@ -531,18 +531,18 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_disposedAreaOfInterest()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var filter = ValueUtil.randomString();
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
 
     Disposable.dispose( areaOfInterest );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> Replicant.context().getConverger()
                       .convergeAreaOfInterest( areaOfInterest, null, null ) ) );
@@ -554,20 +554,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedButRemovePending()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, null ) );
     createSubscription( address, null, true );
     connector.requestUnsubscribe( address );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_ADD );
@@ -579,7 +579,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStatic()
   {
-    final var channel0 =
+    final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -587,23 +587,23 @@ public class ConvergerTest
                          null,
                          true,
                          true, Collections.emptyList() );
-    final var schema = new SystemSchema( 1,
+    final SystemSchema schema = new SystemSchema( 1,
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
                                                   new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, ValueUtil.randomString() ) );
     createSubscription( address, ValueUtil.randomString(), true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context().getConverger().convergeAreaOfInterest( areaOfInterest, null, null );
 
     assertEquals( result, Converger.Action.SUBMITTED_REMOVE );
@@ -615,7 +615,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStaticAndNotExplicitlySubscribed()
   {
-    final var channel0 =
+    final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -623,21 +623,21 @@ public class ConvergerTest
                          null,
                          true,
                          true, Collections.emptyList() );
-    final var schema = new SystemSchema( 1,
+    final SystemSchema schema = new SystemSchema( 1,
                                                   ValueUtil.randomString(),
                                                   new ChannelSchema[]{ channel0 },
                                                   new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     connector.pauseMessageScheduler();
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address = new ChannelAddress( 1, 0 );
-    final var areaOfInterest =
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, ValueUtil.randomString() ) );
     createSubscription( address, ValueUtil.randomString(), false );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class,
                     () -> safeAction( () -> Replicant.context().getConverger()
                       .convergeAreaOfInterest( areaOfInterest, null, null ) ) );
@@ -649,21 +649,21 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingAdd()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 1, 2 );
-    final var areaOfInterest1 =
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, null ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
@@ -677,7 +677,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffers()
   {
-    final var channel0 =
+    final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -685,25 +685,25 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          true,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0 }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 0, 1 );
-    final var address2 = new ChannelAddress( 1, 0, 2 );
-    final var areaOfInterest1 =
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
 
     // areaOfInterest2 would actually require an update as already present
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, null ) );
     createSubscription( address2, ValueUtil.randomString(), true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
@@ -716,20 +716,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffers()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 1, 2 );
-    final var areaOfInterest1 =
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
@@ -742,20 +742,20 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffers()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 0 );
-    final var areaOfInterest1 =
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0 );
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, null ) );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, null ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD );
@@ -768,7 +768,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_groupingUpdate()
   {
-    final var channelSchema =
+    final ChannelSchema channelSchema =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -776,29 +776,29 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          false,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channelSchema }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
     connector.pauseMessageScheduler();
 
-    final var address1 = new ChannelAddress( 1, 0, 1 );
-    final var address2 = new ChannelAddress( 1, 0, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 0, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0, 2 );
 
-    final var filterOld = ValueUtil.randomString();
-    final var filterNew = ValueUtil.randomString();
+    final String filterOld = ValueUtil.randomString();
+    final String filterNew = ValueUtil.randomString();
 
-    final var areaOfInterest1 =
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
     createSubscription( address1, filterOld, true );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
     createSubscription( address2, filterOld, true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
@@ -813,25 +813,25 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_typeDiffersForUpdate()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
-    final var filterOld = ValueUtil.randomString();
-    final var filterNew = ValueUtil.randomString();
+    final String filterOld = ValueUtil.randomString();
+    final String filterNew = ValueUtil.randomString();
 
-    final var areaOfInterest1 =
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
     createSubscription( address1, filterOld, true );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
@@ -844,7 +844,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_ChannelDiffersForUpdate()
   {
-    final var channel0 =
+    final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -852,7 +852,7 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          true,
                          true, Collections.emptyList() );
-    final var channel1 =
+    final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
                          null,
@@ -860,28 +860,28 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          true,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 0 );
 
-    final var filterOld = ValueUtil.randomString();
-    final var filterNew = ValueUtil.randomString();
+    final String filterOld = ValueUtil.randomString();
+    final String filterNew = ValueUtil.randomString();
 
-    final var areaOfInterest1 =
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, filterNew ) );
     createSubscription( address1, filterOld, true );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, filterNew ) );
     createSubscription( address2, filterOld, true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );
@@ -894,7 +894,7 @@ public class ConvergerTest
   @Test
   public void convergeAreaOfInterest_FilterDiffersForUpdate()
   {
-    final var channel0 =
+    final ChannelSchema channel0 =
       new ChannelSchema( 0,
                          ValueUtil.randomString(),
                          null,
@@ -902,7 +902,7 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          true,
                          true, Collections.emptyList() );
-    final var channel1 =
+    final ChannelSchema channel1 =
       new ChannelSchema( 1,
                          ValueUtil.randomString(),
                          null,
@@ -910,27 +910,27 @@ public class ConvergerTest
                          ( f, e ) -> true,
                          true,
                          true, Collections.emptyList() );
-    final var schema =
+    final SystemSchema schema =
       new SystemSchema( 1, ValueUtil.randomString(), new ChannelSchema[]{ channel0, channel1 }, new EntitySchema[ 0 ] );
-    final var connector = createConnector( schema );
+    final Connector connector = createConnector( schema );
     newConnection( connector );
     safeAction( () -> connector.setState( ConnectorState.CONNECTED ) );
 
-    final var address1 = new ChannelAddress( 1, 1, 1 );
-    final var address2 = new ChannelAddress( 1, 1, 2 );
+    final ChannelAddress address1 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 2 );
 
-    final var filterOld = ValueUtil.randomString();
+    final String filterOld = ValueUtil.randomString();
 
-    final var areaOfInterest1 =
+    final AreaOfInterest areaOfInterest1 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address1, ValueUtil.randomString() ) );
     createSubscription( address1, filterOld, true );
-    final var areaOfInterest2 =
+    final AreaOfInterest areaOfInterest2 =
       safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address2, ValueUtil.randomString() ) );
     createSubscription( address2, filterOld, true );
 
-    final var handler = registerTestSpyEventHandler();
+    final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-    final var result =
+    final Converger.Action result =
       Replicant.context()
         .getConverger()
         .convergeAreaOfInterest( areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE );

@@ -12,17 +12,17 @@ public class ReplicantContextTest
   @Test
   public void schemas()
   {
-    final var schemaId = 22;
+    final int schemaId = 22;
 
-    final var context = Replicant.context();
+    final ReplicantContext context = Replicant.context();
     assertEquals( context.getSchemas().size(), 0 );
     assertNull( context.findSchemaById( schemaId ) );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> safeAction( () -> context.getSchemaById( schemaId ) ) );
     assertEquals( exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 22" );
 
-    final var schema1 =
+    final SystemSchema schema1 =
       new SystemSchema( schemaId,
                         ValueUtil.randomString(),
                         new ChannelSchema[ 0 ],
@@ -43,22 +43,22 @@ public class ReplicantContextTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final var context = Replicant.context();
-    final var address = new ChannelAddress( 1, 0 );
-    final var filter = ValueUtil.randomString();
-    final var filter2 = ValueUtil.randomString();
+    final ReplicantContext context = Replicant.context();
+    final ChannelAddress address = new ChannelAddress( 1, 0 );
+    final String filter = ValueUtil.randomString();
+    final String filter2 = ValueUtil.randomString();
 
     safeAction( () -> {
       assertEquals( context.getAreasOfInterest().size(), 0 );
       assertNull( context.findAreaOfInterestByAddress( address ) );
 
-      final var areaOfInterest = context.createOrUpdateAreaOfInterest( address, filter );
+      final AreaOfInterest areaOfInterest = context.createOrUpdateAreaOfInterest( address, filter );
 
       assertEquals( areaOfInterest.getFilter(), filter );
       assertEquals( context.getAreasOfInterest().size(), 1 );
       assertEquals( context.findAreaOfInterestByAddress( address ), areaOfInterest );
 
-      final var areaOfInterest2 = context.createOrUpdateAreaOfInterest( address, filter2 );
+      final AreaOfInterest areaOfInterest2 = context.createOrUpdateAreaOfInterest( address, filter2 );
 
       assertEquals( areaOfInterest2, areaOfInterest );
       assertEquals( areaOfInterest2.getFilter(), filter2 );
@@ -71,7 +71,7 @@ public class ReplicantContextTest
   @Test
   public void entities()
   {
-    final var context = Replicant.context();
+    final ReplicantContext context = Replicant.context();
 
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 0 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 0 ) );
@@ -80,7 +80,7 @@ public class ReplicantContextTest
     safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
     safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
-    final var entity1 = findOrCreateEntity( A.class, 1 );
+    final Entity entity1 = findOrCreateEntity( A.class, 1 );
 
     assertEquals( entity1.getName(), "A/1" );
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 1 ) );
@@ -90,7 +90,7 @@ public class ReplicantContextTest
     safeAction( () -> assertNull( context.findEntityByTypeAndId( A.class, 2 ) ) );
     safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
-    final var entity2 =
+    final Entity entity2 =
       safeAction( () -> context.getEntityService().findOrCreateEntity( "Super-dee-duper", A.class, 2 ) );
 
     assertEquals( entity2.getName(), "Super-dee-duper" );
@@ -101,7 +101,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( context.findEntityByTypeAndId( A.class, 2 ), entity2 ) );
     safeAction( () -> assertNull( context.findEntityByTypeAndId( B.class, 47 ) ) );
 
-    final var entity3 = findOrCreateEntity( B.class, 47 );
+    final Entity entity3 = findOrCreateEntity( B.class, 47 );
 
     safeAction( () -> assertEquals( context.findAllEntityTypes().size(), 2 ) );
     safeAction( () -> assertEquals( context.findAllEntitiesByType( A.class ).size(), 2 ) );
@@ -144,16 +144,16 @@ public class ReplicantContextTest
     // Pause scheduler so Autoruns don't auto-converge
     pauseScheduler();
 
-    final var context = Replicant.context();
-    final var address1 = new ChannelAddress( 1, 0 );
-    final var address2 = new ChannelAddress( 1, 1, 1 );
-    final var address3 = new ChannelAddress( 1, 1, 2 );
-    final var filter1 = (String) null;
-    final var filter2 = ValueUtil.randomString();
-    final var filter3 = ValueUtil.randomString();
-    final var explicitSubscription1 = true;
-    final var explicitSubscription2 = true;
-    final var explicitSubscription3 = false;
+    final ReplicantContext context = Replicant.context();
+    final ChannelAddress address1 = new ChannelAddress( 1, 0 );
+    final ChannelAddress address2 = new ChannelAddress( 1, 1, 1 );
+    final ChannelAddress address3 = new ChannelAddress( 1, 1, 2 );
+    final String filter1 = null;
+    final String filter2 = ValueUtil.randomString();
+    final String filter3 = ValueUtil.randomString();
+    final boolean explicitSubscription1 = true;
+    final boolean explicitSubscription2 = true;
+    final boolean explicitSubscription3 = false;
 
     safeAction( () -> {
       assertEquals( context.getTypeSubscriptions().size(), 0 );
@@ -163,7 +163,7 @@ public class ReplicantContextTest
       assertNull( context.findSubscription( address2 ) );
       assertNull( context.findSubscription( address3 ) );
 
-      final var subscription1 = createSubscription( address1, filter1, explicitSubscription1 );
+      final Subscription subscription1 = createSubscription( address1, filter1, explicitSubscription1 );
 
       assertEquals( subscription1.address(), address1 );
       assertEquals( subscription1.getFilter(), filter1 );
@@ -176,7 +176,7 @@ public class ReplicantContextTest
       assertNull( context.findSubscription( address2 ) );
       assertNull( context.findSubscription( address3 ) );
 
-      final var subscription2 = createSubscription( address2, filter2, explicitSubscription2 );
+      final Subscription subscription2 = createSubscription( address2, filter2, explicitSubscription2 );
 
       assertEquals( subscription2.address(), address2 );
       assertEquals( subscription2.getFilter(), filter2 );
@@ -189,7 +189,7 @@ public class ReplicantContextTest
       assertEquals( context.findSubscription( address2 ), subscription2 );
       assertNull( context.findSubscription( address3 ) );
 
-      final var subscription3 = createSubscription( address3, filter3, explicitSubscription3 );
+      final Subscription subscription3 = createSubscription( address3, filter3, explicitSubscription3 );
 
       assertEquals( subscription3.address(), address3 );
       assertEquals( subscription3.getFilter(), filter3 );
@@ -227,11 +227,11 @@ public class ReplicantContextTest
   @Test
   public void getSpy()
   {
-    final var context = Replicant.context();
+    final ReplicantContext context = Replicant.context();
 
     assertFalse( context.willPropagateSpyEvents() );
 
-    final var spy = context.getSpy();
+    final Spy spy = context.getSpy();
 
     spy.addSpyEventHandler( new TestSpyEventHandler() );
 
@@ -248,7 +248,7 @@ public class ReplicantContextTest
   public void preConvergeAction()
   {
     safeAction( () -> {
-      final var action = (SafeProcedure) () -> {
+      final SafeProcedure action = () -> {
       };
       assertNull( Replicant.context().getPreConvergeAction() );
       Replicant.context().setPreConvergeAction( action );
@@ -260,7 +260,7 @@ public class ReplicantContextTest
   public void convergeCompleteAction()
   {
     safeAction( () -> {
-      final var action = (SafeProcedure) () -> {
+      final SafeProcedure action = () -> {
       };
       assertNull( Replicant.context().getConvergeCompleteAction() );
       Replicant.context().setConvergeCompleteAction( action );
@@ -271,7 +271,7 @@ public class ReplicantContextTest
   @Test
   public void active()
   {
-    final var context = Replicant.context();
+    final ReplicantContext context = Replicant.context();
     assertEquals( context.getState(), RuntimeState.CONNECTED );
     safeAction( () -> assertTrue( context.isActive() ) );
     context.deactivate();
@@ -285,13 +285,13 @@ public class ReplicantContextTest
   @Test
   public void setConnectorRequired()
   {
-    final var schema = newSchema();
+    final SystemSchema schema = newSchema();
 
     createConnector( schema );
 
-    final var context = Replicant.context();
+    final ReplicantContext context = Replicant.context();
 
-    final var schemaId = schema.getId();
+    final int schemaId = schema.getId();
     assertTrue( context.getRuntime().getConnectorEntryBySchemaId( schemaId ).isRequired() );
     context.setConnectorRequired( schemaId, false );
     assertFalse( context.getRuntime().getConnectorEntryBySchemaId( schemaId ).isRequired() );
@@ -303,8 +303,8 @@ public class ReplicantContextTest
   {
     createConnector();
 
-    final var context = Replicant.context();
-    final var cacheService = mock( CacheService.class );
+    final ReplicantContext context = Replicant.context();
+    final CacheService cacheService = mock( CacheService.class );
 
     assertNull( context.getCacheService() );
 
@@ -320,18 +320,18 @@ public class ReplicantContextTest
   @Test
   public void exec()
   {
-    final var connector = createConnector();
+    final Connector connector = createConnector();
     connector.pauseMessageScheduler();
-    final var connection = newConnection( connector );
+    final Connection connection = newConnection( connector );
 
-    final var command = ValueUtil.randomString();
-    final var payload = new Object();
+    final String command = ValueUtil.randomString();
+    final Object payload = new Object();
 
     Replicant.context().exec( connector.getSchema().getId(), command, payload, null );
 
-    final var requests = connection.getPendingExecRequests();
+    final List<ExecRequest> requests = connection.getPendingExecRequests();
     assertEquals( requests.size(), 1 );
-    final var request = requests.get( 0 );
+    final ExecRequest request = requests.get( 0 );
     assertEquals( request.getCommand(), command );
     assertEquals( request.getPayload(), payload );
   }
@@ -339,12 +339,12 @@ public class ReplicantContextTest
   @Test
   public void findConnectionId()
   {
-    final var connector = createConnector();
-    final var schemaId = connector.getSchema().getId();
+    final Connector connector = createConnector();
+    final int schemaId = connector.getSchema().getId();
 
     assertNull( Replicant.context().findConnectionId( schemaId ) );
 
-    final var connection = newConnection( connector );
+    final Connection connection = newConnection( connector );
 
     assertEquals( Replicant.context().findConnectionId( schemaId ), connection.getConnectionId() );
   }
@@ -355,7 +355,7 @@ public class ReplicantContextTest
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 0 ) );
     assertEquals( Replicant.context().getSchemas().size(), 0 );
 
-    final var disposable =
+    final Disposable disposable =
       Replicant.context().registerConnector( newSchema(), mock( Transport.class ) );
 
     safeAction( () -> assertEquals( Replicant.context().getRuntime().getConnectors().size(), 1 ) );

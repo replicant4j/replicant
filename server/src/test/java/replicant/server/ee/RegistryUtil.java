@@ -23,6 +23,7 @@ public final class RegistryUtil
   {
   }
 
+  @SuppressWarnings( "BanJNDI" )
   public static void bind()
   {
     try
@@ -54,16 +55,19 @@ public final class RegistryUtil
     private final Map<Object, Object> _resources = new HashMap<>();
     private boolean _rollbackOnly;
 
+    @Override
     public Object getTransactionKey()
     {
       throw new UnsupportedOperationException();
     }
 
+    @Override
     public void putResource( final Object key, final Object value )
     {
       _resources.put( key, value );
     }
 
+    @Override
     public Object getResource( final Object key )
     {
       return _resources.get( key );
@@ -103,6 +107,7 @@ public final class RegistryUtil
     @Nullable
     private static MemoryContext c_context;
 
+    @Override
     @SuppressWarnings( { "rawtypes", "RedundantSuppression" } )
     public Context getInitialContext( final Hashtable environment )
     {

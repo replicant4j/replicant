@@ -12,9 +12,9 @@ public class RequestStartedEventTest
   @Test
   public void basicOperation()
   {
-    final var requestId = ValueUtil.randomInt();
-    final var name = ValueUtil.randomString();
-    final var event =
+    final int requestId = ValueUtil.randomInt();
+    final String name = ValueUtil.randomString();
+    final RequestStartedEvent event =
       new RequestStartedEvent( 23, "Rose", requestId, name );
 
     assertEquals( event.getSchemaId(), 23 );
@@ -22,7 +22,7 @@ public class RequestStartedEventTest
     assertEquals( event.getRequestId(), requestId );
     assertEquals( event.getName(), name );
 
-    final var data = new HashMap<String, Object>();
+    final HashMap<String, Object> data = new HashMap<>();
     event.toMap( data );
 
     assertEquals( data.get( "type" ), "Connector.RequestStarted" );

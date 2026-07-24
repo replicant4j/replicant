@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.json.Json;
@@ -49,7 +50,7 @@ public final class JsonEncoder
   {
     final var writer = new StringWriter();
     final var generator = FACTORY.createGenerator( writer );
-    final var dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ" );
+    final var dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ROOT );
 
     generator.writeStartObject();
     generator.write( Messages.Common.TYPE, Messages.S2C_Type.UPDATE );

@@ -9,10 +9,10 @@ public class SchemaServiceTest
   @Test
   public void basicWorkflow()
   {
-    final var service = SchemaService.create();
+    final SchemaService service = SchemaService.create();
 
-    final var schemaId1 = ValueUtil.randomInt();
-    final var schema1 =
+    final int schemaId1 = ValueUtil.randomInt();
+    final SystemSchema schema1 =
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
     assertNull( service.findById( schemaId1 ) );
@@ -36,17 +36,17 @@ public class SchemaServiceTest
   @Test
   public void registerSchema_duplicate()
   {
-    final var service = SchemaService.create();
+    final SchemaService service = SchemaService.create();
 
-    final var schemaId1 = 100;
-    final var schema1 =
+    final int schemaId1 = 100;
+    final SystemSchema schema1 =
       new SystemSchema( schemaId1, "MySchema1", new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
-    final var schema2 =
+    final SystemSchema schema2 =
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
     service.registerSchema( schema1 );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> service.registerSchema( schema2 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0070: Attempted to register schema with id 100 when a schema with id already exists: MySchema1" );
@@ -55,13 +55,13 @@ public class SchemaServiceTest
   @Test
   public void deregisterSchema_missing()
   {
-    final var service = SchemaService.create();
+    final SchemaService service = SchemaService.create();
 
-    final var schemaId1 = 100;
-    final var schema2 =
+    final int schemaId1 = 100;
+    final SystemSchema schema2 =
       new SystemSchema( schemaId1, ValueUtil.randomString(), new ChannelSchema[ 0 ], new EntitySchema[ 0 ] );
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> service.deregisterSchema( schema2 ) );
     assertEquals( exception.getMessage(),
                   "Replicant-0085: Attempted to deregister schema with id 100 but no such schema exists." );
@@ -70,9 +70,9 @@ public class SchemaServiceTest
   @Test
   public void getByIdWhenNonePresent()
   {
-    final var service = SchemaService.create();
+    final SchemaService service = SchemaService.create();
 
-    final var exception =
+    final IllegalStateException exception =
       expectThrows( IllegalStateException.class, () -> service.getById( 23 ) );
     assertEquals( exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 23" );
   }
