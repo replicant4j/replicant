@@ -13,7 +13,7 @@ permissions:
 jobs:
   bazel:
     name: Bazel
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -25,11 +25,8 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Build public jars
-        run: ./bazelw build //client:client //server:server
+      - name: Run repository gate
+        run: tools/check.sh
 
-      - name: Run tests
-        run: ./bazelw test //...
-
-      - name: Check Bazel formatting
-        run: ./bazelw run //:buildifier_check
+      - name: Verify clean generated state
+        run: git diff --exit-code

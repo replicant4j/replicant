@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T11
+current_focus: T12
 
 tasks:
   - id: T01
@@ -332,7 +332,7 @@ tasks:
 
   - id: T11
     title: Align CI and complete repository gate
-    status: pending
+    status: completed
     priority: high
     depends_on: [T10]
     requirements: [R11, R12]
@@ -353,7 +353,12 @@ tasks:
         proves: complete local repository gate
       - command: Ubuntu 24.04 workflow-equivalent tools/check.sh run
         proves: pre-removal Linux CI compatibility
-    evidence: []
+    evidence:
+      - tools/check.sh passed dependency drift, Buildifier, Palantir formatting, NullMarked coverage, client/shared var, and TestNG sizing policies
+      - The local gate passed all 300 builds, the optimized J2CL link, all four GWT compiler outputs, all 101 default tests, and the explicit 6.999 release suite
+      - The TestNG query identified 95 concrete targets and no target whose size was not small
+      - A complete Ubuntu 24.04 container run passed every repository gate command without introducing any tracked diff beyond the five pre-existing T11 files
+      - GitHub Actions now runs tools/check.sh on Ubuntu 24.04 with Temurin JDK 17 and rejects generated worktree drift
 
   - id: T12
     title: Remove Buildr Ruby and temporary parity infrastructure
@@ -444,3 +449,7 @@ history:
     task: T09
     commit: b1a80db6
     note: Pinned J2CL and added the optimized full-client link with deterministic dependency source-jar compatibility transforms.
+  - timestamp: "2026-07-24"
+    task: T10
+    commit: 63c1241a
+    note: Added real GWT 2.13.1 compiler smokes for Replicant, ReplicantDev, ReplicantDebug, and React4j.
