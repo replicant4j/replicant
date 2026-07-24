@@ -1,0 +1,5 @@
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "j2cl_fix_escapevelocity_coordinate.patch",
+])

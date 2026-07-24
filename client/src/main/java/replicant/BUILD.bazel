@@ -1,3 +1,4 @@
+load("@j2cl//build_defs:rules.bzl", "j2cl_library")
 load("//third_party/java:rules.bzl", "java_library")
 
 CLIENT_JAVA_SRCS = [
@@ -280,6 +281,30 @@ filegroup(
     name = "client_j2cl_srcs",
     srcs = CLIENT_JAVA_SRCS,
     visibility = ["//visibility:public"],
+)
+
+j2cl_library(
+    name = "client-j2cl",
+    srcs = [
+        ":client_j2cl_srcs",
+        "//tools/release:client_generated_sources",
+    ],
+    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/src/main/java/replicant/shared:shared-j2cl",
+        "//third_party/java:akasha_gwt-j2cl",
+        "//third_party/java:arez_core-j2cl",
+        "//third_party/java:base-j2cl",
+        "//third_party/java:braincheck_core-j2cl",
+        "//third_party/java:grim_annotations-j2cl",
+        "//third_party/java:javax_annotation-j2cl",
+        "//third_party/java:jsinterop_annotations-j2cl",
+        "//third_party/java:jspecify-j2cl",
+        "//third_party/java:org_jetbrains_annotations-j2cl",
+        "//third_party/java:react4j_core-j2cl",
+        "//third_party/java:zemeckis_core-j2cl",
+    ],
 )
 
 java_library(

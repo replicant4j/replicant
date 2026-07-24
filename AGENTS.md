@@ -157,6 +157,7 @@ CI workflow:
 - Run the current repository gate: `tools/check.sh`.
 - Build public Bazel jars: `./bazelw build //client:client //server:server`.
 - Build Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`.
+- Optimized-link the full J2CL client graph: `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke`.
 - Run all Bazel tests, including depgen hash verification: `./bazelw test //...`.
 - Check that every maintained Java package is explicitly null-marked: `tools/check_null_marked_packages.sh`.
 - Check Bazel formatting: `./bazelw run //:buildifier_check`.
@@ -190,6 +191,9 @@ Additional build notes:
 - `//server:server_lib` is a source-free aggregate that exports package-owned server libraries under
   `server/src/main/java/replicant/server/**`; keep the package graph acyclic when adding dependencies.
 - Bazel uses remote JDK 25 for Java build tools and emits Java 17 bytecode for project targets.
+- J2CL is pinned to the immutable upstream commit recorded in `MODULE.bazel`. The optimized smoke target links the
+  full client/shared graph plus Bazel-generated Arez sources; dependency source-jar compatibility transforms live
+  under `tools/j2cl`.
 - The Maven targets under `//tools/release` build client/server main, source, Javadoc, and POM artifacts. Published
   jars exclude `BUILD.bazel`; the client main and source jars include Bazel-generated Arez Java.
 

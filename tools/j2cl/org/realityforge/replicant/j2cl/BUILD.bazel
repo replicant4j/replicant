@@ -1,0 +1,24 @@
+load("//third_party/java:rules.bzl", "java_binary", "java_test")
+
+package(default_visibility = ["//visibility:public"])
+
+java_binary(
+    name = "source_jar_builder",
+    srcs = [
+        "SourceJarBuilder.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.j2cl.SourceJarBuilder",
+)
+
+java_test(
+    name = "source_jar_builder_test",
+    size = "small",
+    srcs = [
+        "SourceJarBuilder.java",
+        "SourceJarBuilderTest.java",
+        "package-info.java",
+    ],
+    main_class = "org.realityforge.replicant.j2cl.SourceJarBuilderTest",
+    use_testrunner = False,
+)

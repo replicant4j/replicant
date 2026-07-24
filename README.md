@@ -27,6 +27,7 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
+* Optimized-link the full J2CL client graph: `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke`
 * Run all Bazel tests: `./bazelw test //...`
 * Run the current repository gate: `tools/check.sh`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
@@ -58,7 +59,8 @@ remain untracked and are included in the client main and source jars; published 
 signed Maven Central bundle with `tools/package_maven_central.sh <version>` and see
 [`tools/release/README.md`](tools/release/README.md) for the complete release and recovery workflow.
 
-The Bazel build does not yet replace the existing GWT compiler workflow.
+The full client and shared graph, including generated Arez sources, is permanently verified with an optimized J2CL
+link. The Bazel build does not yet replace the existing GWT compiler workflow.
 
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly

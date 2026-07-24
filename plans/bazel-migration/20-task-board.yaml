@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T09
+current_focus: T10
 
 tasks:
   - id: T01
@@ -269,7 +269,7 @@ tasks:
 
   - id: T09
     title: Add full-client J2CL optimized link
-    status: pending
+    status: completed
     priority: high
     depends_on: [T08]
     requirements: [R6, R9]
@@ -288,11 +288,16 @@ tasks:
       - tools/check.sh
       - CHANGELOG.md
     validation:
-      - command: ./bazelw build //client/src/test/j2cl:replicant_j2cl_smoke
+      - command: ./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke
         proves: optimized full-client JavaScript link
       - command: tools/check.sh
         proves: J2CL link remains in repository gate
-    evidence: []
+    evidence:
+      - google/j2cl master observed on 2026-07-24 is pinned at f5ccde0f35473a240052e028376e5139da48e6ce with its archive digest
+      - The J2CL graph transpiles maintained client/shared sources, Bazel-generated Arez sources, and all client dependencies
+      - Deterministic source-jar compatibility transforms are fail-closed and covered by a focused test
+      - ./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke passed
+      - tools/check.sh passed all 263 builds, all 101 tests, and the explicit optimized J2CL link
 
   - id: T10
     title: Add four GWT compiler smoke builds
@@ -426,3 +431,7 @@ history:
     task: T07
     commit: e66b1798
     note: Replaced legacy IntelliJ metadata with the managed Bazel project view used by BrainCheck.
+  - timestamp: "2026-07-24"
+    task: T08
+    commit: 1454be7a
+    note: Added Bazel-owned Maven Central release artifacts, generated-source plumbing, and hardened release lifecycle tooling.

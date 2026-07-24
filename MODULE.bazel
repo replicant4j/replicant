@@ -4,7 +4,41 @@ module(
 
 bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
 
+bazel_dep(name = "j2cl", version = "20260724")
+bazel_dep(name = "rules_closure", version = "0.16.0")
 bazel_dep(name = "rules_java", version = "9.7.0")
+bazel_dep(name = "rules_jvm_external", version = "6.7")
+
+# google/j2cl master observed at this commit on 2026-07-24.
+archive_override(
+    module_name = "j2cl",
+    integrity = "sha256-Mcs52BCBI02NyZL/NHaaRlWP4F2Uw3IQNw/q/v0wKZ8=",
+    patch_strip = 1,
+    patches = ["//third_party/bazel/patches:j2cl_fix_escapevelocity_coordinate.patch"],
+    strip_prefix = "j2cl-f5ccde0f35473a240052e028376e5139da48e6ce",
+    urls = ["https://github.com/google/j2cl/archive/f5ccde0f35473a240052e028376e5139da48e6ce.tar.gz"],
+)
+
+single_version_override(
+    module_name = "bazel_worker_api",
+    version = "0.0.11",
+)
+
+single_version_override(
+    module_name = "rules_go",
+    version = "0.61.1",
+)
+
+j2cl_maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+j2cl_maven.install(
+    artifacts = [
+        "args4j:args4j:2.33",
+        "com.google.code.gson:gson:2.10.1",
+        "com.google.escapevelocity:escapevelocity:1.1",
+        "com.google.j2objc:j2objc-annotations:1.3",
+    ],
+)
+use_repo(j2cl_maven, "maven")
 
 # --- depgen-generated repository rules start ---
 

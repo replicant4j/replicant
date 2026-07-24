@@ -1,0 +1,19 @@
+load("@j2cl//build_defs:rules.bzl", "j2cl_application")
+load("@rules_closure//closure:defs.bzl", "closure_js_library")
+
+package(default_visibility = ["//visibility:public"])
+
+closure_js_library(
+    name = "entry_point",
+    srcs = ["entry_point.js"],
+    deps = [
+        "//client/src/main/java/replicant:client-j2cl",
+        "//shared/src/main/java/replicant/shared:shared-j2cl",
+    ],
+)
+
+j2cl_application(
+    name = "replicant_j2cl_smoke",
+    entry_points = ["replicant.j2cl.BuildTest"],
+    deps = [":entry_point"],
+)

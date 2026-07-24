@@ -1,3 +1,4 @@
+load("@j2cl//build_defs:rules.bzl", "j2cl_library")
 load("//third_party/java:rules.bzl", "java_library")
 
 SHARED_JAVA_SRCS = [
@@ -10,6 +11,14 @@ filegroup(
     name = "shared_j2cl_srcs",
     srcs = SHARED_JAVA_SRCS,
     visibility = ["//visibility:public"],
+)
+
+j2cl_library(
+    name = "shared-j2cl",
+    srcs = [":shared_j2cl_srcs"],
+    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
+    visibility = ["//visibility:public"],
+    deps = ["//third_party/java:jspecify-j2cl"],
 )
 
 java_library(

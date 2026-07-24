@@ -12,6 +12,7 @@
 * Replace the legacy IntelliJ project model with a managed Bazel project view.
 * Add Bazel-owned Maven Central artifacts and release tooling, including generated Arez sources in client
   publication jars while excluding `BUILD.bazel`.
+* Add a pinned optimized J2CL link for the full client/shared graph and generated Arez sources.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
