@@ -35,6 +35,8 @@ public final class ReplicantSession
   private static final Logger LOG = Logger.getLogger( ReplicantSession.class.getName() );
   @Nonnull
   private final Session _webSocketSession;
+  @Nullable
+  private final ReplicantSessionAuthorization _authorization;
   @Nonnull
   private final Map<ChannelAddress, String> _eTags = new HashMap<>();
   @Nonnull
@@ -51,10 +53,19 @@ public final class ReplicantSession
   private String _authToken;
   @Nullable
   private Object _userObject;
+  private boolean _authorizationClosed;
 
   public ReplicantSession( @Nonnull final Session webSocketSession )
   {
+    this( webSocketSession, null );
+  }
+
+  public ReplicantSession( @Nonnull final Session webSocketSession,
+                           @Nullable final ReplicantSessionAuthorization authorization )
+  {
     _webSocketSession = Objects.requireNonNull( webSocketSession );
+    _authorization = authorization;
+    _userObject = null == authorization ? null : authorization.getPrincipal();
   }
 
   @SuppressWarnings( "unused" )
@@ -77,6 +88,7 @@ public final class ReplicantSession
 
   public void close( @Nonnull final CloseReason closeReason )
   {
+    releaseAuthorization();
     if ( isOpen() )
     {
       LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() + " with " + closeReason );
@@ -100,6 +112,7 @@ public final class ReplicantSession
   @Override
   public void close()
   {
+    releaseAuthorization();
     if ( isOpen() )
     {
       LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() );
@@ -188,6 +201,34 @@ public final class ReplicantSession
   public ReentrantLock getLock()
   {
     return _lock;
+  }
+
+  public boolean runIfValid( @Nonnull final ReplicantSessionAuthorization.Action action )
+    throws IOException
+  {
+    if ( null == _authorization )
+    {
+      action.run();
+      return true;
+    }
+    return _authorization.runIfValid( action );
+  }
+
+  public void touchActivity()
+  {
+    if ( null != _authorization )
+    {
+      _authorization.touchActivity();
+    }
+  }
+
+  private synchronized void releaseAuthorization()
+  {
+    if ( !_authorizationClosed && null != _authorization )
+    {
+      _authorizationClosed = true;
+      _authorization.close();
+    }
   }
 
   void queuePacket( @Nonnull final Packet packet )

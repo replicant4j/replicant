@@ -16,6 +16,7 @@ java_server_library(
         "ReplicantMessageBroker.java",
         "ReplicantMessageBrokerImpl.java",
         "ReplicantSession.java",
+        "ReplicantSessionAuthorization.java",
         "ReplicantSessionContext.java",
         "ReplicantSessionManager.java",
         "ReplicantSessionManagerImpl.java",

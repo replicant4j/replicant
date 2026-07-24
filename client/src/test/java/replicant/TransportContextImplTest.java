@@ -94,6 +94,27 @@ public class TransportContextImplTest
   }
 
   @Test
+  public void onDisconnect_beforeSessionCreated()
+  {
+    final var connector = createConnector();
+    connector.pauseMessageScheduler();
+    pauseScheduler();
+
+    final var context = new TransportContextImpl( connector );
+
+    safeAction( () -> connector.setState( ConnectorState.CONNECTING ) );
+
+    final var handler = registerTestSpyEventHandler();
+
+    context.onDisconnect();
+
+    assertEquals( connector.getState(), ConnectorState.DISCONNECTED );
+
+    handler.assertEventCount( 1 );
+    handler.assertNextEvent( DisconnectedEvent.class );
+  }
+
+  @Test
   public void onDisconnect_onDisposed()
   {
     final var connector = createConnector();

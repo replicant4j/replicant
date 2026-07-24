@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 import replicant.server.ChannelAddress;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
+import replicant.server.transport.ReplicantSessionAuthorization;
 import replicant.server.transport.ReplicantSessionManager;
 import replicant.server.transport.SchemaMetaData;
 import replicant.shared.Messages;
@@ -27,17 +28,43 @@ public final class ReplicantEndpointTest
 {
   @Test
   public void onOpen_createsSessionAndSendsSessionCreated()
+    throws Exception
   {
     final var fixture = newFixture();
 
     fixture.endpoint.onOpen( fixture.session );
 
-    verify( fixture.sessionManager ).createSession( fixture.session );
+    verify( fixture.sessionManager ).createSession( fixture.session, fixture.authorization );
     verify( fixture.addedEvent ).fire( new ReplicantSessionAdded( fixture.sessionId ) );
 
     final var response = getLastSentMessage( fixture );
     assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.SESSION_CREATED );
     assertEquals( response.getString( Messages.S2C_Common.SESSION_ID ), fixture.sessionId );
+  }
+
+  @Test
+  public void onOpen_rejectsBeforeCreatingReplicantSession()
+    throws Exception
+  {
+    final var fixture = newFixture();
+    final var authenticator = (ReplicantHandshakeAuthenticator) getField( fixture.endpoint,
+                                                                          "_handshakeAuthenticator" );
+    when( authenticator.authenticate( fixture.session ) ).thenReturn( null );
+
+    fixture.endpoint.onOpen( fixture.session );
+
+    verify( fixture.session ).close( argThat( reason ->
+      CloseReason.CloseCodes.VIOLATED_POLICY == reason.getCloseCode() ) );
+    verify( fixture.sessionManager, never() ).createSession( any(), any() );
+    verifyNoInteractions( fixture.addedEvent );
+    try
+    {
+      verify( fixture.remote, never() ).sendText( anyString() );
+    }
+    catch ( final IOException e )
+    {
+      throw new AssertionError( e );
+    }
   }
 
   @Test
@@ -119,7 +146,7 @@ public final class ReplicantEndpointTest
     throws Exception
   {
     final var fixture = newFixture();
-    when( fixture.sessionManager.isAuthorized( fixture.replicantSession ) ).thenReturn( false );
+    fixture.authorization.valid = false;
 
     fixture.endpoint.command( fixture.session, createPingCommand( 1 ) );
 
@@ -134,7 +161,7 @@ public final class ReplicantEndpointTest
   }
 
   @Test
-  public void command_auth()
+  public void command_authIsRejected()
     throws Exception
   {
     final var fixture = newFixture();
@@ -146,12 +173,12 @@ public final class ReplicantEndpointTest
 
     fixture.endpoint.command( fixture.session, command.toString() );
 
-    assertEquals( fixture.replicantSession.getAuthToken(), "token" );
+    assertNull( fixture.replicantSession.getAuthToken() );
     verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
+    verify( fixture.session ).close( any( CloseReason.class ) );
 
     final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.OK );
-    assertEquals( response.getInt( Messages.Common.REQUEST_ID ), 12 );
+    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE );
   }
 
   @Test
@@ -568,6 +595,8 @@ public final class ReplicantEndpointTest
     final var updatedEvent = ReplicantEndpointTest.<ReplicantSessionUpdated>mockEvent();
     final var removedEvent = ReplicantEndpointTest.<ReplicantSessionRemoved>mockEvent();
     setField( endpoint, "_sessionManager", sessionManager );
+    final var handshakeAuthenticator = mock( ReplicantHandshakeAuthenticator.class );
+    setField( endpoint, "_handshakeAuthenticator", handshakeAuthenticator );
     setField( endpoint, "_replicantSessionAddedEventEvent", addedEvent );
     setField( endpoint, "_replicantSessionUpdatedEvent", updatedEvent );
     setField( endpoint, "_replicantSessionRemovedEvent", removedEvent );
@@ -578,11 +607,11 @@ public final class ReplicantEndpointTest
     when( session.getId() ).thenReturn( sessionId );
     when( session.isOpen() ).thenReturn( true );
     when( session.getBasicRemote() ).thenReturn( remote );
-
-    final var replicantSession = new ReplicantSession( session );
-    when( sessionManager.createSession( session ) ).thenReturn( replicantSession );
+    final var authorization = new TestAuthorization();
+    final var replicantSession = new ReplicantSession( session, authorization );
+    when( handshakeAuthenticator.authenticate( session ) ).thenReturn( authorization );
+    when( sessionManager.createSession( session, authorization ) ).thenReturn( replicantSession );
     when( sessionManager.getSession( sessionId ) ).thenReturn( replicantSession );
-    when( sessionManager.isAuthorized( replicantSession ) ).thenReturn( true );
     when( sessionManager.getSchemaMetaData() ).thenReturn( newSchemaMetaData() );
 
     return new EndpointFixture( endpoint,
@@ -593,7 +622,8 @@ public final class ReplicantEndpointTest
                                 session,
                                 remote,
                                 sessionId,
-                                replicantSession );
+                                replicantSession,
+                                authorization );
   }
 
   @Nonnull
@@ -651,13 +681,63 @@ public final class ReplicantEndpointTest
     }
   }
 
+  private Object getField( @Nonnull final Object target, @Nonnull final String name )
+  {
+    try
+    {
+      final var field = ReplicantEndpoint.class.getDeclaredField( name );
+      field.setAccessible( true );
+      return field.get( target );
+    }
+    catch ( final Exception e )
+    {
+      throw new AssertionError( e );
+    }
+  }
+
   private record EndpointFixture(@Nonnull ReplicantEndpoint endpoint, @Nonnull ReplicantSessionManager sessionManager,
                                  @Nonnull Event<ReplicantSessionAdded> addedEvent,
                                  @Nonnull Event<ReplicantSessionUpdated> updatedEvent,
                                  @Nonnull Event<ReplicantSessionRemoved> removedEvent, @Nonnull Session session,
                                  @Nonnull RemoteEndpoint.Basic remote, @Nonnull String sessionId,
-                                 @Nonnull ReplicantSession replicantSession)
+                                 @Nonnull ReplicantSession replicantSession,
+                                 @Nonnull TestAuthorization authorization)
   {
+  }
+
+  private static final class TestAuthorization
+    implements ReplicantSessionAuthorization
+  {
+    private boolean valid = true;
+
+    @Override
+    public boolean runIfValid( @Nonnull final Action action )
+      throws IOException
+    {
+      if ( valid )
+      {
+        action.run();
+        return true;
+      }
+      return false;
+    }
+
+    @Nonnull
+    @Override
+    public Object getPrincipal()
+    {
+      return this;
+    }
+
+    @Override
+    public void touchActivity()
+    {
+    }
+
+    @Override
+    public void close()
+    {
+    }
   }
 
   @SuppressWarnings( "unchecked" )

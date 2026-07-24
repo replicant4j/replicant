@@ -42,6 +42,8 @@ public class ReplicantEndpoint
   @Inject
   private ReplicantSessionManager _sessionManager;
   @Inject
+  private ReplicantHandshakeAuthenticator _handshakeAuthenticator;
+  @Inject
   private Event<ReplicantSessionAdded> _replicantSessionAddedEventEvent;
   @Inject
   private Event<ReplicantSessionUpdated> _replicantSessionUpdatedEvent;
@@ -50,8 +52,24 @@ public class ReplicantEndpoint
 
   @OnOpen
   public void onOpen( @Nonnull final Session session )
+    throws IOException
   {
-    final var newReplicantSession = _sessionManager.createSession( session );
+    final var authorization = _handshakeAuthenticator.authenticate( session );
+    if ( null == authorization )
+    {
+      session.close( new CloseReason( CloseReason.CloseCodes.VIOLATED_POLICY, "Authentication required" ) );
+      return;
+    }
+    final ReplicantSession newReplicantSession;
+    try
+    {
+      newReplicantSession = _sessionManager.createSession( session, authorization );
+    }
+    catch ( final RuntimeException e )
+    {
+      authorization.close();
+      throw e;
+    }
     if ( LOG.isLoggable( Level.FINE ) )
     {
       LOG.log( Level.FINE,
@@ -96,14 +114,24 @@ public class ReplicantEndpoint
     }
     catch ( final Throwable ignored )
     {
-      onMalformedMessage( replicantSession, message );
+      if ( !runIfValid( replicantSession, () -> onMalformedMessage( replicantSession, message ) ) )
+      {
+        sendErrorAndClose( session, "Replicant session not authorized" );
+      }
       return;
     }
-    if ( !Messages.C2S_Type.AUTH.equals( type ) && !_sessionManager.isAuthorized( replicantSession ) )
+    if ( !runIfValid( replicantSession, () -> processCommand( replicantSession, command, type, requestId ) ) )
     {
       sendErrorAndClose( session, "Replicant session not authorized" );
-      return;
     }
+  }
+
+  private void processCommand( @Nonnull final ReplicantSession replicantSession,
+                               @Nonnull final JsonObject command,
+                               @Nonnull final String type,
+                               final int requestId )
+    throws IOException
+  {
     try
     {
       //noinspection IfCanBeSwitch
@@ -129,7 +157,7 @@ public class ReplicantEndpoint
       }
       else if ( Messages.C2S_Type.PING.equals( type ) )
       {
-        sendOk( session, requestId );
+        sendOk( replicantSession.getWebSocketSession(), requestId );
       }
       else if ( Messages.C2S_Type.SUB.equals( type ) )
       {
@@ -175,10 +203,6 @@ public class ReplicantEndpoint
           replicantSession.closeDueToInterrupt();
         }
       }
-      else if ( Messages.C2S_Type.AUTH.equals( type ) )
-      {
-        onAuthorize( replicantSession, command );
-      }
       else
       {
         onUnknownType( replicantSession, command );
@@ -194,6 +218,23 @@ public class ReplicantEndpoint
   private void sendOk( @Nonnull final Session session, final int requestId )
   {
     WebSocketUtil.sendText( session, JsonEncoder.encodeOkMessage( requestId ) );
+  }
+
+  private static boolean runIfValid( final ReplicantSession session,
+                                     final replicant.server.transport.ReplicantSessionAuthorization.Action action )
+    throws IOException
+  {
+    // Match outbound lock ordering: Replicant connection first, then the application authentication-session gate.
+    final var lock = session.getLock();
+    lock.lock();
+    try
+    {
+      return session.runIfValid( action );
+    }
+    finally
+    {
+      lock.unlock();
+    }
   }
 
   private void onETags( @Nonnull final ReplicantSession session, @Nonnull final JsonObject command )
@@ -219,12 +260,6 @@ public class ReplicantEndpoint
   private void onUnknownType( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
   {
     closeWithError( replicantSession, "Unknown request type", JsonEncoder.encodeUnknownRequestType( command ) );
-  }
-
-  private void onAuthorize( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
-  {
-    replicantSession.setAuthToken( command.getString( Messages.Auth.TOKEN ) );
-    sendOk( replicantSession.getWebSocketSession(), command.getInt( Messages.Common.REQUEST_ID ) );
   }
 
   private void onSubscribe( @Nonnull final ReplicantSession replicantSession, @Nonnull final JsonObject command )
@@ -517,4 +552,5 @@ public class ReplicantEndpoint
     _replicantSessionRemovedEvent.fire( new ReplicantSessionRemoved( replicantSession.getId() ) );
     _sessionManager.invalidateSession( replicantSession );
   }
+
 }

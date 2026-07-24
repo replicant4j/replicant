@@ -1,6 +1,5 @@
 package replicant;
 
-import arez.Disposable;
 import arez.ObservableValue;
 import arez.annotations.Action;
 import arez.annotations.ArezComponent;
@@ -301,15 +300,11 @@ abstract class ReplicantRuntime
 
   abstract void setRetryGeneration( int value );
 
-  private void incrementRetryGeneration()
+  /// Called from timer that will trigger a change so that reflectActiveState() is reactivated
+  @Action( skipIfDisposed = Feature.ENABLE )
+  void incrementRetryGeneration()
   {
-    /*
-     * Called from timer that will trigger a change so that reflectActiveState() is reactivated
-     */
-    if ( Disposable.isNotDisposed( this ) )
-    {
-      setRetryGeneration( retryGeneration() + 1 );
-    }
+    setRetryGeneration( retryGeneration() + 1 );
   }
 
   @Observe( mutation = true )

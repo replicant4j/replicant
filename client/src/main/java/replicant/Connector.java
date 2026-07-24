@@ -218,7 +218,14 @@ abstract class Connector
 
   void onDisconnection()
   {
-    doSetConnection( null );
+    if ( null == _connection )
+    {
+      onDisconnected();
+    }
+    else
+    {
+      doSetConnection( null );
+    }
   }
 
   private void doSetConnection( @Nullable final Connection connection )
@@ -248,7 +255,6 @@ abstract class Connector
     {
       if ( null != _connection )
       {
-        sendAuthTokenIfAny();
         sendEtagsIfAny();
         onConnected();
       }
@@ -258,15 +264,6 @@ abstract class Connector
       }
     }
     schedulerLock.dispose();
-  }
-
-  private void sendAuthTokenIfAny()
-  {
-    final String authToken = getReplicantContext().getAuthToken();
-    if ( null != authToken )
-    {
-      _transport.updateAuthToken( authToken );
-    }
   }
 
   private void sendEtagsIfAny()

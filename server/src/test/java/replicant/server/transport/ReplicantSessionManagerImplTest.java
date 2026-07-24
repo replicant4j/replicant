@@ -44,6 +44,21 @@ public class ReplicantSessionManagerImplTest
   }
 
   @Test
+  public void sendChangeMessage_invalidAuthorizationDoesNotProcessPacket()
+    throws Exception
+  {
+    final var authorization = mock( ReplicantSessionAuthorization.class );
+    when( authorization.runIfValid( any() ) ).thenReturn( false );
+    final var session = new ReplicantSession( mock( Session.class ), authorization );
+    final var manager = new ReplicantSessionManagerImpl();
+    final var packet = new Packet( false, null, null, null, List.of(), new ChangeSet() );
+
+    assertFalse( manager.sendChangeMessage( session, packet ) );
+
+    verify( authorization ).runIfValid( any() );
+  }
+
+  @Test
   public void sendChangeMessage_staticInstancedLinkFollow_usesTargetInstanceId()
   {
     final var sourceChannel =
@@ -773,7 +788,7 @@ public class ReplicantSessionManagerImplTest
     when( webSocketSession.getId() ).thenReturn( "session-1" );
     when( webSocketSession.isOpen() ).thenReturn( true );
 
-    final var session = manager.createSession( webSocketSession );
+    final var session = manager.createSession( webSocketSession, mock( ReplicantSessionAuthorization.class ) );
     assertNotNull( manager.getSession( "session-1" ) );
 
     manager.invalidateSession( session );

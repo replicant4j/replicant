@@ -42,7 +42,10 @@ java_testng(
     name = "ReplicantEndpointTest",
     srcs = ["ReplicantEndpointTest.java"],
     test_class = "replicant.server.ee.ReplicantEndpointTest",
-    deps = ["//server:server_test_support"],
+    deps = [
+        "//server:server_test_support",
+        "//server/src/main/java/replicant/server/ee:handshake_auth_lib",
+    ],
 )
 
 java_testng(

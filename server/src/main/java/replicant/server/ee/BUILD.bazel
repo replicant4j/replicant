@@ -20,6 +20,7 @@ java_server_library(
         "//server/src/test/java/replicant/server:__subpackages__",
     ],
     deps = [
+        ":handshake_auth_lib",
         "//server/src/main/java/replicant/server:server_core_lib",
         "//server/src/main/java/replicant/server/json:json_lib",
         "//server/src/main/java/replicant/server/runtime:runtime_lib",
@@ -36,5 +37,19 @@ java_server_library(
         "//third_party/java:javax_json",
         "//third_party/java:org_jetbrains_annotations",
         "//third_party/java:persistence_api",
+    ],
+)
+
+java_server_library(
+    name = "handshake_auth_lib",
+    srcs = ["ReplicantHandshakeAuthenticator.java"],
+    visibility = [
+        "//server:__pkg__",
+        "//server/src/test/java/replicant/server/ee:__pkg__",
+    ],
+    deps = [
+        "//server/src/main/java/replicant/server/transport:transport_lib",
+        "//third_party/java:jakarta_websocket_api",
+        "//third_party/java:javax_annotation",
     ],
 )

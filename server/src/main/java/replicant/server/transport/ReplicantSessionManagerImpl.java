@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
@@ -335,9 +336,10 @@ public class ReplicantSessionManagerImpl
 
   @Override
   @Nonnull
-  public ReplicantSession createSession( @Nonnull final Session webSocketSession )
+  public ReplicantSession createSession( @Nonnull final Session webSocketSession,
+                                          @Nonnull final ReplicantSessionAuthorization authorization )
   {
-    final var session = new ReplicantSession( webSocketSession );
+    final var session = new ReplicantSession( webSocketSession, authorization );
     var sessionCount = 0;
     _lock.writeLock().lock();
     try
@@ -534,6 +536,20 @@ public class ReplicantSessionManagerImpl
 
   @Override
   public boolean sendChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
+  {
+    final var sent = new AtomicBoolean();
+    try
+    {
+      return session.runIfValid( () -> sent.set( sendAuthorizedChangeMessage( session, packet ) ) ) && sent.get();
+    }
+    catch ( final java.io.IOException e )
+    {
+      session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Authorization gate failed" ) );
+      return false;
+    }
+  }
+
+  private boolean sendAuthorizedChangeMessage( @Nonnull final ReplicantSession session, @Nonnull final Packet packet )
   {
     final var incomingEntityCount = packet.messages().size() + packet.changeSet().getChanges().size();
     final var incomingChannelLinks =

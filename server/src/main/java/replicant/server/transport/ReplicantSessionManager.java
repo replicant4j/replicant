@@ -48,7 +48,8 @@ public interface ReplicantSessionManager
    * @return the new session.
    */
   @Nonnull
-  ReplicantSession createSession( @Nonnull Session webSocketSession );
+  ReplicantSession createSession( @Nonnull Session webSocketSession,
+                                   @Nonnull ReplicantSessionAuthorization authorization );
 
   /**
    * @return the metadata for replicant system.
