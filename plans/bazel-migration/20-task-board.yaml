@@ -1,0 +1,369 @@
+meta:
+  project: replicant-bazel-cutover
+  last_updated: "2026-07-24"
+  plan_status: accepted
+  approval:
+    source: user
+    date: "2026-07-24"
+    note: Shared understanding confirmed; user directed remaining review to be considered complete and implementation to proceed.
+  requirements: 00-requirements.md
+  implementation_design: 10-implementation-plan.md
+  temporary_output_contract: 30-output-contract.md
+  required_full_gates:
+    - tools/check.sh
+    - ./bazelw build //...
+    - ./bazelw test //...
+    - ./bazelw run //:buildifier_check
+  statuses:
+    - pending
+    - in_progress
+    - completed
+    - cancelled
+
+current_focus: T02
+
+tasks:
+  - id: T01
+    title: Capture Buildr baseline and align Bazel toolchain
+    status: completed
+    priority: high
+    depends_on: []
+    requirements: [R1, R7, R11, R17]
+    acceptance_criteria:
+      - Fresh Buildr artifacts are captured from immutable baseline d019d5e5f2c8cff0e625b1171514dcee71bb7b2e in an isolated worktree
+      - Normalized parity fixtures and capture tool versions are recorded without binary artifacts
+      - Bazel 9.2.0 uses remote tool JDK 25 while emitted library bytecode remains Java 17
+      - Pre-existing standard Buildr package failures are recorded and the working JVM artifact path produces all eight primary Maven artifacts
+      - Existing Bazel build and tests pass
+    files_touched:
+      - .bazelrc
+      - .bazelversion
+      - MODULE.bazel
+      - MODULE.bazel.lock
+      - plans/bazel-migration/**
+    validation:
+      - command: bundle exec buildr clean package PRODUCT_VERSION=6.999 GWT=skip TEST=no
+        proves: fresh immutable Buildr publication baseline
+      - command: ./bazelw build //client:client //server:server
+        proves: public Java 17 jars build under aligned toolchain
+      - command: ./bazelw test //...
+        proves: existing Bazel tests remain green
+    evidence:
+      - Detached worktree at d019d5e5f2c8cff0e625b1171514dcee71bb7b2e produced all eight primary artifacts with GWT=skip TEST=no
+      - Standard Buildr package failures recorded in baseline/README.md
+      - Bazel 9.2.0 lockfile regenerated with remote tool JDK 25 configured
+      - ./bazelw build //client:client //server:server passed
+      - ./bazelw test //... passed with 96 of 96 tests
+      - ./bazelw run //:buildifier_check passed
+      - javap reported class-file major version 61 for client and server outputs
+
+  - id: T02
+    title: Fix strict Error Prone findings
+    status: in_progress
+    priority: high
+    depends_on: [T01]
+    requirements: [R2]
+    acceptance_criteria:
+      - Existing maintained Java satisfies the imported strict policy
+      - Server/server-test code uses accepted var inference and client/shared code remains explicit
+      - Policy-enabling changes are not included in this source-only commit
+    files_touched:
+      - client/**/*.java
+      - shared/**/*.java
+      - server/**/*.java
+    validation:
+      - command: focused strict Error Prone analysis
+        proves: no source finding remains before enforcement
+      - command: ./bazelw test //...
+        proves: source fixes preserve behavior
+    evidence: []
+
+  - id: T03
+    title: Enable strict Error Prone
+    status: pending
+    priority: high
+    depends_on: [T02]
+    requirements: [R2]
+    acceptance_criteria:
+      - BrainCheck strict checks are errors
+      - Varifier is enabled for server/server tests and JVM tooling only
+      - Client/shared production and tests contain no local var declarations
+    files_touched:
+      - third_party/java/rules.bzl
+      - "**/BUILD.bazel"
+      - tools/**
+      - AGENTS.md
+      - CHANGELOG.md
+    validation:
+      - command: ./bazelw build //...
+        proves: production targets satisfy enforced policy
+      - command: ./bazelw test //...
+        proves: test targets satisfy enforced policy
+    evidence: []
+
+  - id: T04
+    title: Migrate to JSpecify and enforce NullAway
+    status: pending
+    priority: high
+    depends_on: [T03]
+    requirements: [R3, R7]
+    acceptance_criteria:
+      - Nullness annotations use JSpecify without a compatibility period
+      - Every maintained Java package is explicitly NullMarked
+      - NullAway and explicit null marking pass
+      - Buildr JVM artifact generation remains functional with temporary JSpecify metadata
+      - Published POM intent replaces nullness javax.annotation while retaining server Java EE annotations
+    files_touched:
+      - client/**/*.java
+      - shared/**/*.java
+      - server/**/*.java
+      - third_party/java/**
+      - build.yaml
+      - buildfile
+      - tools/**
+      - AGENTS.md
+      - CHANGELOG.md
+    validation:
+      - command: repository-wide NullMarked coverage check
+        proves: OnlyNullMarked cannot silently skip maintained packages
+      - command: bundle exec buildr clean package PRODUCT_VERSION=6.999 GWT=skip TEST=no
+        proves: legacy JVM publication fallback remains functional
+      - command: ./bazelw test //...
+        proves: NullAway and behavior checks pass
+    evidence: []
+
+  - id: T05
+    title: Apply Palantir Java formatting
+    status: pending
+    priority: medium
+    depends_on: [T04]
+    requirements: [R4]
+    acceptance_criteria:
+      - All tracked maintained Java matches the pinned BrainCheck formatter
+      - Commit is formatter-only
+    files_touched:
+      - client/**/*.java
+      - shared/**/*.java
+      - server/**/*.java
+    validation:
+      - command: pinned Palantir formatter dry run
+        proves: no formatting difference remains
+      - command: ./bazelw test //...
+        proves: formatting did not alter behavior
+    evidence: []
+
+  - id: T06
+    title: Add permanent Java formatter enforcement
+    status: pending
+    priority: medium
+    depends_on: [T05]
+    requirements: [R4, R11]
+    acceptance_criteria:
+      - Formatter dependencies are isolated under tools/java-format
+      - tools/java_format.sh supports write and non-mutating check modes
+      - Repository gate invokes formatter check
+    files_touched:
+      - MODULE.bazel
+      - MODULE.bazel.lock
+      - tools/java-format/**
+      - tools/java_format.sh
+      - tools/check.sh
+      - CHANGELOG.md
+    validation:
+      - command: tools/java_format.sh check
+        proves: formatter enforcement passes
+      - command: tools/check.sh
+        proves: formatter is part of repository gate
+    evidence: []
+
+  - id: T07
+    title: Replace legacy IntelliJ metadata with Bazel BSP
+    status: pending
+    priority: medium
+    depends_on: [T06]
+    requirements: [R5]
+    acceptance_criteria:
+      - Bazel BSP and managed project view cover all maintained source/tool roots
+      - Tracked ipr/iml/iws files and obsolete rules are absent
+    files_touched:
+      - .bazelbsp/**
+      - tools/intellij/**
+      - "**/*.ipr"
+      - "**/*.iml"
+      - "**/*.iws"
+      - .gitignore
+      - AGENTS.md
+    validation:
+      - command: tracked legacy IDEA metadata scan
+        proves: no legacy project files remain
+      - command: tools/check.sh
+        proves: BSP addition does not break repository gate
+    evidence: []
+
+  - id: T08
+    title: Add generated-source plumbing and Maven Central release tooling
+    status: pending
+    priority: high
+    depends_on: [T07]
+    requirements: [R6, R7, R8, R15, R16, R17]
+    acceptance_criteria:
+      - Bazel-generated Arez sources feed release inputs and remain untracked
+      - Client/server main, sources, Javadoc, and POM artifacts build
+      - Release CLI and credential validation match accepted contract
+      - Generic release-tool unit tests pass for default and explicit versions
+      - Temporary parity proves archive/POM/manifest/bundle/signature/digest contract
+      - BUILD.bazel is absent from all published jars
+    files_touched:
+      - .bazelrc
+      - client/**/BUILD.bazel
+      - shared/**/BUILD.bazel
+      - server/**/BUILD.bazel
+      - tools/release/**
+      - tools/package_maven_central.sh
+      - plans/bazel-migration/**
+      - README.md
+      - CONTRIBUTING.md
+      - AGENTS.md
+      - CHANGELOG.md
+    validation:
+      - command: ./bazelw build //tools/release:maven_artifacts --release_version=6.999
+        proves: eight primary artifacts build
+      - command: ./bazelw test //tools/release:all_tests
+        proves: default release-tool behavior
+      - command: ./bazelw test //tools/release:all_tests --release_version=6.999
+        proves: explicit release-tool behavior
+      - command: temporary Buildr-to-Bazel parity suite with ephemeral GPG key
+        proves: accepted migration output contract
+    evidence: []
+
+  - id: T09
+    title: Add full-client J2CL optimized link
+    status: pending
+    priority: high
+    depends_on: [T08]
+    requirements: [R6, R9]
+    acceptance_criteria:
+      - Latest observed J2CL master is pinned by immutable commit and archive digest with observation date
+      - Full client/shared graph and generated Arez sources compile and optimized-link
+      - No moving J2CL reference remains
+    files_touched:
+      - MODULE.bazel
+      - MODULE.bazel.lock
+      - third_party/bazel/**
+      - third_party/java/**
+      - client/**/BUILD.bazel
+      - shared/**/BUILD.bazel
+      - client/src/test/j2cl/**
+      - tools/check.sh
+      - CHANGELOG.md
+    validation:
+      - command: ./bazelw build //client/src/test/j2cl:replicant_j2cl_smoke
+        proves: optimized full-client JavaScript link
+      - command: tools/check.sh
+        proves: J2CL link remains in repository gate
+    evidence: []
+
+  - id: T10
+    title: Add four GWT compiler smoke builds
+    status: pending
+    priority: high
+    depends_on: [T09]
+    requirements: [R6, R10]
+    acceptance_criteria:
+      - BrainCheck/Rose GWT aspect is imported without behavioral changes
+      - Replicant, ReplicantDev, ReplicantDebug, and React4j compile with real GWT
+      - Generated Arez sources are consumed through JavaInfo
+    files_touched:
+      - tools/gwt/**
+      - client/src/test/gwt/**
+      - client/src/test/java/replicant/gwt/**
+      - third_party/java/**
+      - MODULE.bazel
+      - MODULE.bazel.lock
+      - tools/check.sh
+      - CHANGELOG.md
+    validation:
+      - command: ./bazelw build //client/src/test/gwt:all_gwt_assets
+        proves: all four GWT compiler outputs
+      - command: tools/check.sh
+        proves: compiler smoke builds remain gated
+    evidence: []
+
+  - id: T11
+    title: Align CI and complete repository gate
+    status: pending
+    priority: high
+    depends_on: [T10]
+    requirements: [R11, R12]
+    acceptance_criteria:
+      - tools/check.sh performs every accepted local gate and rejects generated drift
+      - TestNG sizing, NullMarked coverage, and client/shared var policies are checked
+      - GitHub Actions invokes tools/check.sh on Ubuntu 24.04
+      - Ubuntu 24.04 container execution passes before Buildr removal
+    files_touched:
+      - .github/workflows/ci.yml
+      - tools/check.sh
+      - tools/**
+      - AGENTS.md
+      - README.md
+      - CHANGELOG.md
+    validation:
+      - command: tools/check.sh
+        proves: complete local repository gate
+      - command: Ubuntu 24.04 workflow-equivalent tools/check.sh run
+        proves: pre-removal Linux CI compatibility
+    evidence: []
+
+  - id: T12
+    title: Remove Buildr Ruby and temporary parity infrastructure
+    status: pending
+    priority: high
+    depends_on: [T11]
+    requirements: [R1, R13, R14]
+    acceptance_criteria:
+      - Buildr, Ruby, Rake, and temporary parity files/references are absent
+      - Final docs describe only Bazel workflows
+      - Full gate passes after removal
+    files_touched:
+      - Gemfile
+      - .ruby-version
+      - build.yaml
+      - buildfile
+      - tasks/**
+      - .gitattributes
+      - .gitignore
+      - plans/bazel-migration/**
+      - README.md
+      - CONTRIBUTING.md
+      - AGENTS.md
+      - CHANGELOG.md
+    validation:
+      - command: Buildr Ruby Rake reference scan
+        proves: legacy infrastructure is absent
+      - command: tools/check.sh
+        proves: Bazel-only repository passes
+    evidence: []
+
+  - id: T13
+    title: Review implementation and clean completed plan
+    status: pending
+    priority: high
+    depends_on: [T12]
+    requirements: [R14]
+    acceptance_criteria:
+      - Implementation alignment review has no actionable findings
+      - Final full gates pass from a clean worktree
+      - Plan tree is removed in a deletion-only commit
+    files_touched:
+      - plans/bazel-migration/**
+    validation:
+      - command: tools/check.sh
+        proves: final accepted implementation
+      - command: git status --short
+        proves: clean worktree after cleanup commit
+    evidence: []
+
+history:
+  - timestamp: "2026-07-24"
+    task: planning
+    note: Requirements review passed after user-directed completion; implementation design and task board accepted for execution.

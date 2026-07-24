@@ -1,11 +1,11 @@
 # Reject stale Bzlmod lockfiles during normal commands; tools/update_java_deps.sh updates them explicitly.
 common --lockfile_mode=error
 
-build --java_language_version=17
-build --tool_java_language_version=17
+common --tool_java_language_version=25
+common --tool_java_runtime_version=remotejdk_25
 
+build --java_language_version=17
 test --java_language_version=17
-test --tool_java_language_version=17
 
 build --spawn_strategy=local
 build --strategy=Javac=worker
