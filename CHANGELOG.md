@@ -15,6 +15,7 @@
 * Add a pinned optimized J2CL link for the full client/shared graph and generated Arez sources.
 * Add real GWT 2.13.1 compiler gates for Replicant, ReplicantDev, ReplicantDebug, and React4j.
 * Consolidate local and Ubuntu 24.04 CI validation in a hardened `tools/check.sh` repository gate.
+* Complete the Bazel cutover by removing Buildr, Ruby, Rake, and the temporary publication parity infrastructure.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

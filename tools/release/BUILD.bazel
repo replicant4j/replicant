@@ -211,11 +211,6 @@ filegroup(
 )
 
 test_suite(
-    name = "release_artifacts_integration_test",
-    tests = ["//tools/release/org/realityforge/replicant/release:release_artifacts_integration_test"],
-)
-
-test_suite(
     name = "dist_builder_test",
     tests = ["//tools/release/org/realityforge/replicant/release:dist_builder_test"],
 )
@@ -229,7 +224,6 @@ test_suite(
     name = "all_tests",
     tests = [
         ":dist_builder_test",
-        ":release_artifacts_integration_test",
         ":release_lifecycle_tool_test",
         "//tools/release/org/realityforge/replicant/release:jar_builder_test",
     ],

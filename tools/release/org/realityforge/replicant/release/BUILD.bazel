@@ -26,24 +26,6 @@ MAVEN_ARTIFACT_DATA = [
     "//tools/release:replicant_server_sources_jar",
 ]
 
-PARITY_FIXTURE_ARGS = [
-    "$(rootpath //plans/bazel-migration/baseline:replicant-client-main.entries)",
-    "$(rootpath //plans/bazel-migration/baseline:replicant-client-sources.entries)",
-    "$(rootpath //plans/bazel-migration/baseline:replicant-client.pom)",
-    "$(rootpath //plans/bazel-migration/baseline:replicant-server-main.entries)",
-    "$(rootpath //plans/bazel-migration/baseline:replicant-server-sources.entries)",
-    "$(rootpath //plans/bazel-migration/baseline:replicant-server.pom)",
-]
-
-PARITY_FIXTURE_DATA = [
-    "//plans/bazel-migration/baseline:replicant-client-main.entries",
-    "//plans/bazel-migration/baseline:replicant-client-sources.entries",
-    "//plans/bazel-migration/baseline:replicant-client.pom",
-    "//plans/bazel-migration/baseline:replicant-server-main.entries",
-    "//plans/bazel-migration/baseline:replicant-server-sources.entries",
-    "//plans/bazel-migration/baseline:replicant-server.pom",
-]
-
 DIST_ARTIFACT_ARGS = [
     "$(rootpath :test-version.txt)",
 ] + MAVEN_ARTIFACT_ARGS[1:]
@@ -103,19 +85,6 @@ java_binary(
         "package-info.java",
     ],
     main_class = "org.realityforge.replicant.release.ReleaseLifecycleTool",
-)
-
-java_test(
-    name = "release_artifacts_integration_test",
-    size = "small",
-    srcs = [
-        "ReleaseArtifactsIntegrationTest.java",
-        "package-info.java",
-    ],
-    args = MAVEN_ARTIFACT_ARGS + PARITY_FIXTURE_ARGS,
-    data = MAVEN_ARTIFACT_DATA + PARITY_FIXTURE_DATA,
-    main_class = "org.realityforge.replicant.release.ReleaseArtifactsIntegrationTest",
-    use_testrunner = False,
 )
 
 java_test(

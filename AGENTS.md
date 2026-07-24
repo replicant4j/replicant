@@ -35,17 +35,13 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `server/` contains the CDI/WebSocket server transport and replication logic.
   - `shared/` contains constants and types shared by client and server.
 - Build configuration:
-  - `buildfile` defines the Buildr build.
-  - `build.yaml` defines artifact coordinates and dependency versions.
-  - `MODULE.bazel`, `.bazelrc`, `.bazelversion`, and `BUILD.bazel` define the parallel Bazel build.
+  - `MODULE.bazel`, `.bazelrc`, `.bazelversion`, and `BUILD.bazel` define the Bazel build.
   - `bazelw` runs Bazel 9.2.0 via Bazelisk.
   - `.github/workflows/ci.yml` defines the GitHub Actions CI workflow.
   - `third_party/java/dependencies.yml` is the depgen source for Bazel Java dependencies.
   - `tools/java-format/dependencies.yml` isolates the pinned Palantir Java formatter dependency graph.
   - `tools/intellij/.managed.bazelproject` is the shared IntelliJ Bazel project view.
   - `tools/release/` and `tools/package_maven_central.sh` define the Bazel release and Maven Central workflow.
-  - `tasks/*.rake` contains the remaining legacy GWT, packaging, and diagnostic helper tasks.
-  - `Gemfile` configures the Ruby/Buildr toolchain.
 - Source layout:
   - Production code lives under `*/src/main/java/...`.
   - Tests live under `*/src/test/java/...`.
@@ -146,11 +142,11 @@ Implementation hotspots:
 
 ## Build and Test
 
-Prerequisites: JDK 17+ for Bazel. The remaining legacy Buildr/GWT workflow also requires Ruby 2.7.x and Bundler.
+Prerequisites: JDK 17+.
 
 CI workflow:
 
-- GitHub Actions runs Bazel, not Buildr.
+- GitHub Actions runs the Bazel repository gate.
 - CI runs `tools/check.sh` on Ubuntu 24.04 with Temurin JDK 17, then rejects any remaining tracked diff.
 
 - Bazel is pinned to 9.2.0 via `.bazelversion`; run it with `./bazelw`.
@@ -169,13 +165,6 @@ CI workflow:
   `.ipr`, `.iml`, or `.iws` project metadata.
 - `tools/check.sh` rejects generated dependency drift, client/shared local `var`, and non-small concrete TestNG
   targets before running every build, browser compiler, default test, and explicit release-tool gate.
-
-Buildr workflow:
-
-- Bootstrap once: `bundle install`.
-- Build all modules locally when specifically validating the remaining legacy GWT workflow:
-  `bundle exec buildr clean package`.
-- Run the Buildr test path when specifically validating Buildr behavior: `bundle exec buildr test`.
 
 Additional build notes:
 

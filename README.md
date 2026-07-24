@@ -39,11 +39,6 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 For IntelliJ IDEA, import `tools/intellij/.managed.bazelproject` with the Bazel plugin. Legacy `.ipr`, `.iml`,
 and `.iws` project metadata is not part of the project model.
 
-The legacy Buildr workflow remains temporarily available during the final cutover:
-
-* Build all modules: `bundle exec buildr clean package`
-* Run all tests: `bundle exec buildr test`
-
 The public Bazel output libraries are `//client:client` and `//server:server`. Both output jars merge the
 internal shared classes from `//shared:shared_lib` and keep third-party jars separate from the merged outputs.
 

@@ -1,4 +1,4 @@
-# DO NOT EDIT: Generated from build.yaml plus Bazel-only tool/runtime dependencies.
+# Bazel Java dependency source for bazel-depgen.
 
 repositories:
   - name: central

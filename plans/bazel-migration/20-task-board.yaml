@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T12
+current_focus: T13
 
 tasks:
   - id: T01
@@ -362,7 +362,7 @@ tasks:
 
   - id: T12
     title: Remove Buildr Ruby and temporary parity infrastructure
-    status: pending
+    status: completed
     priority: high
     depends_on: [T11]
     requirements: [R1, R13, R14]
@@ -388,7 +388,13 @@ tasks:
         proves: legacy infrastructure is absent
       - command: tools/check.sh
         proves: Bazel-only repository passes
-    evidence: []
+    evidence:
+      - Removed all tracked Buildr, Ruby, Rake, baseline-capture, and temporary publication-parity files and targets
+      - Removed obsolete Buildr file attributes and ignore rules; moved the local Gemfile.lock and target output to a recoverable temporary directory
+      - Negative scans outside the temporary plan history found no Buildr, Ruby, Rake, or legacy build-file references
+      - The focused release suite passed all three generic unit tests at version 6.999 and built all eight Maven artifacts
+      - The client source jar contains generated Arez Java and all six publication jars contain zero BUILD.bazel entries
+      - tools/check.sh passed all 299 builds, the optimized J2CL link, all four GWT compiler outputs, all 100 default tests, and all three explicit release-tool tests
 
   - id: T13
     title: Review implementation and clean completed plan
@@ -453,3 +459,7 @@ history:
     task: T10
     commit: 63c1241a
     note: Added real GWT 2.13.1 compiler smokes for Replicant, ReplicantDev, ReplicantDebug, and React4j.
+  - timestamp: "2026-07-24"
+    task: T11
+    commit: e4cc5b22
+    note: Unified local and Ubuntu 24.04 CI validation in the hardened Bazel repository gate.
