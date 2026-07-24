@@ -1,12 +1,12 @@
 package replicant.server.ee;
 
-import org.jspecify.annotations.NonNull;
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.jspecify.annotations.NonNull;
 import replicant.server.ServerConstants;
 import replicant.server.runtime.ReplicantContextHolder;
 import replicant.server.transport.ReplicantSessionManager;
@@ -16,38 +16,32 @@ import replicant.server.transport.ReplicantSessionManager;
  * on completion.
  */
 @Interceptor
-@Priority( Interceptor.Priority.LIBRARY_BEFORE + 100 )
+@Priority(Interceptor.Priority.LIBRARY_BEFORE + 100)
 @Replicate
-public class ReplicationInterceptor
-{
-  @VisibleForTesting
-  @Inject
-  ReplicantSessionManager _sessionManager;
+public class ReplicationInterceptor {
+    @VisibleForTesting
+    @Inject
+    ReplicantSessionManager _sessionManager;
 
-  @AroundInvoke
-  public Object businessIntercept( final InvocationContext context )
-    throws Exception
-  {
-    final var sessionId = (String) ReplicantContextHolder.get( ServerConstants.SESSION_ID_KEY );
-    final var requestId = (Integer) ReplicantContextHolder.get( ServerConstants.REQUEST_ID_KEY );
-    final var session = null != sessionId ? _sessionManager.getSession( sessionId ) : null;
-    ReplicantContextHolder.clean();
-    return _sessionManager.runRequest( getInvocationKey( context ), session, requestId, context::proceed );
-  }
+    @AroundInvoke
+    public Object businessIntercept(final InvocationContext context) throws Exception {
+        final var sessionId = (String) ReplicantContextHolder.get(ServerConstants.SESSION_ID_KEY);
+        final var requestId = (Integer) ReplicantContextHolder.get(ServerConstants.REQUEST_ID_KEY);
+        final var session = null != sessionId ? _sessionManager.getSession(sessionId) : null;
+        ReplicantContextHolder.clean();
+        return _sessionManager.runRequest(getInvocationKey(context), session, requestId, context::proceed);
+    }
 
-  @NonNull
-  private String getInvocationKey( @NonNull final InvocationContext context )
-  {
-    final var method = context.getMethod();
-    if ( null != method )
-    {
-      return method.getDeclaringClass().getName() + "." + method.getName();
+    @NonNull
+    private String getInvocationKey(@NonNull final InvocationContext context) {
+        final var method = context.getMethod();
+        if (null != method) {
+            return method.getDeclaringClass().getName() + "." + method.getName();
+        }
+        final var constructor = context.getConstructor();
+        if (null != constructor) {
+            return constructor.getDeclaringClass().getName() + "." + constructor.getName();
+        }
+        return "Unknown";
     }
-    final var constructor = context.getConstructor();
-    if ( null != constructor )
-    {
-      return constructor.getDeclaringClass().getName() + "." + constructor.getName();
-    }
-    return "Unknown";
-  }
 }

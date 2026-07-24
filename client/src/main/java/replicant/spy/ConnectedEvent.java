@@ -8,35 +8,30 @@ import org.jspecify.annotations.NonNull;
 /**
  * Notification when a Connector has connected to the DataSource.
  */
-public final class ConnectedEvent
-  implements SerializableEvent
-{
-  private final int _schemaId;
-  @NonNull
-  private final String _schemaName;
+public final class ConnectedEvent implements SerializableEvent {
+    private final int _schemaId;
 
-  public ConnectedEvent( final int schemaId, @NonNull final String schemaName )
-  {
-    _schemaId = schemaId;
-    _schemaName = Objects.requireNonNull( schemaName );
-  }
+    @NonNull
+    private final String _schemaName;
 
-  public int getSchemaId()
-  {
-    return _schemaId;
-  }
+    public ConnectedEvent(final int schemaId, @NonNull final String schemaName) {
+        _schemaId = schemaId;
+        _schemaName = Objects.requireNonNull(schemaName);
+    }
 
-  @NonNull
-  public String getSchemaName()
-  {
-    return _schemaName;
-  }
+    public int getSchemaId() {
+        return _schemaId;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Connector.Connect" );
-    map.put( "schema.id", getSchemaId() );
-    map.put( "schema.name", getSchemaName() );
-  }
+    @NonNull
+    public String getSchemaName() {
+        return _schemaName;
+    }
+
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Connector.Connect");
+        map.put("schema.id", getSchemaId());
+        map.put("schema.name", getSchemaName());
+    }
 }

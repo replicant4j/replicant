@@ -6,51 +6,37 @@ import zemeckis.Zemeckis;
 /**
  * A thin abstraction for scheduling callbacks that works in JVM and GWT environments.
  */
-final class Scheduler
-{
-  private static final SchedulerSupport c_support = new SchedulerSupport();
+final class Scheduler {
+    private static final SchedulerSupport c_support = new SchedulerSupport();
 
-  static void schedule( @NonNull final SafeFunction<Boolean> command )
-  {
-    c_support.schedule( command );
-  }
-
-  /**
-   * JVM Compatible variant which will have fields and methods stripped out during GWT compile and thus fallback to GWT variant.
-   */
-  private static final class SchedulerSupport
-    extends AbstractSchedulerSupport
-  {
-    @GwtIncompatible
-    @Override
-    void schedule( @NonNull final SafeFunction<Boolean> command )
-    {
-      //noinspection StatementWithEmptyBody
-      while ( command.call() )
-      {
-      }
+    static void schedule(@NonNull final SafeFunction<Boolean> command) {
+        c_support.schedule(command);
     }
-  }
 
-  private static abstract class AbstractSchedulerSupport
-  {
-    void schedule( @NonNull final SafeFunction<Boolean> command )
-    {
-      final long end = System.currentTimeMillis() + 14;
-      while ( System.currentTimeMillis() < end )
-      {
-        if ( !command.call() )
-        {
-          return;
+    /**
+     * JVM Compatible variant which will have fields and methods stripped out during GWT compile and thus fallback to GWT variant.
+     */
+    private static final class SchedulerSupport extends AbstractSchedulerSupport {
+        @GwtIncompatible
+        @Override
+        void schedule(@NonNull final SafeFunction<Boolean> command) {
+            //noinspection StatementWithEmptyBody
+            while (command.call()) {}
         }
-      }
-      Zemeckis.delayedTask( Zemeckis.areNamesEnabled() ? "ReplicantIncrementalTask" : null,
-                            () -> schedule( command ),
-                            0 );
     }
-  }
 
-  private Scheduler()
-  {
-  }
+    private abstract static class AbstractSchedulerSupport {
+        void schedule(@NonNull final SafeFunction<Boolean> command) {
+            final long end = System.currentTimeMillis() + 14;
+            while (System.currentTimeMillis() < end) {
+                if (!command.call()) {
+                    return;
+                }
+            }
+            Zemeckis.delayedTask(
+                    Zemeckis.areNamesEnabled() ? "ReplicantIncrementalTask" : null, () -> schedule(command), 0);
+        }
+    }
+
+    private Scheduler() {}
 }

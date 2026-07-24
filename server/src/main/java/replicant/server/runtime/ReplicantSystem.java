@@ -10,9 +10,8 @@ import javax.inject.Qualifier;
  * Qualifier for the replicant system.
  */
 @Qualifier
-@Retention( RetentionPolicy.RUNTIME )
-@Target( { ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE } )
-public @interface ReplicantSystem
-{
-  String value() default "";
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
+public @interface ReplicantSystem {
+    String value() default "";
 }

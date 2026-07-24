@@ -22,8 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -36,6 +34,8 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.Transactional;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
@@ -49,1619 +49,1374 @@ import replicant.server.runtime.EntityMessageCacheUtil;
 import replicant.server.runtime.ReplicantContextHolder;
 import replicant.server.runtime.ReplicantSystem;
 
-@SuppressWarnings( "DuplicatedCode" )
+@SuppressWarnings("DuplicatedCode")
 @ApplicationScoped
 @Transactional
-@Typed( ReplicantSessionManager.class )
-public class ReplicantSessionManagerImpl
-  implements ReplicantSessionManager
-{
-  @NonNull
-  private static final Logger LOG = Logger.getLogger( ReplicantSessionManagerImpl.class.getName() );
-  @NonNull
-  private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  @NonNull
-  private final Map<String, ReplicantSession> _sessions = new HashMap<>();
-  @NonNull
-  private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
-  @NonNull
-  private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
-  @SuppressWarnings( "CdiInjectionPointsInspection" )
-  @Inject
-  private ReplicantSessionContext _context;
-  @Inject
-  @ReplicantSystem
-  private TransactionSynchronizationRegistry _registry;
-  @Inject
-  private ReplicantMessageBroker _broker;
-  @Inject
-  @ReplicantSystem( "ScheduledExecutorService" )
-  private ScheduledExecutorService _scheduledExecutorService;
-  @Nullable
-  private ScheduledFuture<?> _removeClosedSessionsFuture;
-  @Nullable
-  private ScheduledFuture<?> _pingSessionsFuture;
+@Typed(ReplicantSessionManager.class)
+public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
+    @NonNull
+    private static final Logger LOG = Logger.getLogger(ReplicantSessionManagerImpl.class.getName());
 
-  @PostConstruct
-  void postConstruct()
-  {
-    _removeClosedSessionsFuture =
-      _scheduledExecutorService.scheduleAtFixedRate( this::removeClosedSessions, 2, 1, TimeUnit.MINUTES );
-    _pingSessionsFuture = _scheduledExecutorService.scheduleAtFixedRate( this::pingSessions, 2, 1, TimeUnit.MINUTES );
-  }
+    @NonNull
+    private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
-  @PreDestroy
-  void preDestroy()
-  {
-    if ( LOG.isLoggable( Level.INFO ) )
-    {
-      LOG.log( Level.INFO, "event=session.manager.stop sessionCount=" + getSessions().size() );
-    }
-    if ( null != _removeClosedSessionsFuture )
-    {
-      _removeClosedSessionsFuture.cancel( true );
-      _removeClosedSessionsFuture = null;
-    }
-    if ( null != _pingSessionsFuture )
-    {
-      _pingSessionsFuture.cancel( true );
-      _pingSessionsFuture = null;
-    }
-    removeAllSessions();
-  }
+    @NonNull
+    private final Map<String, ReplicantSession> _sessions = new HashMap<>();
 
-  @Override
-  public <T> T runRequest( @NonNull final String invocationKey,
-                           @Nullable final ReplicantSession session,
-                           @Nullable final Integer requestId,
-                           @NonNull final Callable<T> action )
-    throws Exception
-  {
-    startReplication( invocationKey, session, requestId );
-    try
-    {
-      return action.call();
-    }
-    finally
-    {
-      completeReplication( invocationKey );
-    }
-  }
+    @NonNull
+    private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
 
-  private void sessionLockingRequest( @NonNull final String invocationKey,
-                                      @NonNull final ReplicantSession session,
-                                      @Nullable final Integer requestId,
-                                      @NonNull final Runnable action )
-  {
-    final var lock = session.getLock();
-    try
-    {
-      lock.lockInterruptibly();
-      startReplication( invocationKey, session, requestId );
-      try
-      {
-        action.run();
-      }
-      finally
-      {
-        completeReplication( invocationKey );
-      }
-    }
-    catch ( final InterruptedException ie )
-    {
-      session.closeDueToInterrupt();
-    }
-    finally
-    {
-      lock.unlock();
-    }
-  }
+    @NonNull
+    private final Map<ChannelAddress, ChannelCacheEntry> _cache = new HashMap<>();
 
-  @Override
-  public boolean isAuthorized( @NonNull final ReplicantSession session )
-  {
-    return _context.isAuthorized( session );
-  }
+    @SuppressWarnings("CdiInjectionPointsInspection")
+    @Inject
+    private ReplicantSessionContext _context;
 
-  @Override
-  public void execCommand( @NonNull final ReplicantSession session,
-                           @NonNull final String command,
-                           final int requestId,
-                           @Nullable final JsonObject payload )
-  {
-    _context.execCommand( session, command, requestId, payload );
-  }
+    @Inject
+    @ReplicantSystem
+    private TransactionSynchronizationRegistry _registry;
 
-  private void sessionUpdateRequest( @NonNull final String invocationKey,
-                                     @NonNull final ReplicantSession session,
-                                     final int requestId,
-                                     @NonNull final Runnable action )
-  {
-    sessionLockingRequest( invocationKey, session, requestId, () -> {
-      _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1" );
-      action.run();
-    } );
-  }
+    @Inject
+    private ReplicantMessageBroker _broker;
 
-  /**
-   * Start a replication context.
-   *
-   * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
-   * @param session       the session that initiated change if any.
-   * @param requestId     the id of the request in the session that initiated change..
-   */
-  @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
-  private void startReplication( @NonNull final String invocationKey,
-                                 @Nullable final ReplicantSession session,
-                                 @Nullable final Integer requestId )
-  {
-    // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
-    final var existingKey = _registry.getResource( ServerConstants.REPLICATION_INVOCATION_KEY );
-    if ( null != existingKey )
-    {
-      final var message =
-        "Attempted to invoke service method '" + invocationKey +
-        "' while there is an active replication '" + existingKey + "'";
-      throw new IllegalStateException( message );
+    @Inject
+    @ReplicantSystem("ScheduledExecutorService")
+    private ScheduledExecutorService _scheduledExecutorService;
+
+    @Nullable
+    private ScheduledFuture<?> _removeClosedSessionsFuture;
+
+    @Nullable
+    private ScheduledFuture<?> _pingSessionsFuture;
+
+    @PostConstruct
+    void postConstruct() {
+        _removeClosedSessionsFuture =
+                _scheduledExecutorService.scheduleAtFixedRate(this::removeClosedSessions, 2, 1, TimeUnit.MINUTES);
+        _pingSessionsFuture = _scheduledExecutorService.scheduleAtFixedRate(this::pingSessions, 2, 1, TimeUnit.MINUTES);
     }
 
-    _registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey );
-    if ( null != session )
-    {
-      _registry.putResource( ServerConstants.SESSION_ID_KEY, session.getId() );
-    }
-    else
-    {
-      _registry.putResource( ServerConstants.SESSION_ID_KEY, null );
-    }
-    _registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-    if ( LOG.isLoggable( Level.FINE ) )
-    {
-      LOG.fine( "Starting invocation of " + invocationKey + " Thread: " + Thread.currentThread().getId() );
-    }
-  }
-
-  /**
-   * Complete a replication context and submit changes for replication.
-   */
-  @SuppressWarnings( { "deprecation", "RedundantSuppression" } )
-  private void completeReplication( @NonNull final String invocationKey )
-  {
-    if ( Status.STATUS_ACTIVE == _registry.getTransactionStatus() &&
-         !_registry.getRollbackOnly() &&
-         _context.flushOpenEntityManager() )
-    {
-      final var sessionId = (String) _registry.getResource( ServerConstants.SESSION_ID_KEY );
-      final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-      final var response = (JsonValue) _registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
-      var requestComplete = true;
-      final var messageSet = EntityMessageCacheUtil.removeEntityMessageSet( _registry );
-      final var changeSet = EntityMessageCacheUtil.removeSessionChanges( _registry );
-      if ( null != messageSet || null != changeSet || null != requestId )
-      {
-        final var messages =
-          null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
-        if ( null != changeSet || !messages.isEmpty() || null != requestId )
-        {
-          requestComplete = !saveEntityMessages( sessionId, requestId, response, messages, changeSet );
+    @PreDestroy
+    void preDestroy() {
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(
+                    Level.INFO,
+                    "event=session.manager.stop sessionCount=" + getSessions().size());
         }
-      }
-      final var complete = (String) _registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
-      // Clear all state in case there is multiple replication contexts started in one transaction
-      _registry.putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
-      _registry.putResource( ServerConstants.SESSION_ID_KEY, null );
-      _registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-      _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-      _registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
-      _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
-      _registry.putResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY, null );
-
-      final var isComplete = !( null != complete && !"1".equals( complete ) ) && requestComplete;
-      ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0" );
-      ReplicantContextHolder.put( ServerConstants.REQUEST_RESPONSE_KEY, response );
-    }
-    else
-    {
-      ReplicantContextHolder.put( ServerConstants.REQUEST_COMPLETE_KEY, "1" );
-      ReplicantContextHolder.put( ServerConstants.REQUEST_RESPONSE_KEY, null );
-    }
-    if ( LOG.isLoggable( Level.FINE ) )
-    {
-      LOG.fine( "Completed invocation of " + invocationKey + " Thread: " + Thread.currentThread().getId() );
-    }
-  }
-
-  @NonNull
-  @Override
-  public SchemaMetaData getSchemaMetaData()
-  {
-    return _context.getSchemaMetaData();
-  }
-
-  @SuppressWarnings( "resource" )
-  @Override
-  public void invalidateSession( @NonNull final ReplicantSession session )
-  {
-    var removed = false;
-    _lock.writeLock().lock();
-    try
-    {
-      if ( null != _sessions.remove( session.getId() ) )
-      {
-        removed = true;
-        session.close();
-      }
-    }
-    finally
-    {
-      _lock.writeLock().unlock();
-    }
-    if ( LOG.isLoggable( removed ? Level.INFO : Level.FINE ) )
-    {
-      LOG.log( removed ? Level.INFO : Level.FINE,
-               "event=session.invalidate sessionId=" + session.getId() +
-               " removed=" + removed +
-               " sessionCount=" + getSessions().size() );
-    }
-  }
-
-  @Override
-  @Nullable
-  public ReplicantSession getSession( @NonNull final String sessionId )
-  {
-    _lock.readLock().lock();
-    try
-    {
-      return _sessions.get( sessionId );
-    }
-    finally
-    {
-      _lock.readLock().unlock();
-    }
-  }
-
-  @NonNull
-  Set<ReplicantSession> getSessions()
-  {
-    _lock.readLock().lock();
-    try
-    {
-      return new HashSet<>( _sessions.values() );
-    }
-    finally
-    {
-      _lock.readLock().unlock();
-    }
-  }
-
-  @Override
-  @NonNull
-  public ReplicantSession createSession( @NonNull final Session webSocketSession,
-                                          @NonNull final ReplicantSessionAuthorization authorization )
-  {
-    final var session = new ReplicantSession( webSocketSession, authorization );
-    var sessionCount = 0;
-    _lock.writeLock().lock();
-    try
-    {
-      _sessions.put( session.getId(), session );
-      sessionCount = _sessions.size();
-    }
-    finally
-    {
-      _lock.writeLock().unlock();
-    }
-    if ( LOG.isLoggable( Level.INFO ) )
-    {
-      LOG.log( Level.INFO,
-               "event=session.create sessionId=" + session.getId() +
-               " webSocketSessionId=" + webSocketSession.getId() +
-               " sessionCount=" + sessionCount );
-    }
-    return session;
-  }
-
-  @SuppressWarnings( { "WeakerAccess", "unused" } )
-  public void pingSessions()
-  {
-    if ( _lock.readLock().tryLock() )
-    {
-      try
-      {
-        for ( final var session : _sessions.values() )
-        {
-          if ( LOG.isLoggable( Level.FINEST ) )
-          {
-            LOG.finest( "Pinging websocket for session " + session.getId() );
-          }
-          session.pingTransport();
+        if (null != _removeClosedSessionsFuture) {
+            _removeClosedSessionsFuture.cancel(true);
+            _removeClosedSessionsFuture = null;
         }
-      }
-      finally
-      {
-        _lock.readLock().unlock();
-      }
-    }
-  }
-
-  /**
-   * Remove all sessions and force them to reconnect.
-   */
-  @SuppressWarnings( "WeakerAccess" )
-  public void removeAllSessions()
-  {
-    var removedCount = 0;
-    if ( _lock.writeLock().tryLock() )
-    {
-      try
-      {
-        removedCount = _sessions.size();
-        new ArrayList<>( _sessions.values() ).forEach( ReplicantSession::close );
-        _sessions.clear();
-      }
-      finally
-      {
-        _lock.writeLock().unlock();
-      }
-    }
-    if ( LOG.isLoggable( Level.INFO ) && removedCount > 0 )
-    {
-      LOG.log( Level.INFO, "event=session.removeAll removedCount=" + removedCount + " sessionCount=0" );
-    }
-  }
-
-  /**
-   * Remove sessions that are associated with a closed WebSocket.
-   */
-  @SuppressWarnings( "WeakerAccess" )
-  public void removeClosedSessions()
-  {
-    var removedCount = 0;
-    var sessionCount = 0;
-    if ( _lock.writeLock().tryLock() )
-    {
-      try
-      {
-        final var iterator = _sessions.entrySet().iterator();
-        while ( iterator.hasNext() )
-        {
-          final var session = iterator.next().getValue();
-          if ( !session.getWebSocketSession().isOpen() )
-          {
-            iterator.remove();
-            removedCount++;
-          }
+        if (null != _pingSessionsFuture) {
+            _pingSessionsFuture.cancel(true);
+            _pingSessionsFuture = null;
         }
-        sessionCount = _sessions.size();
-      }
-      finally
-      {
-        _lock.writeLock().unlock();
-      }
-    }
-    if ( LOG.isLoggable( Level.FINE ) && removedCount > 0 )
-    {
-      LOG.log( Level.FINE,
-               "event=session.removeClosed removedCount=" + removedCount +
-               " sessionCount=" + sessionCount );
-    }
-  }
-
-  /**
-   * Send message to the specified session in rsponse to a cacheable channel subscription request.
-   * The requesting service must NOT have made any other changes that will be sent to the
-   * client, otherwise this message will be discarded.
-   * This can also be sent if the cache request resulted in deleted channel in which case the eTag will be null.
-   *
-   * @param session   the session.
-   * @param changeSet the messages to be sent along to the client.
-   */
-  private void queueCachedChangeSet( @NonNull final ReplicantSession session, @NonNull final ChangeSet changeSet )
-  {
-    final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-    _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, "0" );
-    _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
-    _broker.queueChangeMessage( session,
-                                true,
-                                requestId,
-                                null,
-                                changeSet.getETag(),
-                                Collections.emptyList(),
-                                changeSet );
-  }
-
-  private boolean saveEntityMessages( @Nullable final String sessionId,
-                                      @Nullable final Integer requestId,
-                                      @Nullable final JsonValue response,
-                                      @NonNull final Collection<EntityMessage> messages,
-                                      @Nullable final ChangeSet sessionChanges )
-  {
-    var impactsInitiator = false;
-
-    // Make sure if the message relates to an existing cache message then the cache is busted
-    for ( final var message : messages )
-    {
-      processCachePurge( message );
+        removeAllSessions();
     }
 
-    //TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
-    for ( final var session : getSessions() )
-    {
-      final var isInitiator = Objects.equals( session.getId(), sessionId );
-      if ( isInitiator )
-      {
-        // The initiator has been impacted, even if the underlying session has been closed
-        // so bring this logic outside of the session.isOpen() guard.
-        impactsInitiator = true;
-      }
-      if ( session.isOpen() )
-      {
-        final var changeSet = new ChangeSet();
-        if ( isInitiator )
-        {
-          if ( null != sessionChanges )
-          {
-            changeSet.setRequired( sessionChanges.isRequired() );
-            changeSet.merge( sessionChanges.getChanges() );
-            changeSet.mergeActions( sessionChanges.getChannelActions() );
-          }
-
-          /*
-           * We mark this as required and as impacting the initiator because we no longer know whether the
-           * action did result in a message that needs to be sent to the client as routing occurs in a separate
-           * thread. This change here now means every rpc will be paired with a replicant message even if it
-           * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
-           * at a later stage and move all rpc onto replicant channel.
-           */
-          if ( null == _registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY ) )
-          {
-            // We skip scenario when we have already sent a cached result
-            changeSet.setRequired( true );
-          }
+    @Override
+    public <T> T runRequest(
+            @NonNull final String invocationKey,
+            @Nullable final ReplicantSession session,
+            @Nullable final Integer requestId,
+            @NonNull final Callable<T> action)
+            throws Exception {
+        startReplication(invocationKey, session, requestId);
+        try {
+            return action.call();
+        } finally {
+            completeReplication(invocationKey);
         }
-        final var altersExplicitSubscriptions =
-          null != _registry.getResource( ServerConstants.SUBSCRIPTION_REQUEST_KEY );
-        _broker.queueChangeMessage( session,
-                                    altersExplicitSubscriptions,
-                                    isInitiator ? requestId : null,
-                                    isInitiator ? response : null,
-                                    null,
-                                    messages,
-                                    changeSet );
-      }
     }
 
-    return impactsInitiator;
-  }
-
-  @Override
-  public boolean sendChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
-  {
-    final var sent = new AtomicBoolean();
-    try
-    {
-      return session.runIfValid( () -> sent.set( sendAuthorizedChangeMessage( session, packet ) ) ) && sent.get();
-    }
-    catch ( final java.io.IOException e )
-    {
-      session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Authorization gate failed" ) );
-      return false;
-    }
-  }
-
-  private boolean sendAuthorizedChangeMessage( @NonNull final ReplicantSession session, @NonNull final Packet packet )
-  {
-    final var incomingEntityCount = packet.messages().size() + packet.changeSet().getChanges().size();
-    final var incomingChannelLinks =
-      packet
-        .messages()
-        .stream()
-        .map( EntityMessage::getLinks )
-        .filter( Objects::nonNull )
-        .flatMap( Collection::stream )
-        .distinct()
-        .count() +
-      packet
-        .changeSet()
-        .getChanges()
-        .stream()
-        .map( change -> change.getEntityMessage().getLinks() )
-        .filter( Objects::nonNull )
-        .flatMap( Collection::stream )
-        .distinct()
-        .count();
-
-    _context.preSendChangeMessage( session, packet );
-
-    final var requestId = packet.requestId();
-    final var response = packet.response();
-    final var etag = packet.etag();
-    final var messages = packet.messages();
-    final var changeSet = packet.changeSet();
-
-    assert null == response || null != requestId;
-    if ( !session.isOpen() )
-    {
-      if ( LOG.isLoggable( Level.FINE ) )
-      {
-        LOG.log( Level.FINE,
-                 "event=session.change.skip reason=sessionClosed sessionId=" + session.getId() +
-                 " requestId=" + requestId +
-                 " incomingEntityCount=" + incomingEntityCount +
-                 " incomingChannelLinkCount=" + incomingChannelLinks +
-                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() );
-      }
-      return false;
-    }
-    final var hasDeletes = messages.stream().anyMatch( EntityMessage::isDelete );
-    final var rootDeletedEntries =
-      hasDeletes ? collectRootDeletedEntries( messages, session ) : Collections.<ChannelAddress>emptySet();
-    if ( hasDeletes )
-    {
-      preserveOwnedChannelLinksBeforeDelete( messages, session, changeSet, rootDeletedEntries );
-    }
-    processMessages( messages, session, changeSet );
-
-    // ChangeSets that occur during a subscription that result in a use-cache message
-    // being sent to the client will still come through here. The hasContent() should
-    // return false as there are no changes for in ChangeSet and the _required flag is unset.
-    if ( changeSet.hasContent() )
-    {
-      final var start = System.nanoTime();
-
-      final var expandCycleCount = completeMessageProcessing( session, changeSet, rootDeletedEntries );
-      final var end = System.nanoTime();
-      final var expansionDuration = ( end - start ) / 1000000;
-
-      // This log level should be fine but leaving it here as INFO to make it easy to assess current production issues.
-      final var level = expansionDuration > 1000 ? Level.SEVERE : Level.INFO;
-      if ( LOG.isLoggable( level ) )
-      {
-        final var outgoingEntityCount = changeSet.getChanges().size();
-        final var outgoingChannelLinks =
-          changeSet
-            .getChanges()
-            .stream()
-            .map( change -> change.getEntityMessage().getLinks() )
-            .filter( Objects::nonNull )
-            .flatMap( Collection::stream )
-            .distinct()
-            .count();
-        final var actions = changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList();
-        LOG.log( level,
-                 "event=session.change.send sessionId=" + session.getId() +
-                 " requestId=" + requestId +
-                 " etag=" + etag +
-                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() +
-                 " incomingEntityCount=" + incomingEntityCount +
-                 " incomingChannelLinkCount=" + incomingChannelLinks +
-                 " outgoingEntityCount=" + outgoingEntityCount +
-                 " outgoingChannelLinkCount=" + outgoingChannelLinks +
-                 " expandCycleCount=" + expandCycleCount +
-                 " expandTimeMs=" + expansionDuration +
-                 " channelActions=" + actions );
-      }
-      session.sendPacket( requestId, response, etag, changeSet );
-      return true;
-    }
-    else
-    {
-      if ( LOG.isLoggable( Level.FINE ) )
-      {
-        LOG.log( Level.FINE,
-                 "event=session.change.skip reason=noContent sessionId=" + session.getId() +
-                 " requestId=" + requestId +
-                 " etag=" + etag +
-                 " altersExplicitSubscriptions=" + packet.altersExplicitSubscriptions() +
-                 " incomingEntityCount=" + incomingEntityCount +
-                 " incomingChannelLinkCount=" + incomingChannelLinks +
-                 " messageCount=" + messages.size() +
-                 " changeCount=" + changeSet.getChanges().size() +
-                 " channelActionCount=" + changeSet.getChannelActions().size() );
-      }
-      return false;
-    }
-  }
-
-  private int completeMessageProcessing( @NonNull final ReplicantSession session,
-                                         @NonNull final ChangeSet changeSet,
-                                         @NonNull final Set<ChannelAddress> rootDeletedEntries )
-  {
-    var expandCycleCount = 0;
-    try
-    {
-      final var pending = new HashSet<ChannelLinkEntry>();
-
-      while ( true )
-      {
-        if ( LOG.isLoggable( Level.FINE ) )
-        {
-          LOG.log( Level.FINE,
-                   "event=session.change.send.expand sessionId=" +
-                   session.getId() +
-                   " cycle=" +
-                   expandCycleCount +
-                   " changes=" +
-                   changeSet.getChanges().size() +
-                   " channelActions=" +
-                   changeSet.getChannelActions().stream().map( JsonEncoder::toDescriptor ).toList() +
-                   " pending=" + pending.stream().map( e -> e.target().toString() ).toList() );
+    private void sessionLockingRequest(
+            @NonNull final String invocationKey,
+            @NonNull final ReplicantSession session,
+            @Nullable final Integer requestId,
+            @NonNull final Runnable action) {
+        final var lock = session.getLock();
+        try {
+            lock.lockInterruptibly();
+            startReplication(invocationKey, session, requestId);
+            try {
+                action.run();
+            } finally {
+                completeReplication(invocationKey);
+            }
+        } catch (final InterruptedException ie) {
+            session.closeDueToInterrupt();
+        } finally {
+            lock.unlock();
         }
-        expandCycleCount++;
-        collectChannelLinksToFollow( session, changeSet, pending, rootDeletedEntries );
-        if ( pending.isEmpty() )
-        {
-          break;
+    }
+
+    @Override
+    public boolean isAuthorized(@NonNull final ReplicantSession session) {
+        return _context.isAuthorized(session);
+    }
+
+    @Override
+    public void execCommand(
+            @NonNull final ReplicantSession session,
+            @NonNull final String command,
+            final int requestId,
+            @Nullable final JsonObject payload) {
+        _context.execCommand(session, command, requestId, payload);
+    }
+
+    private void sessionUpdateRequest(
+            @NonNull final String invocationKey,
+            @NonNull final ReplicantSession session,
+            final int requestId,
+            @NonNull final Runnable action) {
+        sessionLockingRequest(invocationKey, session, requestId, () -> {
+            _registry.putResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY, "1");
+            action.run();
+        });
+    }
+
+    /**
+     * Start a replication context.
+     *
+     * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
+     * @param session       the session that initiated change if any.
+     * @param requestId     the id of the request in the session that initiated change..
+     */
+    @SuppressWarnings({"deprecation", "RedundantSuppression"})
+    private void startReplication(
+            @NonNull final String invocationKey,
+            @Nullable final ReplicantSession session,
+            @Nullable final Integer requestId) {
+        // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
+        final var existingKey = _registry.getResource(ServerConstants.REPLICATION_INVOCATION_KEY);
+        if (null != existingKey) {
+            final var message = "Attempted to invoke service method '" + invocationKey
+                    + "' while there is an active replication '" + existingKey + "'";
+            throw new IllegalStateException(message);
         }
-        final var entry =
-          pending
-            .stream()
-            .min( Comparator.comparing( ChannelLinkEntry::target ) )
-            .orElseThrow();
-        final var target = entry.target();
-        final var toSubscribe =
-          target.hasRootId() ?
-          pending
-            .stream()
-            .filter( a -> a.target().channelId() == target.channelId() &&
-                          Objects.equals( a.filter(), entry.filter() ) )
-            .toList() :
-          Collections.singletonList( entry );
-        final var addresses = toSubscribe.stream().map( ChannelLinkEntry::target ).toList();
-        doSubscribe( session, addresses, entry.filter(), changeSet, false );
-        toSubscribe.forEach( pending::remove );
-        for ( final var e : toSubscribe )
-        {
-          final var sourceEntry = session.getSubscriptionEntry( e.source() );
-          final var targetEntry = session.getSubscriptionEntry( e.target() );
-          InvariantUtil.assertConcreteAddress( getSchemaMetaData(), sourceEntry.address() );
-          InvariantUtil.assertConcreteAddress( getSchemaMetaData(), targetEntry.address() );
-          session.recordGraphLink( sourceEntry, targetEntry, e.owner() );
+
+        _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey);
+        if (null != session) {
+            _registry.putResource(ServerConstants.SESSION_ID_KEY, session.getId());
+        } else {
+            _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
         }
-      }
-    }
-    catch ( final Exception e )
-    {
-      // This can occur when there is an error accessing the database
-      if ( LOG.isLoggable( Level.INFO ) )
-      {
-        LOG.log( Level.INFO, "Error invoking expandLinks for session " + session.getId(), e );
-      }
-      session.close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding links failed" ) );
-    }
-    return expandCycleCount;
-  }
-
-  /**
-   * Collect a list of ChannelLinks in change set that may need to be followed.
-   */
-  private void collectChannelLinksToFollow( @NonNull final ReplicantSession session,
-                                            @NonNull final ChangeSet changeSet,
-                                            @NonNull final Set<ChannelLinkEntry> targets,
-                                            @NonNull final Set<ChannelAddress> rootDeletedEntries )
-  {
-    for ( final var change : changeSet.getChanges() )
-    {
-      final var entityMessage = change.getEntityMessage();
-      if ( entityMessage.isUpdate() )
-      {
-        final var owner = LinkOwner.entity( entityMessage.getTypeId(), entityMessage.getId() );
-        for ( final var sourceAddress : change.getChannels() )
-        {
-          final var sourceEntry = session.findSubscriptionEntry( sourceAddress );
-          if ( null != sourceEntry )
-          {
-            final var desiredTargets = resolveDesiredChannelLinkTargets( entityMessage, sourceEntry );
-            desiredTargets.keySet().removeAll( rootDeletedEntries );
-            reconcileOwnedChannelLinks( session, sourceEntry, owner, desiredTargets, changeSet, targets );
-          }
+        _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Starting invocation of " + invocationKey + " Thread: "
+                    + Thread.currentThread().getId());
         }
-      }
-    }
-  }
-
-  private boolean matchesSourceAddress( @NonNull final ChannelAddress template, @NonNull final ChannelAddress address )
-  {
-    if ( template.partial() )
-    {
-      return template.channelId() == address.channelId() && Objects.equals( template.rootId(), address.rootId() );
-    }
-    else
-    {
-      return template.equals( address );
-    }
-  }
-
-  @NonNull
-  private ChannelAddress resolveTargetAddress( @NonNull final EntityMessage entityMessage,
-                                               @NonNull final ChannelAddress source,
-                                               @Nullable final JsonObject sourceFilter,
-                                               @NonNull final ChannelAddress target,
-                                               @Nullable final JsonObject targetFilter )
-  {
-    if ( target.partial() )
-    {
-      assert entityMessage.isUpdate();
-      final var filterInstanceId =
-        _context.deriveTargetFilterInstanceId( entityMessage, source, sourceFilter, target, targetFilter );
-      final var concreteTarget = ChannelAddress.of( target.channelId(), target.rootId(), filterInstanceId );
-      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), concreteTarget );
-      return concreteTarget;
-    }
-    else
-    {
-      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), target );
-      return target;
-    }
-  }
-
-  /**
-   * Resolve the desired downstream targets for the source entry from the entity-owned links in the message.
-   */
-  @NonNull
-  private Map<ChannelAddress, JsonObject> resolveDesiredChannelLinkTargets( @NonNull final EntityMessage entityMessage,
-                                                                            @NonNull final SubscriptionEntry sourceEntry )
-  {
-    final var desiredTargets = new LinkedHashMap<ChannelAddress, JsonObject>();
-    final var links = entityMessage.getLinks();
-    if ( null != links )
-    {
-      for ( final var link : links )
-      {
-        InvariantUtil.assertLink( getSchemaMetaData(), link );
-        if ( matchesSourceAddress( link.source(), sourceEntry.address() ) )
-        {
-          final var resolved = resolveChannelLinkIfRequired( entityMessage, sourceEntry, link );
-          if ( null != resolved )
-          {
-            final var existing = desiredTargets.putIfAbsent( resolved.target(), resolved.filter() );
-            assert null == existing || Objects.equals( existing, resolved.filter() );
-          }
-        }
-      }
-    }
-    return desiredTargets;
-  }
-
-  private void reconcileOwnedChannelLinks( @NonNull final ReplicantSession session,
-                                           @NonNull final SubscriptionEntry sourceEntry,
-                                           @NonNull final LinkOwner owner,
-                                           @NonNull final Map<ChannelAddress, JsonObject> desiredTargets,
-                                           @NonNull final ChangeSet changeSet,
-                                           @NonNull final Set<ChannelLinkEntry> targets )
-  {
-    final var existingTargets = new HashSet<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) );
-    for ( final var existingTarget : existingTargets )
-    {
-      if ( !desiredTargets.containsKey( existingTarget ) )
-      {
-        session.delinkDownstreamSubscription( sourceEntry, owner, existingTarget, changeSet );
-      }
     }
 
-    for ( final var entry : desiredTargets.entrySet() )
-    {
-      final var pending =
-        createOrUpdateChannelLinkEntry( session, owner, sourceEntry, entry.getKey(), entry.getValue() );
-      if ( null != pending )
-      {
-        targets.add( pending );
-      }
-    }
-  }
-
-  @Nullable
-  private ResolvedChannelLink resolveChannelLinkIfRequired( @NonNull final EntityMessage entityMessage,
-                                                            @NonNull final SubscriptionEntry sourceEntry,
-                                                            @NonNull final ChannelLink link )
-  {
-    final var source = sourceEntry.address();
-    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), source );
-    final var sourceFilter = sourceEntry.getFilter();
-    final var target = resolveTargetAddress( entityMessage, source, sourceFilter, link.target(), link.targetFilter() );
-    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), target );
-    final var channel = getSchemaMetaData().getChannelMetaData( target );
-    if ( channel.requiresFilterParameter() )
-    {
-      final var filter =
-        link.hasTargetFilter() ?
-        link.targetFilter() :
-        _context.deriveTargetFilter( entityMessage, source, sourceFilter, target );
-      return _context.shouldFollowLink( source, sourceFilter, target, filter ) ?
-             new ResolvedChannelLink( target, filter ) :
-             null;
-    }
-    else
-    {
-      return new ResolvedChannelLink( target, null );
-    }
-  }
-
-  @Nullable
-  private ChannelLinkEntry createOrUpdateChannelLinkEntry( @NonNull final ReplicantSession session,
-                                                           @NonNull final LinkOwner owner,
-                                                           @NonNull final SubscriptionEntry sourceEntry,
-                                                           @NonNull final ChannelAddress target,
-                                                           @Nullable final JsonObject filter )
-  {
-    final var targetEntry = session.findSubscriptionEntry( target );
-    if ( null == targetEntry )
-    {
-      return new ChannelLinkEntry( owner, sourceEntry.address(), target, filter );
-    }
-    else
-    {
-      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), sourceEntry.address() );
-      InvariantUtil.assertConcreteAddress( getSchemaMetaData(), targetEntry.address() );
-      session.recordGraphLink( sourceEntry, targetEntry, owner );
-      targetEntry.setFilter( filter );
-      return null;
-    }
-  }
-
-  private void processMessages( @NonNull final Collection<EntityMessage> messages,
-                                @NonNull final ReplicantSession session,
-                                @NonNull final ChangeSet changeSet )
-  {
-    for ( final var message : messages )
-    {
-      processDeleteMessages( message, session, changeSet );
-    }
-
-    for ( final var message : messages )
-    {
-      processUpdateMessages( message, session, changeSet );
-    }
-  }
-
-  private void preserveOwnedChannelLinksBeforeDelete( @NonNull final Collection<EntityMessage> messages,
-                                                      @NonNull final ReplicantSession session,
-                                                      @NonNull final ChangeSet changeSet,
-                                                      @NonNull final Set<ChannelAddress> rootDeletedEntries )
-  {
-    for ( final var message : messages )
-    {
-      if ( message.isUpdate() )
-      {
-        preserveOwnedChannelLinksFromPacketMessage( message, session, rootDeletedEntries );
-      }
-    }
-    for ( final var change : changeSet.getChanges() )
-    {
-      final var message = change.getEntityMessage();
-      if ( message.isUpdate() )
-      {
-        final var owner = LinkOwner.entity( message.getTypeId(), message.getId() );
-        for ( final var sourceAddress : change.getChannels() )
-        {
-          final var sourceEntry = session.findSubscriptionEntry( sourceAddress );
-          if ( null != sourceEntry )
-          {
-            preserveOwnedChannelLinksForSourceEntry( message, session, sourceEntry, owner, rootDeletedEntries );
-          }
-        }
-      }
-    }
-  }
-
-  @NonNull
-  private Set<ChannelAddress> collectRootDeletedEntries( @NonNull final Collection<EntityMessage> messages,
-                                                         @NonNull final ReplicantSession session )
-  {
-    final var rootDeletedEntries = new HashSet<ChannelAddress>();
-    final var schema = getSchemaMetaData();
-    final var instanceChannelCount = schema.getInstanceChannelCount();
-    for ( final var message : messages )
-    {
-      if ( message.isDelete() )
-      {
-        for ( var i = 0; i < instanceChannelCount; i++ )
-        {
-          final var channel = schema.getInstanceChannelByIndex( i );
-          @SuppressWarnings( "unchecked" )
-          final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
-          if ( null != rootIds )
-          {
-            for ( final var rootId : rootIds )
-            {
-              final var address = ChannelAddress.of( channel.getChannelId(), rootId );
-              final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
-              for ( final var entry : session.findSubscriptionEntries( address.channelId(), address.rootId() ) )
-              {
-                final var entryAddress = entry.address();
-                final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
-                if ( null != m && m.isDelete() )
-                {
-                  if ( isEntityMessageChannelRoot( entry, address, m ) )
-                  {
-                    rootDeletedEntries.add( entryAddress );
-                  }
+    /**
+     * Complete a replication context and submit changes for replication.
+     */
+    @SuppressWarnings({"deprecation", "RedundantSuppression"})
+    private void completeReplication(@NonNull final String invocationKey) {
+        if (Status.STATUS_ACTIVE == _registry.getTransactionStatus()
+                && !_registry.getRollbackOnly()
+                && _context.flushOpenEntityManager()) {
+            final var sessionId = (String) _registry.getResource(ServerConstants.SESSION_ID_KEY);
+            final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
+            final var response = (JsonValue) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
+            var requestComplete = true;
+            final var messageSet = EntityMessageCacheUtil.removeEntityMessageSet(_registry);
+            final var changeSet = EntityMessageCacheUtil.removeSessionChanges(_registry);
+            if (null != messageSet || null != changeSet || null != requestId) {
+                final var messages =
+                        null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
+                if (null != changeSet || !messages.isEmpty() || null != requestId) {
+                    requestComplete = !saveEntityMessages(sessionId, requestId, response, messages, changeSet);
                 }
-              }
             }
-          }
-        }
-      }
-    }
-    return rootDeletedEntries;
-  }
+            final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
+            // Clear all state in case there is multiple replication contexts started in one transaction
+            _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+            _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
+            _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
+            _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, null);
+            _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, null);
+            _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, null);
+            _registry.putResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY, null);
 
-  private void preserveOwnedChannelLinksFromPacketMessage( @NonNull final EntityMessage message,
-                                                           @NonNull final ReplicantSession session,
-                                                           @NonNull final Set<ChannelAddress> rootDeletedEntries )
-  {
-    final var schema = getSchemaMetaData();
-    final var channelCount = schema.getChannelCount();
-    final var owner = LinkOwner.entity( message.getTypeId(), message.getId() );
-    for ( var i = 0; i < channelCount; i++ )
-    {
-      if ( schema.hasChannelMetaData( i ) )
-      {
-        final var channel = schema.getChannelMetaData( i );
-        final var addresses = extractChannelAddressesFromMessage( channel, message );
-        if ( null != addresses )
-        {
-          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
-          for ( final var address : addresses )
-          {
-            for ( final var entry : session.findSubscriptionEntries( address.channelId(), address.rootId() ) )
-            {
-              final var entryAddress = entry.address();
-              final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
-              if ( null != m )
-              {
-                preserveOwnedChannelLinksForSourceEntry( message, session, entry, owner, rootDeletedEntries );
-              }
+            final var isComplete = !(null != complete && !"1".equals(complete)) && requestComplete;
+            ReplicantContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0");
+            ReplicantContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, response);
+        } else {
+            ReplicantContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, "1");
+            ReplicantContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, null);
+        }
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Completed invocation of " + invocationKey + " Thread: "
+                    + Thread.currentThread().getId());
+        }
+    }
+
+    @NonNull
+    @Override
+    public SchemaMetaData getSchemaMetaData() {
+        return _context.getSchemaMetaData();
+    }
+
+    @SuppressWarnings("resource")
+    @Override
+    public void invalidateSession(@NonNull final ReplicantSession session) {
+        var removed = false;
+        _lock.writeLock().lock();
+        try {
+            if (null != _sessions.remove(session.getId())) {
+                removed = true;
+                session.close();
             }
-          }
+        } finally {
+            _lock.writeLock().unlock();
         }
-      }
-    }
-  }
-
-  private void preserveOwnedChannelLinksForSourceEntry( @NonNull final EntityMessage message,
-                                                        @NonNull final ReplicantSession session,
-                                                        @NonNull final SubscriptionEntry sourceEntry,
-                                                        @NonNull final LinkOwner owner,
-                                                        @NonNull final Set<ChannelAddress> rootDeletedEntries )
-  {
-    if ( !rootDeletedEntries.contains( sourceEntry.address() ) )
-    {
-      final var desiredTargets = resolveDesiredChannelLinkTargets( message, sourceEntry );
-      for ( final var entry : desiredTargets.entrySet() )
-      {
-        final var targetEntry = session.findSubscriptionEntry( entry.getKey() );
-        if ( null != targetEntry )
-        {
-          // An update can point at a graph whose root is deleted by the same packet; DELETE semantics must win.
-          if ( !rootDeletedEntries.contains( targetEntry.address() ) &&
-               FilterUtil.filtersEqual( entry.getValue(), targetEntry.getFilter() ) )
-          {
-            session.recordGraphLink( sourceEntry, targetEntry, owner );
-          }
+        if (LOG.isLoggable(removed ? Level.INFO : Level.FINE)) {
+            LOG.log(
+                    removed ? Level.INFO : Level.FINE,
+                    "event=session.invalidate sessionId=" + session.getId() + " removed="
+                            + removed + " sessionCount="
+                            + getSessions().size());
         }
-      }
-    }
-  }
-
-  @Override
-  public void subscribe( @NonNull final ReplicantSession session,
-                         final int requestId,
-                         @NonNull final List<ChannelAddress> addresses,
-                         @Nullable final JsonObject filter )
-  {
-    if ( InvariantUtil.isInvariantCheckingEnabled() )
-    {
-      addresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
     }
 
-    final var key = "Subscribe(" + ( addresses.isEmpty() ? "empty" : addresses.get( 0 ).channelId() ) + ")";
-    sessionUpdateRequest( key, session, requestId, () -> {
-      if ( session.isOpen() )
-      {
-        final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-        sessionChanges.setRequired( true );
-        addresses.forEach( address -> _context.preSubscribe( session, address, filter ) );
-        doSubscribe( session, addresses, filter, sessionChanges, true );
-      }
-    } );
-  }
-
-  private void doSubscribe( @NonNull final ReplicantSession session,
-                            @NonNull final List<ChannelAddress> addresses,
-                            @Nullable final JsonObject filter,
-                            @NonNull final ChangeSet changeSet,
-                            final boolean isExplicitSubscribe )
-  {
-    final var uniqueAddresses = addresses.stream().distinct().toList();
-    if ( uniqueAddresses.isEmpty() )
-    {
-      return;
-    }
-    if ( InvariantUtil.isInvariantCheckingEnabled() )
-    {
-      uniqueAddresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
-    }
-    final var channelId = uniqueAddresses.get( 0 ).channelId();
-    final var channel = getSchemaMetaData().getChannelMetaData( channelId );
-
-    subscribeToRequiredTypeChannels( session, channel );
-
-    final var newChannels = new ArrayList<ChannelAddress>();
-    //OriginalFilter => Channels
-    final var channelsToUpdate = new HashMap<JsonObject, List<ChannelAddress>>();
-
-    for ( final var address : uniqueAddresses )
-    {
-      assert address.channelId() == channelId;
-      if ( channel.isTypeGraph() )
-      {
-        assert !address.hasRootId();
-      }
-      else
-      {
-        assert address.hasRootId();
-      }
-
-      final var entry = session.findSubscriptionEntry( address );
-      if ( null == entry )
-      {
-        newChannels.add( address );
-      }
-      else
-      {
-        final var existingFilter = entry.getFilter();
-        if ( !FilterUtil.filtersEqual( filter, existingFilter ) )
-        {
-          channelsToUpdate.computeIfAbsent( existingFilter, k -> new ArrayList<>() ).add( address );
+    @Override
+    @Nullable
+    public ReplicantSession getSession(@NonNull final String sessionId) {
+        _lock.readLock().lock();
+        try {
+            return _sessions.get(sessionId);
+        } finally {
+            _lock.readLock().unlock();
         }
-        else if ( !entry.isExplicitlySubscribed() && isExplicitSubscribe )
-        {
-          entry.setExplicitlySubscribed( true );
-        }
-      }
     }
 
-    if ( !newChannels.isEmpty() )
-    {
-      if ( channel.isCacheable() )
-      {
-        // Only type graphs are cached atm, need to add extra plumbing to cache instance graphs
-        assert channel.isTypeGraph();
-        // Only unfiltered graphs currently supported as cache targets, although static or internal
-        // caching would be possible if we wanted to add support
-        assert ChannelMetaData.FilterType.NONE == channel.filterType();
-        for ( var newChannel : newChannels )
-        {
-          final var cacheEntry = tryGetCacheEntry( newChannel );
-          if ( null != cacheEntry )
-          {
-            final var eTag = cacheEntry.getCacheKey();
-            if ( eTag.equals( session.getETag( newChannel ) ) )
-            {
-              if ( session.getWebSocketSession().isOpen() )
-              {
-                final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-                WebSocketUtil.sendText( session.getWebSocketSession(),
-                                        JsonEncoder.encodeUseCacheMessage( newChannel, eTag, requestId ) );
-                changeSet.setRequired( false );
-                // We need to mark this as handled otherwise the wrapper will attempt to send
-                // another ok message with same requestId
-                // TODO: We really need to be able to handle multiple cached results for a single request
-                _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, "1" );
-              }
+    @NonNull
+    Set<ReplicantSession> getSessions() {
+        _lock.readLock().lock();
+        try {
+            return new HashSet<>(_sessions.values());
+        } finally {
+            _lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    @NonNull
+    public ReplicantSession createSession(
+            @NonNull final Session webSocketSession, @NonNull final ReplicantSessionAuthorization authorization) {
+        final var session = new ReplicantSession(webSocketSession, authorization);
+        var sessionCount = 0;
+        _lock.writeLock().lock();
+        try {
+            _sessions.put(session.getId(), session);
+            sessionCount = _sessions.size();
+        } finally {
+            _lock.writeLock().unlock();
+        }
+        if (LOG.isLoggable(Level.INFO)) {
+            LOG.log(
+                    Level.INFO,
+                    "event=session.create sessionId=" + session.getId() + " webSocketSessionId="
+                            + webSocketSession.getId() + " sessionCount="
+                            + sessionCount);
+        }
+        return session;
+    }
+
+    @SuppressWarnings({"WeakerAccess", "unused"})
+    public void pingSessions() {
+        if (_lock.readLock().tryLock()) {
+            try {
+                for (final var session : _sessions.values()) {
+                    if (LOG.isLoggable(Level.FINEST)) {
+                        LOG.finest("Pinging websocket for session " + session.getId());
+                    }
+                    session.pingTransport();
+                }
+            } finally {
+                _lock.readLock().unlock();
             }
-            else
-            {
-              session.setETag( newChannel, null );
-              final var cacheChangeSet = new ChangeSet();
-              cacheChangeSet.merge( cacheEntry.getChangeSet() );
-              //cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.ADD, filter );
-              queueCachedChangeSet( session, cacheChangeSet );
-              changeSet.setRequired( false );
+        }
+    }
+
+    /**
+     * Remove all sessions and force them to reconnect.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public void removeAllSessions() {
+        var removedCount = 0;
+        if (_lock.writeLock().tryLock()) {
+            try {
+                removedCount = _sessions.size();
+                new ArrayList<>(_sessions.values()).forEach(ReplicantSession::close);
+                _sessions.clear();
+            } finally {
+                _lock.writeLock().unlock();
+            }
+        }
+        if (LOG.isLoggable(Level.INFO) && removedCount > 0) {
+            LOG.log(Level.INFO, "event=session.removeAll removedCount=" + removedCount + " sessionCount=0");
+        }
+    }
+
+    /**
+     * Remove sessions that are associated with a closed WebSocket.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public void removeClosedSessions() {
+        var removedCount = 0;
+        var sessionCount = 0;
+        if (_lock.writeLock().tryLock()) {
+            try {
+                final var iterator = _sessions.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    final var session = iterator.next().getValue();
+                    if (!session.getWebSocketSession().isOpen()) {
+                        iterator.remove();
+                        removedCount++;
+                    }
+                }
+                sessionCount = _sessions.size();
+            } finally {
+                _lock.writeLock().unlock();
+            }
+        }
+        if (LOG.isLoggable(Level.FINE) && removedCount > 0) {
+            LOG.log(
+                    Level.FINE,
+                    "event=session.removeClosed removedCount=" + removedCount + " sessionCount=" + sessionCount);
+        }
+    }
+
+    /**
+     * Send message to the specified session in rsponse to a cacheable channel subscription request.
+     * The requesting service must NOT have made any other changes that will be sent to the
+     * client, otherwise this message will be discarded.
+     * This can also be sent if the cache request resulted in deleted channel in which case the eTag will be null.
+     *
+     * @param session   the session.
+     * @param changeSet the messages to be sent along to the client.
+     */
+    private void queueCachedChangeSet(@NonNull final ReplicantSession session, @NonNull final ChangeSet changeSet) {
+        final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
+        _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, "0");
+        _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
+        _broker.queueChangeMessage(
+                session, true, requestId, null, changeSet.getETag(), Collections.emptyList(), changeSet);
+    }
+
+    private boolean saveEntityMessages(
+            @Nullable final String sessionId,
+            @Nullable final Integer requestId,
+            @Nullable final JsonValue response,
+            @NonNull final Collection<EntityMessage> messages,
+            @Nullable final ChangeSet sessionChanges) {
+        var impactsInitiator = false;
+
+        // Make sure if the message relates to an existing cache message then the cache is busted
+        for (final var message : messages) {
+            processCachePurge(message);
+        }
+
+        // TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
+        for (final var session : getSessions()) {
+            final var isInitiator = Objects.equals(session.getId(), sessionId);
+            if (isInitiator) {
+                // The initiator has been impacted, even if the underlying session has been closed
+                // so bring this logic outside of the session.isOpen() guard.
+                impactsInitiator = true;
+            }
+            if (session.isOpen()) {
+                final var changeSet = new ChangeSet();
+                if (isInitiator) {
+                    if (null != sessionChanges) {
+                        changeSet.setRequired(sessionChanges.isRequired());
+                        changeSet.merge(sessionChanges.getChanges());
+                        changeSet.mergeActions(sessionChanges.getChannelActions());
+                    }
+
+                    /*
+                     * We mark this as required and as impacting the initiator because we no longer know whether the
+                     * action did result in a message that needs to be sent to the client as routing occurs in a separate
+                     * thread. This change here now means every rpc will be paired with a replicant message even if it
+                     * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
+                     * at a later stage and move all rpc onto replicant channel.
+                     */
+                    if (null == _registry.getResource(ServerConstants.CACHED_RESULT_HANDLED_KEY)) {
+                        // We skip scenario when we have already sent a cached result
+                        changeSet.setRequired(true);
+                    }
+                }
+                final var altersExplicitSubscriptions =
+                        null != _registry.getResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY);
+                _broker.queueChangeMessage(
+                        session,
+                        altersExplicitSubscriptions,
+                        isInitiator ? requestId : null,
+                        isInitiator ? response : null,
+                        null,
+                        messages,
+                        changeSet);
+            }
+        }
+
+        return impactsInitiator;
+    }
+
+    @Override
+    public boolean sendChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
+        final var sent = new AtomicBoolean();
+        try {
+            return session.runIfValid(() -> sent.set(sendAuthorizedChangeMessage(session, packet))) && sent.get();
+        } catch (final java.io.IOException e) {
+            session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Authorization gate failed"));
+            return false;
+        }
+    }
+
+    private boolean sendAuthorizedChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
+        final var incomingEntityCount =
+                packet.messages().size() + packet.changeSet().getChanges().size();
+        final var incomingChannelLinks = packet.messages().stream()
+                        .map(EntityMessage::getLinks)
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .distinct()
+                        .count()
+                + packet.changeSet().getChanges().stream()
+                        .map(change -> change.getEntityMessage().getLinks())
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .distinct()
+                        .count();
+
+        _context.preSendChangeMessage(session, packet);
+
+        final var requestId = packet.requestId();
+        final var response = packet.response();
+        final var etag = packet.etag();
+        final var messages = packet.messages();
+        final var changeSet = packet.changeSet();
+
+        assert null == response || null != requestId;
+        if (!session.isOpen()) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(
+                        Level.FINE,
+                        "event=session.change.skip reason=sessionClosed sessionId=" + session.getId() + " requestId="
+                                + requestId + " incomingEntityCount="
+                                + incomingEntityCount + " incomingChannelLinkCount="
+                                + incomingChannelLinks + " altersExplicitSubscriptions="
+                                + packet.altersExplicitSubscriptions());
+            }
+            return false;
+        }
+        final var hasDeletes = messages.stream().anyMatch(EntityMessage::isDelete);
+        final var rootDeletedEntries =
+                hasDeletes ? collectRootDeletedEntries(messages, session) : Collections.<ChannelAddress>emptySet();
+        if (hasDeletes) {
+            preserveOwnedChannelLinksBeforeDelete(messages, session, changeSet, rootDeletedEntries);
+        }
+        processMessages(messages, session, changeSet);
+
+        // ChangeSets that occur during a subscription that result in a use-cache message
+        // being sent to the client will still come through here. The hasContent() should
+        // return false as there are no changes for in ChangeSet and the _required flag is unset.
+        if (changeSet.hasContent()) {
+            final var start = System.nanoTime();
+
+            final var expandCycleCount = completeMessageProcessing(session, changeSet, rootDeletedEntries);
+            final var end = System.nanoTime();
+            final var expansionDuration = (end - start) / 1000000;
+
+            // This log level should be fine but leaving it here as INFO to make it easy to assess current production
+            // issues.
+            final var level = expansionDuration > 1000 ? Level.SEVERE : Level.INFO;
+            if (LOG.isLoggable(level)) {
+                final var outgoingEntityCount = changeSet.getChanges().size();
+                final var outgoingChannelLinks = changeSet.getChanges().stream()
+                        .map(change -> change.getEntityMessage().getLinks())
+                        .filter(Objects::nonNull)
+                        .flatMap(Collection::stream)
+                        .distinct()
+                        .count();
+                final var actions = changeSet.getChannelActions().stream()
+                        .map(JsonEncoder::toDescriptor)
+                        .toList();
+                LOG.log(
+                        level,
+                        "event=session.change.send sessionId=" + session.getId() + " requestId="
+                                + requestId + " etag="
+                                + etag + " altersExplicitSubscriptions="
+                                + packet.altersExplicitSubscriptions() + " incomingEntityCount="
+                                + incomingEntityCount + " incomingChannelLinkCount="
+                                + incomingChannelLinks + " outgoingEntityCount="
+                                + outgoingEntityCount + " outgoingChannelLinkCount="
+                                + outgoingChannelLinks + " expandCycleCount="
+                                + expandCycleCount + " expandTimeMs="
+                                + expansionDuration + " channelActions="
+                                + actions);
+            }
+            session.sendPacket(requestId, response, etag, changeSet);
+            return true;
+        } else {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(
+                        Level.FINE,
+                        "event=session.change.skip reason=noContent sessionId=" + session.getId() + " requestId="
+                                + requestId + " etag="
+                                + etag + " altersExplicitSubscriptions="
+                                + packet.altersExplicitSubscriptions() + " incomingEntityCount="
+                                + incomingEntityCount + " incomingChannelLinkCount="
+                                + incomingChannelLinks + " messageCount="
+                                + messages.size() + " changeCount="
+                                + changeSet.getChanges().size() + " channelActionCount="
+                                + changeSet.getChannelActions().size());
+            }
+            return false;
+        }
+    }
+
+    private int completeMessageProcessing(
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet,
+            @NonNull final Set<ChannelAddress> rootDeletedEntries) {
+        var expandCycleCount = 0;
+        try {
+            final var pending = new HashSet<ChannelLinkEntry>();
+
+            while (true) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.log(
+                            Level.FINE,
+                            "event=session.change.send.expand sessionId=" + session.getId()
+                                    + " cycle="
+                                    + expandCycleCount
+                                    + " changes="
+                                    + changeSet.getChanges().size()
+                                    + " channelActions="
+                                    + changeSet.getChannelActions().stream()
+                                            .map(JsonEncoder::toDescriptor)
+                                            .toList()
+                                    + " pending="
+                                    + pending.stream()
+                                            .map(e -> e.target().toString())
+                                            .toList());
+                }
+                expandCycleCount++;
+                collectChannelLinksToFollow(session, changeSet, pending, rootDeletedEntries);
+                if (pending.isEmpty()) {
+                    break;
+                }
+                final var entry = pending.stream()
+                        .min(Comparator.comparing(ChannelLinkEntry::target))
+                        .orElseThrow();
+                final var target = entry.target();
+                final var toSubscribe = target.hasRootId()
+                        ? pending.stream()
+                                .filter(a -> a.target().channelId() == target.channelId()
+                                        && Objects.equals(a.filter(), entry.filter()))
+                                .toList()
+                        : Collections.singletonList(entry);
+                final var addresses =
+                        toSubscribe.stream().map(ChannelLinkEntry::target).toList();
+                doSubscribe(session, addresses, entry.filter(), changeSet, false);
+                toSubscribe.forEach(pending::remove);
+                for (final var e : toSubscribe) {
+                    final var sourceEntry = session.getSubscriptionEntry(e.source());
+                    final var targetEntry = session.getSubscriptionEntry(e.target());
+                    InvariantUtil.assertConcreteAddress(getSchemaMetaData(), sourceEntry.address());
+                    InvariantUtil.assertConcreteAddress(getSchemaMetaData(), targetEntry.address());
+                    session.recordGraphLink(sourceEntry, targetEntry, e.owner());
+                }
+            }
+        } catch (final Exception e) {
+            // This can occur when there is an error accessing the database
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "Error invoking expandLinks for session " + session.getId(), e);
+            }
+            session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding links failed"));
+        }
+        return expandCycleCount;
+    }
+
+    /**
+     * Collect a list of ChannelLinks in change set that may need to be followed.
+     */
+    private void collectChannelLinksToFollow(
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet,
+            @NonNull final Set<ChannelLinkEntry> targets,
+            @NonNull final Set<ChannelAddress> rootDeletedEntries) {
+        for (final var change : changeSet.getChanges()) {
+            final var entityMessage = change.getEntityMessage();
+            if (entityMessage.isUpdate()) {
+                final var owner = LinkOwner.entity(entityMessage.getTypeId(), entityMessage.getId());
+                for (final var sourceAddress : change.getChannels()) {
+                    final var sourceEntry = session.findSubscriptionEntry(sourceAddress);
+                    if (null != sourceEntry) {
+                        final var desiredTargets = resolveDesiredChannelLinkTargets(entityMessage, sourceEntry);
+                        desiredTargets.keySet().removeAll(rootDeletedEntries);
+                        reconcileOwnedChannelLinks(session, sourceEntry, owner, desiredTargets, changeSet, targets);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean matchesSourceAddress(
+            @NonNull final ChannelAddress template, @NonNull final ChannelAddress address) {
+        if (template.partial()) {
+            return template.channelId() == address.channelId() && Objects.equals(template.rootId(), address.rootId());
+        } else {
+            return template.equals(address);
+        }
+    }
+
+    @NonNull
+    private ChannelAddress resolveTargetAddress(
+            @NonNull final EntityMessage entityMessage,
+            @NonNull final ChannelAddress source,
+            @Nullable final JsonObject sourceFilter,
+            @NonNull final ChannelAddress target,
+            @Nullable final JsonObject targetFilter) {
+        if (target.partial()) {
+            assert entityMessage.isUpdate();
+            final var filterInstanceId =
+                    _context.deriveTargetFilterInstanceId(entityMessage, source, sourceFilter, target, targetFilter);
+            final var concreteTarget = ChannelAddress.of(target.channelId(), target.rootId(), filterInstanceId);
+            InvariantUtil.assertConcreteAddress(getSchemaMetaData(), concreteTarget);
+            return concreteTarget;
+        } else {
+            InvariantUtil.assertConcreteAddress(getSchemaMetaData(), target);
+            return target;
+        }
+    }
+
+    /**
+     * Resolve the desired downstream targets for the source entry from the entity-owned links in the message.
+     */
+    @NonNull
+    private Map<ChannelAddress, JsonObject> resolveDesiredChannelLinkTargets(
+            @NonNull final EntityMessage entityMessage, @NonNull final SubscriptionEntry sourceEntry) {
+        final var desiredTargets = new LinkedHashMap<ChannelAddress, JsonObject>();
+        final var links = entityMessage.getLinks();
+        if (null != links) {
+            for (final var link : links) {
+                InvariantUtil.assertLink(getSchemaMetaData(), link);
+                if (matchesSourceAddress(link.source(), sourceEntry.address())) {
+                    final var resolved = resolveChannelLinkIfRequired(entityMessage, sourceEntry, link);
+                    if (null != resolved) {
+                        final var existing = desiredTargets.putIfAbsent(resolved.target(), resolved.filter());
+                        assert null == existing || Objects.equals(existing, resolved.filter());
+                    }
+                }
+            }
+        }
+        return desiredTargets;
+    }
+
+    private void reconcileOwnedChannelLinks(
+            @NonNull final ReplicantSession session,
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final LinkOwner owner,
+            @NonNull final Map<ChannelAddress, JsonObject> desiredTargets,
+            @NonNull final ChangeSet changeSet,
+            @NonNull final Set<ChannelLinkEntry> targets) {
+        final var existingTargets = new HashSet<>(sourceEntry.getOwnedOutwardSubscriptions(owner));
+        for (final var existingTarget : existingTargets) {
+            if (!desiredTargets.containsKey(existingTarget)) {
+                session.delinkDownstreamSubscription(sourceEntry, owner, existingTarget, changeSet);
+            }
+        }
+
+        for (final var entry : desiredTargets.entrySet()) {
+            final var pending =
+                    createOrUpdateChannelLinkEntry(session, owner, sourceEntry, entry.getKey(), entry.getValue());
+            if (null != pending) {
+                targets.add(pending);
+            }
+        }
+    }
+
+    @Nullable
+    private ResolvedChannelLink resolveChannelLinkIfRequired(
+            @NonNull final EntityMessage entityMessage,
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final ChannelLink link) {
+        final var source = sourceEntry.address();
+        InvariantUtil.assertConcreteAddress(getSchemaMetaData(), source);
+        final var sourceFilter = sourceEntry.getFilter();
+        final var target =
+                resolveTargetAddress(entityMessage, source, sourceFilter, link.target(), link.targetFilter());
+        InvariantUtil.assertConcreteAddress(getSchemaMetaData(), target);
+        final var channel = getSchemaMetaData().getChannelMetaData(target);
+        if (channel.requiresFilterParameter()) {
+            final var filter = link.hasTargetFilter()
+                    ? link.targetFilter()
+                    : _context.deriveTargetFilter(entityMessage, source, sourceFilter, target);
+            return _context.shouldFollowLink(source, sourceFilter, target, filter)
+                    ? new ResolvedChannelLink(target, filter)
+                    : null;
+        } else {
+            return new ResolvedChannelLink(target, null);
+        }
+    }
+
+    @Nullable
+    private ChannelLinkEntry createOrUpdateChannelLinkEntry(
+            @NonNull final ReplicantSession session,
+            @NonNull final LinkOwner owner,
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final ChannelAddress target,
+            @Nullable final JsonObject filter) {
+        final var targetEntry = session.findSubscriptionEntry(target);
+        if (null == targetEntry) {
+            return new ChannelLinkEntry(owner, sourceEntry.address(), target, filter);
+        } else {
+            InvariantUtil.assertConcreteAddress(getSchemaMetaData(), sourceEntry.address());
+            InvariantUtil.assertConcreteAddress(getSchemaMetaData(), targetEntry.address());
+            session.recordGraphLink(sourceEntry, targetEntry, owner);
+            targetEntry.setFilter(filter);
+            return null;
+        }
+    }
+
+    private void processMessages(
+            @NonNull final Collection<EntityMessage> messages,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet) {
+        for (final var message : messages) {
+            processDeleteMessages(message, session, changeSet);
+        }
+
+        for (final var message : messages) {
+            processUpdateMessages(message, session, changeSet);
+        }
+    }
+
+    private void preserveOwnedChannelLinksBeforeDelete(
+            @NonNull final Collection<EntityMessage> messages,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet,
+            @NonNull final Set<ChannelAddress> rootDeletedEntries) {
+        for (final var message : messages) {
+            if (message.isUpdate()) {
+                preserveOwnedChannelLinksFromPacketMessage(message, session, rootDeletedEntries);
+            }
+        }
+        for (final var change : changeSet.getChanges()) {
+            final var message = change.getEntityMessage();
+            if (message.isUpdate()) {
+                final var owner = LinkOwner.entity(message.getTypeId(), message.getId());
+                for (final var sourceAddress : change.getChannels()) {
+                    final var sourceEntry = session.findSubscriptionEntry(sourceAddress);
+                    if (null != sourceEntry) {
+                        preserveOwnedChannelLinksForSourceEntry(
+                                message, session, sourceEntry, owner, rootDeletedEntries);
+                    }
+                }
+            }
+        }
+    }
+
+    @NonNull
+    private Set<ChannelAddress> collectRootDeletedEntries(
+            @NonNull final Collection<EntityMessage> messages, @NonNull final ReplicantSession session) {
+        final var rootDeletedEntries = new HashSet<ChannelAddress>();
+        final var schema = getSchemaMetaData();
+        final var instanceChannelCount = schema.getInstanceChannelCount();
+        for (final var message : messages) {
+            if (message.isDelete()) {
+                for (var i = 0; i < instanceChannelCount; i++) {
+                    final var channel = schema.getInstanceChannelByIndex(i);
+                    @SuppressWarnings("unchecked")
+                    final var rootIds = (List<Integer>) message.getRoutingKeys().get(channel.getName());
+                    if (null != rootIds) {
+                        for (final var rootId : rootIds) {
+                            final var address = ChannelAddress.of(channel.getChannelId(), rootId);
+                            final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                            for (final var entry :
+                                    session.findSubscriptionEntries(address.channelId(), address.rootId())) {
+                                final var entryAddress = entry.address();
+                                final var m = isFiltered
+                                        ? _context.filterEntityMessage(session, entryAddress, message)
+                                        : message;
+                                if (null != m && m.isDelete()) {
+                                    if (isEntityMessageChannelRoot(entry, address, m)) {
+                                        rootDeletedEntries.add(entryAddress);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return rootDeletedEntries;
+    }
+
+    private void preserveOwnedChannelLinksFromPacketMessage(
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final Set<ChannelAddress> rootDeletedEntries) {
+        final var schema = getSchemaMetaData();
+        final var channelCount = schema.getChannelCount();
+        final var owner = LinkOwner.entity(message.getTypeId(), message.getId());
+        for (var i = 0; i < channelCount; i++) {
+            if (schema.hasChannelMetaData(i)) {
+                final var channel = schema.getChannelMetaData(i);
+                final var addresses = extractChannelAddressesFromMessage(channel, message);
+                if (null != addresses) {
+                    final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                    for (final var address : addresses) {
+                        for (final var entry : session.findSubscriptionEntries(address.channelId(), address.rootId())) {
+                            final var entryAddress = entry.address();
+                            final var m =
+                                    isFiltered ? _context.filterEntityMessage(session, entryAddress, message) : message;
+                            if (null != m) {
+                                preserveOwnedChannelLinksForSourceEntry(
+                                        message, session, entry, owner, rootDeletedEntries);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void preserveOwnedChannelLinksForSourceEntry(
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final LinkOwner owner,
+            @NonNull final Set<ChannelAddress> rootDeletedEntries) {
+        if (!rootDeletedEntries.contains(sourceEntry.address())) {
+            final var desiredTargets = resolveDesiredChannelLinkTargets(message, sourceEntry);
+            for (final var entry : desiredTargets.entrySet()) {
+                final var targetEntry = session.findSubscriptionEntry(entry.getKey());
+                if (null != targetEntry) {
+                    // An update can point at a graph whose root is deleted by the same packet; DELETE semantics must
+                    // win.
+                    if (!rootDeletedEntries.contains(targetEntry.address())
+                            && FilterUtil.filtersEqual(entry.getValue(), targetEntry.getFilter())) {
+                        session.recordGraphLink(sourceEntry, targetEntry, owner);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void subscribe(
+            @NonNull final ReplicantSession session,
+            final int requestId,
+            @NonNull final List<ChannelAddress> addresses,
+            @Nullable final JsonObject filter) {
+        if (InvariantUtil.isInvariantCheckingEnabled()) {
+            addresses.forEach(address -> InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address));
+        }
+
+        final var key =
+                "Subscribe(" + (addresses.isEmpty() ? "empty" : addresses.get(0).channelId()) + ")";
+        sessionUpdateRequest(key, session, requestId, () -> {
+            if (session.isOpen()) {
+                final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+                sessionChanges.setRequired(true);
+                addresses.forEach(address -> _context.preSubscribe(session, address, filter));
+                doSubscribe(session, addresses, filter, sessionChanges, true);
+            }
+        });
+    }
+
+    private void doSubscribe(
+            @NonNull final ReplicantSession session,
+            @NonNull final List<ChannelAddress> addresses,
+            @Nullable final JsonObject filter,
+            @NonNull final ChangeSet changeSet,
+            final boolean isExplicitSubscribe) {
+        final var uniqueAddresses = addresses.stream().distinct().toList();
+        if (uniqueAddresses.isEmpty()) {
+            return;
+        }
+        if (InvariantUtil.isInvariantCheckingEnabled()) {
+            uniqueAddresses.forEach(address -> InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address));
+        }
+        final var channelId = uniqueAddresses.get(0).channelId();
+        final var channel = getSchemaMetaData().getChannelMetaData(channelId);
+
+        subscribeToRequiredTypeChannels(session, channel);
+
+        final var newChannels = new ArrayList<ChannelAddress>();
+        // OriginalFilter => Channels
+        final var channelsToUpdate = new HashMap<JsonObject, List<ChannelAddress>>();
+
+        for (final var address : uniqueAddresses) {
+            assert address.channelId() == channelId;
+            if (channel.isTypeGraph()) {
+                assert !address.hasRootId();
+            } else {
+                assert address.hasRootId();
             }
 
-            final var entry = session.createSubscriptionEntry( newChannel );
-            if ( isExplicitSubscribe )
-            {
-              entry.setExplicitlySubscribed( true );
+            final var entry = session.findSubscriptionEntry(address);
+            if (null == entry) {
+                newChannels.add(address);
+            } else {
+                final var existingFilter = entry.getFilter();
+                if (!FilterUtil.filtersEqual(filter, existingFilter)) {
+                    channelsToUpdate
+                            .computeIfAbsent(existingFilter, k -> new ArrayList<>())
+                            .add(address);
+                } else if (!entry.isExplicitlySubscribed() && isExplicitSubscribe) {
+                    entry.setExplicitlySubscribed(true);
+                }
             }
-            entry.setFilter( filter );
-          }
-          else
-          {
-            // If we get here then we have requested a cacheable instance channel
-            // where the root has been removed
-            assert newChannel.hasRootId();
-            final var cacheChangeSet = new ChangeSet();
-            cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.DELETE );
-            queueCachedChangeSet( session, cacheChangeSet );
-            changeSet.setRequired( false );
-          }
-        }
-      }
-      else
-      {
-        _context.collectChannelData( session, newChannels, filter, changeSet, isExplicitSubscribe );
-      }
-    }
-    if ( !channelsToUpdate.isEmpty() )
-    {
-      assert !channel.isCacheable();
-      for ( final var update : channelsToUpdate.entrySet() )
-      {
-        final var originalFilter = update.getKey();
-        final var updateAddresses = update.getValue();
-
-        if ( channel.filterType().isDynamicFilter() )
-        {
-          _context.collectChannelDataForFilterChange( session,
-                                                      updateAddresses,
-                                                      originalFilter,
-                                                      Objects.requireNonNull( filter ),
-                                                      changeSet );
-        }
-        else
-        {
-          final var message =
-            "Attempted to update filter on channel " + channel.getName() + " to " + filter + " but the " +
-            "channel that has a static filter. Unsubscribe and resubscribe to channel.";
-          throw new AttemptedToUpdateStaticFilterException( message );
-        }
-      }
-    }
-  }
-
-  @Override
-  public void setETags( @NonNull final ReplicantSession session, @NonNull final Map<ChannelAddress, String> eTags )
-  {
-    sessionLockingRequest( "setEtags()", session, null, () -> session.setETags( eTags ) );
-  }
-
-  @SuppressWarnings( "SameParameterValue" )
-  private void subscribe( @NonNull final ReplicantSession session,
-                          @NonNull final ChannelAddress address,
-                          final boolean explicitlySubscribe,
-                          @Nullable final JsonObject filter,
-                          @NonNull final ChangeSet changeSet )
-  {
-    final var channelMetaData = getSchemaMetaData().getChannelMetaData( address );
-
-    if ( session.isSubscriptionEntryPresent( address ) )
-    {
-      final var entry = session.getSubscriptionEntry( address );
-      if ( explicitlySubscribe )
-      {
-        entry.setExplicitlySubscribed( true );
-      }
-      if ( channelMetaData.filterType().isDynamicFilter() )
-      {
-        doSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
-      }
-      else if ( channelMetaData.filterType().isStaticFilter() )
-      {
-        final var existingFilter = entry.getFilter();
-        if ( !FilterUtil.filtersEqual( filter, existingFilter ) )
-        {
-          final var message =
-            "Attempted to update filter on channel " + entry.address() + " from " + existingFilter +
-            " to " + filter + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
-          throw new AttemptedToUpdateStaticFilterException( message );
-        }
-      }
-    }
-    else
-    {
-      doSubscribe( session, Collections.singletonList( address ), filter, changeSet, true );
-    }
-  }
-
-  private void subscribeToRequiredTypeChannels( @NonNull final ReplicantSession session,
-                                                @NonNull final ChannelMetaData channelMetaData )
-  {
-    final var requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
-    if ( LOG.isLoggable( Level.FINE ) && requiredTypeChannels.length > 0 )
-    {
-      LOG.log( Level.FINE, "Subscribing to " +
-                           channelMetaData.getName() +
-                           " which has " +
-                           requiredTypeChannels.length +
-                           " required channels. " +
-                           Arrays.stream( requiredTypeChannels )
-                             .map( ChannelMetaData::getName )
-                             .collect( Collectors.joining( "," ) ) );
-    }
-    for ( final var requiredTypeChannel : requiredTypeChannels )
-    {
-      assert requiredTypeChannel.isTypeGraph();
-      // At the moment we propagate no filters ... which is fine
-      assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.filterType();
-      final var address = ChannelAddress.of( requiredTypeChannel.getChannelId() );
-
-      // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
-      if ( !session.isSubscriptionEntryPresent( address ) )
-      {
-        final var requestId = (Integer) _registry.getResource( ServerConstants.REQUEST_ID_KEY );
-        final var requestComplete = (String) _registry.getResource( ServerConstants.REQUEST_COMPLETE_KEY );
-        final var requestResponse = (String) _registry.getResource( ServerConstants.REQUEST_RESPONSE_KEY );
-        final var requestCachedResultHandled =
-          (String) _registry.getResource( ServerConstants.CACHED_RESULT_HANDLED_KEY );
-
-        _registry.putResource( ServerConstants.REQUEST_ID_KEY, null );
-        _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, null );
-        _registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, null );
-        _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, null );
-
-        final var changeSet = new ChangeSet();
-        subscribe( session, address, false, null, changeSet );
-        if ( changeSet.hasContent() )
-        {
-          // In this scenario we have a non-cached changeset, so we send it along
-          _broker.queueChangeMessage( session, true, null, null, null, Collections.emptyList(), changeSet );
         }
 
-        _registry.putResource( ServerConstants.REQUEST_ID_KEY, requestId );
-        _registry.putResource( ServerConstants.REQUEST_COMPLETE_KEY, requestComplete );
-        _registry.putResource( ServerConstants.REQUEST_RESPONSE_KEY, requestResponse );
-        _registry.putResource( ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled );
-      }
-    }
-  }
+        if (!newChannels.isEmpty()) {
+            if (channel.isCacheable()) {
+                // Only type graphs are cached atm, need to add extra plumbing to cache instance graphs
+                assert channel.isTypeGraph();
+                // Only unfiltered graphs currently supported as cache targets, although static or internal
+                // caching would be possible if we wanted to add support
+                assert ChannelMetaData.FilterType.NONE == channel.filterType();
+                for (var newChannel : newChannels) {
+                    final var cacheEntry = tryGetCacheEntry(newChannel);
+                    if (null != cacheEntry) {
+                        final var eTag = cacheEntry.getCacheKey();
+                        if (eTag.equals(session.getETag(newChannel))) {
+                            if (session.getWebSocketSession().isOpen()) {
+                                final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
+                                WebSocketUtil.sendText(
+                                        session.getWebSocketSession(),
+                                        JsonEncoder.encodeUseCacheMessage(newChannel, eTag, requestId));
+                                changeSet.setRequired(false);
+                                // We need to mark this as handled otherwise the wrapper will attempt to send
+                                // another ok message with same requestId
+                                // TODO: We really need to be able to handle multiple cached results for a single
+                                // request
+                                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
+                            }
+                        } else {
+                            session.setETag(newChannel, null);
+                            final var cacheChangeSet = new ChangeSet();
+                            cacheChangeSet.merge(cacheEntry.getChangeSet());
+                            // cacheChangeSet.mergeAction( newChannel, ChannelAction.Action.ADD, filter );
+                            queueCachedChangeSet(session, cacheChangeSet);
+                            changeSet.setRequired(false);
+                        }
 
-  private void deleteCacheEntry( @NonNull final ChannelAddress address )
-  {
-    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
-    _cacheLock.writeLock().lock();
-    try
-    {
-      final var metaData = getSchemaMetaData().getChannelMetaData( address );
-      if ( null != _cache.remove( address ) )
-      {
-        // If we expire the cache then any dependent type graphs must also be expired. This is
-        // required as when a cache is on a client then we send back a "use-cache" message immediately
-        // whereas if a message for a cached has to be loaded and sent back then we queue it on
-        // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
-        // up required graphs when sending cached results this may cause the later "use-cached" to arrive
-        // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
-        // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
-        // invalidate all dependent cached type graphs to avoid this scenario.
-        for ( final var channel : metaData.getDependentChannels() )
-        {
-          if ( channel.isTypeGraph() && channel.isCacheable() )
-          {
-            _cache.remove( ChannelAddress.of( channel.getChannelId() ) );
-          }
-        }
-      }
-    }
-    finally
-    {
-      _cacheLock.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Return a CacheEntry for a specific channel. When this method returns the cache
-   * data will have already been loaded. The cache data is loaded using a separate lock for
-   * each channel cached.
-   */
-  @Nullable
-  private ChannelCacheEntry tryGetCacheEntry( @NonNull final ChannelAddress address )
-  {
-    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
-    final var metaData = getSchemaMetaData().getChannelMetaData( address );
-    assert metaData.isCacheable();
-    // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove this assertion.
-    assert !metaData.requiresFilterParameter();
-    // We have not implemented the ability to cache instance graphs. When it has been implemented we can remove this assertion.
-    assert metaData.isTypeGraph();
-    final var entry = getCacheEntry( address );
-    entry.getLock().readLock().lock();
-    try
-    {
-      if ( entry.isInitialized() )
-      {
-        return entry;
-      }
-    }
-    finally
-    {
-      entry.getLock().readLock().unlock();
-    }
-    entry.getLock().writeLock().lock();
-    try
-    {
-      //Make sure check again once we re-acquire the lock
-      if ( entry.isInitialized() )
-      {
-        return entry;
-      }
-      final var changeSet = new ChangeSet();
-      _context.collectChannelData( null, Collections.singletonList( address ), null, changeSet, false );
-      final var cacheKey = changeSet.getETag();
-      final var channelAction =
-        changeSet
-          .getChannelActions()
-          .stream()
-          .filter( a -> a.address().equals( address ) )
-          .findFirst()
-          .orElse( null );
-      final var action = Objects.requireNonNull( channelAction ).action();
-      // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
-      if ( ChannelAction.Action.DELETE == action )
-      {
-        assert null == cacheKey;
-        return null;
-      }
-      else
-      {
-        // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
-        assert ChannelAction.Action.ADD == action;
-        entry.init( Objects.requireNonNull( cacheKey ), changeSet );
-        return entry;
-      }
-    }
-    finally
-    {
-      entry.getLock().writeLock().unlock();
-    }
-  }
-
-  /**
-   * Clear entire cache
-   */
-  @Override
-  public void clearCache()
-  {
-    _cacheLock.writeLock().lock();
-    try
-    {
-      _cache.clear();
-    }
-    finally
-    {
-      _cacheLock.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Get the CacheEntry for specified channel. Note that the cache is not necessarily
-   * loaded at this stage. This is done to avoid using a global lock while loading data for a
-   * particular cache entry.
-   */
-  private ChannelCacheEntry getCacheEntry( @NonNull final ChannelAddress address )
-  {
-    InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address );
-    _cacheLock.readLock().lock();
-    try
-    {
-      final var entry = _cache.get( address );
-      if ( null != entry )
-      {
-        return entry;
-      }
-    }
-    finally
-    {
-      _cacheLock.readLock().unlock();
-    }
-    _cacheLock.writeLock().lock();
-    try
-    {
-      //Try again in case it has since been created
-      var entry = _cache.get( address );
-      if ( null != entry )
-      {
-        return entry;
-      }
-      entry = new ChannelCacheEntry( address );
-      _cache.put( address, entry );
-      return entry;
-    }
-    finally
-    {
-      _cacheLock.writeLock().unlock();
-    }
-  }
-
-  @Override
-  public void unsubscribe( @NonNull final ReplicantSession session,
-                           final int requestId,
-                           @NonNull final List<ChannelAddress> addresses )
-  {
-    if ( InvariantUtil.isInvariantCheckingEnabled() )
-    {
-      addresses.forEach( address -> InvariantUtil.assertConcreteAddress( getSchemaMetaData(), address ) );
-    }
-    final var invocationKey =
-      addresses.isEmpty() ? "BulkUnsubscribe(empty)" : "BulkUnsubscribe(" + addresses.get( 0 ).channelId() + ")";
-    sessionUpdateRequest( invocationKey, session, requestId, () -> {
-      if ( session.isOpen() )
-      {
-        final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
-        sessionChanges.setRequired( true );
-        session.bulkUnsubscribe( addresses, sessionChanges );
-      }
-    } );
-  }
-
-  private void processCachePurge( @NonNull final EntityMessage message )
-  {
-    final var schema = getSchemaMetaData();
-    final var channelCount = schema.getChannelCount();
-    for ( var i = 0; i < channelCount; i++ )
-    {
-      if ( schema.hasChannelMetaData( i ) )
-      {
-        final var channel = schema.getChannelMetaData( i );
-        if ( ChannelMetaData.CacheType.INTERNAL == channel.getCacheType() )
-        {
-          final var addresses = extractChannelAddressesFromMessage( channel, message );
-          if ( null != addresses )
-          {
-            for ( final var address : addresses )
-            {
-              deleteCacheEntry( address );
+                        final var entry = session.createSubscriptionEntry(newChannel);
+                        if (isExplicitSubscribe) {
+                            entry.setExplicitlySubscribed(true);
+                        }
+                        entry.setFilter(filter);
+                    } else {
+                        // If we get here then we have requested a cacheable instance channel
+                        // where the root has been removed
+                        assert newChannel.hasRootId();
+                        final var cacheChangeSet = new ChangeSet();
+                        cacheChangeSet.mergeAction(newChannel, ChannelAction.Action.DELETE);
+                        queueCachedChangeSet(session, cacheChangeSet);
+                        changeSet.setRequired(false);
+                    }
+                }
+            } else {
+                _context.collectChannelData(session, newChannels, filter, changeSet, isExplicitSubscribe);
             }
-          }
         }
-      }
-    }
-  }
+        if (!channelsToUpdate.isEmpty()) {
+            assert !channel.isCacheable();
+            for (final var update : channelsToUpdate.entrySet()) {
+                final var originalFilter = update.getKey();
+                final var updateAddresses = update.getValue();
 
-  private void processUpdateMessages( @NonNull final EntityMessage message,
-                                      @NonNull final ReplicantSession session,
-                                      @NonNull final ChangeSet changeSet )
-  {
-    final var schema = getSchemaMetaData();
-    final var channelCount = schema.getChannelCount();
-    for ( var i = 0; i < channelCount; i++ )
-    {
-      if ( schema.hasChannelMetaData( i ) )
-      {
-        final var channel = schema.getChannelMetaData( i );
-        final var addresses = extractChannelAddressesFromMessage( channel, message );
-        if ( null != addresses )
-        {
-          final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
-          for ( final var address : addresses )
-          {
-            processUpdateMessage( address, message, session, changeSet, isFiltered );
-          }
+                if (channel.filterType().isDynamicFilter()) {
+                    _context.collectChannelDataForFilterChange(
+                            session, updateAddresses, originalFilter, Objects.requireNonNull(filter), changeSet);
+                } else {
+                    final var message = "Attempted to update filter on channel " + channel.getName() + " to " + filter
+                            + " but the " + "channel that has a static filter. Unsubscribe and resubscribe to channel.";
+                    throw new AttemptedToUpdateStaticFilterException(message);
+                }
+            }
         }
-      }
     }
-  }
 
-  @Nullable
-  private List<ChannelAddress> extractChannelAddressesFromMessage( @NonNull final ChannelMetaData channel,
-                                                                   @NonNull final EntityMessage message )
-  {
-    if ( channel.isInstanceGraph() )
-    {
-      @SuppressWarnings( "unchecked" )
-      final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
-      if ( null != rootIds )
-      {
-        return
-          rootIds
-            .stream()
-            .map( rootId -> ChannelAddress.of( channel.getChannelId(), rootId ) )
-            .collect( Collectors.toList() );
-      }
-      else
-      {
-        return null;
-      }
+    @Override
+    public void setETags(@NonNull final ReplicantSession session, @NonNull final Map<ChannelAddress, String> eTags) {
+        sessionLockingRequest("setEtags()", session, null, () -> session.setETags(eTags));
     }
-    else
-    {
-      if ( message.getRoutingKeys().containsKey( channel.getName() ) )
-      {
-        return Collections.singletonList( ChannelAddress.of( channel.getChannelId() ) );
-      }
-      else
-      {
-        return null;
-      }
-    }
-  }
 
-  private void processUpdateMessage( @NonNull final ChannelAddress address,
-                                     @NonNull final EntityMessage message,
-                                     @NonNull final ReplicantSession session,
-                                     @NonNull final ChangeSet changeSet,
-                                     final boolean isFiltered )
-  {
-    final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
-    for ( final var entry : entries )
-    {
-      final var entryAddress = entry.address();
-      final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
+    @SuppressWarnings("SameParameterValue")
+    private void subscribe(
+            @NonNull final ReplicantSession session,
+            @NonNull final ChannelAddress address,
+            final boolean explicitlySubscribe,
+            @Nullable final JsonObject filter,
+            @NonNull final ChangeSet changeSet) {
+        final var channelMetaData = getSchemaMetaData().getChannelMetaData(address);
 
-      // Process any messages that are in scope for session
-      if ( null != m )
-      {
-        changeSet.merge( new Change( message, entryAddress ) );
-      }
-    }
-  }
-
-  private void processDeleteMessages( @NonNull final EntityMessage message,
-                                      @NonNull final ReplicantSession session,
-                                      @NonNull final ChangeSet changeSet )
-  {
-    final var schema = getSchemaMetaData();
-    final var instanceChannelCount = schema.getInstanceChannelCount();
-    for ( var i = 0; i < instanceChannelCount; i++ )
-    {
-      final var channel = schema.getInstanceChannelByIndex( i );
-      @SuppressWarnings( "unchecked" )
-      final var rootIds = (List<Integer>) message.getRoutingKeys().get( channel.getName() );
-      if ( null != rootIds )
-      {
-        for ( final var rootId : rootIds )
-        {
-          final var address = ChannelAddress.of( channel.getChannelId(), rootId );
-          final var isFiltered =
-            ChannelMetaData.FilterType.NONE != schema.getInstanceChannelByIndex( i ).filterType();
-          processDeleteMessage( address, message, session, changeSet, isFiltered );
+        if (session.isSubscriptionEntryPresent(address)) {
+            final var entry = session.getSubscriptionEntry(address);
+            if (explicitlySubscribe) {
+                entry.setExplicitlySubscribed(true);
+            }
+            if (channelMetaData.filterType().isDynamicFilter()) {
+                doSubscribe(session, Collections.singletonList(address), filter, changeSet, true);
+            } else if (channelMetaData.filterType().isStaticFilter()) {
+                final var existingFilter = entry.getFilter();
+                if (!FilterUtil.filtersEqual(filter, existingFilter)) {
+                    final var message = "Attempted to update filter on channel " + entry.address() + " from "
+                            + existingFilter + " to " + filter
+                            + " for channel that has a static filter. Unsubscribe and resubscribe to channel.";
+                    throw new AttemptedToUpdateStaticFilterException(message);
+                }
+            }
+        } else {
+            doSubscribe(session, Collections.singletonList(address), filter, changeSet, true);
         }
-      }
     }
-  }
 
-  /**
-   * Process message handling any logical deletes.
-   *
-   * @param address    the address of the graph.
-   * @param message    the message to process
-   * @param session    the session that message is being processed for.
-   * @param changeSet  for changeSet for session.
-   * @param isFiltered a flag indicating that the graph is filtered.
-   */
-  private void processDeleteMessage( @NonNull final ChannelAddress address,
-                                     @NonNull final EntityMessage message,
-                                     @NonNull final ReplicantSession session,
-                                     @NonNull final ChangeSet changeSet,
-                                     final boolean isFiltered )
-  {
-    final var entries = session.findSubscriptionEntries( address.channelId(), address.rootId() );
-    for ( final var entry : entries )
-    {
-      final var entryAddress = entry.address();
-      final var m = isFiltered ? _context.filterEntityMessage( session, entryAddress, message ) : message;
-
-      // Process any deleted messages that are in scope for session
-      if ( null != m && m.isDelete() )
-      {
-        var rootDeleted = false;
-
-        // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
-        if ( isEntityMessageChannelRoot( entry, address, m ) )
-        {
-          session.performUnsubscribe( entry, true, true, changeSet );
-          rootDeleted = null == session.findSubscriptionEntry( entryAddress );
+    private void subscribeToRequiredTypeChannels(
+            @NonNull final ReplicantSession session, @NonNull final ChannelMetaData channelMetaData) {
+        final var requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
+        if (LOG.isLoggable(Level.FINE) && requiredTypeChannels.length > 0) {
+            LOG.log(
+                    Level.FINE,
+                    "Subscribing to " + channelMetaData.getName()
+                            + " which has "
+                            + requiredTypeChannels.length
+                            + " required channels. "
+                            + Arrays.stream(requiredTypeChannels)
+                                    .map(ChannelMetaData::getName)
+                                    .collect(Collectors.joining(",")));
         }
-        if ( !rootDeleted )
-        {
-          session.delinkDownstreamSubscriptions( entry, LinkOwner.entity( m.getTypeId(), m.getId() ), changeSet );
+        for (final var requiredTypeChannel : requiredTypeChannels) {
+            assert requiredTypeChannel.isTypeGraph();
+            // At the moment we propagate no filters ... which is fine
+            assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.filterType();
+            final var address = ChannelAddress.of(requiredTypeChannel.getChannelId());
+
+            // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
+            if (!session.isSubscriptionEntryPresent(address)) {
+                final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
+                final var requestComplete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
+                final var requestResponse = (String) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
+                final var requestCachedResultHandled =
+                        (String) _registry.getResource(ServerConstants.CACHED_RESULT_HANDLED_KEY);
+
+                _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
+                _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, null);
+                _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, null);
+                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, null);
+
+                final var changeSet = new ChangeSet();
+                subscribe(session, address, false, null, changeSet);
+                if (changeSet.hasContent()) {
+                    // In this scenario we have a non-cached changeset, so we send it along
+                    _broker.queueChangeMessage(session, true, null, null, null, Collections.emptyList(), changeSet);
+                }
+
+                _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);
+                _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, requestComplete);
+                _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, requestResponse);
+                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled);
+            }
         }
-      }
     }
-  }
 
-  private boolean isEntityMessageChannelRoot( @NonNull final SubscriptionEntry entry,
-                                              @NonNull final ChannelAddress address,
-                                              @NonNull final EntityMessage message )
-  {
-    final var channel = getSchemaMetaData().getChannelMetaData( entry.address() );
-    return channel.isInstanceGraph() &&
-           channel.getInstanceRootEntityTypeId() == message.getTypeId() &&
-           Objects.equals( address.rootId(), message.getId() );
-  }
+    private void deleteCacheEntry(@NonNull final ChannelAddress address) {
+        InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address);
+        _cacheLock.writeLock().lock();
+        try {
+            final var metaData = getSchemaMetaData().getChannelMetaData(address);
+            if (null != _cache.remove(address)) {
+                // If we expire the cache then any dependent type graphs must also be expired. This is
+                // required as when a cache is on a client then we send back a "use-cache" message immediately
+                // whereas if a message for a cached has to be loaded and sent back then we queue it on
+                // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
+                // up required graphs when sending cached results this may cause the later "use-cached" to arrive
+                // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
+                // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
+                // invalidate all dependent cached type graphs to avoid this scenario.
+                for (final var channel : metaData.getDependentChannels()) {
+                    if (channel.isTypeGraph() && channel.isCacheable()) {
+                        _cache.remove(ChannelAddress.of(channel.getChannelId()));
+                    }
+                }
+            }
+        } finally {
+            _cacheLock.writeLock().unlock();
+        }
+    }
 
-  private record ResolvedChannelLink(@NonNull ChannelAddress target, @Nullable JsonObject filter)
-  {
-  }
+    /**
+     * Return a CacheEntry for a specific channel. When this method returns the cache
+     * data will have already been loaded. The cache data is loaded using a separate lock for
+     * each channel cached.
+     */
+    @Nullable
+    private ChannelCacheEntry tryGetCacheEntry(@NonNull final ChannelAddress address) {
+        InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address);
+        final var metaData = getSchemaMetaData().getChannelMetaData(address);
+        assert metaData.isCacheable();
+        // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove
+        // this assertion.
+        assert !metaData.requiresFilterParameter();
+        // We have not implemented the ability to cache instance graphs. When it has been implemented we can remove this
+        // assertion.
+        assert metaData.isTypeGraph();
+        final var entry = getCacheEntry(address);
+        entry.getLock().readLock().lock();
+        try {
+            if (entry.isInitialized()) {
+                return entry;
+            }
+        } finally {
+            entry.getLock().readLock().unlock();
+        }
+        entry.getLock().writeLock().lock();
+        try {
+            // Make sure check again once we re-acquire the lock
+            if (entry.isInitialized()) {
+                return entry;
+            }
+            final var changeSet = new ChangeSet();
+            _context.collectChannelData(null, Collections.singletonList(address), null, changeSet, false);
+            final var cacheKey = changeSet.getETag();
+            final var channelAction = changeSet.getChannelActions().stream()
+                    .filter(a -> a.address().equals(address))
+                    .findFirst()
+                    .orElse(null);
+            final var action = Objects.requireNonNull(channelAction).action();
+            // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+            if (ChannelAction.Action.DELETE == action) {
+                assert null == cacheKey;
+                return null;
+            } else {
+                // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
+                assert ChannelAction.Action.ADD == action;
+                entry.init(Objects.requireNonNull(cacheKey), changeSet);
+                return entry;
+            }
+        } finally {
+            entry.getLock().writeLock().unlock();
+        }
+    }
+
+    /**
+     * Clear entire cache
+     */
+    @Override
+    public void clearCache() {
+        _cacheLock.writeLock().lock();
+        try {
+            _cache.clear();
+        } finally {
+            _cacheLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the CacheEntry for specified channel. Note that the cache is not necessarily
+     * loaded at this stage. This is done to avoid using a global lock while loading data for a
+     * particular cache entry.
+     */
+    private ChannelCacheEntry getCacheEntry(@NonNull final ChannelAddress address) {
+        InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address);
+        _cacheLock.readLock().lock();
+        try {
+            final var entry = _cache.get(address);
+            if (null != entry) {
+                return entry;
+            }
+        } finally {
+            _cacheLock.readLock().unlock();
+        }
+        _cacheLock.writeLock().lock();
+        try {
+            // Try again in case it has since been created
+            var entry = _cache.get(address);
+            if (null != entry) {
+                return entry;
+            }
+            entry = new ChannelCacheEntry(address);
+            _cache.put(address, entry);
+            return entry;
+        } finally {
+            _cacheLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void unsubscribe(
+            @NonNull final ReplicantSession session,
+            final int requestId,
+            @NonNull final List<ChannelAddress> addresses) {
+        if (InvariantUtil.isInvariantCheckingEnabled()) {
+            addresses.forEach(address -> InvariantUtil.assertConcreteAddress(getSchemaMetaData(), address));
+        }
+        final var invocationKey = addresses.isEmpty()
+                ? "BulkUnsubscribe(empty)"
+                : "BulkUnsubscribe(" + addresses.get(0).channelId() + ")";
+        sessionUpdateRequest(invocationKey, session, requestId, () -> {
+            if (session.isOpen()) {
+                final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+                sessionChanges.setRequired(true);
+                session.bulkUnsubscribe(addresses, sessionChanges);
+            }
+        });
+    }
+
+    private void processCachePurge(@NonNull final EntityMessage message) {
+        final var schema = getSchemaMetaData();
+        final var channelCount = schema.getChannelCount();
+        for (var i = 0; i < channelCount; i++) {
+            if (schema.hasChannelMetaData(i)) {
+                final var channel = schema.getChannelMetaData(i);
+                if (ChannelMetaData.CacheType.INTERNAL == channel.getCacheType()) {
+                    final var addresses = extractChannelAddressesFromMessage(channel, message);
+                    if (null != addresses) {
+                        for (final var address : addresses) {
+                            deleteCacheEntry(address);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void processUpdateMessages(
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet) {
+        final var schema = getSchemaMetaData();
+        final var channelCount = schema.getChannelCount();
+        for (var i = 0; i < channelCount; i++) {
+            if (schema.hasChannelMetaData(i)) {
+                final var channel = schema.getChannelMetaData(i);
+                final var addresses = extractChannelAddressesFromMessage(channel, message);
+                if (null != addresses) {
+                    final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                    for (final var address : addresses) {
+                        processUpdateMessage(address, message, session, changeSet, isFiltered);
+                    }
+                }
+            }
+        }
+    }
+
+    @Nullable
+    private List<ChannelAddress> extractChannelAddressesFromMessage(
+            @NonNull final ChannelMetaData channel, @NonNull final EntityMessage message) {
+        if (channel.isInstanceGraph()) {
+            @SuppressWarnings("unchecked")
+            final var rootIds = (List<Integer>) message.getRoutingKeys().get(channel.getName());
+            if (null != rootIds) {
+                return rootIds.stream()
+                        .map(rootId -> ChannelAddress.of(channel.getChannelId(), rootId))
+                        .collect(Collectors.toList());
+            } else {
+                return null;
+            }
+        } else {
+            if (message.getRoutingKeys().containsKey(channel.getName())) {
+                return Collections.singletonList(ChannelAddress.of(channel.getChannelId()));
+            } else {
+                return null;
+            }
+        }
+    }
+
+    private void processUpdateMessage(
+            @NonNull final ChannelAddress address,
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet,
+            final boolean isFiltered) {
+        final var entries = session.findSubscriptionEntries(address.channelId(), address.rootId());
+        for (final var entry : entries) {
+            final var entryAddress = entry.address();
+            final var m = isFiltered ? _context.filterEntityMessage(session, entryAddress, message) : message;
+
+            // Process any messages that are in scope for session
+            if (null != m) {
+                changeSet.merge(new Change(message, entryAddress));
+            }
+        }
+    }
+
+    private void processDeleteMessages(
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet) {
+        final var schema = getSchemaMetaData();
+        final var instanceChannelCount = schema.getInstanceChannelCount();
+        for (var i = 0; i < instanceChannelCount; i++) {
+            final var channel = schema.getInstanceChannelByIndex(i);
+            @SuppressWarnings("unchecked")
+            final var rootIds = (List<Integer>) message.getRoutingKeys().get(channel.getName());
+            if (null != rootIds) {
+                for (final var rootId : rootIds) {
+                    final var address = ChannelAddress.of(channel.getChannelId(), rootId);
+                    final var isFiltered = ChannelMetaData.FilterType.NONE
+                            != schema.getInstanceChannelByIndex(i).filterType();
+                    processDeleteMessage(address, message, session, changeSet, isFiltered);
+                }
+            }
+        }
+    }
+
+    /**
+     * Process message handling any logical deletes.
+     *
+     * @param address    the address of the graph.
+     * @param message    the message to process
+     * @param session    the session that message is being processed for.
+     * @param changeSet  for changeSet for session.
+     * @param isFiltered a flag indicating that the graph is filtered.
+     */
+    private void processDeleteMessage(
+            @NonNull final ChannelAddress address,
+            @NonNull final EntityMessage message,
+            @NonNull final ReplicantSession session,
+            @NonNull final ChangeSet changeSet,
+            final boolean isFiltered) {
+        final var entries = session.findSubscriptionEntries(address.channelId(), address.rootId());
+        for (final var entry : entries) {
+            final var entryAddress = entry.address();
+            final var m = isFiltered ? _context.filterEntityMessage(session, entryAddress, message) : message;
+
+            // Process any deleted messages that are in scope for session
+            if (null != m && m.isDelete()) {
+                var rootDeleted = false;
+
+                // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
+                if (isEntityMessageChannelRoot(entry, address, m)) {
+                    session.performUnsubscribe(entry, true, true, changeSet);
+                    rootDeleted = null == session.findSubscriptionEntry(entryAddress);
+                }
+                if (!rootDeleted) {
+                    session.delinkDownstreamSubscriptions(entry, LinkOwner.entity(m.getTypeId(), m.getId()), changeSet);
+                }
+            }
+        }
+    }
+
+    private boolean isEntityMessageChannelRoot(
+            @NonNull final SubscriptionEntry entry,
+            @NonNull final ChannelAddress address,
+            @NonNull final EntityMessage message) {
+        final var channel = getSchemaMetaData().getChannelMetaData(entry.address());
+        return channel.isInstanceGraph()
+                && channel.getInstanceRootEntityTypeId() == message.getTypeId()
+                && Objects.equals(address.rootId(), message.getId());
+    }
+
+    private record ResolvedChannelLink(
+            @NonNull ChannelAddress target, @Nullable JsonObject filter) {}
 }

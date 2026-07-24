@@ -1,34 +1,32 @@
 package replicant.spy;
 
+import static org.testng.Assert.*;
+
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
 import replicant.ValueUtil;
-import static org.testng.Assert.*;
 
-public class SubscriptionUpdateRequestQueuedEventTest
-  extends AbstractReplicantTest
-{
-  @Test
-  public void basicOperation()
-  {
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final String filter = ValueUtil.randomString();
+public class SubscriptionUpdateRequestQueuedEventTest extends AbstractReplicantTest {
+    @Test
+    public void basicOperation() {
+        final ChannelAddress address = new ChannelAddress(1, 2);
+        final String filter = ValueUtil.randomString();
 
-    final SubscriptionUpdateRequestQueuedEvent event = new SubscriptionUpdateRequestQueuedEvent( address, filter );
+        final SubscriptionUpdateRequestQueuedEvent event = new SubscriptionUpdateRequestQueuedEvent(address, filter);
 
-    assertEquals( event.getAddress(), address );
-    assertEquals( event.getFilter(), filter );
+        assertEquals(event.getAddress(), address);
+        assertEquals(event.getFilter(), filter);
 
-    final HashMap<String, Object> data = new HashMap<>();
-    event.toMap( data );
+        final HashMap<String, Object> data = new HashMap<>();
+        event.toMap(data);
 
-    assertEquals( data.get( "type" ), "Connector.SubscriptionUpdateRequestQueued" );
-    assertEquals( data.get( "channel.schemaId" ), 1 );
-    assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.rootId" ) );
-    assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.size(), 5 );
-  }
+        assertEquals(data.get("type"), "Connector.SubscriptionUpdateRequestQueued");
+        assertEquals(data.get("channel.schemaId"), 1);
+        assertEquals(data.get("channel.channelId"), 2);
+        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("channel.filter"), filter);
+        assertEquals(data.size(), 5);
+    }
 }

@@ -1,48 +1,43 @@
 package replicant.spy;
 
+import static org.testng.Assert.*;
+
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import static org.testng.Assert.*;
 
-public class MessageProcessFailureEventTest
-  extends AbstractReplicantTest
-{
-  @Test
-  public void basicOperation()
-  {
-    final MessageProcessFailureEvent event =
-      new MessageProcessFailureEvent( 23, "Rose", new Error( "Some ERROR" ) );
+public class MessageProcessFailureEventTest extends AbstractReplicantTest {
+    @Test
+    public void basicOperation() {
+        final MessageProcessFailureEvent event = new MessageProcessFailureEvent(23, "Rose", new Error("Some ERROR"));
 
-    assertEquals( event.getSchemaId(), 23 );
-    assertEquals( event.getSchemaName(), "Rose" );
+        assertEquals(event.getSchemaId(), 23);
+        assertEquals(event.getSchemaName(), "Rose");
 
-    final HashMap<String, Object> data = new HashMap<>();
-    event.toMap( data );
+        final HashMap<String, Object> data = new HashMap<>();
+        event.toMap(data);
 
-    assertEquals( data.get( "type" ), "Connector.MessageProcessFailure" );
-    assertEquals( data.get( "schema.id" ), 23 );
-    assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "message" ), "Some ERROR" );
-    assertEquals( data.size(), 4 );
-  }
+        assertEquals(data.get("type"), "Connector.MessageProcessFailure");
+        assertEquals(data.get("schema.id"), 23);
+        assertEquals(data.get("schema.name"), "Rose");
+        assertEquals(data.get("message"), "Some ERROR");
+        assertEquals(data.size(), 4);
+    }
 
-  @Test
-  public void basicOperation_ThrowableNoMessage()
-  {
-    final MessageProcessFailureEvent event =
-      new MessageProcessFailureEvent( 23, "Rose", new NullPointerException() );
+    @Test
+    public void basicOperation_ThrowableNoMessage() {
+        final MessageProcessFailureEvent event = new MessageProcessFailureEvent(23, "Rose", new NullPointerException());
 
-    assertEquals( event.getSchemaId(), 23 );
-    assertEquals( event.getSchemaName(), "Rose" );
+        assertEquals(event.getSchemaId(), 23);
+        assertEquals(event.getSchemaName(), "Rose");
 
-    final HashMap<String, Object> data = new HashMap<>();
-    event.toMap( data );
+        final HashMap<String, Object> data = new HashMap<>();
+        event.toMap(data);
 
-    assertEquals( data.get( "type" ), "Connector.MessageProcessFailure" );
-    assertEquals( data.get( "schema.id" ), 23 );
-    assertEquals( data.get( "schema.name" ), "Rose" );
-    assertEquals( data.get( "message" ), "java.lang.NullPointerException" );
-    assertEquals( data.size(), 4 );
-  }
+        assertEquals(data.get("type"), "Connector.MessageProcessFailure");
+        assertEquals(data.get("schema.id"), 23);
+        assertEquals(data.get("schema.name"), "Rose");
+        assertEquals(data.get("message"), "java.lang.NullPointerException");
+        assertEquals(data.size(), 4);
+    }
 }

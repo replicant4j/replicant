@@ -3,22 +3,18 @@ package replicant.server.transport;
 import java.io.IOException;
 import org.jspecify.annotations.NonNull;
 
-public interface ReplicantSessionAuthorization
-{
-  boolean runIfValid( @NonNull Action action )
-    throws IOException;
+public interface ReplicantSessionAuthorization {
+    boolean runIfValid(@NonNull Action action) throws IOException;
 
-  @NonNull
-  Object getPrincipal();
+    @NonNull
+    Object getPrincipal();
 
-  void touchActivity();
+    void touchActivity();
 
-  void close();
+    void close();
 
-  @FunctionalInterface
-  interface Action
-  {
-    void run()
-      throws IOException;
-  }
+    @FunctionalInterface
+    interface Action {
+        void run() throws IOException;
+    }
 }

@@ -8,47 +8,40 @@ import org.jspecify.annotations.NonNull;
 /**
  * Notification when a Connector queues an Exec message.
  */
-public final class ExecRequestQueuedEvent
-  implements SerializableEvent
-{
-  private final int _schemaId;
-  @NonNull
-  private final String _schemaName;
-  @NonNull
-  private final String _command;
+public final class ExecRequestQueuedEvent implements SerializableEvent {
+    private final int _schemaId;
 
-  public ExecRequestQueuedEvent( final int schemaId,
-                                 @NonNull final String schemaName,
-                                 @NonNull final String command )
-  {
-    _schemaId = schemaId;
-    _schemaName = Objects.requireNonNull( schemaName );
-    _command = Objects.requireNonNull( command );
-  }
+    @NonNull
+    private final String _schemaName;
 
-  public int getSchemaId()
-  {
-    return _schemaId;
-  }
+    @NonNull
+    private final String _command;
 
-  @NonNull
-  public String getSchemaName()
-  {
-    return _schemaName;
-  }
+    public ExecRequestQueuedEvent(final int schemaId, @NonNull final String schemaName, @NonNull final String command) {
+        _schemaId = schemaId;
+        _schemaName = Objects.requireNonNull(schemaName);
+        _command = Objects.requireNonNull(command);
+    }
 
-  @NonNull
-  public String getCommand()
-  {
-    return _command;
-  }
+    public int getSchemaId() {
+        return _schemaId;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Connector.ExecRequestQueued" );
-    map.put( "schema.id", getSchemaId() );
-    map.put( "schema.name", getSchemaName() );
-    map.put( "command", getCommand() );
-  }
+    @NonNull
+    public String getSchemaName() {
+        return _schemaName;
+    }
+
+    @NonNull
+    public String getCommand() {
+        return _command;
+    }
+
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Connector.ExecRequestQueued");
+        map.put("schema.id", getSchemaId());
+        map.put("schema.name", getSchemaName());
+        map.put("command", getCommand());
+    }
 }

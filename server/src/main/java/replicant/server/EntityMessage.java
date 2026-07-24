@@ -11,209 +11,176 @@ import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class EntityMessage
-{
-  private final int _id;
-  private final int _typeId;
-  /**
-   * Routing keys contain two types of values.
-   * For every graph that the entity type is contained within, the map will
-   * contain "filter_in_graphs" attributes for this entity and any entity on
-   * the path to the root of the instance graph. The map will also contain the
-   * the id of any instance roots for graphs that graph_link to this entity.
-   */
-  @NonNull
-  private final Map<String, Serializable> _routingKeys;
-  @Nullable
-  private Set<ChannelLink> _links;
-  @Nullable
-  private Map<String, Serializable> _attributeValues;
-  private long _timestamp;
+public final class EntityMessage {
+    private final int _id;
+    private final int _typeId;
+    /**
+     * Routing keys contain two types of values.
+     * For every graph that the entity type is contained within, the map will
+     * contain "filter_in_graphs" attributes for this entity and any entity on
+     * the path to the root of the instance graph. The map will also contain the
+     * the id of any instance roots for graphs that graph_link to this entity.
+     */
+    @NonNull
+    private final Map<String, Serializable> _routingKeys;
 
-  public EntityMessage( final int id,
-                        final int typeId,
-                        final long timestamp,
-                        @NonNull final Map<String, Serializable> routingKeys,
-                        @Nullable final Map<String, Serializable> attributeValues )
-  {
-    this( id, typeId, timestamp, routingKeys, attributeValues, null );
-  }
+    @Nullable
+    private Set<ChannelLink> _links;
 
-  public EntityMessage( final int id,
-                        final int typeId,
-                        final long timestamp,
-                        @NonNull final Map<String, Serializable> routingKeys,
-                        @Nullable final Map<String, Serializable> attributeValues,
-                        @Nullable final Set<ChannelLink> links )
-  {
-    _id = id;
-    _typeId = typeId;
-    _timestamp = timestamp;
-    _routingKeys = Objects.requireNonNull( routingKeys );
-    _attributeValues = attributeValues;
-    _links = links;
-    assertInvariants();
-  }
+    @Nullable
+    private Map<String, Serializable> _attributeValues;
 
-  public int getTypeId()
-  {
-    return _typeId;
-  }
+    private long _timestamp;
 
-  public int getId()
-  {
-    return _id;
-  }
-
-  public long getTimestamp()
-  {
-    return _timestamp;
-  }
-
-  public boolean isUpdate()
-  {
-    return null != getAttributeValues();
-  }
-
-  public boolean isDelete()
-  {
-    return !isUpdate();
-  }
-
-  @Nullable
-  public Map<String, Serializable> getAttributeValues()
-  {
-    return _attributeValues;
-  }
-
-  @NonNull
-  public Map<String, Serializable> getRoutingKeys()
-  {
-    return _routingKeys;
-  }
-
-  @Nullable
-  public Set<ChannelLink> getLinks()
-  {
-    return _links;
-  }
-
-  @NonNull
-  public EntityMessage duplicate()
-  {
-    final var message =
-      new EntityMessage( getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>() );
-    message.merge( this );
-    return message;
-  }
-
-  @NonNull
-  public EntityMessage toDelete()
-  {
-    final var message = duplicate();
-    message.merge( this );
-    message._attributeValues = null;
-    message._links = null;
-    message.assertInvariants();
-    return message;
-  }
-
-  @NonNull
-  @Override
-  public String toString()
-  {
-    return ( isUpdate() ? "U" : "D" ) +
-           "(Type=" + getTypeId() +
-           ",ID=" + getId() +
-           ",RoutingKeys=" + getRoutingKeys() +
-           ( !isDelete() ? ",Data=" + getAttributeValues() : "" ) +
-           ",Links=" + getLinks() +
-           ")";
-  }
-
-  public void merge( @NonNull final EntityMessage message )
-  {
-    mergeTimestamp( message );
-    mergeRoutingKeys( message );
-    mergeAttributeValues( message );
-    if ( message.isDelete() )
-    {
-      _links = null;
+    public EntityMessage(
+            final int id,
+            final int typeId,
+            final long timestamp,
+            @NonNull final Map<String, Serializable> routingKeys,
+            @Nullable final Map<String, Serializable> attributeValues) {
+        this(id, typeId, timestamp, routingKeys, attributeValues, null);
     }
-    else
-    {
-      mergeLinks( message );
-    }
-    assertInvariants();
-  }
 
-  private void mergeTimestamp( @NonNull final EntityMessage message )
-  {
-    if ( message.getTimestamp() > getTimestamp() )
-    {
-      _timestamp = message.getTimestamp();
+    public EntityMessage(
+            final int id,
+            final int typeId,
+            final long timestamp,
+            @NonNull final Map<String, Serializable> routingKeys,
+            @Nullable final Map<String, Serializable> attributeValues,
+            @Nullable final Set<ChannelLink> links) {
+        _id = id;
+        _typeId = typeId;
+        _timestamp = timestamp;
+        _routingKeys = Objects.requireNonNull(routingKeys);
+        _attributeValues = attributeValues;
+        _links = links;
+        assertInvariants();
     }
-  }
 
-  @SuppressWarnings( "unchecked" )
-  private void mergeRoutingKeys( @NonNull final EntityMessage message )
-  {
-    final var routingKeys = message.getRoutingKeys();
-    for ( final var entry : routingKeys.entrySet() )
-    {
-      final var value = entry.getValue();
-      if ( value instanceof List )
-      {
-        final var existing =
-          (List<Integer>) getRoutingKeys().computeIfAbsent( entry.getKey(), k -> new ArrayList<Integer>() );
-        final var toMerge = (List<Integer>) entry.getValue();
-        for ( final var id : toMerge )
-        {
-          if ( !existing.contains( id ) )
-          {
-            existing.add( id );
-          }
+    public int getTypeId() {
+        return _typeId;
+    }
+
+    public int getId() {
+        return _id;
+    }
+
+    public long getTimestamp() {
+        return _timestamp;
+    }
+
+    public boolean isUpdate() {
+        return null != getAttributeValues();
+    }
+
+    public boolean isDelete() {
+        return !isUpdate();
+    }
+
+    @Nullable
+    public Map<String, Serializable> getAttributeValues() {
+        return _attributeValues;
+    }
+
+    @NonNull
+    public Map<String, Serializable> getRoutingKeys() {
+        return _routingKeys;
+    }
+
+    @Nullable
+    public Set<ChannelLink> getLinks() {
+        return _links;
+    }
+
+    @NonNull
+    public EntityMessage duplicate() {
+        final var message = new EntityMessage(getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
+        message.merge(this);
+        return message;
+    }
+
+    @NonNull
+    public EntityMessage toDelete() {
+        final var message = duplicate();
+        message.merge(this);
+        message._attributeValues = null;
+        message._links = null;
+        message.assertInvariants();
+        return message;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return (isUpdate() ? "U" : "D") + "(Type="
+                + getTypeId() + ",ID="
+                + getId() + ",RoutingKeys="
+                + getRoutingKeys() + (!isDelete() ? ",Data=" + getAttributeValues() : "")
+                + ",Links="
+                + getLinks() + ")";
+    }
+
+    public void merge(@NonNull final EntityMessage message) {
+        mergeTimestamp(message);
+        mergeRoutingKeys(message);
+        mergeAttributeValues(message);
+        if (message.isDelete()) {
+            _links = null;
+        } else {
+            mergeLinks(message);
         }
-      }
-      else
-      {
-        getRoutingKeys().put( entry.getKey(), value );
-      }
+        assertInvariants();
     }
-  }
 
-  private void mergeAttributeValues( @NonNull final EntityMessage message )
-  {
-    final var attributeValues = message.getAttributeValues();
-    if ( null == attributeValues )
-    {
-      _attributeValues = null;
+    private void mergeTimestamp(@NonNull final EntityMessage message) {
+        if (message.getTimestamp() > getTimestamp()) {
+            _timestamp = message.getTimestamp();
+        }
     }
-    else
-    {
-      if ( null == _attributeValues )
-      {
-        _attributeValues = new HashMap<>();
-      }
-      _attributeValues.putAll( attributeValues );
-    }
-  }
 
-  private void mergeLinks( @NonNull final EntityMessage message )
-  {
-    final var links = message.getLinks();
-    if ( null != links )
-    {
-      if ( null == _links )
-      {
-        _links = new HashSet<>();
-      }
-      _links.addAll( links );
+    @SuppressWarnings("unchecked")
+    private void mergeRoutingKeys(@NonNull final EntityMessage message) {
+        final var routingKeys = message.getRoutingKeys();
+        for (final var entry : routingKeys.entrySet()) {
+            final var value = entry.getValue();
+            if (value instanceof List) {
+                final var existing =
+                        (List<Integer>) getRoutingKeys().computeIfAbsent(entry.getKey(), k -> new ArrayList<Integer>());
+                final var toMerge = (List<Integer>) entry.getValue();
+                for (final var id : toMerge) {
+                    if (!existing.contains(id)) {
+                        existing.add(id);
+                    }
+                }
+            } else {
+                getRoutingKeys().put(entry.getKey(), value);
+            }
+        }
     }
-  }
 
-  private void assertInvariants()
-  {
-    assert null != _attributeValues || null == _links : "Delete EntityMessage must not contain links";
-  }
+    private void mergeAttributeValues(@NonNull final EntityMessage message) {
+        final var attributeValues = message.getAttributeValues();
+        if (null == attributeValues) {
+            _attributeValues = null;
+        } else {
+            if (null == _attributeValues) {
+                _attributeValues = new HashMap<>();
+            }
+            _attributeValues.putAll(attributeValues);
+        }
+    }
+
+    private void mergeLinks(@NonNull final EntityMessage message) {
+        final var links = message.getLinks();
+        if (null != links) {
+            if (null == _links) {
+                _links = new HashSet<>();
+            }
+            _links.addAll(links);
+        }
+    }
+
+    private void assertInvariants() {
+        assert null != _attributeValues || null == _links : "Delete EntityMessage must not contain links";
+    }
 }

@@ -8,35 +8,30 @@ import org.jspecify.annotations.NonNull;
 /**
  * Notification when a Connector attempts to disconnect connection to force a restart.
  */
-public final class RestartEvent
-  implements SerializableEvent
-{
-  private final int _schemaId;
-  @NonNull
-  private final String _schemaName;
+public final class RestartEvent implements SerializableEvent {
+    private final int _schemaId;
 
-  public RestartEvent( final int schemaId, @NonNull final String schemaName )
-  {
-    _schemaId = schemaId;
-    _schemaName = Objects.requireNonNull( schemaName );
-  }
+    @NonNull
+    private final String _schemaName;
 
-  public int getSchemaId()
-  {
-    return _schemaId;
-  }
+    public RestartEvent(final int schemaId, @NonNull final String schemaName) {
+        _schemaId = schemaId;
+        _schemaName = Objects.requireNonNull(schemaName);
+    }
 
-  @NonNull
-  public String getSchemaName()
-  {
-    return _schemaName;
-  }
+    public int getSchemaId() {
+        return _schemaId;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Connector.Restart" );
-    map.put( "schema.id", getSchemaId() );
-    map.put( "schema.name", getSchemaName() );
-  }
+    @NonNull
+    public String getSchemaName() {
+        return _schemaName;
+    }
+
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Connector.Restart");
+        map.put("schema.id", getSchemaId());
+        map.put("schema.name", getSchemaName());
+    }
 }

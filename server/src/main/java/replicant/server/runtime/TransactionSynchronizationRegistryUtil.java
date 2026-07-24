@@ -1,34 +1,27 @@
 package replicant.server.runtime;
 
-import org.jspecify.annotations.NonNull;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
+import org.jspecify.annotations.NonNull;
 
-public final class TransactionSynchronizationRegistryUtil
-{
-  private TransactionSynchronizationRegistryUtil()
-  {
-  }
+public final class TransactionSynchronizationRegistryUtil {
+    private TransactionSynchronizationRegistryUtil() {}
 
-  /**
-   * Standard JNDI key for TransactionSynchronizationRegistry.
-   */
-  private static final String REGISTRY_KEY = "java:comp/TransactionSynchronizationRegistry";
+    /**
+     * Standard JNDI key for TransactionSynchronizationRegistry.
+     */
+    private static final String REGISTRY_KEY = "java:comp/TransactionSynchronizationRegistry";
 
-  @NonNull
-  @SuppressWarnings( "BanJNDI" )
-  public static TransactionSynchronizationRegistry lookup()
-  {
-    try
-    {
-      return (TransactionSynchronizationRegistry) new InitialContext().lookup( REGISTRY_KEY );
+    @NonNull
+    @SuppressWarnings("BanJNDI")
+    public static TransactionSynchronizationRegistry lookup() {
+        try {
+            return (TransactionSynchronizationRegistry) new InitialContext().lookup(REGISTRY_KEY);
+        } catch (final NamingException ne) {
+            final var message =
+                    "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
+            throw new IllegalStateException(message, ne);
+        }
     }
-    catch ( final NamingException ne )
-    {
-      final var message =
-        "Unable to locate TransactionSynchronizationRegistry at " + REGISTRY_KEY + " due to " + ne;
-      throw new IllegalStateException( message, ne );
-    }
-  }
 }

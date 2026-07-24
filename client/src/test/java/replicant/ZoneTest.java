@@ -1,123 +1,118 @@
 package replicant;
 
-import java.text.ParseException;
-import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
-public class ZoneTest
-  extends AbstractReplicantTest
-{
-  @Test
-  public void zone_safeRun_Function()
-  {
-    ReplicantTestUtil.enableZones();
+import java.text.ParseException;
+import org.testng.annotations.Test;
 
-    final Zone zone1 = Replicant.createZone();
+public class ZoneTest extends AbstractReplicantTest {
+    @Test
+    public void zone_safeRun_Function() {
+        ReplicantTestUtil.enableZones();
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-    assertFalse( zone1.isActive() );
+        final Zone zone1 = Replicant.createZone();
 
-    final String expected = ValueUtil.randomString();
-    final String actual = zone1.safeRun( () -> {
-      assertEquals( zone1.getContext(), Replicant.context() );
-      assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
-      assertTrue( zone1.isActive() );
-      return expected;
-    } );
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+        assertFalse(zone1.isActive());
 
-    assertEquals( actual, expected );
+        final String expected = ValueUtil.randomString();
+        final String actual = zone1.safeRun(() -> {
+            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
+            assertTrue(zone1.isActive());
+            return expected;
+        });
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-  }
+        assertEquals(actual, expected);
 
-  @Test
-  public void zone_safeRun_Procedure()
-  {
-    ReplicantTestUtil.enableZones();
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+    }
 
-    final Zone zone1 = Replicant.createZone();
+    @Test
+    public void zone_safeRun_Procedure() {
+        ReplicantTestUtil.enableZones();
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-    assertFalse( zone1.isActive() );
+        final Zone zone1 = Replicant.createZone();
 
-    zone1.safeRun( () -> {
-      assertEquals( zone1.getContext(), Replicant.context() );
-      assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
-      assertTrue( zone1.isActive() );
-    } );
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+        assertFalse(zone1.isActive());
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-  }
+        zone1.safeRun(() -> {
+            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
+            assertTrue(zone1.isActive());
+        });
 
-  @Test
-  public void zone_run_Function_throwsException()
-  {
-    ReplicantTestUtil.enableZones();
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+    }
 
-    final Zone zone1 = Replicant.createZone();
+    @Test
+    public void zone_run_Function_throwsException() {
+        ReplicantTestUtil.enableZones();
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-    assertFalse( zone1.isActive() );
+        final Zone zone1 = Replicant.createZone();
 
-    assertThrows( ParseException.class, () -> zone1.run( () -> {
-      assertEquals( zone1.getContext(), Replicant.context() );
-      assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
-      assertTrue( zone1.isActive() );
-      throw new ParseException( "", 1 );
-    } ) );
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+        assertFalse(zone1.isActive());
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-  }
+        assertThrows(
+                ParseException.class,
+                () -> zone1.run(() -> {
+                    assertEquals(zone1.getContext(), Replicant.context());
+                    assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
+                    assertTrue(zone1.isActive());
+                    throw new ParseException("", 1);
+                }));
 
-  @Test
-  public void zone_run_Procedure_throwsException()
-  {
-    ReplicantTestUtil.enableZones();
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+    }
 
-    final Zone zone1 = Replicant.createZone();
+    @Test
+    public void zone_run_Procedure_throwsException() {
+        ReplicantTestUtil.enableZones();
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-    assertFalse( zone1.isActive() );
+        final Zone zone1 = Replicant.createZone();
 
-    final Procedure procedure = () -> {
-      assertEquals( zone1.getContext(), Replicant.context() );
-      assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
-      assertTrue( zone1.isActive() );
-      throw new ParseException( "", 1 );
-    };
-    assertThrows( ParseException.class, () -> zone1.run( procedure ) );
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+        assertFalse(zone1.isActive());
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-  }
+        final Procedure procedure = () -> {
+            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
+            assertTrue(zone1.isActive());
+            throw new ParseException("", 1);
+        };
+        assertThrows(ParseException.class, () -> zone1.run(procedure));
 
-  @Test
-  public void zone_run_Procedure_completesNormally()
-    throws Throwable
-  {
-    ReplicantTestUtil.enableZones();
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+    }
 
-    final Zone zone1 = Replicant.createZone();
+    @Test
+    public void zone_run_Procedure_completesNormally() throws Throwable {
+        ReplicantTestUtil.enableZones();
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-    assertFalse( zone1.isActive() );
+        final Zone zone1 = Replicant.createZone();
 
-    final Procedure procedure = () -> {
-      assertEquals( zone1.getContext(), Replicant.context() );
-      assertEquals( ReplicantZoneHolder.getZoneStack().size(), 1 );
-      assertTrue( zone1.isActive() );
-    };
-    zone1.run( procedure );
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+        assertFalse(zone1.isActive());
 
-    assertEquals( ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context() );
-    assertEquals( ReplicantZoneHolder.getZoneStack().size(), 0 );
-  }
+        final Procedure procedure = () -> {
+            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
+            assertTrue(zone1.isActive());
+        };
+        zone1.run(procedure);
+
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
+    }
 }

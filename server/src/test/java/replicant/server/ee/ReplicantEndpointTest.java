@@ -1,18 +1,21 @@
 package replicant.server.ee;
 
+import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import javax.enterprise.event.Event;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.server.ChannelAddress;
 import replicant.server.transport.ChannelMetaData;
@@ -21,728 +24,623 @@ import replicant.server.transport.ReplicantSessionAuthorization;
 import replicant.server.transport.ReplicantSessionManager;
 import replicant.server.transport.SchemaMetaData;
 import replicant.shared.Messages;
-import static org.mockito.Mockito.*;
-import static org.testng.Assert.*;
 
-public final class ReplicantEndpointTest
-{
-  @Test
-  public void onOpen_createsSessionAndSendsSessionCreated()
-    throws Exception
-  {
-    final var fixture = newFixture();
+public final class ReplicantEndpointTest {
+    @Test
+    public void onOpen_createsSessionAndSendsSessionCreated() throws Exception {
+        final var fixture = newFixture();
 
-    fixture.endpoint.onOpen( fixture.session );
+        fixture.endpoint.onOpen(fixture.session);
 
-    verify( fixture.sessionManager ).createSession( fixture.session, fixture.authorization );
-    verify( fixture.addedEvent ).fire( new ReplicantSessionAdded( fixture.sessionId ) );
+        verify(fixture.sessionManager).createSession(fixture.session, fixture.authorization);
+        verify(fixture.addedEvent).fire(new ReplicantSessionAdded(fixture.sessionId));
 
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.SESSION_CREATED );
-    assertEquals( response.getString( Messages.S2C_Common.SESSION_ID ), fixture.sessionId );
-  }
-
-  @Test
-  public void onOpen_rejectsBeforeCreatingReplicantSession()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var authenticator = (ReplicantHandshakeAuthenticator) getField( fixture.endpoint,
-                                                                          "_handshakeAuthenticator" );
-    when( authenticator.authenticate( fixture.session ) ).thenReturn( null );
-
-    fixture.endpoint.onOpen( fixture.session );
-
-    verify( fixture.session ).close( argThat( reason ->
-      CloseReason.CloseCodes.VIOLATED_POLICY == reason.getCloseCode() ) );
-    verify( fixture.sessionManager, never() ).createSession( any(), any() );
-    verifyNoInteractions( fixture.addedEvent );
-    try
-    {
-      verify( fixture.remote, never() ).sendText( anyString() );
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.SESSION_CREATED);
+        assertEquals(response.getString(Messages.S2C_Common.SESSION_ID), fixture.sessionId);
     }
-    catch ( final IOException e )
-    {
-      throw new AssertionError( e );
+
+    @Test
+    public void onOpen_rejectsBeforeCreatingReplicantSession() throws Exception {
+        final var fixture = newFixture();
+        final var authenticator =
+                (ReplicantHandshakeAuthenticator) getField(fixture.endpoint, "_handshakeAuthenticator");
+        when(authenticator.authenticate(fixture.session)).thenReturn(null);
+
+        fixture.endpoint.onOpen(fixture.session);
+
+        verify(fixture.session)
+                .close(argThat(reason -> CloseReason.CloseCodes.VIOLATED_POLICY == reason.getCloseCode()));
+        verify(fixture.sessionManager, never()).createSession(any(), any());
+        verifyNoInteractions(fixture.addedEvent);
+        try {
+            verify(fixture.remote, never()).sendText(anyString());
+        } catch (final IOException e) {
+            throw new AssertionError(e);
+        }
     }
-  }
 
-  @Test
-  public void onClose_withSession()
-  {
-    final var fixture = newFixture();
+    @Test
+    public void onClose_withSession() {
+        final var fixture = newFixture();
 
-    fixture.endpoint.onClose( fixture.session );
+        fixture.endpoint.onClose(fixture.session);
 
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-  }
-
-  @Test
-  public void onClose_withoutSession()
-  {
-    final var fixture = newFixture();
-    when( fixture.sessionManager.getSession( fixture.sessionId ) ).thenReturn( null );
-
-    fixture.endpoint.onClose( fixture.session );
-
-    verify( fixture.sessionManager, never() ).invalidateSession( fixture.replicantSession );
-  }
-
-  @Test
-  public void onError_sendsErrorAndCloses()
-    throws Exception
-  {
-    final var fixture = newFixture();
-
-    fixture.endpoint.onError( fixture.session, new RuntimeException( "Boom" ) );
-
-    verify( fixture.session ).close( any( CloseReason.class ) );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertTrue( response.getString( Messages.S2C_Common.MESSAGE ).contains( "Boom" ) );
-    verify( fixture.updatedEvent, never() ).fire( any() );
-  }
-
-  @Test
-  public void command_unknownSession()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    when( fixture.sessionManager.getSession( fixture.sessionId ) ).thenThrow( new IllegalStateException() );
-
-    fixture.endpoint.command( fixture.session, "{\"type\":\"ping\",\"requestId\":1}" );
-
-    verify( fixture.session ).close( any( CloseReason.class ) );
-    verify( fixture.sessionManager, never() ).invalidateSession( any() );
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), "Unable to locate associated replicant session" );
-  }
-
-  @Test
-  public void command_malformedMessage()
-    throws Exception
-  {
-    final var fixture = newFixture();
-
-    fixture.endpoint.command( fixture.session, "not-json" );
-
-    verify( fixture.session ).close( any( CloseReason.class ) );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent, never() ).fire( any() );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.MALFORMED_MESSAGE );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), "not-json" );
-  }
-
-  @Test
-  public void command_unauthorized()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    fixture.authorization.valid = false;
-
-    fixture.endpoint.command( fixture.session, createPingCommand( 1 ) );
-
-    verify( fixture.session ).close( any( CloseReason.class ) );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent, never() ).fire( any() );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), "Replicant session not authorized" );
-  }
-
-  @Test
-  public void command_authIsRejected()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.AUTH )
-      .add( Messages.Common.REQUEST_ID, 12 )
-      .add( Messages.Auth.TOKEN, "token" )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    assertNull( fixture.replicantSession.getAuthToken() );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-    verify( fixture.session ).close( any( CloseReason.class ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE );
-  }
-
-  @Test
-  public void command_exec_withPayload()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var payload = Json.createObjectBuilder().add( "a", "b" ).build();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.EXEC )
-      .add( Messages.Common.REQUEST_ID, 4 )
-      .add( Messages.Common.COMMAND, "cmd" )
-      .add( Messages.Exec.PAYLOAD, payload )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).execCommand( fixture.replicantSession, "cmd", 4, payload );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_exec_withoutPayload()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.EXEC )
-      .add( Messages.Common.REQUEST_ID, 5 )
-      .add( Messages.Common.COMMAND, "cmd" )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).execCommand( fixture.replicantSession, "cmd", 5, null );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_etags()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var etags = Json.createObjectBuilder().add( "1", "e1" ).add( "2.3#fi", "e2" ).build();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.ETAGS )
-      .add( Messages.Common.REQUEST_ID, 9 )
-      .add( Messages.Etags.ETAGS, etags )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    @SuppressWarnings( "unchecked" )
-    final var captor =
-      (org.mockito.ArgumentCaptor<Map<ChannelAddress, String>>) (Object) org.mockito.ArgumentCaptor.forClass( Map.class );
-    verify( fixture.sessionManager ).setETags( eq( fixture.replicantSession ), captor.capture() );
-    final var captured = captor.getValue();
-    assertEquals( captured.get( ChannelAddress.of( 1 ) ), "e1" );
-    assertEquals( captured.get( ChannelAddress.of( 2, 3, "fi" ) ), "e2" );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.OK );
-    assertEquals( response.getInt( Messages.Common.REQUEST_ID ), 9 );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_ping()
-    throws Exception
-  {
-    final var fixture = newFixture();
-
-    fixture.endpoint.command( fixture.session, createPingCommand( 7 ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.OK );
-    assertEquals( response.getInt( Messages.Common.REQUEST_ID ), 7 );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_subscribe_typeChannel()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = createSubscribeCommand( "0", 1, null );
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
-                                                1,
-                                                Collections.singletonList( ChannelAddress.of( 0 ) ),
-                                                null );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_subscribe_withFilter()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var command = createSubscribeCommand( "1.5", 2, filter );
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
-                                                2,
-                                                Collections.singletonList( ChannelAddress.of( 1, 5 ) ),
-                                                filter );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_subscribe_ignoresFilterWhenNotSupported()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var command = createSubscribeCommand( "0", 3, filter );
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
-                                                3,
-                                                Collections.singletonList( ChannelAddress.of( 0 ) ),
-                                                null );
-  }
-
-  @Test
-  public void command_subscribe_internalChannel()
-    throws Exception
-  {
-    assertInvalidSubscribe( "3", "Attempted to subscribe to internal-only channel" );
-  }
-
-  @Test
-  public void command_subscribe_typeWithRoot()
-    throws Exception
-  {
-    assertInvalidSubscribe( "0.1", "Attempted to subscribe to type channel with instance data" );
-  }
-
-  @Test
-  public void command_subscribe_instanceWithoutRoot()
-    throws Exception
-  {
-    assertInvalidSubscribe( "1", "Attempted to subscribe to instance channel without instance data" );
-  }
-
-  @Test
-  public void command_subscribe_instancedWithoutFilterInstanceId()
-    throws Exception
-  {
-    assertInvalidSubscribe( "2.7", "Attempted to use instanced channel without filter instance id" );
-  }
-
-  @Test
-  public void command_subscribe_staticInstancedWithoutFilterInstanceId()
-    throws Exception
-  {
-    assertInvalidSubscribe( "4.7", "Attempted to use instanced channel without filter instance id" );
-  }
-
-  @Test
-  public void command_subscribe_nonInstancedWithFilterInstanceId()
-    throws Exception
-  {
-    assertInvalidSubscribe( "1.5#fi", "Attempted to use non-instanced channel with filter instance id" );
-  }
-
-  @Test
-  public void command_subscribe_staticInstancedWithFilterInstanceId()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var command = createSubscribeCommand( "4.7#fi", 5, filter );
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).subscribe( fixture.replicantSession,
-                                                5,
-                                                Collections.singletonList( ChannelAddress.of( 4, 7, "fi" ) ),
-                                                filter );
-  }
-
-  @Test
-  public void command_bulkSubscribe_success()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var filter = Json.createObjectBuilder().add( "x", "y" ).build();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB )
-      .add( Messages.Common.REQUEST_ID, 4 )
-      .add( Messages.Update.CHANNELS, Json.createArrayBuilder().add( "2.7#fi" ).add( "2.8#fi2" ) )
-      .add( Messages.Update.FILTER, filter )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    final var expected = Arrays.asList( ChannelAddress.of( 2, 7, "fi" ), ChannelAddress.of( 2, 8, "fi2" ) );
-    verify( fixture.sessionManager ).subscribe( fixture.replicantSession, 4, expected, filter );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_bulkSubscribe_empty()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB )
-      .add( Messages.Common.REQUEST_ID, 4 )
-      .add( Messages.Update.CHANNELS, Json.createArrayBuilder() )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_bulkSubscribe_mixedChannels()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB )
-      .add( Messages.Common.REQUEST_ID, 4 )
-      .add( Messages.Update.CHANNELS, Json.createArrayBuilder().add( "2.7#fi" ).add( "1.5#fi2" ) )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ),
-                  "Bulk channel subscribe included addresses from multiple channels" );
-  }
-
-  @Test
-  public void command_unsubscribe_success()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.UNSUB )
-      .add( Messages.Common.REQUEST_ID, 7 )
-      .add( Messages.Common.CHANNEL, "1.5" )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession,
-                                                  7,
-                                                  Collections.singletonList( ChannelAddress.of( 1, 5 ) ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_unsubscribe_nonInstancedWithFilterInstanceId()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.UNSUB )
-      .add( Messages.Common.REQUEST_ID, 7 )
-      .add( Messages.Common.CHANNEL, "1.5#fi" )
-      .build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager, never() ).unsubscribe( any(), anyInt(), anyList() );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_bulkUnsubscribe_success()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder().add( Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB ).add(
-      Messages.Common.REQUEST_ID,
-      8 ).add( Messages.Update.CHANNELS, Json.createArrayBuilder().add( "1.1" ).add( "1.2" ) ).build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    final var expected = Arrays.asList( ChannelAddress.of( 1, 1 ), ChannelAddress.of( 1, 2 ) );
-    verify( fixture.sessionManager ).unsubscribe( fixture.replicantSession, 8, expected );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-  }
-
-  @Test
-  public void command_bulkUnsubscribe_mixedChannels()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder().add( Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB ).add(
-      Messages.Common.REQUEST_ID,
-      8 ).add( Messages.Update.CHANNELS, Json.createArrayBuilder().add( "2.7#fi" ).add( "1.5#fi2" ) ).build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager, never() ).unsubscribe( any(), anyInt(), anyList() );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ),
-                  "Bulk channel unsubscribe included addresses from multiple channels" );
-  }
-
-  @Test
-  public void command_unknownType()
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = Json.createObjectBuilder().add( Messages.Common.TYPE, "wut" ).add( Messages.Common.REQUEST_ID,
-                                                                                           9 ).build();
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE );
-  }
-
-  private void assertInvalidSubscribe( @NonNull final String address, @NonNull final String message )
-    throws Exception
-  {
-    final var fixture = newFixture();
-    final var command = createSubscribeCommand( address, 2, null );
-
-    fixture.endpoint.command( fixture.session, command.toString() );
-
-    verify( fixture.sessionManager, never() ).subscribe( any(), anyInt(), anyList(), any() );
-    verify( fixture.sessionManager ).invalidateSession( fixture.replicantSession );
-    verify( fixture.removedEvent ).fire( new ReplicantSessionRemoved( fixture.sessionId ) );
-    verify( fixture.updatedEvent ).fire( new ReplicantSessionUpdated( fixture.sessionId ) );
-
-    final var response = getLastSentMessage( fixture );
-    assertEquals( response.getString( Messages.Common.TYPE ), Messages.S2C_Type.ERROR );
-    assertEquals( response.getString( Messages.S2C_Common.MESSAGE ), message );
-  }
-
-  @NonNull
-  private String createPingCommand( final int requestId )
-  {
-    return Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.PING )
-      .add( Messages.Common.REQUEST_ID, requestId )
-      .build()
-      .toString();
-  }
-
-  @NonNull
-  private JsonObject createSubscribeCommand( @NonNull final String channel,
-                                             final int requestId,
-                                             @Nullable final JsonObject filter )
-  {
-    final var builder = Json.createObjectBuilder()
-      .add( Messages.Common.TYPE, Messages.C2S_Type.SUB )
-      .add( Messages.Common.REQUEST_ID, requestId )
-      .add( Messages.Common.CHANNEL, channel );
-    if ( null != filter )
-    {
-      builder.add( Messages.Update.FILTER, filter );
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
     }
-    return builder.build();
-  }
 
-  @NonNull
-  private JsonObject getLastSentMessage( @NonNull final EndpointFixture fixture )
-  {
-    final var captor = org.mockito.ArgumentCaptor.forClass( String.class );
-    try
-    {
-      verify( fixture.remote, atLeastOnce() ).sendText( captor.capture() );
+    @Test
+    public void onClose_withoutSession() {
+        final var fixture = newFixture();
+        when(fixture.sessionManager.getSession(fixture.sessionId)).thenReturn(null);
+
+        fixture.endpoint.onClose(fixture.session);
+
+        verify(fixture.sessionManager, never()).invalidateSession(fixture.replicantSession);
     }
-    catch ( final IOException ioe )
-    {
-      throw new AssertionError( ioe );
+
+    @Test
+    public void onError_sendsErrorAndCloses() throws Exception {
+        final var fixture = newFixture();
+
+        fixture.endpoint.onError(fixture.session, new RuntimeException("Boom"));
+
+        verify(fixture.session).close(any(CloseReason.class));
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertTrue(response.getString(Messages.S2C_Common.MESSAGE).contains("Boom"));
+        verify(fixture.updatedEvent, never()).fire(any());
     }
-    final var message = captor.getValue();
-    return Json.createReader( new StringReader( message ) ).readObject();
-  }
 
-  @NonNull
-  private EndpointFixture newFixture()
-  {
-    return newFixture( new ReplicantEndpoint() );
-  }
+    @Test
+    public void command_unknownSession() throws Exception {
+        final var fixture = newFixture();
+        when(fixture.sessionManager.getSession(fixture.sessionId)).thenThrow(new IllegalStateException());
 
-  @NonNull
-  private EndpointFixture newFixture( @NonNull final ReplicantEndpoint endpoint )
-  {
-    final var sessionManager = mock( ReplicantSessionManager.class );
-    final var addedEvent = ReplicantEndpointTest.<ReplicantSessionAdded>mockEvent();
-    final var updatedEvent = ReplicantEndpointTest.<ReplicantSessionUpdated>mockEvent();
-    final var removedEvent = ReplicantEndpointTest.<ReplicantSessionRemoved>mockEvent();
-    setField( endpoint, "_sessionManager", sessionManager );
-    final var handshakeAuthenticator = mock( ReplicantHandshakeAuthenticator.class );
-    setField( endpoint, "_handshakeAuthenticator", handshakeAuthenticator );
-    setField( endpoint, "_replicantSessionAddedEventEvent", addedEvent );
-    setField( endpoint, "_replicantSessionUpdatedEvent", updatedEvent );
-    setField( endpoint, "_replicantSessionRemovedEvent", removedEvent );
+        fixture.endpoint.command(fixture.session, "{\"type\":\"ping\",\"requestId\":1}");
 
-    final var session = mock( Session.class );
-    final var remote = mock( RemoteEndpoint.Basic.class );
-    final var sessionId = "session-1";
-    when( session.getId() ).thenReturn( sessionId );
-    when( session.isOpen() ).thenReturn( true );
-    when( session.getBasicRemote() ).thenReturn( remote );
-    final var authorization = new TestAuthorization();
-    final var replicantSession = new ReplicantSession( session, authorization );
-    when( handshakeAuthenticator.authenticate( session ) ).thenReturn( authorization );
-    when( sessionManager.createSession( session, authorization ) ).thenReturn( replicantSession );
-    when( sessionManager.getSession( sessionId ) ).thenReturn( replicantSession );
-    when( sessionManager.getSchemaMetaData() ).thenReturn( newSchemaMetaData() );
-
-    return new EndpointFixture( endpoint,
-                                sessionManager,
-                                addedEvent,
-                                updatedEvent,
-                                removedEvent,
-                                session,
-                                remote,
-                                sessionId,
-                                replicantSession,
-                                authorization );
-  }
-
-  @NonNull
-  private SchemaMetaData newSchemaMetaData()
-  {
-    final var typeChannel = new ChannelMetaData( 0,
-                                                             "type",
-                                                             null,
-                                                             ChannelMetaData.FilterType.NONE,
-                                                 ChannelMetaData.CacheType.NONE,
-                                                             true );
-    final var dynamicChannel = new ChannelMetaData( 1,
-                                                                "dynamic",
-                                                                1,
-                                                                ChannelMetaData.FilterType.DYNAMIC,
-                                                    ChannelMetaData.CacheType.NONE,
-                                                                true );
-    final var instancedChannel = new ChannelMetaData( 2,
-                                                                  "instanced",
-                                                                  2,
-                                                                  ChannelMetaData.FilterType.DYNAMIC_INSTANCED,
-                                                      ChannelMetaData.CacheType.NONE,
-                                                                  true );
-    final var staticInstancedChannel = new ChannelMetaData( 4,
-                                                                        "staticInstanced",
-                                                                        4,
-                                                                        ChannelMetaData.FilterType.STATIC_INSTANCED,
-                                                            ChannelMetaData.CacheType.NONE,
-                                                                        true );
-    final var internalChannel = new ChannelMetaData( 3,
-                                                                 "internal",
-                                                                 null,
-                                                                 ChannelMetaData.FilterType.NONE,
-                                                     ChannelMetaData.CacheType.NONE,
-                                                                 false );
-    return new SchemaMetaData( "Test",
-                               typeChannel,
-                               dynamicChannel,
-                               instancedChannel,
-                               internalChannel,
-                               staticInstancedChannel );
-  }
-
-  private void setField( @NonNull final Object target, @NonNull final String name, @Nullable final Object value )
-  {
-    try
-    {
-      final var field = ReplicantEndpoint.class.getDeclaredField( name );
-      field.setAccessible( true );
-      field.set( target, value );
+        verify(fixture.session).close(any(CloseReason.class));
+        verify(fixture.sessionManager, never()).invalidateSession(any());
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), "Unable to locate associated replicant session");
     }
-    catch ( final Exception e )
-    {
-      throw new AssertionError( e );
+
+    @Test
+    public void command_malformedMessage() throws Exception {
+        final var fixture = newFixture();
+
+        fixture.endpoint.command(fixture.session, "not-json");
+
+        verify(fixture.session).close(any(CloseReason.class));
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent, never()).fire(any());
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.MALFORMED_MESSAGE);
+        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), "not-json");
     }
-  }
 
-  private Object getField( @NonNull final Object target, @NonNull final String name )
-  {
-    try
-    {
-      final var field = ReplicantEndpoint.class.getDeclaredField( name );
-      field.setAccessible( true );
-      return field.get( target );
+    @Test
+    public void command_unauthorized() throws Exception {
+        final var fixture = newFixture();
+        fixture.authorization.valid = false;
+
+        fixture.endpoint.command(fixture.session, createPingCommand(1));
+
+        verify(fixture.session).close(any(CloseReason.class));
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent, never()).fire(any());
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), "Replicant session not authorized");
     }
-    catch ( final Exception e )
-    {
-      throw new AssertionError( e );
+
+    @Test
+    public void command_authIsRejected() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.AUTH)
+                .add(Messages.Common.REQUEST_ID, 12)
+                .add(Messages.Auth.TOKEN, "token")
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        assertNull(fixture.replicantSession.getAuthToken());
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.session).close(any(CloseReason.class));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE);
     }
-  }
 
-  private record EndpointFixture(@NonNull ReplicantEndpoint endpoint, @NonNull ReplicantSessionManager sessionManager,
-                                 @NonNull Event<ReplicantSessionAdded> addedEvent,
-                                 @NonNull Event<ReplicantSessionUpdated> updatedEvent,
-                                 @NonNull Event<ReplicantSessionRemoved> removedEvent, @NonNull Session session,
-                                 RemoteEndpoint.@NonNull Basic remote, @NonNull String sessionId,
-                                 @NonNull ReplicantSession replicantSession,
-                                 @NonNull TestAuthorization authorization)
-  {
-  }
+    @Test
+    public void command_exec_withPayload() throws Exception {
+        final var fixture = newFixture();
+        final var payload = Json.createObjectBuilder().add("a", "b").build();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.EXEC)
+                .add(Messages.Common.REQUEST_ID, 4)
+                .add(Messages.Common.COMMAND, "cmd")
+                .add(Messages.Exec.PAYLOAD, payload)
+                .build();
 
-  private static final class TestAuthorization
-    implements ReplicantSessionAuthorization
-  {
-    private boolean valid = true;
+        fixture.endpoint.command(fixture.session, command.toString());
 
-    @Override
-    public boolean runIfValid( @NonNull final Action action )
-      throws IOException
-    {
-      if ( valid )
-      {
-        action.run();
-        return true;
-      }
-      return false;
+        verify(fixture.sessionManager).execCommand(fixture.replicantSession, "cmd", 4, payload);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_exec_withoutPayload() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.EXEC)
+                .add(Messages.Common.REQUEST_ID, 5)
+                .add(Messages.Common.COMMAND, "cmd")
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager).execCommand(fixture.replicantSession, "cmd", 5, null);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_etags() throws Exception {
+        final var fixture = newFixture();
+        final var etags =
+                Json.createObjectBuilder().add("1", "e1").add("2.3#fi", "e2").build();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.ETAGS)
+                .add(Messages.Common.REQUEST_ID, 9)
+                .add(Messages.Etags.ETAGS, etags)
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        @SuppressWarnings("unchecked")
+        final var captor = (org.mockito.ArgumentCaptor<Map<ChannelAddress, String>>)
+                (Object) org.mockito.ArgumentCaptor.forClass(Map.class);
+        verify(fixture.sessionManager).setETags(eq(fixture.replicantSession), captor.capture());
+        final var captured = captor.getValue();
+        assertEquals(captured.get(ChannelAddress.of(1)), "e1");
+        assertEquals(captured.get(ChannelAddress.of(2, 3, "fi")), "e2");
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
+        assertEquals(response.getInt(Messages.Common.REQUEST_ID), 9);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_ping() throws Exception {
+        final var fixture = newFixture();
+
+        fixture.endpoint.command(fixture.session, createPingCommand(7));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
+        assertEquals(response.getInt(Messages.Common.REQUEST_ID), 7);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_subscribe_typeChannel() throws Exception {
+        final var fixture = newFixture();
+        final var command = createSubscribeCommand("0", 1, null);
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager)
+                .subscribe(fixture.replicantSession, 1, Collections.singletonList(ChannelAddress.of(0)), null);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_subscribe_withFilter() throws Exception {
+        final var fixture = newFixture();
+        final var filter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("1.5", 2, filter);
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager)
+                .subscribe(fixture.replicantSession, 2, Collections.singletonList(ChannelAddress.of(1, 5)), filter);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_subscribe_ignoresFilterWhenNotSupported() throws Exception {
+        final var fixture = newFixture();
+        final var filter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("0", 3, filter);
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager)
+                .subscribe(fixture.replicantSession, 3, Collections.singletonList(ChannelAddress.of(0)), null);
+    }
+
+    @Test
+    public void command_subscribe_internalChannel() throws Exception {
+        assertInvalidSubscribe("3", "Attempted to subscribe to internal-only channel");
+    }
+
+    @Test
+    public void command_subscribe_typeWithRoot() throws Exception {
+        assertInvalidSubscribe("0.1", "Attempted to subscribe to type channel with instance data");
+    }
+
+    @Test
+    public void command_subscribe_instanceWithoutRoot() throws Exception {
+        assertInvalidSubscribe("1", "Attempted to subscribe to instance channel without instance data");
+    }
+
+    @Test
+    public void command_subscribe_instancedWithoutFilterInstanceId() throws Exception {
+        assertInvalidSubscribe("2.7", "Attempted to use instanced channel without filter instance id");
+    }
+
+    @Test
+    public void command_subscribe_staticInstancedWithoutFilterInstanceId() throws Exception {
+        assertInvalidSubscribe("4.7", "Attempted to use instanced channel without filter instance id");
+    }
+
+    @Test
+    public void command_subscribe_nonInstancedWithFilterInstanceId() throws Exception {
+        assertInvalidSubscribe("1.5#fi", "Attempted to use non-instanced channel with filter instance id");
+    }
+
+    @Test
+    public void command_subscribe_staticInstancedWithFilterInstanceId() throws Exception {
+        final var fixture = newFixture();
+        final var filter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("4.7#fi", 5, filter);
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager)
+                .subscribe(
+                        fixture.replicantSession, 5, Collections.singletonList(ChannelAddress.of(4, 7, "fi")), filter);
+    }
+
+    @Test
+    public void command_bulkSubscribe_success() throws Exception {
+        final var fixture = newFixture();
+        final var filter = Json.createObjectBuilder().add("x", "y").build();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
+                .add(Messages.Common.REQUEST_ID, 4)
+                .add(
+                        Messages.Update.CHANNELS,
+                        Json.createArrayBuilder().add("2.7#fi").add("2.8#fi2"))
+                .add(Messages.Update.FILTER, filter)
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        final var expected = Arrays.asList(ChannelAddress.of(2, 7, "fi"), ChannelAddress.of(2, 8, "fi2"));
+        verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filter);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_bulkSubscribe_empty() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
+                .add(Messages.Common.REQUEST_ID, 4)
+                .add(Messages.Update.CHANNELS, Json.createArrayBuilder())
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_bulkSubscribe_mixedChannels() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
+                .add(Messages.Common.REQUEST_ID, 4)
+                .add(
+                        Messages.Update.CHANNELS,
+                        Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertEquals(
+                response.getString(Messages.S2C_Common.MESSAGE),
+                "Bulk channel subscribe included addresses from multiple channels");
+    }
+
+    @Test
+    public void command_unsubscribe_success() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.UNSUB)
+                .add(Messages.Common.REQUEST_ID, 7)
+                .add(Messages.Common.CHANNEL, "1.5")
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager)
+                .unsubscribe(fixture.replicantSession, 7, Collections.singletonList(ChannelAddress.of(1, 5)));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_unsubscribe_nonInstancedWithFilterInstanceId() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.UNSUB)
+                .add(Messages.Common.REQUEST_ID, 7)
+                .add(Messages.Common.CHANNEL, "1.5#fi")
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_bulkUnsubscribe_success() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
+                .add(Messages.Common.REQUEST_ID, 8)
+                .add(
+                        Messages.Update.CHANNELS,
+                        Json.createArrayBuilder().add("1.1").add("1.2"))
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        final var expected = Arrays.asList(ChannelAddress.of(1, 1), ChannelAddress.of(1, 2));
+        verify(fixture.sessionManager).unsubscribe(fixture.replicantSession, 8, expected);
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+    }
+
+    @Test
+    public void command_bulkUnsubscribe_mixedChannels() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
+                .add(Messages.Common.REQUEST_ID, 8)
+                .add(
+                        Messages.Update.CHANNELS,
+                        Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertEquals(
+                response.getString(Messages.S2C_Common.MESSAGE),
+                "Bulk channel unsubscribe included addresses from multiple channels");
+    }
+
+    @Test
+    public void command_unknownType() throws Exception {
+        final var fixture = newFixture();
+        final var command = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, "wut")
+                .add(Messages.Common.REQUEST_ID, 9)
+                .build();
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE);
+    }
+
+    private void assertInvalidSubscribe(@NonNull final String address, @NonNull final String message) throws Exception {
+        final var fixture = newFixture();
+        final var command = createSubscribeCommand(address, 2, null);
+
+        fixture.endpoint.command(fixture.session, command.toString());
+
+        verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
+        verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+
+        final var response = getLastSentMessage(fixture);
+        assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
+        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), message);
     }
 
     @NonNull
-    @Override
-    public Object getPrincipal()
-    {
-      return this;
+    private String createPingCommand(final int requestId) {
+        return Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.PING)
+                .add(Messages.Common.REQUEST_ID, requestId)
+                .build()
+                .toString();
     }
 
-    @Override
-    public void touchActivity()
-    {
+    @NonNull
+    private JsonObject createSubscribeCommand(
+            @NonNull final String channel, final int requestId, @Nullable final JsonObject filter) {
+        final var builder = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.SUB)
+                .add(Messages.Common.REQUEST_ID, requestId)
+                .add(Messages.Common.CHANNEL, channel);
+        if (null != filter) {
+            builder.add(Messages.Update.FILTER, filter);
+        }
+        return builder.build();
     }
 
-    @Override
-    public void close()
-    {
+    @NonNull
+    private JsonObject getLastSentMessage(@NonNull final EndpointFixture fixture) {
+        final var captor = org.mockito.ArgumentCaptor.forClass(String.class);
+        try {
+            verify(fixture.remote, atLeastOnce()).sendText(captor.capture());
+        } catch (final IOException ioe) {
+            throw new AssertionError(ioe);
+        }
+        final var message = captor.getValue();
+        return Json.createReader(new StringReader(message)).readObject();
     }
-  }
 
-  @SuppressWarnings( "unchecked" )
-  private static <T> Event<T> mockEvent()
-  {
-    return (Event<T>) mock( Event.class );
-  }
+    @NonNull
+    private EndpointFixture newFixture() {
+        return newFixture(new ReplicantEndpoint());
+    }
+
+    @NonNull
+    private EndpointFixture newFixture(@NonNull final ReplicantEndpoint endpoint) {
+        final var sessionManager = mock(ReplicantSessionManager.class);
+        final var addedEvent = ReplicantEndpointTest.<ReplicantSessionAdded>mockEvent();
+        final var updatedEvent = ReplicantEndpointTest.<ReplicantSessionUpdated>mockEvent();
+        final var removedEvent = ReplicantEndpointTest.<ReplicantSessionRemoved>mockEvent();
+        setField(endpoint, "_sessionManager", sessionManager);
+        final var handshakeAuthenticator = mock(ReplicantHandshakeAuthenticator.class);
+        setField(endpoint, "_handshakeAuthenticator", handshakeAuthenticator);
+        setField(endpoint, "_replicantSessionAddedEventEvent", addedEvent);
+        setField(endpoint, "_replicantSessionUpdatedEvent", updatedEvent);
+        setField(endpoint, "_replicantSessionRemovedEvent", removedEvent);
+
+        final var session = mock(Session.class);
+        final var remote = mock(RemoteEndpoint.Basic.class);
+        final var sessionId = "session-1";
+        when(session.getId()).thenReturn(sessionId);
+        when(session.isOpen()).thenReturn(true);
+        when(session.getBasicRemote()).thenReturn(remote);
+        final var authorization = new TestAuthorization();
+        final var replicantSession = new ReplicantSession(session, authorization);
+        when(handshakeAuthenticator.authenticate(session)).thenReturn(authorization);
+        when(sessionManager.createSession(session, authorization)).thenReturn(replicantSession);
+        when(sessionManager.getSession(sessionId)).thenReturn(replicantSession);
+        when(sessionManager.getSchemaMetaData()).thenReturn(newSchemaMetaData());
+
+        return new EndpointFixture(
+                endpoint,
+                sessionManager,
+                addedEvent,
+                updatedEvent,
+                removedEvent,
+                session,
+                remote,
+                sessionId,
+                replicantSession,
+                authorization);
+    }
+
+    @NonNull
+    private SchemaMetaData newSchemaMetaData() {
+        final var typeChannel = new ChannelMetaData(
+                0, "type", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, true);
+        final var dynamicChannel = new ChannelMetaData(
+                1, "dynamic", 1, ChannelMetaData.FilterType.DYNAMIC, ChannelMetaData.CacheType.NONE, true);
+        final var instancedChannel = new ChannelMetaData(
+                2, "instanced", 2, ChannelMetaData.FilterType.DYNAMIC_INSTANCED, ChannelMetaData.CacheType.NONE, true);
+        final var staticInstancedChannel = new ChannelMetaData(
+                4,
+                "staticInstanced",
+                4,
+                ChannelMetaData.FilterType.STATIC_INSTANCED,
+                ChannelMetaData.CacheType.NONE,
+                true);
+        final var internalChannel = new ChannelMetaData(
+                3, "internal", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, false);
+        return new SchemaMetaData(
+                "Test", typeChannel, dynamicChannel, instancedChannel, internalChannel, staticInstancedChannel);
+    }
+
+    private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {
+        try {
+            final var field = ReplicantEndpoint.class.getDeclaredField(name);
+            field.setAccessible(true);
+            field.set(target, value);
+        } catch (final Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private Object getField(@NonNull final Object target, @NonNull final String name) {
+        try {
+            final var field = ReplicantEndpoint.class.getDeclaredField(name);
+            field.setAccessible(true);
+            return field.get(target);
+        } catch (final Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private record EndpointFixture(
+            @NonNull ReplicantEndpoint endpoint,
+            @NonNull ReplicantSessionManager sessionManager,
+            @NonNull Event<ReplicantSessionAdded> addedEvent,
+            @NonNull Event<ReplicantSessionUpdated> updatedEvent,
+            @NonNull Event<ReplicantSessionRemoved> removedEvent,
+            @NonNull Session session,
+            RemoteEndpoint.@NonNull Basic remote,
+            @NonNull String sessionId,
+            @NonNull ReplicantSession replicantSession,
+            @NonNull TestAuthorization authorization) {}
+
+    private static final class TestAuthorization implements ReplicantSessionAuthorization {
+        private boolean valid = true;
+
+        @Override
+        public boolean runIfValid(@NonNull final Action action) throws IOException {
+            if (valid) {
+                action.run();
+                return true;
+            }
+            return false;
+        }
+
+        @NonNull
+        @Override
+        public Object getPrincipal() {
+            return this;
+        }
+
+        @Override
+        public void touchActivity() {}
+
+        @Override
+        public void close() {}
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Event<T> mockEvent() {
+        return (Event<T>) mock(Event.class);
+    }
 }

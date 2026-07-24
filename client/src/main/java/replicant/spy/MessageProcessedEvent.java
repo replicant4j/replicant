@@ -8,53 +8,48 @@ import org.jspecify.annotations.NonNull;
 /**
  * Notification when a Connector processed a message from a DataSource.
  */
-public final class MessageProcessedEvent
-  implements SerializableEvent
-{
-  private final int _schemaId;
-  @NonNull
-  private final String _schemaName;
-  @NonNull
-  private final DataLoadStatus _dataLoadStatus;
+public final class MessageProcessedEvent implements SerializableEvent {
+    private final int _schemaId;
 
-  public MessageProcessedEvent( final int schemaId, @NonNull final String schemaName,
-                                @NonNull final DataLoadStatus dataLoadStatus )
-  {
-    _schemaId = schemaId;
-    _schemaName = Objects.requireNonNull( schemaName );
-    _dataLoadStatus = Objects.requireNonNull( dataLoadStatus );
-  }
+    @NonNull
+    private final String _schemaName;
 
-  public int getSchemaId()
-  {
-    return _schemaId;
-  }
+    @NonNull
+    private final DataLoadStatus _dataLoadStatus;
 
-  @NonNull
-  public String getSchemaName()
-  {
-    return _schemaName;
-  }
+    public MessageProcessedEvent(
+            final int schemaId, @NonNull final String schemaName, @NonNull final DataLoadStatus dataLoadStatus) {
+        _schemaId = schemaId;
+        _schemaName = Objects.requireNonNull(schemaName);
+        _dataLoadStatus = Objects.requireNonNull(dataLoadStatus);
+    }
 
-  @NonNull
-  public DataLoadStatus getDataLoadStatus()
-  {
-    return _dataLoadStatus;
-  }
+    public int getSchemaId() {
+        return _schemaId;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Connector.MessageProcess" );
-    map.put( "schema.id", getSchemaId() );
-    map.put( "schema.name", getSchemaName() );
-    final DataLoadStatus status = getDataLoadStatus();
-    map.put( "requestId", status.getRequestId() );
-    map.put( "channelAddCount", status.getChannelAddCount() );
-    map.put( "channelRemoveCount", status.getChannelRemoveCount() );
-    map.put( "channelUpdateCount", status.getChannelUpdateCount() );
-    map.put( "entityUpdateCount", status.getEntityUpdateCount() );
-    map.put( "entityRemoveCount", status.getEntityRemoveCount() );
-    map.put( "entityLinkCount", status.getEntityLinkCount() );
-  }
+    @NonNull
+    public String getSchemaName() {
+        return _schemaName;
+    }
+
+    @NonNull
+    public DataLoadStatus getDataLoadStatus() {
+        return _dataLoadStatus;
+    }
+
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Connector.MessageProcess");
+        map.put("schema.id", getSchemaId());
+        map.put("schema.name", getSchemaName());
+        final DataLoadStatus status = getDataLoadStatus();
+        map.put("requestId", status.getRequestId());
+        map.put("channelAddCount", status.getChannelAddCount());
+        map.put("channelRemoveCount", status.getChannelRemoveCount());
+        map.put("channelUpdateCount", status.getChannelUpdateCount());
+        map.put("entityUpdateCount", status.getEntityUpdateCount());
+        map.put("entityRemoveCount", status.getEntityRemoveCount());
+        map.put("entityLinkCount", status.getEntityLinkCount());
+    }
 }

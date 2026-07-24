@@ -9,50 +9,44 @@ import replicant.ChannelAddress;
 /**
  * Notification when a Connector completes an unsubscribe from a channel.
  */
-public final class UnsubscribeCompletedEvent
-  implements SerializableEvent
-{
-  private final int _schemaId;
-  @NonNull
-  private final String _schemaName;
-  @NonNull
-  private final ChannelAddress _address;
+public final class UnsubscribeCompletedEvent implements SerializableEvent {
+    private final int _schemaId;
 
-  public UnsubscribeCompletedEvent( final int schemaId,
-                                    @NonNull final String schemaName,
-                                    @NonNull final ChannelAddress address )
-  {
-    _schemaId = schemaId;
-    _schemaName = Objects.requireNonNull( schemaName );
-    _address = Objects.requireNonNull( address );
-  }
+    @NonNull
+    private final String _schemaName;
 
-  public int getSchemaId()
-  {
-    return _schemaId;
-  }
+    @NonNull
+    private final ChannelAddress _address;
 
-  @NonNull
-  public String getSchemaName()
-  {
-    return _schemaName;
-  }
+    public UnsubscribeCompletedEvent(
+            final int schemaId, @NonNull final String schemaName, @NonNull final ChannelAddress address) {
+        _schemaId = schemaId;
+        _schemaName = Objects.requireNonNull(schemaName);
+        _address = Objects.requireNonNull(address);
+    }
 
-  @NonNull
-  public ChannelAddress getAddress()
-  {
-    return _address;
-  }
+    public int getSchemaId() {
+        return _schemaId;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Connector.UnsubscribeCompleted" );
-    map.put( "schema.id", getSchemaId() );
-    map.put( "schema.name", getSchemaName() );
-    final ChannelAddress address = getAddress();
-    map.put( "channel.schemaId", address.schemaId() );
-    map.put( "channel.channelId", address.channelId() );
-    map.put( "channel.rootId", address.rootId() );
-  }
+    @NonNull
+    public String getSchemaName() {
+        return _schemaName;
+    }
+
+    @NonNull
+    public ChannelAddress getAddress() {
+        return _address;
+    }
+
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Connector.UnsubscribeCompleted");
+        map.put("schema.id", getSchemaId());
+        map.put("schema.name", getSchemaName());
+        final ChannelAddress address = getAddress();
+        map.put("channel.schemaId", address.schemaId());
+        map.put("channel.channelId", address.channelId());
+        map.put("channel.rootId", address.rootId());
+    }
 }

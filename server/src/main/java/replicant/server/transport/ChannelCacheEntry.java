@@ -8,55 +8,50 @@ import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAddress;
 
-final class ChannelCacheEntry
-{
-  @NonNull
-  private final ReadWriteLock _lock = new ReentrantReadWriteLock();
-  @NonNull
-  private final ChannelAddress _descriptor;
-  @Nullable
-  private String _cacheKey;
-  @Nullable
-  private ChangeSet _changeSet;
+final class ChannelCacheEntry {
+    @NonNull
+    private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
-  ChannelCacheEntry( @NonNull final ChannelAddress address )
-  {
-    assert address.concrete();
-    _descriptor = Objects.requireNonNull( address );
-  }
+    @NonNull
+    private final ChannelAddress _descriptor;
 
-  @NonNull
-  ReadWriteLock getLock()
-  {
-    return _lock;
-  }
+    @Nullable
+    private String _cacheKey;
 
-  @NonNull
-  ChannelAddress getDescriptor()
-  {
-    return _descriptor;
-  }
+    @Nullable
+    private ChangeSet _changeSet;
 
-  void init( @NonNull final String cacheKey, @NonNull final ChangeSet changeSet )
-  {
-    _cacheKey = Objects.requireNonNull( cacheKey );
-    _changeSet = Objects.requireNonNull( changeSet );
-  }
+    ChannelCacheEntry(@NonNull final ChannelAddress address) {
+        assert address.concrete();
+        _descriptor = Objects.requireNonNull(address);
+    }
 
-  boolean isInitialized()
-  {
-    return null != _cacheKey;
-  }
+    @NonNull
+    ReadWriteLock getLock() {
+        return _lock;
+    }
 
-  @NonNull
-  String getCacheKey()
-  {
-    return Objects.requireNonNull( _cacheKey );
-  }
+    @NonNull
+    ChannelAddress getDescriptor() {
+        return _descriptor;
+    }
 
-  @NonNull
-  ChangeSet getChangeSet()
-  {
-    return Objects.requireNonNull( _changeSet );
-  }
+    void init(@NonNull final String cacheKey, @NonNull final ChangeSet changeSet) {
+        _cacheKey = Objects.requireNonNull(cacheKey);
+        _changeSet = Objects.requireNonNull(changeSet);
+    }
+
+    boolean isInitialized() {
+        return null != _cacheKey;
+    }
+
+    @NonNull
+    String getCacheKey() {
+        return Objects.requireNonNull(_cacheKey);
+    }
+
+    @NonNull
+    ChangeSet getChangeSet() {
+        return Objects.requireNonNull(_changeSet);
+    }
 }

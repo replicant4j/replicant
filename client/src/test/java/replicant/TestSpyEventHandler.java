@@ -1,94 +1,84 @@
 package replicant;
 
+import static org.testng.Assert.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
-import static org.testng.Assert.*;
 
-public final class TestSpyEventHandler
-  implements SpyEventHandler
-{
-  @NonNull
-  private final List<Object> _events = new ArrayList<>();
-  /**
-   * When ussing assertNextEvent this tracks the index that we are up to.
-   */
-  private int _currentAssertIndex;
+public final class TestSpyEventHandler implements SpyEventHandler {
+    @NonNull
+    private final List<Object> _events = new ArrayList<>();
+    /**
+     * When ussing assertNextEvent this tracks the index that we are up to.
+     */
+    private int _currentAssertIndex;
 
-  @Override
-  public void onSpyEvent( @NonNull final Object event )
-  {
-    _events.add( event );
-  }
-
-  /**
-   * Assert Event exists in list and return it.
-   */
-  @NonNull
-  <T> T assertEvent( @NonNull final Class<T> type )
-  {
-    for ( final Object event : _events )
-    {
-      if ( type.isInstance( event ) )
-      {
-        return type.cast( event );
-      }
+    @Override
+    public void onSpyEvent(@NonNull final Object event) {
+        _events.add(event);
     }
-    throw new AssertionError( "Unable to locate event of type " + type + " in event list " + _events );
-  }
 
-  /**
-   * Assert Event at index is of specific type and return it.
-   */
-  @NonNull
-  <T> T assertEvent( @NonNull final Class<T> type, final int index )
-  {
-    assertTrue( eventCount() > index );
-    final Object event = _events.get( index );
-    assertTrue( type.isInstance( event ),
-                "Expected event at index " + index + " to be of type " + type + " but is " +
-                " of type " + event.getClass() + " with value " + event );
-    return type.cast( event );
-  }
+    /**
+     * Assert Event exists in list and return it.
+     */
+    @NonNull
+    <T> T assertEvent(@NonNull final Class<T> type) {
+        for (final Object event : _events) {
+            if (type.isInstance(event)) {
+                return type.cast(event);
+            }
+        }
+        throw new AssertionError("Unable to locate event of type " + type + " in event list " + _events);
+    }
 
-  public void assertEventCount( final int count )
-  {
-    assertEquals( eventCount(), count, "Actual events: " + _events );
-  }
+    /**
+     * Assert Event at index is of specific type and return it.
+     */
+    @NonNull
+    <T> T assertEvent(@NonNull final Class<T> type, final int index) {
+        assertTrue(eventCount() > index);
+        final Object event = _events.get(index);
+        assertTrue(
+                type.isInstance(event),
+                "Expected event at index " + index + " to be of type " + type + " but is " + " of type "
+                        + event.getClass() + " with value " + event);
+        return type.cast(event);
+    }
 
-  void assertEventCountAtLeast( final int count )
-  {
-    assertTrue( eventCount() >= count, "Expected more than " + count + ". Actual events: " + _events );
-  }
+    public void assertEventCount(final int count) {
+        assertEquals(eventCount(), count, "Actual events: " + _events);
+    }
 
-  /**
-   * Assert "next" Event is of specific type.
-   * Increment the next counter.
-   */
-  @NonNull
-  <T> T assertNextEvent( @NonNull final Class<T> type )
-  {
-    final T event = assertEvent( type, _currentAssertIndex );
-    _currentAssertIndex++;
-    return event;
-  }
+    void assertEventCountAtLeast(final int count) {
+        assertTrue(eventCount() >= count, "Expected more than " + count + ". Actual events: " + _events);
+    }
 
-  /**
-   * Assert "next" Event is of specific type.
-   * Increment the next counter, run action.
-   */
-  @NonNull
-  public <T> T assertNextEvent( @NonNull final Class<T> type, @NonNull final Consumer<T> action )
-  {
-    final T event = assertEvent( type, _currentAssertIndex );
-    _currentAssertIndex++;
-    action.accept( event );
-    return event;
-  }
+    /**
+     * Assert "next" Event is of specific type.
+     * Increment the next counter.
+     */
+    @NonNull
+    <T> T assertNextEvent(@NonNull final Class<T> type) {
+        final T event = assertEvent(type, _currentAssertIndex);
+        _currentAssertIndex++;
+        return event;
+    }
 
-  private int eventCount()
-  {
-    return _events.size();
-  }
+    /**
+     * Assert "next" Event is of specific type.
+     * Increment the next counter, run action.
+     */
+    @NonNull
+    public <T> T assertNextEvent(@NonNull final Class<T> type, @NonNull final Consumer<T> action) {
+        final T event = assertEvent(type, _currentAssertIndex);
+        _currentAssertIndex++;
+        action.accept(event);
+        return event;
+    }
+
+    private int eventCount() {
+        return _events.size();
+    }
 }

@@ -12,62 +12,51 @@ import org.jspecify.annotations.Nullable;
  * the context data. The implementation uses thread-locals as it assumes that at least
  * the first interceptor will be invoked in the thread that initiates the request.</p>
  */
-public final class ReplicantContextHolder
-{
-  @NonNull
-  private static final ThreadLocal<Map<String, Object>> c_context = new ThreadLocal<>();
+public final class ReplicantContextHolder {
+    @NonNull
+    private static final ThreadLocal<Map<String, Object>> c_context = new ThreadLocal<>();
 
-  private ReplicantContextHolder()
-  {
-  }
+    private ReplicantContextHolder() {}
 
-  /**
-   * Specify some context data for a particular key.
-   *
-   * @param key  the key.
-   * @param data the data.
-   */
-  public static void put( @NonNull final String key, @Nullable final Object data )
-  {
-    if ( null == c_context.get() )
-    {
-      if ( null == data )
-      {
-        return;
-      }
-      c_context.set( new HashMap<>() );
+    /**
+     * Specify some context data for a particular key.
+     *
+     * @param key  the key.
+     * @param data the data.
+     */
+    public static void put(@NonNull final String key, @Nullable final Object data) {
+        if (null == c_context.get()) {
+            if (null == data) {
+                return;
+            }
+            c_context.set(new HashMap<>());
+        }
+
+        final var context = c_context.get();
+        if (null == data) {
+            context.remove(key);
+        } else {
+            context.put(key, data);
+        }
     }
 
-    final var context = c_context.get();
-    if ( null == data )
-    {
-      context.remove( key );
+    /**
+     * Retrieve context data specified for key.
+     *
+     * @param key the key.
+     * @return the context data if any, else null.
+     */
+    @Nullable
+    public static Object get(@NonNull final String key) {
+        final var map = c_context.get();
+        return null == map ? null : map.get(key);
     }
-    else
-    {
-      context.put( key, data );
+
+    /**
+     * Cleanup and remove any context data associated with the current request.
+     * This should be invoked by the outer interceptor.
+     */
+    public static void clean() {
+        c_context.remove();
     }
-  }
-
-  /**
-   * Retrieve context data specified for key.
-   *
-   * @param key the key.
-   * @return the context data if any, else null.
-   */
-  @Nullable
-  public static Object get( @NonNull final String key )
-  {
-    final var map = c_context.get();
-    return null == map ? null : map.get( key );
-  }
-
-  /**
-   * Cleanup and remove any context data associated with the current request.
-   * This should be invoked by the outer interceptor.
-   */
-  public static void clean()
-  {
-    c_context.remove();
-  }
 }

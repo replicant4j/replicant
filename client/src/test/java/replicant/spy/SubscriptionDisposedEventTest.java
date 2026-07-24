@@ -1,38 +1,36 @@
 package replicant.spy;
 
+import static org.testng.Assert.*;
+
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ChannelAddress;
 import replicant.Subscription;
 import replicant.ValueUtil;
-import static org.testng.Assert.*;
 
-public class SubscriptionDisposedEventTest
-  extends AbstractReplicantTest
-{
-  @Test
-  public void basicOperation()
-  {
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
+public class SubscriptionDisposedEventTest extends AbstractReplicantTest {
+    @Test
+    public void basicOperation() {
+        // Pause scheduler so Autoruns don't auto-converge
+        pauseScheduler();
 
-    final String filter = ValueUtil.randomString();
-    final Subscription subscription = createSubscription( new ChannelAddress( 1, 2 ), filter, true );
+        final String filter = ValueUtil.randomString();
+        final Subscription subscription = createSubscription(new ChannelAddress(1, 2), filter, true);
 
-    final SubscriptionDisposedEvent event = new SubscriptionDisposedEvent( subscription );
+        final SubscriptionDisposedEvent event = new SubscriptionDisposedEvent(subscription);
 
-    assertEquals( event.getSubscription(), subscription );
+        assertEquals(event.getSubscription(), subscription);
 
-    final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+        final HashMap<String, Object> data = new HashMap<>();
+        safeAction(() -> event.toMap(data));
 
-    assertEquals( data.get( "type" ), "Subscription.Disposed" );
-    assertEquals( data.get( "channel.schemaId" ), 1 );
-    assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.rootId" ) );
-    assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.get( "explicitSubscription" ), true );
-    assertEquals( data.size(), 6 );
-  }
+        assertEquals(data.get("type"), "Subscription.Disposed");
+        assertEquals(data.get("channel.schemaId"), 1);
+        assertEquals(data.get("channel.channelId"), 2);
+        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("channel.filter"), filter);
+        assertEquals(data.get("explicitSubscription"), true);
+        assertEquals(data.size(), 6);
+    }
 }

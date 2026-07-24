@@ -1,114 +1,114 @@
 package replicant.server;
 
-import java.util.Objects;
-import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
-public class ChangeTest
-{
-  @Test
-  public void basicOperation()
-  {
-    final var id = 17;
-    final var typeID = 42;
+import java.util.Objects;
+import org.testng.annotations.Test;
 
-    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var change = new Change( message );
+public class ChangeTest {
+    @Test
+    public void basicOperation() {
+        final var id = 17;
+        final var typeID = 42;
 
-    assertEquals( change.getKey(), "42#17" );
-    assertEquals( change.getEntityMessage(), message );
-    assertEquals( change.getChannels().size(), 0 );
-  }
+        final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change = new Change(message);
 
-  @Test
-  public void duplicate()
-  {
-    final var id = 17;
-    final var typeID = 42;
+        assertEquals(change.getKey(), "42#17");
+        assertEquals(change.getEntityMessage(), message);
+        assertEquals(change.getChannels().size(), 0);
+    }
 
-    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var change = new Change( message );
-    change.getChannels().add( ChannelAddress.of( 1, 1 ) );
-    change.getChannels().add( ChannelAddress.of( 2, 3 ) );
+    @Test
+    public void duplicate() {
+        final var id = 17;
+        final var typeID = 42;
 
-    final var duplicate = change.duplicate();
-    assertEquals( duplicate.getKey(), change.getKey() );
-    assertEquals( duplicate.getEntityMessage().getId(), change.getEntityMessage().getId() );
-    assertNotSame( duplicate.getEntityMessage(), change.getEntityMessage() );
-    assertEquals( duplicate.getChannels(), change.getChannels() );
-    //noinspection SimplifiableAssertion
-    assertFalse( duplicate.getChannels() == change.getChannels() );
-  }
+        final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change = new Change(message);
+        change.getChannels().add(ChannelAddress.of(1, 1));
+        change.getChannels().add(ChannelAddress.of(2, 3));
 
-  @SuppressWarnings( "ConstantConditions" )
-  @Test
-  public void merge_combinesChannels()
-  {
-    final var id = 17;
-    final var typeID = 42;
+        final var duplicate = change.duplicate();
+        assertEquals(duplicate.getKey(), change.getKey());
+        assertEquals(
+                duplicate.getEntityMessage().getId(), change.getEntityMessage().getId());
+        assertNotSame(duplicate.getEntityMessage(), change.getEntityMessage());
+        assertEquals(duplicate.getChannels(), change.getChannels());
+        //noinspection SimplifiableAssertion
+        assertFalse(duplicate.getChannels() == change.getChannels());
+    }
 
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
+    @SuppressWarnings("ConstantConditions")
+    @Test
+    public void merge_combinesChannels() {
+        final var id = 17;
+        final var typeID = 42;
 
-    final var change1 = new Change( message1 );
-    final var change2 = new Change( message2 );
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
 
-    change1.getChannels().add( ChannelAddress.of( 1, 1 ) );
-    change2.getChannels().add( ChannelAddress.of( 2, 3 ) );
+        final var change1 = new Change(message1);
+        final var change2 = new Change(message2);
 
-    assertEquals( change1.getChannels().size(), 1 );
-    assertFalse( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
-    assertEquals( Objects.requireNonNull( change1.getEntityMessage().getAttributeValues() )
-                    .get( MessageTestUtil.ATTR_KEY1 ), "a1" );
-    assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r2" );
+        change1.getChannels().add(ChannelAddress.of(1, 1));
+        change2.getChannels().add(ChannelAddress.of(2, 3));
 
-    change1.merge( change2 );
+        assertEquals(change1.getChannels().size(), 1);
+        assertFalse(change1.getChannels().contains(ChannelAddress.of(2, 3)));
+        assertEquals(
+                Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
+                        .get(MessageTestUtil.ATTR_KEY1),
+                "a1");
+        assertEquals(change1.getEntityMessage().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r2");
 
-    assertEquals( change1.getChannels().size(), 2 );
-    assertTrue( change1.getChannels().contains( ChannelAddress.of( 2, 3 ) ) );
-    assertEquals( Objects.requireNonNull( change1.getEntityMessage().getAttributeValues() )
-                    .get( MessageTestUtil.ATTR_KEY1 ), "aZ" );
-    assertEquals( change1.getEntityMessage().getRoutingKeys().get( MessageTestUtil.ROUTING_KEY2 ), "r3" );
-  }
+        change1.merge(change2);
 
-  @Test
-  public void constructor_includesFilterInstanceId()
-  {
-    final var id = 3;
-    final var typeID = 4;
+        assertEquals(change1.getChannels().size(), 2);
+        assertTrue(change1.getChannels().contains(ChannelAddress.of(2, 3)));
+        assertEquals(
+                Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
+                        .get(MessageTestUtil.ATTR_KEY1),
+                "aZ");
+        assertEquals(change1.getEntityMessage().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r3");
+    }
 
-    final var message = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var address = ChannelAddress.of( 7, 12, "instance-a" );
-    final var change = new Change( message, address );
+    @Test
+    public void constructor_includesFilterInstanceId() {
+        final var id = 3;
+        final var typeID = 4;
 
-    assertEquals( change.getChannels().size(), 1 );
-    assertTrue( change.getChannels().contains( address ) );
-  }
+        final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var address = ChannelAddress.of(7, 12, "instance-a");
+        final var change = new Change(message, address);
 
-  @Test
-  public void merge_preservesDistinctFilterInstanceIds()
-  {
-    final var id = 8;
-    final var typeID = 9;
+        assertEquals(change.getChannels().size(), 1);
+        assertTrue(change.getChannels().contains(address));
+    }
 
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
+    @Test
+    public void merge_preservesDistinctFilterInstanceIds() {
+        final var id = 8;
+        final var typeID = 9;
 
-    final var change1 = new Change( message1 );
-    final var change2 = new Change( message2 );
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
 
-    final var addressA = ChannelAddress.of( 5, 11, "inst-1" );
-    final var addressADuplicate = ChannelAddress.of( 5, 11, "inst-1" );
-    final var addressB = ChannelAddress.of( 5, 11, "inst-2" );
+        final var change1 = new Change(message1);
+        final var change2 = new Change(message2);
 
-    change1.getChannels().add( addressA );
-    change2.getChannels().add( addressADuplicate );
-    change2.getChannels().add( addressB );
+        final var addressA = ChannelAddress.of(5, 11, "inst-1");
+        final var addressADuplicate = ChannelAddress.of(5, 11, "inst-1");
+        final var addressB = ChannelAddress.of(5, 11, "inst-2");
 
-    change1.merge( change2 );
+        change1.getChannels().add(addressA);
+        change2.getChannels().add(addressADuplicate);
+        change2.getChannels().add(addressB);
 
-    assertEquals( change1.getChannels().size(), 2 );
-    assertTrue( change1.getChannels().contains( addressA ) );
-    assertTrue( change1.getChannels().contains( addressB ) );
-  }
+        change1.merge(change2);
+
+        assertEquals(change1.getChannels().size(), 2);
+        assertTrue(change1.getChannels().contains(addressA));
+        assertTrue(change1.getChannels().contains(addressB));
+    }
 }

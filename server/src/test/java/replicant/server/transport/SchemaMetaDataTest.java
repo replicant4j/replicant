@@ -1,47 +1,41 @@
 package replicant.server.transport;
 
-import replicant.server.ValueUtil;
-import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 
-public class SchemaMetaDataTest
-{
-  @Test
-  public void basicOperation()
-  {
-    final var ch0 =
-      new ChannelMetaData( 0,
-                           ValueUtil.randomString(),
-                           2,
-                           ChannelMetaData.FilterType.NONE,
-                           ChannelMetaData.CacheType.NONE,
-                           false );
-    final var ch1 =
-      new ChannelMetaData( 1,
-                           ValueUtil.randomString(),
-                           null,
-                           ChannelMetaData.FilterType.NONE,
-                           ChannelMetaData.CacheType.NONE,
-                           false );
-    final var ch2 =
-      new ChannelMetaData( 2,
-                           ValueUtil.randomString(),
-                           54,
-                           ChannelMetaData.FilterType.NONE,
-                           ChannelMetaData.CacheType.NONE,
-                           false );
-    final var name = ValueUtil.randomString();
+import org.testng.annotations.Test;
+import replicant.server.ValueUtil;
 
-    final var schemaMetaData = new SchemaMetaData( name, ch0, ch1, ch2 );
+public class SchemaMetaDataTest {
+    @Test
+    public void basicOperation() {
+        final var ch0 = new ChannelMetaData(
+                0, ValueUtil.randomString(), 2, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, false);
+        final var ch1 = new ChannelMetaData(
+                1,
+                ValueUtil.randomString(),
+                null,
+                ChannelMetaData.FilterType.NONE,
+                ChannelMetaData.CacheType.NONE,
+                false);
+        final var ch2 = new ChannelMetaData(
+                2,
+                ValueUtil.randomString(),
+                54,
+                ChannelMetaData.FilterType.NONE,
+                ChannelMetaData.CacheType.NONE,
+                false);
+        final var name = ValueUtil.randomString();
 
-    assertEquals( schemaMetaData.getName(), name );
-    assertEquals( schemaMetaData.getChannelMetaData( 0 ), ch0 );
-    assertEquals( schemaMetaData.getChannelMetaData( 1 ), ch1 );
-    assertEquals( schemaMetaData.getChannelMetaData( 2 ), ch2 );
-    assertEquals( schemaMetaData.getChannelCount(), 3 );
-    assertEquals( schemaMetaData.getInstanceChannelCount(), 2 );
-    assertEquals( schemaMetaData.getInstanceChannelCount(), 2 );
-    assertEquals( schemaMetaData.getInstanceChannelByIndex( 0 ), ch0 );
-    assertEquals( schemaMetaData.getInstanceChannelByIndex( 1 ), ch2 );
-  }
+        final var schemaMetaData = new SchemaMetaData(name, ch0, ch1, ch2);
+
+        assertEquals(schemaMetaData.getName(), name);
+        assertEquals(schemaMetaData.getChannelMetaData(0), ch0);
+        assertEquals(schemaMetaData.getChannelMetaData(1), ch1);
+        assertEquals(schemaMetaData.getChannelMetaData(2), ch2);
+        assertEquals(schemaMetaData.getChannelCount(), 3);
+        assertEquals(schemaMetaData.getInstanceChannelCount(), 2);
+        assertEquals(schemaMetaData.getInstanceChannelCount(), 2);
+        assertEquals(schemaMetaData.getInstanceChannelByIndex(0), ch0);
+        assertEquals(schemaMetaData.getInstanceChannelByIndex(1), ch2);
+    }
 }

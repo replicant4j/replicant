@@ -1,5 +1,7 @@
 package replicant.spy;
 
+import static org.testng.Assert.*;
+
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
@@ -7,34 +9,30 @@ import replicant.AreaOfInterest;
 import replicant.ChannelAddress;
 import replicant.Replicant;
 import replicant.ValueUtil;
-import static org.testng.Assert.*;
 
-public class AreaOfInterestFilterUpdatedEventTest
-  extends AbstractReplicantTest
-{
-  @Test
-  public void basicOperation()
-  {
-    // Pause scheduler so Autoruns don't auto-converge
-    pauseScheduler();
+public class AreaOfInterestFilterUpdatedEventTest extends AbstractReplicantTest {
+    @Test
+    public void basicOperation() {
+        // Pause scheduler so Autoruns don't auto-converge
+        pauseScheduler();
 
-    final String filter = ValueUtil.randomString();
-    final ChannelAddress address = new ChannelAddress( 1, 2 );
-    final AreaOfInterest areaOfInterest =
-      safeAction( () -> Replicant.context().createOrUpdateAreaOfInterest( address, filter ) );
+        final String filter = ValueUtil.randomString();
+        final ChannelAddress address = new ChannelAddress(1, 2);
+        final AreaOfInterest areaOfInterest =
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, filter));
 
-    final AreaOfInterestFilterUpdatedEvent event = new AreaOfInterestFilterUpdatedEvent( areaOfInterest );
+        final AreaOfInterestFilterUpdatedEvent event = new AreaOfInterestFilterUpdatedEvent(areaOfInterest);
 
-    assertEquals( event.getAreaOfInterest(), areaOfInterest );
+        assertEquals(event.getAreaOfInterest(), areaOfInterest);
 
-    final HashMap<String, Object> data = new HashMap<>();
-    safeAction( () -> event.toMap( data ) );
+        final HashMap<String, Object> data = new HashMap<>();
+        safeAction(() -> event.toMap(data));
 
-    assertEquals( data.get( "type" ), "AreaOfInterest.Updated" );
-    assertEquals( data.get( "channel.schemaId" ), 1 );
-    assertEquals( data.get( "channel.channelId" ), 2 );
-    assertNull( data.get( "channel.rootId" ) );
-    assertEquals( data.get( "channel.filter" ), filter );
-    assertEquals( data.size(), 5 );
-  }
+        assertEquals(data.get("type"), "AreaOfInterest.Updated");
+        assertEquals(data.get("channel.schemaId"), 1);
+        assertEquals(data.get("channel.channelId"), 2);
+        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("channel.filter"), filter);
+        assertEquals(data.size(), 5);
+    }
 }

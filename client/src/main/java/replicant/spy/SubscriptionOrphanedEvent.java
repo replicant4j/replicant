@@ -14,31 +14,26 @@ import replicant.Subscription;
  * desired state (i.e. AreaOfInterest) and actual state (i.e. Subscription) is responsible for identifying
  * orphaned subscriptions.
  */
-public final class SubscriptionOrphanedEvent
-  implements SerializableEvent
-{
-  @NonNull
-  private final Subscription _subscription;
+public final class SubscriptionOrphanedEvent implements SerializableEvent {
+    @NonNull
+    private final Subscription _subscription;
 
-  public SubscriptionOrphanedEvent( @NonNull final Subscription subscription )
-  {
-    _subscription = Objects.requireNonNull( subscription );
-  }
+    public SubscriptionOrphanedEvent(@NonNull final Subscription subscription) {
+        _subscription = Objects.requireNonNull(subscription);
+    }
 
-  @NonNull
-  public Subscription getSubscription()
-  {
-    return _subscription;
-  }
+    @NonNull
+    public Subscription getSubscription() {
+        return _subscription;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "Subscription.Orphaned" );
-    final ChannelAddress address = getSubscription().address();
-    map.put( "channel.schemaId", address.schemaId() );
-    map.put( "channel.channelId", address.channelId() );
-    map.put( "channel.rootId", address.rootId() );
-    map.put( "channel.filter", getSubscription().getFilter() );
-  }
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "Subscription.Orphaned");
+        final ChannelAddress address = getSubscription().address();
+        map.put("channel.schemaId", address.schemaId());
+        map.put("channel.channelId", address.channelId());
+        map.put("channel.rootId", address.rootId());
+        map.put("channel.filter", getSubscription().getFilter());
+    }
 }

@@ -15,46 +15,32 @@ import org.jspecify.annotations.NonNull;
  * - Within updates, order by type, so as to create in the order from the architecture.rb.
  * - Within identical types, order by change time, desc on delete, asc on update.
  */
-public final class EntityMessageSorter
-  implements Comparator<EntityMessage>
-{
-  private EntityMessageSorter()
-  {
-  }
+public final class EntityMessageSorter implements Comparator<EntityMessage> {
+    private EntityMessageSorter() {}
 
-  @NonNull
-  public static List<EntityMessage> sort( @NonNull final Collection<EntityMessage> messages )
-  {
-    final var sortedMessages = new ArrayList<>( messages );
-    sortedMessages.sort( COMPARATOR );
-    return sortedMessages;
-  }
+    @NonNull
+    public static List<EntityMessage> sort(@NonNull final Collection<EntityMessage> messages) {
+        final var sortedMessages = new ArrayList<>(messages);
+        sortedMessages.sort(COMPARATOR);
+        return sortedMessages;
+    }
 
-  public static final EntityMessageSorter COMPARATOR = new EntityMessageSorter();
+    public static final EntityMessageSorter COMPARATOR = new EntityMessageSorter();
 
-  @Override
-  public int compare( @NonNull final EntityMessage o1, @NonNull final EntityMessage o2 )
-  {
-    if ( o1.isDelete() )
-    {
-      if ( o2.isUpdate() )
-      {
-        return -1;
-      }
-      else
-      {
-        final var typeComparison = o2.getTypeId() - o1.getTypeId();
-        return 0 != typeComparison ? typeComparison : Long.compare( o2.getTimestamp(), o1.getTimestamp() );
-      }
+    @Override
+    public int compare(@NonNull final EntityMessage o1, @NonNull final EntityMessage o2) {
+        if (o1.isDelete()) {
+            if (o2.isUpdate()) {
+                return -1;
+            } else {
+                final var typeComparison = o2.getTypeId() - o1.getTypeId();
+                return 0 != typeComparison ? typeComparison : Long.compare(o2.getTimestamp(), o1.getTimestamp());
+            }
+        } else if (o2.isDelete()) {
+            return 1;
+        } else {
+            final var typeComparison = o1.getTypeId() - o2.getTypeId();
+            return 0 != typeComparison ? typeComparison : Long.compare(o1.getTimestamp(), o2.getTimestamp());
+        }
     }
-    else if ( o2.isDelete() )
-    {
-      return 1;
-    }
-    else
-    {
-      final var typeComparison = o1.getTypeId() - o2.getTypeId();
-      return 0 != typeComparison ? typeComparison : Long.compare( o1.getTimestamp(), o2.getTimestamp() );
-    }
-  }
 }

@@ -12,9 +12,7 @@ import javax.interceptor.InterceptorBinding;
  * Usually added to methods/services that occur in CDI event handling after transaction completes.
  */
 @Inherited
-@Target( { ElementType.TYPE, ElementType.METHOD } )
-@Retention( RetentionPolicy.RUNTIME )
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
 @InterceptorBinding
-public @interface PushReplicationState
-{
-}
+public @interface PushReplicationState {}

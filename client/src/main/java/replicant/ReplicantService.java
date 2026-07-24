@@ -1,34 +1,32 @@
 package replicant;
 
+import static org.realityforge.braincheck.Guards.*;
+
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A base class that interacts with ReplicantContext.
  */
-abstract class ReplicantService
-{
-  /**
-   * Reference to the context to which this service belongs.
-   */
-  @Nullable
-  private final ReplicantContext _context;
+abstract class ReplicantService {
+    /**
+     * Reference to the context to which this service belongs.
+     */
+    @Nullable
+    private final ReplicantContext _context;
 
-  ReplicantService( @Nullable final ReplicantContext context )
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( () -> Replicant.areZonesEnabled() || null == context,
-                 () -> "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false" );
+    ReplicantService(@Nullable final ReplicantContext context) {
+        if (Replicant.shouldCheckInvariants()) {
+            invariant(
+                    () -> Replicant.areZonesEnabled() || null == context,
+                    () -> "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false");
+        }
+        _context = Replicant.areZonesEnabled() ? Objects.requireNonNull(context) : null;
     }
-    _context = Replicant.areZonesEnabled() ? Objects.requireNonNull( context ) : null;
-  }
 
-  @NonNull
-  protected final ReplicantContext getReplicantContext()
-  {
-    return Replicant.areZonesEnabled() ? Objects.requireNonNull( _context ) : Replicant.context();
-  }
+    @NonNull
+    protected final ReplicantContext getReplicantContext() {
+        return Replicant.areZonesEnabled() ? Objects.requireNonNull(_context) : Replicant.context();
+    }
 }

@@ -9,101 +9,82 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SessionCreatedMessage;
 
-final class TransportContextImpl
-  implements TransportContext, Disposable
-{
-  @NonNull
-  private final Connector _connector;
-  private boolean _disposed;
+final class TransportContextImpl implements TransportContext, Disposable {
+    @NonNull
+    private final Connector _connector;
 
-  TransportContextImpl( @NonNull final Connector connector )
-  {
-    _connector = Objects.requireNonNull( connector );
-  }
+    private boolean _disposed;
 
-  @Override
-  public void dispose()
-  {
-    _disposed = true;
-  }
+    TransportContextImpl(@NonNull final Connector connector) {
+        _connector = Objects.requireNonNull(connector);
+    }
 
-  @Override
-  public boolean isDisposed()
-  {
-    return _disposed;
-  }
+    @Override
+    public void dispose() {
+        _disposed = true;
+    }
 
-  @Override
-  public int newRequestId( @Nullable final String name,
-                           final boolean syncRequest,
-                           @Nullable final ResponseHandler responseHandler )
-  {
-    assert isNotDisposed();
-    return _connector.ensureConnection().newRequest( name, syncRequest, responseHandler ).getRequestId();
-  }
+    @Override
+    public boolean isDisposed() {
+        return _disposed;
+    }
 
-  @Override
-  public void onMessageReceived( @NonNull final ServerToClientMessage message )
-  {
-    if ( isNotDisposed() )
-    {
-      if ( SessionCreatedMessage.TYPE.equals( message.getType() ) )
-      {
-        _connector.onConnection( ( (SessionCreatedMessage) message ).getSessionId() );
-      }
-      else
-      {
-        final boolean active = _connector.isSchedulerActive();
-        final boolean paused = _connector.isSchedulerPaused();
-        _connector.onMessageReceived( message );
-        /*
-         * If the browser page is not visible then do all processing within the message handler callback
-         * to avoid suffering under the vagaries of the background timer throttling.
-         */
-        if ( !active && !paused && shouldProcessImmediatelyOnReceive() )
-        {
-          //noinspection StatementWithEmptyBody
-          while ( _connector.progressMessages() )
-          {
-            //keep processing messages until done
-          }
+    @Override
+    public int newRequestId(
+            @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler) {
+        assert isNotDisposed();
+        return _connector
+                .ensureConnection()
+                .newRequest(name, syncRequest, responseHandler)
+                .getRequestId();
+    }
+
+    @Override
+    public void onMessageReceived(@NonNull final ServerToClientMessage message) {
+        if (isNotDisposed()) {
+            if (SessionCreatedMessage.TYPE.equals(message.getType())) {
+                _connector.onConnection(((SessionCreatedMessage) message).getSessionId());
+            } else {
+                final boolean active = _connector.isSchedulerActive();
+                final boolean paused = _connector.isSchedulerPaused();
+                _connector.onMessageReceived(message);
+                /*
+                 * If the browser page is not visible then do all processing within the message handler callback
+                 * to avoid suffering under the vagaries of the background timer throttling.
+                 */
+                if (!active && !paused && shouldProcessImmediatelyOnReceive()) {
+                    //noinspection StatementWithEmptyBody
+                    while (_connector.progressMessages()) {
+                        // keep processing messages until done
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  private static boolean shouldProcessImmediatelyOnReceive()
-  {
-    return ReplicantConfig.isJvm() || !VisibilityState.visible.equals( WindowGlobal.document().visibilityState() );
-  }
-
-  @Override
-  public void onError()
-  {
-    if ( isNotDisposed() )
-    {
-      final ConnectorState state = _connector.getState();
-      if ( ConnectorState.CONNECTING == state )
-      {
-        _connector.onConnectFailure();
-      }
-      else if ( ConnectorState.CONNECTED == state )
-      {
-        _connector.onMessageReadFailure();
-      }
-      else if ( ConnectorState.DISCONNECTING == state )
-      {
-        _connector.onDisconnectFailure();
-      }
+    private static boolean shouldProcessImmediatelyOnReceive() {
+        return ReplicantConfig.isJvm()
+                || !VisibilityState.visible.equals(WindowGlobal.document().visibilityState());
     }
-  }
 
-  @Override
-  public void onDisconnect()
-  {
-    if ( isNotDisposed() )
-    {
-      _connector.onDisconnection();
+    @Override
+    public void onError() {
+        if (isNotDisposed()) {
+            final ConnectorState state = _connector.getState();
+            if (ConnectorState.CONNECTING == state) {
+                _connector.onConnectFailure();
+            } else if (ConnectorState.CONNECTED == state) {
+                _connector.onMessageReadFailure();
+            } else if (ConnectorState.DISCONNECTING == state) {
+                _connector.onDisconnectFailure();
+            }
+        }
     }
-  }
+
+    @Override
+    public void onDisconnect() {
+        if (isNotDisposed()) {
+            _connector.onDisconnection();
+        }
+    }
 }

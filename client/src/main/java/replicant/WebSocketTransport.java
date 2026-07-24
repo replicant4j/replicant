@@ -4,153 +4,119 @@ import akasha.MessageEvent;
 import akasha.WebSocket;
 import akasha.core.JSON;
 import java.util.Objects;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
 import replicant.shared.Messages;
 
-public final class WebSocketTransport
-  extends AbstractTransport
-{
-  @NonNull
-  private final WebSocketConfig _config;
-  @Nullable
-  private WebSocket _webSocket;
+public final class WebSocketTransport extends AbstractTransport {
+    @NonNull
+    private final WebSocketConfig _config;
 
-  public WebSocketTransport( @NonNull final WebSocketConfig config )
-  {
-    _config = Objects.requireNonNull( config );
-  }
+    @Nullable
+    private WebSocket _webSocket;
 
-  @Override
-  protected void doConnect()
-  {
-    _webSocket = new WebSocket( _config.getUrl() );
-
-    _webSocket.onmessage = this::handleMessageEvent;
-    _webSocket.onerror = e -> onError();
-    _webSocket.onclose = e -> onDisconnect();
-  }
-
-  private void handleMessageEvent( @NonNull final MessageEvent e )
-  {
-    final Any data = e.data();
-    if ( null == data )
-    {
-      ReplicantLogger.log( "WebSocket message has null data", null );
-      onError();
+    public WebSocketTransport(@NonNull final WebSocketConfig config) {
+        _config = Objects.requireNonNull(config);
     }
-    else
-    {
-      try
-      {
-        final ServerToClientMessage message = tryParseMessage( data );
-        if ( null == message )
-        {
-          onError();
-        }
-        else
-        {
-          final String type = message.getType();
-          if ( isKnownMessageType( type ) )
-          {
-            onMessageReceived( message );
-          }
-          else
-          {
-            ReplicantLogger.log( "Unknown WebSocket message type: " + type, null );
+
+    @Override
+    protected void doConnect() {
+        _webSocket = new WebSocket(_config.getUrl());
+
+        _webSocket.onmessage = this::handleMessageEvent;
+        _webSocket.onerror = e -> onError();
+        _webSocket.onclose = e -> onDisconnect();
+    }
+
+    private void handleMessageEvent(@NonNull final MessageEvent e) {
+        final Any data = e.data();
+        if (null == data) {
+            ReplicantLogger.log("WebSocket message has null data", null);
             onError();
-          }
+        } else {
+            try {
+                final ServerToClientMessage message = tryParseMessage(data);
+                if (null == message) {
+                    onError();
+                } else {
+                    final String type = message.getType();
+                    if (isKnownMessageType(type)) {
+                        onMessageReceived(message);
+                    } else {
+                        ReplicantLogger.log("Unknown WebSocket message type: " + type, null);
+                        onError();
+                    }
+                }
+            } catch (final Throwable t) {
+                ReplicantLogger.log("Failed to parse WebSocket message", t);
+                onError();
+            }
         }
-      }
-      catch ( final Throwable t )
-      {
-        ReplicantLogger.log( "Failed to parse WebSocket message", t );
-        onError();
-      }
-    }
-  }
-
-  private static boolean isKnownMessageType( @NonNull final String type )
-  {
-    return Messages.S2C_Type.UPDATE.equals( type ) ||
-           Messages.S2C_Type.USE_CACHE.equals( type ) ||
-           Messages.S2C_Type.SESSION_CREATED.equals( type ) ||
-           Messages.S2C_Type.OK.equals( type ) ||
-           Messages.S2C_Type.MALFORMED_MESSAGE.equals( type ) ||
-           Messages.S2C_Type.UNKNOWN_REQUEST_TYPE.equals( type ) ||
-           Messages.S2C_Type.ERROR.equals( type );
-  }
-
-  @Nullable
-  private static ServerToClientMessage tryParseMessage( @NonNull final Any data )
-  {
-    final String kind = Js.typeof( data );
-    Any parsed;
-    if ( "string".equals( kind ) )
-    {
-      parsed = JSON.parse( data.asString() );
-    }
-    else
-    {
-      ReplicantLogger.log( "WebSocket message incorrect type: " + kind, null );
-      return null;
     }
 
-    if ( null == parsed )
-    {
-      ReplicantLogger.log( "WebSocket message parsed to null", null );
-      return null;
+    private static boolean isKnownMessageType(@NonNull final String type) {
+        return Messages.S2C_Type.UPDATE.equals(type)
+                || Messages.S2C_Type.USE_CACHE.equals(type)
+                || Messages.S2C_Type.SESSION_CREATED.equals(type)
+                || Messages.S2C_Type.OK.equals(type)
+                || Messages.S2C_Type.MALFORMED_MESSAGE.equals(type)
+                || Messages.S2C_Type.UNKNOWN_REQUEST_TYPE.equals(type)
+                || Messages.S2C_Type.ERROR.equals(type);
     }
-    else
-    {
-      final JsPropertyMap<?> map = Js.asPropertyMap( parsed );
-      if ( null == map || !map.has( "type" ) )
-      {
-        ReplicantLogger.log( "WebSocket payload missing 'type' property", null );
-        return null;
-      }
-      else
-      {
-        return parsed.cast();
-      }
-    }
-  }
 
-  @Override
-  protected void doDisconnect()
-  {
-    if ( null != _webSocket )
-    {
-      final int readyState = _webSocket.readyState();
-      if ( WebSocket.OPEN == readyState )
-      {
-        _webSocket.close();
-      }
-      else if ( WebSocket.CONNECTING == readyState )
-      {
-        // It is an error to invoke close() on a socket that is not open, so defer the close until the
-        // socket has opened.
-        final WebSocket webSocket = _webSocket;
-        webSocket.onopen = e -> webSocket.close();
-      }
-      _webSocket = null;
-    }
-  }
+    @Nullable
+    private static ServerToClientMessage tryParseMessage(@NonNull final Any data) {
+        final String kind = Js.typeof(data);
+        Any parsed;
+        if ("string".equals(kind)) {
+            parsed = JSON.parse(data.asString());
+        } else {
+            ReplicantLogger.log("WebSocket message incorrect type: " + kind, null);
+            return null;
+        }
 
-  @Override
-  protected void sendRemoteMessage( @NonNull final Object message )
-  {
-    _config.remote( () -> {
-      // Attempts to perform a send can occur when there is no connection.
-      // This typically happens when a previous request fails.
-      if ( null != _webSocket && WebSocket.OPEN == _webSocket.readyState() )
-      {
-        _webSocket.send( JSON.stringify( message ) );
-      }
-    } );
-  }
+        if (null == parsed) {
+            ReplicantLogger.log("WebSocket message parsed to null", null);
+            return null;
+        } else {
+            final JsPropertyMap<?> map = Js.asPropertyMap(parsed);
+            if (null == map || !map.has("type")) {
+                ReplicantLogger.log("WebSocket payload missing 'type' property", null);
+                return null;
+            } else {
+                return parsed.cast();
+            }
+        }
+    }
+
+    @Override
+    protected void doDisconnect() {
+        if (null != _webSocket) {
+            final int readyState = _webSocket.readyState();
+            if (WebSocket.OPEN == readyState) {
+                _webSocket.close();
+            } else if (WebSocket.CONNECTING == readyState) {
+                // It is an error to invoke close() on a socket that is not open, so defer the close until the
+                // socket has opened.
+                final WebSocket webSocket = _webSocket;
+                webSocket.onopen = e -> webSocket.close();
+            }
+            _webSocket = null;
+        }
+    }
+
+    @Override
+    protected void sendRemoteMessage(@NonNull final Object message) {
+        _config.remote(() -> {
+            // Attempts to perform a send can occur when there is no connection.
+            // This typically happens when a previous request fails.
+            if (null != _webSocket && WebSocket.OPEN == _webSocket.readyState()) {
+                _webSocket.send(JSON.stringify(message));
+            }
+        });
+    }
 }

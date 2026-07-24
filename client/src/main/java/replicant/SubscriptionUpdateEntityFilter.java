@@ -9,15 +9,14 @@ import org.jspecify.annotations.Nullable;
  * {@link replicant.ChannelSchema.FilterType#DYNAMIC_INSTANCED} filter type must be associated with a filter
  * of this type.
  */
-public interface SubscriptionUpdateEntityFilter<T>
-{
-  /**
-   * Return true if specified entity is matched by the channel designated filter.
-   * This interfaces is invoked when the server updates a subscription and a client is responsible
-   * for removing local Entities from that subscription that no longer match the filter.
-   *
-   * @param filter the filter.
-   * @param entity the entity to match.
-   */
-  boolean doesEntityMatchFilter( @Nullable T filter, @NonNull Entity entity );
+public interface SubscriptionUpdateEntityFilter<T> {
+    /**
+     * Return true if specified entity is matched by the channel designated filter.
+     * This interfaces is invoked when the server updates a subscription and a client is responsible
+     * for removing local Entities from that subscription that no longer match the filter.
+     *
+     * @param filter the filter.
+     * @param entity the entity to match.
+     */
+    boolean doesEntityMatchFilter(@Nullable T filter, @NonNull Entity entity);
 }

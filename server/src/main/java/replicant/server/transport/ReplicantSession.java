@@ -17,614 +17,547 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import javax.websocket.CloseReason;
 import javax.websocket.Session;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAddress;
 import replicant.server.json.JsonEncoder;
 
-public final class ReplicantSession
-  implements Serializable, Closeable
-{
-  @NonNull
-  private static final Logger LOG = Logger.getLogger( ReplicantSession.class.getName() );
-  @NonNull
-  private final Session _webSocketSession;
-  @Nullable
-  private final ReplicantSessionAuthorization _authorization;
-  @NonNull
-  private final Map<ChannelAddress, String> _eTags = new HashMap<>();
-  @NonNull
-  private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
-  @NonNull
-  private final Map<ChannelKey, Set<SubscriptionEntry>> _subscriptionsByChannel = new HashMap<>();
-  @NonNull
-  private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
-  @NonNull
-  private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
-  @NonNull
-  private final ReentrantLock _lock = new ReentrantLock( true );
-  @Nullable
-  private String _authToken;
-  @Nullable
-  private Object _userObject;
-  private boolean _authorizationClosed;
+public final class ReplicantSession implements Serializable, Closeable {
+    @NonNull
+    private static final Logger LOG = Logger.getLogger(ReplicantSession.class.getName());
 
-  public ReplicantSession( @NonNull final Session webSocketSession )
-  {
-    this( webSocketSession, null );
-  }
+    @NonNull
+    private final Session _webSocketSession;
 
-  public ReplicantSession( @NonNull final Session webSocketSession,
-                           @Nullable final ReplicantSessionAuthorization authorization )
-  {
-    _webSocketSession = Objects.requireNonNull( webSocketSession );
-    _authorization = authorization;
-    _userObject = null == authorization ? null : authorization.getPrincipal();
-  }
+    @Nullable
+    private final ReplicantSessionAuthorization _authorization;
 
-  @SuppressWarnings( "unused" )
-  @Nullable
-  public Object getUserObject()
-  {
-    return _userObject;
-  }
+    @NonNull
+    private final Map<ChannelAddress, String> _eTags = new HashMap<>();
 
-  @SuppressWarnings( "unused" )
-  public void setUserObject( @Nullable final Object userObject )
-  {
-    _userObject = userObject;
-  }
+    @NonNull
+    private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
-  public void closeDueToInterrupt()
-  {
-    close( new CloseReason( CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Action interrupted" ) );
-  }
+    @NonNull
+    private final Map<ChannelKey, Set<SubscriptionEntry>> _subscriptionsByChannel = new HashMap<>();
 
-  public void close( @NonNull final CloseReason closeReason )
-  {
-    releaseAuthorization();
-    if ( isOpen() )
-    {
-      LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() + " with " + closeReason );
-      try
-      {
-        _webSocketSession.close( closeReason );
-      }
-      catch ( final IOException ioe )
-      {
-        LOG.log( Level.FINE, () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
-      }
+    @NonNull
+    private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
+
+    @NonNull
+    private final BlockingQueue<Packet> _pendingPackets = new LinkedBlockingQueue<>();
+
+    @NonNull
+    private final ReentrantLock _lock = new ReentrantLock(true);
+
+    @Nullable
+    private String _authToken;
+
+    @Nullable
+    private Object _userObject;
+
+    private boolean _authorizationClosed;
+
+    public ReplicantSession(@NonNull final Session webSocketSession) {
+        this(webSocketSession, null);
     }
-    else
-    {
-      LOG.log( Level.FINE,
-               () -> "Websocket close requested for replicant session " + getId() + " with " + closeReason +
-                     " but the websocket is already closed" );
+
+    public ReplicantSession(
+            @NonNull final Session webSocketSession, @Nullable final ReplicantSessionAuthorization authorization) {
+        _webSocketSession = Objects.requireNonNull(webSocketSession);
+        _authorization = authorization;
+        _userObject = null == authorization ? null : authorization.getPrincipal();
     }
-  }
 
-  @Override
-  public void close()
-  {
-    releaseAuthorization();
-    if ( isOpen() )
-    {
-      LOG.log( Level.FINE, () -> "Closing websocket for replicant session " + getId() );
-      try
-      {
-        _webSocketSession.close();
-      }
-      catch ( final IOException ioe )
-      {
-        LOG.log( Level.FINE, () -> "Websocket close for replicant session " + getId() + " generated error " + ioe );
-      }
+    @SuppressWarnings("unused")
+    @Nullable
+    public Object getUserObject() {
+        return _userObject;
     }
-    else
-    {
-      LOG.log( Level.FINE,
-               () -> "Websocket close requested for replicant session " + getId() +
-                     " but the websocket is already closed" );
+
+    @SuppressWarnings("unused")
+    public void setUserObject(@Nullable final Object userObject) {
+        _userObject = userObject;
     }
-  }
 
-  /**
-   * Send a ping at the network level to ensure the connection is kept alive.
-   *
-   * <p>This is required to keep connection alive when passing through some load balancers
-   * that proxy non-ssl websockets and close the socket after an idle period.</p>
-   */
-  public void pingTransport()
-  {
-    if ( isOpen() )
-    {
-      LOG.log( Level.FINE, () -> "Pinging websocket for replicant session " + getId() );
-      try
-      {
-        _webSocketSession.getBasicRemote().sendPing( null );
-      }
-      catch ( final IOException ioe )
-      {
-        // All scenarios we can envision imply the session is shutting down, and thus can be ignored
-        LOG.log( Level.FINER, () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe );
-      }
+    public void closeDueToInterrupt() {
+        close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Action interrupted"));
     }
-    else
-    {
-      LOG.log( Level.FINE,
-               () -> "Websocket ping requested for replicant session " + getId() +
-                     " but the websocket is already closed" );
-    }
-  }
 
-  public boolean isOpen()
-  {
-    return _webSocketSession.isOpen();
-  }
-
-  @NonNull
-  public Session getWebSocketSession()
-  {
-    return _webSocketSession;
-  }
-
-  public void setAuthToken( @Nullable final String authToken )
-  {
-    _authToken = authToken;
-  }
-
-  /**
-   * @return a token used for authentication, if any.
-   */
-  @SuppressWarnings( "unused" )
-  @Nullable
-  public String getAuthToken()
-  {
-    return _authToken;
-  }
-
-  /**
-   * @return an opaque ID representing session.
-   */
-  @NonNull
-  public String getId()
-  {
-    return getWebSocketSession().getId();
-  }
-
-  @NonNull
-  public ReentrantLock getLock()
-  {
-    return _lock;
-  }
-
-  public boolean runIfValid( final ReplicantSessionAuthorization.@NonNull Action action )
-    throws IOException
-  {
-    if ( null == _authorization )
-    {
-      action.run();
-      return true;
-    }
-    return _authorization.runIfValid( action );
-  }
-
-  public void touchActivity()
-  {
-    if ( null != _authorization )
-    {
-      _authorization.touchActivity();
-    }
-  }
-
-  private synchronized void releaseAuthorization()
-  {
-    if ( !_authorizationClosed && null != _authorization )
-    {
-      _authorizationClosed = true;
-      _authorization.close();
-    }
-  }
-
-  void queuePacket( @NonNull final Packet packet )
-  {
-    if ( packet.altersExplicitSubscriptions() )
-    {
-      _pendingSubscriptionPackets.add( packet );
-    }
-    else
-    {
-      _pendingPackets.add( packet );
-    }
-  }
-
-  @Nullable
-  Packet popPendingPacket()
-  {
-    /*
-     * We prioritize subscription packets ahead of other packets.
-     * As the subscription data on the session object has already been
-     * updated, we need to tell the client that these subscription changes
-     * have occurred before we try and route other messages to the client.
-     *
-     * Only after the client has been updated with all subscription changing
-     * packets do we send other packets.
-     */
-    final var packet = _pendingSubscriptionPackets.poll();
-    return null == packet ? _pendingPackets.poll() : packet;
-  }
-
-  boolean hasPendingPackets()
-  {
-    return !_pendingSubscriptionPackets.isEmpty() || !_pendingPackets.isEmpty();
-  }
-
-  /**
-   * Send a packet to the client.
-   *
-   * @param requestId the request id that caused these changes if this session requested the changes.
-   * @param response  the response message if the packet is the result of a request that has a response,
-   *                  and the request was initiated by the session.
-   * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
-   * @param changeSet the changeSet to create packet from.
-   */
-  public void sendPacket( @Nullable final Integer requestId,
-                          @Nullable final JsonValue response,
-                          @Nullable final String etag,
-                          @NonNull final ChangeSet changeSet )
-  {
-    assert null == response || null != requestId;
-    ensureLockedByCurrentThread();
-    final var message = JsonEncoder.encodeChangeSet( requestId, response, etag, changeSet );
-    LOG.log( Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message );
-    if ( !WebSocketUtil.sendText( getWebSocketSession(), message ) )
-    {
-      LOG.log( Level.FINE,
-               () -> "Failed to send text message for replicant session " + getId() + " with payload " + message );
-    }
-  }
-
-  void ensureLockedByCurrentThread()
-  {
-    if ( !_lock.isHeldByCurrentThread() )
-    {
-      throw new IllegalStateException( "Expected session to be locked by the current thread" );
-    }
-  }
-
-  @Nullable
-  String getETag( @NonNull final ChannelAddress address )
-  {
-    assert address.concrete();
-    return _eTags.get( address );
-  }
-
-  public void setETags( @NonNull final Map<ChannelAddress, String> etags )
-  {
-    ensureLockedByCurrentThread();
-    _eTags.clear();
-    for ( final var etag : etags.entrySet() )
-    {
-      setETag( etag.getKey(), etag.getValue() );
-    }
-  }
-
-  void setETag( @NonNull final ChannelAddress address, @Nullable final String eTag )
-  {
-    ensureLockedByCurrentThread();
-    assert address.concrete();
-    if ( null == eTag )
-    {
-      _eTags.remove( address );
-    }
-    else
-    {
-      _eTags.put( address, eTag );
-    }
-  }
-
-  /**
-   * Return subscription entry for specified channel.
-   */
-  @SuppressWarnings( "WeakerAccess" )
-  @NonNull
-  SubscriptionEntry getSubscriptionEntry( @NonNull final ChannelAddress address )
-  {
-    ensureLockedByCurrentThread();
-    assert address.concrete();
-    final var entry = findSubscriptionEntry( address );
-    if ( null == entry )
-    {
-      throw new IllegalStateException( "Unable to locate subscription entry for " + address );
-    }
-    return entry;
-  }
-
-  /**
-   * Configure the subscription entries to reflect a graph-scoped downstream dependency.
-   *
-   * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
-   * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
-   * session and the target must be a concrete type-graph address.</p>
-   */
-  public void recordGraphScopedGraphLink( @NonNull final ChannelAddress source, @NonNull final ChannelAddress target )
-  {
-    assert !target.hasRootId();
-    recordGraphLink( source, target, LinkOwner.graph() );
-  }
-
-  /**
-   * Configure the subscription entries to reflect an entity-scoped downstream dependency.
-   *
-   * <p>This API is intended for downstream application code that needs to record an entity-scoped dependency after
-   * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
-   * session.</p>
-   *
-   * <p>Entity-owned links, including links that resolve to instance graphs, are managed internally by Replicant's
-   * follow-link processing and should not be recorded through this API unless the developer is using postSubscribe
-   * hooks to optimize data loads.</p>
-   */
-  public void recordEntityScopedGraphLink( @NonNull final ChannelAddress source,
-                                           @NonNull final ChannelAddress target,
-                                           final int entityTypeId,
-                                           final int entityId )
-  {
-    recordGraphLink( source, target, LinkOwner.entity( entityTypeId, entityId ) );
-  }
-
-  private void recordGraphLink( @NonNull final ChannelAddress source,
-                                @NonNull final ChannelAddress target,
-                                @NonNull final LinkOwner owner )
-  {
-    InvariantUtil.assertConcreteAddress( source );
-    InvariantUtil.assertConcreteAddress( target );
-    final var sourceEntry = getSubscriptionEntry( source );
-    final var targetEntry = getSubscriptionEntry( target );
-    recordGraphLink( sourceEntry, targetEntry, owner );
-  }
-
-  void recordGraphLink( @NonNull final SubscriptionEntry sourceEntry,
-                        @NonNull final SubscriptionEntry targetEntry,
-                        @NonNull final LinkOwner owner )
-  {
-    InvariantUtil.assertConcreteAddress( sourceEntry.address() );
-    InvariantUtil.assertConcreteAddress( targetEntry.address() );
-    assert !owner.isGraphScoped() || !targetEntry.address().hasRootId();
-    final var added = sourceEntry.registerOutwardSubscriptions( owner, targetEntry.address() );
-    if ( 0 != added.length )
-    {
-      targetEntry.registerInwardSubscriptions( sourceEntry.address() );
-    }
-  }
-
-  public void recordSubscriptions( @NonNull final ChangeSet changeSet,
-                                   @NonNull final Collection<ChannelAddress> addresses,
-                                   @Nullable final JsonObject filter,
-                                   final boolean explicitSubscribe )
-  {
-    for ( final var address : addresses )
-    {
-      recordSubscription( changeSet, address, filter, explicitSubscribe );
-    }
-  }
-
-  public void recordSubscription( @NonNull final ChangeSet changeSet,
-                                  @NonNull final ChannelAddress address,
-                                  @Nullable final JsonObject filter,
-                                  final boolean explicitSubscribe )
-  {
-    assert address.concrete();
-    final var existing = findSubscriptionEntry( address );
-    final var entry = null == existing ? createSubscriptionEntry( address ) : existing;
-    if ( explicitSubscribe )
-    {
-      entry.setExplicitlySubscribed( true );
-    }
-    entry.setFilter( filter );
-    changeSet.mergeAction( address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter );
-  }
-
-  @Nullable
-  public JsonObject getFilter( @NonNull final ChannelAddress address )
-  {
-    assert address.concrete();
-    return getSubscriptionEntry( address ).getFilter();
-  }
-
-  public void setFilter( @NonNull final ChannelAddress address, @Nullable final JsonObject filter )
-  {
-    assert address.concrete();
-    getSubscriptionEntry( address ).setFilter( filter );
-  }
-
-  /**
-   * Create and return a subscription entry for specified channel.
-   *
-   * @throws IllegalStateException if subscription already exists.
-   */
-  @NonNull
-  SubscriptionEntry createSubscriptionEntry( @NonNull final ChannelAddress address )
-  {
-    assert address.concrete();
-    if ( !_subscriptions.containsKey( address ) )
-    {
-      LOG.log( Level.FINE,
-               () -> "Creating subscription entry for replicant session " + getId() + " on address " + address );
-      final var entry = new SubscriptionEntry( this, address );
-      _subscriptions.put( address, entry );
-      _subscriptionsByChannel
-        .computeIfAbsent( new ChannelKey( address.channelId(), address.rootId() ), key -> new HashSet<>() )
-        .add( entry );
-      return entry;
-    }
-    else
-    {
-      throw new IllegalStateException( "SubscriptionEntry for channel " + address + " already exists" );
-    }
-  }
-
-  /**
-   * Return subscription entry for specified channel.
-   */
-  @Nullable
-  SubscriptionEntry findSubscriptionEntry( @NonNull final ChannelAddress address )
-  {
-    ensureLockedByCurrentThread();
-    assert address.concrete();
-    return _subscriptions.get( address );
-  }
-
-  /**
-   * Return true if specified channel is present.
-   */
-  public boolean isSubscriptionEntryPresent( @NonNull final ChannelAddress address )
-  {
-    ensureLockedByCurrentThread();
-    return null != findSubscriptionEntry( address );
-  }
-
-  @NonNull
-  List<SubscriptionEntry> findSubscriptionEntries( final int channelId, @Nullable final Integer rootId )
-  {
-    ensureLockedByCurrentThread();
-    final var entries = _subscriptionsByChannel.get( new ChannelKey( channelId, rootId ) );
-    return null == entries ? Collections.emptyList() : entries.stream().toList();
-  }
-
-  void bulkUnsubscribe( @NonNull final List<ChannelAddress> addresses, @NonNull final ChangeSet sessionChanges )
-  {
-    for ( final var address : addresses )
-    {
-      assert address.concrete();
-      unsubscribe( address, sessionChanges );
-    }
-  }
-
-  private void unsubscribe( @NonNull final ChannelAddress address, @NonNull final ChangeSet changeSet )
-  {
-    final var entry = findSubscriptionEntry( address );
-    if ( null != entry )
-    {
-      performUnsubscribe( entry, true, false, changeSet );
-    }
-  }
-
-  void performUnsubscribe( @NonNull final SubscriptionEntry entry,
-                           final boolean explicitUnsubscribe,
-                           final boolean delete,
-                           @NonNull final ChangeSet changeSet )
-  {
-    assert entry.address().concrete();
-    if ( explicitUnsubscribe )
-    {
-      entry.setExplicitlySubscribed( false );
-    }
-    if ( entry.canUnsubscribe() )
-    {
-      changeSet.mergeAction( entry.address(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE );
-      for ( final var downstream : new ArrayList<>( entry.getOutwardSubscriptions() ) )
-      {
-        delinkAllDownstreamSubscription( entry, downstream, changeSet );
-      }
-      deleteSubscriptionEntry( entry );
-    }
-  }
-
-  public void delinkDownstreamSubscription( @NonNull final ChannelAddress upstream,
-                                            @NonNull final ChannelAddress downstream,
-                                            @NonNull final ChangeSet changeSet )
-  {
-    assert upstream.concrete();
-    assert downstream.concrete();
-    delinkDownstreamSubscription( getSubscriptionEntry( upstream ), LinkOwner.graph(), downstream, changeSet );
-  }
-
-  void delinkDownstreamSubscription( @NonNull final SubscriptionEntry sourceEntry,
-                                     @NonNull final LinkOwner owner,
-                                     @NonNull final ChannelAddress downstream,
-                                     @NonNull final ChangeSet changeSet )
-  {
-    assert sourceEntry.address().concrete();
-    assert downstream.concrete();
-    final var removed = sourceEntry.deregisterOutwardSubscriptions( owner, downstream );
-    if ( 0 != removed.length )
-    {
-      final var downstreamEntry = findSubscriptionEntry( downstream );
-      if ( null != downstreamEntry )
-      {
-        downstreamEntry.deregisterInwardSubscriptions( sourceEntry.address() );
-        performUnsubscribe( downstreamEntry, false, false, changeSet );
-      }
-    }
-  }
-
-  void delinkDownstreamSubscriptions( @NonNull final SubscriptionEntry sourceEntry,
-                                      @NonNull final LinkOwner owner,
-                                      @NonNull final ChangeSet changeSet )
-  {
-    assert sourceEntry.address().concrete();
-    for ( final var downstream : new ArrayList<>( sourceEntry.getOwnedOutwardSubscriptions( owner ) ) )
-    {
-      delinkDownstreamSubscription( sourceEntry, owner, downstream, changeSet );
-    }
-  }
-
-  private void delinkAllDownstreamSubscription( @NonNull final SubscriptionEntry sourceEntry,
-                                                @NonNull final ChannelAddress downstream,
-                                                @NonNull final ChangeSet changeSet )
-  {
-    assert sourceEntry.address().concrete();
-    assert downstream.concrete();
-    final var removed = sourceEntry.deregisterAllOutwardSubscriptions( downstream );
-    if ( 0 != removed.length )
-    {
-      final var downstreamEntry = findSubscriptionEntry( downstream );
-      if ( null != downstreamEntry )
-      {
-        downstreamEntry.deregisterInwardSubscriptions( sourceEntry.address() );
-        performUnsubscribe( downstreamEntry, false, false, changeSet );
-      }
-    }
-  }
-
-  /**
-   * Delete specified subscription entry.
-   */
-  boolean deleteSubscriptionEntry( @NonNull final SubscriptionEntry entry )
-  {
-    ensureLockedByCurrentThread();
-    final var address = entry.address();
-    final var removed = null != _subscriptions.remove( address );
-    if ( removed )
-    {
-      final var key = new ChannelKey( address.channelId(), address.rootId() );
-      final var entries = _subscriptionsByChannel.get( key );
-      if ( null != entries )
-      {
-        entries.remove( entry );
-        if ( entries.isEmpty() )
-        {
-          _subscriptionsByChannel.remove( key );
+    public void close(@NonNull final CloseReason closeReason) {
+        releaseAuthorization();
+        if (isOpen()) {
+            LOG.log(Level.FINE, () -> "Closing websocket for replicant session " + getId() + " with " + closeReason);
+            try {
+                _webSocketSession.close(closeReason);
+            } catch (final IOException ioe) {
+                LOG.log(
+                        Level.FINE,
+                        () -> "Websocket close for replicant session " + getId() + " generated error " + ioe);
+            }
+        } else {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Websocket close requested for replicant session " + getId() + " with " + closeReason
+                            + " but the websocket is already closed");
         }
-      }
-      LOG.log( Level.FINE,
-               () -> "Removed subscription entry for replicant session " + getId() + " on address " + address );
     }
-    else
-    {
-      LOG.log( Level.FINE,
-               () -> "Attempted to remove subscription entry for replicant session " + getId() + " on address " +
-                     address + " but no such subscription existed" );
-    }
-    return removed;
-  }
 
-  private record ChannelKey(int channelId, @Nullable Integer rootId)
-  {
-  }
+    @Override
+    public void close() {
+        releaseAuthorization();
+        if (isOpen()) {
+            LOG.log(Level.FINE, () -> "Closing websocket for replicant session " + getId());
+            try {
+                _webSocketSession.close();
+            } catch (final IOException ioe) {
+                LOG.log(
+                        Level.FINE,
+                        () -> "Websocket close for replicant session " + getId() + " generated error " + ioe);
+            }
+        } else {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Websocket close requested for replicant session " + getId()
+                            + " but the websocket is already closed");
+        }
+    }
+
+    /**
+     * Send a ping at the network level to ensure the connection is kept alive.
+     *
+     * <p>This is required to keep connection alive when passing through some load balancers
+     * that proxy non-ssl websockets and close the socket after an idle period.</p>
+     */
+    public void pingTransport() {
+        if (isOpen()) {
+            LOG.log(Level.FINE, () -> "Pinging websocket for replicant session " + getId());
+            try {
+                _webSocketSession.getBasicRemote().sendPing(null);
+            } catch (final IOException ioe) {
+                // All scenarios we can envision imply the session is shutting down, and thus can be ignored
+                LOG.log(
+                        Level.FINER,
+                        () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe);
+            }
+        } else {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Websocket ping requested for replicant session " + getId()
+                            + " but the websocket is already closed");
+        }
+    }
+
+    public boolean isOpen() {
+        return _webSocketSession.isOpen();
+    }
+
+    @NonNull
+    public Session getWebSocketSession() {
+        return _webSocketSession;
+    }
+
+    public void setAuthToken(@Nullable final String authToken) {
+        _authToken = authToken;
+    }
+
+    /**
+     * @return a token used for authentication, if any.
+     */
+    @SuppressWarnings("unused")
+    @Nullable
+    public String getAuthToken() {
+        return _authToken;
+    }
+
+    /**
+     * @return an opaque ID representing session.
+     */
+    @NonNull
+    public String getId() {
+        return getWebSocketSession().getId();
+    }
+
+    @NonNull
+    public ReentrantLock getLock() {
+        return _lock;
+    }
+
+    public boolean runIfValid(final ReplicantSessionAuthorization.@NonNull Action action) throws IOException {
+        if (null == _authorization) {
+            action.run();
+            return true;
+        }
+        return _authorization.runIfValid(action);
+    }
+
+    public void touchActivity() {
+        if (null != _authorization) {
+            _authorization.touchActivity();
+        }
+    }
+
+    private synchronized void releaseAuthorization() {
+        if (!_authorizationClosed && null != _authorization) {
+            _authorizationClosed = true;
+            _authorization.close();
+        }
+    }
+
+    void queuePacket(@NonNull final Packet packet) {
+        if (packet.altersExplicitSubscriptions()) {
+            _pendingSubscriptionPackets.add(packet);
+        } else {
+            _pendingPackets.add(packet);
+        }
+    }
+
+    @Nullable
+    Packet popPendingPacket() {
+        /*
+         * We prioritize subscription packets ahead of other packets.
+         * As the subscription data on the session object has already been
+         * updated, we need to tell the client that these subscription changes
+         * have occurred before we try and route other messages to the client.
+         *
+         * Only after the client has been updated with all subscription changing
+         * packets do we send other packets.
+         */
+        final var packet = _pendingSubscriptionPackets.poll();
+        return null == packet ? _pendingPackets.poll() : packet;
+    }
+
+    boolean hasPendingPackets() {
+        return !_pendingSubscriptionPackets.isEmpty() || !_pendingPackets.isEmpty();
+    }
+
+    /**
+     * Send a packet to the client.
+     *
+     * @param requestId the request id that caused these changes if this session requested the changes.
+     * @param response  the response message if the packet is the result of a request that has a response,
+     *                  and the request was initiated by the session.
+     * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
+     * @param changeSet the changeSet to create packet from.
+     */
+    public void sendPacket(
+            @Nullable final Integer requestId,
+            @Nullable final JsonValue response,
+            @Nullable final String etag,
+            @NonNull final ChangeSet changeSet) {
+        assert null == response || null != requestId;
+        ensureLockedByCurrentThread();
+        final var message = JsonEncoder.encodeChangeSet(requestId, response, etag, changeSet);
+        LOG.log(Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message);
+        if (!WebSocketUtil.sendText(getWebSocketSession(), message)) {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Failed to send text message for replicant session " + getId() + " with payload " + message);
+        }
+    }
+
+    void ensureLockedByCurrentThread() {
+        if (!_lock.isHeldByCurrentThread()) {
+            throw new IllegalStateException("Expected session to be locked by the current thread");
+        }
+    }
+
+    @Nullable
+    String getETag(@NonNull final ChannelAddress address) {
+        assert address.concrete();
+        return _eTags.get(address);
+    }
+
+    public void setETags(@NonNull final Map<ChannelAddress, String> etags) {
+        ensureLockedByCurrentThread();
+        _eTags.clear();
+        for (final var etag : etags.entrySet()) {
+            setETag(etag.getKey(), etag.getValue());
+        }
+    }
+
+    void setETag(@NonNull final ChannelAddress address, @Nullable final String eTag) {
+        ensureLockedByCurrentThread();
+        assert address.concrete();
+        if (null == eTag) {
+            _eTags.remove(address);
+        } else {
+            _eTags.put(address, eTag);
+        }
+    }
+
+    /**
+     * Return subscription entry for specified channel.
+     */
+    @SuppressWarnings("WeakerAccess")
+    @NonNull
+    SubscriptionEntry getSubscriptionEntry(@NonNull final ChannelAddress address) {
+        ensureLockedByCurrentThread();
+        assert address.concrete();
+        final var entry = findSubscriptionEntry(address);
+        if (null == entry) {
+            throw new IllegalStateException("Unable to locate subscription entry for " + address);
+        }
+        return entry;
+    }
+
+    /**
+     * Configure the subscription entries to reflect a graph-scoped downstream dependency.
+     *
+     * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
+     * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
+     * session and the target must be a concrete type-graph address.</p>
+     */
+    public void recordGraphScopedGraphLink(@NonNull final ChannelAddress source, @NonNull final ChannelAddress target) {
+        assert !target.hasRootId();
+        recordGraphLink(source, target, LinkOwner.graph());
+    }
+
+    /**
+     * Configure the subscription entries to reflect an entity-scoped downstream dependency.
+     *
+     * <p>This API is intended for downstream application code that needs to record an entity-scoped dependency after
+     * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
+     * session.</p>
+     *
+     * <p>Entity-owned links, including links that resolve to instance graphs, are managed internally by Replicant's
+     * follow-link processing and should not be recorded through this API unless the developer is using postSubscribe
+     * hooks to optimize data loads.</p>
+     */
+    public void recordEntityScopedGraphLink(
+            @NonNull final ChannelAddress source,
+            @NonNull final ChannelAddress target,
+            final int entityTypeId,
+            final int entityId) {
+        recordGraphLink(source, target, LinkOwner.entity(entityTypeId, entityId));
+    }
+
+    private void recordGraphLink(
+            @NonNull final ChannelAddress source,
+            @NonNull final ChannelAddress target,
+            @NonNull final LinkOwner owner) {
+        InvariantUtil.assertConcreteAddress(source);
+        InvariantUtil.assertConcreteAddress(target);
+        final var sourceEntry = getSubscriptionEntry(source);
+        final var targetEntry = getSubscriptionEntry(target);
+        recordGraphLink(sourceEntry, targetEntry, owner);
+    }
+
+    void recordGraphLink(
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final SubscriptionEntry targetEntry,
+            @NonNull final LinkOwner owner) {
+        InvariantUtil.assertConcreteAddress(sourceEntry.address());
+        InvariantUtil.assertConcreteAddress(targetEntry.address());
+        assert !owner.isGraphScoped() || !targetEntry.address().hasRootId();
+        final var added = sourceEntry.registerOutwardSubscriptions(owner, targetEntry.address());
+        if (0 != added.length) {
+            targetEntry.registerInwardSubscriptions(sourceEntry.address());
+        }
+    }
+
+    public void recordSubscriptions(
+            @NonNull final ChangeSet changeSet,
+            @NonNull final Collection<ChannelAddress> addresses,
+            @Nullable final JsonObject filter,
+            final boolean explicitSubscribe) {
+        for (final var address : addresses) {
+            recordSubscription(changeSet, address, filter, explicitSubscribe);
+        }
+    }
+
+    public void recordSubscription(
+            @NonNull final ChangeSet changeSet,
+            @NonNull final ChannelAddress address,
+            @Nullable final JsonObject filter,
+            final boolean explicitSubscribe) {
+        assert address.concrete();
+        final var existing = findSubscriptionEntry(address);
+        final var entry = null == existing ? createSubscriptionEntry(address) : existing;
+        if (explicitSubscribe) {
+            entry.setExplicitlySubscribed(true);
+        }
+        entry.setFilter(filter);
+        changeSet.mergeAction(
+                address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter);
+    }
+
+    @Nullable
+    public JsonObject getFilter(@NonNull final ChannelAddress address) {
+        assert address.concrete();
+        return getSubscriptionEntry(address).getFilter();
+    }
+
+    public void setFilter(@NonNull final ChannelAddress address, @Nullable final JsonObject filter) {
+        assert address.concrete();
+        getSubscriptionEntry(address).setFilter(filter);
+    }
+
+    /**
+     * Create and return a subscription entry for specified channel.
+     *
+     * @throws IllegalStateException if subscription already exists.
+     */
+    @NonNull
+    SubscriptionEntry createSubscriptionEntry(@NonNull final ChannelAddress address) {
+        assert address.concrete();
+        if (!_subscriptions.containsKey(address)) {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Creating subscription entry for replicant session " + getId() + " on address " + address);
+            final var entry = new SubscriptionEntry(this, address);
+            _subscriptions.put(address, entry);
+            _subscriptionsByChannel
+                    .computeIfAbsent(new ChannelKey(address.channelId(), address.rootId()), key -> new HashSet<>())
+                    .add(entry);
+            return entry;
+        } else {
+            throw new IllegalStateException("SubscriptionEntry for channel " + address + " already exists");
+        }
+    }
+
+    /**
+     * Return subscription entry for specified channel.
+     */
+    @Nullable
+    SubscriptionEntry findSubscriptionEntry(@NonNull final ChannelAddress address) {
+        ensureLockedByCurrentThread();
+        assert address.concrete();
+        return _subscriptions.get(address);
+    }
+
+    /**
+     * Return true if specified channel is present.
+     */
+    public boolean isSubscriptionEntryPresent(@NonNull final ChannelAddress address) {
+        ensureLockedByCurrentThread();
+        return null != findSubscriptionEntry(address);
+    }
+
+    @NonNull
+    List<SubscriptionEntry> findSubscriptionEntries(final int channelId, @Nullable final Integer rootId) {
+        ensureLockedByCurrentThread();
+        final var entries = _subscriptionsByChannel.get(new ChannelKey(channelId, rootId));
+        return null == entries ? Collections.emptyList() : entries.stream().toList();
+    }
+
+    void bulkUnsubscribe(@NonNull final List<ChannelAddress> addresses, @NonNull final ChangeSet sessionChanges) {
+        for (final var address : addresses) {
+            assert address.concrete();
+            unsubscribe(address, sessionChanges);
+        }
+    }
+
+    private void unsubscribe(@NonNull final ChannelAddress address, @NonNull final ChangeSet changeSet) {
+        final var entry = findSubscriptionEntry(address);
+        if (null != entry) {
+            performUnsubscribe(entry, true, false, changeSet);
+        }
+    }
+
+    void performUnsubscribe(
+            @NonNull final SubscriptionEntry entry,
+            final boolean explicitUnsubscribe,
+            final boolean delete,
+            @NonNull final ChangeSet changeSet) {
+        assert entry.address().concrete();
+        if (explicitUnsubscribe) {
+            entry.setExplicitlySubscribed(false);
+        }
+        if (entry.canUnsubscribe()) {
+            changeSet.mergeAction(entry.address(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE);
+            for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptions())) {
+                delinkAllDownstreamSubscription(entry, downstream, changeSet);
+            }
+            deleteSubscriptionEntry(entry);
+        }
+    }
+
+    public void delinkDownstreamSubscription(
+            @NonNull final ChannelAddress upstream,
+            @NonNull final ChannelAddress downstream,
+            @NonNull final ChangeSet changeSet) {
+        assert upstream.concrete();
+        assert downstream.concrete();
+        delinkDownstreamSubscription(getSubscriptionEntry(upstream), LinkOwner.graph(), downstream, changeSet);
+    }
+
+    void delinkDownstreamSubscription(
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final LinkOwner owner,
+            @NonNull final ChannelAddress downstream,
+            @NonNull final ChangeSet changeSet) {
+        assert sourceEntry.address().concrete();
+        assert downstream.concrete();
+        final var removed = sourceEntry.deregisterOutwardSubscriptions(owner, downstream);
+        if (0 != removed.length) {
+            final var downstreamEntry = findSubscriptionEntry(downstream);
+            if (null != downstreamEntry) {
+                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.address());
+                performUnsubscribe(downstreamEntry, false, false, changeSet);
+            }
+        }
+    }
+
+    void delinkDownstreamSubscriptions(
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final LinkOwner owner,
+            @NonNull final ChangeSet changeSet) {
+        assert sourceEntry.address().concrete();
+        for (final var downstream : new ArrayList<>(sourceEntry.getOwnedOutwardSubscriptions(owner))) {
+            delinkDownstreamSubscription(sourceEntry, owner, downstream, changeSet);
+        }
+    }
+
+    private void delinkAllDownstreamSubscription(
+            @NonNull final SubscriptionEntry sourceEntry,
+            @NonNull final ChannelAddress downstream,
+            @NonNull final ChangeSet changeSet) {
+        assert sourceEntry.address().concrete();
+        assert downstream.concrete();
+        final var removed = sourceEntry.deregisterAllOutwardSubscriptions(downstream);
+        if (0 != removed.length) {
+            final var downstreamEntry = findSubscriptionEntry(downstream);
+            if (null != downstreamEntry) {
+                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.address());
+                performUnsubscribe(downstreamEntry, false, false, changeSet);
+            }
+        }
+    }
+
+    /**
+     * Delete specified subscription entry.
+     */
+    boolean deleteSubscriptionEntry(@NonNull final SubscriptionEntry entry) {
+        ensureLockedByCurrentThread();
+        final var address = entry.address();
+        final var removed = null != _subscriptions.remove(address);
+        if (removed) {
+            final var key = new ChannelKey(address.channelId(), address.rootId());
+            final var entries = _subscriptionsByChannel.get(key);
+            if (null != entries) {
+                entries.remove(entry);
+                if (entries.isEmpty()) {
+                    _subscriptionsByChannel.remove(key);
+                }
+            }
+            LOG.log(
+                    Level.FINE,
+                    () -> "Removed subscription entry for replicant session " + getId() + " on address " + address);
+        } else {
+            LOG.log(
+                    Level.FINE,
+                    () -> "Attempted to remove subscription entry for replicant session " + getId() + " on address "
+                            + address + " but no such subscription existed");
+        }
+        return removed;
+    }
+
+    private record ChannelKey(int channelId, @Nullable Integer rootId) {}
 }

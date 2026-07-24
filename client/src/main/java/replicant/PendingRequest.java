@@ -4,39 +4,37 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-final class PendingRequest
-{
-  @Nullable
-  private final String _name;
-  @NonNull
-  private final SafeProcedure _callback;
-  @Nullable
-  private final ResponseHandler _responseHandler;
+final class PendingRequest {
+    @Nullable
+    private final String _name;
 
-  PendingRequest( @Nullable final String name,
-                  @NonNull final SafeProcedure callback,
-                  @Nullable final ResponseHandler responseHandler )
-  {
-    _name = name;
-    _callback = Objects.requireNonNull( callback );
-    _responseHandler = responseHandler;
-  }
+    @NonNull
+    private final SafeProcedure _callback;
 
-  @Nullable
-  String getName()
-  {
-    return _name;
-  }
+    @Nullable
+    private final ResponseHandler _responseHandler;
 
-  @NonNull
-  SafeProcedure getCallback()
-  {
-    return _callback;
-  }
+    PendingRequest(
+            @Nullable final String name,
+            @NonNull final SafeProcedure callback,
+            @Nullable final ResponseHandler responseHandler) {
+        _name = name;
+        _callback = Objects.requireNonNull(callback);
+        _responseHandler = responseHandler;
+    }
 
-  @Nullable
-  ResponseHandler getResponseHandler()
-  {
-    return _responseHandler;
-  }
+    @Nullable
+    String getName() {
+        return _name;
+    }
+
+    @NonNull
+    SafeProcedure getCallback() {
+        return _callback;
+    }
+
+    @Nullable
+    ResponseHandler getResponseHandler() {
+        return _responseHandler;
+    }
 }

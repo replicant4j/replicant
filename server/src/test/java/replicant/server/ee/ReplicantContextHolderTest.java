@@ -1,40 +1,38 @@
 package replicant.server.ee;
 
-import org.testng.annotations.Test;
-import replicant.server.runtime.ReplicantContextHolder;
 import static org.testng.Assert.*;
 
-public class ReplicantContextHolderTest
-{
-  @Test
-  public void basicWorkflow()
-    throws InterruptedException
-  {
-    final var key = "X";
-    final var value = "1";
+import org.testng.annotations.Test;
+import replicant.server.runtime.ReplicantContextHolder;
 
-    ReplicantContextHolder.clean();
-    assertNull( ReplicantContextHolder.get( key ) );
-    ReplicantContextHolder.put( key, value );
-    final var v2 = ReplicantContextHolder.get( key );
-    assertEquals( v2, value );
+public class ReplicantContextHolderTest {
+    @Test
+    public void basicWorkflow() throws InterruptedException {
+        final var key = "X";
+        final var value = "1";
 
-    final var result = new Object[ 1 ];
+        ReplicantContextHolder.clean();
+        assertNull(ReplicantContextHolder.get(key));
+        ReplicantContextHolder.put(key, value);
+        final var v2 = ReplicantContextHolder.get(key);
+        assertEquals(v2, value);
 
-    final var thread = new Thread( () -> result[ 0 ] = ReplicantContextHolder.get( key ) );
-    thread.start();
-    thread.join();
+        final var result = new Object[1];
 
-    assertNull( result[ 0 ] );
+        final var thread = new Thread(() -> result[0] = ReplicantContextHolder.get(key));
+        thread.start();
+        thread.join();
 
-    ReplicantContextHolder.put( key, null );
-    assertNull( ReplicantContextHolder.get( key ) );
+        assertNull(result[0]);
 
-    ReplicantContextHolder.put( key, value );
-    assertNotNull( ReplicantContextHolder.get( key ) );
+        ReplicantContextHolder.put(key, null);
+        assertNull(ReplicantContextHolder.get(key));
 
-    ReplicantContextHolder.clean();
+        ReplicantContextHolder.put(key, value);
+        assertNotNull(ReplicantContextHolder.get(key));
 
-    assertNull( ReplicantContextHolder.get( key ) );
-  }
+        ReplicantContextHolder.clean();
+
+        assertNull(ReplicantContextHolder.get(key));
+    }
 }

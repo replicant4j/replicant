@@ -1,77 +1,73 @@
 package replicant.server.ee;
 
+import static org.testng.Assert.*;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.ServerConstants;
 import replicant.server.runtime.EntityMessageCacheUtil;
 import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
-import static org.testng.Assert.*;
 
-public class EntityMessageCacheUtilTest
-{
-  @BeforeMethod
-  public void setup()
-  {
-    RegistryUtil.bind();
-  }
+public class EntityMessageCacheUtilTest {
+    @BeforeMethod
+    public void setup() {
+        RegistryUtil.bind();
+    }
 
-  @AfterMethod
-  public void clearContext()
-  {
-    RegistryUtil.unbind();
-  }
+    @AfterMethod
+    public void clearContext() {
+        RegistryUtil.unbind();
+    }
 
-  @Test
-  public void ensureCacheBehavesAsExpected()
-  {
-    assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
+    @Test
+    public void ensureCacheBehavesAsExpected() {
+        assertNull(EntityMessageCacheUtil.lookupEntityMessageSet());
 
-    //Now we force the creation of EntityMessageSet
-    final var messageSet =
-      EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() );
+        // Now we force the creation of EntityMessageSet
+        final var messageSet =
+                EntityMessageCacheUtil.getEntityMessageSet(TransactionSynchronizationRegistryUtil.lookup());
 
-    assertNotNull( messageSet );
-    assertEquals( messageSet, EntityMessageCacheUtil.lookupEntityMessageSet() );
-    assertEquals( messageSet,
-                  EntityMessageCacheUtil.getEntityMessageSet( TransactionSynchronizationRegistryUtil.lookup() ) );
+        assertNotNull(messageSet);
+        assertEquals(messageSet, EntityMessageCacheUtil.lookupEntityMessageSet());
+        assertEquals(
+                messageSet,
+                EntityMessageCacheUtil.getEntityMessageSet(TransactionSynchronizationRegistryUtil.lookup()));
 
-    //Now we remove EntityMessageSet
-    assertEquals( messageSet, EntityMessageCacheUtil.removeEntityMessageSet() );
-    assertNull( EntityMessageCacheUtil.lookupEntityMessageSet() );
+        // Now we remove EntityMessageSet
+        assertEquals(messageSet, EntityMessageCacheUtil.removeEntityMessageSet());
+        assertNull(EntityMessageCacheUtil.lookupEntityMessageSet());
 
-    //Duplicate remove returns null
-    assertNull( EntityMessageCacheUtil.removeEntityMessageSet() );
-  }
+        // Duplicate remove returns null
+        assertNull(EntityMessageCacheUtil.removeEntityMessageSet());
+    }
 
-  @Test
-  public void clientEntityMessageSet()
-  {
-    assertNull( EntityMessageCacheUtil.lookupSessionChanges() );
+    @Test
+    public void clientEntityMessageSet() {
+        assertNull(EntityMessageCacheUtil.lookupSessionChanges());
 
-    //Now we force the creation of EntityMessageSet
-    final var messageSet = EntityMessageCacheUtil.getSessionChanges();
+        // Now we force the creation of EntityMessageSet
+        final var messageSet = EntityMessageCacheUtil.getSessionChanges();
 
-    assertNotNull( messageSet );
-    assertEquals( messageSet, EntityMessageCacheUtil.lookupSessionChanges() );
-    assertEquals( messageSet, EntityMessageCacheUtil.getSessionChanges() );
+        assertNotNull(messageSet);
+        assertEquals(messageSet, EntityMessageCacheUtil.lookupSessionChanges());
+        assertEquals(messageSet, EntityMessageCacheUtil.getSessionChanges());
 
-    //Now we remove EntityMessageSet
-    assertEquals( messageSet, EntityMessageCacheUtil.removeSessionChanges() );
-    assertNull( EntityMessageCacheUtil.lookupSessionChanges() );
+        // Now we remove EntityMessageSet
+        assertEquals(messageSet, EntityMessageCacheUtil.removeSessionChanges());
+        assertNull(EntityMessageCacheUtil.lookupSessionChanges());
 
-    //Duplicate remove returns null
-    assertNull( EntityMessageCacheUtil.removeSessionChanges() );
+        // Duplicate remove returns null
+        assertNull(EntityMessageCacheUtil.removeSessionChanges());
 
-    // Ensure that it works with regular changes
-    assertNull( EntityMessageCacheUtil.removeEntityMessageSet() );
-  }
+        // Ensure that it works with regular changes
+        assertNull(EntityMessageCacheUtil.removeEntityMessageSet());
+    }
 
-  @Test( expectedExceptions = IllegalStateException.class )
-  public void lookupOfResourceOutsideReplicationContext()
-  {
-    TransactionSynchronizationRegistryUtil.lookup().putResource( ServerConstants.REPLICATION_INVOCATION_KEY, null );
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void lookupOfResourceOutsideReplicationContext() {
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
 
-    EntityMessageCacheUtil.lookupSessionChanges();
-  }
+        EntityMessageCacheUtil.lookupSessionChanges();
+    }
 }

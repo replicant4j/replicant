@@ -10,32 +10,27 @@ import replicant.ChannelAddress;
 /**
  * Notification when an AreaOfInterest filter has been updated.
  */
-public final class AreaOfInterestFilterUpdatedEvent
-  implements SerializableEvent
-{
-  @NonNull
-  private final AreaOfInterest _areaOfInterest;
+public final class AreaOfInterestFilterUpdatedEvent implements SerializableEvent {
+    @NonNull
+    private final AreaOfInterest _areaOfInterest;
 
-  public AreaOfInterestFilterUpdatedEvent( @NonNull final AreaOfInterest areaOfInterest )
-  {
-    _areaOfInterest = Objects.requireNonNull( areaOfInterest );
-  }
+    public AreaOfInterestFilterUpdatedEvent(@NonNull final AreaOfInterest areaOfInterest) {
+        _areaOfInterest = Objects.requireNonNull(areaOfInterest);
+    }
 
-  @NonNull
-  public AreaOfInterest getAreaOfInterest()
-  {
-    return _areaOfInterest;
-  }
+    @NonNull
+    public AreaOfInterest getAreaOfInterest() {
+        return _areaOfInterest;
+    }
 
-  @Override
-  public void toMap( @NonNull final Map<String, Object> map )
-  {
-    map.put( "type", "AreaOfInterest.Updated" );
-    final AreaOfInterest areaOfInterest = getAreaOfInterest();
-    final ChannelAddress address = areaOfInterest.getAddress();
-    map.put( "channel.schemaId", address.schemaId() );
-    map.put( "channel.channelId", address.channelId() );
-    map.put( "channel.rootId", address.rootId() );
-    map.put( "channel.filter", areaOfInterest.getFilter() );
-  }
+    @Override
+    public void toMap(@NonNull final Map<String, Object> map) {
+        map.put("type", "AreaOfInterest.Updated");
+        final AreaOfInterest areaOfInterest = getAreaOfInterest();
+        final ChannelAddress address = areaOfInterest.getAddress();
+        map.put("channel.schemaId", address.schemaId());
+        map.put("channel.channelId", address.channelId());
+        map.put("channel.rootId", address.rootId());
+        map.put("channel.filter", areaOfInterest.getFilter());
+    }
 }

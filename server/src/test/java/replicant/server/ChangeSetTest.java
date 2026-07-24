@@ -1,321 +1,304 @@
 package replicant.server;
 
-import java.util.Collections;
-import java.util.List;
-import org.jspecify.annotations.NonNull;
-import javax.json.Json;
-import org.testng.annotations.Test;
-import replicant.server.ChannelAction.Action;
 import static org.testng.Assert.*;
 
-public class ChangeSetTest
-{
-  @Test
-  public void basicOperation()
-  {
-    final var id = 17;
-    final var typeID = 42;
+import java.util.Collections;
+import java.util.List;
+import javax.json.Json;
+import org.jspecify.annotations.NonNull;
+import org.testng.annotations.Test;
+import replicant.server.ChannelAction.Action;
 
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var message2 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r3", "aZ", "a2" );
-    final var message3 = MessageTestUtil.createMessage( 18, 42, 0, "X", "X", "X", "X" );
+public class ChangeSetTest {
+    @Test
+    public void basicOperation() {
+        final var id = 17;
+        final var typeID = 42;
 
-    final var change1 = new Change( message1 );
-    final var change2 = new Change( message2 );
-    final var change3 = new Change( message3 );
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
+        final var message3 = MessageTestUtil.createMessage(18, 42, 0, "X", "X", "X", "X");
 
-    change1.getChannels().add( ChannelAddress.of( 1, 1 ) );
-    change2.getChannels().add( ChannelAddress.of( 2, 3 ) );
-    change3.getChannels().add( ChannelAddress.of( 3, 42 ) );
+        final var change1 = new Change(message1);
+        final var change2 = new Change(message2);
+        final var change3 = new Change(message3);
 
-    final var changeSet = new ChangeSet();
+        change1.getChannels().add(ChannelAddress.of(1, 1));
+        change2.getChannels().add(ChannelAddress.of(2, 3));
+        change3.getChannels().add(ChannelAddress.of(3, 42));
 
-    assertEquals( changeSet.getChanges().size(), 0 );
+        final var changeSet = new ChangeSet();
 
-    changeSet.merge( Collections.singletonList( change1 ) );
+        assertEquals(changeSet.getChanges().size(), 0);
 
-    assertEquals( changeSet.getChanges().size(), 1 );
-    assertEquals( change1.getChannels().size(), 1 );
+        changeSet.merge(Collections.singletonList(change1));
 
-    changeSet.merge( change2 );
+        assertEquals(changeSet.getChanges().size(), 1);
+        assertEquals(change1.getChannels().size(), 1);
 
-    assertEquals( changeSet.getChanges().size(), 1 );
-    assertEquals( change1.getChannels().size(), 2 );
+        changeSet.merge(change2);
 
-    //Re-merge same
-    changeSet.merge( change2 );
+        assertEquals(changeSet.getChanges().size(), 1);
+        assertEquals(change1.getChannels().size(), 2);
 
-    assertEquals( changeSet.getChanges().size(), 1 );
-    assertEquals( change1.getChannels().size(), 2 );
+        // Re-merge same
+        changeSet.merge(change2);
 
-    changeSet.merge( change3 );
+        assertEquals(changeSet.getChanges().size(), 1);
+        assertEquals(change1.getChannels().size(), 2);
 
-    assertEquals( changeSet.getChanges().size(), 2 );
-  }
+        changeSet.merge(change3);
 
-  @Test
-  public void actions()
-  {
-    final var changeSet = new ChangeSet();
+        assertEquals(changeSet.getChanges().size(), 2);
+    }
 
-    assertEquals( changeSet.getChannelActions().size(), 0 );
+    @Test
+    public void actions() {
+        final var changeSet = new ChangeSet();
 
-    final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( ChannelAction.of( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
+        assertEquals(changeSet.getChannelActions().size(), 0);
 
-    assertEquals( changeSet.getChannelActions().size(), 1 );
+        final var filter = Json.createBuilderFactory(null).createObjectBuilder().build();
+        changeSet.mergeAction(ChannelAction.of(ChannelAddress.of(1, 2), Action.ADD, filter));
 
-    final var action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.address().channelId(), 1 );
-    assertEquals( action.address().rootId(), (Integer) 2 );
-    assertEquals( action.action(), Action.ADD );
-    assertEquals( action.filter(), filter );
-  }
+        assertEquals(changeSet.getChannelActions().size(), 1);
 
-  @Test
-  public void addAction_basic()
-  {
-    final var changeSet = new ChangeSet();
+        final var action = changeSet.getChannelActions().get(0);
+        assertEquals(action.address().channelId(), 1);
+        assertEquals(action.address().rootId(), (Integer) 2);
+        assertEquals(action.action(), Action.ADD);
+        assertEquals(action.filter(), filter);
+    }
 
-    assertEquals( changeSet.getChannelActions().size(), 0 );
+    @Test
+    public void addAction_basic() {
+        final var changeSet = new ChangeSet();
 
-    final var myFilter = Json.createObjectBuilder().add( "k", "v" ).build();
-    changeSet.mergeAction( ChannelAddress.of( 1, 2 ), Action.ADD, myFilter );
+        assertEquals(changeSet.getChannelActions().size(), 0);
 
-    assertEquals( changeSet.getChannelActions().size(), 1 );
+        final var myFilter = Json.createObjectBuilder().add("k", "v").build();
+        changeSet.mergeAction(ChannelAddress.of(1, 2), Action.ADD, myFilter);
 
-    final var action = changeSet.getChannelActions().get( 0 );
-    assertEquals( action.address().channelId(), 1 );
-    assertEquals( action.address().rootId(), (Integer) 2 );
-    assertEquals( action.action(), Action.ADD );
+        assertEquals(changeSet.getChannelActions().size(), 1);
 
-    assertEquals( action.filter(), myFilter );
-  }
+        final var action = changeSet.getChannelActions().get(0);
+        assertEquals(action.address().channelId(), 1);
+        assertEquals(action.address().rootId(), (Integer) 2);
+        assertEquals(action.action(), Action.ADD);
 
-  @Test
-  public void merge_with_Copy()
-  {
-    final var id = 17;
-    final var typeID = 42;
+        assertEquals(action.filter(), myFilter);
+    }
 
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var change1 = new Change( message1 );
+    @Test
+    public void merge_with_Copy() {
+        final var id = 17;
+        final var typeID = 42;
 
-    final var changeSet = new ChangeSet();
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change1 = new Change(message1);
 
-    assertEquals( changeSet.getChanges().size(), 0 );
+        final var changeSet = new ChangeSet();
 
-    changeSet.merge( change1, true );
+        assertEquals(changeSet.getChanges().size(), 0);
 
-    final var changes = changeSet.getChanges();
-    assertEquals( changes.size(), 1 );
-    final var change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getId(), id );
-    assertNotSame( change, change1 );
-  }
-
-  @Test
-  public void fullMerge()
-  {
-    final var changeSet = new ChangeSet();
-
-    final var id = 17;
-    final var typeID = 42;
-
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var change1 = new Change( message1 );
-    changeSet.merge( change1 );
+        changeSet.merge(change1, true);
 
-    final var filter = Json.createBuilderFactory( null ).createObjectBuilder().build();
-    changeSet.mergeAction( ChannelAction.of( ChannelAddress.of( 1, 2 ), Action.ADD, filter ) );
+        final var changes = changeSet.getChanges();
+        assertEquals(changes.size(), 1);
+        final var change = changes.iterator().next();
+        assertEquals(change.getEntityMessage().getId(), id);
+        assertNotSame(change, change1);
+    }
 
-    final var changeSet2 = new ChangeSet();
-    changeSet2.merge( changeSet );
+    @Test
+    public void fullMerge() {
+        final var changeSet = new ChangeSet();
 
-    final var changes = changeSet2.getChanges();
-    assertEquals( changes.size(), 1 );
-    final var change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getId(), id );
-    assertNotSame( change, change1 );
+        final var id = 17;
+        final var typeID = 42;
 
-    final var actions = changeSet2.getChannelActions();
-    assertEquals( actions.size(), 1 );
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change1 = new Change(message1);
+        changeSet.merge(change1);
 
-    final var action = actions.get( 0 );
-    assertEquals( action.address().channelId(), 1 );
-    assertEquals( action.address().rootId(), (Integer) 2 );
-    assertEquals( action.action(), Action.ADD );
-    assertEquals( action.filter(), filter );
-  }
+        final var filter = Json.createBuilderFactory(null).createObjectBuilder().build();
+        changeSet.mergeAction(ChannelAction.of(ChannelAddress.of(1, 2), Action.ADD, filter));
 
-  @Test
-  public void merge_copiesETag()
-  {
-    final var eTag = "etag-1";
-    final var source = new ChangeSet();
-    source.setETag( eTag );
+        final var changeSet2 = new ChangeSet();
+        changeSet2.merge(changeSet);
 
-    final var copyTarget = new ChangeSet();
-    assertNull( copyTarget.getETag() );
-    copyTarget.merge( source );
-    assertEquals( copyTarget.getETag(), eTag );
-  }
+        final var changes = changeSet2.getChanges();
+        assertEquals(changes.size(), 1);
+        final var change = changes.iterator().next();
+        assertEquals(change.getEntityMessage().getId(), id);
+        assertNotSame(change, change1);
 
-  @Test
-  public void mergeEntityMessageSet()
-  {
-    final var changeSet = new ChangeSet();
+        final var actions = changeSet2.getChannelActions();
+        assertEquals(actions.size(), 1);
 
-    final var id = 17;
-    final var typeID = 42;
+        final var action = actions.get(0);
+        assertEquals(action.address().channelId(), 1);
+        assertEquals(action.address().rootId(), (Integer) 2);
+        assertEquals(action.action(), Action.ADD);
+        assertEquals(action.filter(), filter);
+    }
 
-    final var message1 = MessageTestUtil.createMessage( id, typeID, 0, "r1", "r2", "a1", "a2" );
-    final var messageSet = new EntityMessageSet();
-    messageSet.merge( message1 );
+    @Test
+    public void merge_copiesETag() {
+        final var eTag = "etag-1";
+        final var source = new ChangeSet();
+        source.setETag(eTag);
 
-    final var address = ChannelAddress.of( 1 );
-    changeSet.merge( List.of( new Change( message1, address ) ) );
+        final var copyTarget = new ChangeSet();
+        assertNull(copyTarget.getETag());
+        copyTarget.merge(source);
+        assertEquals(copyTarget.getETag(), eTag);
+    }
 
-    final var changes = changeSet.getChanges();
-    assertEquals( changes.size(), 1 );
-    final var change = changes.iterator().next();
-    assertEquals( change.getEntityMessage().getId(), id );
-    assertEquals( change.getChannels().size(), 1 );
-    assertTrue( change.getChannels().contains( address ) );
-  }
+    @Test
+    public void mergeEntityMessageSet() {
+        final var changeSet = new ChangeSet();
 
-  @Test
-  public void mergeActionDelete()
-  {
-    final var changeSet = new ChangeSet();
+        final var id = 17;
+        final var typeID = 42;
 
-    assertEquals( changeSet.getChannelActions().size(), 0 );
+        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var messageSet = new EntityMessageSet();
+        messageSet.merge(message1);
 
-    final var address1 = ChannelAddress.of( 1, 2 );
-    final var address2 = ChannelAddress.of( 1, 3 );
-    final var address3 = ChannelAddress.of( 1, 4 );
+        final var address = ChannelAddress.of(1);
+        changeSet.merge(List.of(new Change(message1, address)));
 
-    final var filter = Json.createObjectBuilder().add( "k", "v" ).build();
+        final var changes = changeSet.getChanges();
+        assertEquals(changes.size(), 1);
+        final var change = changes.iterator().next();
+        assertEquals(change.getEntityMessage().getId(), id);
+        assertEquals(change.getChannels().size(), 1);
+        assertTrue(change.getChannels().contains(address));
+    }
 
-    changeSet.mergeAction( address1, Action.ADD, filter );
-    changeSet.mergeAction( address2, Action.REMOVE );
-    changeSet.mergeAction( address3, Action.UPDATE, filter );
+    @Test
+    public void mergeActionDelete() {
+        final var changeSet = new ChangeSet();
 
-    assertEquals( changeSet.getChannelActions().size(), 3 );
-
-    assertAction( changeSet, Action.ADD, address1 );
-    assertAction( changeSet, Action.REMOVE, address2 );
-    assertAction( changeSet, Action.UPDATE, address3 );
+        assertEquals(changeSet.getChannelActions().size(), 0);
 
-    changeSet.mergeAction( address3, Action.DELETE );
+        final var address1 = ChannelAddress.of(1, 2);
+        final var address2 = ChannelAddress.of(1, 3);
+        final var address3 = ChannelAddress.of(1, 4);
 
-    assertEquals( changeSet.getChannelActions().size(), 3 );
+        final var filter = Json.createObjectBuilder().add("k", "v").build();
 
-    assertAction( changeSet, Action.ADD, address1 );
-    assertAction( changeSet, Action.REMOVE, address2 );
-    assertAction( changeSet, Action.DELETE, address3 );
-
-    changeSet.mergeAction( address2, Action.DELETE );
-
-    assertEquals( changeSet.getChannelActions().size(), 3 );
-
-    assertAction( changeSet, Action.ADD, address1 );
-    assertAction( changeSet, Action.DELETE, address2 );
-    assertAction( changeSet, Action.DELETE, address3 );
-
-    changeSet.mergeAction( address1, Action.DELETE );
-
-    assertEquals( changeSet.getChannelActions().size(), 2 );
-
-    assertAction( changeSet, Action.DELETE, address2 );
-    assertAction( changeSet, Action.DELETE, address3 );
-  }
-
-  @Test
-  public void mergeAction_unfilteredAddAndRemoveCancel()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-
-    final var addThenRemove = new ChangeSet();
-    addThenRemove.mergeAction( address, Action.ADD );
-    addThenRemove.mergeAction( address, Action.REMOVE );
-
-    assertTrue( addThenRemove.getChannelActions().isEmpty() );
-
-    final var removeThenAdd = new ChangeSet();
-    removeThenAdd.mergeAction( address, Action.REMOVE );
-    removeThenAdd.mergeAction( address, Action.ADD );
-
-    assertTrue( removeThenAdd.getChannelActions().isEmpty() );
-  }
-
-  @Test
-  public void mergeAction_filteredAddAndRemoveWithSameFilterCancel()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter1 = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var filter2 = Json.createObjectBuilder().add( "k", "v" ).build();
-
-    final var addThenRemove = new ChangeSet();
-    addThenRemove.mergeAction( address, Action.ADD, filter1 );
-    addThenRemove.mergeAction( address, Action.REMOVE );
-
-    assertTrue( addThenRemove.getChannelActions().isEmpty() );
-
-    final var removeThenAdd = new ChangeSet();
-    removeThenAdd.mergeAction( address, Action.REMOVE );
-    removeThenAdd.mergeAction( address, Action.ADD, filter2 );
-
-    assertTrue( removeThenAdd.getChannelActions().isEmpty() );
-  }
-
-  @Test
-  public void mergeAction_unfilteredUpdateAfterAddIsIgnored()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var changeSet = new ChangeSet();
-
-    changeSet.mergeAction( address, Action.ADD );
-    changeSet.mergeAction( address, Action.UPDATE );
-
-    assertEquals( changeSet.getChannelActions(), List.of( ChannelAction.of( address, Action.ADD ) ) );
-  }
-
-  @Test
-  public void mergeAction_filteredUpdateAfterAddWithSameFilterIsIgnored()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter1 = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var filter2 = Json.createObjectBuilder().add( "k", "v" ).build();
-    final var changeSet = new ChangeSet();
-
-    changeSet.mergeAction( address, Action.ADD, filter1 );
-    changeSet.mergeAction( address, Action.UPDATE, filter2 );
-
-    assertEquals( changeSet.getChannelActions(), List.of( ChannelAction.of( address, Action.ADD, filter1 ) ) );
-  }
-
-  @Test
-  public void mergeAction_filteredUpdateAfterAddWithDifferentFilterIsMerged()
-  {
-    final var address = ChannelAddress.of( 1, 2 );
-    final var filter1 = Json.createObjectBuilder().add( "k", "v1" ).build();
-    final var filter2 = Json.createObjectBuilder().add( "k", "v2" ).build();
-    final var changeSet = new ChangeSet();
-
-    changeSet.mergeAction( address, Action.ADD, filter1 );
-    changeSet.mergeAction( address, Action.UPDATE, filter2 );
-
-    assertEquals( changeSet.getChannelActions(),
-                  List.of( ChannelAction.of( address, Action.ADD, filter2 ) ) );
-  }
-
-  private void assertAction( @NonNull final ChangeSet changeSet,
-                             @NonNull final Action action,
-                             @NonNull final ChannelAddress address )
-  {
-    assertTrue( changeSet.getChannelActions()
-                  .stream()
-                  .anyMatch( a -> a.address().equals( address ) && a.action() == action ) );
-  }
+        changeSet.mergeAction(address1, Action.ADD, filter);
+        changeSet.mergeAction(address2, Action.REMOVE);
+        changeSet.mergeAction(address3, Action.UPDATE, filter);
+
+        assertEquals(changeSet.getChannelActions().size(), 3);
+
+        assertAction(changeSet, Action.ADD, address1);
+        assertAction(changeSet, Action.REMOVE, address2);
+        assertAction(changeSet, Action.UPDATE, address3);
+
+        changeSet.mergeAction(address3, Action.DELETE);
+
+        assertEquals(changeSet.getChannelActions().size(), 3);
+
+        assertAction(changeSet, Action.ADD, address1);
+        assertAction(changeSet, Action.REMOVE, address2);
+        assertAction(changeSet, Action.DELETE, address3);
+
+        changeSet.mergeAction(address2, Action.DELETE);
+
+        assertEquals(changeSet.getChannelActions().size(), 3);
+
+        assertAction(changeSet, Action.ADD, address1);
+        assertAction(changeSet, Action.DELETE, address2);
+        assertAction(changeSet, Action.DELETE, address3);
+
+        changeSet.mergeAction(address1, Action.DELETE);
+
+        assertEquals(changeSet.getChannelActions().size(), 2);
+
+        assertAction(changeSet, Action.DELETE, address2);
+        assertAction(changeSet, Action.DELETE, address3);
+    }
+
+    @Test
+    public void mergeAction_unfilteredAddAndRemoveCancel() {
+        final var address = ChannelAddress.of(1, 2);
+
+        final var addThenRemove = new ChangeSet();
+        addThenRemove.mergeAction(address, Action.ADD);
+        addThenRemove.mergeAction(address, Action.REMOVE);
+
+        assertTrue(addThenRemove.getChannelActions().isEmpty());
+
+        final var removeThenAdd = new ChangeSet();
+        removeThenAdd.mergeAction(address, Action.REMOVE);
+        removeThenAdd.mergeAction(address, Action.ADD);
+
+        assertTrue(removeThenAdd.getChannelActions().isEmpty());
+    }
+
+    @Test
+    public void mergeAction_filteredAddAndRemoveWithSameFilterCancel() {
+        final var address = ChannelAddress.of(1, 2);
+        final var filter1 = Json.createObjectBuilder().add("k", "v").build();
+        final var filter2 = Json.createObjectBuilder().add("k", "v").build();
+
+        final var addThenRemove = new ChangeSet();
+        addThenRemove.mergeAction(address, Action.ADD, filter1);
+        addThenRemove.mergeAction(address, Action.REMOVE);
+
+        assertTrue(addThenRemove.getChannelActions().isEmpty());
+
+        final var removeThenAdd = new ChangeSet();
+        removeThenAdd.mergeAction(address, Action.REMOVE);
+        removeThenAdd.mergeAction(address, Action.ADD, filter2);
+
+        assertTrue(removeThenAdd.getChannelActions().isEmpty());
+    }
+
+    @Test
+    public void mergeAction_unfilteredUpdateAfterAddIsIgnored() {
+        final var address = ChannelAddress.of(1, 2);
+        final var changeSet = new ChangeSet();
+
+        changeSet.mergeAction(address, Action.ADD);
+        changeSet.mergeAction(address, Action.UPDATE);
+
+        assertEquals(changeSet.getChannelActions(), List.of(ChannelAction.of(address, Action.ADD)));
+    }
+
+    @Test
+    public void mergeAction_filteredUpdateAfterAddWithSameFilterIsIgnored() {
+        final var address = ChannelAddress.of(1, 2);
+        final var filter1 = Json.createObjectBuilder().add("k", "v").build();
+        final var filter2 = Json.createObjectBuilder().add("k", "v").build();
+        final var changeSet = new ChangeSet();
+
+        changeSet.mergeAction(address, Action.ADD, filter1);
+        changeSet.mergeAction(address, Action.UPDATE, filter2);
+
+        assertEquals(changeSet.getChannelActions(), List.of(ChannelAction.of(address, Action.ADD, filter1)));
+    }
+
+    @Test
+    public void mergeAction_filteredUpdateAfterAddWithDifferentFilterIsMerged() {
+        final var address = ChannelAddress.of(1, 2);
+        final var filter1 = Json.createObjectBuilder().add("k", "v1").build();
+        final var filter2 = Json.createObjectBuilder().add("k", "v2").build();
+        final var changeSet = new ChangeSet();
+
+        changeSet.mergeAction(address, Action.ADD, filter1);
+        changeSet.mergeAction(address, Action.UPDATE, filter2);
+
+        assertEquals(changeSet.getChannelActions(), List.of(ChannelAction.of(address, Action.ADD, filter2)));
+    }
+
+    private void assertAction(
+            @NonNull final ChangeSet changeSet, @NonNull final Action action, @NonNull final ChannelAddress address) {
+        assertTrue(changeSet.getChannelActions().stream()
+                .anyMatch(a -> a.address().equals(address) && a.action() == action));
+    }
 }

@@ -3,28 +3,22 @@ package replicant.server;
 import java.util.Random;
 import org.jspecify.annotations.NonNull;
 
-public final class ValueUtil
-{
-  @NonNull
-  private static final Random c_random = new Random();
+public final class ValueUtil {
+    @NonNull
+    private static final Random c_random = new Random();
 
-  private ValueUtil()
-  {
-  }
+    private ValueUtil() {}
 
-  public static int randomInt()
-  {
-    return c_random.nextInt();
-  }
-
-  @NonNull
-  public static String randomString()
-  {
-    final var sb = new StringBuilder();
-    for ( var i = 0; i < 50; i++ )
-    {
-      sb.append( (char) ( 'a' + c_random.nextInt( 26 ) ) );
+    public static int randomInt() {
+        return c_random.nextInt();
     }
-    return sb.toString();
-  }
+
+    @NonNull
+    public static String randomString() {
+        final var sb = new StringBuilder();
+        for (var i = 0; i < 50; i++) {
+            sb.append((char) ('a' + c_random.nextInt(26)));
+        }
+        return sb.toString();
+    }
 }

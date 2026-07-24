@@ -1,9 +1,9 @@
 package replicant.server.transport;
 
 import java.util.Collection;
+import javax.json.JsonValue;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import javax.json.JsonValue;
 import replicant.server.ChangeSet;
 import replicant.server.EntityMessage;
 
@@ -21,7 +21,10 @@ import replicant.server.EntityMessage;
  * @param changeSet                   Empty ChangeSet unless packet is directed at the request initiator in which case it was
  *                                    whatever was part of the session changes.
  */
-public record Packet(boolean altersExplicitSubscriptions, @Nullable Integer requestId, @Nullable JsonValue response,
-                     @Nullable String etag, @NonNull Collection<EntityMessage> messages, @NonNull ChangeSet changeSet)
-{
-}
+public record Packet(
+        boolean altersExplicitSubscriptions,
+        @Nullable Integer requestId,
+        @Nullable JsonValue response,
+        @Nullable String etag,
+        @NonNull Collection<EntityMessage> messages,
+        @NonNull ChangeSet changeSet) {}

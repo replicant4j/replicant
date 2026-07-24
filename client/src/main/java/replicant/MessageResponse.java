@@ -1,5 +1,7 @@
 package replicant;
 
+import static org.realityforge.braincheck.Guards.*;
+
 import arez.component.Linkable;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -12,343 +14,278 @@ import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
-import static org.realityforge.braincheck.Guards.*;
 
 /**
  * A simple class encapsulating the process of loading data from a json change set.
  */
-final class MessageResponse
-{
-  private final int _schemaId;
-  /**
-   * The message to process.
-   */
-  @NonNull
-  private final ServerToClientMessage _message;
-  @Nullable
-  private final RequestEntry _request;
-  /**
-   * The current index into changes.
-   */
-  private int _entityChangeIndex;
-  @Nullable
-  private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
-  /**
-   * The list of entities that have been changed during processing.
-   * Used to provide a hook to perform local internal filtered subscription management.
-   */
-  @NonNull
-  private final LinkedList<Object> _entitiesChanged = new LinkedList<>();
-  @Nullable
-  private List<ChannelChangeDescriptor> _parsedChannelChanges;
-  private boolean _worldValidated;
-  private boolean _channelActionsProcessed;
-  private boolean _orphanSubscriptionRemoved;
-  private int _channelAddCount;
-  private int _channelUpdateCount;
-  private int _channelRemoveCount;
-  private int _entityUpdateCount;
-  private int _entityRemoveCount;
-  private int _entityLinkCount;
+final class MessageResponse {
+    private final int _schemaId;
+    /**
+     * The message to process.
+     */
+    @NonNull
+    private final ServerToClientMessage _message;
 
-  MessageResponse( final int schemaId,
-                   @NonNull final ServerToClientMessage message,
-                   @Nullable final RequestEntry request )
-  {
-    if ( Replicant.shouldCheckInvariants() )
-    {
-      invariant( () -> null == request || ( (Integer) request.getRequestId() ).equals( message.getRequestId() ),
-                 () -> "Replicant-0011: Response message specified requestId '" + message.getRequestId() +
-                       "' but request specified requestId '" + Objects.requireNonNull( request ).getRequestId() +
-                       "'." );
+    @Nullable
+    private final RequestEntry _request;
+    /**
+     * The current index into changes.
+     */
+    private int _entityChangeIndex;
+
+    @Nullable
+    private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
+    /**
+     * The list of entities that have been changed during processing.
+     * Used to provide a hook to perform local internal filtered subscription management.
+     */
+    @NonNull
+    private final LinkedList<Object> _entitiesChanged = new LinkedList<>();
+
+    @Nullable
+    private List<ChannelChangeDescriptor> _parsedChannelChanges;
+
+    private boolean _worldValidated;
+    private boolean _channelActionsProcessed;
+    private boolean _orphanSubscriptionRemoved;
+    private int _channelAddCount;
+    private int _channelUpdateCount;
+    private int _channelRemoveCount;
+    private int _entityUpdateCount;
+    private int _entityRemoveCount;
+    private int _entityLinkCount;
+
+    MessageResponse(
+            final int schemaId, @NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
+        if (Replicant.shouldCheckInvariants()) {
+            invariant(
+                    () -> null == request || ((Integer) request.getRequestId()).equals(message.getRequestId()),
+                    () -> "Replicant-0011: Response message specified requestId '" + message.getRequestId()
+                            + "' but request specified requestId '"
+                            + Objects.requireNonNull(request).getRequestId() + "'.");
+        }
+        _schemaId = schemaId;
+        _message = Objects.requireNonNull(message);
+        _request = request;
+        _entityChangeIndex = 0;
     }
-    _schemaId = schemaId;
-    _message = Objects.requireNonNull( message );
-    _request = request;
-    _entityChangeIndex = 0;
-  }
 
-  int getChannelAddCount()
-  {
-    return _channelAddCount;
-  }
-
-  int getChannelUpdateCount()
-  {
-    return _channelUpdateCount;
-  }
-
-  int getChannelRemoveCount()
-  {
-    return _channelRemoveCount;
-  }
-
-  int getEntityUpdateCount()
-  {
-    return _entityUpdateCount;
-  }
-
-  int getEntityRemoveCount()
-  {
-    return _entityRemoveCount;
-  }
-
-  int getEntityLinkCount()
-  {
-    return _entityLinkCount;
-  }
-
-  void incChannelAddCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _channelAddCount++;
+    int getChannelAddCount() {
+        return _channelAddCount;
     }
-  }
 
-  void incChannelUpdateCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _channelUpdateCount++;
+    int getChannelUpdateCount() {
+        return _channelUpdateCount;
     }
-  }
 
-  void incChannelRemoveCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _channelRemoveCount++;
+    int getChannelRemoveCount() {
+        return _channelRemoveCount;
     }
-  }
 
-  void incEntityUpdateCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _entityUpdateCount++;
+    int getEntityUpdateCount() {
+        return _entityUpdateCount;
     }
-  }
 
-  void incEntityRemoveCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _entityRemoveCount++;
+    int getEntityRemoveCount() {
+        return _entityRemoveCount;
     }
-  }
 
-  void incEntityLinkCount()
-  {
-    if ( Replicant.areSpiesEnabled() )
-    {
-      _entityLinkCount++;
+    int getEntityLinkCount() {
+        return _entityLinkCount;
     }
-  }
 
-  @Nullable
-  RequestEntry getRequest()
-  {
-    return _request;
-  }
-
-  boolean areEntityChangesPending()
-  {
-    if ( UpdateMessage.TYPE.equals( _message.getType() ) )
-    {
-      final UpdateMessage message = (UpdateMessage) _message;
-      return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
+    void incChannelAddCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _channelAddCount++;
+        }
     }
-    else
-    {
-      return false;
+
+    void incChannelUpdateCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _channelUpdateCount++;
+        }
     }
-  }
 
-  boolean needsChannelChangesProcessed()
-  {
-    if ( UpdateMessage.TYPE.equals( _message.getType() ) )
-    {
-      final UpdateMessage message = (UpdateMessage) _message;
-      return !_channelActionsProcessed && (
-        message.hasChannels() && 0 != message.getChannels().length ||
-        message.hasFilteredChannels() && 0 != message.getFilteredChannels().length
-      );
+    void incChannelRemoveCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _channelRemoveCount++;
+        }
     }
-    else
-    {
-      return false;
+
+    void incEntityUpdateCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _entityUpdateCount++;
+        }
     }
-  }
 
-  void setParsedChannelChanges( @NonNull final List<ChannelChangeDescriptor> parsedChannelChanges )
-  {
-    _parsedChannelChanges = Objects.requireNonNull( parsedChannelChanges );
-  }
-
-  @NonNull
-  List<ChannelChangeDescriptor> getChannelChanges()
-  {
-    assert UpdateMessage.TYPE.equals( _message.getType() );
-    final UpdateMessage changeSet = (UpdateMessage) _message;
-    assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
-    if ( null == _parsedChannelChanges )
-    {
-      _parsedChannelChanges = toChannelChanges( changeSet );
+    void incEntityRemoveCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _entityRemoveCount++;
+        }
     }
-    return Objects.requireNonNull( _parsedChannelChanges );
-  }
 
-  void markChannelActionsProcessed()
-  {
-    _channelActionsProcessed = true;
-  }
-
-  @Nullable
-  EntityChange nextEntityChange()
-  {
-    if ( areEntityChangesPending() )
-    {
-      final EntityChange change = ( (UpdateMessage) _message ).getEntityChanges()[ _entityChangeIndex ];
-      _entityChangeIndex++;
-      return change;
+    void incEntityLinkCount() {
+        if (Replicant.areSpiesEnabled()) {
+            _entityLinkCount++;
+        }
     }
-    else
-    {
-      return null;
+
+    @Nullable
+    RequestEntry getRequest() {
+        return _request;
     }
-  }
 
-  void changeProcessed( @NonNull final Object entity )
-  {
-    if ( entity instanceof Linkable )
-    {
-      Objects.requireNonNull( _entitiesToLink ).add( (Linkable) entity );
+    boolean areEntityChangesPending() {
+        if (UpdateMessage.TYPE.equals(_message.getType())) {
+            final UpdateMessage message = (UpdateMessage) _message;
+            return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
+        } else {
+            return false;
+        }
     }
-    _entitiesChanged.add( entity );
-  }
 
-  boolean areEntityLinksPending()
-  {
-    return null != _entitiesToLink && !_entitiesToLink.isEmpty();
-  }
-
-  @Nullable
-  Linkable nextEntityToLink()
-  {
-    if ( areEntityLinksPending() )
-    {
-      return Objects.requireNonNull( _entitiesToLink ).remove();
+    boolean needsChannelChangesProcessed() {
+        if (UpdateMessage.TYPE.equals(_message.getType())) {
+            final UpdateMessage message = (UpdateMessage) _message;
+            return !_channelActionsProcessed
+                    && (message.hasChannels() && 0 != message.getChannels().length
+                            || message.hasFilteredChannels() && 0 != message.getFilteredChannels().length);
+        } else {
+            return false;
+        }
     }
-    else
-    {
-      _entitiesToLink = null;
-      return null;
+
+    void setParsedChannelChanges(@NonNull final List<ChannelChangeDescriptor> parsedChannelChanges) {
+        _parsedChannelChanges = Objects.requireNonNull(parsedChannelChanges);
     }
-  }
 
-  boolean areEntityUpdateActionsPending()
-  {
-    return !_entitiesChanged.isEmpty();
-  }
-
-  @Nullable
-  Object nextEntityToPostAction()
-  {
-    if ( areEntityUpdateActionsPending() )
-    {
-      return _entitiesChanged.remove();
+    @NonNull
+    List<ChannelChangeDescriptor> getChannelChanges() {
+        assert UpdateMessage.TYPE.equals(_message.getType());
+        final UpdateMessage changeSet = (UpdateMessage) _message;
+        assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
+        if (null == _parsedChannelChanges) {
+            _parsedChannelChanges = toChannelChanges(changeSet);
+        }
+        return Objects.requireNonNull(_parsedChannelChanges);
     }
-    else
-    {
-      return null;
+
+    void markChannelActionsProcessed() {
+        _channelActionsProcessed = true;
     }
-  }
 
-  void completePostActions()
-  {
-    _entitiesChanged.clear();
-  }
-
-  @NonNull
-  ServerToClientMessage getMessage()
-  {
-    return _message;
-  }
-
-  void markWorldAsValidated()
-  {
-    if ( Replicant.shouldValidateEntitiesOnLoad() )
-    {
-      _worldValidated = true;
+    @Nullable
+    EntityChange nextEntityChange() {
+        if (areEntityChangesPending()) {
+            final EntityChange change = ((UpdateMessage) _message).getEntityChanges()[_entityChangeIndex];
+            _entityChangeIndex++;
+            return change;
+        } else {
+            return null;
+        }
     }
-  }
 
-  boolean hasWorldBeenValidated()
-  {
-    return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
-  }
-
-  @NonNull
-  DataLoadStatus toStatus()
-  {
-    assert Replicant.areSpiesEnabled();
-    return new DataLoadStatus( _message.getRequestId(),
-                               getChannelAddCount(),
-                               getChannelUpdateCount(),
-                               getChannelRemoveCount(),
-                               getEntityUpdateCount(),
-                               getEntityRemoveCount(),
-                               getEntityLinkCount() );
-  }
-
-  @Override
-  public String toString()
-  {
-    if ( Replicant.areNamesEnabled() )
-    {
-      return "MessageResponse[" +
-             "Type=" + _message.getType() +
-             ",RequestId=" + _message.getRequestId() +
-             ",ChangeIndex=" + _entityChangeIndex +
-             ",EntitiesToLink.size=" + ( null == _entitiesToLink ? 0 : _entitiesToLink.size() ) +
-             "]";
+    void changeProcessed(@NonNull final Object entity) {
+        if (entity instanceof Linkable) {
+            Objects.requireNonNull(_entitiesToLink).add((Linkable) entity);
+        }
+        _entitiesChanged.add(entity);
     }
-    else
-    {
-      return super.toString();
+
+    boolean areEntityLinksPending() {
+        return null != _entitiesToLink && !_entitiesToLink.isEmpty();
     }
-  }
 
-  @NonNull
-  private List<ChannelChangeDescriptor> toChannelChanges( @NonNull final UpdateMessage changeSet )
-  {
-    final List<ChannelChangeDescriptor> changes = new ArrayList<>();
-
-    if ( changeSet.hasChannels() )
-    {
-      for ( final String channelChange : changeSet.getChannels() )
-      {
-        changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
-      }
+    @Nullable
+    Linkable nextEntityToLink() {
+        if (areEntityLinksPending()) {
+            return Objects.requireNonNull(_entitiesToLink).remove();
+        } else {
+            _entitiesToLink = null;
+            return null;
+        }
     }
-    if ( changeSet.hasFilteredChannels() )
-    {
-      for ( final ChannelChange channelChange : changeSet.getFilteredChannels() )
-      {
-        changes.add( ChannelChangeDescriptor.from( _schemaId, channelChange ) );
-      }
+
+    boolean areEntityUpdateActionsPending() {
+        return !_entitiesChanged.isEmpty();
     }
-    return changes;
-  }
 
-  boolean areOrphanSubscriptionsRemoved()
-  {
-    return _orphanSubscriptionRemoved;
-  }
+    @Nullable
+    Object nextEntityToPostAction() {
+        if (areEntityUpdateActionsPending()) {
+            return _entitiesChanged.remove();
+        } else {
+            return null;
+        }
+    }
 
-  void markOrphanSubscriptionsRemoved()
-  {
-    _orphanSubscriptionRemoved = true;
-  }
+    void completePostActions() {
+        _entitiesChanged.clear();
+    }
+
+    @NonNull
+    ServerToClientMessage getMessage() {
+        return _message;
+    }
+
+    void markWorldAsValidated() {
+        if (Replicant.shouldValidateEntitiesOnLoad()) {
+            _worldValidated = true;
+        }
+    }
+
+    boolean hasWorldBeenValidated() {
+        return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
+    }
+
+    @NonNull
+    DataLoadStatus toStatus() {
+        assert Replicant.areSpiesEnabled();
+        return new DataLoadStatus(
+                _message.getRequestId(),
+                getChannelAddCount(),
+                getChannelUpdateCount(),
+                getChannelRemoveCount(),
+                getEntityUpdateCount(),
+                getEntityRemoveCount(),
+                getEntityLinkCount());
+    }
+
+    @Override
+    public String toString() {
+        if (Replicant.areNamesEnabled()) {
+            return "MessageResponse[" + "Type="
+                    + _message.getType() + ",RequestId="
+                    + _message.getRequestId() + ",ChangeIndex="
+                    + _entityChangeIndex + ",EntitiesToLink.size="
+                    + (null == _entitiesToLink ? 0 : _entitiesToLink.size()) + "]";
+        } else {
+            return super.toString();
+        }
+    }
+
+    @NonNull
+    private List<ChannelChangeDescriptor> toChannelChanges(@NonNull final UpdateMessage changeSet) {
+        final List<ChannelChangeDescriptor> changes = new ArrayList<>();
+
+        if (changeSet.hasChannels()) {
+            for (final String channelChange : changeSet.getChannels()) {
+                changes.add(ChannelChangeDescriptor.from(_schemaId, channelChange));
+            }
+        }
+        if (changeSet.hasFilteredChannels()) {
+            for (final ChannelChange channelChange : changeSet.getFilteredChannels()) {
+                changes.add(ChannelChangeDescriptor.from(_schemaId, channelChange));
+            }
+        }
+        return changes;
+    }
+
+    boolean areOrphanSubscriptionsRemoved() {
+        return _orphanSubscriptionRemoved;
+    }
+
+    void markOrphanSubscriptionsRemoved() {
+        _orphanSubscriptionRemoved = true;
+    }
 }
