@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
+import zemeckis.ZemeckisTestUtil;
 import static org.mockito.Mockito.*;
 
 @Listeners( MessageCollector.class )
@@ -20,6 +21,7 @@ public abstract class AbstractReplicantTest
   public void preTest()
     throws Exception
   {
+    ZemeckisTestUtil.resetConfig( false );
     ArezTestSupport.super.preTest();
     ReplicantTestUtil.resetConfig( false );
     getProxyLogger().setLogger( new TestLogger() );
@@ -29,6 +31,7 @@ public abstract class AbstractReplicantTest
   @Override
   public void postTest()
   {
+    ZemeckisTestUtil.resetConfig( true );
     ReplicantTestUtil.resetConfig( true );
     ArezTestSupport.super.postTest();
   }

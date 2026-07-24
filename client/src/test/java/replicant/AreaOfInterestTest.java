@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
+import zemeckis.ZemeckisTestUtil;
 import static org.testng.Assert.*;
 
 public class AreaOfInterestTest
@@ -340,10 +341,8 @@ public class AreaOfInterestTest
                   "Replicant-0019: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and found unexpected subscription in the context." );
   }
 
-  // Disable test as it does not work on M1 from commandline ... for some reason
-  @Test( timeOut = 4000L, enabled = false )
+  @Test
   public void refCounting()
-    throws Exception
   {
     final var areaOfInterest =
       createAreaOfInterest( new ChannelAddress( ValueUtil.randomInt(), ValueUtil.randomInt() ) );
@@ -359,17 +358,12 @@ public class AreaOfInterestTest
 
     assertEquals( areaOfInterest.getRefCount(), 1 );
 
-    // Synchronize to ensure test sequencing occurs as expected
-    //noinspection SynchronizationOnLocalVariableOrMethodParameter
-    synchronized ( areaOfInterest )
-    {
-      areaOfInterest.decRefCount();
-      assertEquals( areaOfInterest.getRefCount(), 0 );
-      areaOfInterest.incRefCount();
-      assertEquals( areaOfInterest.getRefCount(), 1 );
-    }
+    areaOfInterest.decRefCount();
+    assertEquals( areaOfInterest.getRefCount(), 0 );
+    areaOfInterest.incRefCount();
+    assertEquals( areaOfInterest.getRefCount(), 1 );
 
-    Thread.sleep( 10 );
+    assertTrue( ZemeckisTestUtil.pumpNext() );
 
     assertEquals( areaOfInterest.getRefCount(), 1 );
     assertTrue( Disposable.isNotDisposed( areaOfInterest ) );
@@ -377,7 +371,7 @@ public class AreaOfInterestTest
     areaOfInterest.decRefCount();
     assertEquals( areaOfInterest.getRefCount(), 0 );
 
-    Thread.sleep( 10 );
+    assertTrue( ZemeckisTestUtil.pumpNext() );
 
     assertTrue( Disposable.isDisposed( areaOfInterest ) );
   }
