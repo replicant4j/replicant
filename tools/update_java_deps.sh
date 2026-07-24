@@ -24,7 +24,12 @@ java -jar "${JAR}" \
   --config-file third_party/java/dependencies.yml \
   --cache-directory "${CACHE_DIR}" \
   generate
+java -jar "${JAR}" \
+  --directory "${ROOT}" \
+  --config-file tools/java-format/dependencies.yml \
+  --cache-directory "${CACHE_DIR}" \
+  generate
 "${BAZEL}" mod deps --lockfile_mode=update
 "${BAZEL}" run //third_party/java:update_depgen_generated_outputs
 "${BAZEL}" mod deps --lockfile_mode=update
-"${BAZEL}" run //:buildifier -- MODULE.bazel third_party/java/BUILD.bazel
+"${BAZEL}" run //:buildifier -- MODULE.bazel third_party/java/BUILD.bazel tools/java-format/BUILD.bazel

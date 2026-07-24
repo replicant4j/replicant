@@ -8,6 +8,7 @@
   server/JVM tooling, and require explicit local types in GWT-compatible client/shared code.
 * Replace maintained `javax.annotation` nullness annotations with JSpecify, explicitly null-mark every Java package,
   and enforce NullAway across production and test targets.
+* Format maintained Java with Palantir Java Format 2.93.0 and enforce it through the local repository gate.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

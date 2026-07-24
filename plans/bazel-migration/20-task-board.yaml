@@ -20,7 +20,7 @@ meta:
     - completed
     - cancelled
 
-current_focus: T05
+current_focus: T07
 
 tasks:
   - id: T01
@@ -150,7 +150,7 @@ tasks:
 
   - id: T05
     title: Apply Palantir Java formatting
-    status: pending
+    status: completed
     priority: medium
     depends_on: [T04]
     requirements: [R4]
@@ -166,11 +166,14 @@ tasks:
         proves: no formatting difference remains
       - command: ./bazelw test //...
         proves: formatting did not alter behavior
-    evidence: []
+    evidence:
+      - Palantir Java Format 2.93.0 dry run passed for every tracked client, shared, and server Java source
+      - ./bazelw test //... passed with 96 of 96 tests after the formatter-only change
+      - Commit d878338e contains only Java source formatting changes
 
   - id: T06
     title: Add permanent Java formatter enforcement
-    status: pending
+    status: completed
     priority: medium
     depends_on: [T05]
     requirements: [R4, R11]
@@ -190,7 +193,10 @@ tasks:
         proves: formatter enforcement passes
       - command: tools/check.sh
         proves: formatter is part of repository gate
-    evidence: []
+    evidence:
+      - Formatter dependency graph is isolated under tools/java-format at Palantir Java Format 2.93.0
+      - tools/java_format.sh check passed
+      - tools/check.sh passed dependency regeneration, buildifier, Java formatting, NullMarked coverage, all 204 builds, and all 96 tests
 
   - id: T07
     title: Replace legacy IntelliJ metadata with Bazel BSP
@@ -395,3 +401,11 @@ history:
     task: T03
     commit: 68da5851
     note: Enforced the full strict Error Prone policy, server/JVM Varifier, and small TestNG target defaults.
+  - timestamp: "2026-07-24"
+    task: T04
+    commit: 26d13406
+    note: Migrated maintained nullness metadata to JSpecify and enforced NullAway with explicit NullMarked package coverage.
+  - timestamp: "2026-07-24"
+    task: T05
+    commit: d878338e
+    note: Applied Palantir Java Format 2.93.0 to all tracked client, shared, and server Java sources.

@@ -27,8 +27,11 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Run all Bazel tests: `./bazelw test //...`
+* Run the current repository gate: `tools/check.sh`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
 * Update Bazel file formatting: `./bazelw run //:buildifier`
+* Check Java formatting: `tools/java_format.sh check`
+* Update Java formatting: `tools/java_format.sh write`
 
 The Buildr workflow remains available for local GWT/package/release tasks:
 
@@ -39,8 +42,9 @@ The public Bazel output libraries are `//client:client` and `//server:server`. B
 internal shared classes from `//shared:shared_lib` and keep third-party jars separate from the merged outputs.
 
 Java dependencies for the Bazel build are managed by
-[bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml`.
-After changing that file, regenerate the checked-in Bazel dependency outputs and lockfile with:
+[bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml` and
+`tools/java-format/dependencies.yml`. After changing either file, regenerate the checked-in Bazel dependency
+outputs and lockfile with:
 
 * `tools/update_java_deps.sh`
 * `./bazelw test //third_party/java:verify_config_sha256`
