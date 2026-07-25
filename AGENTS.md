@@ -246,6 +246,7 @@ Diagnostics fixtures and invariants:
 - Keep commits small, focused, and imperative.
 - Update `CHANGELOG.md` for user-visible changes.
 - Update `README.md` when public APIs, workflows, or integration expectations change.
+- Release preparation updates and commits only `CHANGELOG.md`; it does not rewrite version references in `README.md`.
 - Follow `tools/release/README.md` for the split or end-to-end release workflow.
 - Maven Central uses `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD`. GPG signing uses `GPG_USER` and optional
   `GPG_PASS`.

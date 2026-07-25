@@ -24,7 +24,6 @@ public final class ReleaseLifecycleToolTest {
             testPrepare(root);
             testFinalizeIsIdempotent(root);
             testReleaseNotes(root);
-            testReadmeMissingPreviousVersionFailsWithoutMutation(root);
             testPrepareRejectsInvalidUnreleasedSections(root);
             testRejectsInvalidReleaseVersions(root);
         } finally {
@@ -49,22 +48,9 @@ public final class ReleaseLifecycleToolTest {
         final Path directory = Files.createDirectories(root.resolve("prepare"));
         final Path changelog =
                 write(directory.resolve("CHANGELOG.md"), unreleasedChangelog("- Added lifecycle helper.\n"));
-        final Path readme = write(directory.resolve("README.md"), """
-            <version>6.202</version>
-            https://repo.maven.apache.org/maven2/org/realityforge/replicant/replicant-client/6.202/replicant-client-6.202-sources.jar
-            replicant-client-6.202-sources.jar
-            """);
 
         final Result result = run(
-                "prepare",
-                "--changelog",
-                changelog.toString(),
-                "--readme",
-                readme.toString(),
-                "--version",
-                "6.203",
-                "--release-date",
-                "2026-06-30");
+                "prepare", "--changelog", changelog.toString(), "--version", "6.203", "--release-date", "2026-06-30");
         assertEquals(0, result.exitCode(), result.err());
 
         assertEquals("""
@@ -83,11 +69,6 @@ public final class ReleaseLifecycleToolTest {
 
             - Previous release.
             """, Files.readString(changelog, StandardCharsets.UTF_8), "prepared changelog");
-        assertEquals("""
-            <version>6.203</version>
-            https://repo.maven.apache.org/maven2/org/realityforge/replicant/replicant-client/6.203/replicant-client-6.203-sources.jar
-            replicant-client-6.203-sources.jar
-            """, Files.readString(readme, StandardCharsets.UTF_8), "updated README");
     }
 
     private static void testFinalizeIsIdempotent(final Path root) throws IOException {
@@ -154,29 +135,6 @@ public final class ReleaseLifecycleToolTest {
                 "release notes");
     }
 
-    private static void testReadmeMissingPreviousVersionFailsWithoutMutation(final Path root) throws IOException {
-        final Path directory = Files.createDirectories(root.resolve("missing-readme-version"));
-        final String changelogContent = unreleasedChangelog("- Added lifecycle helper.\n");
-        final String readmeContent = "<version>9.99</version>\n";
-        final Path changelog = write(directory.resolve("CHANGELOG.md"), changelogContent);
-        final Path readme = write(directory.resolve("README.md"), readmeContent);
-
-        final Result result = run(
-                "prepare",
-                "--changelog",
-                changelog.toString(),
-                "--readme",
-                readme.toString(),
-                "--version",
-                "6.203",
-                "--release-date",
-                "2026-06-30");
-        assertNotEquals(0, result.exitCode(), "prepare should fail");
-        assertContains(result.err(), "README", "README failure message");
-        assertEquals(changelogContent, Files.readString(changelog, StandardCharsets.UTF_8), "unchanged changelog");
-        assertEquals(readmeContent, Files.readString(readme, StandardCharsets.UTF_8), "unchanged README");
-    }
-
     private static void testPrepareRejectsInvalidUnreleasedSections(final Path root) throws IOException {
         assertPrepareFails(root, "# Changelog\n\n### [v6.202]\n\n- Old.\n", "Missing ### Unreleased");
         assertPrepareFails(
@@ -199,17 +157,8 @@ public final class ReleaseLifecycleToolTest {
             throws IOException {
         final Path directory = Files.createTempDirectory(root, "invalid-prepare");
         final Path changelog = write(directory.resolve("CHANGELOG.md"), changelogContent);
-        final Path readme = write(directory.resolve("README.md"), "<version>6.202</version>\n");
         final Result result = run(
-                "prepare",
-                "--changelog",
-                changelog.toString(),
-                "--readme",
-                readme.toString(),
-                "--version",
-                "6.203",
-                "--release-date",
-                "2026-06-30");
+                "prepare", "--changelog", changelog.toString(), "--version", "6.203", "--release-date", "2026-06-30");
         assertNotEquals(0, result.exitCode(), "prepare should fail");
         assertContains(result.err(), message, "prepare failure message");
     }

@@ -38,7 +38,7 @@ Prepare the release with an explicit version and inspect the result without chan
 tools/release/prepare_release.sh <version> --dry-run
 ```
 
-The dry run prints the `CHANGELOG.md` and `README.md` diffs that would be applied.
+The dry run prints the `CHANGELOG.md` diff that would be applied.
 
 Prepare the release for real when the dry run looks correct:
 
@@ -46,7 +46,7 @@ Prepare the release for real when the dry run looks correct:
 tools/release/prepare_release.sh <version>
 ```
 
-This updates release metadata, commits the release preparation changes, and tags `v<version>`.
+This updates `CHANGELOG.md`, commits the release preparation change, and tags `v<version>`.
 
 Package the signed Maven Central bundle:
 

@@ -19,6 +19,7 @@
 * Exclude IntelliJ-generated Bazel BSP aspects from repository Buildifier checks.
 * Patch Rules Closure to use Protobuf's supported Java proto rule and eliminate Bazel deprecation warnings.
 * Remove the tracked Java TODO scan from Maven Central release readiness checks.
+* Stop rewriting `README.md` during release preparation.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

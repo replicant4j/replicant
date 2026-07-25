@@ -15,9 +15,8 @@ validate_version() {
 
 run_prepare() {
   local changelog="$1"
-  local readme="$2"
-  local version="$3"
-  local args=(prepare --changelog "${changelog}" --readme "${readme}" --version "${version}")
+  local version="$2"
+  local args=(prepare --changelog "${changelog}" --version "${version}")
   if [[ -n "${RELEASE_DATE:-}" ]]; then
     args+=(--release-date "${RELEASE_DATE}")
   fi
@@ -70,20 +69,17 @@ cd "${ROOT}"
 
 if [[ ${DRY_RUN} -eq 1 ]]; then
   if [[ -n "$(git status --short)" ]]; then
-    echo "Warning: working tree is dirty; dry-run will use temporary CHANGELOG.md and README.md copies." >&2
+    echo "Warning: working tree is dirty; dry-run will use a temporary CHANGELOG.md copy." >&2
   fi
 
   TMP_DIR="$(mktemp -d /private/tmp/replicant-release.XXXXXX)"
   trap 'rm -rf "${TMP_DIR}"' EXIT
   CHANGELOG_COPY="${TMP_DIR}/CHANGELOG.md"
-  README_COPY="${TMP_DIR}/README.md"
   cp CHANGELOG.md "${CHANGELOG_COPY}"
-  cp README.md "${README_COPY}"
 
-  run_prepare "${CHANGELOG_COPY}" "${README_COPY}" "${VERSION}"
+  run_prepare "${CHANGELOG_COPY}" "${VERSION}"
   echo "Dry-run prepared release v${VERSION}. Review the generated diffs before running without --dry-run."
   print_diff "CHANGELOG.md" CHANGELOG.md "${CHANGELOG_COPY}"
-  print_diff "README.md" README.md "${README_COPY}"
   exit 0
 fi
 
@@ -92,7 +88,7 @@ if [[ -n "$(git status --short)" ]]; then
   exit 1
 fi
 
-run_prepare "${ROOT}/CHANGELOG.md" "${ROOT}/README.md" "${VERSION}"
-git add CHANGELOG.md README.md
-git commit -m "Update CHANGELOG.md and README.md in preparation for release"
+run_prepare "${ROOT}/CHANGELOG.md" "${VERSION}"
+git add CHANGELOG.md
+git commit -m "Update CHANGELOG.md in preparation for release"
 git tag "v${VERSION}"

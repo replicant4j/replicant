@@ -61,8 +61,7 @@ public final class ReleaseLifecycleTool {
         out.println("Usage:");
         out.println("  release_lifecycle --help");
         out.println("  release_lifecycle next-version --changelog PATH");
-        out.println("  release_lifecycle prepare --changelog PATH --readme PATH --version VERSION"
-                + " [--release-date YYYY-MM-DD]");
+        out.println("  release_lifecycle prepare --changelog PATH --version VERSION [--release-date YYYY-MM-DD]");
         out.println("  release_lifecycle finalize --changelog PATH --version VERSION");
         out.println("  release_lifecycle release-notes --changelog PATH --version VERSION --output PATH");
     }
@@ -98,12 +97,7 @@ public final class ReleaseLifecycleTool {
                 : parseReleaseDate(requestedReleaseDate).toString();
 
         final String changelog = readString(options.changelog());
-        final String readme = readString(options.readme());
-        final PreparedChangelog preparedChangelog = prepareChangelog(changelog, options.version(), releaseDate);
-        final String updatedReadme = updateReadme(readme, preparedChangelog.previousVersion(), options.version());
-
-        writeString(options.changelog(), preparedChangelog.content());
-        writeString(options.readme(), updatedReadme);
+        writeString(options.changelog(), prepareChangelog(changelog, options.version(), releaseDate));
     }
 
     private static LocalDate parseReleaseDate(final String releaseDate) {
@@ -120,8 +114,7 @@ public final class ReleaseLifecycleTool {
         }
     }
 
-    private static PreparedChangelog prepareChangelog(
-            final String changelog, final String version, final String releaseDate) {
+    private static String prepareChangelog(final String changelog, final String version, final String releaseDate) {
         if (releaseHeading(version).matcher(changelog).find()) {
             throw new IllegalArgumentException("Release already exists in changelog: v" + version);
         }
@@ -158,21 +151,8 @@ public final class ReleaseLifecycleTool {
                 previousRelease.group(1) + "." + previousRelease.group(2) + (patch == null ? "" : "." + patch);
         final String heading = "### [v" + version + "](" + REPOSITORY_URL + "/tree/v" + version + ") (" + releaseDate
                 + ") · [Full Changelog](" + REPOSITORY_URL + "/compare/v" + previousVersion + "...v" + version + ")";
-        final String content = changelog.substring(0, unreleasedStart) + heading + "\n\n"
-                + "Changes in this release:\n\n" + body + "\n\n" + changelog.substring(previousRelease.start());
-        return new PreparedChangelog(content, previousVersion);
-    }
-
-    private static String updateReadme(final String readme, final String previousVersion, final String version) {
-        String updated = readme;
-        updated = updated.replace("<version>" + previousVersion + "</version>", "<version>" + version + "</version>");
-        updated = updated.replace("/" + previousVersion + "/", "/" + version + "/");
-        updated = updated.replace("-" + previousVersion + "-", "-" + version + "-");
-        if (updated.equals(readme)) {
-            throw new IllegalArgumentException(
-                    "README does not contain previous version patterns for " + previousVersion);
-        }
-        return updated;
+        return changelog.substring(0, unreleasedStart) + heading + "\n\n" + "Changes in this release:\n\n" + body
+                + "\n\n" + changelog.substring(previousRelease.start());
     }
 
     private static void finalizeRelease(final ChangelogVersionOptions options) throws IOException {
@@ -236,16 +216,12 @@ public final class ReleaseLifecycleTool {
 
     private static PrepareOptions parsePrepareOptions(final String[] args) {
         Path changelog = null;
-        Path readme = null;
         String version = null;
         String releaseDate = null;
         for (int i = 1; i < args.length; i++) {
             switch (args[i]) {
                 case "--changelog":
                     changelog = Path.of(requireValue(args, ++i, "--changelog"));
-                    break;
-                case "--readme":
-                    readme = Path.of(requireValue(args, ++i, "--readme"));
                     break;
                 case "--version":
                     version = requireValue(args, ++i, "--version");
@@ -260,13 +236,10 @@ public final class ReleaseLifecycleTool {
         if (changelog == null) {
             throw new IllegalArgumentException("Missing --changelog");
         }
-        if (readme == null) {
-            throw new IllegalArgumentException("Missing --readme");
-        }
         if (version == null) {
             throw new IllegalArgumentException("Missing --version");
         }
-        return new PrepareOptions(changelog, readme, version, releaseDate);
+        return new PrepareOptions(changelog, version, releaseDate);
     }
 
     private static ChangelogVersionOptions parseChangelogVersionOptions(final String[] args) {
@@ -341,26 +314,19 @@ public final class ReleaseLifecycleTool {
 
     private static final class PrepareOptions {
         private final Path _changelog;
-        private final Path _readme;
         private final String _version;
 
         @Nullable
         private final String _releaseDate;
 
-        private PrepareOptions(
-                final Path changelog, final Path readme, final String version, @Nullable final String releaseDate) {
+        private PrepareOptions(final Path changelog, final String version, @Nullable final String releaseDate) {
             _changelog = changelog;
-            _readme = readme;
             _version = version;
             _releaseDate = releaseDate;
         }
 
         private Path changelog() {
             return _changelog;
-        }
-
-        private Path readme() {
-            return _readme;
         }
 
         private String version() {
@@ -401,24 +367,6 @@ public final class ReleaseLifecycleTool {
 
         private Path output() {
             return _output;
-        }
-    }
-
-    private static final class PreparedChangelog {
-        private final String _content;
-        private final String _previousVersion;
-
-        private PreparedChangelog(final String content, final String previousVersion) {
-            _content = content;
-            _previousVersion = previousVersion;
-        }
-
-        private String content() {
-            return _content;
-        }
-
-        private String previousVersion() {
-            return _previousVersion;
         }
     }
 }
