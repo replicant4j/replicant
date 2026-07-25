@@ -9,9 +9,14 @@ WARNINGS = [
     "-external-path",
 ]
 
+BUILDIFIER_EXCLUDE_PATTERNS = [
+    "./.bazelbsp/*",
+    "./.git/*",
+]
+
 buildifier(
     name = "buildifier",
-    exclude_patterns = ["./.git/*"],
+    exclude_patterns = BUILDIFIER_EXCLUDE_PATTERNS,
     lint_mode = "fix",
     lint_warnings = WARNINGS,
 )
@@ -19,7 +24,7 @@ buildifier(
 buildifier(
     name = "buildifier_check",
     diff_command = "diff -u",
-    exclude_patterns = ["./.git/*"],
+    exclude_patterns = BUILDIFIER_EXCLUDE_PATTERNS,
     lint_mode = "warn",
     lint_warnings = WARNINGS,
     mode = "diff",

@@ -163,6 +163,8 @@ CI workflow:
 - Apply Java formatting: `tools/java_format.sh write`.
 - Import `tools/intellij/.managed.bazelproject` with IntelliJ IDEA's Bazel plugin; do not recreate legacy
   `.ipr`, `.iml`, or `.iws` project metadata.
+- `.bazelbsp/` and `.idea/` are generated local IDE state; keep them untracked and outside repository-wide
+  Buildifier checks.
 - `tools/check.sh` rejects generated dependency drift, client/shared local `var`, and non-small concrete TestNG
   targets before running every build, browser compiler, default test, and explicit release-tool gate.
 

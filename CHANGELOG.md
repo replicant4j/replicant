@@ -16,6 +16,7 @@
 * Add real GWT 2.13.1 compiler gates for Replicant, ReplicantDev, ReplicantDebug, and React4j.
 * Consolidate local and Ubuntu 24.04 CI validation in a hardened `tools/check.sh` repository gate.
 * Complete the Bazel cutover by removing Buildr, Ruby, Rake, and the temporary publication parity infrastructure.
+* Exclude IntelliJ-generated Bazel BSP aspects from repository Buildifier checks.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.
