@@ -18,6 +18,7 @@
 * Complete the Bazel cutover by removing Buildr, Ruby, Rake, and the temporary publication parity infrastructure.
 * Exclude IntelliJ-generated Bazel BSP aspects from repository Buildifier checks.
 * Patch Rules Closure to use Protobuf's supported Java proto rule and eliminate Bazel deprecation warnings.
+* Remove the tracked Java TODO scan from Maven Central release readiness checks.
 * Update the `org.realityforge.zemeckis` artifact to version `0.17`.
 * Upgrade bazel-depgen to version `0.28`.
 * Make `AbstractSessionContextImpl.chunked(...)` protected access.

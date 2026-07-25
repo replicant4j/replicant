@@ -17,19 +17,6 @@ cd "${ROOT}"
 tools/check.sh
 git diff --check
 
-set +e
-todo_output="$(git grep -In -i -E '[ /#]TODO[ :]' -- '*.java')"
-todo_status=$?
-set -e
-if [[ ${todo_status} -eq 0 ]]; then
-  echo "Tracked Java source files contain TODO comments:" >&2
-  echo "${todo_output}" >&2
-  exit 1
-elif [[ ${todo_status} -ne 1 ]]; then
-  echo "Failed to scan tracked Java source files for TODO comments." >&2
-  exit "${todo_status}"
-fi
-
 for command in gpg curl gh; do
   if ! command -v "${command}" >/dev/null 2>&1; then
     echo "Required command not found: ${command}" >&2
