@@ -29,6 +29,13 @@ single_version_override(
     version = "0.61.1",
 )
 
+single_version_override(
+    module_name = "rules_closure",
+    patch_strip = 1,
+    patches = ["//third_party/bazel/patches:rules_closure_use_protobuf_java_proto_library.patch"],
+    version = "0.16.0",
+)
+
 j2cl_maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 j2cl_maven.install(
     artifacts = [

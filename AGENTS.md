@@ -42,6 +42,7 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `tools/java-format/dependencies.yml` isolates the pinned Palantir Java formatter dependency graph.
   - `tools/intellij/.managed.bazelproject` is the shared IntelliJ Bazel project view.
   - `tools/release/` and `tools/package_maven_central.sh` define the Bazel release and Maven Central workflow.
+  - `third_party/bazel/patches/` contains minimal upstream compatibility patches applied through Bzlmod overrides.
 - Source layout:
   - Production code lives under `*/src/main/java/...`.
   - Tests live under `*/src/test/java/...`.
