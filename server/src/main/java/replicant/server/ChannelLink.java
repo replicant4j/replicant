@@ -5,27 +5,28 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A representation indicating that an entity message will cause another channel to be subscribed.
+ * A representation indicating that an entity message will cause another Dataset Address to be subscribed.
  */
 public record ChannelLink(
-        @NonNull ChannelAddress source,
-        @NonNull ChannelAddress target,
+        @NonNull DatasetAddress sourceDatasetAddress,
+        @NonNull DatasetAddress targetDatasetAddress,
         @Nullable JsonObject targetFilter,
         boolean partial) {
-    public ChannelLink(@NonNull final ChannelAddress source, @NonNull final ChannelAddress target) {
-        this(source, target, null);
+    public ChannelLink(
+            @NonNull final DatasetAddress sourceDatasetAddress, @NonNull final DatasetAddress targetDatasetAddress) {
+        this(sourceDatasetAddress, targetDatasetAddress, null);
     }
 
     public ChannelLink(
-            @NonNull final ChannelAddress source,
-            @NonNull final ChannelAddress target,
+            @NonNull final DatasetAddress sourceDatasetAddress,
+            @NonNull final DatasetAddress targetDatasetAddress,
             @Nullable final JsonObject targetFilter) {
-        this(source, target, targetFilter, false);
+        this(sourceDatasetAddress, targetDatasetAddress, targetFilter, false);
     }
 
     public ChannelLink {
-        assert partial || (!source.partial() && !target.partial());
-        assert !partial || source.partial() || target.partial() || null == targetFilter;
+        assert partial || (!sourceDatasetAddress.partial() && !targetDatasetAddress.partial());
+        assert !partial || sourceDatasetAddress.partial() || targetDatasetAddress.partial() || null == targetFilter;
     }
 
     public boolean hasTargetFilter() {
@@ -35,8 +36,8 @@ public record ChannelLink(
     @NonNull
     @Override
     public String toString() {
-        return "[" + source
-                + "=>" + target + (hasTargetFilter() ? ("~<" + targetFilter + ">") : "")
+        return "[" + sourceDatasetAddress
+                + "=>" + targetDatasetAddress + (hasTargetFilter() ? ("~<" + targetFilter + ">") : "")
                 + (partial ? "?" : "")
                 + "]";
     }

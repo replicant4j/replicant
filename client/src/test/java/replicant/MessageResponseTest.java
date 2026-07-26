@@ -116,16 +116,16 @@ public class MessageResponseTest extends AbstractReplicantTest {
         final ChannelChange[] channelChanges = new ChannelChange[0];
 
         // Entity Updates
-        final int channelId = 22;
+        final int datasetId = 22;
 
         // Entity update
         final EntityChange change1 =
-                EntityChange.create(100, 50, new String[] {String.valueOf(channelId)}, new EntityChangeDataImpl());
+                EntityChange.create(100, 50, new String[] {String.valueOf(datasetId)}, new EntityChangeDataImpl());
         // Entity Remove
-        final EntityChange change2 = EntityChange.create(100, 51, new String[] {String.valueOf(channelId)});
+        final EntityChange change2 = EntityChange.create(100, 51, new String[] {String.valueOf(datasetId)});
         // Entity update - non linkable
         final EntityChange change3 =
-                EntityChange.create(100, 52, new String[] {String.valueOf(channelId)}, new EntityChangeDataImpl());
+                EntityChange.create(100, 52, new String[] {String.valueOf(datasetId)}, new EntityChangeDataImpl());
         final EntityChange[] entityChanges = new EntityChange[] {change1, change2, change3};
 
         final Object[] entities = new Object[] {mock(Linkable.class), new Object(), new Object()};

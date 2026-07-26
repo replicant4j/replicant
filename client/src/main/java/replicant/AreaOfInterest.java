@@ -103,7 +103,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     }
 
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @Nullable
     private Object _filter;
@@ -120,17 +120,17 @@ public abstract class AreaOfInterest extends ReplicantService {
     @NonNull
     static AreaOfInterest create(
             @Nullable final ReplicantContext context,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
-        return new Arez_AreaOfInterest(context, address, filter);
+        return new Arez_AreaOfInterest(context, datasetAddress, filter);
     }
 
     AreaOfInterest(
             @Nullable final ReplicantContext context,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
         super(context);
-        _address = Objects.requireNonNull(address);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
         _filter = filter;
     }
 
@@ -164,8 +164,8 @@ public abstract class AreaOfInterest extends ReplicantService {
     }
 
     @NonNull
-    public ChannelAddress getAddress() {
-        return _address;
+    public DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @Observable
@@ -198,7 +198,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     @Nullable
     public Subscription getSubscription() {
         final boolean expectSubscription = shouldExpectSubscription(getStatus());
-        return expectSubscription ? getReplicantContext().findSubscription(getAddress()) : null;
+        return expectSubscription ? getReplicantContext().findSubscription(getDatasetAddress()) : null;
     }
 
     /**
@@ -209,23 +209,25 @@ public abstract class AreaOfInterest extends ReplicantService {
         if (Replicant.shouldCheckApiInvariants()) {
             final boolean expectError = status.isErrorState();
 
-            final ChannelAddress address = getAddress();
+            final DatasetAddress datasetAddress = getDatasetAddress();
             apiInvariant(
                     () -> !expectError || null != error,
-                    () -> "Replicant-0016: Invoked updateAreaOfInterest for channel at address " + address
-                            + " with status " + status + " but failed to supply " + "the expected error.");
+                    () -> "Replicant-0016: Invoked updateAreaOfInterest for channel at Dataset Address "
+                            + datasetAddress + " with status " + status + " but failed to supply "
+                            + "the expected error.");
             apiInvariant(
                     () -> expectError || null == error,
-                    () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at address " + address
-                            + " with status " + status + " and supplied an unexpected error.");
+                    () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at Dataset Address "
+                            + datasetAddress + " with status " + status + " and supplied an unexpected error.");
             // It is fine to get here where status == LOADING or NOT_ASKED but a subscription is already present.
             // as this is part of the process that notifies back-end of upgrade of implicit subscription to explicit
             // subscription
             apiInvariant(
                     () -> !shouldExpectNoSubscription(status)
-                            || null == getReplicantContext().findSubscription(getAddress()),
-                    () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at address " + address
-                            + " with status " + status + " and found unexpected subscription in the context.");
+                            || null == getReplicantContext().findSubscription(getDatasetAddress()),
+                    () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at Dataset Address "
+                            + datasetAddress + " with status " + status
+                            + " and found unexpected subscription in the context.");
         }
 
         setStatus(status);
@@ -259,7 +261,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     @Override
     public String toString() {
         if (Replicant.areNamesEnabled()) {
-            return "AreaOfInterest[" + _address
+            return "AreaOfInterest[" + _datasetAddress
                     + (null == _filter ? "" : " Filter: " + FilterUtil.filterToString(_filter))
                     + " Status: "
                     + _status + "]";

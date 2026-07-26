@@ -16,7 +16,7 @@ public class ChangeTest {
 
         assertEquals(change.getKey(), "42#17");
         assertEquals(change.getEntityMessage(), message);
-        assertEquals(change.getChannels().size(), 0);
+        assertEquals(change.getDatasetAddresses().size(), 0);
     }
 
     @Test
@@ -26,17 +26,17 @@ public class ChangeTest {
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
         final var change = new Change(message);
-        change.getChannels().add(ChannelAddress.of(1, 1));
-        change.getChannels().add(ChannelAddress.of(2, 3));
+        change.getDatasetAddresses().add(DatasetAddress.of(1, 1));
+        change.getDatasetAddresses().add(DatasetAddress.of(2, 3));
 
         final var duplicate = change.duplicate();
         assertEquals(duplicate.getKey(), change.getKey());
         assertEquals(
                 duplicate.getEntityMessage().getId(), change.getEntityMessage().getId());
         assertNotSame(duplicate.getEntityMessage(), change.getEntityMessage());
-        assertEquals(duplicate.getChannels(), change.getChannels());
+        assertEquals(duplicate.getDatasetAddresses(), change.getDatasetAddresses());
         //noinspection SimplifiableAssertion
-        assertFalse(duplicate.getChannels() == change.getChannels());
+        assertFalse(duplicate.getDatasetAddresses() == change.getDatasetAddresses());
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -51,11 +51,11 @@ public class ChangeTest {
         final var change1 = new Change(message1);
         final var change2 = new Change(message2);
 
-        change1.getChannels().add(ChannelAddress.of(1, 1));
-        change2.getChannels().add(ChannelAddress.of(2, 3));
+        change1.getDatasetAddresses().add(DatasetAddress.of(1, 1));
+        change2.getDatasetAddresses().add(DatasetAddress.of(2, 3));
 
-        assertEquals(change1.getChannels().size(), 1);
-        assertFalse(change1.getChannels().contains(ChannelAddress.of(2, 3)));
+        assertEquals(change1.getDatasetAddresses().size(), 1);
+        assertFalse(change1.getDatasetAddresses().contains(DatasetAddress.of(2, 3)));
         assertEquals(
                 Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
                         .get(MessageTestUtil.ATTR_KEY1),
@@ -64,8 +64,8 @@ public class ChangeTest {
 
         change1.merge(change2);
 
-        assertEquals(change1.getChannels().size(), 2);
-        assertTrue(change1.getChannels().contains(ChannelAddress.of(2, 3)));
+        assertEquals(change1.getDatasetAddresses().size(), 2);
+        assertTrue(change1.getDatasetAddresses().contains(DatasetAddress.of(2, 3)));
         assertEquals(
                 Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
                         .get(MessageTestUtil.ATTR_KEY1),
@@ -79,11 +79,11 @@ public class ChangeTest {
         final var typeID = 4;
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var address = ChannelAddress.of(7, 12, "instance-a");
-        final var change = new Change(message, address);
+        final var datasetAddress = DatasetAddress.of(7, 12, "instance-a");
+        final var change = new Change(message, datasetAddress);
 
-        assertEquals(change.getChannels().size(), 1);
-        assertTrue(change.getChannels().contains(address));
+        assertEquals(change.getDatasetAddresses().size(), 1);
+        assertTrue(change.getDatasetAddresses().contains(datasetAddress));
     }
 
     @Test
@@ -97,18 +97,18 @@ public class ChangeTest {
         final var change1 = new Change(message1);
         final var change2 = new Change(message2);
 
-        final var addressA = ChannelAddress.of(5, 11, "inst-1");
-        final var addressADuplicate = ChannelAddress.of(5, 11, "inst-1");
-        final var addressB = ChannelAddress.of(5, 11, "inst-2");
+        final var datasetAddressA = DatasetAddress.of(5, 11, "inst-1");
+        final var datasetAddressADuplicate = DatasetAddress.of(5, 11, "inst-1");
+        final var datasetAddressB = DatasetAddress.of(5, 11, "inst-2");
 
-        change1.getChannels().add(addressA);
-        change2.getChannels().add(addressADuplicate);
-        change2.getChannels().add(addressB);
+        change1.getDatasetAddresses().add(datasetAddressA);
+        change2.getDatasetAddresses().add(datasetAddressADuplicate);
+        change2.getDatasetAddresses().add(datasetAddressB);
 
         change1.merge(change2);
 
-        assertEquals(change1.getChannels().size(), 2);
-        assertTrue(change1.getChannels().contains(addressA));
-        assertTrue(change1.getChannels().contains(addressB));
+        assertEquals(change1.getDatasetAddresses().size(), 2);
+        assertTrue(change1.getDatasetAddresses().contains(datasetAddressA));
+        assertTrue(change1.getDatasetAddresses().contains(datasetAddressB));
     }
 }

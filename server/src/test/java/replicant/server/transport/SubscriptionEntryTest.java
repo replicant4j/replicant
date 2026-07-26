@@ -11,23 +11,23 @@ import javax.json.Json;
 import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.ValueUtil;
 
 public class SubscriptionEntryTest {
     @Test
     public void basicFlow() {
-        final var cd1 = ChannelAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
-        final var cd2 = ChannelAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
-        final var cd3 = ChannelAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
-        final var cd4 = ChannelAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
-        final var cd5 = ChannelAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
+        final var cd1 = DatasetAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
+        final var cd2 = DatasetAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
+        final var cd3 = DatasetAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
+        final var cd4 = DatasetAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
+        final var cd5 = DatasetAddress.of(ValueUtil.randomInt(), ValueUtil.randomInt());
 
         final var session = newSession();
         session.getLock().lock();
         final var entry = new SubscriptionEntry(session, cd1);
 
-        assertEquals(entry.address(), cd1);
+        assertEquals(entry.datasetAddress(), cd1);
         assertFalse(entry.isExplicitlySubscribed());
         assertEquals(entry.getInwardSubscriptions().size(), 0);
         assertEquals(entry.getOutwardSubscriptions().size(), 0);
@@ -49,11 +49,11 @@ public class SubscriptionEntryTest {
         assertNull(entry.getFilter());
 
         // Deregister when there is none subscribed
-        assertEquals(entry.deregisterOutwardSubscriptions(LinkOwner.graph(), cd2), new ChannelAddress[0]);
-        assertEquals(entry.deregisterInwardSubscriptions(cd2), new ChannelAddress[0]);
+        assertEquals(entry.deregisterOutwardSubscriptions(LinkOwner.graph(), cd2), new DatasetAddress[0]);
+        assertEquals(entry.deregisterInwardSubscriptions(cd2), new DatasetAddress[0]);
 
         // Register incoming channels
-        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new ChannelAddress[] {cd2, cd3, cd4});
+        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[] {cd2, cd3, cd4});
         assertFalse(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptions().size(), 3);
         assertTrue(entry.getInwardSubscriptions().contains(cd2));
@@ -62,10 +62,10 @@ public class SubscriptionEntryTest {
         assertFalse(entry.getInwardSubscriptions().contains(cd5));
         assertEquals(entry.getOutwardSubscriptions().size(), 0);
 
-        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new ChannelAddress[0]);
+        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[0]);
 
         // Deregister some of those incoming
-        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3), new ChannelAddress[] {cd2, cd3});
+        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3), new DatasetAddress[] {cd2, cd3});
         assertFalse(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptions().size(), 1);
         assertFalse(entry.getInwardSubscriptions().contains(cd2));
@@ -75,7 +75,7 @@ public class SubscriptionEntryTest {
         assertEquals(entry.getOutwardSubscriptions().size(), 0);
 
         // Deregister the remaining
-        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3, cd4), new ChannelAddress[] {cd4});
+        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[] {cd4});
         assertTrue(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptions().size(), 0);
         assertEquals(entry.getOutwardSubscriptions().size(), 0);
@@ -83,7 +83,7 @@ public class SubscriptionEntryTest {
         // Register outgoing channels
         assertEquals(
                 entry.registerOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3, cd4),
-                new ChannelAddress[] {cd2, cd3, cd4});
+                new DatasetAddress[] {cd2, cd3, cd4});
         assertTrue(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptions().size(), 0);
         assertEquals(entry.getOutwardSubscriptions().size(), 3);
@@ -92,12 +92,12 @@ public class SubscriptionEntryTest {
         assertTrue(entry.getOutwardSubscriptions().contains(cd4));
         assertFalse(entry.getOutwardSubscriptions().contains(cd5));
 
-        assertEquals(entry.registerOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3, cd4), new ChannelAddress[0]);
+        assertEquals(entry.registerOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3, cd4), new DatasetAddress[0]);
 
         // Deregister some outgoing
         assertEquals(
                 entry.deregisterOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3),
-                new ChannelAddress[] {cd2, cd3});
+                new DatasetAddress[] {cd2, cd3});
         assertTrue(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptions().size(), 0);
         assertEquals(entry.getOutwardSubscriptions().size(), 1);
@@ -109,10 +109,10 @@ public class SubscriptionEntryTest {
 
     @Test
     public void sorting() {
-        final var cd1 = ChannelAddress.of(1, 42);
-        final var cd3 = ChannelAddress.of(1, 43);
-        final var cd4 = ChannelAddress.of(2, null);
-        final var cd5 = ChannelAddress.of(3, null);
+        final var cd1 = DatasetAddress.of(1, 42);
+        final var cd3 = DatasetAddress.of(1, 43);
+        final var cd4 = DatasetAddress.of(2, null);
+        final var cd5 = DatasetAddress.of(3, null);
 
         final var session = newSession();
         final var entry1 = new SubscriptionEntry(session, cd1);
@@ -130,29 +130,33 @@ public class SubscriptionEntryTest {
 
     @Test
     public void ownerAwareOutwardSubscriptions_referenceCountSharedTargets() {
-        final var source = ChannelAddress.of(1, 1);
-        final var target = ChannelAddress.of(2, 2);
+        final var sourceDatasetAddress = DatasetAddress.of(1, 1);
+        final var targetDatasetAddress = DatasetAddress.of(2, 2);
 
         final var session = newSession();
         session.getLock().lock();
         try {
-            final var entry = new SubscriptionEntry(session, source);
+            final var entry = new SubscriptionEntry(session, sourceDatasetAddress);
             final var ownerA = LinkOwner.entity(7, 11);
             final var ownerB = LinkOwner.entity(7, 12);
 
-            assertEquals(entry.registerOutwardSubscriptions(ownerA, target), new ChannelAddress[] {target});
-            assertTrue(entry.getOutwardSubscriptions().contains(target));
-            assertEquals(entry.getOwnedOutwardSubscriptions(ownerA), Set.of(target));
+            assertEquals(
+                    entry.registerOutwardSubscriptions(ownerA, targetDatasetAddress),
+                    new DatasetAddress[] {targetDatasetAddress});
+            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
+            assertEquals(entry.getOwnedOutwardSubscriptions(ownerA), Set.of(targetDatasetAddress));
 
-            assertEquals(entry.registerOutwardSubscriptions(ownerB, target), new ChannelAddress[0]);
-            assertTrue(entry.getOutwardSubscriptions().contains(target));
-            assertEquals(entry.getOwnedOutwardSubscriptions(ownerB), Set.of(target));
+            assertEquals(entry.registerOutwardSubscriptions(ownerB, targetDatasetAddress), new DatasetAddress[0]);
+            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
+            assertEquals(entry.getOwnedOutwardSubscriptions(ownerB), Set.of(targetDatasetAddress));
 
-            assertEquals(entry.deregisterOutwardSubscriptions(ownerA, target), new ChannelAddress[0]);
-            assertTrue(entry.getOutwardSubscriptions().contains(target));
+            assertEquals(entry.deregisterOutwardSubscriptions(ownerA, targetDatasetAddress), new DatasetAddress[0]);
+            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
             assertTrue(entry.getOwnedOutwardSubscriptions(ownerA).isEmpty());
 
-            assertEquals(entry.deregisterOutwardSubscriptions(ownerB, target), new ChannelAddress[] {target});
+            assertEquals(
+                    entry.deregisterOutwardSubscriptions(ownerB, targetDatasetAddress),
+                    new DatasetAddress[] {targetDatasetAddress});
             assertTrue(entry.getOutwardSubscriptions().isEmpty());
             assertTrue(entry.getOwnedOutwardSubscriptions(ownerB).isEmpty());
         } finally {

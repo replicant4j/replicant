@@ -50,17 +50,17 @@ public final class ChangeSet {
         }
     }
 
-    public void mergeAction(@NonNull final ChannelAddress address, final ChannelAction.@NonNull Action action) {
-        mergeAction(address, action, null);
+    public void mergeAction(@NonNull final DatasetAddress datasetAddress, final ChannelAction.@NonNull Action action) {
+        mergeAction(datasetAddress, action, null);
     }
 
     public void mergeAction(
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             final ChannelAction.@NonNull Action action,
             @Nullable final JsonObject filter) {
         //noinspection ConstantValue
         assert ChannelAction.Action.DELETE != action || ChannelAction.Action.REMOVE != action || null == filter;
-        mergeAction(ChannelAction.of(address, action, filter));
+        mergeAction(ChannelAction.of(datasetAddress, action, filter));
     }
 
     public void mergeAction(@NonNull final ChannelAction action) {
@@ -68,13 +68,13 @@ public final class ChangeSet {
         /*
          * If we have a matching inverse action in actions list then we can remove
          * that action and avoid adding this action. This avoids scenario where there
-         * are multiple actions for the same address and filter in ChangeSet.
+         * are multiple actions for the same Dataset Address and filter in ChangeSet.
          */
         if (ChannelAction.Action.ADD == actionType) {
             final var removedRemove = _channelActions.removeIf(a -> ChannelAction.Action.REMOVE == a.action()
-                    && a.address().equals(action.address())
+                    && a.datasetAddress().equals(action.datasetAddress())
                     && null == a.filter());
-            _channelActions.removeIf(a -> a.address().equals(action.address()));
+            _channelActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
             if (removedRemove) {
                 return;
             }
@@ -83,13 +83,13 @@ public final class ChangeSet {
             final var newFilter = action.filter();
             var flags = new boolean[1];
             _channelActions.replaceAll(a -> {
-                final var address = a.address();
-                if (ChannelAction.Action.ADD == a.action() && address.equals(action.address())) {
+                final var datasetAddress = a.datasetAddress();
+                if (ChannelAction.Action.ADD == a.action() && datasetAddress.equals(action.datasetAddress())) {
                     flags[0] = true;
                     if (FilterUtil.filtersEqual(a.filter(), newFilter)) {
                         return a;
                     } else {
-                        return ChannelAction.of(address, ChannelAction.Action.ADD, newFilter);
+                        return ChannelAction.of(datasetAddress, ChannelAction.Action.ADD, newFilter);
                     }
                 } else {
                     return a;
@@ -100,9 +100,9 @@ public final class ChangeSet {
                 return;
             }
         } else if (ChannelAction.Action.REMOVE == actionType || ChannelAction.Action.DELETE == actionType) {
-            final var removedAdd = _channelActions.removeIf(
-                    a -> ChannelAction.Action.ADD == a.action() && a.address().equals(action.address()));
-            _channelActions.removeIf(a -> a.address().equals(action.address()));
+            final var removedAdd = _channelActions.removeIf(a ->
+                    ChannelAction.Action.ADD == a.action() && a.datasetAddress().equals(action.datasetAddress()));
+            _channelActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
             if (removedAdd) {
                 return;
             }

@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAction.Action;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.shared.Messages;
 
 /**
@@ -95,12 +95,12 @@ public final class JsonEncoder {
                 generator.writeStartObject();
                 generator.write(Messages.Update.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId());
 
-                final var channels = change.getChannels();
-                if (!channels.isEmpty()) {
+                final var datasetAddresses = change.getDatasetAddresses();
+                if (!datasetAddresses.isEmpty()) {
                     generator.writeStartArray(Messages.Update.CHANNELS);
-                    for (final var address : channels) {
-                        assert address.concrete();
-                        generator.write(address.toString());
+                    for (final var datasetAddress : datasetAddresses) {
+                        assert datasetAddress.concrete();
+                        generator.write(datasetAddress.toString());
                     }
                     generator.writeEnd();
                 }
@@ -124,7 +124,7 @@ public final class JsonEncoder {
 
     @NonNull
     public static String toDescriptor(@NonNull final ChannelAction channelAction) {
-        assert channelAction.address().concrete();
+        assert channelAction.datasetAddress().concrete();
         final var action = channelAction.action();
         final var actionValue = Action.ADD == action
                 ? Messages.Update.CHANNEL_ACTION_ADD
@@ -133,7 +133,7 @@ public final class JsonEncoder {
                         : Action.UPDATE == action
                                 ? Messages.Update.CHANNEL_ACTION_UPDATE
                                 : Messages.Update.CHANNEL_ACTION_DELETE;
-        return String.valueOf(actionValue) + channelAction.address();
+        return String.valueOf(actionValue) + channelAction.datasetAddress();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -163,11 +163,13 @@ public final class JsonEncoder {
 
     @NonNull
     public static String encodeUseCacheMessage(
-            @NonNull final ChannelAddress address, @NonNull final String eTag, @Nullable final Integer requestId) {
-        assert address.concrete();
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String eTag,
+            @Nullable final Integer requestId) {
+        assert datasetAddress.concrete();
         final var response = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE)
-                .add(Messages.Common.CHANNEL, address.toString())
+                .add(Messages.Common.CHANNEL, datasetAddress.toString())
                 .add(Messages.S2C_Common.ETAG, eTag);
         if (null != requestId) {
             response.add(Messages.Common.REQUEST_ID, requestId);

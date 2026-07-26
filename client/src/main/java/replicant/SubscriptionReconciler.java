@@ -14,8 +14,10 @@ import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.AreaOfInterestRequest.Type;
 import replicant.spy.SubscriptionOrphanedEvent;
 
+@SuppressWarnings("BadImport")
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionReconciler extends ReplicantService {
     /**
@@ -169,31 +171,31 @@ abstract class SubscriptionReconciler extends ReplicantService {
     Action reconcileAreaOfInterest(
             @NonNull final AreaOfInterest areaOfInterest,
             @Nullable final AreaOfInterest groupTemplate,
-            final AreaOfInterestRequest.@Nullable Type groupAction) {
+            @Nullable final Type groupAction) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> Disposable.isNotDisposed(areaOfInterest),
                     () -> "Replicant-0020: Invoked reconcileAreaOfInterest() with disposed AreaOfInterest.");
         }
-        final ChannelAddress address = areaOfInterest.getAddress();
-        final Connector connector = getReplicantRuntime().getConnector(address.schemaId());
+        final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
+        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.schemaId());
         // Service can be disconnected if it is not required; reconciliation resumes when it reconnects.
         if (ConnectorState.CONNECTED == connector.getState()) {
-            final Subscription subscription = getReplicantContext().findSubscription(address);
+            final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             final boolean subscribed = null != subscription;
             final Object filter = areaOfInterest.getFilter();
 
-            final int addIndex =
-                    connector.lastIndexOfPendingAreaOfInterestRequest(AreaOfInterestRequest.Type.ADD, address, filter);
-            final int removeIndex =
-                    connector.lastIndexOfPendingAreaOfInterestRequest(AreaOfInterestRequest.Type.REMOVE, address, null);
+            final int addIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
+                    AreaOfInterestRequest.Type.ADD, datasetAddress, filter);
+            final int removeIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
+                    AreaOfInterestRequest.Type.REMOVE, datasetAddress, null);
             final int updateIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.UPDATE, address, filter);
+                    AreaOfInterestRequest.Type.UPDATE, datasetAddress, filter);
 
             if ((!subscribed && addIndex < 0) || removeIndex > addIndex) {
                 if (null == groupTemplate
                         || canGroup(groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD)) {
-                    connector.requestSubscribe(address, filter);
+                    connector.requestSubscribe(datasetAddress, filter);
                     return Action.SUBMITTED_ADD;
                 } else {
                     return Action.NO_ACTION;
@@ -211,9 +213,9 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
                 if (!FilterUtil.filtersEqual(filter, existingSubscription.getFilter())) {
                     final SystemSchema schema =
-                            getReplicantContext().getSchemaService().getById(address.schemaId());
+                            getReplicantContext().getSchemaService().getById(datasetAddress.schemaId());
                     final ChannelSchema.FilterType filterType =
-                            schema.getChannel(address.channelId()).getFilterType();
+                            schema.getChannel(datasetAddress.datasetId()).getFilterType();
                     if (null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType) {
                         /*
                         If the subscription needs an update but the backend does not support updates
@@ -224,16 +226,16 @@ abstract class SubscriptionReconciler extends ReplicantService {
                         if (Replicant.shouldCheckInvariants()) {
                             invariant(
                                     existingSubscription::isExplicitSubscription,
-                                    () -> "Replicant-0083: Attempting to update channel " + address
-                                            + " but channel does not allow dynamic updates of filter and channel has"
-                                            + " not been explicitly subscribed.");
+                                    () -> "Replicant-0083: Attempting to update Dataset Address " + datasetAddress
+                                            + " but the Dataset does not allow dynamic filter updates and has not"
+                                            + " been explicitly subscribed.");
                         }
-                        connector.requestUnsubscribe(address);
+                        connector.requestUnsubscribe(datasetAddress);
                         return Action.SUBMITTED_REMOVE;
                     } else if (null == groupTemplate
                             || canGroup(
                                     groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE)) {
-                        connector.requestSubscriptionUpdate(address, filter);
+                        connector.requestSubscriptionUpdate(datasetAddress, filter);
                         return Action.SUBMITTED_UPDATE;
                     } else {
                         return Action.NO_ACTION;
@@ -249,7 +251,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                         if (existingSubscription.isExplicitSubscription()) {
                             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
                         } else {
-                            connector.requestSubscribe(address, filter);
+                            connector.requestSubscribe(datasetAddress, filter);
                             return Action.SUBMITTED_ADD;
                         }
                     }
@@ -261,21 +263,21 @@ abstract class SubscriptionReconciler extends ReplicantService {
 
     boolean canGroup(
             @NonNull final AreaOfInterest groupTemplate,
-            final AreaOfInterestRequest.@Nullable Type groupAction,
+            @Nullable final Type groupAction,
             @NonNull final AreaOfInterest areaOfInterest,
-            final AreaOfInterestRequest.@Nullable Type action) {
+            @Nullable final Type action) {
         if (null != groupAction && null != action && !groupAction.equals(action)) {
             return false;
         } else {
-            final boolean sameChannel = groupTemplate.getAddress().schemaId()
-                            == areaOfInterest.getAddress().schemaId()
-                    && groupTemplate.getAddress().channelId()
-                            == areaOfInterest.getAddress().channelId();
+            final boolean sameDataset = groupTemplate.getDatasetAddress().schemaId()
+                            == areaOfInterest.getDatasetAddress().schemaId()
+                    && groupTemplate.getDatasetAddress().datasetId()
+                            == areaOfInterest.getDatasetAddress().datasetId();
             final boolean sameDatasetKey = Objects.equals(
-                    groupTemplate.getAddress().datasetKey(),
-                    areaOfInterest.getAddress().datasetKey());
+                    groupTemplate.getDatasetAddress().datasetKey(),
+                    areaOfInterest.getDatasetAddress().datasetKey());
 
-            return sameChannel
+            return sameDataset
                     && sameDatasetKey
                     && (AreaOfInterestRequest.Type.REMOVE == action
                             || FilterUtil.filtersEqual(groupTemplate.getFilter(), areaOfInterest.getFilter()));
@@ -284,45 +286,48 @@ abstract class SubscriptionReconciler extends ReplicantService {
 
     @arez.annotations.Action
     void removeOrphanSubscriptions() {
-        final HashSet<ChannelAddress> expected = new HashSet<>();
-        getReplicantContext().getAreasOfInterest().forEach(aoi -> expected.add(aoi.getAddress()));
+        final HashSet<DatasetAddress> expectedDatasetAddresses = new HashSet<>();
+        getReplicantContext()
+                .getAreasOfInterest()
+                .forEach(aoi -> expectedDatasetAddresses.add(aoi.getDatasetAddress()));
 
         final SubscriptionService subscriptionService = getReplicantContext().getSubscriptionService();
-        removeOrphanSubscriptions(subscriptionService.getTypeSubscriptions(), expected);
-        removeOrphanSubscriptions(subscriptionService.getInstanceSubscriptions(), expected);
+        removeOrphanSubscriptions(subscriptionService.getTypeSubscriptions(), expectedDatasetAddresses);
+        removeOrphanSubscriptions(subscriptionService.getInstanceSubscriptions(), expectedDatasetAddresses);
     }
 
     private void removeOrphanSubscriptions(
-            @NonNull final Collection<Subscription> subscriptions, @NonNull final Set<ChannelAddress> expected) {
+            @NonNull final Collection<Subscription> subscriptions,
+            @NonNull final Set<DatasetAddress> expectedDatasetAddresses) {
         subscriptions.stream()
                 // Subscription must be explicit
                 .filter(Subscription::isExplicitSubscription)
                 // Subscription should not be one of expected
-                .map(Subscription::address)
-                .filter(address -> !expected.contains(address))
+                .map(Subscription::datasetAddress)
+                .filter(datasetAddress -> !expectedDatasetAddresses.contains(datasetAddress))
                 // Subscription should not have a remove pending
-                .filter(address -> !isRemovePending(address))
+                .filter(datasetAddress -> !isRemovePending(datasetAddress))
                 .forEachOrdered(this::removeOrphanSubscription);
     }
 
-    private void removeOrphanSubscription(@NonNull final ChannelAddress address) {
+    private void removeOrphanSubscription(@NonNull final DatasetAddress datasetAddress) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             final Subscription subscription =
-                    Objects.requireNonNull(getReplicantContext().findSubscription(address));
+                    Objects.requireNonNull(getReplicantContext().findSubscription(datasetAddress));
             getReplicantContext().getSpy().reportSpyEvent(new SubscriptionOrphanedEvent(subscription));
         }
-        getReplicantRuntime().getConnector(address.schemaId()).requestUnsubscribe(address);
+        getReplicantRuntime().getConnector(datasetAddress.schemaId()).requestUnsubscribe(datasetAddress);
     }
 
     /**
-     * Return true if connector for address has a remove pending for address or the connector is not connected.
+     * Return true if connector for Dataset Address has a remove pending for Dataset Address or the connector is not connected.
      *
-     * @return true if connector for address has a remove pending for address or the connector is not connected.
+     * @return true if connector for Dataset Address has a remove pending for Dataset Address or the connector is not connected.
      */
-    private boolean isRemovePending(@NonNull final ChannelAddress address) {
-        final Connector connector = getReplicantRuntime().getConnector(address.schemaId());
+    private boolean isRemovePending(@NonNull final DatasetAddress datasetAddress) {
+        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.schemaId());
         return ConnectorState.CONNECTED != connector.getState()
-                || connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, address, null);
+                || connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, datasetAddress, null);
     }
 
     @NonNull

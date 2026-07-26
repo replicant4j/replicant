@@ -10,8 +10,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     void addTypeGraph() {
         final int schemaId = 0;
         final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from(schemaId, "+23");
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.ADD);
         assertNull(descriptor.getFilter());
     }
@@ -20,8 +20,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     void addInstanceGraph() {
         final int schemaId = 0;
         final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from(schemaId, "+23.2");
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.ADD);
         assertNull(descriptor.getFilter());
     }
@@ -30,8 +30,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     void removeTypeGraph() {
         final int schemaId = 0;
         final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from(schemaId, "-23");
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE);
         assertNull(descriptor.getFilter());
     }
@@ -40,8 +40,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     void removeInstanceGraph() {
         final int schemaId = 0;
         final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from(schemaId, "-23.2");
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE);
         assertNull(descriptor.getFilter());
     }
@@ -52,8 +52,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("+23", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.ADD);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -64,8 +64,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("+23.2", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.ADD);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -76,8 +76,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("-23", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -88,8 +88,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("-23.2", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.REMOVE);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -100,8 +100,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("=23", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.UPDATE);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -112,8 +112,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
         final String filter = ValueUtil.randomString();
         final ChannelChangeDescriptor descriptor =
                 ChannelChangeDescriptor.from(schemaId, ChannelChange.create("=23.2", filter));
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.UPDATE);
         assertEquals(descriptor.getFilter(), filter);
     }
@@ -122,8 +122,8 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     void deleteInstanceGraph() {
         final int schemaId = 0;
         final ChannelChangeDescriptor descriptor = ChannelChangeDescriptor.from(schemaId, "!23.2");
-        assertEquals(descriptor.getAddress().schemaId(), schemaId);
-        assertEquals(descriptor.getAddress().getName(), "0.23.2");
+        assertEquals(descriptor.getDatasetAddress().schemaId(), schemaId);
+        assertEquals(descriptor.getDatasetAddress().getName(), "0.23.2");
         assertEquals(descriptor.getType(), ChannelChangeDescriptor.Type.DELETE);
         assertNull(descriptor.getFilter());
     }
@@ -136,7 +136,7 @@ public final class ChannelChangeDescriptorTest extends AbstractReplicantTest {
     }
 
     @Test
-    void badAddress() {
+    void invalidDatasetAddress() {
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> ChannelChangeDescriptor.from(0, "+X"));
         assertEquals(exception.getMessage(), "Failed to parse channel action '+X'");

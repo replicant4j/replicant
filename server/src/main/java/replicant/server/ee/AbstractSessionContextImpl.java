@@ -18,7 +18,7 @@ import javax.persistence.EntityManager;
 import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.transport.Packet;
 import replicant.server.transport.ReplicantChangeRecorder;
@@ -35,10 +35,11 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     @Override
     public JsonObject deriveTargetFilter(
             @NonNull final EntityMessage entityMessage,
-            @NonNull final ChannelAddress source,
+            @NonNull final DatasetAddress sourceDatasetAddress,
             @Nullable final JsonObject sourceFilter,
-            @NonNull final ChannelAddress target) {
-        throw new IllegalStateException("deriveTargetFilter called for link from " + source + " to " + target
+            @NonNull final DatasetAddress targetDatasetAddress) {
+        throw new IllegalStateException("deriveTargetFilter called for link from " + sourceDatasetAddress + " to "
+                + targetDatasetAddress
                 + (null == sourceFilter ? "" : " with source filter " + sourceFilter)
                 + " in the context of the entity message "
                 + entityMessage + " but no such graph link exists or the target graph has no filter parameter");
@@ -48,11 +49,12 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     @Override
     public String deriveTargetDatasetKey(
             @NonNull final EntityMessage entityMessage,
-            @NonNull final ChannelAddress source,
+            @NonNull final DatasetAddress sourceDatasetAddress,
             @Nullable final JsonObject sourceFilter,
-            @NonNull final ChannelAddress target,
+            @NonNull final DatasetAddress targetDatasetAddress,
             @Nullable final JsonObject targetFilter) {
-        throw new IllegalStateException("deriveTargetDatasetKey called for link from " + source + " to " + target
+        throw new IllegalStateException("deriveTargetDatasetKey called for link from " + sourceDatasetAddress + " to "
+                + targetDatasetAddress
                 + (null == sourceFilter ? "" : " with source filter " + sourceFilter)
                 + (null == targetFilter ? "" : " with target filter " + targetFilter)
                 + " in the context of the entity message "
@@ -82,10 +84,10 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     @Language("TSQL")
-    protected String generateTempIdTable(@NonNull final Collection<ChannelAddress> addresses) {
+    protected String generateTempIdTable(@NonNull final Collection<DatasetAddress> datasetAddresses) {
         //noinspection SqlUnused
         return "DECLARE @Ids TABLE ( Id INTEGER NOT NULL );\n"
-                + chunked(addresses.stream().map(ChannelAddress::rootId), 900)
+                + chunked(datasetAddresses.stream().map(DatasetAddress::datasetRootId), 900)
                         .map(ids -> "INSERT INTO @Ids VALUES "
                                 + ids.stream().map(id -> "(" + id + ")").collect(Collectors.joining(",")))
                         .collect(Collectors.joining("\n"))
@@ -93,13 +95,14 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     @Language("TSQL")
-    protected String generateTempIdAndDatasetKeyTable(@NonNull final Collection<ChannelAddress> addresses) {
+    protected String generateTempIdAndDatasetKeyTable(@NonNull final Collection<DatasetAddress> datasetAddresses) {
         //noinspection SqlUnused
         return "DECLARE @IdAndDatasetKeys TABLE ( Id INTEGER NOT NULL, DatasetKey VARCHAR(255) NOT NULL );\n"
-                + chunked(addresses.stream(), 900)
+                + chunked(datasetAddresses.stream(), 900)
                         .map(chunk -> "INSERT INTO @IdAndDatasetKeys VALUES "
                                 + chunk.stream()
-                                        .map(address -> "(" + address.rootId() + ",'" + address.datasetKey() + "')")
+                                        .map(datasetAddress -> "(" + datasetAddress.datasetRootId() + ",'"
+                                                + datasetAddress.datasetKey() + "')")
                                         .collect(Collectors.joining(",")))
                         .collect(Collectors.joining("\n"))
                 + "\n";

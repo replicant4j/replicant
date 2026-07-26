@@ -13,16 +13,16 @@ public class Change {
     private final EntityMessage _entityMessage;
 
     @NonNull
-    private final Set<ChannelAddress> _channels = new LinkedHashSet<>();
+    private final Set<DatasetAddress> _datasetAddresses = new LinkedHashSet<>();
 
     public Change(@NonNull final EntityMessage entityMessage) {
         _key = entityMessage.getTypeId() + "#" + entityMessage.getId();
         _entityMessage = Objects.requireNonNull(entityMessage);
     }
 
-    public Change(@NonNull final EntityMessage entityMessage, @NonNull final ChannelAddress address) {
+    public Change(@NonNull final EntityMessage entityMessage, @NonNull final DatasetAddress datasetAddress) {
         this(entityMessage);
-        _channels.add(Objects.requireNonNull(address));
+        _datasetAddresses.add(Objects.requireNonNull(datasetAddress));
     }
 
     @NonNull
@@ -36,19 +36,19 @@ public class Change {
     }
 
     @NonNull
-    public Set<ChannelAddress> getChannels() {
-        return _channels;
+    public Set<DatasetAddress> getDatasetAddresses() {
+        return _datasetAddresses;
     }
 
     public void merge(@NonNull final Change other) {
         getEntityMessage().merge(other.getEntityMessage());
-        getChannels().addAll(other.getChannels());
+        getDatasetAddresses().addAll(other.getDatasetAddresses());
     }
 
     @NonNull
     public Change duplicate() {
         final var change = new Change(getEntityMessage().duplicate());
-        change.getChannels().addAll(getChannels());
+        change.getDatasetAddresses().addAll(getDatasetAddresses());
         return change;
     }
 }

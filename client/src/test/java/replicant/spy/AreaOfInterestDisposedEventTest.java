@@ -6,7 +6,7 @@ import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 import replicant.Replicant;
 import replicant.ValueUtil;
 
@@ -16,10 +16,10 @@ public class AreaOfInterestDisposedEventTest extends AbstractReplicantTest {
         // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 2);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 2);
         final String filter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, filter));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filter));
 
         final AreaOfInterestDisposedEvent event = new AreaOfInterestDisposedEvent(areaOfInterest);
 
@@ -29,9 +29,9 @@ public class AreaOfInterestDisposedEventTest extends AbstractReplicantTest {
         safeAction(() -> event.toMap(data));
 
         assertEquals(data.get("type"), "AreaOfInterest.Disposed");
-        assertEquals(data.get("channel.schemaId"), 1);
-        assertEquals(data.get("channel.channelId"), 2);
-        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("datasetAddress.schemaId"), 1);
+        assertEquals(data.get("datasetAddress.datasetId"), 2);
+        assertNull(data.get("datasetAddress.datasetRootId"));
         assertEquals(data.get("channel.filter"), filter);
         assertEquals(data.size(), 5);
     }

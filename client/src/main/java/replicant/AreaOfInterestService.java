@@ -60,30 +60,31 @@ abstract class AreaOfInterestService extends ReplicantService {
     }
 
     /**
-     * Return a specific AreaOfInterest that has specified address.
+     * Return a specific AreaOfInterest that has specified Dataset Address.
      *
-     * @param address the address of the channel that AreaOfInterest is about.
+     * @param datasetAddress the Dataset Address declared by the Area of Interest
      * @return the AreaOfInterest that matches if any.
      */
     @Nullable
-    AreaOfInterest findAreaOfInterestByAddress(@NonNull final ChannelAddress address) {
+    AreaOfInterest findAreaOfInterestByDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
         return areasOfInterest()
-                .filter(e -> e.getAddress().equals(address))
+                .filter(e -> e.getDatasetAddress().equals(datasetAddress))
                 .findAny()
                 .orElse(null);
     }
 
     /**
-     * Locate an existing AreaOfInterest with specified address or create a new AreaOfInterest.
+     * Locate an existing AreaOfInterest with specified Dataset Address or create a new AreaOfInterest.
      * The filter is updated, if required, to match the specified parameter.
      *
-     * @param address the address of the channel that AreaOfInterest is about.
+     * @param datasetAddress the Dataset Address declared by the Area of Interest
      * @param filter  the filter that is used to define the channel.
      * @return the AreaOfInterest.
      */
     @NonNull
-    AreaOfInterest createOrUpdateAreaOfInterest(@NonNull final ChannelAddress address, @Nullable final Object filter) {
-        final AreaOfInterest areaOfInterest = findAreaOfInterestByAddress(address);
+    AreaOfInterest createOrUpdateAreaOfInterest(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        final AreaOfInterest areaOfInterest = findAreaOfInterestByDatasetAddress(datasetAddress);
         if (null != areaOfInterest) {
             if (!FilterUtil.filtersEqual(areaOfInterest.getFilter(), filter)) {
                 areaOfInterest.setFilter(filter);
@@ -94,8 +95,8 @@ abstract class AreaOfInterestService extends ReplicantService {
             }
             return areaOfInterest;
         } else {
-            final AreaOfInterest newAreaOfInterest =
-                    AreaOfInterest.create(Replicant.areZonesEnabled() ? getReplicantContext() : null, address, filter);
+            final AreaOfInterest newAreaOfInterest = AreaOfInterest.create(
+                    Replicant.areZonesEnabled() ? getReplicantContext() : null, datasetAddress, filter);
             attach(newAreaOfInterest);
             if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
                 getReplicantContext().getSpy().reportSpyEvent(new AreaOfInterestCreatedEvent(newAreaOfInterest));
@@ -200,10 +201,10 @@ abstract class AreaOfInterestService extends ReplicantService {
         }
         final ReplicantContext context = getReplicantContext();
         if (RuntimeState.CONNECTED == context.getState()) {
-            final ChannelAddress address = areaOfInterest.getAddress();
-            final Subscription subscription = context.findSubscription(address);
+            final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
+            final Subscription subscription = context.findSubscription(datasetAddress);
             if (null != subscription) {
-                context.getRuntime().getConnector(address.schemaId()).requestSync();
+                context.getRuntime().getConnector(datasetAddress.schemaId()).requestSync();
             }
         }
     }

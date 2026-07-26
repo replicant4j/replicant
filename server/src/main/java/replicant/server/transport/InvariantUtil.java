@@ -2,8 +2,8 @@ package replicant.server.transport;
 
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
-import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
+import replicant.server.DatasetAddress;
 
 final class InvariantUtil {
     private static final boolean ASSERTIONS_ENABLED = InvariantUtil.class.desiredAssertionStatus();
@@ -14,56 +14,59 @@ final class InvariantUtil {
         return ASSERTIONS_ENABLED;
     }
 
-    static void assertConcreteAddress(@NonNull final ChannelAddress address) {
-        assert address.concrete();
+    static void assertConcreteDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
+        assert datasetAddress.concrete();
     }
 
-    static void assertConcreteAddress(@NonNull final SchemaMetaData schema, @NonNull final ChannelAddress address) {
+    static void assertConcreteDatasetAddress(
+            @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertConcreteAddress(address);
-            assertAddressMatchesChannelMetaData(schema, address);
+            assertConcreteDatasetAddress(datasetAddress);
+            assertDatasetAddressMatchesChannelMetaData(schema, datasetAddress);
         }
     }
 
     @VisibleForTesting
-    static void assertAddressMatchesChannelMetaData(
-            @NonNull final SchemaMetaData schema, @NonNull final ChannelAddress address) {
+    static void assertDatasetAddressMatchesChannelMetaData(
+            @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertAddressMatchesChannelMetaData(schema.getChannelMetaData(address.channelId()), address);
+            assertDatasetAddressMatchesChannelMetaData(
+                    schema.getChannelMetaData(datasetAddress.datasetId()), datasetAddress);
         }
     }
 
-    private static void assertAddressMatchesChannelMetaData(
-            @NonNull final ChannelMetaData channel, @NonNull final ChannelAddress address) {
+    private static void assertDatasetAddressMatchesChannelMetaData(
+            @NonNull final ChannelMetaData channel, @NonNull final DatasetAddress datasetAddress) {
         if (channel.isTypeGraph()) {
-            assert !address.hasRootId();
+            assert !datasetAddress.hasDatasetRootId();
         } else {
-            assert address.hasRootId();
+            assert datasetAddress.hasDatasetRootId();
         }
 
-        if (address.partial()) {
+        if (datasetAddress.partial()) {
             assert channel.requiresDatasetKey();
-            assert null == address.datasetKey();
+            assert null == datasetAddress.datasetKey();
         } else if (channel.requiresDatasetKey()) {
-            assert null != address.datasetKey();
+            assert null != datasetAddress.datasetKey();
         } else {
-            assert null == address.datasetKey();
+            assert null == datasetAddress.datasetKey();
         }
     }
 
     static void assertLink(@NonNull final SchemaMetaData schema, @NonNull final ChannelLink link) {
         if (isInvariantCheckingEnabled()) {
-            assertAddressMatchesChannelMetaData(schema, link.source());
-            final var targetChannel = schema.getChannelMetaData(link.target().channelId());
-            assertAddressMatchesChannelMetaData(targetChannel, link.target());
+            assertDatasetAddressMatchesChannelMetaData(schema, link.sourceDatasetAddress());
+            final var targetChannel =
+                    schema.getChannelMetaData(link.targetDatasetAddress().datasetId());
+            assertDatasetAddressMatchesChannelMetaData(targetChannel, link.targetDatasetAddress());
 
             if (link.partial()) {
-                assert link.source().partial()
-                        || link.target().partial()
+                assert link.sourceDatasetAddress().partial()
+                        || link.targetDatasetAddress().partial()
                         || (targetChannel.requiresFilterParameter() && null == link.targetFilter());
             } else {
-                assert link.source().concrete();
-                assert link.target().concrete();
+                assert link.sourceDatasetAddress().concrete();
+                assert link.targetDatasetAddress().concrete();
                 assert !targetChannel.requiresFilterParameter() || null != link.targetFilter();
             }
         }

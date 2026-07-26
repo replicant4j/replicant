@@ -7,7 +7,7 @@ import javax.json.JsonObject;
 import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 
 public interface ReplicantSessionManager {
     /**
@@ -55,15 +55,15 @@ public interface ReplicantSessionManager {
     @NonNull
     SchemaMetaData getSchemaMetaData();
 
-    void setETags(@NonNull ReplicantSession session, @NonNull final Map<ChannelAddress, String> eTags);
+    void setETags(@NonNull ReplicantSession session, @NonNull final Map<DatasetAddress, String> eTags);
 
     void subscribe(
             @NonNull ReplicantSession session,
             int requestId,
-            @NonNull List<ChannelAddress> addresses,
+            @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable JsonObject filter);
 
-    void unsubscribe(@NonNull ReplicantSession session, int requestId, @NonNull List<ChannelAddress> addresses);
+    void unsubscribe(@NonNull ReplicantSession session, int requestId, @NonNull List<DatasetAddress> datasetAddresses);
 
     /**
      * Send the "Change" message to the client.

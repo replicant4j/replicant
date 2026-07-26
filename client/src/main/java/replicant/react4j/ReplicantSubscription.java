@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import org.jspecify.annotations.NonNull;
 import react4j.annotations.PostMountOrUpdate;
 import replicant.AreaOfInterest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 
@@ -59,14 +59,14 @@ public abstract class ReplicantSubscription {
 
     protected final void updateAreaOfInterestOnFilterChange(@Nullable final Object newFilter) {
         if (null != _areaOfInterest) {
-            Replicant.context().createOrUpdateAreaOfInterest(_areaOfInterest.getAddress(), newFilter);
+            Replicant.context().createOrUpdateAreaOfInterest(_areaOfInterest.getDatasetAddress(), newFilter);
         }
     }
 
     @Action
     protected void updateAreaOfInterest() {
         final ReplicantContext context = Replicant.context();
-        final AreaOfInterest newAreaOfInterest = context.createOrUpdateAreaOfInterest(getAddress(), getFilter());
+        final AreaOfInterest newAreaOfInterest = context.createOrUpdateAreaOfInterest(getDatasetAddress(), getFilter());
         if (null == _areaOfInterest) {
             newAreaOfInterest.incRefCount();
             setAreaOfInterest(newAreaOfInterest);
@@ -74,5 +74,5 @@ public abstract class ReplicantSubscription {
     }
 
     @NonNull
-    protected abstract ChannelAddress getAddress();
+    protected abstract DatasetAddress getDatasetAddress();
 }

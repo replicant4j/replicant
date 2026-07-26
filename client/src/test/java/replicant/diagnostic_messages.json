@@ -72,17 +72,17 @@
   {
     "code": 16,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at address %s with status %s but failed to supply the expected error."
+    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s but failed to supply the expected error."
   },
   {
     "code": 17,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at address %s with status %s and supplied an unexpected error."
+    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s and supplied an unexpected error."
   },
   {
     "code": 19,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at address %s with status %s and found unexpected subscription in the context."
+    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s and found unexpected subscription in the context."
   },
   {
     "code": 20,
@@ -107,17 +107,17 @@
   {
     "code": 24,
     "type": "INVARIANT",
-    "messagePattern": "Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for address '%s' with a non-null filter '%s'."
+    "messagePattern": "Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
   },
   {
     "code": 25,
     "type": "INVARIANT",
-    "messagePattern": "Connection.isAreaOfInterestRequestPending passed a REMOVE request for address '%s' with a non-null filter '%s'."
+    "messagePattern": "Connection.isAreaOfInterestRequestPending passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
   },
   {
     "code": 27,
     "type": "INVARIANT",
-    "messagePattern": "AreaOfInterestRequest constructor passed a REMOVE request for address '%s' with a non-null filter '%s'."
+    "messagePattern": "AreaOfInterestRequest constructor passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
   },
   {
     "code": 28,
@@ -127,7 +127,7 @@
   {
     "code": 29,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but channel is not instance based."
+    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but the Dataset is not instance based."
   },
   {
     "code": 30,
@@ -147,7 +147,7 @@
   {
     "code": 33,
     "type": "INVARIANT",
-    "messagePattern": "Received ChannelChange of type UPDATE for address %s but no such subscription exists."
+    "messagePattern": "Received ChannelChange of type UPDATE for Dataset Address %s but no such subscription exists."
   },
   {
     "code": 34,
@@ -202,17 +202,17 @@
   {
     "code": 46,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe from channel at address %s but not subscribed to channel."
+    "messagePattern": "Request to unsubscribe from channel at Dataset Address %s but not subscribed to channel."
   },
   {
     "code": 47,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe from channel at address %s but subscription is not an explicit subscription."
+    "messagePattern": "Request to unsubscribe from channel at Dataset Address %s but subscription is not an explicit subscription."
   },
   {
     "code": 48,
     "type": "INVARIANT",
-    "messagePattern": "Request to update channel at address %s but not subscribed to channel."
+    "messagePattern": "Request to update channel at Dataset Address %s but not subscribed to channel."
   },
   {
     "code": 49,
@@ -267,27 +267,27 @@
   {
     "code": 60,
     "type": "INVARIANT",
-    "messagePattern": "unlinkSubscription invoked with address %s but no subscription with that address exists."
+    "messagePattern": "unlinkSubscription invoked with Dataset Address %s but no subscription with that Dataset Address exists."
   },
   {
     "code": 61,
     "type": "INVARIANT",
-    "messagePattern": "unlinkSubscription invoked with address %s but subscription has not already been disposed."
+    "messagePattern": "unlinkSubscription invoked with Dataset Address %s but subscription has not already been disposed."
   },
   {
     "code": 62,
     "type": "INVARIANT",
-    "messagePattern": "unlinkSubscription invoked with address %s but no subscription with that address exists."
+    "messagePattern": "unlinkSubscription invoked with Dataset Address %s but no subscription with that Dataset Address exists."
   },
   {
     "code": 63,
     "type": "INVARIANT",
-    "messagePattern": "unlinkSubscription invoked with address %s but subscription has not already been disposed."
+    "messagePattern": "unlinkSubscription invoked with Dataset Address %s but subscription has not already been disposed."
   },
   {
     "code": 64,
     "type": "API_INVARIANT",
-    "messagePattern": "createSubscription invoked with address %s but a subscription with that address already exists."
+    "messagePattern": "createSubscription invoked with Dataset Address %s but a subscription with that Dataset Address already exists."
   },
   {
     "code": 65,
@@ -307,7 +307,7 @@
   {
     "code": 69,
     "type": "INVARIANT",
-    "messagePattern": "UpdateMessage contained an EntityChange message referencing channel %s but no such subscription exists locally."
+    "messagePattern": "UpdateMessage contained an EntityChange message referencing Dataset Address %s but no such subscription exists locally."
   },
   {
     "code": 70,
@@ -332,12 +332,12 @@
   {
     "code": 78,
     "type": "INVARIANT",
-    "messagePattern": "Received ChannelChange of type %s for address %s but the channel does not have a DYNAMIC filter."
+    "messagePattern": "Received ChannelChange of type %s for Dataset Address %s but the channel does not have a DYNAMIC filter."
   },
   {
     "code": 79,
     "type": "INVARIANT",
-    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for address %s but the channel does not have a DYNAMIC filter."
+    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address %s but the channel does not have a DYNAMIC filter."
   },
   {
     "code": 80,
@@ -352,12 +352,12 @@
   {
     "code": 82,
     "type": "INVARIANT",
-    "messagePattern": "Connector.requestSubscriptionUpdate invoked for channel %s but channel does not have a dynamic filter."
+    "messagePattern": "Connector.requestSubscriptionUpdate invoked for Dataset Address %s but the Dataset does not have a dynamic filter."
   },
   {
     "code": 83,
     "type": "INVARIANT",
-    "messagePattern": "Attempting to update channel %s but channel does not allow dynamic updates of filter and channel has not been explicitly subscribed."
+    "messagePattern": "Attempting to update Dataset Address %s but the Dataset does not allow dynamic filter updates and has not been explicitly subscribed."
   },
   {
     "code": 85,
@@ -367,12 +367,12 @@
   {
     "code": 87,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but channel has not supplied expected id."
+    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but the Dataset Address has no Dataset Root ID."
   },
   {
     "code": 88,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but Replica is not present."
+    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but Replica is not present."
   },
   {
     "code": 93,
@@ -387,11 +387,11 @@
   {
     "code": 98,
     "type": "INVARIANT",
-    "messagePattern": "Channel %s requires a dataset key but none was supplied."
+    "messagePattern": "Dataset Address %s requires a Dataset Key but none was supplied."
   },
   {
     "code": 99,
     "type": "INVARIANT",
-    "messagePattern": "Channel %s does not support dataset keys but one was supplied."
+    "messagePattern": "Dataset Address %s does not support Dataset Keys but one was supplied."
   }
 ]

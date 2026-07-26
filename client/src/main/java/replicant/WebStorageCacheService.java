@@ -58,26 +58,27 @@ public final class WebStorageCacheService implements CacheService {
 
     @NonNull
     @Override
-    public Set<ChannelAddress> keySet(final int schemaId) {
-        final Set<ChannelAddress> keys = new HashSet<>();
-        getIndex(schemaId).forEach(v -> keys.add(ChannelAddress.parse(schemaId, v)));
-        return CollectionsUtil.wrap(keys);
+    public Set<DatasetAddress> keySet(final int schemaId) {
+        final Set<DatasetAddress> datasetAddresses = new HashSet<>();
+        getIndex(schemaId).forEach(v -> datasetAddresses.add(DatasetAddress.parse(schemaId, v)));
+        return CollectionsUtil.wrap(datasetAddresses);
     }
 
     @Nullable
     @Override
-    public String lookupEtag(@NonNull final ChannelAddress address) {
-        return getIndex(address.schemaId()).get(Objects.requireNonNull(address).asChannelDescriptor());
+    public String lookupEtag(@NonNull final DatasetAddress datasetAddress) {
+        return getIndex(datasetAddress.schemaId())
+                .get(Objects.requireNonNull(datasetAddress).asDatasetAddressDescriptor());
     }
 
     @Nullable
     @Override
-    public CacheEntry lookup(@NonNull final ChannelAddress address) {
-        Objects.requireNonNull(address);
-        final String eTag = getIndex(address.schemaId()).get(address.asChannelDescriptor());
-        final String content = _storage.getItem(address.getCacheKey());
+    public CacheEntry lookup(@NonNull final DatasetAddress datasetAddress) {
+        Objects.requireNonNull(datasetAddress);
+        final String eTag = getIndex(datasetAddress.schemaId()).get(datasetAddress.asDatasetAddressDescriptor());
+        final String content = _storage.getItem(datasetAddress.getCacheKey());
         if (null != eTag && null != content) {
-            return new CacheEntry(address, eTag, content);
+            return new CacheEntry(datasetAddress, eTag, content);
         } else {
             return null;
         }
@@ -85,20 +86,20 @@ public final class WebStorageCacheService implements CacheService {
 
     @Override
     public boolean store(
-            @NonNull final ChannelAddress address, @NonNull final String eTag, @NonNull final Object content) {
-        Objects.requireNonNull(address);
+            @NonNull final DatasetAddress datasetAddress, @NonNull final String eTag, @NonNull final Object content) {
+        Objects.requireNonNull(datasetAddress);
         Objects.requireNonNull(eTag);
         Objects.requireNonNull(content);
         try {
-            final int schemaId = address.schemaId();
+            final int schemaId = datasetAddress.schemaId();
             final JsPropertyMap<String> index = getIndex(schemaId);
-            index.set(address.asChannelDescriptor(), eTag);
+            index.set(datasetAddress.asDatasetAddressDescriptor(), eTag);
             saveIndex(schemaId, index);
-            getStorage().setItem(address.getCacheKey(), JSON.stringify(content));
+            getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(content));
             return true;
         } catch (final Throwable e) {
             // This exception can occur when storage is full
-            invalidate(address);
+            invalidate(datasetAddress);
             return false;
         }
     }
@@ -114,17 +115,17 @@ public final class WebStorageCacheService implements CacheService {
     }
 
     @Override
-    public boolean invalidate(@NonNull final ChannelAddress address) {
-        Objects.requireNonNull(address);
-        final int schemaId = address.schemaId();
+    public boolean invalidate(@NonNull final DatasetAddress datasetAddress) {
+        Objects.requireNonNull(datasetAddress);
+        final int schemaId = datasetAddress.schemaId();
         final JsPropertyMap<String> index = findIndex(schemaId);
-        final String key = address.asChannelDescriptor();
+        final String key = datasetAddress.asDatasetAddressDescriptor();
         if (null == index || null == index.get(key)) {
             return false;
         } else {
             index.delete(key);
             saveIndex(schemaId, index);
-            getStorage().removeItem(address.getCacheKey());
+            getStorage().removeItem(datasetAddress.getCacheKey());
             return true;
         }
     }

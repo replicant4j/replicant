@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 
 /**
  * Notification when an AreaOfInterest has been created.
@@ -26,10 +26,10 @@ public final class AreaOfInterestCreatedEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "AreaOfInterest.Created");
-        final ChannelAddress address = getAreaOfInterest().getAddress();
-        map.put("channel.schemaId", address.schemaId());
-        map.put("channel.channelId", address.channelId());
-        map.put("channel.rootId", address.rootId());
+        final DatasetAddress datasetAddress = getAreaOfInterest().getDatasetAddress();
+        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.datasetId", datasetAddress.datasetId());
+        map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("channel.filter", getAreaOfInterest().getFilter());
     }
 }

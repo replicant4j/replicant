@@ -15,7 +15,7 @@ public class ChannelChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void construct_withoutSubchannelId() {
+    public void construct_withoutSubdatasetId() {
         final Object filter = ValueUtil.randomString();
         final ChannelChange action = ChannelChange.create("-1", filter);
 

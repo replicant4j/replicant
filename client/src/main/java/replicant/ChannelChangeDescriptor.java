@@ -18,7 +18,7 @@ final class ChannelChangeDescriptor {
     private final Type _type;
 
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @Nullable
     private final Object _filter;
@@ -38,8 +38,8 @@ final class ChannelChangeDescriptor {
             final int schema, @NonNull final String channelAction, @Nullable final Object filter) {
         try {
             final String descriptor = channelAction.substring(1);
-            final ChannelAddress address = ChannelAddress.parse(schema, descriptor);
-            return new ChannelChangeDescriptor(actionToType(channelAction), address, filter);
+            final DatasetAddress datasetAddress = DatasetAddress.parse(schema, descriptor);
+            return new ChannelChangeDescriptor(actionToType(channelAction), datasetAddress, filter);
         } catch (final Throwable t) {
             throw new IllegalStateException("Failed to parse channel action '" + channelAction + "'", t);
         }
@@ -63,9 +63,9 @@ final class ChannelChangeDescriptor {
     }
 
     private ChannelChangeDescriptor(
-            @NonNull final Type type, @NonNull final ChannelAddress address, @Nullable final Object filter) {
+            @NonNull final Type type, @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
         _type = Objects.requireNonNull(type);
-        _address = Objects.requireNonNull(address);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
         _filter = filter;
     }
 
@@ -75,8 +75,8 @@ final class ChannelChangeDescriptor {
     }
 
     @NonNull
-    ChannelAddress getAddress() {
-        return _address;
+    DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @Nullable

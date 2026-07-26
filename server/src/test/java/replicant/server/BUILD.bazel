@@ -29,9 +29,9 @@ java_testng(
 )
 
 java_testng(
-    name = "ChannelAddressTest",
-    srcs = ["ChannelAddressTest.java"],
-    test_class = "replicant.server.ChannelAddressTest",
+    name = "DatasetAddressTest",
+    srcs = ["DatasetAddressTest.java"],
+    test_class = "replicant.server.DatasetAddressTest",
     deps = ["//server:server_test_support"],
 )
 

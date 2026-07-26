@@ -33,25 +33,25 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     private final Map<Class<?>, NavigableMap<Integer, ReplicaSubscriptionEntry>> _replicaEntries = new HashMap<>();
 
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @NonNull
     static Subscription create(
             @Nullable final ReplicantContext context,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter,
             final boolean explicitSubscription) {
-        return new Arez_Subscription(context, address, filter, explicitSubscription);
+        return new Arez_Subscription(context, datasetAddress, filter, explicitSubscription);
     }
 
-    Subscription(@Nullable final ReplicantContext context, @NonNull final ChannelAddress address) {
+    Subscription(@Nullable final ReplicantContext context, @NonNull final DatasetAddress datasetAddress) {
         super(context);
-        _address = Objects.requireNonNull(address);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
     }
 
     @NonNull
-    public ChannelAddress address() {
-        return _address;
+    public DatasetAddress datasetAddress() {
+        return _datasetAddress;
     }
 
     @Observable(initializer = Feature.ENABLE)
@@ -118,24 +118,24 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     @NonNull
     public Object getInstanceRoot() {
         final ChannelSchema channel = getChannelSchema();
-        final Integer rootId = _address.rootId();
+        final Integer datasetRootId = _datasetAddress.datasetRootId();
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
                     channel::isInstanceChannel,
-                    () -> "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel "
-                            + _address + " but channel is not instance based.");
+                    () -> "Replicant-0029: Subscription.getInstanceRoot() invoked for Dataset Address "
+                            + _datasetAddress + " but the Dataset is not instance based.");
             invariant(
-                    () -> null != rootId,
-                    () -> "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel "
-                            + _address + " but channel has not supplied expected id.");
+                    () -> null != datasetRootId,
+                    () -> "Replicant-0087: Subscription.getInstanceRoot() invoked for Dataset Address "
+                            + _datasetAddress + " but the Dataset Address has no Dataset Root ID.");
         }
         final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndId(
-                Objects.requireNonNull(channel.getInstanceType()), Objects.requireNonNull(rootId));
+                Objects.requireNonNull(channel.getInstanceType()), Objects.requireNonNull(datasetRootId));
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
                     () -> null != replicaEntry,
-                    () -> "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel "
-                            + _address + " but Replica is not present.");
+                    () -> "Replicant-0088: Subscription.getInstanceRoot() invoked for Dataset Address "
+                            + _datasetAddress + " but Replica is not present.");
         }
         return Objects.requireNonNull(replicaEntry).getReplica();
     }
@@ -149,8 +149,8 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     public ChannelSchema getChannelSchema() {
         return getReplicantContext()
                 .getSchemaService()
-                .getById(_address.schemaId())
-                .getChannel(_address.channelId());
+                .getById(_datasetAddress.schemaId())
+                .getChannel(_datasetAddress.datasetId());
     }
 
     @ObservableValueRef
@@ -158,7 +158,7 @@ public abstract class Subscription extends ReplicantService implements Comparabl
 
     @Override
     public int compareTo(@NonNull final Subscription o) {
-        return address().compareTo(o.address());
+        return datasetAddress().compareTo(o.datasetAddress());
     }
 
     void linkSubscriptionToReplicaEntry(@NonNull final ReplicaEntry replicaEntry) {
@@ -190,18 +190,19 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     private void detachReplicaEntry(@NonNull final ReplicaEntry replicaEntry, final boolean disposeIfNoSubscriptions) {
         final Class<?> replicaType = replicaEntry.getType();
         final Map<Integer, ReplicaSubscriptionEntry> typeMap = _replicaEntries.get(replicaType);
-        final ChannelAddress address = address();
+        final DatasetAddress datasetAddress = datasetAddress();
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != typeMap,
                     () -> "Replica type " + replicaType.getSimpleName() + " not present in subscription to channel "
-                            + address);
+                            + datasetAddress);
         }
         final ReplicaSubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(replicaEntry.getId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != removed,
-                    () -> "Replica Entry " + replicaEntry + " not present in subscription to channel " + address);
+                    () -> "Replica Entry " + replicaEntry + " not present in subscription to channel "
+                            + datasetAddress);
         }
         DisposeNotifier.asDisposeNotifier(replicaEntry).removeOnDisposeListener(this, true);
         Disposable.dispose(removed);

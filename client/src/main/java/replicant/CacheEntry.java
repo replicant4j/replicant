@@ -8,7 +8,7 @@ import org.jspecify.annotations.NonNull;
  */
 public final class CacheEntry {
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @NonNull
     private final String _eTag;
@@ -17,15 +17,15 @@ public final class CacheEntry {
     private final String _content;
 
     public CacheEntry(
-            @NonNull final ChannelAddress address, @NonNull final String eTag, @NonNull final String content) {
-        _address = Objects.requireNonNull(address);
+            @NonNull final DatasetAddress datasetAddress, @NonNull final String eTag, @NonNull final String content) {
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
         _eTag = Objects.requireNonNull(eTag);
         _content = Objects.requireNonNull(content);
     }
 
     @NonNull
-    public ChannelAddress getAddress() {
-        return _address;
+    public DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @NonNull

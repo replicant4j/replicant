@@ -243,12 +243,12 @@ abstract class Connector extends ReplicantService {
         final CacheService cacheService = getReplicantContext().getCacheService();
         if (null != cacheService) {
             final HashMap<String, String> etags = new HashMap<>();
-            final Set<ChannelAddress> addresses =
+            final Set<DatasetAddress> datasetAddresses =
                     cacheService.keySet(getSchema().getId());
-            for (final ChannelAddress address : addresses) {
-                final String eTag = cacheService.lookupEtag(address);
+            for (final DatasetAddress datasetAddress : datasetAddresses) {
+                final String eTag = cacheService.lookupEtag(datasetAddress);
                 assert null != eTag;
-                etags.put(address.asChannelDescriptor(), eTag);
+                etags.put(datasetAddress.asDatasetAddressDescriptor(), eTag);
             }
             if (!etags.isEmpty()) {
                 _transport.updateEtagsSync(etags);
@@ -278,15 +278,15 @@ abstract class Connector extends ReplicantService {
                         subscriptionService.getTypeSubscriptions().stream(),
                         subscriptionService.getInstanceSubscriptions().stream())
                 // Only purge subscriptions for current system
-                .filter(s -> s.address().schemaId() == getSchema().getId())
+                .filter(s -> s.datasetAddress().schemaId() == getSchema().getId())
                 // Purge in reverse order. First instance subscriptions then type subscriptions
                 .sorted(Comparator.reverseOrder())
                 .forEachOrdered(Disposable::dispose);
 
         // Purge AreaOfInterest for current system
         getReplicantContext().getAreaOfInterestService().getAreasOfInterest().stream()
-                .filter(s -> s.getAddress().schemaId() == getSchema().getId())
-                .forEachOrdered(aoi -> updateAreaOfInterest(aoi.getAddress(), AreaOfInterest.Status.NOT_ASKED));
+                .filter(s -> s.getDatasetAddress().schemaId() == getSchema().getId())
+                .forEachOrdered(aoi -> updateAreaOfInterest(aoi.getDatasetAddress(), AreaOfInterest.Status.NOT_ASKED));
     }
 
     void setLinksToProcessPerTick(final int linksToProcessPerTick) {
@@ -303,9 +303,9 @@ abstract class Connector extends ReplicantService {
      */
     boolean isAreaOfInterestRequestPending(
             final AreaOfInterestRequest.@NonNull Type action,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
-        return null != _connection && _connection.isAreaOfInterestRequestPending(action, address, filter);
+        return null != _connection && _connection.isAreaOfInterestRequestPending(action, datasetAddress, filter);
     }
 
     /**
@@ -313,9 +313,11 @@ abstract class Connector extends ReplicantService {
      */
     int lastIndexOfPendingAreaOfInterestRequest(
             final AreaOfInterestRequest.@NonNull Type action,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
-        return null == _connection ? -1 : _connection.lastIndexOfPendingAreaOfInterestRequest(action, address, filter);
+        return null == _connection
+                ? -1
+                : _connection.lastIndexOfPendingAreaOfInterestRequest(action, datasetAddress, filter);
     }
 
     void requestSync() {
@@ -342,40 +344,43 @@ abstract class Connector extends ReplicantService {
         tryTriggerMessageScheduler();
     }
 
-    void requestSubscribe(@NonNull final ChannelAddress address, @Nullable final Object filter) {
+    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-            getReplicantContext().getSpy().reportSpyEvent(new SubscribeRequestQueuedEvent(address, filter));
+            getReplicantContext().getSpy().reportSpyEvent(new SubscribeRequestQueuedEvent(datasetAddress, filter));
         }
-        validateDatasetKey(address);
-        ensureConnection().requestSubscribe(address, filter);
+        validateDatasetKey(datasetAddress);
+        ensureConnection().requestSubscribe(datasetAddress, filter);
         tryTriggerMessageScheduler();
     }
 
-    void requestSubscriptionUpdate(@NonNull final ChannelAddress address, @Nullable final Object filter) {
+    void requestSubscriptionUpdate(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> {
-                        final ChannelSchema.FilterType filterType =
-                                getSchema().getChannel(address.channelId()).getFilterType();
+                        final ChannelSchema.FilterType filterType = getSchema()
+                                .getChannel(datasetAddress.datasetId())
+                                .getFilterType();
                         return ChannelSchema.FilterType.DYNAMIC == filterType;
                     },
-                    () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel " + address
-                            + " but channel does not have a dynamic filter.");
+                    () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for Dataset Address "
+                            + datasetAddress + " but the Dataset does not have a dynamic filter.");
         }
-        validateDatasetKey(address);
-        ensureConnection().requestSubscriptionUpdate(address, filter);
+        validateDatasetKey(datasetAddress);
+        ensureConnection().requestSubscriptionUpdate(datasetAddress, filter);
         tryTriggerMessageScheduler();
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-            getReplicantContext().getSpy().reportSpyEvent(new SubscriptionUpdateRequestQueuedEvent(address, filter));
+            getReplicantContext()
+                    .getSpy()
+                    .reportSpyEvent(new SubscriptionUpdateRequestQueuedEvent(datasetAddress, filter));
         }
     }
 
-    void requestUnsubscribe(@NonNull final ChannelAddress address) {
-        validateDatasetKey(address);
-        ensureConnection().requestUnsubscribe(address);
+    void requestUnsubscribe(@NonNull final DatasetAddress datasetAddress) {
+        validateDatasetKey(datasetAddress);
+        ensureConnection().requestUnsubscribe(datasetAddress);
         tryTriggerMessageScheduler();
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-            getReplicantContext().getSpy().reportSpyEvent(new UnsubscribeRequestQueuedEvent(address));
+            getReplicantContext().getSpy().reportSpyEvent(new UnsubscribeRequestQueuedEvent(datasetAddress));
         }
     }
 
@@ -387,21 +392,21 @@ abstract class Connector extends ReplicantService {
         context().task(this::triggerMessageScheduler);
     }
 
-    private void validateDatasetKey(@NonNull final ChannelAddress address) {
+    private void validateDatasetKey(@NonNull final DatasetAddress datasetAddress) {
         if (Replicant.shouldCheckInvariants()) {
             final SystemSchema schema = getSchema();
-            if (schema.hasChannel(address.channelId())) {
-                final ChannelSchema channel = schema.getChannel(address.channelId());
+            if (schema.hasChannel(datasetAddress.datasetId())) {
+                final ChannelSchema channel = schema.getChannel(datasetAddress.datasetId());
                 if (channel.requiresDatasetKey()) {
                     invariant(
-                            () -> null != address.datasetKey(),
-                            () -> "Replicant-0098: Channel " + address
-                                    + " requires a dataset key but none was supplied.");
+                            () -> null != datasetAddress.datasetKey(),
+                            () -> "Replicant-0098: Dataset Address " + datasetAddress
+                                    + " requires a Dataset Key but none was supplied.");
                 } else {
                     invariant(
-                            () -> null == address.datasetKey(),
-                            () -> "Replicant-0099: Channel " + address
-                                    + " does not support dataset keys but one was supplied.");
+                            () -> null == datasetAddress.datasetKey(),
+                            () -> "Replicant-0099: Dataset Address " + datasetAddress
+                                    + " does not support Dataset Keys but one was supplied.");
                 }
             }
         }
@@ -582,18 +587,20 @@ abstract class Connector extends ReplicantService {
         final MessageResponse response = ensureCurrentMessageResponse();
 
         for (final ChannelChangeDescriptor channelChange : response.getChannelChanges()) {
-            final ChannelAddress address = channelChange.getAddress();
+            final DatasetAddress datasetAddress = channelChange.getDatasetAddress();
             final Object filter = channelChange.getFilter();
             final ChannelChangeDescriptor.Type actionType = channelChange.getType();
 
             if (ChannelChangeDescriptor.Type.ADD == actionType) {
                 response.incChannelAddCount();
                 final boolean explicitSubscribe = getReplicantContext().getAreasOfInterest().stream()
-                        .anyMatch(a -> a.getAddress().equals(address));
-                getReplicantContext().getSubscriptionService().createSubscription(address, filter, explicitSubscribe);
+                        .anyMatch(a -> a.getDatasetAddress().equals(datasetAddress));
+                getReplicantContext()
+                        .getSubscriptionService()
+                        .createSubscription(datasetAddress, filter, explicitSubscribe);
             } else if (ChannelChangeDescriptor.Type.REMOVE == actionType
                     || ChannelChangeDescriptor.Type.DELETE == actionType) {
-                final Subscription subscription = getReplicantContext().findSubscription(address);
+                final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 /*
                  * It is possible for a subscription to no longer be present and still receive a remove action
                  * for the subscription. This can occur due to interleaving of messages - i.e. The application
@@ -605,7 +612,8 @@ abstract class Connector extends ReplicantService {
                     Disposable.dispose(subscription);
                 }
 
-                final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress(address);
+                final AreaOfInterest areaOfInterest =
+                        getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
                 if (null != areaOfInterest) {
                     if (ChannelChangeDescriptor.Type.DELETE == actionType) {
                         areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.DELETED, null);
@@ -619,23 +627,23 @@ abstract class Connector extends ReplicantService {
                 response.incChannelRemoveCount();
             } else {
                 assert ChannelChangeDescriptor.Type.UPDATE == actionType;
-                final Subscription subscription = getReplicantContext().findSubscription(address);
+                final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 if (Replicant.shouldCheckInvariants()) {
                     invariant(
                             () -> null != subscription,
-                            () -> "Replicant-0033: Received ChannelChange of type UPDATE for address " + address
-                                    + " but no such subscription exists.");
+                            () -> "Replicant-0033: Received ChannelChange of type UPDATE for Dataset Address "
+                                    + datasetAddress + " but no such subscription exists.");
                     assert null != subscription;
                     if (Replicant.shouldCheckInvariants()) {
                         invariant(
                                 () -> {
                                     final ChannelSchema.FilterType filterType = getSchema()
-                                            .getChannel(address.channelId())
+                                            .getChannel(datasetAddress.datasetId())
                                             .getFilterType();
                                     return ChannelSchema.FilterType.DYNAMIC == filterType;
                                 },
-                                () -> "Replicant-0078: Received ChannelChange of type UPDATE for address " + address
-                                        + " but the channel does not have a DYNAMIC filter.");
+                                () -> "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address "
+                                        + datasetAddress + " but the channel does not have a DYNAMIC filter.");
                     }
                 }
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
@@ -679,13 +687,13 @@ abstract class Connector extends ReplicantService {
      */
     @SuppressWarnings("unchecked")
     void updateSubscriptionForFilteredReplicas(@NonNull final Subscription subscription) {
-        final ChannelAddress address = subscription.address();
-        final ChannelSchema channel = getSchema().getChannel(address.channelId());
+        final DatasetAddress datasetAddress = subscription.datasetAddress();
+        final ChannelSchema channel = getSchema().getChannel(datasetAddress.datasetId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
-                    () -> "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for address "
-                            + subscription.address() + " but the channel does not have a DYNAMIC filter.");
+                    () -> "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address "
+                            + subscription.datasetAddress() + " but the channel does not have a DYNAMIC filter.");
         }
 
         final List<ReplicaEntry> replicaEntriesToDelink = new ArrayList<>();
@@ -797,16 +805,16 @@ abstract class Connector extends ReplicantService {
     @Action(reportParameters = false)
     void completeAreaOfInterestRequests(@NonNull final List<AreaOfInterestRequest> requests) {
         requests.forEach(areaOfInterestRequest -> {
-            final ChannelAddress address = areaOfInterestRequest.getAddress();
+            final DatasetAddress datasetAddress = areaOfInterestRequest.getDatasetAddress();
             final AreaOfInterestRequest.Type type = areaOfInterestRequest.getType();
             if (AreaOfInterestRequest.Type.ADD == type) {
-                onSubscribeCompleted(address);
+                onSubscribeCompleted(datasetAddress);
             } else if (AreaOfInterestRequest.Type.REMOVE == type) {
                 removeExplicitSubscriptions(Collections.singletonList(areaOfInterestRequest));
-                onUnsubscribeCompleted(address);
+                onUnsubscribeCompleted(datasetAddress);
             } else {
                 assert AreaOfInterestRequest.Type.UPDATE == type;
-                onSubscriptionUpdateCompleted(address);
+                onSubscriptionUpdateCompleted(datasetAddress);
             }
         });
         completeAreaOfInterestRequest();
@@ -834,7 +842,7 @@ abstract class Connector extends ReplicantService {
                         () -> "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request "
                                 + "with type that is not REMOVE. Request: " + request);
             }
-            final Subscription subscription = getReplicantContext().findSubscription(request.getAddress());
+            final Subscription subscription = getReplicantContext().findSubscription(request.getDatasetAddress());
             if (null != subscription) {
                 subscription.setExplicitSubscription(false);
             }
@@ -844,12 +852,12 @@ abstract class Connector extends ReplicantService {
     @Action(verifyRequired = false)
     void removeUnneededUpdateRequests(@NonNull final List<AreaOfInterestRequest> requests) {
         requests.removeIf(a -> {
-            final ChannelAddress address = a.getAddress();
-            final Subscription subscription = getReplicantContext().findSubscription(address);
+            final DatasetAddress datasetAddress = a.getDatasetAddress();
+            final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0048: Request to update channel at address " + address
+                        () -> "Replicant-0048: Request to update channel at Dataset Address " + datasetAddress
                                 + " but not subscribed to channel.");
             }
             // The following code can probably be removed but it was present in the previous system
@@ -868,16 +876,16 @@ abstract class Connector extends ReplicantService {
     @Action(verifyRequired = false)
     void removeUnneededRemoveRequests(@NonNull final List<AreaOfInterestRequest> requests) {
         requests.removeIf(request -> {
-            final ChannelAddress address = request.getAddress();
-            final Subscription subscription = getReplicantContext().findSubscription(address);
+            final DatasetAddress datasetAddress = request.getDatasetAddress();
+            final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0046: Request to unsubscribe from channel at address " + address
+                        () -> "Replicant-0046: Request to unsubscribe from channel at Dataset Address " + datasetAddress
                                 + " but not subscribed to channel.");
                 invariant(
                         () -> null == subscription || subscription.isExplicitSubscription(),
-                        () -> "Replicant-0047: Request to unsubscribe from channel at address " + address
+                        () -> "Replicant-0047: Request to unsubscribe from channel at Dataset Address " + datasetAddress
                                 + " but subscription is not an explicit subscription.");
             }
             // The following code can probably be removed but it was present in the previous system
@@ -908,10 +916,11 @@ abstract class Connector extends ReplicantService {
             if (1 == channelChanges.size()
                     && ChannelChangeDescriptor.Type.ADD == channelChanges.get(0).getType()
                     && getSchema()
-                            .getChannel(channelChanges.get(0).getAddress().channelId())
+                            .getChannel(
+                                    channelChanges.get(0).getDatasetAddress().datasetId())
                             .isCacheable()) {
-                final ChannelAddress address = channelChanges.get(0).getAddress();
-                cacheService.store(address, eTag, changeSet);
+                final DatasetAddress datasetAddress = channelChanges.get(0).getDatasetAddress();
+                cacheService.store(datasetAddress, eTag, changeSet);
                 candidate = true;
             }
         }
@@ -976,18 +985,18 @@ abstract class Connector extends ReplicantService {
                     }
                 }
 
-                final String[] channels = change.getChannels();
+                final String[] datasetAddressDescriptors = change.getChannels();
                 final int schemaId = getSchema().getId();
-                for (final String channel : channels) {
+                for (final String datasetAddressDescriptor : datasetAddressDescriptors) {
                     try {
-                        final ChannelAddress address = ChannelAddress.parse(schemaId, channel);
-                        final Subscription subscription = getReplicantContext().findSubscription(address);
+                        final DatasetAddress datasetAddress = DatasetAddress.parse(schemaId, datasetAddressDescriptor);
+                        final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                         if (Replicant.shouldCheckInvariants()) {
                             invariant(
                                     () -> null != subscription,
                                     () -> "Replicant-0069: UpdateMessage contained an EntityChange message"
-                                            + " referencing channel "
-                                            + address + " but no such subscription exists locally.");
+                                            + " referencing Dataset Address "
+                                            + datasetAddress + " but no such subscription exists locally.");
                         }
                         if (null != subscription) {
                             replicaEntry.tryLinkToSubscription(subscription);
@@ -1078,19 +1087,19 @@ abstract class Connector extends ReplicantService {
     }
 
     void progressAreaOfInterestAddRequest(@NonNull final AreaOfInterestRequest request) {
-        final ChannelAddress address = request.getAddress();
-        onSubscribeStarted(address);
+        final DatasetAddress datasetAddress = request.getDatasetAddress();
+        onSubscribeStarted(datasetAddress);
 
-        _transport.requestSubscribe(request.getAddress(), request.getFilter());
+        _transport.requestSubscribe(request.getDatasetAddress(), request.getFilter());
         request.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
     void progressBulkAreaOfInterestAddRequests(@NonNull final List<AreaOfInterestRequest> requests) {
-        final List<ChannelAddress> addresses =
-                requests.stream().map(AreaOfInterestRequest::getAddress).collect(Collectors.toList());
-        addresses.forEach(this::onSubscribeStarted);
+        final List<DatasetAddress> datasetAddresses =
+                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+        datasetAddresses.forEach(this::onSubscribeStarted);
 
-        _transport.requestBulkSubscribe(addresses, requests.get(0).getFilter());
+        _transport.requestBulkSubscribe(datasetAddresses, requests.get(0).getFilter());
         final int requestId = ensureConnection().getLastTxRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
@@ -1108,25 +1117,25 @@ abstract class Connector extends ReplicantService {
     }
 
     void progressAreaOfInterestUpdateRequest(@NonNull final AreaOfInterestRequest request) {
-        final ChannelAddress address = request.getAddress();
-        onSubscriptionUpdateStarted(address);
+        final DatasetAddress datasetAddress = request.getDatasetAddress();
+        onSubscriptionUpdateStarted(datasetAddress);
 
         final Object filter = request.getFilter();
         assert null != filter;
-        _transport.requestSubscribe(address, filter);
+        _transport.requestSubscribe(datasetAddress, filter);
         final int requestId = ensureConnection().getLastTxRequestId();
         request.markAsInProgress(requestId);
     }
 
     void progressBulkAreaOfInterestUpdateRequests(@NonNull final List<AreaOfInterestRequest> requests) {
-        final List<ChannelAddress> addresses =
-                requests.stream().map(AreaOfInterestRequest::getAddress).collect(Collectors.toList());
-        addresses.forEach(this::onSubscriptionUpdateStarted);
+        final List<DatasetAddress> datasetAddresses =
+                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+        datasetAddresses.forEach(this::onSubscriptionUpdateStarted);
 
         // All filters will be the same if they are grouped
         final Object filter = requests.get(0).getFilter();
         assert null != filter;
-        _transport.requestBulkSubscribe(addresses, filter);
+        _transport.requestBulkSubscribe(datasetAddresses, filter);
         final int requestId = ensureConnection().getLastTxRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
@@ -1144,19 +1153,19 @@ abstract class Connector extends ReplicantService {
     }
 
     void progressAreaOfInterestRemoveRequest(@NonNull final AreaOfInterestRequest request) {
-        final ChannelAddress address = request.getAddress();
-        onUnsubscribeStarted(address);
+        final DatasetAddress datasetAddress = request.getDatasetAddress();
+        onUnsubscribeStarted(datasetAddress);
 
-        _transport.requestUnsubscribe(address);
+        _transport.requestUnsubscribe(datasetAddress);
         request.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
     void progressBulkAreaOfInterestRemoveRequests(@NonNull final List<AreaOfInterestRequest> requests) {
-        final List<ChannelAddress> addresses =
-                requests.stream().map(AreaOfInterestRequest::getAddress).collect(Collectors.toList());
-        addresses.forEach(this::onUnsubscribeStarted);
+        final List<DatasetAddress> datasetAddresses =
+                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+        datasetAddresses.forEach(this::onUnsubscribeStarted);
 
-        _transport.requestBulkUnsubscribe(addresses);
+        _transport.requestBulkUnsubscribe(datasetAddresses);
         final int requestId = ensureConnection().getLastTxRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
@@ -1249,9 +1258,9 @@ abstract class Connector extends ReplicantService {
         if (UseCacheMessage.TYPE.equals(message.getType())) {
             final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
             final String channel = useCacheMessage.getChannel();
-            final ChannelAddress address;
+            final DatasetAddress datasetAddress;
             try {
-                address = ChannelAddress.parse(getSchema().getId(), channel);
+                datasetAddress = DatasetAddress.parse(getSchema().getId(), channel);
             } catch (final Throwable t) {
                 onMessageProcessFailure(t);
                 return;
@@ -1261,13 +1270,14 @@ abstract class Connector extends ReplicantService {
             final CacheService cacheService = getReplicantContext().getCacheService();
             if (null == cacheService) {
                 ReplicantLogger.log(
-                        "Received a use-cache message for channel " + address + " but no cache service configured.",
+                        "Received a use-cache message for Dataset Address " + datasetAddress
+                                + " but no cache service configured.",
                         null);
                 onMessageReadFailure();
                 return;
             }
 
-            final CacheEntry entry = cacheService.lookup(address);
+            final CacheEntry entry = cacheService.lookup(datasetAddress);
             if (null == entry) {
                 ReplicantLogger.log(
                         "Received a use-cache message for channel " + channel
@@ -1401,19 +1411,19 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action
-    void onSubscribeStarted(@NonNull final ChannelAddress address) {
-        updateAreaOfInterest(address, AreaOfInterest.Status.LOADING);
+    void onSubscribeStarted(@NonNull final DatasetAddress datasetAddress) {
+        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.LOADING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscribeStartedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     @Action
-    void onSubscribeCompleted(@NonNull final ChannelAddress address) {
-        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress(address);
+    void onSubscribeCompleted(@NonNull final DatasetAddress datasetAddress) {
+        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
         if (null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus()) {
             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
         }
@@ -1421,57 +1431,57 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscribeCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     @Action
-    void onUnsubscribeStarted(@NonNull final ChannelAddress address) {
-        updateAreaOfInterest(address, AreaOfInterest.Status.UNLOADING);
+    void onUnsubscribeStarted(@NonNull final DatasetAddress datasetAddress) {
+        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UNLOADING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new UnsubscribeStartedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     @Action
-    void onUnsubscribeCompleted(@NonNull final ChannelAddress address) {
-        updateAreaOfInterest(address, AreaOfInterest.Status.UNLOADED);
+    void onUnsubscribeCompleted(@NonNull final DatasetAddress datasetAddress) {
+        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UNLOADED);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new UnsubscribeCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     @Action
-    void onSubscriptionUpdateStarted(@NonNull final ChannelAddress address) {
-        updateAreaOfInterest(address, AreaOfInterest.Status.UPDATING);
+    void onSubscriptionUpdateStarted(@NonNull final DatasetAddress datasetAddress) {
+        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UPDATING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscriptionUpdateStartedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     @Action
-    void onSubscriptionUpdateCompleted(@NonNull final ChannelAddress address) {
-        updateAreaOfInterest(address, AreaOfInterest.Status.UPDATED);
+    void onSubscriptionUpdateCompleted(@NonNull final DatasetAddress datasetAddress) {
+        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UPDATED);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscriptionUpdateCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), address));
+                            getSchema().getId(), getSchema().getName(), datasetAddress));
         }
     }
 
     private void updateAreaOfInterest(
-            @NonNull final ChannelAddress address, final AreaOfInterest.@NonNull Status status) {
-        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByAddress(address);
+            @NonNull final DatasetAddress datasetAddress, final AreaOfInterest.@NonNull Status status) {
+        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
         if (null != areaOfInterest) {
             areaOfInterest.updateAreaOfInterest(status, null);
         }

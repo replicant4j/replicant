@@ -5,26 +5,26 @@ import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 
 /**
  * Notification when a Subscription is requested.
  */
 public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @Nullable
     private final Object _filter;
 
-    public SubscribeRequestQueuedEvent(@NonNull final ChannelAddress address, @Nullable final Object filter) {
-        _address = Objects.requireNonNull(address);
+    public SubscribeRequestQueuedEvent(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
         _filter = filter;
     }
 
     @NonNull
-    public ChannelAddress getAddress() {
-        return _address;
+    public DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @Nullable
@@ -35,10 +35,10 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.SubscribeRequestQueued");
-        final ChannelAddress address = getAddress();
-        map.put("channel.schemaId", address.schemaId());
-        map.put("channel.channelId", address.channelId());
-        map.put("channel.rootId", address.rootId());
+        final DatasetAddress datasetAddress = getDatasetAddress();
+        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.datasetId", datasetAddress.datasetId());
+        map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("channel.filter", getFilter());
     }
 }

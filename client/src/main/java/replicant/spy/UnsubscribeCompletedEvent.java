@@ -4,7 +4,7 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 
 /**
  * Notification when a Connector completes an unsubscribe from a channel.
@@ -16,13 +16,13 @@ public final class UnsubscribeCompletedEvent implements SerializableEvent {
     private final String _schemaName;
 
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     public UnsubscribeCompletedEvent(
-            final int schemaId, @NonNull final String schemaName, @NonNull final ChannelAddress address) {
+            final int schemaId, @NonNull final String schemaName, @NonNull final DatasetAddress datasetAddress) {
         _schemaId = schemaId;
         _schemaName = Objects.requireNonNull(schemaName);
-        _address = Objects.requireNonNull(address);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
     }
 
     public int getSchemaId() {
@@ -35,8 +35,8 @@ public final class UnsubscribeCompletedEvent implements SerializableEvent {
     }
 
     @NonNull
-    public ChannelAddress getAddress() {
-        return _address;
+    public DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @Override
@@ -44,9 +44,9 @@ public final class UnsubscribeCompletedEvent implements SerializableEvent {
         map.put("type", "Connector.UnsubscribeCompleted");
         map.put("schema.id", getSchemaId());
         map.put("schema.name", getSchemaName());
-        final ChannelAddress address = getAddress();
-        map.put("channel.schemaId", address.schemaId());
-        map.put("channel.channelId", address.channelId());
-        map.put("channel.rootId", address.rootId());
+        final DatasetAddress datasetAddress = getDatasetAddress();
+        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.datasetId", datasetAddress.datasetId());
+        map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
     }
 }

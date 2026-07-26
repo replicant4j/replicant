@@ -10,7 +10,7 @@ public class ChannelMetaDataTest {
     public void typeGraph() {
         final var metaData = new ChannelMetaData(
                 1, "MetaData", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, false);
-        assertEquals(metaData.getChannelId(), 1);
+        assertEquals(metaData.getDatasetId(), 1);
         assertEquals(metaData.getName(), "MetaData");
         assertTrue(metaData.isTypeGraph());
         assertFalse(metaData.isInstanceGraph());
@@ -27,7 +27,7 @@ public class ChannelMetaDataTest {
     public void instanceGraph() {
         final var metaData = new ChannelMetaData(
                 1, "MetaData", 23, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        assertEquals(metaData.getChannelId(), 1);
+        assertEquals(metaData.getDatasetId(), 1);
         assertEquals(metaData.getName(), "MetaData");
         assertFalse(metaData.isTypeGraph());
         assertTrue(metaData.isInstanceGraph());
@@ -43,7 +43,7 @@ public class ChannelMetaDataTest {
     public void filteredGraph() {
         final var metaData = new ChannelMetaData(
                 1, "MetaData", 22, ChannelMetaData.FilterType.STATIC, false, ChannelMetaData.CacheType.NONE, true);
-        assertEquals(metaData.getChannelId(), 1);
+        assertEquals(metaData.getDatasetId(), 1);
         assertEquals(metaData.getName(), "MetaData");
         assertFalse(metaData.isTypeGraph());
         assertTrue(metaData.isInstanceGraph());
@@ -58,7 +58,7 @@ public class ChannelMetaDataTest {
     public void staticKeyedFilteredGraph() {
         final var metaData = new ChannelMetaData(
                 2, "MetaData", 22, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        assertEquals(metaData.getChannelId(), 2);
+        assertEquals(metaData.getDatasetId(), 2);
         assertEquals(metaData.getName(), "MetaData");
         assertFalse(metaData.isTypeGraph());
         assertTrue(metaData.isInstanceGraph());
@@ -73,7 +73,7 @@ public class ChannelMetaDataTest {
     public void dynamicKeyedFilteredGraph() {
         final var metaData = new ChannelMetaData(
                 3, "MetaData", 22, ChannelMetaData.FilterType.DYNAMIC, true, ChannelMetaData.CacheType.NONE, true);
-        assertEquals(metaData.getChannelId(), 3);
+        assertEquals(metaData.getDatasetId(), 3);
         assertEquals(metaData.getName(), "MetaData");
         assertFalse(metaData.isTypeGraph());
         assertTrue(metaData.isInstanceGraph());

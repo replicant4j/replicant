@@ -5,7 +5,7 @@ import javax.json.JsonObject;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 
 public interface ReplicantSessionContext {
@@ -14,7 +14,8 @@ public interface ReplicantSessionContext {
 
     boolean isAuthorized(@NonNull ReplicantSession session);
 
-    void preSubscribe(@NonNull ReplicantSession session, @NonNull ChannelAddress address, @Nullable JsonObject filter);
+    void preSubscribe(
+            @NonNull ReplicantSession session, @NonNull DatasetAddress datasetAddress, @Nullable JsonObject filter);
 
     /**
      * Hook invoked before sending a change message to the given session.
@@ -26,37 +27,37 @@ public interface ReplicantSessionContext {
     void preSendChangeMessage(@NonNull ReplicantSession session, @NonNull Packet packet);
 
     /**
-     * Derive a filter for the target channel based on the source channel and filter.
+     * Derive a filter for the target Dataset Address based on the source Dataset Address and filter.
      *
      * @param entityMessage the entityMessage in the context of which the links is being created.
-     * @param source        the source channel.
-     * @param sourceFilter  the filter for the source channel.
-     * @param target        the target channel.
-     * @return the filter for the target channel.
+     * @param sourceDatasetAddress the source Dataset Address.
+     * @param sourceFilter         the filter for the source Dataset Address.
+     * @param targetDatasetAddress the target Dataset Address.
+     * @return the filter for the target Dataset Address.
      */
     @NonNull
     JsonObject deriveTargetFilter(
             @NonNull EntityMessage entityMessage,
-            @NonNull ChannelAddress source,
+            @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilter,
-            @NonNull ChannelAddress target);
+            @NonNull DatasetAddress targetDatasetAddress);
 
     /**
-     * Derive the target dataset key for a partially specified target address.
+     * Derive the target Dataset Key for a partially specified target Dataset Address.
      *
      * @param entityMessage the entityMessage in the context of which the link is being created.
-     * @param source        the concrete source channel.
-     * @param sourceFilter  the filter for the source channel.
-     * @param target        the target channel template with a missing dataset key.
-     * @param targetFilter  the target filter if already known, null otherwise.
-     * @return the dataset key for the target channel.
+     * @param sourceDatasetAddress the concrete source Dataset Address.
+     * @param sourceFilter         the filter for the source Dataset Address.
+     * @param targetDatasetAddress the target Dataset Address template with a missing Dataset Key.
+     * @param targetFilter         the target filter if already known, null otherwise.
+     * @return the Dataset Key for the target Dataset Address.
      */
     @NonNull
     String deriveTargetDatasetKey(
             @NonNull EntityMessage entityMessage,
-            @NonNull ChannelAddress source,
+            @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilter,
-            @NonNull ChannelAddress target,
+            @NonNull DatasetAddress targetDatasetAddress,
             @Nullable JsonObject targetFilter);
 
     /**
@@ -74,14 +75,14 @@ public interface ReplicantSessionContext {
      * If the session is not null, then the method implementation is expected to update session state to reflect subscription addition.
      *
      * @param session             the session. May be null if data is being collected for caching.
-     * @param addresses           the addresses of the channels to collect data for. All addresses must be for a single channelId.
+     * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
      * @param filter              the filter to apply to the channels. May be null if the channel has no filter parameter.
      * @param changeSet           the changeSet to add the collected data to.
      * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
      */
     void collectChannelData(
             @Nullable ReplicantSession session,
-            @NonNull List<ChannelAddress> addresses,
+            @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable JsonObject filter,
             @NonNull ChangeSet changeSet,
             boolean isExplicitSubscribe);
@@ -92,25 +93,25 @@ public interface ReplicantSessionContext {
      * filter, adding graph links etc.
      *
      * @param session        the session.
-     * @param addresses      the addresses of the channels to collect data for. All addresses must be for a single channelId.
+     * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
      * @param originalFilter the old filter that was applied to the channels.
      * @param newFilter      the new filter to apply to the channels.
      * @param changeSet      the changeSet to add the collected data to.
      */
     void collectChannelDataForFilterChange(
             @NonNull ReplicantSession session,
-            @NonNull List<ChannelAddress> addresses,
+            @NonNull List<DatasetAddress> datasetAddresses,
             @NonNull JsonObject originalFilter,
             @NonNull JsonObject newFilter,
             @NonNull ChangeSet changeSet);
 
     @Nullable
     EntityMessage filterEntityMessage(
-            @NonNull ReplicantSession session, @NonNull ChannelAddress address, @NonNull EntityMessage message);
+            @NonNull ReplicantSession session, @NonNull DatasetAddress datasetAddress, @NonNull EntityMessage message);
 
     boolean shouldFollowLink(
-            @NonNull ChannelAddress source,
+            @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilter,
-            @NonNull ChannelAddress target,
+            @NonNull DatasetAddress targetDatasetAddress,
             @Nullable JsonObject targetFilter);
 }

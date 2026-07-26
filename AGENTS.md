@@ -84,19 +84,20 @@ This guide captures the repo-specific rules and conventions for working effectiv
 
 ## Protocol and Hotspots
 
-- Channel descriptor grammar: `channelId[.rootId][#datasetKey]`.
+- Dataset Address descriptor grammar: `datasetId[.datasetRootId][#datasetKey]`.
   - `#` is reserved; the dataset key is the substring after the first `#` and may be empty.
   - No escaping is supported; JSON transport handles encoding.
 - Keying is independent of filter type:
-  - Keyed channels require `#` on subscribe, update, and unsubscribe.
-  - `DYNAMIC` allows filter updates; `STATIC` rejects filter updates regardless of whether the channel is keyed.
-- Bulk subscribe and unsubscribe uses a shared filter for all addresses; the dataset key lives on each `ChannelAddress`.
+  - Keyed Datasets require `#` on subscribe, update, and unsubscribe.
+  - `DYNAMIC` allows filter updates; `STATIC` rejects filter updates regardless of whether the Dataset is keyed.
+- Bulk subscribe and unsubscribe uses a shared filter for all Dataset Addresses; the Dataset Key lives on each
+  `DatasetAddress`.
 
 Implementation hotspots:
 
-- Channel descriptor parsing and formatting:
-  - `client/src/main/java/replicant/ChannelAddress.java`
-  - `server/src/main/java/replicant/server/ChannelAddress.java`
+- Dataset Address descriptor parsing and formatting:
+  - `client/src/main/java/replicant/DatasetAddress.java`
+  - `server/src/main/java/replicant/server/DatasetAddress.java`
 - Client validation and AOI flow:
   - `client/src/main/java/replicant/Connector.java`
   - `client/src/main/java/replicant/SubscriptionReconciler.java`

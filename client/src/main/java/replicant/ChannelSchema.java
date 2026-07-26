@@ -237,7 +237,7 @@ public final class ChannelSchema {
     public List<ChannelLinkSchema> getOutwardChannelLinks() {
         return getEntityTypes().stream()
                 .flatMap(entityType ->
-                        Stream.of(entityType.getChannelLinks()).filter(link -> link.getSourceChannelId() == getId()))
+                        Stream.of(entityType.getChannelLinks()).filter(link -> link.getSourceDatasetId() == getId()))
                 .collect(Collectors.toList());
     }
 

@@ -100,23 +100,23 @@ abstract class Connection {
         _pendingExecRequests.add(new ExecRequest(command, payload, responseHandler));
     }
 
-    void requestSubscribe(@NonNull final ChannelAddress address, @Nullable final Object filter) {
-        enqueueAreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, filter);
+    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
     }
 
-    void requestSubscriptionUpdate(@NonNull final ChannelAddress address, @Nullable final Object filter) {
-        enqueueAreaOfInterestRequest(address, AreaOfInterestRequest.Type.UPDATE, filter);
+    void requestSubscriptionUpdate(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filter);
     }
 
-    void requestUnsubscribe(@NonNull final ChannelAddress address) {
-        enqueueAreaOfInterestRequest(address, AreaOfInterestRequest.Type.REMOVE, null);
+    void requestUnsubscribe(@NonNull final DatasetAddress datasetAddress) {
+        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.REMOVE, null);
     }
 
     private void enqueueAreaOfInterestRequest(
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             final AreaOfInterestRequest.@NonNull Type action,
             @Nullable final Object filter) {
-        _pendingAreaOfInterestRequests.add(new AreaOfInterestRequest(address, action, filter));
+        _pendingAreaOfInterestRequests.add(new AreaOfInterestRequest(datasetAddress, action, filter));
     }
 
     void enqueueResponse(@NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
@@ -129,16 +129,17 @@ abstract class Connection {
      */
     boolean isAreaOfInterestRequestPending(
             final AreaOfInterestRequest.@NonNull Type action,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
                     () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE "
-                            + "request for address '" + address + "' with a non-null filter '" + filter + "'.");
+                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "'.");
         }
-        return _currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, address, filter))
-                || _pendingAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, address, filter));
+        return _currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter))
+                || _pendingAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter));
     }
 
     /**
@@ -146,25 +147,26 @@ abstract class Connection {
      */
     int lastIndexOfPendingAreaOfInterestRequest(
             final AreaOfInterestRequest.@NonNull Type action,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
                     () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE "
-                            + "request for address '" + address + "' with a non-null filter '" + filter + "'.");
+                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "'.");
         }
         int index = _pendingAreaOfInterestRequests.size();
 
         final Iterator<AreaOfInterestRequest> iterator = _pendingAreaOfInterestRequests.descendingIterator();
         while (iterator.hasNext()) {
             final AreaOfInterestRequest request = iterator.next();
-            if (request.match(action, address, filter)) {
+            if (request.match(action, datasetAddress, filter)) {
                 return index;
             }
             index -= 1;
         }
-        if (_currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, address, filter))) {
+        if (_currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter))) {
             return 0;
         } else {
             return -1;
@@ -338,12 +340,13 @@ abstract class Connection {
     boolean canGroupRequests(
             @NonNull final AreaOfInterestRequest template, @NonNull final AreaOfInterestRequest match) {
         final CacheService cacheService = _connector.getReplicantContext().getCacheService();
-        return null != template.getAddress().rootId()
-                && null != match.getAddress().rootId()
-                && (null == cacheService || null == cacheService.lookup(template.getAddress()))
-                && (null == cacheService || null == cacheService.lookup(match.getAddress()))
+        return null != template.getDatasetAddress().datasetRootId()
+                && null != match.getDatasetAddress().datasetRootId()
+                && (null == cacheService || null == cacheService.lookup(template.getDatasetAddress()))
+                && (null == cacheService || null == cacheService.lookup(match.getDatasetAddress()))
                 && template.getType().equals(match.getType())
-                && template.getAddress().channelId() == match.getAddress().channelId()
+                && template.getDatasetAddress().datasetId()
+                        == match.getDatasetAddress().datasetId()
                 && (AreaOfInterestRequest.Type.REMOVE == match.getType()
                         || FilterUtil.filtersEqual(match.getFilter(), template.getFilter()));
     }

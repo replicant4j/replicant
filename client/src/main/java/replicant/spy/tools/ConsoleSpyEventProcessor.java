@@ -238,7 +238,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscribeCompleted(@NonNull final SubscribeCompletedEvent e) {
         log(
-                "%cConnector completed subscribe. System: " + e.getSchemaName() + " Address: " + e.getAddress(),
+                "%cConnector completed subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -249,7 +250,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscribeStarted(@NonNull final SubscribeStartedEvent e) {
         log(
-                "%cConnector started subscribe. System: " + e.getSchemaName() + " Address: " + e.getAddress(),
+                "%cConnector started subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -260,8 +262,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscriptionUpdateCompleted(@NonNull final SubscriptionUpdateCompletedEvent e) {
         log(
-                "%cConnector completed subscription update. System: " + e.getSchemaName() + " Address: "
-                        + e.getAddress(),
+                "%cConnector completed subscription update. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -272,7 +274,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscriptionUpdateStarted(@NonNull final SubscriptionUpdateStartedEvent e) {
         log(
-                "%cConnector started subscribe. System: " + e.getSchemaName() + " Address: " + e.getAddress(),
+                "%cConnector started subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -283,7 +286,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onUnsubscribeCompleted(@NonNull final UnsubscribeCompletedEvent e) {
         log(
-                "%cConnector completed unsubscribe. System: " + e.getSchemaName() + " Address: " + e.getAddress(),
+                "%cConnector completed unsubscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -294,7 +298,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onUnsubscribeStarted(@NonNull final UnsubscribeStartedEvent e) {
         log(
-                "%cConnector started unsubscribe. System: " + e.getSchemaName() + " Address: " + e.getAddress(),
+                "%cConnector started unsubscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                        + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -307,7 +312,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
         final Object filter = areaOfInterest.getFilter();
         final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cAreaOfInterest Created " + areaOfInterest.getAddress() + filterString, AREA_OF_INTEREST_COLOR);
+        log("%cAreaOfInterest Created " + areaOfInterest.getDatasetAddress() + filterString, AREA_OF_INTEREST_COLOR);
     }
 
     /**
@@ -320,7 +325,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         final Object filter = areaOfInterest.getFilter();
         final String filterString = FilterUtil.filterToString(filter);
         log(
-                "%cAreaOfInterest Filter Updated " + areaOfInterest.getAddress() + " - " + filterString,
+                "%cAreaOfInterest Filter Updated " + areaOfInterest.getDatasetAddress() + " - " + filterString,
                 AREA_OF_INTEREST_COLOR);
     }
 
@@ -334,7 +339,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         final Object filter = areaOfInterest.getFilter();
         final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
         log(
-                "%cAreaOfInterest Status Updated " + areaOfInterest.getAddress() + filterString + " :: "
+                "%cAreaOfInterest Status Updated " + areaOfInterest.getDatasetAddress() + filterString + " :: "
                         + areaOfInterest.getStatus(),
                 AREA_OF_INTEREST_COLOR);
     }
@@ -345,7 +350,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onAreaOfInterestDisposed(@NonNull final AreaOfInterestDisposedEvent e) {
-        log("%cAreaOfInterest Disposed " + e.getAreaOfInterest().getAddress(), AREA_OF_INTEREST_COLOR);
+        log("%cAreaOfInterest Disposed " + e.getAreaOfInterest().getDatasetAddress(), AREA_OF_INTEREST_COLOR);
     }
 
     /**
@@ -356,7 +361,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     protected void onSubscribeRequestQueued(@NonNull final SubscribeRequestQueuedEvent e) {
         final Object filter = e.getFilter();
         final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscribe Request Queued " + e.getAddress() + filterString, SUBSCRIPTION_COLOR);
+        log("%cSubscribe Request Queued " + e.getDatasetAddress() + filterString, SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -367,7 +372,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     protected void onSubscriptionUpdateRequestQueued(@NonNull final SubscriptionUpdateRequestQueuedEvent e) {
         final Object filter = e.getFilter();
         final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscription Update Request Queued " + e.getAddress() + filterString, SUBSCRIPTION_COLOR);
+        log("%cSubscription Update Request Queued " + e.getDatasetAddress() + filterString, SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -376,7 +381,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onUnsubscribeRequestQueued(@NonNull final UnsubscribeRequestQueuedEvent e) {
-        log("%cUnsubscribe Request Queued " + e.getAddress(), SUBSCRIPTION_COLOR);
+        log("%cUnsubscribe Request Queued " + e.getDatasetAddress(), SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -388,7 +393,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         final Subscription subscription = e.getSubscription();
         final Object filter = subscription.getFilter();
         final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscription Created " + subscription.address() + filterString, SUBSCRIPTION_COLOR);
+        log("%cSubscription Created " + subscription.datasetAddress() + filterString, SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -397,7 +402,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onSubscriptionDisposed(@NonNull final SubscriptionDisposedEvent e) {
-        log("%cSubscription Disposed " + e.getSubscription().address(), SUBSCRIPTION_COLOR);
+        log("%cSubscription Disposed " + e.getSubscription().datasetAddress(), SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -406,7 +411,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onSubscriptionOrphaned(@NonNull final SubscriptionOrphanedEvent e) {
-        log("%cSubscription Orphaned " + e.getSubscription().address(), SUBSCRIPTION_COLOR);
+        log("%cSubscription Orphaned " + e.getSubscription().datasetAddress(), SUBSCRIPTION_COLOR);
     }
 
     /**

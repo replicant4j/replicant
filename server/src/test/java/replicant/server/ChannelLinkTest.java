@@ -8,18 +8,18 @@ import org.testng.annotations.Test;
 public final class ChannelLinkTest {
     @Test
     public void basicOperation() {
-        final var link = new ChannelLink(ChannelAddress.of(22, 44), ChannelAddress.of(1, 2));
-        assertEquals(link.source().channelId(), 22);
-        assertEquals(link.source().rootId(), (Integer) 44);
-        assertEquals(link.target().channelId(), 1);
-        assertEquals(link.target().rootId(), (Integer) 2);
+        final var link = new ChannelLink(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
+        assertEquals(link.sourceDatasetAddress().datasetId(), 22);
+        assertEquals(link.sourceDatasetAddress().datasetRootId(), (Integer) 44);
+        assertEquals(link.targetDatasetAddress().datasetId(), 1);
+        assertEquals(link.targetDatasetAddress().datasetRootId(), (Integer) 2);
         assertFalse(link.partial());
         assertEquals(link.toString(), "[22.44=>1.2]");
     }
 
     @Test
     public void partialOperation() {
-        final var link = new ChannelLink(ChannelAddress.partial(22, 44), ChannelAddress.of(1, 2), null, true);
+        final var link = new ChannelLink(DatasetAddress.partial(22, 44), DatasetAddress.of(1, 2), null, true);
 
         assertTrue(link.partial());
         assertEquals(link.toString(), "[22.44?=>1.2?]");
@@ -27,12 +27,12 @@ public final class ChannelLinkTest {
 
     @Test
     public void hashcodeAndEquals() {
-        final var link1 = new ChannelLink(ChannelAddress.of(22, 44), ChannelAddress.of(1, 2));
-        final var link2 = new ChannelLink(ChannelAddress.of(22, 44), ChannelAddress.of(1, 3));
-        final var link3 = new ChannelLink(ChannelAddress.of(22, 77), ChannelAddress.of(1, 2));
-        final var link4 = new ChannelLink(ChannelAddress.of(27), ChannelAddress.of(1, 2));
-        final var link5 = new ChannelLink(ChannelAddress.of(27), ChannelAddress.of(1, 3));
-        final var link6 = new ChannelLink(ChannelAddress.partial(22, 44), ChannelAddress.of(1, 2), null, true);
+        final var link1 = new ChannelLink(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
+        final var link2 = new ChannelLink(DatasetAddress.of(22, 44), DatasetAddress.of(1, 3));
+        final var link3 = new ChannelLink(DatasetAddress.of(22, 77), DatasetAddress.of(1, 2));
+        final var link4 = new ChannelLink(DatasetAddress.of(27), DatasetAddress.of(1, 2));
+        final var link5 = new ChannelLink(DatasetAddress.of(27), DatasetAddress.of(1, 3));
+        final var link6 = new ChannelLink(DatasetAddress.partial(22, 44), DatasetAddress.of(1, 2), null, true);
 
         assertLinkEqual(link1, link1);
         assertLinkEqual(link2, link2);

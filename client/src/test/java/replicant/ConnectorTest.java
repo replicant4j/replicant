@@ -119,8 +119,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, null, null));
 
-        final ChannelAddress address = new ChannelAddress(connector.getSchema().getId(), 0);
-        final Subscription subscription = createSubscription(address, null, true);
+        final DatasetAddress datasetAddress =
+                new DatasetAddress(connector.getSchema().getId(), 0);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         connector.onConnection(ValueUtil.randomString());
 
@@ -537,9 +538,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onSubscribeStarted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
@@ -547,7 +548,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onSubscribeStarted(address);
+        connector.onSubscribeStarted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
@@ -558,7 +559,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -566,19 +567,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onSubscribeCompleted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
         safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onSubscribeCompleted(address);
+        connector.onSubscribeCompleted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
@@ -589,7 +590,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -597,24 +598,24 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onSubscribeCompleted_DeletedSubscription() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         safeAction(() -> areaOfInterest.setStatus(AreaOfInterest.Status.DELETED));
 
-        createSubscription(address, null, true);
+        createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onSubscribeCompleted(address);
+        connector.onSubscribeCompleted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.DELETED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -622,19 +623,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onUnsubscribeStarted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
         safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onUnsubscribeStarted(address);
+        connector.onUnsubscribeStarted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING);
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
@@ -645,7 +646,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -653,9 +654,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onUnsubscribeCompleted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
@@ -663,7 +664,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onUnsubscribeCompleted(address);
+        connector.onUnsubscribeCompleted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
@@ -674,7 +675,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(UnsubscribeCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -682,19 +683,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onSubscriptionUpdateStarted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
         safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onSubscriptionUpdateStarted(address);
+        connector.onSubscriptionUpdateStarted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING);
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
@@ -705,7 +706,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -713,19 +714,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void onSubscriptionUpdateCompleted() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
         safeAction(() -> assertNull(areaOfInterest.getSubscription()));
         safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onSubscriptionUpdateCompleted(address);
+        connector.onSubscriptionUpdateCompleted(datasetAddress);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED);
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
@@ -736,7 +737,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         handler.assertNextEvent(SubscriptionUpdateCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -744,24 +745,30 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void areaOfInterestRequestPendingQueries() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, filter));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
         assertEquals(
-                connector.lastIndexOfPendingAreaOfInterestRequest(AreaOfInterestRequest.Type.ADD, address, filter), -1);
+                connector.lastIndexOfPendingAreaOfInterestRequest(
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                -1);
 
         final Connection connection = newConnection(connector);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, filter));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
         assertEquals(
-                connector.lastIndexOfPendingAreaOfInterestRequest(AreaOfInterestRequest.Type.ADD, address, filter), -1);
+                connector.lastIndexOfPendingAreaOfInterestRequest(
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                -1);
 
-        connection.requestSubscribe(address, filter);
+        connection.requestSubscribe(datasetAddress, filter);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, filter));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
         assertEquals(
-                connector.lastIndexOfPendingAreaOfInterestRequest(AreaOfInterestRequest.Type.ADD, address, filter), 1);
+                connector.lastIndexOfPendingAreaOfInterestRequest(
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                1);
     }
 
     @Test
@@ -772,7 +779,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0), null, true);
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0), null, true);
 
         assertEquals(connector.getConnection(), connection);
         assertEquals(connector.ensureConnection(), connection);
@@ -799,11 +806,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector1 = createConnector(newSchema(1));
         createConnector(newSchema(2));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0), null, true);
-        final Subscription subscription2 = createSubscription(new ChannelAddress(1, 1, 2), null, true);
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0), null, true);
+        final Subscription subscription2 = createSubscription(new DatasetAddress(1, 1, 2), null, true);
         // The next two are from a different Connector
-        final Subscription subscription3 = createSubscription(new ChannelAddress(2, 0, 1), null, true);
-        final Subscription subscription4 = createSubscription(new ChannelAddress(2, 0, 2), null, true);
+        final Subscription subscription3 = createSubscription(new DatasetAddress(2, 0, 1), null, true);
+        final Subscription subscription4 = createSubscription(new DatasetAddress(2, 0, 2), null, true);
 
         assertFalse(Disposable.isDisposed(subscription1));
         assertFalse(Disposable.isDisposed(subscription2));
@@ -904,7 +911,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(new ChannelAddress(0, 0), AreaOfInterestRequest.Type.REMOVE, null));
+                new AreaOfInterestRequest(new DatasetAddress(0, 0), AreaOfInterestRequest.Type.REMOVE, null));
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.resumeMessageScheduler();
@@ -920,7 +927,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(
                     e.getError().getMessage(),
-                    "Replicant-0046: Request to unsubscribe from channel at address 0.0 but not subscribed to"
+                    "Replicant-0046: Request to unsubscribe from channel at Dataset Address 0.0 but not subscribed to"
                             + " channel.");
         });
     }
@@ -931,18 +938,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.requestSubscribe(address, null);
+        connector.requestSubscribe(datasetAddress, null);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -962,13 +970,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(address, null));
+                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(datasetAddress, null));
 
         assertEquals(
-                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
+                exception.getMessage(),
+                "Replicant-0098: Dataset Address 1.0 requires a Dataset Key but none was supplied.");
     }
 
     @Test
@@ -988,13 +997,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(address, null));
+                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(datasetAddress, null));
 
         assertEquals(
-                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
+                exception.getMessage(),
+                "Replicant-0098: Dataset Address 1.0 requires a Dataset Key but none was supplied.");
     }
 
     @Test
@@ -1014,14 +1024,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, null, "inst");
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, null, "inst");
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(address, null));
+                expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(datasetAddress, null));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0099: Channel 1.0#inst does not support dataset keys but one was supplied.");
+                "Replicant-0099: Dataset Address 1.0#inst does not support Dataset Keys but one was supplied.");
     }
 
     @Test
@@ -1042,13 +1052,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0, null, "inst");
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, null, "inst");
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
 
-        connector.requestSubscribe(address, null);
+        connector.requestSubscribe(datasetAddress, null);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
     }
 
     @Test
@@ -1069,13 +1079,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0, null, "inst");
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, null, "inst");
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
 
-        connector.requestSubscribe(address, null);
+        connector.requestSubscribe(datasetAddress, null);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, address, null));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, null));
     }
 
     @Test
@@ -1096,18 +1106,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, datasetAddress, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.requestSubscriptionUpdate(address, null);
+        connector.requestSubscriptionUpdate(datasetAddress, null);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, address, null));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, datasetAddress, null));
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1128,13 +1139,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestSubscriptionUpdate(address, null));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> connector.requestSubscriptionUpdate(datasetAddress, null));
 
         assertEquals(
-                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
+                exception.getMessage(),
+                "Replicant-0098: Dataset Address 1.0 requires a Dataset Key but none was supplied.");
     }
 
     @Test
@@ -1155,17 +1167,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.UPDATE, datasetAddress, null));
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestSubscriptionUpdate(address, null));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> connector.requestSubscriptionUpdate(datasetAddress, null));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel 1.0 but channel does not have"
-                        + " a dynamic filter.");
+                "Replicant-0082: Connector.requestSubscriptionUpdate invoked for Dataset Address 1.0 but the Dataset"
+                        + " does not have a dynamic filter.");
     }
 
     @Test
@@ -1185,13 +1197,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(address));
+                expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(datasetAddress));
 
         assertEquals(
-                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
+                exception.getMessage(),
+                "Replicant-0098: Dataset Address 1.0 requires a Dataset Key but none was supplied.");
     }
 
     @Test
@@ -1211,13 +1224,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(address));
+                expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(datasetAddress));
 
         assertEquals(
-                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
+                exception.getMessage(),
+                "Replicant-0098: Dataset Address 1.0 requires a Dataset Key but none was supplied.");
     }
 
     @Test
@@ -1227,22 +1241,23 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        createSubscription(address, null, true);
+        createSubscription(datasetAddress, null, true);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, address, null));
+        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, datasetAddress, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.requestUnsubscribe(address);
+        connector.requestUnsubscribe(datasetAddress);
 
         Thread.sleep(100);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, address, null));
+        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, datasetAddress, null));
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1264,11 +1279,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
 
-        final Subscription subscription1 = createSubscription(address1, ValueUtil.randomString(), true);
-        final Subscription subscription2 = createSubscription(address2, ValueUtil.randomString(), true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, ValueUtil.randomString(), true);
+        final Subscription subscription2 = createSubscription(datasetAddress2, ValueUtil.randomString(), true);
 
         // Use Integer and String as arbitrary types for our Replica Entries...
         // Anything with id below 0 will be removed during update ...
@@ -1337,9 +1352,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
 
-        final Subscription subscription1 = createSubscription(address1, ValueUtil.randomString(), true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, ValueUtil.randomString(), true);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
@@ -1347,8 +1362,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for address 1.0.1 but the"
-                        + " channel does not have a DYNAMIC filter.");
+                "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address 1.0.1 but"
+                        + " the channel does not have a DYNAMIC filter.");
     }
 
     @SuppressWarnings("unchecked")
@@ -1382,8 +1397,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
-        final ChannelAddress address = new ChannelAddress(connector.getSchema().getId(), 1);
-        final Subscription subscription = createSubscription(address, null, true);
+        final DatasetAddress datasetAddress =
+                new DatasetAddress(connector.getSchema().getId(), 1);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         // This Replica Entry is to be updated
         final ReplicaEntry replicaEntry2 = findOrCreateReplicaEntry(Linkable.class, 2);
@@ -1465,12 +1481,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
-        final int rootId = ValueUtil.randomInt();
-        final ChannelAddress address = new ChannelAddress(connector.getSchema().getId(), 0, rootId, "fi");
-        final Subscription subscription = createSubscription(address, null, true);
+        final int datasetRootId = ValueUtil.randomInt();
+        final DatasetAddress datasetAddress =
+                new DatasetAddress(connector.getSchema().getId(), 0, datasetRootId, "fi");
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         final EntityChangeData data = mock(EntityChangeData.class);
-        final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"0." + rootId + "#fi"}, data)};
+        final EntityChange[] entityChanges = {
+            EntityChange.create(0, 1, new String[] {"0." + datasetRootId + "#fi"}, data)
+        };
         setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, data)).thenReturn(mock(Linkable.class));
@@ -1520,7 +1539,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, connector::processEntityChanges);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0069: UpdateMessage contained an EntityChange message referencing channel 1.1 but no such"
+                "Replicant-0069: UpdateMessage contained an EntityChange message referencing Dataset Address 1.1 but"
+                        + " no such"
                         + " subscription exists locally.");
     }
 
@@ -1616,7 +1636,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(new ChannelAddress(1, 0), AreaOfInterestRequest.Type.ADD, null));
+                new AreaOfInterestRequest(new DatasetAddress(1, 0), AreaOfInterestRequest.Type.ADD, null));
 
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
 
@@ -1630,10 +1650,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final int channelId = 0;
-        final int rootId = ValueUtil.randomInt();
+        final int datasetId = 0;
+        final int datasetRootId = ValueUtil.randomInt();
         final String filter = null;
-        final String[] channels = {"+0." + rootId};
+        final String[] channels = {"+0." + datasetRootId};
 
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
@@ -1647,16 +1667,16 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertFalse(response.needsChannelChangesProcessed());
 
-        final ChannelAddress address = new ChannelAddress(1, channelId, rootId);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
-                Objects.requireNonNull(Replicant.context().findSubscription(address));
-        assertEquals(subscription.address(), address);
+                Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
+        assertEquals(subscription.datasetAddress(), datasetAddress);
         safeAction(() -> assertEquals(subscription.getFilter(), filter));
         safeAction(() -> assertFalse(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
-            assertEquals(e.getSubscription().address(), address);
+            assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
             safeAction(() -> assertEquals(e.getSubscription().getFilter(), filter));
         });
     }
@@ -1666,10 +1686,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final int channelId = 0;
-        final int rootId = ValueUtil.randomInt();
+        final int datasetId = 0;
+        final int datasetRootId = ValueUtil.randomInt();
         final String filter = ValueUtil.randomString();
-        final ChannelChange[] fchannels = {ChannelChange.create("+0." + rootId, filter)};
+        final ChannelChange[] fchannels = {ChannelChange.create("+0." + datasetRootId, filter)};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, fchannels, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, fchannels[0])));
@@ -1682,16 +1702,16 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertFalse(response.needsChannelChangesProcessed());
 
-        final ChannelAddress address = new ChannelAddress(1, channelId, rootId);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
-                Objects.requireNonNull(Replicant.context().findSubscription(address));
-        assertEquals(subscription.address(), address);
+                Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
+        assertEquals(subscription.datasetAddress(), datasetAddress);
         safeAction(() -> assertEquals(subscription.getFilter(), filter));
         safeAction(() -> assertFalse(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
-            assertEquals(e.getSubscription().address(), address);
+            assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
             safeAction(() -> assertEquals(e.getSubscription().getFilter(), filter));
         });
     }
@@ -1701,14 +1721,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final int channelId = 0;
-        final int rootId = ValueUtil.randomInt();
+        final int datasetId = 0;
+        final int datasetRootId = ValueUtil.randomInt();
 
-        final ChannelAddress address = new ChannelAddress(1, channelId, rootId);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
 
-        safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+        safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"+0." + rootId};
+        final String[] channels = {"+0." + datasetRootId};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
@@ -1722,14 +1742,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(response.needsChannelChangesProcessed());
 
         final Subscription subscription =
-                Objects.requireNonNull(Replicant.context().findSubscription(address));
-        assertEquals(subscription.address(), address);
+                Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
+        assertEquals(subscription.datasetAddress(), datasetAddress);
         safeAction(() -> assertNull(subscription.getFilter()));
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
-            assertEquals(e.getSubscription().address(), address);
+            assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
             safeAction(() -> assertNull(e.getSubscription().getFilter()));
         });
     }
@@ -1741,16 +1761,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
-        safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+        safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"+0." + address.rootId()};
+        final String[] channels = {"+0." + datasetAddress.datasetRootId()};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
 
-        final AreaOfInterestRequest request = new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, null);
+        final AreaOfInterestRequest request =
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, null);
         connection.injectCurrentAreaOfInterestRequest(request);
         request.markAsInProgress(newRequest(connection).getRequestId());
 
@@ -1765,14 +1786,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(response.getChannelAddCount(), 1);
 
         final Subscription subscription =
-                Objects.requireNonNull(Replicant.context().findSubscription(address));
-        assertEquals(subscription.address(), address);
+                Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
+        assertEquals(subscription.datasetAddress(), datasetAddress);
         safeAction(() -> assertNull(subscription.getFilter()));
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
-            assertEquals(e.getSubscription().address(), address);
+            assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
             safeAction(() -> assertNull(e.getSubscription().getFilter()));
         });
     }
@@ -1784,14 +1805,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
-        final String[] channels = {"-0." + address.rootId()};
+        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
 
-        final Subscription initialSubscription = createSubscription(address, ValueUtil.randomString(), true);
+        final Subscription initialSubscription = createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
         assertTrue(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelRemoveCount(), 0);
@@ -1803,14 +1824,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelRemoveCount(), 1);
 
-        final Subscription subscription = Replicant.context().findSubscription(address);
+        final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
         assertTrue(Disposable.isDisposed(initialSubscription));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 SubscriptionDisposedEvent.class,
-                e -> assertEquals(e.getSubscription().address(), address));
+                e -> assertEquals(e.getSubscription().datasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1820,16 +1841,16 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"-0." + address.rootId()};
+        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
-        final Subscription initialSubscription = createSubscription(address, ValueUtil.randomString(), true);
+        final Subscription initialSubscription = createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
         assertTrue(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelRemoveCount(), 0);
@@ -1841,7 +1862,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelRemoveCount(), 1);
 
-        final Subscription subscription = Replicant.context().findSubscription(address);
+        final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
         assertTrue(Disposable.isDisposed(initialSubscription));
 
@@ -1850,10 +1871,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(2);
         handler.assertNextEvent(
                 SubscriptionDisposedEvent.class,
-                e -> assertEquals(e.getSubscription().address(), address));
+                e -> assertEquals(e.getSubscription().datasetAddress(), datasetAddress));
         handler.assertNextEvent(
                 AreaOfInterestDisposedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getAddress(), address));
+                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1883,12 +1904,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"-0." + address.rootId()};
+        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
@@ -1907,7 +1928,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 AreaOfInterestDisposedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getAddress(), address));
+                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1915,12 +1936,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"!0." + address.rootId()};
+        final String[] channels = {"!0." + datasetAddress.datasetRootId()};
         final MessageResponse response =
                 setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
@@ -1940,7 +1961,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 AreaOfInterestStatusUpdatedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getAddress(), address));
+                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -1966,17 +1987,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
         final String oldFilter = ValueUtil.randomString();
         final String newFilter = ValueUtil.randomString();
         final ChannelChange[] channelChanges =
-                new ChannelChange[] {ChannelChange.create("=0." + address.rootId(), newFilter)};
+                new ChannelChange[] {ChannelChange.create("=0." + datasetAddress.datasetRootId(), newFilter)};
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
 
-        final Subscription initialSubscription = createSubscription(address, oldFilter, true);
+        final Subscription initialSubscription = createSubscription(datasetAddress, oldFilter, true);
 
         assertTrue(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelUpdateCount(), 0);
@@ -1988,7 +2009,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelUpdateCount(), 1);
 
-        final Subscription subscription = Replicant.context().findSubscription(address);
+        final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNotNull(subscription);
         assertFalse(Disposable.isDisposed(initialSubscription));
 
@@ -2016,18 +2037,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final int rootId = ValueUtil.randomInt();
-        final ChannelAddress address = new ChannelAddress(1, 0, rootId, "fi");
+        final int datasetRootId = ValueUtil.randomInt();
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, datasetRootId, "fi");
 
         final String oldFilter = ValueUtil.randomString();
         final String newFilter = ValueUtil.randomString();
         final ChannelChange[] channelChanges =
-                new ChannelChange[] {ChannelChange.create("=0." + rootId + "#fi", newFilter)};
+                new ChannelChange[] {ChannelChange.create("=0." + datasetRootId + "#fi", newFilter)};
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
 
-        final Subscription subscription = createSubscription(address, oldFilter, true);
+        final Subscription subscription = createSubscription(datasetAddress, oldFilter, true);
 
         assertTrue(response.needsChannelChangesProcessed());
         assertEquals(response.getChannelUpdateCount(), 0);
@@ -2062,15 +2083,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
         response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
-        createSubscription(new ChannelAddress(1, 0, 2223), oldFilter, true);
+        createSubscription(new DatasetAddress(1, 0, 2223), oldFilter, true);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processChannelChanges);
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0078: Received ChannelChange of type UPDATE for address 1.0.2223 but the channel does not"
-                        + " have a DYNAMIC filter.");
+                "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address 1.0.2223 but the channel"
+                        + " does not have a DYNAMIC filter.");
     }
 
     @Test
@@ -2096,8 +2117,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0033: Received ChannelChange of type UPDATE for address 1.0.42 but no such subscription"
-                        + " exists.");
+                "Replicant-0033: Received ChannelChange of type UPDATE for Dataset Address 1.0.42 but no such"
+                        + " subscription exists.");
 
         handler.assertEventCount(0);
     }
@@ -2109,18 +2130,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 1, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-        requests.add(new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null));
-        requests.add(new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.REMOVE, null));
-        requests.add(new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.REMOVE, null));
+        requests.add(new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null));
+        requests.add(new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.REMOVE, null));
+        requests.add(new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.REMOVE, null));
 
-        final Subscription subscription1 = createSubscription(address1, null, true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, null, true);
         // Address2 is already implicit ...
-        createSubscription(address2, null, false);
+        createSubscription(datasetAddress2, null, false);
         // Address3 has no subscription ... maybe not reconciled yet
 
         connector.removeExplicitSubscriptions(requests);
@@ -2135,12 +2156,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
-        requests.add(new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.ADD, null));
+        requests.add(new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, null));
 
-        createSubscription(address1, null, true);
+        createSubscription(datasetAddress1, null, true);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> safeAction(() -> connector.removeExplicitSubscriptions(requests)));
@@ -2152,17 +2173,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void removeUnneededRemoveRequests_whenInvariantsDisabled() {
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 1, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.REMOVE, null);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.REMOVE, null);
         requests.add(request1);
         requests.add(request2);
         requests.add(request3);
@@ -2174,9 +2195,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         requests.forEach(r -> r.markAsInProgress(request.getRequestId()));
 
-        createSubscription(address1, null, true);
+        createSubscription(datasetAddress1, null, true);
         // Address2 is already implicit ...
-        createSubscription(address2, null, false);
+        createSubscription(datasetAddress2, null, false);
         // Address3 has no subscription ... maybe not reconciled yet
 
         ReplicantTestUtil.noCheckInvariants();
@@ -2194,11 +2215,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void removeUnneededRemoveRequests_noSubscription() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
         requests.add(request1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
@@ -2209,49 +2230,50 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0046: Request to unsubscribe from channel at address 1.1.1 but not subscribed to channel.");
+                "Replicant-0046: Request to unsubscribe from channel at Dataset Address 1.1.1 but not subscribed to"
+                        + " channel.");
     }
 
     @Test
     public void removeUnneededRemoveRequests_implicitSubscription() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
         requests.add(request1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
 
-        createSubscription(address1, null, false);
+        createSubscription(datasetAddress1, null, false);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> safeAction(() -> connector.removeUnneededRemoveRequests(requests)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0047: Request to unsubscribe from channel at address 1.1.1 but subscription is not an"
-                        + " explicit subscription.");
+                "Replicant-0047: Request to unsubscribe from channel at Dataset Address 1.1.1 but subscription is not"
+                        + " an explicit subscription.");
     }
 
     @Test
     public void removeUnneededUpdateRequests_whenInvariantsDisabled() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 1, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.UPDATE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, null);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.UPDATE, null);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.UPDATE, null);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.UPDATE, null);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.UPDATE, null);
         requests.add(request1);
         requests.add(request2);
         requests.add(request3);
@@ -2259,9 +2281,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final int requestId = newRequest(newConnection(connector)).getRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
 
-        createSubscription(address1, null, true);
+        createSubscription(datasetAddress1, null, true);
         // Address2 is already implicit ...
-        createSubscription(address2, null, false);
+        createSubscription(datasetAddress2, null, false);
         // Address3 has no subscription ... maybe not reconciled yet
 
         ReplicantTestUtil.noCheckInvariants();
@@ -2280,11 +2302,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void removeUnneededUpdateRequests_noSubscription() {
         final Connector connector = createConnector();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
         final ArrayList<AreaOfInterestRequest> requests = new ArrayList<>();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.UPDATE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, null);
         requests.add(request1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
@@ -2295,7 +2317,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0048: Request to update channel at address 1.1.1 but not subscribed to channel.");
+                "Replicant-0048: Request to update channel at Dataset Address 1.1.1 but not subscribed to channel.");
     }
 
     @Test
@@ -2607,10 +2629,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
 
@@ -2621,12 +2643,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
-                    assertEquals(i.getArguments()[0], address);
+                    assertEquals(i.getArguments()[0], datasetAddress);
                     assertEquals(i.getArguments()[1], filter);
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(address), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2635,12 +2657,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
-        assertNull(Replicant.context().findSubscription(address));
+        assertNull(Replicant.context().findSubscription(datasetAddress));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -2664,10 +2686,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
 
         connection.injectCurrentAreaOfInterestRequest(request);
 
@@ -2681,7 +2703,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(address), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2690,12 +2712,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
-        assertNull(Replicant.context().findSubscription(address));
+        assertNull(Replicant.context().findSubscription(datasetAddress));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -2717,10 +2739,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
         connector.pauseMessageScheduler();
@@ -2733,14 +2755,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final String eTag = "";
-        cacheService.store(address, eTag, ValueUtil.randomString());
+        cacheService.store(datasetAddress, eTag, ValueUtil.randomString());
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(address), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2749,12 +2771,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
-        assertNull(Replicant.context().findSubscription(address));
+        assertNull(Replicant.context().findSubscription(datasetAddress));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
 
         assertFalse(connector.isSchedulerActive());
@@ -2779,22 +2801,22 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 0, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.ADD, filter);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
 
-        final Subscription subscription1 = createSubscription(address1, null, true);
-        final Subscription subscription2 = createSubscription(address2, null, true);
-        final Subscription subscription3 = createSubscription(address3, null, true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, null, true);
+        final Subscription subscription2 = createSubscription(datasetAddress2, null, true);
+        final Subscription subscription3 = createSubscription(datasetAddress3, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request1);
         connection.injectCurrentAreaOfInterestRequest(request2);
@@ -2805,10 +2827,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
-                    final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[0];
-                    assertTrue(addresses.contains(address1));
-                    assertTrue(addresses.contains(address2));
-                    assertTrue(addresses.contains(address3));
+                    final List<DatasetAddress> datasetAddresses = (List<DatasetAddress>) i.getArguments()[0];
+                    assertTrue(datasetAddresses.contains(datasetAddress1));
+                    assertTrue(datasetAddresses.contains(datasetAddress2));
+                    assertTrue(datasetAddresses.contains(datasetAddress3));
                     return null;
                 })
                 .when(connector.getTransport())
@@ -2828,15 +2850,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(3);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address1);
+            assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address2);
+            assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address3);
+            assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
 
@@ -2858,10 +2880,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
 
@@ -2898,14 +2920,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filter);
 
         pauseScheduler();
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request);
 
@@ -2917,7 +2939,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(address), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2931,7 +2953,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -2954,22 +2976,22 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 0, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.UPDATE, filter);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.UPDATE, filter);
 
         pauseScheduler();
 
-        final Subscription subscription1 = createSubscription(address1, null, true);
-        final Subscription subscription2 = createSubscription(address2, null, true);
-        final Subscription subscription3 = createSubscription(address3, null, true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, null, true);
+        final Subscription subscription2 = createSubscription(datasetAddress2, null, true);
+        final Subscription subscription3 = createSubscription(datasetAddress3, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request1);
         connection.injectCurrentAreaOfInterestRequest(request2);
@@ -2980,10 +3002,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
-                    final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[0];
-                    assertTrue(addresses.contains(address1));
-                    assertTrue(addresses.contains(address2));
-                    assertTrue(addresses.contains(address3));
+                    final List<DatasetAddress> datasetAddresses = (List<DatasetAddress>) i.getArguments()[0];
+                    assertTrue(datasetAddresses.contains(datasetAddress1));
+                    assertTrue(datasetAddresses.contains(datasetAddress2));
+                    assertTrue(datasetAddresses.contains(datasetAddress3));
                     return null;
                 })
                 .when(connector.getTransport())
@@ -3003,15 +3025,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(3);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address1);
+            assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address2);
+            assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address3);
+            assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
 
@@ -3033,10 +3055,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
 
         pauseScheduler();
 
@@ -3073,13 +3095,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.REMOVE, null);
 
         pauseScheduler();
 
-        final Subscription subscription = createSubscription(address, null, true);
+        final Subscription subscription = createSubscription(datasetAddress, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request);
 
@@ -3091,7 +3113,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestUnsubscribe(eq(address));
+                .requestUnsubscribe(eq(datasetAddress));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -3105,7 +3127,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
 
@@ -3128,21 +3150,21 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 0, 3);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(address2, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.REMOVE, null);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(address3, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.REMOVE, null);
 
         pauseScheduler();
 
-        final Subscription subscription1 = createSubscription(address1, null, true);
-        final Subscription subscription2 = createSubscription(address2, null, true);
-        final Subscription subscription3 = createSubscription(address3, null, true);
+        final Subscription subscription1 = createSubscription(datasetAddress1, null, true);
+        final Subscription subscription2 = createSubscription(datasetAddress2, null, true);
+        final Subscription subscription3 = createSubscription(datasetAddress3, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request1);
         connection.injectCurrentAreaOfInterestRequest(request2);
@@ -3153,10 +3175,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
-                    final List<ChannelAddress> addresses = (List<ChannelAddress>) i.getArguments()[0];
-                    assertTrue(addresses.contains(address1));
-                    assertTrue(addresses.contains(address2));
-                    assertTrue(addresses.contains(address3));
+                    final List<DatasetAddress> datasetAddresses = (List<DatasetAddress>) i.getArguments()[0];
+                    assertTrue(datasetAddresses.contains(datasetAddress1));
+                    assertTrue(datasetAddresses.contains(datasetAddress2));
+                    assertTrue(datasetAddresses.contains(datasetAddress3));
                     return null;
                 })
                 .when(connector.getTransport())
@@ -3176,15 +3198,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(3);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address1);
+            assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address2);
+            assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getAddress(), address3);
+            assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
 
@@ -3206,9 +3228,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
 
         pauseScheduler();
 
@@ -3276,10 +3298,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
 
@@ -3316,10 +3338,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
 
         pauseScheduler();
 
@@ -3334,7 +3356,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscribeStartedEvent.class, e -> assertEquals(e.getAddress(), address1));
+        handler.assertNextEvent(SubscribeStartedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress1));
     }
 
     @Test
@@ -3355,14 +3377,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
 
         pauseScheduler();
 
-        createSubscription(address1, null, true);
+        createSubscription(datasetAddress1, null, true);
         connection.injectCurrentAreaOfInterestRequest(request1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -3374,7 +3396,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> assertEquals(e.getAddress(), address1));
+        handler.assertNextEvent(
+                SubscriptionUpdateStartedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress1));
     }
 
     @Test
@@ -3395,13 +3418,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(address1, AreaOfInterestRequest.Type.REMOVE, null);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.REMOVE, null);
 
         pauseScheduler();
 
-        createSubscription(address1, null, true);
+        createSubscription(datasetAddress1, null, true);
 
         connection.injectCurrentAreaOfInterestRequest(request1);
 
@@ -3414,7 +3437,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> assertEquals(e.getAddress(), address1));
+        handler.assertNextEvent(
+                UnsubscribeStartedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress1));
     }
 
     @Test
@@ -3427,7 +3451,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertTrue(connector.isSchedulerPaused());
         assertFalse(connector.isSchedulerActive());
 
-        connector.requestSubscribe(new ChannelAddress(1, 0, 1), null);
+        connector.requestSubscribe(new DatasetAddress(1, 0, 1), null);
 
         assertTrue(connector.isSchedulerActive());
 

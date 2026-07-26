@@ -14,7 +14,7 @@ import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
 import replicant.server.ChannelAction.Action;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
 import replicant.server.ValueUtil;
@@ -55,12 +55,12 @@ public final class JsonEncoderTest {
                 .build();
 
         final var change = new Change(message);
-        change.getChannels().add(ChannelAddress.of(1, null));
-        change.getChannels().add(ChannelAddress.of(2, 42));
-        change.getChannels().add(ChannelAddress.of(3, 73));
+        change.getDatasetAddresses().add(DatasetAddress.of(1, null));
+        change.getDatasetAddresses().add(DatasetAddress.of(2, 42));
+        change.getDatasetAddresses().add(DatasetAddress.of(3, 73));
         final var cs = new ChangeSet();
         cs.merge(change);
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(45, 77), Action.UPDATE, filter));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filter));
         final var encoded = JsonEncoder.encodeChangeSet(requestId, response, etag, cs);
         final var changeSet = toJsonObject(encoded);
 
@@ -146,7 +146,7 @@ public final class JsonEncoderTest {
     @Test
     public void action_WithNoFilter() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(45, null), Action.ADD));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, null), Action.ADD));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
@@ -156,7 +156,7 @@ public final class JsonEncoderTest {
     @Test
     public void channelAction_DELETE() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(45, null), Action.DELETE));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, null), Action.DELETE));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
@@ -166,12 +166,12 @@ public final class JsonEncoderTest {
     @Test
     public void mixedChannelActions() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(1, null), Action.ADD));
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(2, 5), Action.REMOVE));
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(3, 7, "inst"), Action.UPDATE));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(1, null), Action.ADD));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(2, 5), Action.REMOVE));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(3, 7, "inst"), Action.UPDATE));
 
         final var filter = Json.createObjectBuilder().add("a", "b").build();
-        cs.mergeAction(ChannelAction.of(ChannelAddress.of(4, 9), Action.ADD, filter));
+        cs.mergeAction(ChannelAction.of(DatasetAddress.of(4, 9), Action.ADD, filter));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
@@ -234,8 +234,8 @@ public final class JsonEncoderTest {
         attributeData.put("x", "y");
         final var message = new EntityMessage(1, 2, 0, routingKeys, attributeData, null);
         final var change = new Change(message);
-        change.getChannels().add(ChannelAddress.of(7, null, "fi"));
-        change.getChannels().add(ChannelAddress.of(8, 3, "fi-2"));
+        change.getDatasetAddresses().add(DatasetAddress.of(7, null, "fi"));
+        change.getDatasetAddresses().add(DatasetAddress.of(8, 3, "fi-2"));
         final var cs = new ChangeSet();
         cs.merge(change);
 
@@ -286,8 +286,8 @@ public final class JsonEncoderTest {
 
     @Test
     public void encodeUseCacheMessage() {
-        final var address = ChannelAddress.of(1, 2, "inst");
-        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(address, "e1", 7));
+        final var datasetAddress = DatasetAddress.of(1, 2, "inst");
+        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", 7));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
         assertEquals(message.getString(Messages.Common.CHANNEL), "1.2#inst");
@@ -297,8 +297,8 @@ public final class JsonEncoderTest {
 
     @Test
     public void encodeUseCacheMessage_withoutRequestId() {
-        final var address = ChannelAddress.of(1, 2);
-        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(address, "e1", null));
+        final var datasetAddress = DatasetAddress.of(1, 2);
+        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", null));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
         assertEquals(message.getString(Messages.Common.CHANNEL), "1.2");
@@ -309,14 +309,14 @@ public final class JsonEncoderTest {
     @Test
     public void encodeUseCacheMessage_rejectsPartialAddress() {
         expectThrows(
-                AssertionError.class, () -> JsonEncoder.encodeUseCacheMessage(ChannelAddress.partial(1, 2), "e1", 7));
+                AssertionError.class, () -> JsonEncoder.encodeUseCacheMessage(DatasetAddress.partial(1, 2), "e1", 7));
     }
 
     @Test
     public void encodeChangeSet_rejectsPartialChannelDescriptor() {
         final var message = new EntityMessage(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
         final var change = new Change(message);
-        change.getChannels().add(ChannelAddress.partial(7, 3));
+        change.getDatasetAddresses().add(DatasetAddress.partial(7, 3));
         final var changeSet = new ChangeSet();
         changeSet.merge(change);
 

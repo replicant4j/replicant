@@ -83,11 +83,11 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
     @Test
     public void onConstruct() {
-        final AreaOfInterest areaOfInterest = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
         safeAction(() -> {
             assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-            assertEquals(areaOfInterest.getAddress(), new ChannelAddress(1, 0));
+            assertEquals(areaOfInterest.getDatasetAddress(), new DatasetAddress(1, 0));
             assertNull(areaOfInterest.getFilter());
             assertNull(areaOfInterest.getSubscription());
             assertNull(areaOfInterest.getError());
@@ -96,7 +96,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
     @Test
     public void disposeAreaOfInterestGeneratesSpyEvent() {
-        final AreaOfInterest areaOfInterest = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -111,7 +111,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
     public void notifications() {
         createConnector();
-        final AreaOfInterest areaOfInterest = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
         final AtomicInteger getStatusCallCount = new AtomicInteger();
         observer(() -> {
@@ -166,7 +166,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
         safeAction(() -> Replicant.context()
                 .getSubscriptionService()
-                .createSubscription(areaOfInterest.getAddress(), areaOfInterest.getFilter(), true));
+                .createSubscription(areaOfInterest.getDatasetAddress(), areaOfInterest.getFilter(), true));
 
         assertEquals(getStatusCallCount.get(), 2);
         assertEquals(getErrorCallCount.get(), 2);
@@ -179,13 +179,13 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
     @Test
     public void testToString() {
-        final AreaOfInterest areaOfInterest = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
         assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Status: NOT_ASKED]");
     }
 
     @Test
     public void testToStringWithFilter() {
-        final AreaOfInterest areaOfInterest = AreaOfInterest.create(null, new ChannelAddress(1, 0), "MyFilter");
+        final AreaOfInterest areaOfInterest = AreaOfInterest.create(null, new DatasetAddress(1, 0), "MyFilter");
         assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Filter: MyFilter Status: NOT_ASKED]");
     }
 
@@ -193,7 +193,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     public void testToString_namesDisabled() {
         ReplicantTestUtil.disableNames();
 
-        final AreaOfInterest areaOfInterest = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
         assertEquals(
                 areaOfInterest.toString(),
@@ -203,7 +203,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
     public void updateAreaOfInterest() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
         final Throwable error = new Throwable();
 
         aoi.updateAreaOfInterest(AreaOfInterest.Status.NOT_ASKED, null);
@@ -221,7 +221,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         safeAction(() -> assertNull(aoi.getSubscription()));
         safeAction(() -> assertEquals(aoi.getError(), error));
 
-        final Subscription subscription = createSubscription(aoi.getAddress(), null, true);
+        final Subscription subscription = createSubscription(aoi.getDatasetAddress(), null, true);
 
         aoi.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
         assertEquals(aoi.getStatus(), AreaOfInterest.Status.LOADED);
@@ -259,7 +259,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
     public void updateAreaOfInterest_generatesSpyEvent() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -273,36 +273,36 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
     public void updateAreaOfInterest_missingErrorWhenExpected() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.LOAD_FAILED, null));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0016: Invoked updateAreaOfInterest for channel at address 1.0 with status LOAD_FAILED but"
-                        + " failed to supply the expected error.");
+                "Replicant-0016: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status"
+                        + " LOAD_FAILED but failed to supply the expected error.");
     }
 
     @Test
     public void updateAreaOfInterest_errorWhenUnexpected() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
         final Throwable error = new Throwable();
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, error));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0017: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and"
-                        + " supplied an unexpected error.");
+                "Replicant-0017: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status UNLOADED"
+                        + " and supplied an unexpected error.");
     }
 
     @Test
     public void updateAreaOfInterest_subscription_when_NOT_ASKED() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
-        createSubscription(aoi.getAddress(), null, true);
+        createSubscription(aoi.getDatasetAddress(), null, true);
 
         aoi.updateAreaOfInterest(AreaOfInterest.Status.NOT_ASKED, null);
         assertEquals(aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED);
@@ -313,22 +313,22 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
     public void updateAreaOfInterest_subscriptionWhenUnexpected() {
         pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new ChannelAddress(1, 0));
+        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
-        createSubscription(aoi.getAddress(), null, true);
+        createSubscription(aoi.getDatasetAddress(), null, true);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, null));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0019: Invoked updateAreaOfInterest for channel at address 1.0 with status UNLOADED and"
-                        + " found unexpected subscription in the context.");
+                "Replicant-0019: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status UNLOADED"
+                        + " and found unexpected subscription in the context.");
     }
 
     @Test
     public void refCounting() {
         final AreaOfInterest areaOfInterest =
-                createAreaOfInterest(new ChannelAddress(ValueUtil.randomInt(), ValueUtil.randomInt()));
+                createAreaOfInterest(new DatasetAddress(ValueUtil.randomInt(), ValueUtil.randomInt()));
 
         assertEquals(areaOfInterest.getRefCount(), 0);
 
@@ -360,7 +360,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     }
 
     @NonNull
-    private AreaOfInterest createAreaOfInterest(@NonNull final ChannelAddress address) {
-        return AreaOfInterest.create(Replicant.areZonesEnabled() ? Replicant.context() : null, address, null);
+    private AreaOfInterest createAreaOfInterest(@NonNull final DatasetAddress datasetAddress) {
+        return AreaOfInterest.create(Replicant.areZonesEnabled() ? Replicant.context() : null, datasetAddress, null);
     }
 }

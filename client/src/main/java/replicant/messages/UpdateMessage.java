@@ -8,6 +8,7 @@ import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullUnmarked;
 import org.jspecify.annotations.Nullable;
 import replicant.Replicant;
 import replicant.shared.Messages;
@@ -16,6 +17,7 @@ import replicant.shared.Messages;
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
+@SuppressWarnings("NullAway.Init")
 public class UpdateMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.UPDATE;
@@ -23,21 +25,27 @@ public class UpdateMessage extends ServerToClientMessage {
     @Nullable
     private String etag;
 
-    private String @Nullable [] channels;
-    private ChannelChange @Nullable [] fchannels;
-    private EntityChange @Nullable [] changes;
+    @Nullable
+    private String[] channels;
+
+    @Nullable
+    private ChannelChange[] fchannels;
+
+    @Nullable
+    private EntityChange[] changes;
 
     @Nullable
     private Object response;
 
     @JsOverlay
     @NonNull
+    @NullUnmarked
     public static UpdateMessage create(
             @Nullable final Integer requestId,
             @Nullable final String eTag,
-            final String @Nullable [] channels,
-            final ChannelChange @Nullable [] fchannels,
-            final EntityChange @Nullable [] entityChanges,
+            @Nullable final String[] channels,
+            @Nullable final ChannelChange[] fchannels,
+            @Nullable final EntityChange[] entityChanges,
             @Nullable final Object response) {
         final UpdateMessage updateMessage = new UpdateMessage();
         updateMessage.type = TYPE;

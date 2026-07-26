@@ -30,7 +30,7 @@ public final class EntityMessageTest {
     @Test
     public void constructor_rejectsDeleteWithLinks() {
         final var routingKeys = new HashMap<String, Serializable>();
-        final var link = new ChannelLink(ChannelAddress.of(1, 2), ChannelAddress.of(3, 4));
+        final var link = new ChannelLink(DatasetAddress.of(1, 2), DatasetAddress.of(3, 4));
 
         expectThrows(AssertionError.class, () -> new EntityMessage(11, 22, 33L, routingKeys, null, Set.of(link)));
     }
@@ -55,7 +55,7 @@ public final class EntityMessageTest {
                 id,
                 typeID,
                 2,
-                new ChannelLink(ChannelAddress.of(1, 2), ChannelAddress.of(47, 66)),
+                new ChannelLink(DatasetAddress.of(1, 2), DatasetAddress.of(47, 66)),
                 "r3",
                 null,
                 "a3",
@@ -70,9 +70,9 @@ public final class EntityMessageTest {
         final var links = Objects.requireNonNull(message.getLinks());
         assertEquals(links.size(), 1);
         final var channelLink = links.iterator().next();
-        assertEquals(channelLink.source().channelId(), 1);
-        assertEquals(channelLink.source().rootId(), (Integer) 2);
-        assertEquals(channelLink.target().channelId(), 47);
+        assertEquals(channelLink.sourceDatasetAddress().datasetId(), 1);
+        assertEquals(channelLink.sourceDatasetAddress().datasetRootId(), (Integer) 2);
+        assertEquals(channelLink.targetDatasetAddress().datasetId(), 47);
         MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY1, "a3");
         MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY2, "a2");
         MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY1, "r3");
@@ -99,7 +99,7 @@ public final class EntityMessageTest {
                 id,
                 typeID,
                 0,
-                new ChannelLink(ChannelAddress.of(1, 2), ChannelAddress.of(47, 66)),
+                new ChannelLink(DatasetAddress.of(1, 2), DatasetAddress.of(47, 66)),
                 "r1",
                 "r2",
                 "a1",
@@ -155,7 +155,7 @@ public final class EntityMessageTest {
                 id,
                 typeId,
                 timestamp,
-                new ChannelLink(ChannelAddress.of(1, 2), ChannelAddress.of(47, 66)),
+                new ChannelLink(DatasetAddress.of(1, 2), DatasetAddress.of(47, 66)),
                 "r1",
                 "r2",
                 "a1",

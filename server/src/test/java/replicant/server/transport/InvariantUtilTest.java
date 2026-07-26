@@ -3,8 +3,8 @@ package replicant.server.transport;
 import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
-import replicant.server.ChannelAddress;
 import replicant.server.ChannelLink;
+import replicant.server.DatasetAddress;
 
 public final class InvariantUtilTest {
     @Test
@@ -15,8 +15,8 @@ public final class InvariantUtilTest {
                 1, "Target", 7, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", unfiltered, keyed);
 
-        InvariantUtil.assertAddressMatchesChannelMetaData(schema, ChannelAddress.of(1, 2, "fi"));
-        InvariantUtil.assertAddressMatchesChannelMetaData(schema, ChannelAddress.partial(1, 2));
+        InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.of(1, 2, "fi"));
+        InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.partial(1, 2));
     }
 
     @Test
@@ -28,7 +28,7 @@ public final class InvariantUtilTest {
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertAddressMatchesChannelMetaData(schema, ChannelAddress.of(0, 2)));
+                () -> InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.of(0, 2)));
     }
 
     @Test
@@ -39,13 +39,13 @@ public final class InvariantUtilTest {
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertAddressMatchesChannelMetaData(schema, ChannelAddress.partial(0)));
+                () -> InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.partial(0)));
     }
 
     @Test
     public void channelLink_constructorRejectsConcreteLinkWithPartialAddress() {
         expectThrows(
-                AssertionError.class, () -> new ChannelLink(ChannelAddress.partial(0), ChannelAddress.of(1, 7, "fi")));
+                AssertionError.class, () -> new ChannelLink(DatasetAddress.partial(0), DatasetAddress.of(1, 7, "fi")));
     }
 
     @Test
@@ -56,7 +56,7 @@ public final class InvariantUtilTest {
                 1, "Target", 1, ChannelMetaData.FilterType.STATIC, false, ChannelMetaData.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", source, target);
 
-        InvariantUtil.assertLink(schema, new ChannelLink(ChannelAddress.of(0), ChannelAddress.of(1, 7), null, true));
+        InvariantUtil.assertLink(schema, new ChannelLink(DatasetAddress.of(0), DatasetAddress.of(1, 7), null, true));
     }
 
     @Test
@@ -69,6 +69,6 @@ public final class InvariantUtilTest {
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertLink(schema, new ChannelLink(ChannelAddress.of(0), ChannelAddress.of(1, 7))));
+                () -> InvariantUtil.assertLink(schema, new ChannelLink(DatasetAddress.of(0), DatasetAddress.of(1, 7))));
     }
 }

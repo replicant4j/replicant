@@ -23,7 +23,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.json.JsonEncoder;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
@@ -170,11 +170,11 @@ public class ReplicantEndpoint {
     }
 
     private void onETags(@NonNull final ReplicantSession session, @NonNull final JsonObject command) {
-        final var eTags = new HashMap<ChannelAddress, String>();
+        final var eTags = new HashMap<DatasetAddress, String>();
         for (final var entry : command.getJsonObject(Messages.Etags.ETAGS).entrySet()) {
-            final var address = ChannelAddress.parse(entry.getKey());
+            final var datasetAddress = DatasetAddress.parse(entry.getKey());
             final var eTag = ((JsonString) entry.getValue()).getString();
-            eTags.put(address, eTag);
+            eTags.put(datasetAddress, eTag);
         }
         _sessionManager.setETags(session, eTags);
 
@@ -191,67 +191,71 @@ public class ReplicantEndpoint {
 
     private void onSubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
-        final var address = ChannelAddress.parse(command.getString(Messages.Common.CHANNEL));
-        final var channelMetaData = getChannelMetaData(address.channelId());
-        if (checkSubscribeRequest(replicantSession, channelMetaData, address)) {
+        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
+        final var channelMetaData = getChannelMetaData(datasetAddress.datasetId());
+        if (checkSubscribeRequest(replicantSession, channelMetaData, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
             final var filter = extractFilter(channelMetaData, command);
-            _sessionManager.subscribe(replicantSession, requestId, Collections.singletonList(address), filter);
+            _sessionManager.subscribe(replicantSession, requestId, Collections.singletonList(datasetAddress), filter);
         }
     }
 
     private boolean checkSubscribeRequest(
             @NonNull final ReplicantSession replicantSession,
             @NonNull final ChannelMetaData channelMetaData,
-            @NonNull final ChannelAddress address)
+            @NonNull final DatasetAddress datasetAddress)
             throws IOException {
         if (!channelMetaData.isExternal()) {
-            sendErrorAndClose(replicantSession, "Attempted to subscribe to internal-only channel");
+            sendErrorAndClose(replicantSession, "Attempted to subscribe to an internal-only Dataset");
             return false;
-        } else if (address.hasRootId() && channelMetaData.isTypeGraph()) {
-            sendErrorAndClose(replicantSession, "Attempted to subscribe to type channel with instance data");
+        } else if (datasetAddress.hasDatasetRootId() && channelMetaData.isTypeGraph()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!address.hasRootId() && channelMetaData.isInstanceGraph()) {
-            sendErrorAndClose(replicantSession, "Attempted to subscribe to instance channel without instance data");
+        } else if (!datasetAddress.hasDatasetRootId() && channelMetaData.isInstanceGraph()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
             return false;
         } else {
-            return validateDatasetKey(replicantSession, channelMetaData, address);
+            return validateDatasetKey(replicantSession, channelMetaData, datasetAddress);
         }
     }
 
     @SuppressWarnings("DuplicatedCode")
     private void onBulkSubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject command)
             throws IOException {
-        final var addresses = extractChannels(command);
-        if (0 != addresses.length) {
-            final var channelId = addresses[0].channelId();
+        final var datasetAddresses = extractDatasetAddresses(command);
+        if (0 != datasetAddresses.length) {
+            final var datasetId = datasetAddresses[0].datasetId();
 
-            final var channelMetaData = getChannelMetaData(channelId);
-            for (final var address : addresses) {
-                if (!checkSubscribeRequest(session, channelMetaData, address)) {
+            final var channelMetaData = getChannelMetaData(datasetId);
+            for (final var datasetAddress : datasetAddresses) {
+                if (!checkSubscribeRequest(session, channelMetaData, datasetAddress)) {
                     return;
                 }
-                if (address.channelId() != channelId) {
-                    sendErrorAndClose(session, "Bulk channel subscribe included addresses from multiple channels");
+                if (datasetAddress.datasetId() != datasetId) {
+                    sendErrorAndClose(session, "Bulk subscribe included Dataset Addresses from multiple Datasets");
                     return;
                 }
             }
 
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
             final var filter = extractFilter(channelMetaData, command);
-            _sessionManager.subscribe(session, requestId, Arrays.asList(addresses), filter);
+            _sessionManager.subscribe(session, requestId, Arrays.asList(datasetAddresses), filter);
         }
     }
 
     @NonNull
-    private ChannelAddress[] extractChannels(@NonNull final JsonObject command) {
-        final var channels = command.getJsonArray(Messages.Update.CHANNELS);
-        final var channelCount = channels.size();
-        final var addresses = new ChannelAddress[channelCount];
-        for (var i = 0; i < channelCount; i++) {
-            addresses[i] = ChannelAddress.parse(channels.getString(i));
+    private DatasetAddress[] extractDatasetAddresses(@NonNull final JsonObject command) {
+        final var datasetAddressDescriptors = command.getJsonArray(Messages.Update.CHANNELS);
+        final var datasetAddressCount = datasetAddressDescriptors.size();
+        final var datasetAddresses = new DatasetAddress[datasetAddressCount];
+        for (var i = 0; i < datasetAddressCount; i++) {
+            datasetAddresses[i] = DatasetAddress.parse(datasetAddressDescriptors.getString(i));
         }
-        return addresses;
+        return datasetAddresses;
     }
 
     @Nullable
@@ -266,70 +270,74 @@ public class ReplicantEndpoint {
 
     private void onUnsubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
-        final var address = ChannelAddress.parse(command.getString(Messages.Common.CHANNEL));
-        final var channelMetaData = getChannelMetaData(address.channelId());
-        if (checkUnsubscribeRequest(replicantSession, channelMetaData, address)) {
+        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
+        final var channelMetaData = getChannelMetaData(datasetAddress.datasetId());
+        if (checkUnsubscribeRequest(replicantSession, channelMetaData, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            _sessionManager.unsubscribe(replicantSession, requestId, Collections.singletonList(address));
+            _sessionManager.unsubscribe(replicantSession, requestId, Collections.singletonList(datasetAddress));
         }
     }
 
     @SuppressWarnings("DuplicatedCode")
     private void onBulkUnsubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject command)
             throws IOException {
-        final var addresses = extractChannels(command);
-        if (0 != addresses.length) {
-            final var channelId = addresses[0].channelId();
+        final var datasetAddresses = extractDatasetAddresses(command);
+        if (0 != datasetAddresses.length) {
+            final var datasetId = datasetAddresses[0].datasetId();
 
-            final var channelMetaData = getChannelMetaData(channelId);
-            for (final var address : addresses) {
-                if (!checkUnsubscribeRequest(session, channelMetaData, address)) {
+            final var channelMetaData = getChannelMetaData(datasetId);
+            for (final var datasetAddress : datasetAddresses) {
+                if (!checkUnsubscribeRequest(session, channelMetaData, datasetAddress)) {
                     return;
-                } else if (address.channelId() != channelId) {
-                    sendErrorAndClose(session, "Bulk channel unsubscribe included addresses from multiple channels");
+                } else if (datasetAddress.datasetId() != datasetId) {
+                    sendErrorAndClose(session, "Bulk unsubscribe included Dataset Addresses from multiple Datasets");
                     return;
                 }
             }
 
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            _sessionManager.unsubscribe(session, requestId, Arrays.asList(addresses));
+            _sessionManager.unsubscribe(session, requestId, Arrays.asList(datasetAddresses));
         }
     }
 
     private boolean checkUnsubscribeRequest(
             @NonNull final ReplicantSession replicantSession,
             @NonNull final ChannelMetaData channelMetaData,
-            @NonNull final ChannelAddress address)
+            @NonNull final DatasetAddress datasetAddress)
             throws IOException {
         if (!channelMetaData.isExternal()) {
-            sendErrorAndClose(replicantSession, "Attempted to unsubscribe from internal-only channel");
+            sendErrorAndClose(replicantSession, "Attempted to unsubscribe from an internal-only Dataset");
             return false;
-        } else if (address.hasRootId() && channelMetaData.isTypeGraph()) {
-            sendErrorAndClose(replicantSession, "Attempted to unsubscribe from type channel with instance data");
+        } else if (datasetAddress.hasDatasetRootId() && channelMetaData.isTypeGraph()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to unsubscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!address.hasRootId() && channelMetaData.isInstanceGraph()) {
-            sendErrorAndClose(replicantSession, "Attempted to unsubscribe from instance channel without instance data");
+        } else if (!datasetAddress.hasDatasetRootId() && channelMetaData.isInstanceGraph()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to unsubscribe using a Dataset Address without a required Dataset Root identifier");
             return false;
         } else {
-            return validateDatasetKey(replicantSession, channelMetaData, address);
+            return validateDatasetKey(replicantSession, channelMetaData, datasetAddress);
         }
     }
 
     private boolean validateDatasetKey(
             @NonNull final ReplicantSession session,
             @NonNull final ChannelMetaData channelMetaData,
-            @NonNull final ChannelAddress address)
+            @NonNull final DatasetAddress datasetAddress)
             throws IOException {
-        final boolean hasDatasetKey = null != address.datasetKey();
+        final boolean hasDatasetKey = null != datasetAddress.datasetKey();
         if (channelMetaData.requiresDatasetKey()) {
             if (!hasDatasetKey) {
-                sendErrorAndClose(session, "Attempted to use keyed channel without dataset key");
+                sendErrorAndClose(session, "Attempted to use a Dataset Address without a required Dataset Key");
                 return false;
             } else {
                 return true;
             }
         } else if (hasDatasetKey) {
-            sendErrorAndClose(session, "Attempted to use non-keyed channel with dataset key");
+            sendErrorAndClose(session, "Attempted to use a Dataset Address with an unexpected Dataset Key");
             return false;
         } else {
             return true;
@@ -404,8 +412,8 @@ public class ReplicantEndpoint {
     }
 
     @NonNull
-    private ChannelMetaData getChannelMetaData(final int channelId) {
-        return _sessionManager.getSchemaMetaData().getChannelMetaData(channelId);
+    private ChannelMetaData getChannelMetaData(final int datasetId) {
+        return _sessionManager.getSchemaMetaData().getChannelMetaData(datasetId);
     }
 
     private void closeWithError(

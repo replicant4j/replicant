@@ -24,7 +24,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
@@ -45,18 +45,21 @@ public class AbstractSessionContextImplTest {
     @Test
     public void deriveTargetFilter_throwsWhenNotOverridden() {
         final var context = newContext(mock(EntityManager.class));
-        final var source = ChannelAddress.of(1, 2);
-        final var target = ChannelAddress.of(3, 4);
+        final var sourceDatasetAddress = DatasetAddress.of(1, 2);
+        final var targetDatasetAddress = DatasetAddress.of(3, 4);
         final var message = new EntityMessage(1, 2, 0, new HashMap<>(), null, null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
                 () -> context.deriveTargetFilter(
-                        message, source, Json.createObjectBuilder().build(), target));
+                        message,
+                        sourceDatasetAddress,
+                        Json.createObjectBuilder().build(),
+                        targetDatasetAddress));
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetFilter called for link from " + source + " to " + target
+                "deriveTargetFilter called for link from " + sourceDatasetAddress + " to " + targetDatasetAddress
                         + " with source filter {} in the context of the entity message "
                         + message + " but no such graph link exists or the target graph has no filter parameter");
     }
@@ -64,22 +67,23 @@ public class AbstractSessionContextImplTest {
     @Test
     public void deriveTargetDatasetKey_throwsWhenNotOverridden() {
         final var context = newContext(mock(EntityManager.class));
-        final var source = ChannelAddress.of(1, 2, "fi");
-        final var target = ChannelAddress.partial(3, 4);
+        final var sourceDatasetAddress = DatasetAddress.of(1, 2, "fi");
+        final var targetDatasetAddress = DatasetAddress.partial(3, 4);
         final var message = new EntityMessage(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
                 () -> context.deriveTargetDatasetKey(
                         message,
-                        source,
+                        sourceDatasetAddress,
                         Json.createObjectBuilder().add("src", true).build(),
-                        target,
+                        targetDatasetAddress,
                         Json.createObjectBuilder().add("target", true).build()));
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetDatasetKey called for link from " + source + " to " + target
+                "deriveTargetDatasetKey called for link from " + sourceDatasetAddress + " to "
+                        + targetDatasetAddress
                         + " with source filter {\"src\":true} with target filter {\"target\":true} in the context "
                         + "of the entity message "
                         + message + " but no such graph link exists or the target graph "
@@ -91,16 +95,16 @@ public class AbstractSessionContextImplTest {
         final var em = mock(EntityManager.class);
         final var context = newContext(em);
         final var session = newSession();
-        final var addresses = List.of(ChannelAddress.of(1, 2), ChannelAddress.of(3, 4));
+        final var datasetAddresses = List.of(DatasetAddress.of(1, 2), DatasetAddress.of(3, 4));
         final var filter = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        context.collectChannelData(session, addresses, filter, changeSet, true);
+        context.collectChannelData(session, datasetAddresses, filter, changeSet, true);
 
         assertEquals(context.getBulkCollectCalls().size(), 1);
         final var call = context.getBulkCollectCalls().get(0);
         assertEquals(call.session(), session);
-        assertEquals(call.addresses(), addresses);
+        assertEquals(call.datasetAddresses(), datasetAddresses);
         assertEquals(call.filter(), filter);
         assertEquals(call.changeSet(), changeSet);
         assertTrue(call.explicitSubscribe());
@@ -136,9 +140,10 @@ public class AbstractSessionContextImplTest {
     @Test
     public void generateTempIdTable_buildsSql() {
         final var context = newContext(mock(EntityManager.class));
-        final var addresses = List.of(ChannelAddress.of(1, 11), ChannelAddress.of(1, 12), ChannelAddress.of(1, 13));
+        final var datasetAddresses =
+                List.of(DatasetAddress.of(1, 11), DatasetAddress.of(1, 12), DatasetAddress.of(1, 13));
 
-        final var sql = context.generateTempIdTable(addresses);
+        final var sql = context.generateTempIdTable(datasetAddresses);
 
         assertEquals(sql, """
             DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
@@ -176,10 +181,10 @@ public class AbstractSessionContextImplTest {
     @Test
     public void generateTempIdAndDatasetKeyTable_buildsSql() {
         final var context = newContext(mock(EntityManager.class));
-        final var addresses = List.of(
-                ChannelAddress.of(1, 11, "fi-1"), ChannelAddress.of(1, 12, "fi-2"), ChannelAddress.of(1, 13, "fi-3"));
+        final var datasetAddresses = List.of(
+                DatasetAddress.of(1, 11, "fi-1"), DatasetAddress.of(1, 12, "fi-2"), DatasetAddress.of(1, 13, "fi-3"));
 
-        final var sql = context.generateTempIdAndDatasetKeyTable(addresses);
+        final var sql = context.generateTempIdAndDatasetKeyTable(datasetAddresses);
 
         assertEquals(sql, """
             DECLARE @IdAndDatasetKeys TABLE ( Id INTEGER NOT NULL, DatasetKey VARCHAR(255) NOT NULL );
@@ -353,7 +358,7 @@ public class AbstractSessionContextImplTest {
         @Override
         public void preSubscribe(
                 @NonNull final ReplicantSession session,
-                @NonNull final ChannelAddress address,
+                @NonNull final DatasetAddress datasetAddress,
                 @Nullable final JsonObject filter) {}
 
         @Override
@@ -371,11 +376,12 @@ public class AbstractSessionContextImplTest {
         @Override
         public void collectChannelData(
                 @Nullable final ReplicantSession session,
-                @NonNull final List<ChannelAddress> addresses,
+                @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject filter,
                 @NonNull final ChangeSet changeSet,
                 final boolean isExplicitSubscribe) {
-            _bulkCollectCalls.add(new BulkCollectCall(session, addresses, filter, changeSet, isExplicitSubscribe));
+            _bulkCollectCalls.add(
+                    new BulkCollectCall(session, datasetAddresses, filter, changeSet, isExplicitSubscribe));
         }
 
         @Nullable
@@ -389,7 +395,7 @@ public class AbstractSessionContextImplTest {
         @Override
         public void collectChannelDataForFilterChange(
                 @NonNull final ReplicantSession session,
-                @NonNull final List<ChannelAddress> addresses,
+                @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject originalFilter,
                 @Nullable final JsonObject newFilter,
                 @NonNull final ChangeSet changeSet) {}
@@ -398,16 +404,16 @@ public class AbstractSessionContextImplTest {
         @Override
         public EntityMessage filterEntityMessage(
                 @NonNull final ReplicantSession session,
-                @NonNull final ChannelAddress address,
+                @NonNull final DatasetAddress datasetAddress,
                 @NonNull final EntityMessage message) {
             return null;
         }
 
         @Override
         public boolean shouldFollowLink(
-                @NonNull final ChannelAddress source,
+                @NonNull final DatasetAddress sourceDatasetAddress,
                 @Nullable final JsonObject sourceFilter,
-                @NonNull final ChannelAddress target,
+                @NonNull final DatasetAddress targetDatasetAddress,
                 @Nullable final JsonObject targetFilter) {
             return false;
         }
@@ -429,7 +435,7 @@ public class AbstractSessionContextImplTest {
 
     private record BulkCollectCall(
             @Nullable ReplicantSession session,
-            @NonNull List<ChannelAddress> addresses,
+            @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable Object filter,
             @NonNull ChangeSet changeSet,
             boolean explicitSubscribe) {}

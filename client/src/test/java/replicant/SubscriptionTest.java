@@ -9,11 +9,11 @@ import org.testng.annotations.Test;
 public class SubscriptionTest extends AbstractReplicantTest {
     @Test
     public void basicConstruction() {
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final Object filter = ValueUtil.randomString();
-        final Subscription subscription = Subscription.create(null, address, filter, true);
+        final Subscription subscription = Subscription.create(null, datasetAddress, filter, true);
 
-        assertEquals(subscription.address(), address);
+        assertEquals(subscription.datasetAddress(), datasetAddress);
 
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
         safeAction(() -> assertEquals(subscription.getReplicaEntries().size(), 0));
@@ -26,7 +26,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final Object filter2 = ValueUtil.randomString();
 
         final Subscription subscription =
-                Subscription.create(null, new ChannelAddress(1, 0), filter1, ValueUtil.randomBoolean());
+                Subscription.create(null, new DatasetAddress(1, 0), filter1, ValueUtil.randomBoolean());
 
         safeAction(() -> assertEquals(subscription.getFilter(), filter1));
         safeAction(() -> subscription.setFilter(filter2));
@@ -41,8 +41,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry2 =
                 safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/2", A.class, 2));
 
-        final ChannelAddress address = new ChannelAddress(1, 0, 1);
-        final Subscription subscription = Subscription.create(null, address, null, true);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 1);
+        final Subscription subscription = Subscription.create(null, datasetAddress, null, true);
 
         final AtomicInteger callCount = new AtomicInteger();
         observer(() -> {
@@ -143,9 +143,9 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(() ->
                 replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = Subscription.create(null, new ChannelAddress(1, 0, 1), null, true);
+        final Subscription subscription1 = Subscription.create(null, new DatasetAddress(1, 0, 1), null, true);
 
-        replicaEntry.subscriptions().put(subscription1.address(), subscription1);
+        replicaEntry.subscriptions().put(subscription1.datasetAddress(), subscription1);
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
 
         final IllegalStateException exception = expectThrows(
@@ -162,11 +162,11 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry2 = safeAction(() ->
                 replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = Subscription.create(null, new ChannelAddress(1, 0, 1), null, true);
+        final Subscription subscription1 = Subscription.create(null, new DatasetAddress(1, 0, 1), null, true);
 
         safeAction(() -> replicaEntry2.linkToSubscription(subscription1));
 
-        replicaEntry.subscriptions().put(subscription1.address(), subscription1);
+        replicaEntry.subscriptions().put(subscription1.datasetAddress(), subscription1);
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
 
         final IllegalStateException exception = expectThrows(
@@ -178,11 +178,11 @@ public class SubscriptionTest extends AbstractReplicantTest {
     @SuppressWarnings({"EqualsWithItself", "SelfComparison"})
     @Test
     public void comparable() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0);
-        final ChannelAddress address2 = new ChannelAddress(1, 1);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
-        final Subscription subscription2 = Subscription.create(null, address2, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription2 = Subscription.create(null, datasetAddress2, null, true);
 
         assertEquals(subscription1.compareTo(subscription1), 0);
         assertEquals(subscription1.compareTo(subscription2), -1);
@@ -204,9 +204,9 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Collections.emptyList());
         createConnector(
                 new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
-        final ChannelAddress address1 = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         assertEquals(subscription1.getChannelSchema(), channelSchema);
     }
@@ -225,9 +225,9 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Collections.emptyList());
         createConnector(
                 new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 33);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -254,15 +254,15 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Collections.emptyList());
         createConnector(
                 new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 33);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but Replica"
+                "Replicant-0088: Subscription.getInstanceRoot() invoked for Dataset Address 1.0.33 but Replica"
                         + " is not present.");
     }
 
@@ -280,16 +280,16 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Collections.emptyList());
         createConnector(
                 new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
-        final ChannelAddress address1 = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel 1.0 but channel"
-                        + " has not supplied expected id.");
+                "Replicant-0087: Subscription.getInstanceRoot() invoked for Dataset Address 1.0 but the Dataset"
+                        + " Address has no Dataset Root ID.");
     }
 
     @Test
@@ -306,16 +306,16 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Collections.emptyList());
         createConnector(
                 new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 44);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 44);
 
-        final Subscription subscription1 = Subscription.create(null, address1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0029: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.44 but channel"
-                        + " is not instance based.");
+                "Replicant-0029: Subscription.getInstanceRoot() invoked for Dataset Address 1.0.44 but the Dataset is"
+                        + " not instance based.");
     }
 
     static class A {}

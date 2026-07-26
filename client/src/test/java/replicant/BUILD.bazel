@@ -12,7 +12,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.AreaOfInterestServiceTest",
     "replicant.AreaOfInterestTest",
     "replicant.CacheEntryTest",
-    "replicant.ChannelAddressTest",
+    "replicant.DatasetAddressTest",
     "replicant.ChannelChangeDescriptorTest",
     "replicant.ChannelChangeTest",
     "replicant.ChannelSchemaTest",
@@ -119,7 +119,6 @@ java_library(
         "AreaOfInterestServiceTest.java",
         "AreaOfInterestTest.java",
         "CacheEntryTest.java",
-        "ChannelAddressTest.java",
         "ChannelChangeDescriptorTest.java",
         "ChannelChangeTest.java",
         "ChannelSchemaTest.java",
@@ -127,6 +126,7 @@ java_library(
         "ConnectorEntryTest.java",
         "ConnectorStateTest.java",
         "ConnectorTest.java",
+        "DatasetAddressTest.java",
         "EntityTypeTest.java",
         "MessageResponseTest.java",
         "RateLimitedValueTest.java",
@@ -218,11 +218,11 @@ java_testng(
 )
 
 java_testng(
-    name = "ChannelAddressTest",
-    srcs = ["ChannelAddressTest.java"],
+    name = "DatasetAddressTest",
+    srcs = ["DatasetAddressTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.ChannelAddressTest",
+    test_class = "replicant.DatasetAddressTest",
     deps = ["//client:client_test_support"],
 )
 

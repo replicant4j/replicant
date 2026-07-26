@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.DISABLE)
 public abstract class ReplicaEntry extends ReplicantService {
     @NonNull
-    private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
+    private final Map<DatasetAddress, Subscription> _subscriptions = new HashMap<>();
     /**
      * A human consumable name for the Replica Entry. It should be non-null if {@link Replicant#areNamesEnabled()} returns
      * true and <tt>null</tt> otherwise.
@@ -130,7 +130,7 @@ public abstract class ReplicaEntry extends ReplicantService {
      * Link to subscription if not already subscribed, ignore otherwise.
      */
     void tryLinkToSubscription(@NonNull final Subscription subscription) {
-        if (!_subscriptions.containsKey(subscription.address())) {
+        if (!_subscriptions.containsKey(subscription.datasetAddress())) {
             linkToSubscription(subscription);
         }
     }
@@ -146,7 +146,7 @@ public abstract class ReplicaEntry extends ReplicantService {
                     () -> null == subscription.findReplicaEntryByTypeAndId(getType(), getId()),
                     () -> "Replicant-0080: ReplicaEntry.linkToSubscription invoked on Replica Entry " + this
                             + " passing subscription "
-                            + subscription.address() + " but Replica Entry is already linked to subscription.");
+                            + subscription.datasetAddress() + " but Replica Entry is already linked to subscription.");
         }
         linkReplicaEntryToSubscription(subscription);
         subscription.linkSubscriptionToReplicaEntry(this);
@@ -154,9 +154,9 @@ public abstract class ReplicaEntry extends ReplicantService {
 
     private void linkReplicaEntryToSubscription(@NonNull final Subscription subscription) {
         getSubscriptionsObservableValue().preReportChanged();
-        final ChannelAddress address = subscription.address();
-        if (!_subscriptions.containsKey(address)) {
-            _subscriptions.put(address, subscription);
+        final DatasetAddress datasetAddress = subscription.datasetAddress();
+        if (!_subscriptions.containsKey(datasetAddress)) {
+            _subscriptions.put(datasetAddress, subscription);
             getSubscriptionsObservableValue().reportChanged();
         }
     }
@@ -178,7 +178,7 @@ public abstract class ReplicaEntry extends ReplicantService {
                     () -> "Replicant-0018: ReplicaEntry.delinkFromFilteringSubscription invoked on Replica Entry "
                             + this
                             + " passing subscription "
-                            + subscription.address() + " but subscription is " + "not filtered.");
+                            + subscription.datasetAddress() + " but subscription is " + "not filtered.");
         }
         delinkFromSubscription(subscription);
     }
@@ -194,7 +194,7 @@ public abstract class ReplicaEntry extends ReplicantService {
                     () -> null != subscription.findReplicaEntryByTypeAndId(getType(), getId()),
                     () -> "Replicant-0081: ReplicaEntry.delinkFromSubscription invoked on Replica Entry " + this
                             + " passing subscription "
-                            + subscription.address() + " but Replica Entry is not linked to subscription.");
+                            + subscription.datasetAddress() + " but Replica Entry is not linked to subscription.");
         }
         delinkSubscriptionFromReplicaEntry(subscription, false);
         subscription.delinkReplicaEntryFromSubscription(this, false);
@@ -215,13 +215,14 @@ public abstract class ReplicaEntry extends ReplicantService {
     private void delinkSubscriptionFromReplicaEntry(
             @NonNull final Subscription subscription, final boolean disposeIfNoSubscriptions) {
         getSubscriptionsObservableValue().preReportChanged();
-        final ChannelAddress address = subscription.address();
-        final Subscription candidate = _subscriptions.remove(address);
+        final DatasetAddress datasetAddress = subscription.datasetAddress();
+        final Subscription candidate = _subscriptions.remove(datasetAddress);
         getSubscriptionsObservableValue().reportChanged();
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> null != candidate,
-                    () -> "Unable to locate subscription for channel " + address + " on Replica Entry " + this);
+                    () -> "Unable to locate subscription for Dataset Address " + datasetAddress + " on Replica Entry "
+                            + this);
         }
         if (disposeIfNoSubscriptions) {
             disposeReplicaEntryIfNoSubscriptions();
@@ -243,7 +244,7 @@ public abstract class ReplicaEntry extends ReplicantService {
                 final ChannelSchema schema = subscription.getChannelSchema();
                 if (schema.isInstanceChannel()
                         && (schema.getInstanceType() == getType())
-                        && (Objects.equals(subscription.address().rootId(), getId()))) {
+                        && (Objects.equals(subscription.datasetAddress().datasetRootId(), getId()))) {
                     // If there is any subscription that this Replica is the instance root of, then explicitly dispose
                     // it.
                     // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but
@@ -277,7 +278,7 @@ public abstract class ReplicaEntry extends ReplicantService {
         }
     }
 
-    Map<ChannelAddress, Subscription> subscriptions() {
+    Map<DatasetAddress, Subscription> subscriptions() {
         return _subscriptions;
     }
 }

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 
 /**
  * Notification when an AreaOfInterest status has been updated.
@@ -28,10 +28,10 @@ public final class AreaOfInterestStatusUpdatedEvent implements SerializableEvent
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "AreaOfInterest.StatusUpdated");
         final AreaOfInterest areaOfInterest = getAreaOfInterest();
-        final ChannelAddress address = areaOfInterest.getAddress();
-        map.put("channel.schemaId", address.schemaId());
-        map.put("channel.channelId", address.channelId());
-        map.put("channel.rootId", address.rootId());
+        final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
+        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.datasetId", datasetAddress.datasetId());
+        map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("channel.filter", areaOfInterest.getFilter());
     }
 }

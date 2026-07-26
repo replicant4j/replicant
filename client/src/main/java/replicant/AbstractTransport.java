@@ -59,32 +59,34 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void requestSubscribe(@NonNull final ChannelAddress address, @Nullable final Object filter) {
-        final int requestId = newRequestId(toRequestKey("Subscribe", address), null);
-        sendRemoteMessage(SubscribeMessage.create(requestId, address.asChannelDescriptor(), filter));
+    public final void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        final int requestId = newRequestId(toRequestKey("Subscribe", datasetAddress), null);
+        sendRemoteMessage(SubscribeMessage.create(requestId, datasetAddress.asDatasetAddressDescriptor(), filter));
     }
 
     @Override
-    public final void requestUnsubscribe(@NonNull final ChannelAddress address) {
-        final int requestId = newRequestId(toRequestKey("Unsubscribe", address), null);
-        sendRemoteMessage(UnsubscribeMessage.create(requestId, address.asChannelDescriptor()));
+    public final void requestUnsubscribe(@NonNull final DatasetAddress datasetAddress) {
+        final int requestId = newRequestId(toRequestKey("Unsubscribe", datasetAddress), null);
+        sendRemoteMessage(UnsubscribeMessage.create(requestId, datasetAddress.asDatasetAddressDescriptor()));
     }
 
     @Override
     public final void requestBulkSubscribe(
-            @NonNull final List<ChannelAddress> addresses, @Nullable final Object filter) {
-        final int requestId = newRequestId(toRequestKey("BulkSubscribe", addresses), null);
-        final String[] channels =
-                addresses.stream().map(ChannelAddress::asChannelDescriptor).toArray(String[]::new);
-        sendRemoteMessage(BulkSubscribeMessage.create(requestId, channels, filter));
+            @NonNull final List<DatasetAddress> datasetAddresses, @Nullable final Object filter) {
+        final int requestId = newRequestId(toRequestKey("BulkSubscribe", datasetAddresses), null);
+        final String[] datasetAddressDescriptors = datasetAddresses.stream()
+                .map(DatasetAddress::asDatasetAddressDescriptor)
+                .toArray(String[]::new);
+        sendRemoteMessage(BulkSubscribeMessage.create(requestId, datasetAddressDescriptors, filter));
     }
 
     @Override
-    public final void requestBulkUnsubscribe(@NonNull final List<ChannelAddress> addresses) {
-        final int requestId = newRequestId(toRequestKey("BulkUnsubscribe", addresses), null);
-        final String[] channels =
-                addresses.stream().map(ChannelAddress::asChannelDescriptor).toArray(String[]::new);
-        sendRemoteMessage(BulkUnsubscribeMessage.create(requestId, channels));
+    public final void requestBulkUnsubscribe(@NonNull final List<DatasetAddress> datasetAddresses) {
+        final int requestId = newRequestId(toRequestKey("BulkUnsubscribe", datasetAddresses), null);
+        final String[] datasetAddressDescriptors = datasetAddresses.stream()
+                .map(DatasetAddress::asDatasetAddressDescriptor)
+                .toArray(String[]::new);
+        sendRemoteMessage(BulkUnsubscribeMessage.create(requestId, datasetAddressDescriptors));
     }
 
     @Override
@@ -122,18 +124,18 @@ public abstract class AbstractTransport implements Transport {
 
     @Nullable
     private String toRequestKey(
-            @NonNull final String requestType, @NonNull final Collection<ChannelAddress> addresses) {
+            @NonNull final String requestType, @NonNull final Collection<DatasetAddress> datasetAddresses) {
         if (Replicant.areNamesEnabled()) {
-            final ChannelAddress address = addresses.iterator().next();
-            return requestType + ":" + address.getName();
+            final DatasetAddress datasetAddress = datasetAddresses.iterator().next();
+            return requestType + ":" + datasetAddress.getName();
         } else {
             return null;
         }
     }
 
     @Nullable
-    private String toRequestKey(@NonNull final String requestType, @NonNull final ChannelAddress address) {
-        return Replicant.areNamesEnabled() ? requestType + ":" + address : null;
+    private String toRequestKey(@NonNull final String requestType, @NonNull final DatasetAddress datasetAddress) {
+        return Replicant.areNamesEnabled() ? requestType + ":" + datasetAddress : null;
     }
 
     private int newRequestId(@Nullable final String name, @Nullable final ResponseHandler responseHandler) {

@@ -5,24 +5,24 @@ import static org.testng.Assert.*;
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 
 public class UnsubscribeRequestQueuedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        final ChannelAddress address = new ChannelAddress(1, 2);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 2);
 
-        final UnsubscribeRequestQueuedEvent event = new UnsubscribeRequestQueuedEvent(address);
+        final UnsubscribeRequestQueuedEvent event = new UnsubscribeRequestQueuedEvent(datasetAddress);
 
-        assertEquals(event.getAddress(), address);
+        assertEquals(event.getDatasetAddress(), datasetAddress);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.UnsubscribeRequestQueued");
-        assertEquals(data.get("channel.schemaId"), 1);
-        assertEquals(data.get("channel.channelId"), 2);
-        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("datasetAddress.schemaId"), 1);
+        assertEquals(data.get("datasetAddress.datasetId"), 2);
+        assertNull(data.get("datasetAddress.datasetRootId"));
         assertEquals(data.size(), 4);
     }
 }

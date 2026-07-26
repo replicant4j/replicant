@@ -4,12 +4,12 @@ import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 
 public class ChannelCacheEntryTest {
     @Test
     public void basicOperation() {
-        final var descriptor = ChannelAddress.of(1, null);
+        final var descriptor = DatasetAddress.of(1, null);
         final var entry = new ChannelCacheEntry(descriptor);
         assertEquals(entry.getDescriptor(), descriptor);
 

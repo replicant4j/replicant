@@ -24,6 +24,15 @@
   * Rename the client validation setting to `replicant.validateReplicasOnLoad`.
   This hard-cut API migration preserves behavior and the wire protocol; Entity Type definitions, Entity changes, and
   server-side Entity terminology remain unchanged.
+* Adopt Dataset Address terminology across the client and server APIs, runtime, transport parsing and formatting,
+  caches, diagnostics, tests, Domgen templates, and generated integrations:
+  * Rename client and server `ChannelAddress` to `DatasetAddress`, and generated `getGraphAddress` utilities to
+    `getDatasetAddress`.
+  * Rename address components and address-specific APIs from `channelId` and `rootId` to `datasetId` and
+    `datasetRootId`, and use Dataset Address terminology for address values and collections.
+  This hard-cut API migration preserves serialized address descriptors and the wire protocol, including ordering and
+  partial/concrete address behavior. `ChannelSchema`, `ChannelMetaData`, Domgen `ReplicationGraph`, and subscription
+  operation message fields remain unchanged.
 
 ### [v6.203](https://github.com/replicant4j/replicant/tree/v6.203) (2026-07-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.202...v6.203)
 

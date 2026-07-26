@@ -25,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.ChannelAction;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession implements Serializable, Closeable {
@@ -39,13 +39,13 @@ public final class ReplicantSession implements Serializable, Closeable {
     private final ReplicantSessionAuthorization _authorization;
 
     @NonNull
-    private final Map<ChannelAddress, String> _eTags = new HashMap<>();
+    private final Map<DatasetAddress, String> _eTags = new HashMap<>();
 
     @NonNull
-    private final Map<ChannelAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
+    private final Map<DatasetAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
 
     @NonNull
-    private final Map<ChannelKey, Set<SubscriptionEntry>> _subscriptionsByChannel = new HashMap<>();
+    private final Map<DatasetRootKey, Set<SubscriptionEntry>> _subscriptionsByDatasetRoot = new HashMap<>();
 
     @NonNull
     private final BlockingQueue<Packet> _pendingSubscriptionPackets = new LinkedBlockingQueue<>();
@@ -269,12 +269,12 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     @Nullable
-    String getETag(@NonNull final ChannelAddress address) {
-        assert address.concrete();
-        return _eTags.get(address);
+    String getETag(@NonNull final DatasetAddress datasetAddress) {
+        assert datasetAddress.concrete();
+        return _eTags.get(datasetAddress);
     }
 
-    public void setETags(@NonNull final Map<ChannelAddress, String> etags) {
+    public void setETags(@NonNull final Map<DatasetAddress, String> etags) {
         ensureLockedByCurrentThread();
         _eTags.clear();
         for (final var etag : etags.entrySet()) {
@@ -282,13 +282,13 @@ public final class ReplicantSession implements Serializable, Closeable {
         }
     }
 
-    void setETag(@NonNull final ChannelAddress address, @Nullable final String eTag) {
+    void setETag(@NonNull final DatasetAddress datasetAddress, @Nullable final String eTag) {
         ensureLockedByCurrentThread();
-        assert address.concrete();
+        assert datasetAddress.concrete();
         if (null == eTag) {
-            _eTags.remove(address);
+            _eTags.remove(datasetAddress);
         } else {
-            _eTags.put(address, eTag);
+            _eTags.put(datasetAddress, eTag);
         }
     }
 
@@ -297,12 +297,13 @@ public final class ReplicantSession implements Serializable, Closeable {
      */
     @SuppressWarnings("WeakerAccess")
     @NonNull
-    SubscriptionEntry getSubscriptionEntry(@NonNull final ChannelAddress address) {
+    SubscriptionEntry getSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
         ensureLockedByCurrentThread();
-        assert address.concrete();
-        final var entry = findSubscriptionEntry(address);
+        assert datasetAddress.concrete();
+        final var entry = findSubscriptionEntry(datasetAddress);
         if (null == entry) {
-            throw new IllegalStateException("Unable to locate subscription entry for " + address);
+            throw new IllegalStateException(
+                    "Unable to locate subscription entry for Dataset Address " + datasetAddress);
         }
         return entry;
     }
@@ -311,19 +312,20 @@ public final class ReplicantSession implements Serializable, Closeable {
      * Configure the subscription entries to reflect a graph-scoped downstream dependency.
      *
      * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
-     * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
-     * session and the target must be a concrete type-graph address.</p>
+     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already be concrete subscriptions in this
+     * session and the target must be a concrete Type Dataset Address.</p>
      */
-    public void recordGraphScopedGraphLink(@NonNull final ChannelAddress source, @NonNull final ChannelAddress target) {
-        assert !target.hasRootId();
-        recordGraphLink(source, target, LinkOwner.graph());
+    public void recordGraphScopedGraphLink(
+            @NonNull final DatasetAddress sourceDatasetAddress, @NonNull final DatasetAddress targetDatasetAddress) {
+        assert !targetDatasetAddress.hasDatasetRootId();
+        recordGraphLink(sourceDatasetAddress, targetDatasetAddress, LinkOwner.graph());
     }
 
     /**
      * Configure the subscription entries to reflect an entity-scoped downstream dependency.
      *
      * <p>This API is intended for downstream application code that needs to record an entity-scoped dependency after
-     * subscribing to both addresses. The source and target addresses must already be concrete subscriptions in this
+     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already be concrete subscriptions in this
      * session.</p>
      *
      * <p>Entity-owned links, including links that resolve to instance graphs, are managed internally by Replicant's
@@ -331,21 +333,21 @@ public final class ReplicantSession implements Serializable, Closeable {
      * hooks to optimize data loads.</p>
      */
     public void recordEntityScopedGraphLink(
-            @NonNull final ChannelAddress source,
-            @NonNull final ChannelAddress target,
+            @NonNull final DatasetAddress sourceDatasetAddress,
+            @NonNull final DatasetAddress targetDatasetAddress,
             final int entityTypeId,
             final int entityId) {
-        recordGraphLink(source, target, LinkOwner.entity(entityTypeId, entityId));
+        recordGraphLink(sourceDatasetAddress, targetDatasetAddress, LinkOwner.entity(entityTypeId, entityId));
     }
 
     private void recordGraphLink(
-            @NonNull final ChannelAddress source,
-            @NonNull final ChannelAddress target,
+            @NonNull final DatasetAddress sourceDatasetAddress,
+            @NonNull final DatasetAddress targetDatasetAddress,
             @NonNull final LinkOwner owner) {
-        InvariantUtil.assertConcreteAddress(source);
-        InvariantUtil.assertConcreteAddress(target);
-        final var sourceEntry = getSubscriptionEntry(source);
-        final var targetEntry = getSubscriptionEntry(target);
+        InvariantUtil.assertConcreteDatasetAddress(sourceDatasetAddress);
+        InvariantUtil.assertConcreteDatasetAddress(targetDatasetAddress);
+        final var sourceEntry = getSubscriptionEntry(sourceDatasetAddress);
+        final var targetEntry = getSubscriptionEntry(targetDatasetAddress);
         recordGraphLink(sourceEntry, targetEntry, owner);
     }
 
@@ -353,109 +355,114 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionEntry targetEntry,
             @NonNull final LinkOwner owner) {
-        InvariantUtil.assertConcreteAddress(sourceEntry.address());
-        InvariantUtil.assertConcreteAddress(targetEntry.address());
-        assert !owner.isGraphScoped() || !targetEntry.address().hasRootId();
-        final var added = sourceEntry.registerOutwardSubscriptions(owner, targetEntry.address());
+        InvariantUtil.assertConcreteDatasetAddress(sourceEntry.datasetAddress());
+        InvariantUtil.assertConcreteDatasetAddress(targetEntry.datasetAddress());
+        assert !owner.isGraphScoped() || !targetEntry.datasetAddress().hasDatasetRootId();
+        final var added = sourceEntry.registerOutwardSubscriptions(owner, targetEntry.datasetAddress());
         if (0 != added.length) {
-            targetEntry.registerInwardSubscriptions(sourceEntry.address());
+            targetEntry.registerInwardSubscriptions(sourceEntry.datasetAddress());
         }
     }
 
     public void recordSubscriptions(
             @NonNull final ChangeSet changeSet,
-            @NonNull final Collection<ChannelAddress> addresses,
+            @NonNull final Collection<DatasetAddress> datasetAddresses,
             @Nullable final JsonObject filter,
             final boolean explicitSubscribe) {
-        for (final var address : addresses) {
-            recordSubscription(changeSet, address, filter, explicitSubscribe);
+        for (final var datasetAddress : datasetAddresses) {
+            recordSubscription(changeSet, datasetAddress, filter, explicitSubscribe);
         }
     }
 
     public void recordSubscription(
             @NonNull final ChangeSet changeSet,
-            @NonNull final ChannelAddress address,
+            @NonNull final DatasetAddress datasetAddress,
             @Nullable final JsonObject filter,
             final boolean explicitSubscribe) {
-        assert address.concrete();
-        final var existing = findSubscriptionEntry(address);
-        final var entry = null == existing ? createSubscriptionEntry(address) : existing;
+        assert datasetAddress.concrete();
+        final var existing = findSubscriptionEntry(datasetAddress);
+        final var entry = null == existing ? createSubscriptionEntry(datasetAddress) : existing;
         if (explicitSubscribe) {
             entry.setExplicitlySubscribed(true);
         }
         entry.setFilter(filter);
         changeSet.mergeAction(
-                address, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter);
+                datasetAddress, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter);
     }
 
     @Nullable
-    public JsonObject getFilter(@NonNull final ChannelAddress address) {
-        assert address.concrete();
-        return getSubscriptionEntry(address).getFilter();
+    public JsonObject getFilter(@NonNull final DatasetAddress datasetAddress) {
+        assert datasetAddress.concrete();
+        return getSubscriptionEntry(datasetAddress).getFilter();
     }
 
-    public void setFilter(@NonNull final ChannelAddress address, @Nullable final JsonObject filter) {
-        assert address.concrete();
-        getSubscriptionEntry(address).setFilter(filter);
+    public void setFilter(@NonNull final DatasetAddress datasetAddress, @Nullable final JsonObject filter) {
+        assert datasetAddress.concrete();
+        getSubscriptionEntry(datasetAddress).setFilter(filter);
     }
 
     /**
-     * Create and return a subscription entry for specified channel.
+     * Create and return a subscription entry for the specified Dataset Address.
      *
      * @throws IllegalStateException if subscription already exists.
      */
     @NonNull
-    SubscriptionEntry createSubscriptionEntry(@NonNull final ChannelAddress address) {
-        assert address.concrete();
-        if (!_subscriptions.containsKey(address)) {
+    SubscriptionEntry createSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
+        assert datasetAddress.concrete();
+        if (!_subscriptions.containsKey(datasetAddress)) {
             LOG.log(
                     Level.FINE,
-                    () -> "Creating subscription entry for replicant session " + getId() + " on address " + address);
-            final var entry = new SubscriptionEntry(this, address);
-            _subscriptions.put(address, entry);
-            _subscriptionsByChannel
-                    .computeIfAbsent(new ChannelKey(address.channelId(), address.rootId()), key -> new HashSet<>())
+                    () -> "Creating subscription entry for replicant session " + getId() + " at Dataset Address "
+                            + datasetAddress);
+            final var entry = new SubscriptionEntry(this, datasetAddress);
+            _subscriptions.put(datasetAddress, entry);
+            _subscriptionsByDatasetRoot
+                    .computeIfAbsent(
+                            new DatasetRootKey(datasetAddress.datasetId(), datasetAddress.datasetRootId()),
+                            key -> new HashSet<>())
                     .add(entry);
             return entry;
         } else {
-            throw new IllegalStateException("SubscriptionEntry for channel " + address + " already exists");
+            throw new IllegalStateException(
+                    "SubscriptionEntry for Dataset Address " + datasetAddress + " already exists");
         }
     }
 
     /**
-     * Return subscription entry for specified channel.
+     * Return the subscription entry for the specified Dataset Address.
      */
     @Nullable
-    SubscriptionEntry findSubscriptionEntry(@NonNull final ChannelAddress address) {
+    SubscriptionEntry findSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
         ensureLockedByCurrentThread();
-        assert address.concrete();
-        return _subscriptions.get(address);
+        assert datasetAddress.concrete();
+        return _subscriptions.get(datasetAddress);
     }
 
     /**
-     * Return true if specified channel is present.
+     * Return true if the specified Dataset Address is present.
      */
-    public boolean isSubscriptionEntryPresent(@NonNull final ChannelAddress address) {
+    public boolean isSubscriptionEntryPresent(@NonNull final DatasetAddress datasetAddress) {
         ensureLockedByCurrentThread();
-        return null != findSubscriptionEntry(address);
+        return null != findSubscriptionEntry(datasetAddress);
     }
 
     @NonNull
-    List<SubscriptionEntry> findSubscriptionEntries(final int channelId, @Nullable final Integer rootId) {
+    List<SubscriptionEntry> findSubscriptionEntries(final int datasetId, @Nullable final Integer datasetRootId) {
         ensureLockedByCurrentThread();
-        final var entries = _subscriptionsByChannel.get(new ChannelKey(channelId, rootId));
+        final var entries = _subscriptionsByDatasetRoot.get(new DatasetRootKey(datasetId, datasetRootId));
         return null == entries ? Collections.emptyList() : entries.stream().toList();
     }
 
-    void bulkUnsubscribe(@NonNull final List<ChannelAddress> addresses, @NonNull final ChangeSet sessionChanges) {
-        for (final var address : addresses) {
-            assert address.concrete();
-            unsubscribe(address, sessionChanges);
+    void bulkUnsubscribe(
+            @NonNull final List<DatasetAddress> datasetAddresses, @NonNull final ChangeSet sessionChanges) {
+        for (final var datasetAddress : datasetAddresses) {
+            assert datasetAddress.concrete();
+            unsubscribe(datasetAddress, sessionChanges);
         }
     }
 
-    private void unsubscribe(@NonNull final ChannelAddress address, @NonNull final ChangeSet changeSet) {
-        final var entry = findSubscriptionEntry(address);
+    private void unsubscribe(@NonNull final DatasetAddress datasetAddress, @NonNull final ChangeSet changeSet) {
+        final var entry = findSubscriptionEntry(datasetAddress);
         if (null != entry) {
             performUnsubscribe(entry, true, false, changeSet);
         }
@@ -466,12 +473,13 @@ public final class ReplicantSession implements Serializable, Closeable {
             final boolean explicitUnsubscribe,
             final boolean delete,
             @NonNull final ChangeSet changeSet) {
-        assert entry.address().concrete();
+        assert entry.datasetAddress().concrete();
         if (explicitUnsubscribe) {
             entry.setExplicitlySubscribed(false);
         }
         if (entry.canUnsubscribe()) {
-            changeSet.mergeAction(entry.address(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE);
+            changeSet.mergeAction(
+                    entry.datasetAddress(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE);
             for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptions())) {
                 delinkAllDownstreamSubscription(entry, downstream, changeSet);
             }
@@ -480,8 +488,8 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     public void delinkDownstreamSubscription(
-            @NonNull final ChannelAddress upstream,
-            @NonNull final ChannelAddress downstream,
+            @NonNull final DatasetAddress upstream,
+            @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
         assert upstream.concrete();
         assert downstream.concrete();
@@ -491,15 +499,15 @@ public final class ReplicantSession implements Serializable, Closeable {
     void delinkDownstreamSubscription(
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final LinkOwner owner,
-            @NonNull final ChannelAddress downstream,
+            @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.address().concrete();
+        assert sourceEntry.datasetAddress().concrete();
         assert downstream.concrete();
         final var removed = sourceEntry.deregisterOutwardSubscriptions(owner, downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);
             if (null != downstreamEntry) {
-                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.address());
+                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.datasetAddress());
                 performUnsubscribe(downstreamEntry, false, false, changeSet);
             }
         }
@@ -509,7 +517,7 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final LinkOwner owner,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.address().concrete();
+        assert sourceEntry.datasetAddress().concrete();
         for (final var downstream : new ArrayList<>(sourceEntry.getOwnedOutwardSubscriptions(owner))) {
             delinkDownstreamSubscription(sourceEntry, owner, downstream, changeSet);
         }
@@ -517,15 +525,15 @@ public final class ReplicantSession implements Serializable, Closeable {
 
     private void delinkAllDownstreamSubscription(
             @NonNull final SubscriptionEntry sourceEntry,
-            @NonNull final ChannelAddress downstream,
+            @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.address().concrete();
+        assert sourceEntry.datasetAddress().concrete();
         assert downstream.concrete();
         final var removed = sourceEntry.deregisterAllOutwardSubscriptions(downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);
             if (null != downstreamEntry) {
-                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.address());
+                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.datasetAddress());
                 performUnsubscribe(downstreamEntry, false, false, changeSet);
             }
         }
@@ -536,28 +544,29 @@ public final class ReplicantSession implements Serializable, Closeable {
      */
     boolean deleteSubscriptionEntry(@NonNull final SubscriptionEntry entry) {
         ensureLockedByCurrentThread();
-        final var address = entry.address();
-        final var removed = null != _subscriptions.remove(address);
+        final var datasetAddress = entry.datasetAddress();
+        final var removed = null != _subscriptions.remove(datasetAddress);
         if (removed) {
-            final var key = new ChannelKey(address.channelId(), address.rootId());
-            final var entries = _subscriptionsByChannel.get(key);
+            final var key = new DatasetRootKey(datasetAddress.datasetId(), datasetAddress.datasetRootId());
+            final var entries = _subscriptionsByDatasetRoot.get(key);
             if (null != entries) {
                 entries.remove(entry);
                 if (entries.isEmpty()) {
-                    _subscriptionsByChannel.remove(key);
+                    _subscriptionsByDatasetRoot.remove(key);
                 }
             }
             LOG.log(
                     Level.FINE,
-                    () -> "Removed subscription entry for replicant session " + getId() + " on address " + address);
+                    () -> "Removed subscription entry for replicant session " + getId() + " at Dataset Address "
+                            + datasetAddress);
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Attempted to remove subscription entry for replicant session " + getId() + " on address "
-                            + address + " but no such subscription existed");
+                    () -> "Attempted to remove subscription entry for replicant session " + getId()
+                            + " at Dataset Address " + datasetAddress + " but no such subscription existed");
         }
         return removed;
     }
 
-    private record ChannelKey(int channelId, @Nullable Integer rootId) {}
+    private record DatasetRootKey(int datasetId, @Nullable Integer datasetRootId) {}
 }

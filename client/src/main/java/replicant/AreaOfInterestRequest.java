@@ -14,7 +14,7 @@ final class AreaOfInterestRequest {
     }
 
     @NonNull
-    private final ChannelAddress _address;
+    private final DatasetAddress _datasetAddress;
 
     @NonNull
     private final Type _type;
@@ -25,22 +25,23 @@ final class AreaOfInterestRequest {
     private int _requestId;
 
     AreaOfInterestRequest(
-            @NonNull final ChannelAddress address, @NonNull final Type type, @Nullable final Object filter) {
+            @NonNull final DatasetAddress datasetAddress, @NonNull final Type type, @Nullable final Object filter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> type != Type.REMOVE || null == filter,
-                    () -> "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE " + "request for address '"
-                            + address + "' with a non-null filter '" + filter + "'.");
+                    () -> "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE "
+                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "'.");
         }
-        _address = Objects.requireNonNull(address);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
         _type = Objects.requireNonNull(type);
         _filter = filter;
         _requestId = -1;
     }
 
     @NonNull
-    ChannelAddress getAddress() {
-        return _address;
+    DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     @NonNull
@@ -69,19 +70,20 @@ final class AreaOfInterestRequest {
         _requestId = -1;
     }
 
-    boolean match(@NonNull final Type action, @NonNull final ChannelAddress address, @Nullable final Object filter) {
+    boolean match(
+            @NonNull final Type action, @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
         return getType().equals(action)
-                && getAddress().equals(address)
+                && getDatasetAddress().equals(datasetAddress)
                 && (Type.REMOVE == action || FilterUtil.filtersEqual(filter, getFilter()));
     }
 
     @Override
     public String toString() {
         if (Replicant.areNamesEnabled()) {
-            final ChannelAddress address = getAddress();
+            final DatasetAddress datasetAddress = getDatasetAddress();
             return "AreaOfInterestRequest[" + "Type="
                     + _type + " Address="
-                    + address + (null == _filter ? "" : " Filter=" + FilterUtil.filterToString(_filter))
+                    + datasetAddress + (null == _filter ? "" : " Filter=" + FilterUtil.filterToString(_filter))
                     + "]" + (-1 != _requestId ? "(InProgress)" : "");
         } else {
             return super.toString();

@@ -17,7 +17,7 @@ import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 import replicant.server.transport.ChannelMetaData;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionAuthorization;
@@ -208,12 +208,12 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.command(fixture.session, command.toString());
 
         @SuppressWarnings("unchecked")
-        final var captor = (org.mockito.ArgumentCaptor<Map<ChannelAddress, String>>)
+        final var captor = (org.mockito.ArgumentCaptor<Map<DatasetAddress, String>>)
                 (Object) org.mockito.ArgumentCaptor.forClass(Map.class);
         verify(fixture.sessionManager).setETags(eq(fixture.replicantSession), captor.capture());
         final var captured = captor.getValue();
-        assertEquals(captured.get(ChannelAddress.of(1)), "e1");
-        assertEquals(captured.get(ChannelAddress.of(2, 3, "fi")), "e2");
+        assertEquals(captured.get(DatasetAddress.of(1)), "e1");
+        assertEquals(captured.get(DatasetAddress.of(2, 3, "fi")), "e2");
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
@@ -241,7 +241,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
-                .subscribe(fixture.replicantSession, 1, Collections.singletonList(ChannelAddress.of(0)), null);
+                .subscribe(fixture.replicantSession, 1, Collections.singletonList(DatasetAddress.of(0)), null);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
@@ -254,7 +254,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
-                .subscribe(fixture.replicantSession, 2, Collections.singletonList(ChannelAddress.of(1, 5)), filter);
+                .subscribe(fixture.replicantSession, 2, Collections.singletonList(DatasetAddress.of(1, 5)), filter);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
@@ -267,37 +267,39 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
-                .subscribe(fixture.replicantSession, 3, Collections.singletonList(ChannelAddress.of(0)), null);
+                .subscribe(fixture.replicantSession, 3, Collections.singletonList(DatasetAddress.of(0)), null);
     }
 
     @Test
     public void command_subscribe_internalChannel() throws Exception {
-        assertInvalidSubscribe("3", "Attempted to subscribe to internal-only channel");
+        assertInvalidSubscribe("3", "Attempted to subscribe to an internal-only Dataset");
     }
 
     @Test
     public void command_subscribe_typeWithRoot() throws Exception {
-        assertInvalidSubscribe("0.1", "Attempted to subscribe to type channel with instance data");
+        assertInvalidSubscribe(
+                "0.1", "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
     }
 
     @Test
     public void command_subscribe_instanceWithoutRoot() throws Exception {
-        assertInvalidSubscribe("1", "Attempted to subscribe to instance channel without instance data");
+        assertInvalidSubscribe(
+                "1", "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
     }
 
     @Test
     public void command_subscribe_keyedWithoutDatasetKey() throws Exception {
-        assertInvalidSubscribe("2.7", "Attempted to use keyed channel without dataset key");
+        assertInvalidSubscribe("2.7", "Attempted to use a Dataset Address without a required Dataset Key");
     }
 
     @Test
     public void command_subscribe_staticKeyedWithoutDatasetKey() throws Exception {
-        assertInvalidSubscribe("4.7", "Attempted to use keyed channel without dataset key");
+        assertInvalidSubscribe("4.7", "Attempted to use a Dataset Address without a required Dataset Key");
     }
 
     @Test
     public void command_subscribe_nonKeyedWithDatasetKey() throws Exception {
-        assertInvalidSubscribe("1.5#fi", "Attempted to use non-keyed channel with dataset key");
+        assertInvalidSubscribe("1.5#fi", "Attempted to use a Dataset Address with an unexpected Dataset Key");
     }
 
     @Test
@@ -310,7 +312,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager)
                 .subscribe(
-                        fixture.replicantSession, 5, Collections.singletonList(ChannelAddress.of(4, 7, "fi")), filter);
+                        fixture.replicantSession, 5, Collections.singletonList(DatasetAddress.of(4, 7, "fi")), filter);
     }
 
     @Test
@@ -328,7 +330,7 @@ public final class ReplicantEndpointTest {
 
         fixture.endpoint.command(fixture.session, command.toString());
 
-        final var expected = Arrays.asList(ChannelAddress.of(2, 7, "fi"), ChannelAddress.of(2, 8, "fi2"));
+        final var expected = Arrays.asList(DatasetAddress.of(2, 7, "fi"), DatasetAddress.of(2, 8, "fi2"));
         verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filter);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
@@ -370,7 +372,7 @@ public final class ReplicantEndpointTest {
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
         assertEquals(
                 response.getString(Messages.S2C_Common.MESSAGE),
-                "Bulk channel subscribe included addresses from multiple channels");
+                "Bulk subscribe included Dataset Addresses from multiple Datasets");
     }
 
     @Test
@@ -385,7 +387,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
-                .unsubscribe(fixture.replicantSession, 7, Collections.singletonList(ChannelAddress.of(1, 5)));
+                .unsubscribe(fixture.replicantSession, 7, Collections.singletonList(DatasetAddress.of(1, 5)));
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
@@ -419,7 +421,7 @@ public final class ReplicantEndpointTest {
 
         fixture.endpoint.command(fixture.session, command.toString());
 
-        final var expected = Arrays.asList(ChannelAddress.of(1, 1), ChannelAddress.of(1, 2));
+        final var expected = Arrays.asList(DatasetAddress.of(1, 1), DatasetAddress.of(1, 2));
         verify(fixture.sessionManager).unsubscribe(fixture.replicantSession, 8, expected);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
@@ -446,7 +448,7 @@ public final class ReplicantEndpointTest {
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
         assertEquals(
                 response.getString(Messages.S2C_Common.MESSAGE),
-                "Bulk channel unsubscribe included addresses from multiple channels");
+                "Bulk unsubscribe included Dataset Addresses from multiple Datasets");
     }
 
     @Test
@@ -467,9 +469,10 @@ public final class ReplicantEndpointTest {
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE);
     }
 
-    private void assertInvalidSubscribe(@NonNull final String address, @NonNull final String message) throws Exception {
+    private void assertInvalidSubscribe(@NonNull final String datasetAddress, @NonNull final String message)
+            throws Exception {
         final var fixture = newFixture();
-        final var command = createSubscribeCommand(address, 2, null);
+        final var command = createSubscribeCommand(datasetAddress, 2, null);
 
         fixture.endpoint.command(fixture.session, command.toString());
 

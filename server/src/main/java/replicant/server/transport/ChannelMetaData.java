@@ -63,7 +63,7 @@ public final class ChannelMetaData {
         INTERNAL
     }
 
-    private final int _channelId;
+    private final int _datasetId;
 
     @NonNull
     private final String _name;
@@ -91,7 +91,7 @@ public final class ChannelMetaData {
     private final Set<ChannelMetaData> _dependentChannels = new HashSet<>();
 
     public ChannelMetaData(
-            final int channelId,
+            final int datasetId,
             @NonNull final String name,
             @Nullable final Integer instanceRootEntityTypeId,
             @NonNull final FilterType filterType,
@@ -99,7 +99,7 @@ public final class ChannelMetaData {
             @NonNull final CacheType cacheType,
             final boolean external,
             @NonNull final ChannelMetaData... requiredTypeGraphs) {
-        _channelId = channelId;
+        _datasetId = datasetId;
         _name = Objects.requireNonNull(name);
         _instanceRootEntityTypeId = instanceRootEntityTypeId;
         _filterType = Objects.requireNonNull(filterType);
@@ -116,8 +116,8 @@ public final class ChannelMetaData {
         }
     }
 
-    public int getChannelId() {
-        return _channelId;
+    public int getDatasetId() {
+        return _datasetId;
     }
 
     @NonNull

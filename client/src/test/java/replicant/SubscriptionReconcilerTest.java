@@ -109,8 +109,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final SubscriptionReconciler c = Replicant.context().getSubscriptionReconciler();
 
         safeAction(() -> {
-            final ChannelAddress address = new ChannelAddress(1, 0);
-            final AreaOfInterest areaOfInterest = Replicant.context().createOrUpdateAreaOfInterest(address, null);
+            final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+            final AreaOfInterest areaOfInterest =
+                    Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null);
 
             assertTrue(c.canGroup(
                     areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.ADD));
@@ -143,13 +144,15 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                     areaOfInterest,
                     AreaOfInterestRequest.Type.REMOVE));
 
-            final ChannelAddress channel2 = new ChannelAddress(1, 0, 2);
-            final AreaOfInterest areaOfInterest2 = Replicant.context().createOrUpdateAreaOfInterest(channel2, null);
+            final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
+            final AreaOfInterest areaOfInterest2 =
+                    Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null);
             assertTrue(c.canGroup(
                     areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest2, AreaOfInterestRequest.Type.ADD));
 
-            final ChannelAddress address3 = new ChannelAddress(1, 1, 1);
-            final AreaOfInterest areaOfInterest3 = Replicant.context().createOrUpdateAreaOfInterest(address3, null);
+            final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 1);
+            final AreaOfInterest areaOfInterest3 =
+                    Replicant.context().createOrUpdateAreaOfInterest(datasetAddress3, null);
             assertFalse(c.canGroup(
                     areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest3, AreaOfInterestRequest.Type.ADD));
             assertFalse(c.canGroup(
@@ -163,8 +166,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                     areaOfInterest3,
                     AreaOfInterestRequest.Type.REMOVE));
 
-            final ChannelAddress address4 = new ChannelAddress(1, 0, 1);
-            final AreaOfInterest areaOfInterest4 = Replicant.context().createOrUpdateAreaOfInterest(address4, "Filter");
+            final DatasetAddress datasetAddress4 = new DatasetAddress(1, 0, 1);
+            final AreaOfInterest areaOfInterest4 =
+                    Replicant.context().createOrUpdateAreaOfInterest(datasetAddress4, "Filter");
             assertFalse(c.canGroup(
                     areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD));
             areaOfInterest.setFilter("Filter");
@@ -181,10 +185,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            final Subscription subscription = createSubscription(address, null, true);
+            final Subscription subscription = createSubscription(datasetAddress, null, true);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -197,13 +201,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
             assertEquals(requests.size(), 1);
             final AreaOfInterestRequest request = requests.get(0);
             assertEquals(request.getType(), AreaOfInterestRequest.Type.REMOVE);
-            assertEquals(request.getAddress(), address);
+            assertEquals(request.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
 
             handler.assertNextEvent(
                     SubscriptionOrphanedEvent.class, e -> assertEquals(e.getSubscription(), subscription));
-            handler.assertNextEvent(UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+            handler.assertNextEvent(
+                    UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
         });
     }
 
@@ -215,16 +220,16 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            Replicant.context().createOrUpdateAreaOfInterest(new ChannelAddress(1, 1, 1), null);
-            Replicant.context().createOrUpdateAreaOfInterest(new ChannelAddress(1, 1, 2), null);
-            Replicant.context().createOrUpdateAreaOfInterest(new ChannelAddress(1, 1, 3), null);
-            Replicant.context().createOrUpdateAreaOfInterest(new ChannelAddress(1, 1, 4), null);
-            Replicant.context().createOrUpdateAreaOfInterest(new ChannelAddress(1, 1, 5), null);
+            Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 1), null);
+            Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 2), null);
+            Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 3), null);
+            Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 4), null);
+            Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 5), null);
 
-            final Subscription subscription = createSubscription(address, null, true);
+            final Subscription subscription = createSubscription(datasetAddress, null, true);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -237,23 +242,24 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
             assertEquals(requests.size(), 1);
             final AreaOfInterestRequest request = requests.get(0);
             assertEquals(request.getType(), AreaOfInterestRequest.Type.REMOVE);
-            assertEquals(request.getAddress(), address);
+            assertEquals(request.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
 
             handler.assertNextEvent(
                     SubscriptionOrphanedEvent.class, e -> assertEquals(e.getSubscription(), subscription));
-            handler.assertNextEvent(UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+            handler.assertNextEvent(
+                    UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
         });
     }
 
     @Test
     public void removeOrphanSubscriptions_whenConnectorDisconnected() {
         final Connector connector = createConnector();
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            createSubscription(address, null, true);
+            createSubscription(datasetAddress, null, true);
 
             connector.setState(ConnectorState.DISCONNECTED);
 
@@ -269,10 +275,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     public void removeOrphanSubscriptions_whenSubscriptionImplicit() {
         final Connector connector = createConnector();
         newConnection(connector);
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            createSubscription(address, null, false);
+            createSubscription(datasetAddress, null, false);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -288,14 +294,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     public void removeOrphanSubscriptions_whenSubscriptionExpected() {
         final Connector connector = createConnector();
         newConnection(connector);
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
 
             // Add expectation
-            Replicant.context().createOrUpdateAreaOfInterest(address, null);
+            Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null);
 
-            createSubscription(address, null, true);
+            createSubscription(datasetAddress, null, true);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -313,12 +319,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        createSubscription(address, null, true);
+        createSubscription(datasetAddress, null, true);
 
         // Enqueue remove request
-        connector.requestUnsubscribe(address);
+        connector.requestUnsubscribe(datasetAddress);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -335,9 +341,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -347,7 +353,8 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -356,10 +363,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
-        createSubscription(address, null, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
+        createSubscription(datasetAddress, null, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -381,12 +388,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, null));
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, null));
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final SubscriptionReconciler.Action result =
@@ -404,11 +411,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        connector.requestSubscribe(address, null);
+        connector.requestSubscribe(datasetAddress, null);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -439,13 +446,13 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final Object filter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, filter));
-        createSubscription(address, ValueUtil.randomString(), true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filter));
+        createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
-        connector.requestSubscriptionUpdate(address, filter);
+        connector.requestSubscriptionUpdate(datasetAddress, filter);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -476,11 +483,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, filter));
-        createSubscription(address, ValueUtil.randomString(), true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filter));
+        createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -491,7 +498,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateRequestQueuedEvent.class, e -> {
-            assertEquals(e.getAddress(), address);
+            assertEquals(e.getDatasetAddress(), datasetAddress);
             assertEquals(e.getFilter(), filter);
         });
     }
@@ -502,10 +509,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, filter));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filter));
 
         Disposable.dispose(areaOfInterest);
 
@@ -527,11 +534,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, null));
-        createSubscription(address, null, true);
-        connector.requestUnsubscribe(address);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
+        createSubscription(datasetAddress, null, true);
+        connector.requestUnsubscribe(datasetAddress);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -541,7 +548,8 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -563,10 +571,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
-        final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, ValueUtil.randomString()));
-        createSubscription(address, ValueUtil.randomString(), true);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final AreaOfInterest areaOfInterest = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, ValueUtil.randomString()));
+        createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -576,7 +584,8 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_REMOVE);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
+        handler.assertNextEvent(
+                UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -598,10 +607,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address = new ChannelAddress(1, 0);
-        final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address, ValueUtil.randomString()));
-        createSubscription(address, ValueUtil.randomString(), false);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final AreaOfInterest areaOfInterest = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, ValueUtil.randomString()));
+        createSubscription(datasetAddress, ValueUtil.randomString(), false);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
@@ -611,8 +620,8 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0083: Attempting to update channel 1.0 but channel does not allow dynamic updates of filter"
-                        + " and channel has not been explicitly subscribed.");
+                "Replicant-0083: Attempting to update Dataset Address 1.0 but the Dataset does not allow dynamic filter"
+                        + " updates and has not been explicitly subscribed.");
     }
 
     @Test
@@ -622,12 +631,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, null));
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -638,7 +647,8 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address2));
+        handler.assertNextEvent(
+                SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress2));
     }
 
     @Test
@@ -659,15 +669,15 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, null));
 
         // areaOfInterest2 would actually require an update as already present
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, null));
-        createSubscription(address2, ValueUtil.randomString(), true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null));
+        createSubscription(datasetAddress2, ValueUtil.randomString(), true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -686,12 +696,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
-        final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, ValueUtil.randomString()));
-        final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, ValueUtil.randomString()));
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
+        final AreaOfInterest areaOfInterest1 = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, ValueUtil.randomString()));
+        final AreaOfInterest areaOfInterest2 = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, ValueUtil.randomString()));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -710,12 +720,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, null));
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, null));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -747,18 +757,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         connector.pauseMessageScheduler();
 
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
 
         final String filterOld = ValueUtil.randomString();
         final String filterNew = ValueUtil.randomString();
 
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, filterNew));
-        createSubscription(address1, filterOld, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterNew));
+        createSubscription(datasetAddress1, filterOld, true);
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, filterNew));
-        createSubscription(address2, filterOld, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterNew));
+        createSubscription(datasetAddress2, filterOld, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -770,7 +780,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
-                SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address2));
+                SubscriptionUpdateRequestQueuedEvent.class, e -> assertEquals(e.getDatasetAddress(), datasetAddress2));
     }
 
     @Test
@@ -779,17 +789,17 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
 
         final String filterOld = ValueUtil.randomString();
         final String filterNew = ValueUtil.randomString();
 
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, filterNew));
-        createSubscription(address1, filterOld, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterNew));
+        createSubscription(datasetAddress1, filterOld, true);
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, filterNew));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterNew));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -830,18 +840,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0);
 
         final String filterOld = ValueUtil.randomString();
         final String filterNew = ValueUtil.randomString();
 
         final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, filterNew));
-        createSubscription(address1, filterOld, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterNew));
+        createSubscription(datasetAddress1, filterOld, true);
         final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, filterNew));
-        createSubscription(address2, filterOld, true);
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterNew));
+        createSubscription(datasetAddress2, filterOld, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -882,17 +892,17 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        final ChannelAddress address1 = new ChannelAddress(1, 1, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 1, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
 
         final String filterOld = ValueUtil.randomString();
 
-        final AreaOfInterest areaOfInterest1 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address1, ValueUtil.randomString()));
-        createSubscription(address1, filterOld, true);
-        final AreaOfInterest areaOfInterest2 =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(address2, ValueUtil.randomString()));
-        createSubscription(address2, filterOld, true);
+        final AreaOfInterest areaOfInterest1 = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, ValueUtil.randomString()));
+        createSubscription(datasetAddress1, filterOld, true);
+        final AreaOfInterest areaOfInterest2 = safeAction(
+                () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, ValueUtil.randomString()));
+        createSubscription(datasetAddress2, filterOld, true);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

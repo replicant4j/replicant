@@ -152,59 +152,59 @@ public final class SystemSchema {
     }
 
     /**
-     * Return true if system contains a channel with the specified channelId.
+     * Return true if system contains a channel with the specified datasetId.
      */
-    public boolean hasChannel(final int channelId) {
-        return channelId >= 0 && channelId < _channels.length && null != _channels[channelId];
+    public boolean hasChannel(final int datasetId) {
+        return datasetId >= 0 && datasetId < _channels.length && null != _channels[datasetId];
     }
 
     /**
-     * Return the Channel with specified channelId.
+     * Return the Channel with specified datasetId.
      * The typeId MUST be 0 or more and less than {@link #getChannelCount()}.
      *
-     * @param channelId the channel id.
-     * @return the Channel matching channelId.
+     * @param datasetId the channel id.
+     * @return the Channel matching datasetId.
      */
     @NonNull
-    public ChannelSchema getChannel(final int channelId) {
+    public ChannelSchema getChannel(final int datasetId) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> channelId >= 0 && channelId < _channels.length,
+                    () -> datasetId >= 0 && datasetId < _channels.length,
                     () -> "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range.");
             apiInvariant(
-                    () -> null != _channels[channelId],
+                    () -> null != _channels[datasetId],
                     () -> "Replicant-0008: SystemSchema.getChannel(id) attempted to access null channel.");
         }
-        return _channels[channelId];
+        return _channels[datasetId];
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getInwardChannelLinks(final int channelId, final int entityTypeId) {
+    public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId, final int entityTypeId) {
         return Stream.of(_channels)
                 .filter(Objects::nonNull)
                 .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
                         .filter(entityType -> entityType.getId() == entityTypeId)
                         .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
-                                .filter(link -> link.getTargetChannelId() == channelId)))
+                                .filter(link -> link.getTargetDatasetId() == datasetId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getInwardChannelLinks(final int channelId) {
+    public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId) {
         return Stream.of(_channels)
                 .filter(Objects::nonNull)
                 .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
                         .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
-                                .filter(link -> link.getTargetChannelId() == channelId)))
+                                .filter(link -> link.getTargetDatasetId() == datasetId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getOutwardChannelLinks(final int channelId) {
-        return getChannel(channelId).getEntityTypes().stream()
-                .flatMap(entityType -> entityType.getOutwardChannelLinks(channelId).stream())
+    public List<ChannelLinkSchema> getOutwardChannelLinks(final int datasetId) {
+        return getChannel(datasetId).getEntityTypes().stream()
+                .flatMap(entityType -> entityType.getOutwardChannelLinks(datasetId).stream())
                 .collect(Collectors.toList());
     }
 

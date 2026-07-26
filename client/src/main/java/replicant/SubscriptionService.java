@@ -31,11 +31,11 @@ import replicant.spy.SubscriptionCreatedEvent;
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionService extends ReplicantService {
-    // SystemId -> ChannelId -> RootId -> DatasetKey => Entry
+    // SystemId -> DatasetId -> DatasetRootId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<Integer, Map<String, Subscription>>>> _instanceSubscriptions =
             new HashMap<>();
-    // SystemId -> ChannelId -> DatasetKey => Entry
+    // SystemId -> DatasetId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<String, Subscription>>> _typeSubscriptions = new HashMap<>();
 
@@ -84,21 +84,22 @@ abstract class SubscriptionService extends ReplicantService {
     abstract ObservableValue<?> getInstanceSubscriptionsObservableValue();
 
     /**
-     * Return the collection of instance subscriptions for channel.
+     * Return the collection of instance subscriptions for a Dataset.
      *
      * @param schemaId  the schema id.
-     * @param channelId the channel id.
-     * @return the set of ids for all instance subscriptions with specified channel type.
+     * @param datasetId the Dataset ID.
+     * @return the set of Dataset Root IDs for all instance subscriptions with the specified Dataset ID.
      */
     @NonNull
-    Set<Integer> getInstanceSubscriptionIds(final int schemaId, final int channelId) {
+    Set<Integer> getInstanceSubscriptionIds(final int schemaId, final int datasetId) {
         getInstanceSubscriptionsObservableValue().reportObserved();
-        final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMaps = _instanceSubscriptions.get(schemaId);
-        final Map<Integer, Map<String, Subscription>> map = null == channelMaps ? null : channelMaps.get(channelId);
-        if (null == map) {
+        final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMaps = _instanceSubscriptions.get(schemaId);
+        final Map<Integer, Map<String, Subscription>> datasetRootMap =
+                null == datasetMaps ? null : datasetMaps.get(datasetId);
+        if (null == datasetRootMap) {
             return Collections.emptySet();
         } else {
-            return CollectionsUtil.wrap(new HashSet<>(map.keySet()));
+            return CollectionsUtil.wrap(new HashSet<>(datasetRootMap.keySet()));
         }
     }
 
@@ -106,41 +107,46 @@ abstract class SubscriptionService extends ReplicantService {
      * Create a subscription.
      * This method should not be invoked if a subscription with the existing name already exists.
      *
-     * @param address              the channel address.
-     * @param filter               the filter if subscription is filterable.
+     * @param datasetAddress the Dataset Address
+     * @param filter the filter if subscription is filterable.
      * @param explicitSubscription if subscription was explicitly requested by the client.
      * @return the subscription.
      */
     @NonNull
     Subscription createSubscription(
-            @NonNull final ChannelAddress address, @Nullable final Object filter, final boolean explicitSubscription) {
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final Object filter,
+            final boolean explicitSubscription) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null == findSubscription(address),
-                    () -> "Replicant-0064: createSubscription invoked with address " + address
-                            + " but a subscription with that address already exists.");
+                    () -> null == findSubscription(datasetAddress),
+                    () -> "Replicant-0064: createSubscription invoked with Dataset Address " + datasetAddress
+                            + " but a subscription with that Dataset Address already exists.");
         }
-        final Integer rootId = address.rootId();
-        final String datasetKey = address.datasetKey();
-        if (null == rootId) {
+        final Integer datasetRootId = datasetAddress.datasetRootId();
+        final String datasetKey = datasetAddress.datasetKey();
+        if (null == datasetRootId) {
             getTypeSubscriptionsObservableValue().preReportChanged();
         } else {
             getInstanceSubscriptionsObservableValue().preReportChanged();
         }
         final Subscription subscription = Subscription.create(
-                Replicant.areZonesEnabled() ? getReplicantContext() : null, address, filter, explicitSubscription);
+                Replicant.areZonesEnabled() ? getReplicantContext() : null,
+                datasetAddress,
+                filter,
+                explicitSubscription);
         DisposeNotifier.asDisposeNotifier(subscription).addOnDisposeListener(this, () -> destroy(subscription), true);
-        if (null == rootId) {
+        if (null == datasetRootId) {
             _typeSubscriptions
-                    .computeIfAbsent(address.schemaId(), key -> new HashMap<>())
-                    .computeIfAbsent(address.channelId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.schemaId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.datasetId(), key -> new HashMap<>())
                     .put(datasetKey, subscription);
             getTypeSubscriptionsObservableValue().reportChanged();
         } else {
             _instanceSubscriptions
-                    .computeIfAbsent(address.schemaId(), key -> new HashMap<>())
-                    .computeIfAbsent(address.channelId(), key -> new HashMap<>())
-                    .computeIfAbsent(rootId, key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.schemaId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.datasetId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetRootId, key -> new HashMap<>())
                     .put(datasetKey, subscription);
             getInstanceSubscriptionsObservableValue().reportChanged();
         }
@@ -152,7 +158,7 @@ abstract class SubscriptionService extends ReplicantService {
 
     private void destroy(@NonNull final Subscription subscription) {
         detachSubscription(subscription);
-        unlinkSubscription(subscription.address());
+        unlinkSubscription(subscription.datasetAddress());
     }
 
     private void detachSubscription(@NonNull final Subscription subscription) {
@@ -160,40 +166,40 @@ abstract class SubscriptionService extends ReplicantService {
     }
 
     /**
-     * Return the subscription for the specified address.
+     * Return the subscription for the specified Dataset Address.
      * This method will observe the <code>typeSubscriptions</code> or <code>instanceSubscriptions</code>
      * property if not found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
-     * @param address the channel address.
+     * @param datasetAddress the Dataset Address
      * @return the subscription if it exists, null otherwise.
      */
     @Nullable
-    Subscription findSubscription(@NonNull final ChannelAddress address) {
-        final int schemaId = address.schemaId();
-        final int channelId = address.channelId();
-        final Integer rootId = address.rootId();
-        final String datasetKey = address.datasetKey();
-        return null == rootId
-                ? findTypeSubscription(schemaId, channelId, datasetKey)
-                : findInstanceSubscription(schemaId, channelId, rootId, datasetKey);
+    Subscription findSubscription(@NonNull final DatasetAddress datasetAddress) {
+        final int schemaId = datasetAddress.schemaId();
+        final int datasetId = datasetAddress.datasetId();
+        final Integer datasetRootId = datasetAddress.datasetRootId();
+        final String datasetKey = datasetAddress.datasetKey();
+        return null == datasetRootId
+                ? findTypeSubscription(schemaId, datasetId, datasetKey)
+                : findInstanceSubscription(schemaId, datasetId, datasetRootId, datasetKey);
     }
 
     /**
-     * Return the type subscription for the specified channelType.
+     * Return the type subscription for the specified Dataset.
      * This method will observe the <code>typeSubscriptions</code> property if not
      * found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
      * @param schemaId  the schema id.
-     * @param channelId the channel id.
+     * @param datasetId the Dataset ID.
      * @return the subscription if any matches.
      */
     @Nullable
     private Subscription findTypeSubscription(
-            final int schemaId, final int channelId, @Nullable final String datasetKey) {
-        final Map<Integer, Map<String, Subscription>> channelMap = _typeSubscriptions.get(schemaId);
-        final Map<String, Subscription> datasetKeyMap = null == channelMap ? null : channelMap.get(channelId);
+            final int schemaId, final int datasetId, @Nullable final String datasetKey) {
+        final Map<Integer, Map<String, Subscription>> datasetMap = _typeSubscriptions.get(schemaId);
+        final Map<String, Subscription> datasetKeyMap = null == datasetMap ? null : datasetMap.get(datasetId);
         final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.get(datasetKey);
         if (null == subscription) {
             getTypeSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
@@ -207,22 +213,24 @@ abstract class SubscriptionService extends ReplicantService {
     }
 
     /**
-     * Return the instance subscription for the specified channelType and id.
+     * Return the instance subscription for the specified Dataset and Dataset Root ID.
      * This method will observe the <code>instanceSubscriptions</code> property if not
      * found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
      * @param schemaId  the schema id.
-     * @param channelId the channel id.
-     * @param id        the channel id.
+     * @param datasetId     the Dataset ID.
+     * @param datasetRootId the Dataset Root ID.
      * @return the subscription if any matches.
      */
     @Nullable
     private Subscription findInstanceSubscription(
-            final int schemaId, final int channelId, final int id, @Nullable final String datasetKey) {
-        final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap = _instanceSubscriptions.get(schemaId);
-        final Map<Integer, Map<String, Subscription>> rootMap = null == channelMap ? null : channelMap.get(channelId);
-        final Map<String, Subscription> datasetKeyMap = null == rootMap ? null : rootMap.get(id);
+            final int schemaId, final int datasetId, final int datasetRootId, @Nullable final String datasetKey) {
+        final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMap = _instanceSubscriptions.get(schemaId);
+        final Map<Integer, Map<String, Subscription>> datasetRootMap =
+                null == datasetMap ? null : datasetMap.get(datasetId);
+        final Map<String, Subscription> datasetKeyMap =
+                null == datasetRootMap ? null : datasetRootMap.get(datasetRootId);
         final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.get(datasetKey);
         if (null == subscription || Disposable.isDisposed(subscription)) {
             getInstanceSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
@@ -236,68 +244,69 @@ abstract class SubscriptionService extends ReplicantService {
     }
 
     /**
-     * Remove subscription on channel specified by address.
+     * Remove the subscription at the specified Dataset Address.
      * This method should only be invoked if a subscription exists
      *
-     * @param address the channel address.
+     * @param datasetAddress the Dataset Address
      * @return the subscription.
      */
     @NonNull
-    Subscription unlinkSubscription(@NonNull final ChannelAddress address) {
-        final int schemaId = address.schemaId();
-        final int channelId = address.channelId();
-        final Integer rootId = address.rootId();
-        final String datasetKey = address.datasetKey();
-        if (null == rootId) {
+    Subscription unlinkSubscription(@NonNull final DatasetAddress datasetAddress) {
+        final int schemaId = datasetAddress.schemaId();
+        final int datasetId = datasetAddress.datasetId();
+        final Integer datasetRootId = datasetAddress.datasetRootId();
+        final String datasetKey = datasetAddress.datasetKey();
+        if (null == datasetRootId) {
             getTypeSubscriptionsObservableValue().preReportChanged();
-            final Map<Integer, Map<String, Subscription>> map = _typeSubscriptions.get(schemaId);
-            final Map<String, Subscription> datasetKeyMap = null == map ? null : map.get(channelId);
+            final Map<Integer, Map<String, Subscription>> datasetMap = _typeSubscriptions.get(schemaId);
+            final Map<String, Subscription> datasetKeyMap = null == datasetMap ? null : datasetMap.get(datasetId);
             final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.remove(datasetKey);
             if (null != datasetKeyMap && datasetKeyMap.isEmpty()) {
-                Objects.requireNonNull(map).remove(channelId);
+                Objects.requireNonNull(datasetMap).remove(datasetId);
             }
-            if (null != subscription && Objects.requireNonNull(map).isEmpty()) {
+            if (null != subscription && Objects.requireNonNull(datasetMap).isEmpty()) {
                 _typeSubscriptions.remove(schemaId);
             }
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0062: unlinkSubscription invoked with address " + address
-                                + " but no subscription with that address exists.");
+                        () -> "Replicant-0062: unlinkSubscription invoked with Dataset Address " + datasetAddress
+                                + " but no subscription with that Dataset Address exists.");
                 assert null != subscription;
                 invariant(
                         () -> Disposable.isDisposed(subscription),
-                        () -> "Replicant-0063: unlinkSubscription invoked with address " + address
+                        () -> "Replicant-0063: unlinkSubscription invoked with Dataset Address " + datasetAddress
                                 + " but subscription has not already been disposed.");
             }
             getTypeSubscriptionsObservableValue().reportChanged();
             return Objects.requireNonNull(subscription);
         } else {
             getInstanceSubscriptionsObservableValue().preReportChanged();
-            final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap =
+            final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMap =
                     _instanceSubscriptions.get(schemaId);
-            final Map<Integer, Map<String, Subscription>> rootMap =
-                    null == channelMap ? null : channelMap.get(channelId);
-            final Map<String, Subscription> datasetKeyMap = null == rootMap ? null : rootMap.get(rootId);
+            final Map<Integer, Map<String, Subscription>> datasetRootMap =
+                    null == datasetMap ? null : datasetMap.get(datasetId);
+            final Map<String, Subscription> datasetKeyMap =
+                    null == datasetRootMap ? null : datasetRootMap.get(datasetRootId);
             final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.remove(datasetKey);
             if (null != datasetKeyMap && datasetKeyMap.isEmpty()) {
-                Objects.requireNonNull(rootMap).remove(rootId);
+                Objects.requireNonNull(datasetRootMap).remove(datasetRootId);
             }
-            if (null != subscription && Objects.requireNonNull(rootMap).isEmpty()) {
-                Objects.requireNonNull(channelMap).remove(channelId);
-                if (channelMap.isEmpty()) {
+            if (null != subscription && Objects.requireNonNull(datasetRootMap).isEmpty()) {
+                Objects.requireNonNull(datasetMap).remove(datasetId);
+                if (datasetMap.isEmpty()) {
                     _instanceSubscriptions.remove(schemaId);
                 }
             }
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0060: unlinkSubscription invoked with address " + address
-                                + " but no subscription with that address exists.");
+                        () -> "Replicant-0060: unlinkSubscription invoked with Dataset Address " + datasetAddress
+                                + " but no subscription with that Dataset Address exists.");
                 assert null != subscription;
                 invariant(
                         () -> Disposable.isDisposed(subscription),
-                        () -> "Replicant-0061: unlinkSubscription invoked with address " + address
+                        () -> "Replicant-0061: unlinkSubscription invoked with Dataset Address " + datasetAddress
                                 + " but subscription has not already been disposed.");
             }
             getInstanceSubscriptionsObservableValue().reportChanged();

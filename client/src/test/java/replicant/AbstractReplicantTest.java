@@ -51,9 +51,12 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
 
     @NonNull
     protected final Subscription createSubscription(
-            @NonNull final ChannelAddress address, @Nullable final Object filter, final boolean explicitSubscription) {
-        return safeAction(() ->
-                Replicant.context().getSubscriptionService().createSubscription(address, filter, explicitSubscription));
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final Object filter,
+            final boolean explicitSubscription) {
+        return safeAction(() -> Replicant.context()
+                .getSubscriptionService()
+                .createSubscription(datasetAddress, filter, explicitSubscription));
     }
 
     @NonNull

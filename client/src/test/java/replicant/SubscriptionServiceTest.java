@@ -11,9 +11,9 @@ import replicant.spy.SubscriptionDisposedEvent;
 public class SubscriptionServiceTest extends AbstractReplicantTest {
     @Test
     public void typeSubscriptions() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0);
-        final ChannelAddress address2 = new ChannelAddress(1, 1);
-        final ChannelAddress address3 = new ChannelAddress(1, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 2);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
@@ -21,7 +21,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         observer(() -> {
             if (Disposable.isNotDisposed(service)) {
                 // Access observable next line
-                service.findSubscription(address1);
+                service.findSubscription(datasetAddress1);
             }
 
             findSubscriptionAddress1CallCount.incrementAndGet();
@@ -31,7 +31,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         observer(() -> {
             if (Disposable.isNotDisposed(service)) {
                 // Access observable next line
-                service.findSubscription(address2);
+                service.findSubscription(datasetAddress2);
             }
             findSubscriptionAddress2CallCount.incrementAndGet();
         });
@@ -56,92 +56,92 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         assertEquals(findSubscriptionAddress2CallCount.get(), 1);
         assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
         assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-        assertNull(service.findSubscription(address1));
-        assertNull(service.findSubscription(address2));
+        assertNull(service.findSubscription(datasetAddress1));
+        assertNull(service.findSubscription(datasetAddress2));
         safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 0));
 
-        // Add subscription on address1
+        // Add subscription on datasetAddress1
         {
-            safeAction(() -> service.createSubscription(address1, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress1, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 2);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
             assertEquals(getTypeSubscriptionsCallCount.get(), 2);
-            assertNotNull(service.findSubscription(address1));
-            assertNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 1));
         }
 
-        // Add subscription on address2
+        // Add subscription on datasetAddress2
         {
-            safeAction(() -> service.createSubscription(address2, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress2, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
             assertEquals(getTypeSubscriptionsCallCount.get(), 3);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 2));
         }
 
-        // Add subscription on address3
+        // Add subscription on datasetAddress3
         {
-            safeAction(() -> service.createSubscription(address3, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress3, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
             assertEquals(getTypeSubscriptionsCallCount.get(), 4);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 3));
         }
 
-        // Dispose subscription on address3
+        // Dispose subscription on datasetAddress3
         // Should only reschedule `getTypeSubscriptions()`
         {
             safeAction(() -> {
-                final Subscription subscription = service.findSubscription(address3);
+                final Subscription subscription = service.findSubscription(datasetAddress3);
                 assertNotNull(subscription);
                 Disposable.dispose(subscription);
 
                 // Check that subscription count is updated from within the subscription
                 // to ensure not possible that disposed is returned
                 assertEquals(service.getTypeSubscriptions().size(), 2);
-                assertNull(service.findSubscription(address3));
+                assertNull(service.findSubscription(datasetAddress3));
             });
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
             assertEquals(getTypeSubscriptionsCallCount.get(), 5);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 2));
         }
 
-        // Dispose subscription on address2
-        // Should reschedule `getTypeSubscriptions()` and findSubscription( address2 )
+        // Dispose subscription on datasetAddress2
+        // Should reschedule `getTypeSubscriptions()` and findSubscription( datasetAddress2 )
         {
             safeAction(() -> {
-                final Subscription subscription = service.findSubscription(address2);
+                final Subscription subscription = service.findSubscription(datasetAddress2);
                 assertNotNull(subscription);
                 Disposable.dispose(subscription);
 
                 // Check that subscription count is updated from within the subscription
                 // to ensure not possible that disposed is returned
                 assertEquals(service.getTypeSubscriptions().size(), 1);
-                assertNull(service.findSubscription(address2));
+                assertNull(service.findSubscription(datasetAddress2));
             });
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 4);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
             assertEquals(getTypeSubscriptionsCallCount.get(), 6);
-            assertNotNull(service.findSubscription(address1));
-            assertNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 1));
         }
 
@@ -158,53 +158,53 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void typeSubscriptions_withDatasetKey() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0, null, "fi1");
-        final ChannelAddress address2 = new ChannelAddress(1, 0, null, "fi2");
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, null, "fi1");
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, null, "fi2");
 
         final SubscriptionService service = SubscriptionService.create(null);
 
         safeAction(() -> {
-            service.createSubscription(address1, null, true);
-            service.createSubscription(address2, null, true);
+            service.createSubscription(datasetAddress1, null, true);
+            service.createSubscription(datasetAddress2, null, true);
         });
 
-        assertNotNull(service.findSubscription(address1));
-        assertNotNull(service.findSubscription(address2));
+        assertNotNull(service.findSubscription(datasetAddress1));
+        assertNotNull(service.findSubscription(datasetAddress2));
         safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 2));
 
         safeAction(() -> {
-            final Subscription subscription = service.findSubscription(address1);
+            final Subscription subscription = service.findSubscription(datasetAddress1);
             assertNotNull(subscription);
             Disposable.dispose(subscription);
         });
 
-        assertNull(service.findSubscription(address1));
-        assertNotNull(service.findSubscription(address2));
+        assertNull(service.findSubscription(datasetAddress1));
+        assertNotNull(service.findSubscription(datasetAddress2));
         safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 1));
     }
 
     @Test
     public void typeSubscriptions_emptyDatasetKey() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0, null, "");
-        final ChannelAddress address2 = new ChannelAddress(1, 0, null, null);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, null, "");
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, null, null);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
         safeAction(() -> {
-            service.createSubscription(address1, null, true);
-            service.createSubscription(address2, null, true);
+            service.createSubscription(datasetAddress1, null, true);
+            service.createSubscription(datasetAddress2, null, true);
         });
 
-        assertNotNull(service.findSubscription(address1));
-        assertNotNull(service.findSubscription(address2));
+        assertNotNull(service.findSubscription(datasetAddress1));
+        assertNotNull(service.findSubscription(datasetAddress2));
         safeAction(() -> assertEquals(service.getTypeSubscriptions().size(), 2));
     }
 
     @Test
     public void instanceSubscriptions() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
-        final ChannelAddress address3 = new ChannelAddress(1, 1, ValueUtil.randomInt());
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, ValueUtil.randomInt());
 
         final SubscriptionService service = SubscriptionService.create(null);
 
@@ -212,7 +212,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         observer(() -> {
             if (Disposable.isNotDisposed(service)) {
                 // Access observable next line
-                service.findSubscription(address1);
+                service.findSubscription(datasetAddress1);
             }
 
             findSubscriptionAddress1CallCount.incrementAndGet();
@@ -222,7 +222,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         observer(() -> {
             if (Disposable.isNotDisposed(service)) {
                 // Access observable next line
-                service.findSubscription(address2);
+                service.findSubscription(datasetAddress2);
             }
             findSubscriptionAddress2CallCount.incrementAndGet();
         });
@@ -247,22 +247,22 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         assertEquals(findSubscriptionAddress2CallCount.get(), 1);
         assertEquals(getInstanceSubscriptionsCallCount.get(), 1);
         assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-        assertNull(service.findSubscription(address1));
-        assertNull(service.findSubscription(address2));
+        assertNull(service.findSubscription(datasetAddress1));
+        assertNull(service.findSubscription(datasetAddress2));
         safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 0));
         safeAction(() -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 0));
         safeAction(() -> assertEquals(service.getInstanceSubscriptionIds(1, 1).size(), 0));
 
-        // Add subscription on address1
+        // Add subscription on datasetAddress1
         {
-            safeAction(() -> service.createSubscription(address1, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress1, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 2);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 2);
             assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-            assertNotNull(service.findSubscription(address1));
-            assertNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 1));
             safeAction(
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 1));
@@ -270,16 +270,16 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 1).size(), 0));
         }
 
-        // Add subscription on address2
+        // Add subscription on datasetAddress2
         {
-            safeAction(() -> service.createSubscription(address2, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress2, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 3);
             assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 2));
             safeAction(
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2));
@@ -287,16 +287,16 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 1).size(), 0));
         }
 
-        // Add subscription on address3
+        // Add subscription on datasetAddress3
         {
-            safeAction(() -> service.createSubscription(address3, null, true));
+            safeAction(() -> service.createSubscription(datasetAddress3, null, true));
 
             assertEquals(findSubscriptionAddress1CallCount.get(), 2);
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 4);
             assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 3));
             safeAction(
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2));
@@ -304,18 +304,18 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 1).size(), 1));
         }
 
-        // Dispose subscription on address3
+        // Dispose subscription on datasetAddress3
         // Should only reschedule `getInstanceSubscriptions()`
         {
             safeAction(() -> {
-                final Subscription subscription = service.findSubscription(address3);
+                final Subscription subscription = service.findSubscription(datasetAddress3);
                 assertNotNull(subscription);
                 Disposable.dispose(subscription);
 
                 // Check that subscription count is updated from within the subscription
                 // to ensure not possible that disposed is returned
                 assertEquals(service.getInstanceSubscriptions().size(), 2);
-                assertNull(service.findSubscription(address3));
+                assertNull(service.findSubscription(datasetAddress3));
                 assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2);
             });
 
@@ -323,8 +323,8 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
             assertEquals(findSubscriptionAddress2CallCount.get(), 3);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 5);
             assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-            assertNotNull(service.findSubscription(address1));
-            assertNotNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNotNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 2));
             safeAction(
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2));
@@ -332,18 +332,18 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 1).size(), 0));
         }
 
-        // Dispose subscription on address2
-        // Should reschedule `getInstanceSubscriptions()` and findSubscription( address2 )
+        // Dispose subscription on datasetAddress2
+        // Should reschedule `getInstanceSubscriptions()` and findSubscription( datasetAddress2 )
         {
             safeAction(() -> {
-                final Subscription subscription = service.findSubscription(address2);
+                final Subscription subscription = service.findSubscription(datasetAddress2);
                 assertNotNull(subscription);
                 Disposable.dispose(subscription);
 
                 // Check that subscription count is updated from within the subscription
                 // to ensure not possible that disposed is returned
                 assertEquals(service.getInstanceSubscriptions().size(), 1);
-                assertNull(service.findSubscription(address2));
+                assertNull(service.findSubscription(datasetAddress2));
                 assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 1);
             });
 
@@ -351,8 +351,8 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
             assertEquals(findSubscriptionAddress2CallCount.get(), 4);
             assertEquals(getInstanceSubscriptionsCallCount.get(), 6);
             assertEquals(getTypeSubscriptionsCallCount.get(), 1);
-            assertNotNull(service.findSubscription(address1));
-            assertNull(service.findSubscription(address2));
+            assertNotNull(service.findSubscription(datasetAddress1));
+            assertNull(service.findSubscription(datasetAddress2));
             safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 1));
             safeAction(
                     () -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 1));
@@ -373,47 +373,47 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void instanceSubscriptions_withDatasetKey() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 7, "fi1");
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 7, "fi2");
-        final ChannelAddress address3 = new ChannelAddress(1, 0, 8, "fi1");
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 7, "fi1");
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 7, "fi2");
+        final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 8, "fi1");
 
         final SubscriptionService service = SubscriptionService.create(null);
 
         safeAction(() -> {
-            service.createSubscription(address1, null, true);
-            service.createSubscription(address2, null, true);
-            service.createSubscription(address3, null, true);
+            service.createSubscription(datasetAddress1, null, true);
+            service.createSubscription(datasetAddress2, null, true);
+            service.createSubscription(datasetAddress3, null, true);
         });
 
-        assertNotNull(service.findSubscription(address1));
-        assertNotNull(service.findSubscription(address2));
-        assertNotNull(service.findSubscription(address3));
+        assertNotNull(service.findSubscription(datasetAddress1));
+        assertNotNull(service.findSubscription(datasetAddress2));
+        assertNotNull(service.findSubscription(datasetAddress3));
         safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 3));
         safeAction(() -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2));
 
         safeAction(() -> {
-            final Subscription subscription = service.findSubscription(address2);
+            final Subscription subscription = service.findSubscription(datasetAddress2);
             assertNotNull(subscription);
             Disposable.dispose(subscription);
         });
 
-        assertNull(service.findSubscription(address2));
-        assertNotNull(service.findSubscription(address1));
-        assertNotNull(service.findSubscription(address3));
+        assertNull(service.findSubscription(datasetAddress2));
+        assertNotNull(service.findSubscription(datasetAddress1));
+        assertNotNull(service.findSubscription(datasetAddress3));
         safeAction(() -> assertEquals(service.getInstanceSubscriptions().size(), 2));
         safeAction(() -> assertEquals(service.getInstanceSubscriptionIds(1, 0).size(), 2));
     }
 
     @Test
     public void createSubscription_instanceChannel_NoFilter_Explicit() {
-        final ChannelAddress address = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
         // instance channel, no filter, explicit subscription
         safeAction(() -> {
-            final Subscription subscription = service.createSubscription(address, null, true);
-            assertEquals(subscription.address(), address);
+            final Subscription subscription = service.createSubscription(datasetAddress, null, true);
+            assertEquals(subscription.datasetAddress(), datasetAddress);
             assertNull(subscription.getFilter());
             assertTrue(subscription.isExplicitSubscription());
         });
@@ -421,7 +421,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void createSubscription_instanceChannel_Filter_NoExplicit() {
-        final ChannelAddress address = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 2);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
@@ -429,8 +429,8 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         safeAction(() -> {
             final String filter = ValueUtil.randomString();
             final boolean explicitSubscription = false;
-            final Subscription subscription = service.createSubscription(address, filter, explicitSubscription);
-            assertEquals(subscription.address(), address);
+            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            assertEquals(subscription.datasetAddress(), datasetAddress);
             assertEquals(subscription.getFilter(), filter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
@@ -438,7 +438,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void createSubscription_typeChannel_NoFilter_NoExplicit() {
-        final ChannelAddress address = new ChannelAddress(1, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
@@ -446,8 +446,8 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         safeAction(() -> {
             final String filter = null;
             final boolean explicitSubscription = false;
-            final Subscription subscription = service.createSubscription(address, filter, explicitSubscription);
-            assertEquals(subscription.address(), address);
+            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            assertEquals(subscription.datasetAddress(), datasetAddress);
             assertEquals(subscription.getFilter(), filter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
@@ -455,7 +455,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void createSubscription_typeChannel_Filter_Explicit() {
-        final ChannelAddress address = new ChannelAddress(1, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
@@ -463,8 +463,8 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         safeAction(() -> {
             final String filter = ValueUtil.randomString();
             final boolean explicitSubscription = true;
-            final Subscription subscription = service.createSubscription(address, filter, explicitSubscription);
-            assertEquals(subscription.address(), address);
+            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            assertEquals(subscription.datasetAddress(), datasetAddress);
             assertEquals(subscription.getFilter(), filter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
@@ -472,13 +472,13 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void createSubscription_generatesSpyEvent() {
-        final ChannelAddress address = new ChannelAddress(1, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final Subscription subscription =
-                safeAction(() -> service.createSubscription(address, ValueUtil.randomString(), true));
+                safeAction(() -> service.createSubscription(datasetAddress, ValueUtil.randomString(), true));
 
         handler.assertEventCount(1);
 
@@ -488,12 +488,12 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void disposeSubscription_generatesSpyEvent() {
-        final ChannelAddress address = new ChannelAddress(1, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
         final Subscription subscription =
-                safeAction(() -> service.createSubscription(address, ValueUtil.randomString(), true));
+                safeAction(() -> service.createSubscription(datasetAddress, ValueUtil.randomString(), true));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -507,101 +507,102 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
     @Test
     public void createSubscription_alreadyExists() {
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        safeAction(() -> service.createSubscription(address, null, true));
+        safeAction(() -> service.createSubscription(datasetAddress, null, true));
 
         final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> safeAction(() -> service.createSubscription(address, null, true)));
+                IllegalStateException.class,
+                () -> safeAction(() -> service.createSubscription(datasetAddress, null, true)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0064: createSubscription invoked with address 1.0 but a subscription with that address"
-                        + " already exists.");
+                "Replicant-0064: createSubscription invoked with Dataset Address 1.0 but a subscription with that"
+                        + " Dataset Address already exists.");
     }
 
     @Test
     public void removeSubscription_typeSubscription_noExist() {
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(address)));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(datasetAddress)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0062: unlinkSubscription invoked with address 1.0 but no subscription with that address"
-                        + " exists.");
+                "Replicant-0062: unlinkSubscription invoked with Dataset Address 1.0 but no subscription with that"
+                        + " Dataset Address exists.");
     }
 
     @Test
     public void removeSubscription_typeSubscription_notDisposed() {
-        final ChannelAddress address = new ChannelAddress(1, 0);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        safeAction(() -> service.createSubscription(address, null, true));
+        safeAction(() -> service.createSubscription(datasetAddress, null, true));
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(address)));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(datasetAddress)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0063: unlinkSubscription invoked with address 1.0 but subscription has not already been"
-                        + " disposed.");
+                "Replicant-0063: unlinkSubscription invoked with Dataset Address 1.0 but subscription has not already"
+                        + " been disposed.");
     }
 
     @Test
     public void removeSubscription_instanceSubscription_noExist() {
-        final ChannelAddress address = new ChannelAddress(1, 0, 1);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 1);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(address)));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(datasetAddress)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0060: unlinkSubscription invoked with address 1.0.1 but no subscription with that address"
-                        + " exists.");
+                "Replicant-0060: unlinkSubscription invoked with Dataset Address 1.0.1 but no subscription with that"
+                        + " Dataset Address exists.");
     }
 
     @Test
     public void removeSubscription_instanceSubscription_noExist_butSameChannelTypeExists() {
-        final ChannelAddress address1 = new ChannelAddress(1, 0, 1);
-        final ChannelAddress address2 = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        safeAction(() -> service.createSubscription(address2, null, true));
+        safeAction(() -> service.createSubscription(datasetAddress2, null, true));
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(address1)));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(datasetAddress1)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0060: unlinkSubscription invoked with address 1.0.1 but no subscription with that address"
-                        + " exists.");
+                "Replicant-0060: unlinkSubscription invoked with Dataset Address 1.0.1 but no subscription with that"
+                        + " Dataset Address exists.");
     }
 
     @Test
     public void removeSubscription_instanceSubscription_notDisposed() {
-        final ChannelAddress address = new ChannelAddress(1, 0, 2);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 2);
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        safeAction(() -> service.createSubscription(address, null, true));
+        safeAction(() -> service.createSubscription(datasetAddress, null, true));
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(address)));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> service.unlinkSubscription(datasetAddress)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0061: unlinkSubscription invoked with address 1.0.2 but subscription has not already been"
-                        + " disposed.");
+                "Replicant-0061: unlinkSubscription invoked with Dataset Address 1.0.2 but subscription has not already"
+                        + " been disposed.");
     }
 
     @Test
@@ -622,9 +623,9 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         final SubscriptionService subscriptionService = Replicant.context().getSubscriptionService();
 
         final Subscription subscription1 =
-                safeAction(() -> subscriptionService.createSubscription(new ChannelAddress(1, 0, 1), null, true));
+                safeAction(() -> subscriptionService.createSubscription(new DatasetAddress(1, 0, 1), null, true));
         final Subscription subscription2 =
-                safeAction(() -> subscriptionService.createSubscription(new ChannelAddress(1, 0, 2), null, true));
+                safeAction(() -> subscriptionService.createSubscription(new DatasetAddress(1, 0, 2), null, true));
 
         final ReplicaEntry replicaEntry1 =
                 safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/1", A.class, 1));
@@ -659,9 +660,9 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         final SubscriptionService service = SubscriptionService.create(null);
 
         final Subscription typeSubscription =
-                safeAction(() -> service.createSubscription(new ChannelAddress(1, 0, null, "fi"), null, true));
+                safeAction(() -> service.createSubscription(new DatasetAddress(1, 0, null, "fi"), null, true));
         final Subscription instanceSubscription =
-                safeAction(() -> service.createSubscription(new ChannelAddress(1, 0, 2, "fi"), null, true));
+                safeAction(() -> service.createSubscription(new DatasetAddress(1, 0, 2, "fi"), null, true));
 
         assertFalse(Disposable.isDisposed(typeSubscription));
         assertFalse(Disposable.isDisposed(instanceSubscription));

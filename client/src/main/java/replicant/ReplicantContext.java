@@ -94,28 +94,28 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return a specific AreaOfInterest that has specified address.
+     * Return a specific AreaOfInterest that has specified Dataset Address.
      *
-     * @param address the address of the channel that AreaOfInterest is about.
+     * @param datasetAddress the Dataset Address declared by the Area of Interest
      * @return the AreaOfInterest that matches if any.
      */
     @Nullable
-    public AreaOfInterest findAreaOfInterestByAddress(@NonNull final ChannelAddress address) {
-        return getAreaOfInterestService().findAreaOfInterestByAddress(address);
+    public AreaOfInterest findAreaOfInterestByDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
+        return getAreaOfInterestService().findAreaOfInterestByDatasetAddress(datasetAddress);
     }
 
     /**
-     * Locate an existing AreaOfInterest with specified address or create a new AreaOfInterest.
+     * Locate an existing AreaOfInterest with specified Dataset Address or create a new AreaOfInterest.
      * The filter is updated, if required, to match the specified parameter.
      *
-     * @param address the address of the channel that AreaOfInterest is about.
+     * @param datasetAddress the Dataset Address declared by the Area of Interest
      * @param filter  the filter that is used to define the channel.
      * @return the AreaOfInterest.
      */
     @NonNull
     public AreaOfInterest createOrUpdateAreaOfInterest(
-            @NonNull final ChannelAddress address, @Nullable final Object filter) {
-        return getAreaOfInterestService().createOrUpdateAreaOfInterest(address, filter);
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+        return getAreaOfInterestService().createOrUpdateAreaOfInterest(datasetAddress, filter);
     }
 
     /**
@@ -172,26 +172,26 @@ public final class ReplicantContext {
      * Return the collection of instance subscriptions for channel.
      *
      * @param schemaId  the schema id.
-     * @param channelId the channel id.
+     * @param datasetId the channel id.
      * @return the set of ids for all instance subscriptions with specified channel type.
      */
     @NonNull
-    public Set<Integer> getInstanceSubscriptionIds(final int schemaId, final int channelId) {
-        return getSubscriptionService().getInstanceSubscriptionIds(schemaId, channelId);
+    public Set<Integer> getInstanceSubscriptionIds(final int schemaId, final int datasetId) {
+        return getSubscriptionService().getInstanceSubscriptionIds(schemaId, datasetId);
     }
 
     /**
-     * Return the subscription for the specified address.
+     * Return the subscription for the specified Dataset Address.
      * This method will observe the <code>typeSubscriptions</code> or <code>instanceSubscriptions</code>
      * property if not found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
-     * @param address the channel address.
+     * @param datasetAddress the Dataset Address
      * @return the subscription if it exists, null otherwise.
      */
     @Nullable
-    public Subscription findSubscription(@NonNull final ChannelAddress address) {
-        return getSubscriptionService().findSubscription(address);
+    public Subscription findSubscription(@NonNull final DatasetAddress datasetAddress) {
+        return getSubscriptionService().findSubscription(datasetAddress);
     }
 
     /**

@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
  * A record of a change in channel subscriptions.
  */
 public record ChannelAction(
-        @NonNull ChannelAddress address,
+        @NonNull DatasetAddress datasetAddress,
         @NonNull Action action,
         @Nullable JsonObject filter) {
     public enum Action {
@@ -24,14 +24,16 @@ public record ChannelAction(
     }
 
     @NonNull
-    public static ChannelAction of(@NonNull final ChannelAddress address, @NonNull final Action action) {
-        return of(address, action, null);
+    public static ChannelAction of(@NonNull final DatasetAddress datasetAddress, @NonNull final Action action) {
+        return of(datasetAddress, action, null);
     }
 
     @NonNull
     public static ChannelAction of(
-            @NonNull final ChannelAddress address, @NonNull final Action action, @Nullable final JsonObject filter) {
-        return new ChannelAction(address, action, filter);
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final Action action,
+            @Nullable final JsonObject filter) {
+        return new ChannelAction(datasetAddress, action, filter);
     }
 
     public ChannelAction {

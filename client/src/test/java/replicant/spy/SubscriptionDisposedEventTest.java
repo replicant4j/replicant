@@ -5,7 +5,7 @@ import static org.testng.Assert.*;
 import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
-import replicant.ChannelAddress;
+import replicant.DatasetAddress;
 import replicant.Subscription;
 import replicant.ValueUtil;
 
@@ -16,7 +16,7 @@ public class SubscriptionDisposedEventTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final String filter = ValueUtil.randomString();
-        final Subscription subscription = createSubscription(new ChannelAddress(1, 2), filter, true);
+        final Subscription subscription = createSubscription(new DatasetAddress(1, 2), filter, true);
 
         final SubscriptionDisposedEvent event = new SubscriptionDisposedEvent(subscription);
 
@@ -26,9 +26,9 @@ public class SubscriptionDisposedEventTest extends AbstractReplicantTest {
         safeAction(() -> event.toMap(data));
 
         assertEquals(data.get("type"), "Subscription.Disposed");
-        assertEquals(data.get("channel.schemaId"), 1);
-        assertEquals(data.get("channel.channelId"), 2);
-        assertNull(data.get("channel.rootId"));
+        assertEquals(data.get("datasetAddress.schemaId"), 1);
+        assertEquals(data.get("datasetAddress.datasetId"), 2);
+        assertNull(data.get("datasetAddress.datasetRootId"));
         assertEquals(data.get("channel.filter"), filter);
         assertEquals(data.get("explicitSubscription"), true);
         assertEquals(data.size(), 6);

@@ -3,7 +3,7 @@ package replicant.server.transport;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
-import replicant.server.ChannelAddress;
+import replicant.server.DatasetAddress;
 
 public final class SchemaMetaData {
     @NonNull
@@ -18,7 +18,7 @@ public final class SchemaMetaData {
     public SchemaMetaData(@NonNull final String name, @NonNull final ChannelMetaData... channels) {
         for (var i = 0; i < channels.length; i++) {
             final var channel = channels[i];
-            if (null != channel && i != channel.getChannelId()) {
+            if (null != channel && i != channel.getDatasetId()) {
                 final var message = "Channel at index " + i + " does not have channel id matching index: " + channel;
                 throw new IllegalArgumentException(message);
             }
@@ -41,23 +41,23 @@ public final class SchemaMetaData {
     }
 
     @NonNull
-    public ChannelMetaData getChannelMetaData(@NonNull final ChannelAddress address) {
-        return getChannelMetaData(address.channelId());
+    public ChannelMetaData getChannelMetaData(@NonNull final DatasetAddress datasetAddress) {
+        return getChannelMetaData(datasetAddress.datasetId());
     }
 
     /**
      * @return the channel metadata.
      */
     @NonNull
-    public ChannelMetaData getChannelMetaData(final int channelId) {
-        if (!hasChannelMetaData(channelId)) {
-            throw new IllegalArgumentException("Channel with id " + channelId + " does not exist");
+    public ChannelMetaData getChannelMetaData(final int datasetId) {
+        if (!hasChannelMetaData(datasetId)) {
+            throw new IllegalArgumentException("Channel with id " + datasetId + " does not exist");
         }
-        return _channels[channelId];
+        return _channels[datasetId];
     }
 
-    public boolean hasChannelMetaData(final int channelId) {
-        return null != _channels[channelId];
+    public boolean hasChannelMetaData(final int datasetId) {
+        return null != _channels[datasetId];
     }
 
     public int getInstanceChannelCount() {

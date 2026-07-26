@@ -110,8 +110,8 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(() -> replicaRegistry.findOrCreateReplicaEntry(
                 ValueUtil.randomString(), String.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0));
-        final Subscription subscription2 = createSubscription(new ChannelAddress(1, 1));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0));
+        final Subscription subscription2 = createSubscription(new DatasetAddress(1, 1));
 
         final AtomicInteger callCount = new AtomicInteger();
         observer(() -> {
@@ -167,8 +167,8 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(() -> replicaRegistry.findOrCreateReplicaEntry(
                 ValueUtil.randomString(), String.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
-        final Subscription subscription2 = createSubscription(new ChannelAddress(1, 0, 2));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
+        final Subscription subscription2 = createSubscription(new DatasetAddress(1, 0, 2));
 
         final AtomicInteger callCount = new AtomicInteger();
         observer(() -> {
@@ -225,7 +225,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(
                 () -> replicaRegistry.findOrCreateReplicaEntry("MyEntity", String.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
@@ -243,7 +243,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(
                 () -> replicaRegistry.findOrCreateReplicaEntry("MyEntity", String.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
 
         safeAction(() -> replicaEntry.linkToSubscription(subscription1));
 
@@ -262,7 +262,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(
                 () -> replicaRegistry.findOrCreateReplicaEntry("MyEntity", String.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
 
         safeAction(() -> replicaEntry.tryLinkToSubscription(subscription1));
 
@@ -283,8 +283,8 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final String name = "A/" + id;
         final ReplicaEntry replicaEntry = safeAction(() -> replicaRegistry.findOrCreateReplicaEntry(name, type, id));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
-        final Subscription subscription2 = createSubscription(new ChannelAddress(1, 0, 2));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
+        final Subscription subscription2 = createSubscription(new DatasetAddress(1, 0, 2));
 
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 0));
         safeAction(() -> replicaEntry.linkToSubscription(subscription1));
@@ -341,28 +341,30 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry =
                 safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/123", A.class, 123));
 
-        final Subscription subscription1 = createSubscription(new ChannelAddress(1, 0, 1));
+        final Subscription subscription1 = createSubscription(new DatasetAddress(1, 0, 1));
 
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 0));
         safeAction(() -> replicaEntry.linkToSubscription(subscription1));
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
 
-        replicaEntry.subscriptions().remove(subscription1.address());
+        replicaEntry.subscriptions().remove(subscription1.datasetAddress());
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> safeAction(() -> replicaEntry.delinkSubscriptionFromReplicaEntry(subscription1)));
-        assertEquals(exception.getMessage(), "Unable to locate subscription for channel 1.0.1 on Replica Entry A/123");
+        assertEquals(
+                exception.getMessage(),
+                "Unable to locate subscription for Dataset Address 1.0.1 on Replica Entry A/123");
     }
 
     @NonNull
     private Subscription createSubscription() {
-        return createSubscription(new ChannelAddress(1, 0));
+        return createSubscription(new DatasetAddress(1, 0));
     }
 
     @NonNull
-    private Subscription createSubscription(@NonNull final ChannelAddress address) {
-        return Subscription.create(null, address, null, true);
+    private Subscription createSubscription(@NonNull final DatasetAddress datasetAddress) {
+        return Subscription.create(null, datasetAddress, null, true);
     }
 
     static class A implements Disposable {

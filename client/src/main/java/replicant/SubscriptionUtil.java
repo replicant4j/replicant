@@ -24,36 +24,36 @@ public class SubscriptionUtil {
      */
     public static void synchronizeCrossDataSourceSubscriptions(
             final int sourceSystemId,
-            final int sourceChannelId,
+            final int sourceDatasetId,
             final int targetSystemId,
-            final int targetChannelId,
+            final int targetDatasetId,
             @Nullable final Object filter,
             @NonNull final Function<Integer, Stream<Integer>> sourceIdToTargetIds) {
         // Need to check both subscription and filters are identical.
         // If they are not the next step will either update the filters or add subscriptions
         final ReplicantContext context = Replicant.context();
         final Map<Integer, AreaOfInterest> existing = context.getAreasOfInterest().stream()
-                .filter(s -> s.getAddress().schemaId() == targetSystemId
-                        && s.getAddress().channelId() == targetChannelId)
+                .filter(s -> s.getDatasetAddress().schemaId() == targetSystemId
+                        && s.getDatasetAddress().datasetId() == targetDatasetId)
                 .filter(subscription -> FilterUtil.filtersEqual(subscription.getFilter(), filter))
-                .collect(Collectors.toMap(s -> s.getAddress().rootId(), Function.identity()));
+                .collect(Collectors.toMap(s -> s.getDatasetAddress().datasetRootId(), Function.identity()));
 
         context.getAreasOfInterest().stream()
-                .filter(s -> s.getAddress().schemaId() == sourceSystemId
-                        && s.getAddress().channelId() == sourceChannelId)
-                .map(s -> s.getAddress().rootId())
+                .filter(s -> s.getDatasetAddress().schemaId() == sourceSystemId
+                        && s.getDatasetAddress().datasetId() == sourceDatasetId)
+                .map(s -> s.getDatasetAddress().datasetRootId())
                 .flatMap(sourceIdToTargetIds)
                 .filter(Objects::nonNull)
                 .filter(id -> null == existing.remove(id))
                 .forEach(id -> context.createOrUpdateAreaOfInterest(
-                        new ChannelAddress(targetSystemId, targetChannelId, id), filter));
+                        new DatasetAddress(targetSystemId, targetDatasetId, id), filter));
 
-        context.getInstanceSubscriptionIds(sourceSystemId, sourceChannelId).stream()
+        context.getInstanceSubscriptionIds(sourceSystemId, sourceDatasetId).stream()
                 .flatMap(sourceIdToTargetIds)
                 .filter(Objects::nonNull)
                 .filter(id -> null == existing.remove(id))
                 .forEach(id -> context.createOrUpdateAreaOfInterest(
-                        new ChannelAddress(targetSystemId, targetChannelId, id), filter));
+                        new DatasetAddress(targetSystemId, targetDatasetId, id), filter));
 
         existing.values().forEach(Disposable::dispose);
     }

@@ -160,9 +160,9 @@ public final class EntityType {
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getOutwardChannelLinks(final int channelId) {
+    public List<ChannelLinkSchema> getOutwardChannelLinks(final int datasetId) {
         return Stream.of(getChannelLinks())
-                .filter(l -> l.getSourceChannelId() == channelId)
+                .filter(l -> l.getSourceDatasetId() == datasetId)
                 .collect(Collectors.toList());
     }
 
