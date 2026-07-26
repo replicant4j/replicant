@@ -944,8 +944,8 @@ abstract class Connector extends ReplicantService {
                 onMessageProcessFailure(t);
                 return;
             }
-            final EntitySchema entitySchema = getSchema().getEntity(typeId);
-            final Class<?> type = entitySchema.getType();
+            final EntityType entityType = getSchema().getEntityType(typeId);
+            final Class<?> type = entityType.getType();
             Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId(type, entityId);
             if (change.isRemove()) {
                 /*
@@ -962,13 +962,13 @@ abstract class Connector extends ReplicantService {
             } else {
                 final EntityChangeData data = change.getData();
                 if (null == entity) {
-                    final String name = Replicant.areNamesEnabled() ? entitySchema.getName() + "/" + entityId : null;
+                    final String name = Replicant.areNamesEnabled() ? entityType.getName() + "/" + entityId : null;
                     entity = getReplicantContext().getEntityService().findOrCreateEntity(name, type, entityId);
-                    final Object userObject = entitySchema.getCreator().createEntity(entityId, data);
+                    final Object userObject = entityType.getCreator().createEntity(entityId, data);
                     entity.setUserObject(userObject);
                 } else {
                     @SuppressWarnings("rawtypes")
-                    final EntitySchema.Updater updater = entitySchema.getUpdater();
+                    final EntityType.Updater updater = entityType.getUpdater();
                     if (null != updater) {
                         updater.updateEntity(entity.getUserObject(), data);
                     }

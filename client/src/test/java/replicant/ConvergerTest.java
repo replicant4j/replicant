@@ -433,7 +433,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -470,7 +470,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -556,7 +556,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -591,7 +591,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -652,7 +652,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -739,7 +739,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -823,7 +823,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntitySchema[0]);
+                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -875,7 +875,7 @@ public class ConvergerTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntitySchema[0]);
+                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));

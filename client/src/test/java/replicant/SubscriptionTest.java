@@ -199,8 +199,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]));
+        createConnector(
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
         final ChannelAddress address1 = new ChannelAddress(1, 0);
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);
@@ -220,8 +220,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]));
+        createConnector(
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
         final ChannelAddress address1 = new ChannelAddress(1, 0, 33);
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);
@@ -248,8 +248,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]));
+        createConnector(
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
         final ChannelAddress address1 = new ChannelAddress(1, 0, 33);
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);
@@ -274,8 +274,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]));
+        createConnector(
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
         final ChannelAddress address1 = new ChannelAddress(1, 0);
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);
@@ -300,8 +300,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]));
+        createConnector(
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
         final ChannelAddress address1 = new ChannelAddress(1, 0, 44);
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);

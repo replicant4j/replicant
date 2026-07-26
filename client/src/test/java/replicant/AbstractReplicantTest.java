@@ -106,9 +106,12 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
     @NonNull
     final SystemSchema newSchema(final int schemaId) {
         final ChannelSchema[] channels = new ChannelSchema[0];
-        final EntitySchema[] entities = new EntitySchema[0];
+        final EntityType[] entityTypes = new EntityType[0];
         return new SystemSchema(
-                schemaId, replicant.Replicant.areNamesEnabled() ? ValueUtil.randomString() : null, channels, entities);
+                schemaId,
+                replicant.Replicant.areNamesEnabled() ? ValueUtil.randomString() : null,
+                channels,
+                entityTypes);
     }
 
     @NonNull

@@ -217,12 +217,12 @@
   {
     "code": 49,
     "type": "API_INVARIANT",
-    "messagePattern": "EntitySchema passed a name '%s' but Replicant.areNamesEnabled() is false"
+    "messagePattern": "EntityType passed a name '%s' but Replicant.areNamesEnabled() is false"
   },
   {
     "code": 50,
     "type": "API_INVARIANT",
-    "messagePattern": "EntitySchema.getName() invoked when Replicant.areNamesEnabled() is false"
+    "messagePattern": "EntityType.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
     "code": 51,
@@ -237,12 +237,12 @@
   {
     "code": 53,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of entities that has a null element"
+    "messagePattern": "SystemSchema named '%s' passed an array of entity types that has a null element"
   },
   {
     "code": 54,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of entities where entity at index %s does not have id matching index."
+    "messagePattern": "SystemSchema named '%s' passed an array of entity types where entity type at index %s does not have id matching index."
   },
   {
     "code": 56,
@@ -252,7 +252,7 @@
   {
     "code": 57,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getEntity(id) passed an id that is out of range."
+    "messagePattern": "SystemSchema.getEntityType(id) passed an id that is out of range."
   },
   {
     "code": 58,

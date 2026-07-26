@@ -28,22 +28,22 @@ public final class SystemSchema {
     @Nullable
     private final OnEntityUpdateAction _onEntityUpdateAction;
     /**
-     * The entities within the system.
+     * The channels within the system.
      */
     @NonNull
     private final ChannelSchema[] _channels;
     /**
-     * The entities within the system.
+     * The entity types within the system.
      */
     @NonNull
-    private final EntitySchema[] _entities;
+    private final EntityType[] _entityTypes;
 
     public SystemSchema(
             final int id,
             @Nullable final String name,
             @NonNull final ChannelSchema[] channels,
-            @NonNull final EntitySchema[] entities) {
-        this(id, name, null, channels, entities);
+            @NonNull final EntityType[] entityTypes) {
+        this(id, name, null, channels, entityTypes);
     }
 
     public SystemSchema(
@@ -51,22 +51,22 @@ public final class SystemSchema {
             @Nullable final String name,
             @Nullable final OnEntityUpdateAction onEntityUpdateAction,
             @NonNull final ChannelSchema[] channels,
-            @NonNull final EntitySchema[] entities) {
+            @NonNull final EntityType[] entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
                     () -> "Replicant-0051: SystemSchema passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
             apiInvariant(
-                    () -> Arrays.stream(entities).allMatch(Objects::nonNull),
+                    () -> Arrays.stream(entityTypes).allMatch(Objects::nonNull),
                     () -> "Replicant-0053: SystemSchema named '" + (null == name ? "?" : name)
-                            + "' passed an array of entities that has a null element");
-            for (int i = 0; i < entities.length; i++) {
+                            + "' passed an array of entity types that has a null element");
+            for (int i = 0; i < entityTypes.length; i++) {
                 final int index = i;
                 apiInvariant(
-                        () -> index == entities[index].getId(),
+                        () -> index == entityTypes[index].getId(),
                         () -> "Replicant-0054: SystemSchema named '" + (null == name ? "?" : name)
-                                + "' passed an array of entities where entity at index "
+                                + "' passed an array of entity types where entity type at index "
                                 + index + " does not " + "have id matching index.");
             }
             for (int i = 0; i < channels.length; i++) {
@@ -81,7 +81,7 @@ public final class SystemSchema {
         _id = id;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _onEntityUpdateAction = onEntityUpdateAction;
-        _entities = Objects.requireNonNull(entities);
+        _entityTypes = Objects.requireNonNull(entityTypes);
         _channels = Objects.requireNonNull(channels);
     }
 
@@ -117,29 +117,29 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the number of entities in system.
+     * Return the number of entity types in the system.
      *
-     * @return the number of entities in system.
+     * @return the number of entity types in the system.
      */
-    public int getEntityCount() {
-        return _entities.length;
+    public int getEntityTypeCount() {
+        return _entityTypes.length;
     }
 
     /**
-     * Return the entity with specified typeId.
-     * The typeId MUST be 0 or more and less than {@link #getEntityCount()}.
+     * Return the entity type with specified typeId.
+     * The typeId MUST be 0 or more and less than {@link #getEntityTypeCount()}.
      *
      * @param typeId the entity type id.
-     * @return the entity matching typeId.
+     * @return the entity type matching typeId.
      */
     @NonNull
-    public EntitySchema getEntity(final int typeId) {
+    public EntityType getEntityType(final int typeId) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> typeId >= 0 && typeId < _entities.length,
-                    () -> "Replicant-0057: SystemSchema.getEntity(id) passed an id that is out of range.");
+                    () -> typeId >= 0 && typeId < _entityTypes.length,
+                    () -> "Replicant-0057: SystemSchema.getEntityType(id) passed an id that is out of range.");
         }
-        return _entities[typeId];
+        return _entityTypes[typeId];
     }
 
     /**
@@ -179,13 +179,13 @@ public final class SystemSchema {
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getInwardChannelLinks(final int channelId, final int entityId) {
+    public List<ChannelLinkSchema> getInwardChannelLinks(final int channelId, final int entityTypeId) {
         return Stream.of(_channels)
                 .filter(Objects::nonNull)
-                .flatMap(channelSchema -> channelSchema.getEntities().stream()
-                        .filter(e -> e.getId() == entityId)
-                        .flatMap(entity ->
-                                Stream.of(entity.getChannelLinks()).filter(l -> l.getTargetChannelId() == channelId)))
+                .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
+                        .filter(entityType -> entityType.getId() == entityTypeId)
+                        .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
+                                .filter(link -> link.getTargetChannelId() == channelId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -194,17 +194,17 @@ public final class SystemSchema {
     public List<ChannelLinkSchema> getInwardChannelLinks(final int channelId) {
         return Stream.of(_channels)
                 .filter(Objects::nonNull)
-                .flatMap(channelSchema -> channelSchema.getEntities().stream()
-                        .flatMap(entity ->
-                                Stream.of(entity.getChannelLinks()).filter(l -> l.getTargetChannelId() == channelId)))
+                .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
+                        .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
+                                .filter(link -> link.getTargetChannelId() == channelId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @NonNull
     public List<ChannelLinkSchema> getOutwardChannelLinks(final int channelId) {
-        return getChannel(channelId).getEntities().stream()
-                .flatMap(e -> e.getOutwardChannelLinks(channelId).stream())
+        return getChannel(channelId).getEntityTypes().stream()
+                .flatMap(entityType -> entityType.getOutwardChannelLinks(channelId).stream())
                 .collect(Collectors.toList());
     }
 

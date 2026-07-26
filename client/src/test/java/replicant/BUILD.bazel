@@ -21,7 +21,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.ConnectorStateTest",
     "replicant.ConnectorTest",
     "replicant.ConvergerTest",
-    "replicant.EntitySchemaTest",
+    "replicant.EntityTypeTest",
     "replicant.EntityServiceTest",
     "replicant.EntityTest",
     "replicant.MessageResponseTest",
@@ -128,9 +128,9 @@ java_library(
         "ConnectorStateTest.java",
         "ConnectorTest.java",
         "ConvergerTest.java",
-        "EntitySchemaTest.java",
         "EntityServiceTest.java",
         "EntityTest.java",
+        "EntityTypeTest.java",
         "MessageResponseTest.java",
         "RateLimitedValueTest.java",
         "ReplicantContextTest.java",
@@ -299,11 +299,11 @@ java_testng(
 )
 
 java_testng(
-    name = "EntitySchemaTest",
-    srcs = ["EntitySchemaTest.java"],
+    name = "EntityTypeTest",
+    srcs = ["EntityTypeTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.EntitySchemaTest",
+    test_class = "replicant.EntityTypeTest",
     deps = ["//client:client_test_support"],
 )
 

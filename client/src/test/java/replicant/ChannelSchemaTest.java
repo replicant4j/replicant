@@ -8,8 +8,8 @@ import org.testng.annotations.Test;
 
 public class ChannelSchemaTest extends AbstractReplicantTest {
     @Test
-    public void findEntityById() {
-        final EntitySchema entity = new EntitySchema(
+    public void findEntityTypeById() {
+        final EntityType entityType = new EntityType(
                 1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
         final ChannelSchema channelSchema = new ChannelSchema(
                 ValueUtil.randomInt(),
@@ -20,16 +20,16 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 null,
                 false,
                 false,
-                Collections.singletonList(entity));
-        assertEquals(channelSchema.getEntities().size(), 1);
-        assertEquals(channelSchema.getEntities().size(), 1);
-        assertEquals(channelSchema.findEntityById(1), entity);
-        assertNull(channelSchema.findEntityById(0));
+                Collections.singletonList(entityType));
+        assertEquals(channelSchema.getEntityTypes().size(), 1);
+        assertEquals(channelSchema.getEntityTypes().size(), 1);
+        assertEquals(channelSchema.findEntityTypeById(1), entityType);
+        assertNull(channelSchema.findEntityTypeById(0));
     }
 
     @Test
     public void typeGraph() {
-        final EntitySchema entity = new EntitySchema(
+        final EntityType entityType = new EntityType(
                 1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
         final ChannelSchema channelSchema = new ChannelSchema(
                 1,
@@ -40,7 +40,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 null,
                 false,
                 false,
-                Collections.singletonList(entity));
+                Collections.singletonList(entityType));
         assertEquals(channelSchema.getId(), 1);
         assertEquals(channelSchema.getName(), "MetaData");
         assertEquals(channelSchema.toString(), "MetaData");
@@ -50,8 +50,8 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.NONE);
         assertFalse(channelSchema.isCacheable());
         assertFalse(channelSchema.isExternal());
-        assertEquals(channelSchema.getEntities().size(), 1);
-        assertTrue(channelSchema.getEntities().contains(entity));
+        assertEquals(channelSchema.getEntityTypes().size(), 1);
+        assertTrue(channelSchema.getEntityTypes().contains(entityType));
     }
 
     @Test

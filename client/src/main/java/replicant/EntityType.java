@@ -11,9 +11,9 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.EntityChangeData;
 
 /**
- * Describes a entity type within a system.
+ * Defines a kind of server-side Entity and how its client Replica is created and updated.
  */
-public final class EntitySchema {
+public final class EntityType {
     /**
      * Function used to create entity on receipt of initial message.
      *
@@ -77,7 +77,7 @@ public final class EntitySchema {
     @NonNull
     private final ChannelLinkSchema[] _channelLinks;
 
-    public <T> EntitySchema(
+    public <T> EntityType(
             final int id,
             @Nullable final String name,
             @NonNull final Class<T> type,
@@ -87,7 +87,7 @@ public final class EntitySchema {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
-                    () -> "Replicant-0049: EntitySchema passed a name '" + name
+                    () -> "Replicant-0049: EntityType passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
         }
         _id = id;
@@ -99,27 +99,27 @@ public final class EntitySchema {
     }
 
     /**
-     * Return the id of EntitySchema.
+     * Return the id of the entity type.
      *
-     * @return the id of EntitySchema.
+     * @return the id of the entity type.
      */
     public int getId() {
         return _id;
     }
 
     /**
-     * Return the name of the EntitySchema.
+     * Return the name of the entity type.
      * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
      * exception if invariant checking is enabled.
      *
-     * @return the name of the channel.
+     * @return the name of the entity type.
      */
     @NonNull
     public String getName() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     Replicant::areNamesEnabled,
-                    () -> "Replicant-0050: EntitySchema.getName() invoked when Replicant.areNamesEnabled() is false");
+                    () -> "Replicant-0050: EntityType.getName() invoked when Replicant.areNamesEnabled() is false");
         }
         return Objects.requireNonNull(_name);
     }

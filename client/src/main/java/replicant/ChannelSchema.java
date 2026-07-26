@@ -68,9 +68,9 @@ public final class ChannelSchema {
      */
     private final boolean _external;
     /**
-     * The entities that are included within the graph
+     * The entity types included within the channel.
      */
-    private final List<EntitySchema> _entities;
+    private final List<EntityType> _entityTypes;
 
     public ChannelSchema(
             final int id,
@@ -81,7 +81,7 @@ public final class ChannelSchema {
             @Nullable final SubscriptionUpdateEntityFilter<?> filter,
             final boolean cacheable,
             final boolean external,
-            @NonNull final List<EntitySchema> entities) {
+            @NonNull final List<EntityType> entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
@@ -104,7 +104,7 @@ public final class ChannelSchema {
         _filter = filter;
         _cacheable = cacheable;
         _external = external;
-        _entities = entities;
+        _entityTypes = entityTypes;
     }
 
     /**
@@ -210,30 +210,34 @@ public final class ChannelSchema {
     }
 
     /**
-     * Return the entities transmitted over the channel.
+     * Return the entity types transmitted over the channel.
      *
-     * @return the entities transmitted over the channel.
+     * @return the entity types transmitted over the channel.
      */
     @NonNull
-    public List<EntitySchema> getEntities() {
-        return CollectionsUtil.wrap(_entities);
+    public List<EntityType> getEntityTypes() {
+        return CollectionsUtil.wrap(_entityTypes);
     }
 
     /**
-     * Return the entity with specified id, if any.
+     * Return the entity type with specified id, if any.
      *
-     * @param entityId the id of the entity to find.
-     * @return the entity with specified id, if any.
+     * @param entityTypeId the id of the entity type to find.
+     * @return the entity type with specified id, if any.
      */
     @Nullable
-    public EntitySchema findEntityById(final int entityId) {
-        return _entities.stream().filter(e -> e.getId() == entityId).findAny().orElse(null);
+    public EntityType findEntityTypeById(final int entityTypeId) {
+        return _entityTypes.stream()
+                .filter(entityType -> entityType.getId() == entityTypeId)
+                .findAny()
+                .orElse(null);
     }
 
     @NonNull
     public List<ChannelLinkSchema> getOutwardChannelLinks() {
-        return getEntities().stream()
-                .flatMap(e -> Stream.of(e.getChannelLinks()).filter(l -> l.getSourceChannelId() == getId()))
+        return getEntityTypes().stream()
+                .flatMap(entityType ->
+                        Stream.of(entityType.getChannelLinks()).filter(link -> link.getSourceChannelId() == getId()))
                 .collect(Collectors.toList());
     }
 

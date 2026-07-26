@@ -61,7 +61,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 0));
 
         final SystemSchema schema = new SystemSchema(
-                ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[0], new EntitySchema[0]);
+                ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
         final Connector connector = createConnector(schema);
 
         assertEquals(connector.getSchema(), schema);
@@ -958,7 +958,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -984,7 +984,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1010,7 +1010,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1037,7 +1037,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1064,7 +1064,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1091,7 +1091,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1123,7 +1123,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1150,7 +1150,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1181,7 +1181,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1207,7 +1207,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1259,7 +1259,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         newConnection(connector);
@@ -1328,7 +1328,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         newConnection(connector);
@@ -1361,14 +1361,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final EntitySchema.Creator<Linkable> creator = mock(EntitySchema.Creator.class);
-        final EntitySchema.Updater<Linkable> updater = mock(EntitySchema.Updater.class);
-        final EntitySchema entitySchema = new EntitySchema(
-                0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+        final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
+        final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
+        final EntityType entityType =
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {
-                    entitySchema
-                });
+                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1449,14 +1447,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final EntitySchema.Creator<Linkable> creator = mock(EntitySchema.Creator.class);
-        final EntitySchema.Updater<Linkable> updater = mock(EntitySchema.Updater.class);
-        final EntitySchema entitySchema = new EntitySchema(
-                0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+        final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
+        final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
+        final EntityType entityType =
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {
-                    entitySchema
-                });
+                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1494,14 +1490,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final EntitySchema.Creator<Linkable> creator = mock(EntitySchema.Creator.class);
-        final EntitySchema.Updater<Linkable> updater = mock(EntitySchema.Updater.class);
-        final EntitySchema entitySchema = new EntitySchema(
-                0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+        final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
+        final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
+        final EntityType entityType =
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {
-                    entitySchema
-                });
+                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1539,12 +1533,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final EntitySchema entitySchema = new EntitySchema(
+        final EntityType entityType = new EntityType(
                 0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {
-                    entitySchema
-                });
+                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1960,10 +1952,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final EntitySchema entitySchema = new EntitySchema(
-                0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
+        final EntityType entityType =
+                new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {entitySchema});
+                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
 
         final Connector connector = createConnector(schema);
         connector.pauseMessageScheduler();
@@ -2013,7 +2005,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         connector.pauseMessageScheduler();
@@ -2056,7 +2048,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
@@ -2505,12 +2497,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final EntitySchema.Creator<Linkable> creator = mock(EntitySchema.Creator.class);
-        final EntitySchema.Updater<Linkable> updater = mock(EntitySchema.Updater.class);
-        final EntitySchema entitySchema = new EntitySchema(
-                0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+        final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
+        final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
+        final EntityType entityType =
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {entitySchema});
+                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2603,8 +2595,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2658,8 +2650,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2713,8 +2705,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2775,8 +2767,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2854,8 +2846,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2894,8 +2886,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2950,8 +2942,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3029,8 +3021,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3069,8 +3061,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3124,8 +3116,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3202,8 +3194,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3241,8 +3233,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3272,8 +3264,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3312,8 +3304,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3351,8 +3343,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3391,8 +3383,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntitySchema[] {});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
