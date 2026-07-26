@@ -5,9 +5,9 @@ import static org.testng.Assert.*;
 
 import arez.component.Linkable;
 import org.testng.annotations.Test;
-import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.SubscriptionChangeMessage;
 import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 
@@ -21,9 +21,9 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.hasWorldBeenValidated());
 
-        assertEquals(action.getChannelAddCount(), 0);
-        assertEquals(action.getChannelUpdateCount(), 0);
-        assertEquals(action.getChannelRemoveCount(), 0);
+        assertEquals(action.getSubscriptionSubscribeCount(), 0);
+        assertEquals(action.getSubscriptionUpdateCount(), 0);
+        assertEquals(action.getSubscriptionUnsubscribeCount(), 0);
         assertEquals(action.getEntityUpdateCount(), 0);
         assertEquals(action.getEntityRemoveCount(), 0);
         assertEquals(action.getEntityLinkCount(), 0);
@@ -32,16 +32,16 @@ public class MessageResponseTest extends AbstractReplicantTest {
     @Test
     public void toStatus() {
         final UpdateMessage changeSet =
-                UpdateMessage.create(null, null, null, new ChannelChange[0], new EntityChange[0], null);
+                UpdateMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
 
         final MessageResponse action = new MessageResponse(1, changeSet, null);
 
-        action.incChannelAddCount();
-        action.incChannelAddCount();
-        action.incChannelRemoveCount();
-        action.incChannelRemoveCount();
-        action.incChannelRemoveCount();
-        action.incChannelUpdateCount();
+        action.incSubscriptionSubscribeCount();
+        action.incSubscriptionSubscribeCount();
+        action.incSubscriptionUnsubscribeCount();
+        action.incSubscriptionUnsubscribeCount();
+        action.incSubscriptionUnsubscribeCount();
+        action.incSubscriptionUpdateCount();
         action.incEntityUpdateCount();
         action.incEntityRemoveCount();
         action.incEntityRemoveCount();
@@ -50,9 +50,9 @@ public class MessageResponseTest extends AbstractReplicantTest {
         final DataLoadStatus status = action.toStatus();
 
         assertNull(status.getRequestId());
-        assertEquals(status.getChannelAddCount(), 2);
-        assertEquals(status.getChannelUpdateCount(), 1);
-        assertEquals(status.getChannelRemoveCount(), 3);
+        assertEquals(status.getSubscriptionSubscribeCount(), 2);
+        assertEquals(status.getSubscriptionUpdateCount(), 1);
+        assertEquals(status.getSubscriptionUnsubscribeCount(), 3);
         assertEquals(status.getEntityUpdateCount(), 1);
         assertEquals(status.getEntityRemoveCount(), 2);
         assertEquals(status.getEntityLinkCount(), 1);
@@ -64,24 +64,24 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         final MessageResponse action = new MessageResponse(1, new UpdateMessage(), null);
 
-        assertEquals(action.getChannelAddCount(), 0);
-        assertEquals(action.getChannelUpdateCount(), 0);
-        assertEquals(action.getChannelRemoveCount(), 0);
+        assertEquals(action.getSubscriptionSubscribeCount(), 0);
+        assertEquals(action.getSubscriptionUpdateCount(), 0);
+        assertEquals(action.getSubscriptionUnsubscribeCount(), 0);
         assertEquals(action.getEntityUpdateCount(), 0);
         assertEquals(action.getEntityRemoveCount(), 0);
         assertEquals(action.getEntityLinkCount(), 0);
 
         // We enforce this to make it easier for DCE
-        action.incChannelAddCount();
-        action.incChannelRemoveCount();
-        action.incChannelUpdateCount();
+        action.incSubscriptionSubscribeCount();
+        action.incSubscriptionUnsubscribeCount();
+        action.incSubscriptionUpdateCount();
         action.incEntityUpdateCount();
         action.incEntityRemoveCount();
         action.incEntityLinkCount();
 
-        assertEquals(action.getChannelAddCount(), 0);
-        assertEquals(action.getChannelUpdateCount(), 0);
-        assertEquals(action.getChannelRemoveCount(), 0);
+        assertEquals(action.getSubscriptionSubscribeCount(), 0);
+        assertEquals(action.getSubscriptionUpdateCount(), 0);
+        assertEquals(action.getSubscriptionUnsubscribeCount(), 0);
         assertEquals(action.getEntityUpdateCount(), 0);
         assertEquals(action.getEntityRemoveCount(), 0);
         assertEquals(action.getEntityLinkCount(), 0);
@@ -90,7 +90,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
     @Test
     public void testToString() {
         final UpdateMessage changeSet =
-                UpdateMessage.create(null, null, null, new ChannelChange[0], new EntityChange[0], null);
+                UpdateMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
         final MessageResponse action = new MessageResponse(1, changeSet, null);
         assertEquals(
                 action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
@@ -112,8 +112,8 @@ public class MessageResponseTest extends AbstractReplicantTest {
         // ChangeSet details
         final int requestId = ValueUtil.randomInt();
 
-        // Channel updates
-        final ChannelChange[] channelChanges = new ChannelChange[0];
+        // Subscription changes
+        final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[0];
 
         // Entity Updates
         final int datasetId = 22;
@@ -131,7 +131,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         final Object[] entities = new Object[] {mock(Linkable.class), new Object(), new Object()};
 
         final UpdateMessage changeSet =
-                UpdateMessage.create(requestId, null, null, channelChanges, entityChanges, null);
+                UpdateMessage.create(requestId, null, null, subscriptionChanges, entityChanges, null);
 
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
@@ -141,7 +141,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertEquals(action.getMessage(), changeSet);
         assertEquals(action.getRequest(), request);
 
-        assertFalse(action.needsChannelChangesProcessed());
+        assertFalse(action.needsSubscriptionChangesProcessed());
         assertTrue(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
@@ -173,7 +173,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
             assertEquals(action.getEntityRemoveCount(), 1);
         }
 
-        assertFalse(action.needsChannelChangesProcessed());
+        assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertTrue(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
@@ -200,21 +200,22 @@ public class MessageResponseTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void lifeCycleWithChannelUpdates() {
+    public void lifeCycleWithSubscriptionChanges() {
         // ChangeSet details
         final int requestId = ValueUtil.randomInt();
 
-        // Channel updates
+        // Subscription changes
         final String filter1 = ValueUtil.randomString();
         final String filter2 = ValueUtil.randomString();
-        final ChannelChange channelChange1 = ChannelChange.create("+42", filter1);
-        final ChannelChange channelChange2 = ChannelChange.create("=43.1", filter2);
-        final ChannelChange[] channelChanges = new ChannelChange[] {channelChange1, channelChange2};
+        final SubscriptionChangeMessage subscriptionChange1 = SubscriptionChangeMessage.create("+42", filter1);
+        final SubscriptionChangeMessage subscriptionChange2 = SubscriptionChangeMessage.create("=43.1", filter2);
+        final SubscriptionChangeMessage[] subscriptionChanges =
+                new SubscriptionChangeMessage[] {subscriptionChange1, subscriptionChange2};
 
         final EntityChange[] entityChanges = new EntityChange[0];
 
         final UpdateMessage changeSet =
-                UpdateMessage.create(requestId, null, new String[] {"-43.2"}, channelChanges, entityChanges, null);
+                UpdateMessage.create(requestId, null, new String[] {"-43.2"}, subscriptionChanges, entityChanges, null);
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
 
@@ -223,22 +224,22 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertEquals(action.getMessage(), changeSet);
         assertEquals(action.getRequest(), request);
 
-        assertTrue(action.needsChannelChangesProcessed());
+        assertTrue(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         // processed as single block in caller
-        action.markChannelActionsProcessed();
+        action.markSubscriptionActionsProcessed();
 
-        assertFalse(action.needsChannelChangesProcessed());
+        assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         action.markWorldAsValidated();
 
-        assertFalse(action.needsChannelChangesProcessed());
+        assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
         assertTrue(action.hasWorldBeenValidated());

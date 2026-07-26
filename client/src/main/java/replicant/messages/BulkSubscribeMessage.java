@@ -15,7 +15,7 @@ public final class BulkSubscribeMessage extends ClientToServerMessage {
     public static final String TYPE = Messages.C2S_Type.BULK_SUB;
 
     @NonNull
-    private String[] channels;
+    private String[] datasetAddresses;
 
     @Nullable
     private Object filter;
@@ -23,11 +23,11 @@ public final class BulkSubscribeMessage extends ClientToServerMessage {
     @JsOverlay
     @NonNull
     public static BulkSubscribeMessage create(
-            final int req, @NonNull final String[] channels, @Nullable final Object filter) {
+            final int req, @NonNull final String[] datasetAddresses, @Nullable final Object filter) {
         final BulkSubscribeMessage message = new BulkSubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
-        message.channels = Objects.requireNonNull(channels);
+        message.datasetAddresses = Objects.requireNonNull(datasetAddresses);
         message.filter = filter;
         return message;
     }

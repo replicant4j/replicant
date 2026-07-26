@@ -10,11 +10,11 @@ public class EntityChangeTest extends AbstractReplicantTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void construct_removeMessage() {
-        final String[] channels = {"0", "3.4"};
-        final EntityChange change = EntityChange.create(2, 1, channels);
+        final String[] datasetAddresses = {"0", "3.4"};
+        final EntityChange change = EntityChange.create(2, 1, datasetAddresses);
 
         assertEquals(change.getId(), "2.1");
-        assertEquals(change.getChannels(), channels);
+        assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertTrue(change.isRemove());
         assertFalse(change.isUpdate());
         assertThrows(change::getData);
@@ -22,12 +22,12 @@ public class EntityChangeTest extends AbstractReplicantTest {
 
     @Test
     public void construct_updateMessage() {
-        final String[] channels = {"0", "3.4"};
+        final String[] datasetAddresses = {"0", "3.4"};
         final EntityChangeData data = mock(EntityChangeData.class);
-        final EntityChange change = EntityChange.create(2, 1, channels, data);
+        final EntityChange change = EntityChange.create(2, 1, datasetAddresses, data);
 
         assertEquals(change.getId(), "2.1");
-        assertEquals(change.getChannels(), channels);
+        assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertFalse(change.isRemove());
         assertTrue(change.isUpdate());
         assertEquals(change.getData(), data);

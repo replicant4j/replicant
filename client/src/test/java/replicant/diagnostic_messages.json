@@ -57,7 +57,7 @@
   {
     "code": 13,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasChannels()."
+    "messagePattern": "UpdateMessage.getSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasSubscriptionChanges()."
   },
   {
     "code": 14,
@@ -97,7 +97,7 @@
   {
     "code": 22,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage contains multiple ChannelChange messages for the channel %s."
+    "messagePattern": "UpdateMessage contains multiple Subscription changes for Dataset Address %s."
   },
   {
     "code": 23,
@@ -122,7 +122,7 @@
   {
     "code": 28,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage contains multiple ChannelChange messages for the channel %s."
+    "messagePattern": "UpdateMessage contains multiple Subscription changes for Dataset Address %s."
   },
   {
     "code": 29,
@@ -132,7 +132,7 @@
   {
     "code": 30,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getFilteredChannels() invoked when no changes are present. Should guard call with UpdateMessage.hasFilteredChannels()."
+    "messagePattern": "UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasFilteredSubscriptionChanges()."
   },
   {
     "code": 31,
@@ -147,7 +147,7 @@
   {
     "code": 33,
     "type": "INVARIANT",
-    "messagePattern": "Received ChannelChange of type UPDATE for Dataset Address %s but no such subscription exists."
+    "messagePattern": "Received SubscriptionChange of type UPDATE for Dataset Address %s but no such subscription exists."
   },
   {
     "code": 34,
@@ -202,17 +202,17 @@
   {
     "code": 46,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe from channel at Dataset Address %s but not subscribed to channel."
+    "messagePattern": "Request to unsubscribe at Dataset Address %s but no Subscription exists."
   },
   {
     "code": 47,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe from channel at Dataset Address %s but subscription is not an explicit subscription."
+    "messagePattern": "Request to unsubscribe at Dataset Address %s but subscription is not an explicit subscription."
   },
   {
     "code": 48,
     "type": "INVARIANT",
-    "messagePattern": "Request to update channel at Dataset Address %s but not subscribed to channel."
+    "messagePattern": "Request to update Subscription at Dataset Address %s but no Subscription exists."
   },
   {
     "code": 49,
@@ -332,7 +332,7 @@
   {
     "code": 78,
     "type": "INVARIANT",
-    "messagePattern": "Received ChannelChange of type %s for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
+    "messagePattern": "Received SubscriptionChange of type %s for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
   },
   {
     "code": 79,

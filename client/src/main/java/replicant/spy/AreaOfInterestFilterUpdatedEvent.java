@@ -31,6 +31,6 @@ public final class AreaOfInterestFilterUpdatedEvent implements SerializableEvent
         map.put("datasetAddress.schemaId", datasetAddress.schemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
-        map.put("channel.filter", areaOfInterest.getFilter());
+        map.put("areaOfInterest.filter", areaOfInterest.getFilter());
     }
 }

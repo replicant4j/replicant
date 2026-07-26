@@ -21,9 +21,9 @@ import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.DatasetAddress;
 import replicant.server.MessageTestUtil;
+import replicant.server.SubscriptionAction;
 import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
@@ -71,7 +71,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void subscriptionIndexesByChannelAndRoot() {
+    public void subscriptionIndexesByDatasetAndRoot() {
         final var session = new ReplicantSession(mock(Session.class));
         session.getLock().lock();
         try {
@@ -290,10 +290,10 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 1);
-        final var action = changeSet.getChannelActions().get(0);
+        assertEquals(changeSet.getSubscriptionActions().size(), 1);
+        final var action = changeSet.getSubscriptionActions().get(0);
         assertEquals(action.datasetAddress(), datasetAddress);
-        assertEquals(action.action(), ChannelAction.Action.ADD);
+        assertEquals(action.action(), SubscriptionAction.Action.SUBSCRIBE);
         assertNotNull(action.filter());
         assertEquals(Objects.requireNonNull(action.filter()).getString("k"), "v");
     }
@@ -319,8 +319,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 1);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.UPDATE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 1);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UPDATE);
     }
 
     @Test
@@ -339,9 +339,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 2);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.ADD);
-        assertEquals(changeSet.getChannelActions().get(1).action(), ChannelAction.Action.ADD);
+        assertEquals(changeSet.getSubscriptionActions().size(), 2);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.SUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.SUBSCRIBE);
     }
 
     @Test
@@ -525,7 +525,7 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertTrue(changeSet.getChannelActions().isEmpty());
+        assertTrue(changeSet.getSubscriptionActions().isEmpty());
     }
 
     @Test
@@ -566,8 +566,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 1);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.REMOVE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 1);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
     }
 
     @Test
@@ -592,9 +592,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 2);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.REMOVE);
-        assertEquals(changeSet.getChannelActions().get(1).action(), ChannelAction.Action.REMOVE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 2);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.UNSUBSCRIBE);
     }
 
     @Test
@@ -632,8 +632,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 1);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.REMOVE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 1);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
     }
 
     @Test
@@ -653,8 +653,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 1);
-        assertEquals(changeSet.getChannelActions().get(0).action(), ChannelAction.Action.DELETE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 1);
+        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.DELETE);
     }
 
     @Test
@@ -682,9 +682,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 3);
-        final var actions = changeSet.getChannelActions().stream()
-                .map(ChannelAction::datasetAddress)
+        assertEquals(changeSet.getSubscriptionActions().size(), 3);
+        final var actions = changeSet.getSubscriptionActions().stream()
+                .map(SubscriptionAction::datasetAddress)
                 .collect(java.util.stream.Collectors.toSet());
         assertEquals(actions, Set.of(a, b, c));
     }
@@ -716,7 +716,7 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertTrue(changeSet.getChannelActions().isEmpty());
+        assertTrue(changeSet.getSubscriptionActions().isEmpty());
     }
 
     @Test

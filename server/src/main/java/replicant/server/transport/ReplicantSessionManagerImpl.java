@@ -38,12 +38,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.ChannelLink;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.FilterUtil;
 import replicant.server.ServerConstants;
+import replicant.server.SubscriptionAction;
 import replicant.server.json.JsonEncoder;
 import replicant.server.runtime.EntityMessageCacheUtil;
 import replicant.server.runtime.ReplicantContextHolder;
@@ -434,7 +434,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     if (null != sessionChanges) {
                         changeSet.setRequired(sessionChanges.isRequired());
                         changeSet.merge(sessionChanges.getChanges());
-                        changeSet.mergeActions(sessionChanges.getChannelActions());
+                        changeSet.mergeSubscriptionActions(sessionChanges.getSubscriptionActions());
                     }
 
                     /*
@@ -542,7 +542,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         .flatMap(Collection::stream)
                         .distinct()
                         .count();
-                final var actions = changeSet.getChannelActions().stream()
+                final var actions = changeSet.getSubscriptionActions().stream()
                         .map(JsonEncoder::toDescriptor)
                         .toList();
                 LOG.log(
@@ -556,7 +556,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + outgoingEntityCount + " outgoingChannelLinkCount="
                                 + outgoingChannelLinks + " expandCycleCount="
                                 + expandCycleCount + " expandTimeMs="
-                                + expansionDuration + " channelActions="
+                                + expansionDuration + " subscriptionActions="
                                 + actions);
             }
             session.sendPacket(requestId, response, etag, changeSet);
@@ -572,8 +572,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + incomingEntityCount + " incomingChannelLinkCount="
                                 + incomingChannelLinks + " messageCount="
                                 + messages.size() + " changeCount="
-                                + changeSet.getChanges().size() + " channelActionCount="
-                                + changeSet.getChannelActions().size());
+                                + changeSet.getChanges().size() + " subscriptionActionCount="
+                                + changeSet.getSubscriptionActions().size());
             }
             return false;
         }
@@ -596,8 +596,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     + expandCycleCount
                                     + " changes="
                                     + changeSet.getChanges().size()
-                                    + " channelActions="
-                                    + changeSet.getChannelActions().stream()
+                                    + " subscriptionActions="
+                                    + changeSet.getSubscriptionActions().stream()
                                             .map(JsonEncoder::toDescriptor)
                                             .toList()
                                     + " pending="
@@ -1016,7 +1016,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             session.setETag(newDatasetAddress, null);
                             final var cacheChangeSet = new ChangeSet();
                             cacheChangeSet.merge(cacheEntry.getChangeSet());
-                            // cacheChangeSet.mergeAction( newDatasetAddress, ChannelAction.Action.ADD, filter );
+                            // cacheChangeSet.mergeSubscriptionAction(
+                            //     newDatasetAddress, SubscriptionAction.Action.SUBSCRIBE, filter );
                             queueCachedChangeSet(session, cacheChangeSet);
                             changeSet.setRequired(false);
                         }
@@ -1031,13 +1032,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         // where the root has been removed
                         assert newDatasetAddress.hasDatasetRootId();
                         final var cacheChangeSet = new ChangeSet();
-                        cacheChangeSet.mergeAction(newDatasetAddress, ChannelAction.Action.DELETE);
+                        cacheChangeSet.mergeSubscriptionAction(newDatasetAddress, SubscriptionAction.Action.DELETE);
                         queueCachedChangeSet(session, cacheChangeSet);
                         changeSet.setRequired(false);
                     }
                 }
             } else {
-                _context.collectChannelData(session, newDatasetAddresses, filter, changeSet, isExplicitSubscribe);
+                _context.collectSubscriptionData(session, newDatasetAddresses, filter, changeSet, isExplicitSubscribe);
             }
         }
         if (!datasetAddressesToUpdate.isEmpty()) {
@@ -1047,7 +1048,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var updateDatasetAddresses = update.getValue();
 
                 if (dataset.filterType().isDynamicFilter()) {
-                    _context.collectChannelDataForFilterChange(
+                    _context.collectSubscriptionDataForFilterChange(
                             session, updateDatasetAddresses, originalFilter, Objects.requireNonNull(filter), changeSet);
                 } else {
                     final var message = "Attempted to update filter on Dataset " + dataset.getName() + " to " + filter
@@ -1198,20 +1199,20 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 return entry;
             }
             final var changeSet = new ChangeSet();
-            _context.collectChannelData(null, Collections.singletonList(datasetAddress), null, changeSet, false);
+            _context.collectSubscriptionData(null, Collections.singletonList(datasetAddress), null, changeSet, false);
             final var cacheKey = changeSet.getETag();
-            final var channelAction = changeSet.getChannelActions().stream()
+            final var subscriptionAction = changeSet.getSubscriptionActions().stream()
                     .filter(a -> a.datasetAddress().equals(datasetAddress))
                     .findFirst()
                     .orElse(null);
-            final var action = Objects.requireNonNull(channelAction).action();
+            final var action = Objects.requireNonNull(subscriptionAction).action();
             // Delete indicates the instance dataset has been deleted and will never be a valid dataset to subscribe to.
-            if (ChannelAction.Action.DELETE == action) {
+            if (SubscriptionAction.Action.DELETE == action) {
                 assert null == cacheKey;
                 return null;
             } else {
                 // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
-                assert ChannelAction.Action.ADD == action;
+                assert SubscriptionAction.Action.SUBSCRIBE == action;
                 entry.init(Objects.requireNonNull(cacheKey), changeSet);
                 return entry;
             }

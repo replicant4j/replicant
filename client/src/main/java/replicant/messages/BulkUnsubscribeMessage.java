@@ -14,15 +14,15 @@ public final class BulkUnsubscribeMessage extends ClientToServerMessage {
     public static final String TYPE = Messages.C2S_Type.BULK_UNSUB;
 
     @NonNull
-    private String[] channels;
+    private String[] datasetAddresses;
 
     @JsOverlay
     @NonNull
-    public static BulkUnsubscribeMessage create(final int req, @NonNull final String[] channels) {
+    public static BulkUnsubscribeMessage create(final int req, @NonNull final String[] datasetAddresses) {
         final BulkUnsubscribeMessage message = new BulkUnsubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
-        message.channels = Objects.requireNonNull(channels);
+        message.datasetAddresses = Objects.requireNonNull(datasetAddresses);
         return message;
     }
 }

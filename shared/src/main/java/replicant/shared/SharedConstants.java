@@ -11,9 +11,9 @@ public final class SharedConstants {
      */
     public static final String CONNECTION_URL_FRAGMENT = "/session";
     /**
-     * The url relative to the session that controls the channel subscriptions.
+     * The url relative to the session that controls Subscriptions.
      */
-    public static final String CHANNEL_URL_FRAGMENT = "/channel";
+    public static final String SUBSCRIPTION_URL_FRAGMENT = "/subscription";
 
     private SharedConstants() {}
 }

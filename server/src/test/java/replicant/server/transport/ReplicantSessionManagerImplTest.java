@@ -22,11 +22,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.ChannelLink;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.ServerConstants;
+import replicant.server.SubscriptionAction;
 import replicant.server.ee.RegistryUtil;
 import replicant.server.runtime.EntityMessageCacheUtil;
 import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
@@ -612,9 +612,9 @@ public class ReplicantSessionManagerImplTest {
         }
 
         final var sessionChanges = Objects.requireNonNull(EntityMessageCacheUtil.lookupSessionChanges());
-        assertEquals(sessionChanges.getChannelActions().size(), 2);
-        assertEquals(sessionChanges.getChannelActions().get(0).action(), ChannelAction.Action.REMOVE);
-        assertEquals(sessionChanges.getChannelActions().get(1).action(), ChannelAction.Action.REMOVE);
+        assertEquals(sessionChanges.getSubscriptionActions().size(), 2);
+        assertEquals(sessionChanges.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(sessionChanges.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.UNSUBSCRIBE);
     }
 
     @Test
@@ -658,11 +658,12 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getChannelActions().size(), 2);
-        final var actionByDatasetAddress = changeSet.getChannelActions().stream()
-                .collect(java.util.stream.Collectors.toMap(ChannelAction::datasetAddress, ChannelAction::action));
-        assertEquals(actionByDatasetAddress.get(sourceDatasetAddress), ChannelAction.Action.DELETE);
-        assertEquals(actionByDatasetAddress.get(targetDatasetAddress), ChannelAction.Action.REMOVE);
+        assertEquals(changeSet.getSubscriptionActions().size(), 2);
+        final var actionByDatasetAddress = changeSet.getSubscriptionActions().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        SubscriptionAction::datasetAddress, SubscriptionAction::action));
+        assertEquals(actionByDatasetAddress.get(sourceDatasetAddress), SubscriptionAction.Action.DELETE);
+        assertEquals(actionByDatasetAddress.get(targetDatasetAddress), SubscriptionAction.Action.UNSUBSCRIBE);
     }
 
     @Test
@@ -767,9 +768,9 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @NonNull
-    private HashMap<String, Serializable> instanceRouting(@NonNull final String channelName, final int datasetRootId) {
+    private HashMap<String, Serializable> instanceRouting(@NonNull final String routingKey, final int datasetRootId) {
         final var routingKeys = new HashMap<String, Serializable>();
-        routingKeys.put(channelName, new ArrayList<>(List.of(datasetRootId)));
+        routingKeys.put(routingKey, new ArrayList<>(List.of(datasetRootId)));
         return routingKeys;
     }
 
@@ -856,7 +857,7 @@ public class ReplicantSessionManagerImplTest {
                 @Nullable final JsonObject payload) {}
 
         @Override
-        public void collectChannelData(
+        public void collectSubscriptionData(
                 @Nullable final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject filter,
@@ -868,16 +869,16 @@ public class ReplicantSessionManagerImplTest {
                     final var existing = session.findSubscriptionEntry(datasetAddress);
                     final var entry = null == existing ? session.createSubscriptionEntry(datasetAddress) : existing;
                     entry.setFilter(filter);
-                    changeSet.mergeAction(
+                    changeSet.mergeSubscriptionAction(
                             datasetAddress,
-                            null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE,
+                            null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
                             filter);
                 }
             }
         }
 
         @Override
-        public void collectChannelDataForFilterChange(
+        public void collectSubscriptionDataForFilterChange(
                 @NonNull final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject originalFilter,

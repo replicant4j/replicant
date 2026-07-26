@@ -72,7 +72,7 @@ public final class Messages {
         public static final String REQUEST_ID = "requestId";
 
         @NonNull
-        public static final String CHANNEL = "channel";
+        public static final String DATASET_ADDRESS = "datasetAddress";
 
         @NonNull
         public static final String COMMAND = "command";
@@ -94,11 +94,11 @@ public final class Messages {
     }
 
     public static final class Update {
-        public static final char CHANNEL_ACTION_ADD = '+';
-        public static final char CHANNEL_ACTION_REMOVE = '-';
-        public static final char CHANNEL_ACTION_UPDATE = '=';
-        // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
-        public static final char CHANNEL_ACTION_DELETE = '!';
+        public static final char SUBSCRIPTION_ACTION_SUBSCRIBE = '+';
+        public static final char SUBSCRIPTION_ACTION_UNSUBSCRIBE = '-';
+        public static final char SUBSCRIPTION_ACTION_UPDATE = '=';
+        // Delete indicates the Dataset Root has been deleted and the Dataset Address can no longer be subscribed to.
+        public static final char SUBSCRIPTION_ACTION_DELETE = '!';
 
         @NonNull
         public static final String CHANGES = "changes";
@@ -110,16 +110,19 @@ public final class Messages {
         public static final String DATA = "data";
 
         @NonNull
-        public static final String FILTERED_CHANNEL_ACTIONS = "fchannels";
+        public static final String FILTERED_SUBSCRIPTION_CHANGES = "filteredSubscriptionChanges";
 
         @NonNull
-        public static final String CHANNEL_ACTIONS = "channels";
+        public static final String SUBSCRIPTION_CHANGES = "subscriptionChanges";
 
         @NonNull
         public static final String RESPONSE = "response";
 
         @NonNull
-        public static final String CHANNELS = "channels";
+        public static final String DATASET_ADDRESSES = "datasetAddresses";
+
+        @NonNull
+        public static final String SUBSCRIPTION_ACTION = "subscriptionAction";
 
         @NonNull
         public static final String FILTER = "filter";

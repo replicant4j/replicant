@@ -15,23 +15,23 @@ import org.jspecify.annotations.NonNull;
 @JsType(isNative = true, name = "Object", namespace = JsPackage.GLOBAL)
 public interface EtagsData {
     /**
-     * Return true if etag for channel is present.
+     * Return true if an ETag for the Dataset Address is present.
      *
-     * @param key the channel key.
+     * @param datasetAddress the Dataset Address descriptor.
      * @return true if the etag is present.
      */
     @JsOverlay
-    default boolean containsChannel(@NonNull final String key) {
-        return Js.asPropertyMap(this).has(key);
+    default boolean containsDatasetAddress(@NonNull final String datasetAddress) {
+        return Js.asPropertyMap(this).has(datasetAddress);
     }
 
     /**
-     * Return the channels.
+     * Return the Dataset Address descriptors.
      *
-     * @return eturn the channels.
+     * @return the Dataset Address descriptors.
      */
     @JsOverlay
-    default String[] channels() {
+    default String[] datasetAddresses() {
         final JsArray<String> keys = JsObject.keys(this);
         return keys.asArray(new String[keys.length]);
     }

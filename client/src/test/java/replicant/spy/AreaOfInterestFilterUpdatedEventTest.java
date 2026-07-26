@@ -32,7 +32,7 @@ public class AreaOfInterestFilterUpdatedEventTest extends AbstractReplicantTest 
         assertEquals(data.get("datasetAddress.schemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
-        assertEquals(data.get("channel.filter"), filter);
+        assertEquals(data.get("areaOfInterest.filter"), filter);
         assertEquals(data.size(), 5);
     }
 }

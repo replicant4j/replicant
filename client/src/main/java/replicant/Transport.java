@@ -37,7 +37,7 @@ public interface Transport {
 
     void updateAuthToken(@Nullable String authToken);
 
-    void updateEtagsSync(@NonNull Map<String, String> channelToEtagMap);
+    void updateEtagsSync(@NonNull Map<String, String> datasetAddressToEtagMap);
 
     void requestExec(@NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
 

@@ -45,9 +45,9 @@ public final class MessageProcessedEvent implements SerializableEvent {
         map.put("schema.name", getSchemaName());
         final DataLoadStatus status = getDataLoadStatus();
         map.put("requestId", status.getRequestId());
-        map.put("channelAddCount", status.getChannelAddCount());
-        map.put("channelRemoveCount", status.getChannelRemoveCount());
-        map.put("channelUpdateCount", status.getChannelUpdateCount());
+        map.put("subscriptionSubscribeCount", status.getSubscriptionSubscribeCount());
+        map.put("subscriptionUnsubscribeCount", status.getSubscriptionUnsubscribeCount());
+        map.put("subscriptionUpdateCount", status.getSubscriptionUpdateCount());
         map.put("entityUpdateCount", status.getEntityUpdateCount());
         map.put("entityRemoveCount", status.getEntityRemoveCount());
         map.put("entityLinkCount", status.getEntityLinkCount());

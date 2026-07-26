@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import replicant.DatasetAddress;
 
 /**
- * Notification when a Connector starts to unsubscribe from a channel.
+ * Notification when a Connector starts an unsubscribe operation.
  */
 public final class UnsubscribeStartedEvent implements SerializableEvent {
     private final int _schemaId;

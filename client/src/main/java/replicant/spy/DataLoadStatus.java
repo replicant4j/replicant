@@ -9,12 +9,12 @@ import replicant.Replicant;
 public final class DataLoadStatus {
     @Nullable
     private final Integer _requestId;
-    /// The number of channels added as a result of the Message
-    private final int _channelAddCount;
-    /// The number of channels updated as a result of the Message
-    private final int _channelUpdateCount;
-    /// The number of channels removed as a result of the Message
-    private final int _channelRemoveCount;
+    /// The number of subscribe operations applied as a result of the Message
+    private final int _subscriptionSubscribeCount;
+    /// The number of Subscription update operations applied as a result of the Message
+    private final int _subscriptionUpdateCount;
+    /// The number of unsubscribe or delete operations applied as a result of the Message
+    private final int _subscriptionUnsubscribeCount;
     // The number of entities created or updated as part of change message
     private final int _entityUpdateCount;
     // The number of entities removed as part of change message
@@ -24,16 +24,16 @@ public final class DataLoadStatus {
 
     public DataLoadStatus(
             @Nullable final Integer requestId,
-            final int channelAddCount,
-            final int channelUpdateCount,
-            final int channelRemoveCount,
+            final int subscriptionSubscribeCount,
+            final int subscriptionUpdateCount,
+            final int subscriptionUnsubscribeCount,
             final int entityUpdateCount,
             final int entityRemoveCount,
             final int entityLinkCount) {
         _requestId = requestId;
-        _channelAddCount = channelAddCount;
-        _channelUpdateCount = channelUpdateCount;
-        _channelRemoveCount = channelRemoveCount;
+        _subscriptionSubscribeCount = subscriptionSubscribeCount;
+        _subscriptionUpdateCount = subscriptionUpdateCount;
+        _subscriptionUnsubscribeCount = subscriptionUnsubscribeCount;
         _entityUpdateCount = entityUpdateCount;
         _entityRemoveCount = entityRemoveCount;
         _entityLinkCount = entityLinkCount;
@@ -44,16 +44,16 @@ public final class DataLoadStatus {
         return _requestId;
     }
 
-    public int getChannelAddCount() {
-        return _channelAddCount;
+    public int getSubscriptionSubscribeCount() {
+        return _subscriptionSubscribeCount;
     }
 
-    public int getChannelUpdateCount() {
-        return _channelUpdateCount;
+    public int getSubscriptionUpdateCount() {
+        return _subscriptionUpdateCount;
     }
 
-    public int getChannelRemoveCount() {
-        return _channelRemoveCount;
+    public int getSubscriptionUnsubscribeCount() {
+        return _subscriptionUnsubscribeCount;
     }
 
     public int getEntityUpdateCount() {
@@ -73,10 +73,10 @@ public final class DataLoadStatus {
         if (Replicant.areNamesEnabled()) {
             return "[Message" + (null == _requestId ? "" : " for request " + _requestId)
                     + " involved "
-                    + getChannelAddCount()
-                    + " subscribes, " + getChannelUpdateCount()
-                    + " subscription updates, " + getChannelRemoveCount()
-                    + " un-subscribes, " + getEntityUpdateCount()
+                    + getSubscriptionSubscribeCount()
+                    + " subscribes, " + getSubscriptionUpdateCount()
+                    + " subscription updates, " + getSubscriptionUnsubscribeCount()
+                    + " unsubscribes, " + getEntityUpdateCount()
                     + " updates, " + getEntityRemoveCount()
                     + " removes and " + getEntityLinkCount()
                     + " links" + "]";

@@ -18,7 +18,7 @@ public class UseCacheMessage extends ServerToClientMessage {
     public static final String TYPE = Messages.S2C_Type.USE_CACHE;
 
     @NonNull
-    private String channel;
+    private String datasetAddress;
 
     @NonNull
     private String etag;
@@ -26,19 +26,19 @@ public class UseCacheMessage extends ServerToClientMessage {
     @JsOverlay
     @NonNull
     public static UseCacheMessage create(
-            @Nullable final Integer requestId, @NonNull final String channel, @NonNull final String eTag) {
+            @Nullable final Integer requestId, @NonNull final String datasetAddress, @NonNull final String eTag) {
         final UseCacheMessage changeSet = new UseCacheMessage();
         changeSet.type = TYPE;
         changeSet.requestId = null == requestId ? null : requestId.doubleValue();
-        changeSet.channel = Objects.requireNonNull(channel);
+        changeSet.datasetAddress = Objects.requireNonNull(datasetAddress);
         changeSet.etag = Objects.requireNonNull(eTag);
         return changeSet;
     }
 
     @JsOverlay
     @NonNull
-    public final String getChannel() {
-        return channel;
+    public final String getDatasetAddress() {
+        return datasetAddress;
     }
 
     @JsOverlay

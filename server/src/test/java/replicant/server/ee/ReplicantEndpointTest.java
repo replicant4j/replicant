@@ -323,7 +323,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
                 .add(
-                        Messages.Update.CHANNELS,
+                        Messages.Update.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("2.8#fi2"))
                 .add(Messages.Update.FILTER, filter)
                 .build();
@@ -341,7 +341,7 @@ public final class ReplicantEndpointTest {
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
-                .add(Messages.Update.CHANNELS, Json.createArrayBuilder())
+                .add(Messages.Update.DATASET_ADDRESSES, Json.createArrayBuilder())
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -351,13 +351,13 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_bulkSubscribe_mixedChannels() throws Exception {
+    public void command_bulkSubscribe_mixedDatasets() throws Exception {
         final var fixture = newFixture();
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
                 .add(
-                        Messages.Update.CHANNELS,
+                        Messages.Update.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
@@ -381,7 +381,7 @@ public final class ReplicantEndpointTest {
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.UNSUB)
                 .add(Messages.Common.REQUEST_ID, 7)
-                .add(Messages.Common.CHANNEL, "1.5")
+                .add(Messages.Common.DATASET_ADDRESS, "1.5")
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -397,7 +397,7 @@ public final class ReplicantEndpointTest {
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.UNSUB)
                 .add(Messages.Common.REQUEST_ID, 7)
-                .add(Messages.Common.CHANNEL, "1.5#fi")
+                .add(Messages.Common.DATASET_ADDRESS, "1.5#fi")
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -415,7 +415,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
                 .add(Messages.Common.REQUEST_ID, 8)
                 .add(
-                        Messages.Update.CHANNELS,
+                        Messages.Update.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("1.1").add("1.2"))
                 .build();
 
@@ -427,13 +427,13 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_bulkUnsubscribe_mixedChannels() throws Exception {
+    public void command_bulkUnsubscribe_mixedDatasets() throws Exception {
         final var fixture = newFixture();
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
                 .add(Messages.Common.REQUEST_ID, 8)
                 .add(
-                        Messages.Update.CHANNELS,
+                        Messages.Update.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
@@ -497,11 +497,11 @@ public final class ReplicantEndpointTest {
 
     @NonNull
     private JsonObject createSubscribeCommand(
-            @NonNull final String channel, final int requestId, @Nullable final JsonObject filter) {
+            @NonNull final String datasetAddressDescriptor, final int requestId, @Nullable final JsonObject filter) {
         final var builder = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.SUB)
                 .add(Messages.Common.REQUEST_ID, requestId)
-                .add(Messages.Common.CHANNEL, channel);
+                .add(Messages.Common.DATASET_ADDRESS, datasetAddressDescriptor);
         if (null != filter) {
             builder.add(Messages.Update.FILTER, filter);
         }

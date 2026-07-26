@@ -99,7 +99,7 @@ public class AbstractSessionContextImplTest {
         final var filter = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        context.collectChannelData(session, datasetAddresses, filter, changeSet, true);
+        context.collectSubscriptionData(session, datasetAddresses, filter, changeSet, true);
 
         assertEquals(context.getBulkCollectCalls().size(), 1);
         final var call = context.getBulkCollectCalls().get(0);
@@ -374,7 +374,7 @@ public class AbstractSessionContextImplTest {
                 @Nullable final JsonObject payload) {}
 
         @Override
-        public void collectChannelData(
+        public void collectSubscriptionData(
                 @Nullable final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject filter,
@@ -393,7 +393,7 @@ public class AbstractSessionContextImplTest {
         }
 
         @Override
-        public void collectChannelDataForFilterChange(
+        public void collectSubscriptionDataForFilterChange(
                 @NonNull final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject originalFilter,

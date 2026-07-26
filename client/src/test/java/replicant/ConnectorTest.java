@@ -16,12 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
-import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChangeDataImpl;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.SubscriptionChangeMessage;
 import replicant.messages.UpdateMessage;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
@@ -830,16 +830,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final String[] channels = {"+0"};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"+0"};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         assertNull(connector.getSchedulerLock());
 
         connector.resumeMessageScheduler();
 
-        // response needs processing of channel messages
+        // response needs processing of Subscription changes
 
         final boolean result0 = connector.progressMessages();
 
@@ -872,10 +873,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final String[] channels = {"+0"};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"+0"};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final AtomicInteger callCount = new AtomicInteger();
         connector.setPostMessageResponseAction(callCount::incrementAndGet);
@@ -927,8 +929,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(
                     e.getError().getMessage(),
-                    "Replicant-0046: Request to unsubscribe from channel at Dataset Address 0.0 but not subscribed to"
-                            + " channel.");
+                    "Replicant-0046: Request to unsubscribe at Dataset Address 0.0 but no Subscription exists.");
         });
     }
 
@@ -1404,7 +1405,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // This Replica Entry is to be updated
         final ReplicaEntry replicaEntry2 = findOrCreateReplicaEntry(Linkable.class, 2);
         safeAction(() -> replicaEntry2.setReplica(replica2));
-        // It is already subscribed to channel and that should be fine
+        // The Replica already belongs to the Subscription and that should be fine
         safeAction(() -> replicaEntry2.linkToSubscription(subscription));
         // This Replica Entry is to be removed
         final ReplicaEntry replicaEntry3 = findOrCreateReplicaEntry(Linkable.class, 3);
@@ -1646,26 +1647,27 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_add() {
+    public void processSubscriptionChanges_subscribe() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
         final int datasetId = 0;
         final int datasetRootId = ValueUtil.randomInt();
         final String filter = null;
-        final String[] channels = {"+0." + datasetRootId};
+        final String[] subscriptionChanges = {"+0." + datasetRootId};
 
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        assertTrue(response.needsChannelChangesProcessed());
+        assertTrue(response.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
+        assertFalse(response.needsSubscriptionChangesProcessed());
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
@@ -1682,25 +1684,28 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_add_withFilter() {
+    public void processSubscriptionChanges_subscribe_withFilter() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
         final int datasetId = 0;
         final int datasetRootId = ValueUtil.randomInt();
         final String filter = ValueUtil.randomString();
-        final ChannelChange[] fchannels = {ChannelChange.create("+0." + datasetRootId, filter)};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, fchannels, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, fchannels[0])));
+        final SubscriptionChangeMessage[] filteredSubscriptionChanges = {
+            SubscriptionChangeMessage.create("+0." + datasetRootId, filter)
+        };
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, null, filteredSubscriptionChanges, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, filteredSubscriptionChanges[0])));
 
-        assertTrue(response.needsChannelChangesProcessed());
+        assertTrue(response.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
+        assertFalse(response.needsSubscriptionChangesProcessed());
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
@@ -1717,7 +1722,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_add_withCorrespondingAreaOfInterest() {
+    public void processSubscriptionChanges_subscribe_withCorrespondingAreaOfInterest() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
@@ -1728,18 +1733,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"+0." + datasetRootId};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"+0." + datasetRootId};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        assertTrue(response.needsChannelChangesProcessed());
+        assertTrue(response.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
+        assertFalse(response.needsSubscriptionChangesProcessed());
 
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
@@ -1755,7 +1761,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_addConvertingImplicitToExplicit() {
+    public void processSubscriptionChanges_subscribeConvertingImplicitToExplicit() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
@@ -1765,25 +1771,26 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"+0." + datasetAddress.datasetRootId()};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"+0." + datasetAddress.datasetRootId()};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final AreaOfInterestRequest request =
                 new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, null);
         connection.injectCurrentAreaOfInterestRequest(request);
         request.markAsInProgress(newRequest(connection).getRequestId());
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelAddCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionSubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelAddCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionSubscribeCount(), 1);
 
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
@@ -1799,7 +1806,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_remove() {
+    public void processSubscriptionChanges_unsubscribe() {
         final Connector connector = createConnector();
         connector.pauseMessageScheduler();
 
@@ -1807,22 +1814,23 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
-        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription initialSubscription = createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
@@ -1835,7 +1843,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_remove_withAreaOfInterest() {
+    public void processSubscriptionChanges_unsubscribe_withAreaOfInterest() {
         final Connector connector = createConnector();
         connector.pauseMessageScheduler();
 
@@ -1846,21 +1854,22 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
+        final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         final Subscription initialSubscription = createSubscription(datasetAddress, ValueUtil.randomString(), true);
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
@@ -1878,29 +1887,30 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_remove_WithMissingSubscription() {
+    public void processSubscriptionChanges_unsubscribe_WithMissingSubscription() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final String[] channels = {"-0.72"};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 0);
+        final String[] subscriptionChanges = {"-0.72"};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void processChannelChanges_remove_WithMissingSubscription_butAreaOfInterestPresent() {
+    public void processSubscriptionChanges_unsubscribe_WithMissingSubscription_butAreaOfInterestPresent() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
@@ -1909,19 +1919,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 0);
+        final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         assertTrue(Disposable.isDisposed(areaOfInterest));
 
@@ -1932,7 +1943,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_delete_WithMissingSubscription_butAreaOfInterestPresent() {
+    public void processSubscriptionChanges_delete_WithMissingSubscription_butAreaOfInterestPresent() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
@@ -1941,19 +1952,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        final String[] channels = {"!0." + datasetAddress.datasetRootId()};
-        final MessageResponse response =
-                setCurrentMessageResponse(connection, UpdateMessage.create(null, null, channels, null, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channels[0])));
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 0);
+        final String[] subscriptionChanges = {"!0." + datasetAddress.datasetRootId()};
+        final MessageResponse response = setCurrentMessageResponse(
+                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelRemoveCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         assertFalse(Disposable.isDisposed(areaOfInterest));
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.DELETED);
@@ -1965,7 +1977,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_update() {
+    public void processSubscriptionChanges_update() {
         final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
         final Dataset dataset = new Dataset(
                 0,
@@ -1991,23 +2003,25 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String oldFilter = ValueUtil.randomString();
         final String newFilter = ValueUtil.randomString();
-        final ChannelChange[] channelChanges =
-                new ChannelChange[] {ChannelChange.create("=0." + datasetAddress.datasetRootId(), newFilter)};
+        final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
+            SubscriptionChangeMessage.create("=0." + datasetAddress.datasetRootId(), newFilter)
+        };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
+                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription initialSubscription = createSubscription(datasetAddress, oldFilter, true);
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNotNull(subscription);
@@ -2017,7 +2031,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_update_withDatasetKey() {
+    public void processSubscriptionChanges_update_withDatasetKey() {
         final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
         final Dataset dataset = new Dataset(
                 0,
@@ -2042,26 +2056,28 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String oldFilter = ValueUtil.randomString();
         final String newFilter = ValueUtil.randomString();
-        final ChannelChange[] channelChanges =
-                new ChannelChange[] {ChannelChange.create("=0." + datasetRootId + "#fi", newFilter)};
+        final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
+            SubscriptionChangeMessage.create("=0." + datasetRootId + "#fi", newFilter)
+        };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
+                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription subscription = createSubscription(datasetAddress, oldFilter, true);
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 0);
 
-        connector.processChannelChanges();
+        connector.processSubscriptionChanges();
 
-        assertFalse(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 1);
+        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 1);
         safeAction(() -> assertEquals(subscription.getFilter(), newFilter));
     }
 
     @Test
-    public void processChannelChanges_update_forNonDYNAMICDataset() {
+    public void processSubscriptionChanges_update_forNonDYNAMICDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -2079,45 +2095,49 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String oldFilter = ValueUtil.randomString();
         final String newFilter = ValueUtil.randomString();
-        final ChannelChange[] channelChanges = new ChannelChange[] {ChannelChange.create("=0.2223", newFilter)};
+        final SubscriptionChangeMessage[] subscriptionChanges =
+                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilter)};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
+                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         createSubscription(new DatasetAddress(1, 0, 2223), oldFilter, true);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, connector::processChannelChanges);
+                expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address 1.0.2223 but the Dataset"
-                        + " does not have a DYNAMIC filter.");
+                "Replicant-0078: Received SubscriptionChange of type UPDATE for Dataset Address 1.0.2223 but the"
+                        + " Dataset does not have a DYNAMIC filter.");
     }
 
     @Test
-    public void processChannelChanges_update_missingSubscription() {
+    public void processSubscriptionChanges_update_missingSubscription() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
         final String newFilter = ValueUtil.randomString();
-        final ChannelChange[] channelChanges = new ChannelChange[] {ChannelChange.create("=0.42", newFilter)};
+        final SubscriptionChangeMessage[] subscriptionChanges =
+                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilter)};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, channelChanges, null, null));
-        response.setParsedChannelChanges(Collections.singletonList(ChannelChangeDescriptor.from(1, channelChanges[0])));
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 0);
+                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, connector::processChannelChanges);
+                expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
 
-        assertTrue(response.needsChannelChangesProcessed());
-        assertEquals(response.getChannelUpdateCount(), 0);
+        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertEquals(response.getSubscriptionUpdateCount(), 0);
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0033: Received ChannelChange of type UPDATE for Dataset Address 1.0.42 but no such"
+                "Replicant-0033: Received SubscriptionChange of type UPDATE for Dataset Address 1.0.42 but no such"
                         + " subscription exists.");
 
         handler.assertEventCount(0);
@@ -2230,8 +2250,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0046: Request to unsubscribe from channel at Dataset Address 1.1.1 but not subscribed to"
-                        + " channel.");
+                "Replicant-0046: Request to unsubscribe at Dataset Address 1.1.1 but no Subscription exists.");
     }
 
     @Test
@@ -2255,7 +2274,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0047: Request to unsubscribe from channel at Dataset Address 1.1.1 but subscription is not"
+                "Replicant-0047: Request to unsubscribe at Dataset Address 1.1.1 but subscription is not"
                         + " an explicit subscription.");
     }
 
@@ -2317,7 +2336,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0048: Request to update channel at Dataset Address 1.1.1 but not subscribed to channel.");
+                "Replicant-0048: Request to update Subscription at Dataset Address 1.1.1 but no Subscription exists.");
     }
 
     @Test
@@ -2555,12 +2574,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(connection.getPendingResponses().size(), 0);
 
         {
-            assertTrue(response.needsChannelChangesProcessed());
+            assertTrue(response.needsSubscriptionChangesProcessed());
 
-            // Process Channel Changes in response
+            // Process Subscription changes in response
             assertTrue(connector.progressResponseProcessing());
 
-            assertFalse(response.needsChannelChangesProcessed());
+            assertFalse(response.needsSubscriptionChangesProcessed());
         }
 
         {

@@ -191,7 +191,7 @@ public class ReplicantEndpoint {
 
     private void onSubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
-        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
+        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.DATASET_ADDRESS));
         final var datasetMetadata = getDatasetMetadata(datasetAddress.datasetId());
         if (checkSubscribeRequest(replicantSession, datasetMetadata, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
@@ -249,7 +249,7 @@ public class ReplicantEndpoint {
 
     @NonNull
     private DatasetAddress[] extractDatasetAddresses(@NonNull final JsonObject command) {
-        final var datasetAddressDescriptors = command.getJsonArray(Messages.Update.CHANNELS);
+        final var datasetAddressDescriptors = command.getJsonArray(Messages.Update.DATASET_ADDRESSES);
         final var datasetAddressCount = datasetAddressDescriptors.size();
         final var datasetAddresses = new DatasetAddress[datasetAddressCount];
         for (var i = 0; i < datasetAddressCount; i++) {
@@ -270,7 +270,7 @@ public class ReplicantEndpoint {
 
     private void onUnsubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
-        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
+        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.DATASET_ADDRESS));
         final var datasetMetadata = getDatasetMetadata(datasetAddress.datasetId());
         if (checkUnsubscribeRequest(replicantSession, datasetMetadata, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);

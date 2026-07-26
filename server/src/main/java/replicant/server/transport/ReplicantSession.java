@@ -24,8 +24,8 @@ import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
 import replicant.server.DatasetAddress;
+import replicant.server.SubscriptionAction;
 import replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession implements Serializable, Closeable {
@@ -293,7 +293,7 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     /**
-     * Return subscription entry for specified channel.
+     * Return the Subscription Entry for the specified Dataset Address.
      */
     @SuppressWarnings("WeakerAccess")
     @NonNull
@@ -386,8 +386,10 @@ public final class ReplicantSession implements Serializable, Closeable {
             entry.setExplicitlySubscribed(true);
         }
         entry.setFilter(filter);
-        changeSet.mergeAction(
-                datasetAddress, null == existing ? ChannelAction.Action.ADD : ChannelAction.Action.UPDATE, filter);
+        changeSet.mergeSubscriptionAction(
+                datasetAddress,
+                null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
+                filter);
     }
 
     @Nullable
@@ -478,8 +480,9 @@ public final class ReplicantSession implements Serializable, Closeable {
             entry.setExplicitlySubscribed(false);
         }
         if (entry.canUnsubscribe()) {
-            changeSet.mergeAction(
-                    entry.datasetAddress(), delete ? ChannelAction.Action.DELETE : ChannelAction.Action.REMOVE);
+            changeSet.mergeSubscriptionAction(
+                    entry.datasetAddress(),
+                    delete ? SubscriptionAction.Action.DELETE : SubscriptionAction.Action.UNSUBSCRIBE);
             for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptions())) {
                 delinkAllDownstreamSubscription(entry, downstream, changeSet);
             }

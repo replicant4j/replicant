@@ -2,6 +2,21 @@
 
 ### Unreleased
 
+* Adopt Subscription operation terminology across client and server APIs, protocol messages, processing, diagnostics,
+  metrics, tests, Domgen generation, and generated integrations:
+  * Rename server `ChannelAction` to `SubscriptionAction`, client parsed `ChannelChangeDescriptor` to
+    `SubscriptionChange`, and the wire DTO `messages.ChannelChange` to `SubscriptionChangeMessage`.
+  * Rename ChangeSet action APIs, client response processing, processed state, and subscribe/update/unsubscribe
+    counters to use Subscription action and change terminology.
+  * Rename generated `collectChannelData*` hooks to `collectSubscriptionData*` and migrate handwritten overrides.
+  * Rename `CHANNEL_URL_FRAGMENT` to `SUBSCRIPTION_URL_FRAGMENT` and its value from `/channel` to `/subscription`.
+  * Rename single and bulk operation payload fields to `datasetAddress` and `datasetAddresses`, Entity-change
+    membership fields to `datasetAddresses`, and update payload fields to `subscriptionChanges`,
+    `filteredSubscriptionChanges`, and `subscriptionAction`.
+  This hard-cut protocol and API migration is intentionally wire-incompatible with older clients and servers; they
+  must be upgraded together. Descriptor codes, behavior, ordering, batching, reconciliation, and ETag address keys are
+  unchanged. Channel Link, required-type dependency, Type/Instance Dataset, Filter, and Subscription Mode terminology
+  remain deferred.
 * Adopt Dataset terminology across reusable definition APIs, metadata, generation, diagnostics, tests, and
   documentation:
   * Rename client `ChannelSchema` to `Dataset` and migrate `SystemSchema` Dataset arrays, counts, lookups, and

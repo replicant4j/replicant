@@ -106,8 +106,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
                     "event=broker.packet.queue sessionId=" + session.getId() + " requestId="
                             + requestId + " messageCount="
                             + messages.size() + " changeCount="
-                            + changeSet.getChanges().size() + " channelActionCount="
-                            + changeSet.getChannelActions().size() + " altersExplicitSubscriptions="
+                            + changeSet.getChanges().size() + " subscriptionActionCount="
+                            + changeSet.getSubscriptionActions().size() + " altersExplicitSubscriptions="
                             + altersExplicitSubscriptions + " newlyQueued="
                             + newlyQueued + " queueSize="
                             + _queue.size() + " workStateCount="
@@ -443,8 +443,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         }
         return "packetPresent=true requestId=" + packet.requestId() + " messageCount="
                 + packet.messages().size() + " changeCount="
-                + packet.changeSet().getChanges().size() + " channelActionCount="
-                + packet.changeSet().getChannelActions().size() + " altersExplicitSubscriptions="
+                + packet.changeSet().getChanges().size() + " subscriptionActionCount="
+                + packet.changeSet().getSubscriptionActions().size() + " altersExplicitSubscriptions="
                 + packet.altersExplicitSubscriptions();
     }
 

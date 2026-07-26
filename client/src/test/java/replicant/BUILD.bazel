@@ -12,8 +12,6 @@ CLIENT_TEST_CLASSES = [
     "replicant.AreaOfInterestServiceTest",
     "replicant.AreaOfInterestTest",
     "replicant.CacheEntryTest",
-    "replicant.ChannelChangeDescriptorTest",
-    "replicant.ChannelChangeTest",
     "replicant.ConnectionTest",
     "replicant.ConnectorEntryTest",
     "replicant.ConnectorStateTest",
@@ -36,6 +34,8 @@ CLIENT_TEST_CLASSES = [
     "replicant.SchemaServiceTest",
     "replicant.SpyImplTest",
     "replicant.SubscriptionReconcilerTest",
+    "replicant.SubscriptionChangeMessageTest",
+    "replicant.SubscriptionChangeTest",
     "replicant.SubscriptionServiceTest",
     "replicant.SubscriptionTest",
     "replicant.SystemSchemaTest",
@@ -119,8 +119,6 @@ java_library(
         "AreaOfInterestServiceTest.java",
         "AreaOfInterestTest.java",
         "CacheEntryTest.java",
-        "ChannelChangeDescriptorTest.java",
-        "ChannelChangeTest.java",
         "ConnectionTest.java",
         "ConnectorEntryTest.java",
         "ConnectorStateTest.java",
@@ -142,6 +140,8 @@ java_library(
         "RequestTest.java",
         "SchemaServiceTest.java",
         "SpyImplTest.java",
+        "SubscriptionChangeMessageTest.java",
+        "SubscriptionChangeTest.java",
         "SubscriptionReconcilerTest.java",
         "SubscriptionServiceTest.java",
         "SubscriptionTest.java",
@@ -214,24 +214,6 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.CacheEntryTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
-    name = "ChannelChangeDescriptorTest",
-    srcs = ["ChannelChangeDescriptorTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.ChannelChangeDescriptorTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
-    name = "ChannelChangeTest",
-    srcs = ["ChannelChangeTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.ChannelChangeTest",
     deps = ["//client:client_test_support"],
 )
 
@@ -421,6 +403,24 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.SpyImplTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "SubscriptionChangeMessageTest",
+    srcs = ["SubscriptionChangeMessageTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SubscriptionChangeMessageTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "SubscriptionChangeTest",
+    srcs = ["SubscriptionChangeTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SubscriptionChangeTest",
     deps = ["//client:client_test_support"],
 )
 

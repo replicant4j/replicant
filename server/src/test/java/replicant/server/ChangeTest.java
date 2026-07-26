@@ -41,7 +41,7 @@ public class ChangeTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void merge_combinesChannels() {
+    public void merge_combinesDatasetAddresses() {
         final var id = 17;
         final var typeID = 42;
 

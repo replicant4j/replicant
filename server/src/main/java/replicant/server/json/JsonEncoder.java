@@ -15,9 +15,9 @@ import javax.json.stream.JsonGeneratorFactory;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
-import replicant.server.ChannelAction.Action;
 import replicant.server.DatasetAddress;
+import replicant.server.SubscriptionAction;
+import replicant.server.SubscriptionAction.Action;
 import replicant.shared.Messages;
 
 /**
@@ -62,23 +62,23 @@ public final class JsonEncoder {
             generator.write(Messages.S2C_Common.ETAG, etag);
         }
 
-        final var actions = changeSet.getChannelActions().stream()
+        final var actions = changeSet.getSubscriptionActions().stream()
                 .filter(c -> null == c.filter())
                 .toList();
         if (!actions.isEmpty()) {
-            generator.writeStartArray(Messages.Update.CHANNEL_ACTIONS);
+            generator.writeStartArray(Messages.Update.SUBSCRIPTION_CHANGES);
             actions.stream().map(JsonEncoder::toDescriptor).forEach(generator::write);
             generator.writeEnd();
         }
 
-        final var filteredActions = changeSet.getChannelActions().stream()
+        final var filteredActions = changeSet.getSubscriptionActions().stream()
                 .filter(c -> null != c.filter())
                 .toList();
         if (!filteredActions.isEmpty()) {
-            generator.writeStartArray(Messages.Update.FILTERED_CHANNEL_ACTIONS);
+            generator.writeStartArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES);
             filteredActions.forEach(a -> {
                 generator.writeStartObject();
-                generator.write(Messages.Common.CHANNEL, toDescriptor(a));
+                generator.write(Messages.Update.SUBSCRIPTION_ACTION, toDescriptor(a));
                 generator.write(Messages.Update.FILTER, a.filter());
                 generator.writeEnd();
             });
@@ -97,7 +97,7 @@ public final class JsonEncoder {
 
                 final var datasetAddresses = change.getDatasetAddresses();
                 if (!datasetAddresses.isEmpty()) {
-                    generator.writeStartArray(Messages.Update.CHANNELS);
+                    generator.writeStartArray(Messages.Update.DATASET_ADDRESSES);
                     for (final var datasetAddress : datasetAddresses) {
                         assert datasetAddress.concrete();
                         generator.write(datasetAddress.toString());
@@ -123,17 +123,17 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String toDescriptor(@NonNull final ChannelAction channelAction) {
-        assert channelAction.datasetAddress().concrete();
-        final var action = channelAction.action();
-        final var actionValue = Action.ADD == action
-                ? Messages.Update.CHANNEL_ACTION_ADD
-                : Action.REMOVE == action
-                        ? Messages.Update.CHANNEL_ACTION_REMOVE
+    public static String toDescriptor(@NonNull final SubscriptionAction subscriptionAction) {
+        assert subscriptionAction.datasetAddress().concrete();
+        final var action = subscriptionAction.action();
+        final var actionValue = Action.SUBSCRIBE == action
+                ? Messages.Update.SUBSCRIPTION_ACTION_SUBSCRIBE
+                : Action.UNSUBSCRIBE == action
+                        ? Messages.Update.SUBSCRIPTION_ACTION_UNSUBSCRIBE
                         : Action.UPDATE == action
-                                ? Messages.Update.CHANNEL_ACTION_UPDATE
-                                : Messages.Update.CHANNEL_ACTION_DELETE;
-        return String.valueOf(actionValue) + channelAction.datasetAddress();
+                                ? Messages.Update.SUBSCRIPTION_ACTION_UPDATE
+                                : Messages.Update.SUBSCRIPTION_ACTION_DELETE;
+        return String.valueOf(actionValue) + subscriptionAction.datasetAddress();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -169,7 +169,7 @@ public final class JsonEncoder {
         assert datasetAddress.concrete();
         final var response = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE)
-                .add(Messages.Common.CHANNEL, datasetAddress.toString())
+                .add(Messages.Common.DATASET_ADDRESS, datasetAddress.toString())
                 .add(Messages.S2C_Common.ETAG, eTag);
         if (null != requestId) {
             response.add(Messages.Common.REQUEST_ID, requestId);

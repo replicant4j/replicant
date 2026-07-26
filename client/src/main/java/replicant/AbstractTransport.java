@@ -42,9 +42,9 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void updateEtagsSync(@NonNull final Map<String, String> channelToEtagMap) {
+    public final void updateEtagsSync(@NonNull final Map<String, String> datasetAddressToEtagMap) {
         final JsPropertyMap<Object> map = JsPropertyMap.of();
-        channelToEtagMap.forEach(map::set);
+        datasetAddressToEtagMap.forEach(map::set);
         final int requestId = newRequestId("Sync", true, null);
         sendRemoteMessage(EtagsMessage.create(requestId, Js.uncheckedCast(map)));
     }

@@ -71,16 +71,16 @@ public interface ReplicantSessionContext {
             @NonNull ReplicantSession session, @NonNull String command, int requestId, @Nullable JsonObject payload);
 
     /**
-     * Add changes to the ChangeSet as a result of subscribing to a channel.
-     * If the session is not null, then the method implementation is expected to update session state to reflect subscription addition.
+     * Add changes to the ChangeSet as a result of subscribing at one or more Dataset Addresses.
+     * If the session is not null, then the implementation is expected to update the actual Subscription state.
      *
      * @param session             the session. May be null if data is being collected for caching.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
-     * @param filter              the filter to apply to the channels. May be null if the channel has no filter parameter.
+     * @param filter           the Filter Parameter. May be null if the Dataset has no Filter Parameter.
      * @param changeSet           the changeSet to add the collected data to.
      * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
      */
-    void collectChannelData(
+    void collectSubscriptionData(
             @Nullable ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable JsonObject filter,
@@ -88,17 +88,17 @@ public interface ReplicantSessionContext {
             boolean isExplicitSubscribe);
 
     /**
-     * Add changes to the ChangeSet as a result of changing the channel filter.
+     * Add changes to the ChangeSet as a result of changing a Subscription Filter Parameter.
      * It is expected that the hook does everything including updating SubscriptionEntry with new
      * filter, adding graph links etc.
      *
      * @param session        the session.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
-     * @param originalFilter the old filter that was applied to the channels.
-     * @param newFilter      the new filter to apply to the channels.
+     * @param originalFilter the old Filter Parameter.
+     * @param newFilter      the new Filter Parameter.
      * @param changeSet      the changeSet to add the collected data to.
      */
-    void collectChannelDataForFilterChange(
+    void collectSubscriptionDataForFilterChange(
             @NonNull ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
             @NonNull JsonObject originalFilter,

@@ -14,18 +14,19 @@ public final class SubscribeMessage extends ClientToServerMessage {
     public static final String TYPE = Messages.C2S_Type.SUB;
 
     @NonNull
-    private String channel;
+    private String datasetAddress;
 
     @Nullable
     private Object filter;
 
     @JsOverlay
     @NonNull
-    public static SubscribeMessage create(final int req, @NonNull final String ch, @Nullable final Object filter) {
+    public static SubscribeMessage create(
+            final int req, @NonNull final String datasetAddress, @Nullable final Object filter) {
         final SubscribeMessage message = new SubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
-        message.channel = ch;
+        message.datasetAddress = datasetAddress;
         if (null != filter) {
             message.filter = filter;
         }

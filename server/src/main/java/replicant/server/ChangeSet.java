@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class ChangeSet {
     @NonNull
-    private final List<ChannelAction> _channelActions = new LinkedList<>();
+    private final List<SubscriptionAction> _subscriptionActions = new LinkedList<>();
 
     @NonNull
     private final Map<String, Change> _changes = new LinkedHashMap<>();
@@ -23,7 +23,7 @@ public final class ChangeSet {
     private String _eTag;
 
     public boolean hasContent() {
-        return _required || !_channelActions.isEmpty() || !_changes.isEmpty();
+        return _required || !_subscriptionActions.isEmpty() || !_changes.isEmpty();
     }
 
     public boolean isRequired() {
@@ -44,52 +44,58 @@ public final class ChangeSet {
         _eTag = Objects.requireNonNull(eTag);
     }
 
-    public void mergeActions(@NonNull final Collection<ChannelAction> actions) {
+    public void mergeSubscriptionActions(@NonNull final Collection<SubscriptionAction> actions) {
         for (final var action : actions) {
-            mergeAction(action);
+            mergeSubscriptionAction(action);
         }
     }
 
-    public void mergeAction(@NonNull final DatasetAddress datasetAddress, final ChannelAction.@NonNull Action action) {
-        mergeAction(datasetAddress, action, null);
+    public void mergeSubscriptionAction(
+            @NonNull final DatasetAddress datasetAddress, final SubscriptionAction.@NonNull Action action) {
+        mergeSubscriptionAction(datasetAddress, action, null);
     }
 
-    public void mergeAction(
+    public void mergeSubscriptionAction(
             @NonNull final DatasetAddress datasetAddress,
-            final ChannelAction.@NonNull Action action,
+            final SubscriptionAction.@NonNull Action action,
             @Nullable final JsonObject filter) {
         //noinspection ConstantValue
-        assert ChannelAction.Action.DELETE != action || ChannelAction.Action.REMOVE != action || null == filter;
-        mergeAction(ChannelAction.of(datasetAddress, action, filter));
+        assert SubscriptionAction.Action.DELETE != action
+                || SubscriptionAction.Action.UNSUBSCRIBE != action
+                || null == filter;
+        mergeSubscriptionAction(SubscriptionAction.of(datasetAddress, action, filter));
     }
 
-    public void mergeAction(@NonNull final ChannelAction action) {
+    public void mergeSubscriptionAction(@NonNull final SubscriptionAction action) {
         final var actionType = action.action();
         /*
          * If we have a matching inverse action in actions list then we can remove
          * that action and avoid adding this action. This avoids scenario where there
          * are multiple actions for the same Dataset Address and filter in ChangeSet.
          */
-        if (ChannelAction.Action.ADD == actionType) {
-            final var removedRemove = _channelActions.removeIf(a -> ChannelAction.Action.REMOVE == a.action()
-                    && a.datasetAddress().equals(action.datasetAddress())
-                    && null == a.filter());
-            _channelActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
-            if (removedRemove) {
+        if (SubscriptionAction.Action.SUBSCRIBE == actionType) {
+            final var removedUnsubscribe =
+                    _subscriptionActions.removeIf(a -> SubscriptionAction.Action.UNSUBSCRIBE == a.action()
+                            && a.datasetAddress().equals(action.datasetAddress())
+                            && null == a.filter());
+            _subscriptionActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
+            if (removedUnsubscribe) {
                 return;
             }
-        } else if (ChannelAction.Action.UPDATE == actionType) {
-            // We have got an update for one we are adding so ignore the update and maybe update the existing
+        } else if (SubscriptionAction.Action.UPDATE == actionType) {
+            // We have got an update for one we are subscribing to so ignore the update and maybe update the existing
+            // action
             final var newFilter = action.filter();
             var flags = new boolean[1];
-            _channelActions.replaceAll(a -> {
+            _subscriptionActions.replaceAll(a -> {
                 final var datasetAddress = a.datasetAddress();
-                if (ChannelAction.Action.ADD == a.action() && datasetAddress.equals(action.datasetAddress())) {
+                if (SubscriptionAction.Action.SUBSCRIBE == a.action()
+                        && datasetAddress.equals(action.datasetAddress())) {
                     flags[0] = true;
                     if (FilterUtil.filtersEqual(a.filter(), newFilter)) {
                         return a;
                     } else {
-                        return ChannelAction.of(datasetAddress, ChannelAction.Action.ADD, newFilter);
+                        return SubscriptionAction.of(datasetAddress, SubscriptionAction.Action.SUBSCRIBE, newFilter);
                     }
                 } else {
                     return a;
@@ -99,21 +105,23 @@ public final class ChangeSet {
             if (flags[0]) {
                 return;
             }
-        } else if (ChannelAction.Action.REMOVE == actionType || ChannelAction.Action.DELETE == actionType) {
-            final var removedAdd = _channelActions.removeIf(a ->
-                    ChannelAction.Action.ADD == a.action() && a.datasetAddress().equals(action.datasetAddress()));
-            _channelActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
-            if (removedAdd) {
+        } else if (SubscriptionAction.Action.UNSUBSCRIBE == actionType
+                || SubscriptionAction.Action.DELETE == actionType) {
+            final var removedSubscribe =
+                    _subscriptionActions.removeIf(a -> SubscriptionAction.Action.SUBSCRIBE == a.action()
+                            && a.datasetAddress().equals(action.datasetAddress()));
+            _subscriptionActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
+            if (removedSubscribe) {
                 return;
             }
         }
 
-        _channelActions.add(action);
+        _subscriptionActions.add(action);
     }
 
     @NonNull
-    public List<ChannelAction> getChannelActions() {
-        return _channelActions;
+    public List<SubscriptionAction> getSubscriptionActions() {
+        return _subscriptionActions;
     }
 
     public void merge(@NonNull final Collection<Change> changes) {
@@ -142,7 +150,7 @@ public final class ChangeSet {
     public void merge(@NonNull final ChangeSet changeSet) {
         _eTag = changeSet.getETag();
         merge(changeSet.getChanges(), true);
-        mergeActions(changeSet.getChannelActions());
+        mergeSubscriptionActions(changeSet.getSubscriptionActions());
     }
 
     @NonNull

@@ -17,10 +17,9 @@ public class SubscriptionUtil {
 
     /**
      * Synchronize subscriptions across data sources.
-     * All instances of the subscriptions to the source channelType within the scope are collected.
-     * The supplied function is used to generate a stream of expected subscriptions to the target channelType
-     * that are reachable from the source channelTypes. If an expected subscription is missing it is added,
-     * if an additional subscription is present then it is released.
+     * All Subscriptions to the source Dataset within the scope are collected.
+     * The supplied function generates the expected Dataset Root identifiers for the target Dataset.
+     * Missing Areas of Interest are added and additional Areas of Interest are released.
      */
     public static void synchronizeCrossDataSourceSubscriptions(
             final int sourceSystemId,

@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.messages.ChannelChange;
 import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
+import replicant.messages.SubscriptionChangeMessage;
 import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 
@@ -43,14 +43,14 @@ final class MessageResponse {
     private final LinkedList<Object> _replicasChanged = new LinkedList<>();
 
     @Nullable
-    private List<ChannelChangeDescriptor> _parsedChannelChanges;
+    private List<SubscriptionChange> _parsedSubscriptionChanges;
 
     private boolean _worldValidated;
-    private boolean _channelActionsProcessed;
+    private boolean _subscriptionActionsProcessed;
     private boolean _orphanSubscriptionRemoved;
-    private int _channelAddCount;
-    private int _channelUpdateCount;
-    private int _channelRemoveCount;
+    private int _subscriptionSubscribeCount;
+    private int _subscriptionUpdateCount;
+    private int _subscriptionUnsubscribeCount;
     private int _entityUpdateCount;
     private int _entityRemoveCount;
     private int _entityLinkCount;
@@ -70,16 +70,16 @@ final class MessageResponse {
         _entityChangeIndex = 0;
     }
 
-    int getChannelAddCount() {
-        return _channelAddCount;
+    int getSubscriptionSubscribeCount() {
+        return _subscriptionSubscribeCount;
     }
 
-    int getChannelUpdateCount() {
-        return _channelUpdateCount;
+    int getSubscriptionUpdateCount() {
+        return _subscriptionUpdateCount;
     }
 
-    int getChannelRemoveCount() {
-        return _channelRemoveCount;
+    int getSubscriptionUnsubscribeCount() {
+        return _subscriptionUnsubscribeCount;
     }
 
     int getEntityUpdateCount() {
@@ -94,21 +94,21 @@ final class MessageResponse {
         return _entityLinkCount;
     }
 
-    void incChannelAddCount() {
+    void incSubscriptionSubscribeCount() {
         if (Replicant.areSpiesEnabled()) {
-            _channelAddCount++;
+            _subscriptionSubscribeCount++;
         }
     }
 
-    void incChannelUpdateCount() {
+    void incSubscriptionUpdateCount() {
         if (Replicant.areSpiesEnabled()) {
-            _channelUpdateCount++;
+            _subscriptionUpdateCount++;
         }
     }
 
-    void incChannelRemoveCount() {
+    void incSubscriptionUnsubscribeCount() {
         if (Replicant.areSpiesEnabled()) {
-            _channelRemoveCount++;
+            _subscriptionUnsubscribeCount++;
         }
     }
 
@@ -144,34 +144,35 @@ final class MessageResponse {
         }
     }
 
-    boolean needsChannelChangesProcessed() {
+    boolean needsSubscriptionChangesProcessed() {
         if (UpdateMessage.TYPE.equals(_message.getType())) {
             final UpdateMessage message = (UpdateMessage) _message;
-            return !_channelActionsProcessed
-                    && (message.hasChannels() && 0 != message.getChannels().length
-                            || message.hasFilteredChannels() && 0 != message.getFilteredChannels().length);
+            return !_subscriptionActionsProcessed
+                    && (message.hasSubscriptionChanges() && 0 != message.getSubscriptionChanges().length
+                            || message.hasFilteredSubscriptionChanges()
+                                    && 0 != message.getFilteredSubscriptionChanges().length);
         } else {
             return false;
         }
     }
 
-    void setParsedChannelChanges(@NonNull final List<ChannelChangeDescriptor> parsedChannelChanges) {
-        _parsedChannelChanges = Objects.requireNonNull(parsedChannelChanges);
+    void setParsedSubscriptionChanges(@NonNull final List<SubscriptionChange> parsedSubscriptionChanges) {
+        _parsedSubscriptionChanges = Objects.requireNonNull(parsedSubscriptionChanges);
     }
 
     @NonNull
-    List<ChannelChangeDescriptor> getChannelChanges() {
+    List<SubscriptionChange> getSubscriptionChanges() {
         assert UpdateMessage.TYPE.equals(_message.getType());
         final UpdateMessage changeSet = (UpdateMessage) _message;
-        assert changeSet.hasChannels() || changeSet.hasFilteredChannels();
-        if (null == _parsedChannelChanges) {
-            _parsedChannelChanges = toChannelChanges(changeSet);
+        assert changeSet.hasSubscriptionChanges() || changeSet.hasFilteredSubscriptionChanges();
+        if (null == _parsedSubscriptionChanges) {
+            _parsedSubscriptionChanges = toSubscriptionChanges(changeSet);
         }
-        return Objects.requireNonNull(_parsedChannelChanges);
+        return Objects.requireNonNull(_parsedSubscriptionChanges);
     }
 
-    void markChannelActionsProcessed() {
-        _channelActionsProcessed = true;
+    void markSubscriptionActionsProcessed() {
+        _subscriptionActionsProcessed = true;
     }
 
     @Nullable
@@ -243,9 +244,9 @@ final class MessageResponse {
         assert Replicant.areSpiesEnabled();
         return new DataLoadStatus(
                 _message.getRequestId(),
-                getChannelAddCount(),
-                getChannelUpdateCount(),
-                getChannelRemoveCount(),
+                getSubscriptionSubscribeCount(),
+                getSubscriptionUpdateCount(),
+                getSubscriptionUnsubscribeCount(),
                 getEntityUpdateCount(),
                 getEntityRemoveCount(),
                 getEntityLinkCount());
@@ -265,17 +266,17 @@ final class MessageResponse {
     }
 
     @NonNull
-    private List<ChannelChangeDescriptor> toChannelChanges(@NonNull final UpdateMessage changeSet) {
-        final List<ChannelChangeDescriptor> changes = new ArrayList<>();
+    private List<SubscriptionChange> toSubscriptionChanges(@NonNull final UpdateMessage changeSet) {
+        final List<SubscriptionChange> changes = new ArrayList<>();
 
-        if (changeSet.hasChannels()) {
-            for (final String channelChange : changeSet.getChannels()) {
-                changes.add(ChannelChangeDescriptor.from(_schemaId, channelChange));
+        if (changeSet.hasSubscriptionChanges()) {
+            for (final String subscriptionChange : changeSet.getSubscriptionChanges()) {
+                changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
             }
         }
-        if (changeSet.hasFilteredChannels()) {
-            for (final ChannelChange channelChange : changeSet.getFilteredChannels()) {
-                changes.add(ChannelChangeDescriptor.from(_schemaId, channelChange));
+        if (changeSet.hasFilteredSubscriptionChanges()) {
+            for (final SubscriptionChangeMessage subscriptionChange : changeSet.getFilteredSubscriptionChanges()) {
+                changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
             }
         }
         return changes;

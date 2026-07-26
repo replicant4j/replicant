@@ -26,10 +26,10 @@ public class UpdateMessage extends ServerToClientMessage {
     private String etag;
 
     @Nullable
-    private String[] channels;
+    private String[] subscriptionChanges;
 
     @Nullable
-    private ChannelChange[] fchannels;
+    private SubscriptionChangeMessage[] filteredSubscriptionChanges;
 
     @Nullable
     private EntityChange[] changes;
@@ -43,16 +43,16 @@ public class UpdateMessage extends ServerToClientMessage {
     public static UpdateMessage create(
             @Nullable final Integer requestId,
             @Nullable final String eTag,
-            @Nullable final String[] channels,
-            @Nullable final ChannelChange[] fchannels,
+            @Nullable final String[] subscriptionChanges,
+            @Nullable final SubscriptionChangeMessage[] filteredSubscriptionChanges,
             @Nullable final EntityChange[] entityChanges,
             @Nullable final Object response) {
         final UpdateMessage updateMessage = new UpdateMessage();
         updateMessage.type = TYPE;
         updateMessage.requestId = null == requestId ? null : requestId.doubleValue();
         updateMessage.etag = eTag;
-        updateMessage.channels = channels;
-        updateMessage.fchannels = fchannels;
+        updateMessage.subscriptionChanges = subscriptionChanges;
+        updateMessage.filteredSubscriptionChanges = filteredSubscriptionChanges;
         updateMessage.changes = entityChanges;
         updateMessage.response = response;
         return updateMessage;
@@ -77,59 +77,59 @@ public class UpdateMessage extends ServerToClientMessage {
     }
 
     /**
-     * Return the channel changes that are part of the message.
-     * This should only be invoked if {@link #hasChannels()} return true.
+     * Return the compact Subscription changes that are part of the message.
+     * This should only be invoked if {@link #hasSubscriptionChanges()} returns true.
      *
-     * @return the channel changes.
+     * @return the compact Subscription changes.
      */
     @NonNull
     @JsOverlay
-    public final String[] getChannels() {
+    public final String[] getSubscriptionChanges() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null != channels,
-                    () -> "Replicant-0013: UpdateMessage.getChannels() invoked when no changes are present. Should"
-                            + " guard call with UpdateMessage.hasChannels().");
+                    () -> null != subscriptionChanges,
+                    () -> "Replicant-0013: UpdateMessage.getSubscriptionChanges() invoked when no changes are"
+                            + " present. Should guard call with UpdateMessage.hasSubscriptionChanges().");
         }
-        return Objects.requireNonNull(channels);
+        return Objects.requireNonNull(subscriptionChanges);
     }
 
     /**
-     * Return true if this UpdateMessage contains Channels.
+     * Return true if this UpdateMessage contains compact Subscription changes.
      *
-     * @return true if this UpdateMessage contains Channels
+     * @return true if this UpdateMessage contains compact Subscription changes.
      */
     @JsOverlay
-    public final boolean hasChannels() {
-        return null != channels;
+    public final boolean hasSubscriptionChanges() {
+        return null != subscriptionChanges;
     }
 
     /**
-     * Return the filtered channel changes that are part of the message.
-     * This should only be invoked if {@link #hasFilteredChannels()} return true.
+     * Return the Subscription changes with Filter Parameters that are part of the message.
+     * This should only be invoked if {@link #hasFilteredSubscriptionChanges()} returns true.
      *
-     * @return the channel changes.
+     * @return the Subscription changes with Filter Parameters.
      */
     @NonNull
     @JsOverlay
-    public final ChannelChange[] getFilteredChannels() {
+    public final SubscriptionChangeMessage[] getFilteredSubscriptionChanges() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null != fchannels,
-                    () -> "Replicant-0030: UpdateMessage.getFilteredChannels() invoked when no changes are present."
-                            + " Should guard call with UpdateMessage.hasFilteredChannels().");
+                    () -> null != filteredSubscriptionChanges,
+                    () -> "Replicant-0030: UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes"
+                            + " are present. Should guard call with UpdateMessage.hasFilteredSubscriptionChanges().");
         }
-        return Objects.requireNonNull(fchannels);
+        return Objects.requireNonNull(filteredSubscriptionChanges);
     }
 
     /**
-     * Return true if this UpdateMessage contains filtered channels.
+     * Return true if this UpdateMessage contains Subscription changes with Filter Parameters.
      *
-     * @return true if this UpdateMessage contains filtered channels
+     * @return true if this UpdateMessage contains Subscription changes with Filter Parameters.
      */
     @JsOverlay
-    public final boolean hasFilteredChannels() {
-        return null != fchannels;
+    public final boolean hasFilteredSubscriptionChanges() {
+        return null != filteredSubscriptionChanges;
     }
 
     /**
@@ -163,7 +163,7 @@ public class UpdateMessage extends ServerToClientMessage {
     /**
      * This method will validate the UpdateMessage to make sure it is internally consistent if invariants are enabled.
      * The validation will ensure that there is not multiple EntityChange messages for the same entity and that
-     * there is not multiple ChannelChange messages for the same channel.
+     * there are not multiple SubscriptionChangeMessage instances for the same Dataset Address.
      */
     @JsOverlay
     public final void validate() {
@@ -178,24 +178,24 @@ public class UpdateMessage extends ServerToClientMessage {
                                     + "with the id '" + id + "'.");
                 }
             }
-            final HashSet<String> existingChannels = new HashSet<>();
-            if (null != channels) {
-                for (final String channelAction : channels) {
-                    final String key = channelAction.substring(1);
+            final HashSet<String> existingDatasetAddresses = new HashSet<>();
+            if (null != subscriptionChanges) {
+                for (final String subscriptionAction : subscriptionChanges) {
+                    final String key = subscriptionAction.substring(1);
                     apiInvariant(
-                            () -> existingChannels.add(key),
-                            () -> "Replicant-0022: UpdateMessage contains multiple ChannelChange messages "
-                                    + "for the channel " + channelAction.substring(1) + ".");
+                            () -> existingDatasetAddresses.add(key),
+                            () -> "Replicant-0022: UpdateMessage contains multiple Subscription changes "
+                                    + "for Dataset Address " + subscriptionAction.substring(1) + ".");
                 }
             }
-            if (null != fchannels) {
-                for (final ChannelChange channelChange : fchannels) {
-                    final String channelAction = channelChange.getChannel();
-                    final String key = channelAction.substring(1);
+            if (null != filteredSubscriptionChanges) {
+                for (final SubscriptionChangeMessage subscriptionChange : filteredSubscriptionChanges) {
+                    final String subscriptionAction = subscriptionChange.getSubscriptionAction();
+                    final String key = subscriptionAction.substring(1);
                     apiInvariant(
-                            () -> existingChannels.add(key),
-                            () -> "Replicant-0028: UpdateMessage contains multiple ChannelChange messages "
-                                    + "for the channel " + channelAction.substring(1) + ".");
+                            () -> existingDatasetAddresses.add(key),
+                            () -> "Replicant-0028: UpdateMessage contains multiple Subscription changes "
+                                    + "for Dataset Address " + subscriptionAction.substring(1) + ".");
                 }
             }
         }

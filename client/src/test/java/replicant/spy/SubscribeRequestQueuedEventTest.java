@@ -26,7 +26,7 @@ public class SubscribeRequestQueuedEventTest extends AbstractReplicantTest {
         assertEquals(data.get("datasetAddress.schemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
-        assertEquals(data.get("channel.filter"), filter);
+        assertEquals(data.get("subscription.filter"), filter);
         assertEquals(data.size(), 5);
     }
 }

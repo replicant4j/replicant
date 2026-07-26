@@ -10,23 +10,23 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     @Test
     public void construct() {
         final EntityChange[] entityChanges = {};
-        final String[] channelChanges = {};
-        final ChannelChange[] fchannels = new ChannelChange[0];
+        final String[] subscriptionChanges = {};
+        final SubscriptionChangeMessage[] filteredSubscriptionChanges = new SubscriptionChangeMessage[0];
 
         final int requestId = ValueUtil.randomInt();
         final String eTag = ValueUtil.randomString();
 
-        final UpdateMessage updateMessage =
-                UpdateMessage.create(requestId, eTag, channelChanges, fchannels, entityChanges, null);
+        final UpdateMessage updateMessage = UpdateMessage.create(
+                requestId, eTag, subscriptionChanges, filteredSubscriptionChanges, entityChanges, null);
 
         assertEquals(updateMessage.getRequestId(), (Integer) requestId);
         assertEquals(updateMessage.getETag(), eTag);
         assertEquals(updateMessage.getEntityChanges(), entityChanges);
         assertTrue(updateMessage.hasEntityChanges());
-        assertTrue(updateMessage.hasChannels());
-        assertTrue(updateMessage.hasFilteredChannels());
-        assertEquals(updateMessage.getChannels(), channelChanges);
-        assertEquals(updateMessage.getFilteredChannels(), fchannels);
+        assertTrue(updateMessage.hasSubscriptionChanges());
+        assertTrue(updateMessage.hasFilteredSubscriptionChanges());
+        assertEquals(updateMessage.getSubscriptionChanges(), subscriptionChanges);
+        assertEquals(updateMessage.getFilteredSubscriptionChanges(), filteredSubscriptionChanges);
 
         updateMessage.validate();
     }
@@ -38,15 +38,15 @@ public class UpdateMessageTest extends AbstractReplicantTest {
         assertNull(updateMessage.getRequestId());
         assertNull(updateMessage.getETag());
         assertFalse(updateMessage.hasEntityChanges());
-        assertFalse(updateMessage.hasChannels());
-        assertFalse(updateMessage.hasFilteredChannels());
+        assertFalse(updateMessage.hasSubscriptionChanges());
+        assertFalse(updateMessage.hasFilteredSubscriptionChanges());
 
         updateMessage.validate();
     }
 
     @Test
     public void validate_whereAllOK() {
-        final String[] channelChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+4.24", "+4.25", "+5.1"};
+        final String[] subscriptionChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+4.24", "+4.25", "+5.1"};
         final EntityChange[] entityChanges = new EntityChange[] {
             EntityChange.create(1, 1, new String[0]),
             EntityChange.create(1, 2, new String[0], new EntityChangeDataImpl()),
@@ -57,35 +57,37 @@ public class UpdateMessageTest extends AbstractReplicantTest {
             EntityChange.create(4, 1, new String[0])
         };
 
-        final UpdateMessage updateMessage = UpdateMessage.create(null, null, channelChanges, null, entityChanges, null);
+        final UpdateMessage updateMessage =
+                UpdateMessage.create(null, null, subscriptionChanges, null, entityChanges, null);
 
         updateMessage.validate();
     }
 
     @Test
-    public void validate_duplicateChannelActions_typeChannel() {
-        final String[] channelChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+1"};
+    public void validate_duplicateSubscriptionActions_typeDataset() {
+        final String[] subscriptionChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+1"};
 
-        final UpdateMessage updateMessage = UpdateMessage.create(null, null, channelChanges, null, null, null);
+        final UpdateMessage updateMessage = UpdateMessage.create(null, null, subscriptionChanges, null, null, null);
 
         final IllegalStateException exception = expectThrows(IllegalStateException.class, updateMessage::validate);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0022: UpdateMessage contains multiple ChannelChange messages for the channel 1.");
+                "Replicant-0022: UpdateMessage contains multiple Subscription changes for Dataset Address 1.");
     }
 
     @Test
-    public void validate_duplicateChannelActions_instanceChannel() {
-        final ChannelChange[] channelChanges =
-                new ChannelChange[] {ChannelChange.create("+2.50", "XX"), ChannelChange.create("=2.50", "XY")};
+    public void validate_duplicateSubscriptionActions_instanceDataset() {
+        final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
+            SubscriptionChangeMessage.create("+2.50", "XX"), SubscriptionChangeMessage.create("=2.50", "XY")
+        };
 
         final UpdateMessage updateMessage =
-                UpdateMessage.create(null, null, new String[] {"+1", "+4.23"}, channelChanges, null, null);
+                UpdateMessage.create(null, null, new String[] {"+1", "+4.23"}, subscriptionChanges, null, null);
 
         final IllegalStateException exception = expectThrows(IllegalStateException.class, updateMessage::validate);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0028: UpdateMessage contains multiple ChannelChange messages for the channel 2.50.");
+                "Replicant-0028: UpdateMessage contains multiple Subscription changes for Dataset Address 2.50.");
     }
 
     @Test
@@ -109,26 +111,27 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getChannels_WhenNone() {
-        final UpdateMessage updateMessage = UpdateMessage.create(null, null, null, null, null, null);
-
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, updateMessage::getChannels);
-        assertEquals(
-                exception.getMessage(),
-                "Replicant-0013: UpdateMessage.getChannels() invoked when no changes are present. Should guard call"
-                        + " with UpdateMessage.hasChannels().");
-    }
-
-    @Test
-    public void getFilteredChannels_WhenNone() {
+    public void getSubscriptionChanges_WhenNone() {
         final UpdateMessage updateMessage = UpdateMessage.create(null, null, null, null, null, null);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, updateMessage::getFilteredChannels);
+                expectThrows(IllegalStateException.class, updateMessage::getSubscriptionChanges);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0030: UpdateMessage.getFilteredChannels() invoked when no changes are present. Should guard"
-                        + " call with UpdateMessage.hasFilteredChannels().");
+                "Replicant-0013: UpdateMessage.getSubscriptionChanges() invoked when no changes are present. Should"
+                        + " guard call with UpdateMessage.hasSubscriptionChanges().");
+    }
+
+    @Test
+    public void getFilteredSubscriptionChanges_WhenNone() {
+        final UpdateMessage updateMessage = UpdateMessage.create(null, null, null, null, null, null);
+
+        final IllegalStateException exception =
+                expectThrows(IllegalStateException.class, updateMessage::getFilteredSubscriptionChanges);
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0030: UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes are present."
+                        + " Should guard call with UpdateMessage.hasFilteredSubscriptionChanges().");
     }
 
     @Test

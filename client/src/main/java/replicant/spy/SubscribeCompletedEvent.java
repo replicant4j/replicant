@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import replicant.DatasetAddress;
 
 /**
- * Notification when a Connector completes a subscribe to a channel.
+ * Notification when a Connector completes a subscribe operation.
  */
 public final class SubscribeCompletedEvent implements SerializableEvent {
     private final int _schemaId;

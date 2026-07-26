@@ -13,15 +13,15 @@ public final class UnsubscribeMessage extends ClientToServerMessage {
     public static final String TYPE = Messages.C2S_Type.UNSUB;
 
     @NonNull
-    private String channel;
+    private String datasetAddress;
 
     @JsOverlay
     @NonNull
-    public static UnsubscribeMessage create(final int req, @NonNull final String ch) {
+    public static UnsubscribeMessage create(final int req, @NonNull final String datasetAddress) {
         final UnsubscribeMessage message = new UnsubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
-        message.channel = ch;
+        message.datasetAddress = datasetAddress;
         return message;
     }
 }

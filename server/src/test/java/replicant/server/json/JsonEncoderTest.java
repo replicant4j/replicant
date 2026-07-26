@@ -12,11 +12,11 @@ import javax.json.JsonObject;
 import org.testng.annotations.Test;
 import replicant.server.Change;
 import replicant.server.ChangeSet;
-import replicant.server.ChannelAction;
-import replicant.server.ChannelAction.Action;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
 import replicant.server.MessageTestUtil;
+import replicant.server.SubscriptionAction;
+import replicant.server.SubscriptionAction.Action;
 import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
@@ -60,7 +60,7 @@ public final class JsonEncoderTest {
         change.getDatasetAddresses().add(DatasetAddress.of(3, 73));
         final var cs = new ChangeSet();
         cs.merge(change);
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filter));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filter));
         final var encoded = JsonEncoder.encodeChangeSet(requestId, response, etag, cs);
         final var changeSet = toJsonObject(encoded);
 
@@ -73,9 +73,10 @@ public final class JsonEncoderTest {
         assertEquals(jsonResponse.getInt(1), 42);
         assertEquals(changeSet.getString(Messages.S2C_Common.ETAG), etag);
 
-        final var action =
-                changeSet.getJsonArray(Messages.Update.FILTERED_CHANNEL_ACTIONS).getJsonObject(0);
-        assertEquals(action.getString(Messages.Common.CHANNEL), "=45.77");
+        final var action = changeSet
+                .getJsonArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES)
+                .getJsonObject(0);
+        assertEquals(action.getString(Messages.Update.SUBSCRIPTION_ACTION), "=45.77");
         assertEquals(action.getJsonObject(Messages.Update.FILTER).toString(), filter.toString());
 
         final var object = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
@@ -88,19 +89,19 @@ public final class JsonEncoderTest {
         assertEquals(data.getString(MessageTestUtil.ATTR_KEY2), "a2");
         assertTrue(data.getString("key3").startsWith("2001-07-05T05:08:56.000"));
 
-        final var channels = object.getJsonArray(Messages.Update.CHANNELS);
-        assertNotNull(channels);
-        assertEquals(channels.size(), 3);
-        final var channel1 = channels.getString(0);
-        assertNotNull(channel1);
-        final var channel2 = channels.getString(1);
-        assertNotNull(channel2);
-        final var channel3 = channels.getString(2);
-        assertNotNull(channel3);
+        final var datasetAddresses = object.getJsonArray(Messages.Update.DATASET_ADDRESSES);
+        assertNotNull(datasetAddresses);
+        assertEquals(datasetAddresses.size(), 3);
+        final var datasetAddress1 = datasetAddresses.getString(0);
+        assertNotNull(datasetAddress1);
+        final var datasetAddress2 = datasetAddresses.getString(1);
+        assertNotNull(datasetAddress2);
+        final var datasetAddress3 = datasetAddresses.getString(2);
+        assertNotNull(datasetAddress3);
 
-        assertEquals(channel1, "1");
-        assertEquals(channel2, "2.42");
-        assertEquals(channel3, "3.73");
+        assertEquals(datasetAddress1, "1");
+        assertEquals(datasetAddress2, "2.42");
+        assertEquals(datasetAddress3, "3.73");
     }
 
     @Test
@@ -134,8 +135,8 @@ public final class JsonEncoderTest {
         assertFalse(changeSet.containsKey(Messages.Common.REQUEST_ID));
         assertFalse(changeSet.containsKey(Messages.Update.RESPONSE));
         assertFalse(changeSet.containsKey(Messages.S2C_Common.ETAG));
-        assertFalse(changeSet.containsKey(Messages.Update.CHANNEL_ACTIONS));
-        assertFalse(changeSet.containsKey(Messages.Update.FILTERED_CHANNEL_ACTIONS));
+        assertFalse(changeSet.containsKey(Messages.Update.SUBSCRIPTION_CHANGES));
+        assertFalse(changeSet.containsKey(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES));
         assertFalse(changeSet.containsKey(Messages.Update.CHANGES));
     }
 
@@ -146,45 +147,48 @@ public final class JsonEncoderTest {
     @Test
     public void action_WithNoFilter() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, null), Action.ADD));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, null), Action.SUBSCRIBE));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
-        assertEquals(changeSet.getJsonArray(Messages.Update.CHANNEL_ACTIONS).getString(0), "+45");
+        assertEquals(
+                changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES).getString(0), "+45");
     }
 
     @Test
-    public void channelAction_DELETE() {
+    public void subscriptionAction_DELETE() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(45, null), Action.DELETE));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, null), Action.DELETE));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
-        assertEquals(changeSet.getJsonArray(Messages.Update.CHANNEL_ACTIONS).getString(0), "!45");
+        assertEquals(
+                changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES).getString(0), "!45");
     }
 
     @Test
-    public void mixedChannelActions() {
+    public void mixedSubscriptionActions() {
         final var cs = new ChangeSet();
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(1, null), Action.ADD));
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(2, 5), Action.REMOVE));
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(3, 7, "inst"), Action.UPDATE));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(1, null), Action.SUBSCRIBE));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(2, 5), Action.UNSUBSCRIBE));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(3, 7, "inst"), Action.UPDATE));
 
         final var filter = Json.createObjectBuilder().add("a", "b").build();
-        cs.mergeAction(ChannelAction.of(DatasetAddress.of(4, 9), Action.ADD, filter));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(4, 9), Action.SUBSCRIBE, filter));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
-        final var actions = changeSet.getJsonArray(Messages.Update.CHANNEL_ACTIONS);
+        final var actions = changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES);
         assertEquals(actions.size(), 3);
         assertEquals(actions.getString(0), "+1");
         assertEquals(actions.getString(1), "-2.5");
         assertEquals(actions.getString(2), "=3.7#inst");
 
-        final var filteredAction =
-                changeSet.getJsonArray(Messages.Update.FILTERED_CHANNEL_ACTIONS).getJsonObject(0);
-        assertEquals(filteredAction.getString(Messages.Common.CHANNEL), "+4.9");
+        final var filteredAction = changeSet
+                .getJsonArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES)
+                .getJsonObject(0);
+        assertEquals(filteredAction.getString(Messages.Update.SUBSCRIPTION_ACTION), "+4.9");
         assertEquals(filteredAction.getJsonObject(Messages.Update.FILTER).toString(), filter.toString());
     }
 
@@ -224,11 +228,11 @@ public final class JsonEncoderTest {
         assertTrue(data.getBoolean("b"));
         assertTrue(data.getString("d").startsWith("2001-07-05T05:08:56.000"));
         assertFalse(data.containsKey("n"));
-        assertFalse(change.containsKey(Messages.Update.CHANNELS));
+        assertFalse(change.containsKey(Messages.Update.DATASET_ADDRESSES));
     }
 
     @Test
-    public void encodeChangeSet_channelDescriptors_includeDatasetKey() {
+    public void encodeChangeSet_datasetAddressDescriptors_includeDatasetKey() {
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("x", "y");
@@ -240,12 +244,14 @@ public final class JsonEncoderTest {
         cs.merge(change);
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
-        final var channels =
-                changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0).getJsonArray(Messages.Update.CHANNELS);
+        final var datasetAddresses = changeSet
+                .getJsonArray(Messages.Update.CHANGES)
+                .getJsonObject(0)
+                .getJsonArray(Messages.Update.DATASET_ADDRESSES);
 
-        assertEquals(channels.size(), 2);
-        assertEquals(channels.getString(0), "7#fi");
-        assertEquals(channels.getString(1), "8.3#fi-2");
+        assertEquals(datasetAddresses.size(), 2);
+        assertEquals(datasetAddresses.getString(0), "7#fi");
+        assertEquals(datasetAddresses.getString(1), "8.3#fi-2");
     }
 
     @Test
@@ -290,7 +296,7 @@ public final class JsonEncoderTest {
         final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", 7));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
-        assertEquals(message.getString(Messages.Common.CHANNEL), "1.2#inst");
+        assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2#inst");
         assertEquals(message.getString(Messages.S2C_Common.ETAG), "e1");
         assertEquals(message.getInt(Messages.Common.REQUEST_ID), 7);
     }
@@ -301,7 +307,7 @@ public final class JsonEncoderTest {
         final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", null));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
-        assertEquals(message.getString(Messages.Common.CHANNEL), "1.2");
+        assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2");
         assertEquals(message.getString(Messages.S2C_Common.ETAG), "e1");
         assertFalse(message.containsKey(Messages.Common.REQUEST_ID));
     }
@@ -313,7 +319,7 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void encodeChangeSet_rejectsPartialChannelDescriptor() {
+    public void encodeChangeSet_rejectsPartialDatasetAddressDescriptor() {
         final var message = new EntityMessage(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
         final var change = new Change(message);
         change.getDatasetAddresses().add(DatasetAddress.partial(7, 3));

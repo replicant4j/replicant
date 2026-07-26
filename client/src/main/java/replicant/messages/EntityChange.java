@@ -14,7 +14,7 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("NullAway.Init")
 public class EntityChange {
     private String id;
-    private String[] channels;
+    private String[] datasetAddresses;
 
     @Nullable
     private EntityChangeData data;
@@ -26,10 +26,10 @@ public class EntityChange {
      */
     @JsOverlay
     @NonNull
-    public static EntityChange create(final int type, final int id, @NonNull final String[] channels) {
+    public static EntityChange create(final int type, final int id, @NonNull final String[] datasetAddresses) {
         final EntityChange change = new EntityChange();
         change.id = type + "." + id;
-        change.channels = channels;
+        change.datasetAddresses = datasetAddresses;
         return change;
     }
 
@@ -41,8 +41,11 @@ public class EntityChange {
     @JsOverlay
     @NonNull
     public static EntityChange create(
-            final int type, final int id, @NonNull final String[] channels, @Nullable final EntityChangeData data) {
-        final EntityChange change = create(type, id, channels);
+            final int type,
+            final int id,
+            @NonNull final String[] datasetAddresses,
+            @Nullable final EntityChangeData data) {
+        final EntityChange change = create(type, id, datasetAddresses);
         change.data = data;
         return change;
     }
@@ -58,13 +61,13 @@ public class EntityChange {
     }
 
     /**
-     * Return the channels that the entity is associated with.
+     * Return the Dataset Addresses for Subscriptions containing the Entity.
      *
-     * @return the channels that the entity is associated with.
+     * @return the Dataset Addresses for Subscriptions containing the Entity.
      */
     @JsOverlay
-    public final String[] getChannels() {
-        return channels;
+    public final String[] getDatasetAddresses() {
+        return datasetAddresses;
     }
 
     /**

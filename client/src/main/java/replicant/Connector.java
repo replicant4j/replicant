@@ -512,9 +512,8 @@ abstract class Connector extends ReplicantService {
         if (null == response) {
             // Select the MessageResponse if there is none active
             return connection.selectNextMessageResponse();
-        } else if (response.needsChannelChangesProcessed()) {
-            // Process the updates to channels
-            processChannelChanges();
+        } else if (response.needsSubscriptionChangesProcessed()) {
+            processSubscriptionChanges();
             return true;
         } else if (response.areEntityChangesPending()) {
             // Process a chunk of entity changes
@@ -583,30 +582,30 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action
-    void processChannelChanges() {
+    void processSubscriptionChanges() {
         final MessageResponse response = ensureCurrentMessageResponse();
 
-        for (final ChannelChangeDescriptor channelChange : response.getChannelChanges()) {
-            final DatasetAddress datasetAddress = channelChange.getDatasetAddress();
-            final Object filter = channelChange.getFilter();
-            final ChannelChangeDescriptor.Type actionType = channelChange.getType();
+        for (final SubscriptionChange subscriptionChange : response.getSubscriptionChanges()) {
+            final DatasetAddress datasetAddress = subscriptionChange.getDatasetAddress();
+            final Object filter = subscriptionChange.getFilter();
+            final SubscriptionChange.Type actionType = subscriptionChange.getType();
 
-            if (ChannelChangeDescriptor.Type.ADD == actionType) {
-                response.incChannelAddCount();
+            if (SubscriptionChange.Type.SUBSCRIBE == actionType) {
+                response.incSubscriptionSubscribeCount();
                 final boolean explicitSubscribe = getReplicantContext().getAreasOfInterest().stream()
                         .anyMatch(a -> a.getDatasetAddress().equals(datasetAddress));
                 getReplicantContext()
                         .getSubscriptionService()
                         .createSubscription(datasetAddress, filter, explicitSubscribe);
-            } else if (ChannelChangeDescriptor.Type.REMOVE == actionType
-                    || ChannelChangeDescriptor.Type.DELETE == actionType) {
+            } else if (SubscriptionChange.Type.UNSUBSCRIBE == actionType
+                    || SubscriptionChange.Type.DELETE == actionType) {
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 /*
                  * It is possible for a subscription to no longer be present and still receive a remove action
                  * for the subscription. This can occur due to interleaving of messages - i.e. The application
-                 * initiates an action that deletes a root entity of an instance channel and then removes
-                 * subscription from the channel. Depending on the order in which the operations complete
-                 * could result in a channel remove action when not needed.
+                 * initiates an action that deletes the Dataset Root of an Instance Dataset and then removes
+                 * the Subscription. Depending on the order in which the operations complete
+                 * could result in an unsubscribe operation when not needed.
                  */
                 if (null != subscription) {
                     Disposable.dispose(subscription);
@@ -615,7 +614,7 @@ abstract class Connector extends ReplicantService {
                 final AreaOfInterest areaOfInterest =
                         getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
                 if (null != areaOfInterest) {
-                    if (ChannelChangeDescriptor.Type.DELETE == actionType) {
+                    if (SubscriptionChange.Type.DELETE == actionType) {
                         areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.DELETED, null);
                     } else {
                         // This means it has been deleted on the server side
@@ -624,14 +623,14 @@ abstract class Connector extends ReplicantService {
                         Disposable.dispose(areaOfInterest);
                     }
                 }
-                response.incChannelRemoveCount();
+                response.incSubscriptionUnsubscribeCount();
             } else {
-                assert ChannelChangeDescriptor.Type.UPDATE == actionType;
+                assert SubscriptionChange.Type.UPDATE == actionType;
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 if (Replicant.shouldCheckInvariants()) {
                     invariant(
                             () -> null != subscription,
-                            () -> "Replicant-0033: Received ChannelChange of type UPDATE for Dataset Address "
+                            () -> "Replicant-0033: Received SubscriptionChange of type UPDATE for Dataset Address "
                                     + datasetAddress + " but no such subscription exists.");
                     assert null != subscription;
                     if (Replicant.shouldCheckInvariants()) {
@@ -642,17 +641,17 @@ abstract class Connector extends ReplicantService {
                                             .getFilterType();
                                     return Dataset.FilterType.DYNAMIC == filterType;
                                 },
-                                () -> "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address "
+                                () -> "Replicant-0078: Received SubscriptionChange of type UPDATE for Dataset Address "
                                         + datasetAddress + " but the Dataset does not have a DYNAMIC filter.");
                     }
                 }
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
                 existingSubscription.setFilter(filter);
                 updateSubscriptionForFilteredReplicas(existingSubscription);
-                response.incChannelUpdateCount();
+                response.incSubscriptionUpdateCount();
             }
         }
-        response.markChannelActionsProcessed();
+        response.markSubscriptionActionsProcessed();
     }
 
     @Action(verifyRequired = false)
@@ -857,8 +856,8 @@ abstract class Connector extends ReplicantService {
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0048: Request to update channel at Dataset Address " + datasetAddress
-                                + " but not subscribed to channel.");
+                        () -> "Replicant-0048: Request to update Subscription at Dataset Address " + datasetAddress
+                                + " but no Subscription exists.");
             }
             // The following code can probably be removed but it was present in the previous system
             // and it is unclear if there is any scenarios where it can still happen. The code has
@@ -881,11 +880,11 @@ abstract class Connector extends ReplicantService {
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0046: Request to unsubscribe from channel at Dataset Address " + datasetAddress
-                                + " but not subscribed to channel.");
+                        () -> "Replicant-0046: Request to unsubscribe at Dataset Address " + datasetAddress
+                                + " but no Subscription exists.");
                 invariant(
                         () -> null == subscription || subscription.isExplicitSubscription(),
-                        () -> "Replicant-0047: Request to unsubscribe from channel at Dataset Address " + datasetAddress
+                        () -> "Replicant-0047: Request to unsubscribe at Dataset Address " + datasetAddress
                                 + " but subscription is not an explicit subscription.");
             }
             // The following code can probably be removed but it was present in the previous system
@@ -910,16 +909,21 @@ abstract class Connector extends ReplicantService {
         final CacheService cacheService = getReplicantContext().getCacheService();
 
         boolean candidate = false;
-        if (null != cacheService && null != eTag && (changeSet.hasChannels() || changeSet.hasFilteredChannels())) {
-            final List<ChannelChangeDescriptor> channelChanges = response.getChannelChanges();
+        if (null != cacheService
+                && null != eTag
+                && (changeSet.hasSubscriptionChanges() || changeSet.hasFilteredSubscriptionChanges())) {
+            final List<SubscriptionChange> subscriptionChanges = response.getSubscriptionChanges();
 
-            if (1 == channelChanges.size()
-                    && ChannelChangeDescriptor.Type.ADD == channelChanges.get(0).getType()
+            if (1 == subscriptionChanges.size()
+                    && SubscriptionChange.Type.SUBSCRIBE
+                            == subscriptionChanges.get(0).getType()
                     && getSchema()
-                            .getDataset(
-                                    channelChanges.get(0).getDatasetAddress().datasetId())
+                            .getDataset(subscriptionChanges
+                                    .get(0)
+                                    .getDatasetAddress()
+                                    .datasetId())
                             .isCacheable()) {
-                final DatasetAddress datasetAddress = channelChanges.get(0).getDatasetAddress();
+                final DatasetAddress datasetAddress = subscriptionChanges.get(0).getDatasetAddress();
                 cacheService.store(datasetAddress, eTag, changeSet);
                 candidate = true;
             }
@@ -961,7 +965,7 @@ abstract class Connector extends ReplicantService {
                 /*
                  * Sometimes a remove can occur for an entity that is no longer present on the client. The most
                  * common cause of this is initiating an action that deletes an entity and then un-subscribing
-                 * from the channel that contains entity. This can result in an entity that has been removed
+                 * from the Subscription that contains the Entity. This can result in an Entity that has been removed
                  * locally but has a remove message in the queue. Other interleaved async operations can also
                  * trigger this scenario.
                  */
@@ -985,7 +989,7 @@ abstract class Connector extends ReplicantService {
                     }
                 }
 
-                final String[] datasetAddressDescriptors = change.getChannels();
+                final String[] datasetAddressDescriptors = change.getDatasetAddresses();
                 final int schemaId = getSchema().getId();
                 for (final String datasetAddressDescriptor : datasetAddressDescriptors) {
                     try {
@@ -1257,10 +1261,10 @@ abstract class Connector extends ReplicantService {
         final ServerToClientMessage messageToQueue;
         if (UseCacheMessage.TYPE.equals(message.getType())) {
             final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
-            final String channel = useCacheMessage.getChannel();
+            final String datasetAddressDescriptor = useCacheMessage.getDatasetAddress();
             final DatasetAddress datasetAddress;
             try {
-                datasetAddress = DatasetAddress.parse(getSchema().getId(), channel);
+                datasetAddress = DatasetAddress.parse(getSchema().getId(), datasetAddressDescriptor);
             } catch (final Throwable t) {
                 onMessageProcessFailure(t);
                 return;
@@ -1280,15 +1284,16 @@ abstract class Connector extends ReplicantService {
             final CacheEntry entry = cacheService.lookup(datasetAddress);
             if (null == entry) {
                 ReplicantLogger.log(
-                        "Received a use-cache message for channel " + channel
-                                + " but no cache entry present for channel.",
+                        "Received a use-cache message for Dataset Address " + datasetAddressDescriptor
+                                + " but no cache entry is present.",
                         null);
                 onMessageReadFailure();
                 return;
             }
             if (!Objects.equals(entry.getETag(), etag)) {
                 ReplicantLogger.log(
-                        "Received a use-cache message for channel " + channel + " with etag '" + etag
+                        "Received a use-cache message for Dataset Address " + datasetAddressDescriptor + " with etag '"
+                                + etag
                                 + "' but cache entry has etag '" + entry.getETag() + "'.",
                         null);
                 onMessageReadFailure();
