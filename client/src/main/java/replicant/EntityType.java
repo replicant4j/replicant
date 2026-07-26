@@ -75,7 +75,7 @@ public final class EntityType {
     private final Updater<?> _updater;
 
     @NonNull
-    private final ChannelLinkSchema[] _channelLinks;
+    private final DatasetLink[] _datasetLinks;
 
     public <T> EntityType(
             final int id,
@@ -83,7 +83,7 @@ public final class EntityType {
             @NonNull final Class<T> type,
             @NonNull final Creator<T> creator,
             @Nullable final Updater<T> updater,
-            @NonNull final ChannelLinkSchema[] channelLinks) {
+            @NonNull final DatasetLink[] datasetLinks) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
@@ -95,7 +95,7 @@ public final class EntityType {
         _type = Objects.requireNonNull(type);
         _creator = Objects.requireNonNull(creator);
         _updater = updater;
-        _channelLinks = Objects.requireNonNull(channelLinks);
+        _datasetLinks = Objects.requireNonNull(datasetLinks);
     }
 
     /**
@@ -155,14 +155,14 @@ public final class EntityType {
     }
 
     @NonNull
-    public ChannelLinkSchema[] getChannelLinks() {
-        return _channelLinks;
+    public DatasetLink[] getDatasetLinks() {
+        return _datasetLinks;
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getOutwardChannelLinks(final int datasetId) {
-        return Stream.of(getChannelLinks())
-                .filter(l -> l.getSourceDatasetId() == datasetId)
+    public List<DatasetLink> getOutwardDatasetLinks(final int datasetId) {
+        return Stream.of(getDatasetLinks())
+                .filter(datasetLink -> datasetLink.getSourceDatasetId() == datasetId)
                 .collect(Collectors.toList());
     }
 

@@ -59,9 +59,10 @@ public class AbstractSessionContextImplTest {
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetFilter called for link from " + sourceDatasetAddress + " to " + targetDatasetAddress
+                "deriveTargetFilter called for Dataset Link from " + sourceDatasetAddress + " to "
+                        + targetDatasetAddress
                         + " with source filter {} in the context of the entity message "
-                        + message + " but no such graph link exists or the target graph has no filter parameter");
+                        + message + " but no such Dataset Link exists or the target Dataset has no filter parameter");
     }
 
     @Test
@@ -82,11 +83,11 @@ public class AbstractSessionContextImplTest {
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetDatasetKey called for link from " + sourceDatasetAddress + " to "
+                "deriveTargetDatasetKey called for Dataset Link from " + sourceDatasetAddress + " to "
                         + targetDatasetAddress
                         + " with source filter {\"src\":true} with target filter {\"target\":true} in the context "
                         + "of the entity message "
-                        + message + " but no such graph link exists or the target graph "
+                        + message + " but no such Dataset Link exists or the target Dataset "
                         + "does not require a dataset key");
     }
 
@@ -410,7 +411,7 @@ public class AbstractSessionContextImplTest {
         }
 
         @Override
-        public boolean shouldFollowLink(
+        public boolean shouldFollowDatasetLink(
                 @NonNull final DatasetAddress sourceDatasetAddress,
                 @Nullable final JsonObject sourceFilter,
                 @NonNull final DatasetAddress targetDatasetAddress,

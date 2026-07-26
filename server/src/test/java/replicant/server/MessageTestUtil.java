@@ -44,7 +44,7 @@ public final class MessageTestUtil {
             final int id,
             final int typeID,
             final long timestamp,
-            @Nullable final ChannelLink link,
+            @Nullable final SubscriptionDependency subscriptionDependency,
             @Nullable final String r1,
             @Nullable final String r2,
             @Nullable final String a1,
@@ -65,15 +65,15 @@ public final class MessageTestUtil {
             Objects.requireNonNull(attributeValues).put(ATTR_KEY2, a2);
         }
 
-        final HashSet<ChannelLink> links;
-        if (null != link) {
-            links = new HashSet<>();
-            links.add(link);
+        final HashSet<SubscriptionDependency> subscriptionDependencies;
+        if (null != subscriptionDependency) {
+            subscriptionDependencies = new HashSet<>();
+            subscriptionDependencies.add(subscriptionDependency);
         } else {
-            links = null;
+            subscriptionDependencies = null;
         }
 
-        return new EntityMessage(id, typeID, timestamp, routingKeys, attributeValues, links);
+        return new EntityMessage(id, typeID, timestamp, routingKeys, attributeValues, subscriptionDependencies);
     }
 
     static void assertAttributeValue(

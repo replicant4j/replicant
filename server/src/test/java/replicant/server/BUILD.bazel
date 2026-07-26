@@ -36,13 +36,6 @@ java_testng(
 )
 
 java_testng(
-    name = "ChannelLinkTest",
-    srcs = ["ChannelLinkTest.java"],
-    test_class = "replicant.server.ChannelLinkTest",
-    deps = ["//server:server_test_support"],
-)
-
-java_testng(
     name = "EntityMessageSetTest",
     srcs = ["EntityMessageSetTest.java"],
     test_class = "replicant.server.EntityMessageSetTest",
@@ -67,5 +60,12 @@ java_testng(
     name = "FilterUtilTest",
     srcs = ["FilterUtilTest.java"],
     test_class = "replicant.server.FilterUtilTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "SubscriptionDependencyTest",
+    srcs = ["SubscriptionDependencyTest.java"],
+    test_class = "replicant.server.SubscriptionDependencyTest",
     deps = ["//server:server_test_support"],
 )

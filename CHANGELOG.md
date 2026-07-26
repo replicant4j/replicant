@@ -2,6 +2,22 @@
 
 ### Unreleased
 
+* Adopt Dataset Link terminology for reusable schema rules and Subscription Dependency terminology for current runtime
+  retention relationships:
+  * Rename client `ChannelLinkSchema` to `DatasetLink` and migrate Entity Type, Dataset, and System Schema metadata
+    accessors to Dataset Link terminology.
+  * Rename Domgen `GraphLink` to `DatasetLink`, replace `.graph_link(...)` with `.dataset_link(...)`, and migrate
+    source/target Dataset fields, registries, validation, filter and Dataset Key derivation strategies, templates,
+    generated schema metadata, and generated tests.
+  * Rename server `ChannelLink` to `SubscriptionDependency`, `ChannelLinkEntry` to
+    `SubscriptionDependencyEntry`, and runtime `LinkOwner` to `SubscriptionDependencyOwner`.
+  * Migrate Entity Message dependency data, Dataset- and Entity-scoped dependency recording, ownership, reference
+    counts, inward/outward retention, reconciliation, filter propagation, cleanup, diagnostics, and generated
+    integration code to Subscription Dependency terminology.
+  This hard-cut API migration preserves Dataset Link direction and derivation, Subscription Dependency ownership and
+  retention behavior, partial and concrete Dataset Address semantics, automatic Subscription behavior, and the wire
+  protocol. Required Type Dataset schema APIs, Type/Instance Dataset terminology, filters, and Subscription Modes
+  remain deferred.
 * Adopt Subscription operation terminology across client and server APIs, protocol messages, processing, diagnostics,
   metrics, tests, Domgen generation, and generated integrations:
   * Rename server `ChannelAction` to `SubscriptionAction`, client parsed `ChannelChangeDescriptor` to
@@ -15,8 +31,7 @@
     `filteredSubscriptionChanges`, and `subscriptionAction`.
   This hard-cut protocol and API migration is intentionally wire-incompatible with older clients and servers; they
   must be upgraded together. Descriptor codes, behavior, ordering, batching, reconciliation, and ETag address keys are
-  unchanged. Channel Link, required-type dependency, Type/Instance Dataset, Filter, and Subscription Mode terminology
-  remain deferred.
+  unchanged. Required Type Dataset, Type/Instance Dataset, Filter, and Subscription Mode terminology remain deferred.
 * Adopt Dataset terminology across reusable definition APIs, metadata, generation, diagnostics, tests, and
   documentation:
   * Rename client `ChannelSchema` to `Dataset` and migrate `SystemSchema` Dataset arrays, counts, lookups, and
@@ -28,8 +43,8 @@
   * Generate Dataset-qualified names and rename generated `isGraphSubscribed` utilities to the concise
     Subscription-oriented `isSubscribed`.
   This hard-cut API migration preserves behavior and the wire protocol. Subscription operation messages,
-  Graph/Channel Link APIs, required-type dependencies, Type Graph/Instance Graph and root terminology, filters, and
-  Subscription Modes remain on their deferred terminology for dedicated migrations.
+  Required Type Dataset dependencies, Type Graph/Instance Graph and root terminology, filters, and Subscription Modes
+  remain on their deferred terminology for dedicated migrations.
 * Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation:
   * Rename `Converger` to `SubscriptionReconciler` and `ConvergerTest` to `SubscriptionReconcilerTest`.
   * Rename `converge`, `convergeStep`, and `convergeAreaOfInterest` operations to `reconcile`, `reconcileStep`, and

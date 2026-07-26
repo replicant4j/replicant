@@ -1384,7 +1384,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
-                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
         final SystemSchema schema = new SystemSchema(
                 schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
@@ -1471,7 +1471,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
-                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
         final SystemSchema schema = new SystemSchema(
                 schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
@@ -1517,7 +1517,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
-                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
         final SystemSchema schema = new SystemSchema(
                 schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
@@ -1559,7 +1559,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final EntityType entityType = new EntityType(
-                0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new ChannelLinkSchema[0]);
+                0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new DatasetLink[0]);
         final SystemSchema schema = new SystemSchema(
                 schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
@@ -1990,7 +1990,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 Collections.emptyList());
         final EntityType entityType =
-                new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new DatasetLink[0]);
         final SystemSchema schema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 
@@ -2547,7 +2547,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
-                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
         final SystemSchema schema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 

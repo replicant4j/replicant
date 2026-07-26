@@ -11,9 +11,9 @@ public class SystemSchemaTest extends AbstractReplicantTest {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final EntityType entityType1 =
-                new EntityType(0, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new ChannelLinkSchema[0]);
+                new EntityType(0, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new DatasetLink[0]);
         final EntityType entityType2 =
-                new EntityType(1, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
+                new EntityType(1, ValueUtil.randomString(), String.class, (i, d) -> "", null, new DatasetLink[0]);
         final EntityType[] entityTypes = new EntityType[] {entityType1, entityType2};
         final Dataset dataset1 = new Dataset(
                 1,
@@ -72,8 +72,8 @@ public class SystemSchemaTest extends AbstractReplicantTest {
 
     @Test
     public void construct_badEntityTypeIndex() {
-        final EntityType entityType = new EntityType(
-                23, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new ChannelLinkSchema[0]);
+        final EntityType entityType =
+                new EntityType(23, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new DatasetLink[0]);
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {entityType}));

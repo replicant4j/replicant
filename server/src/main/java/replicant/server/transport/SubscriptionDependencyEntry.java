@@ -5,12 +5,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.DatasetAddress;
 
-record ChannelLinkEntry(
-        @NonNull LinkOwner owner,
+record SubscriptionDependencyEntry(
+        @NonNull SubscriptionDependencyOwner owner,
         @NonNull DatasetAddress sourceDatasetAddress,
         @NonNull DatasetAddress targetDatasetAddress,
         @Nullable JsonObject filter) {
-    ChannelLinkEntry {
+    SubscriptionDependencyEntry {
         assert sourceDatasetAddress.concrete();
         assert targetDatasetAddress.concrete();
     }

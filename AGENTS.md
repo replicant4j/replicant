@@ -92,6 +92,10 @@ This guide captures the repo-specific rules and conventions for working effectiv
   - `DYNAMIC` allows filter updates; `STATIC` rejects filter updates regardless of whether the Dataset is keyed.
 - Bulk subscribe and unsubscribe uses a shared filter for all Dataset Addresses; the Dataset Key lives on each
   `DatasetAddress`.
+- A Dataset Link is a reusable schema rule; a Subscription Dependency is the current runtime relationship it may
+  produce. Keep schema metadata and runtime retention APIs distinct.
+- Required Type Datasets are unconditional schema requirements. They share Subscription Dependency retention
+  machinery but are not Dataset Links.
 
 Implementation hotspots:
 
@@ -110,6 +114,14 @@ Implementation hotspots:
   - `server/src/main/java/replicant/server/json/JsonEncoder.java`
   - `server/src/main/java/replicant/server/Change.java`
   - `server/src/main/java/replicant/server/ChangeSet.java`
+- Dataset Link schema metadata:
+  - `client/src/main/java/replicant/DatasetLink.java`
+  - `client/src/main/java/replicant/EntityType.java`
+  - `client/src/main/java/replicant/SystemSchema.java`
+- Subscription Dependency retention:
+  - `server/src/main/java/replicant/server/SubscriptionDependency.java`
+  - `server/src/main/java/replicant/server/transport/SubscriptionEntry.java`
+  - `server/src/main/java/replicant/server/transport/ReplicantSession.java`
 
 ## Coding Conventions
 

@@ -5,7 +5,6 @@ java_server_library(
     srcs = [
         "Change.java",
         "ChangeSet.java",
-        "ChannelLink.java",
         "DatasetAddress.java",
         "EntityMessage.java",
         "EntityMessageSet.java",
@@ -13,6 +12,7 @@ java_server_library(
         "FilterUtil.java",
         "ServerConstants.java",
         "SubscriptionAction.java",
+        "SubscriptionDependency.java",
         "package-info.java",
     ],
     visibility = [

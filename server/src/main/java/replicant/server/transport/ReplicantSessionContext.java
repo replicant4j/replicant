@@ -29,7 +29,7 @@ public interface ReplicantSessionContext {
     /**
      * Derive a filter for the target Dataset Address based on the source Dataset Address and filter.
      *
-     * @param entityMessage the entityMessage in the context of which the links is being created.
+     * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
      * @param sourceDatasetAddress the source Dataset Address.
      * @param sourceFilter         the filter for the source Dataset Address.
      * @param targetDatasetAddress the target Dataset Address.
@@ -45,7 +45,7 @@ public interface ReplicantSessionContext {
     /**
      * Derive the target Dataset Key for a partially specified target Dataset Address.
      *
-     * @param entityMessage the entityMessage in the context of which the link is being created.
+     * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
      * @param sourceDatasetAddress the concrete source Dataset Address.
      * @param sourceFilter         the filter for the source Dataset Address.
      * @param targetDatasetAddress the target Dataset Address template with a missing Dataset Key.
@@ -90,7 +90,7 @@ public interface ReplicantSessionContext {
     /**
      * Add changes to the ChangeSet as a result of changing a Subscription Filter Parameter.
      * It is expected that the hook does everything including updating SubscriptionEntry with new
-     * filter, adding graph links etc.
+     * filter and reconciling Subscription Dependencies.
      *
      * @param session        the session.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
@@ -109,7 +109,7 @@ public interface ReplicantSessionContext {
     EntityMessage filterEntityMessage(
             @NonNull ReplicantSession session, @NonNull DatasetAddress datasetAddress, @NonNull EntityMessage message);
 
-    boolean shouldFollowLink(
+    boolean shouldFollowDatasetLink(
             @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilter,
             @NonNull DatasetAddress targetDatasetAddress,

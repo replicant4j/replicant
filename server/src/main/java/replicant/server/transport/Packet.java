@@ -10,7 +10,7 @@ import replicant.server.EntityMessage;
 /**
  * Packet contains the data generated from the transaction that needs to be sent to a specific client.
  * This packet has not been fully resolved and is just used to pass the data to another thread that will perform
- * "expandLinks" operation.
+ * Subscription Dependency expansion operation.
  *
  * @param altersExplicitSubscriptions The request that resulted in this change when packet is being sent back to the initiator.
  * @param requestId                   The request that resulted in this change when the packet is being sent back to the initiator.

@@ -14,7 +14,7 @@ import replicant.server.DatasetAddress;
 
 /**
  * An object defining the state of the Subscription at a particular Dataset Address and
- * all the dependency relationships to other graphs.
+ * all its Subscription Dependencies.
  */
 final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     @NonNull
@@ -23,27 +23,30 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     @NonNull
     private final DatasetAddress _datasetAddress;
     /**
-     * This is the set of Dataset Addresses subscribed to through this Subscription.
+     * The target Dataset Addresses of this Subscription's outward Subscription Dependencies.
      */
     @NonNull
-    private final Set<DatasetAddress> _outwardSubscriptions = new HashSet<>();
+    private final Set<DatasetAddress> _outwardSubscriptionDependencies = new HashSet<>();
 
     @NonNull
-    private final Set<DatasetAddress> _roOutwardSubscriptions = Collections.unmodifiableSet(_outwardSubscriptions);
+    private final Set<DatasetAddress> _roOutwardSubscriptionDependencies =
+            Collections.unmodifiableSet(_outwardSubscriptionDependencies);
 
     @NonNull
-    private final Map<LinkOwner, Set<DatasetAddress>> _ownedOutwardSubscriptions = new HashMap<>();
+    private final Map<SubscriptionDependencyOwner, Set<DatasetAddress>> _ownedOutwardSubscriptionDependencies =
+            new HashMap<>();
 
     @NonNull
-    private final Map<DatasetAddress, Integer> _outwardSubscriptionReferenceCounts = new HashMap<>();
+    private final Map<DatasetAddress, Integer> _outwardSubscriptionDependencyReferenceCounts = new HashMap<>();
     /**
-     * This is the set of Dataset Addresses whose Subscriptions depend on this Subscription.
+     * The source Dataset Addresses of this Subscription's inward Subscription Dependencies.
      */
     @NonNull
-    private final Set<DatasetAddress> _inwardSubscriptions = new HashSet<>();
+    private final Set<DatasetAddress> _inwardSubscriptionDependencies = new HashSet<>();
 
     @NonNull
-    private final Set<DatasetAddress> _roInwardSubscriptions = Collections.unmodifiableSet(_inwardSubscriptions);
+    private final Set<DatasetAddress> _roInwardSubscriptionDependencies =
+            Collections.unmodifiableSet(_inwardSubscriptionDependencies);
 
     private boolean _explicitlySubscribed;
 
@@ -62,15 +65,14 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
 
     /**
      * Return true if this Subscription can be automatically unsubscribed. This means it has not
-     * been explicitly subscribed and has no incoming subscriptions.
+     * been explicitly subscribed and has no inward Subscription Dependencies.
      */
     boolean canUnsubscribe() {
-        return !isExplicitlySubscribed() && _inwardSubscriptions.isEmpty();
+        return !isExplicitlySubscribed() && _inwardSubscriptionDependencies.isEmpty();
     }
 
     /**
-     * Return true if this Dataset Address has been explicitly subscribed to from the client,
-     * false the subscription occurred due to a graph link.
+     * Return true if this Subscription was explicitly requested by the client.
      */
     boolean isExplicitlySubscribed() {
         return _explicitlySubscribed;
@@ -93,7 +95,7 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     /**
      * Set the filter.
      * User code should not invoke this unless they are implementing bulk loading and are propagating
-     * filters between multiple graphs loaded in a single sweep.
+     * filters between multiple Datasets loaded in a single sweep.
      *
      * @param filter the filter.
      */
@@ -103,36 +105,37 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Return the Dataset Addresses that were subscribed as a result of subscribing to this Dataset Address.
+     * Return the target Dataset Addresses of this Subscription's outward Subscription Dependencies.
      */
     @NonNull
-    Set<DatasetAddress> getOutwardSubscriptions() {
-        return _roOutwardSubscriptions;
+    Set<DatasetAddress> getOutwardSubscriptionDependencies() {
+        return _roOutwardSubscriptionDependencies;
     }
 
     @NonNull
-    Set<DatasetAddress> getOwnedOutwardSubscriptions(@NonNull final LinkOwner owner) {
+    Set<DatasetAddress> getOwnedOutwardSubscriptionDependencies(@NonNull final SubscriptionDependencyOwner owner) {
         assert null != owner;
         _session.ensureLockedByCurrentThread();
-        final var datasetAddresses = _ownedOutwardSubscriptions.get(owner);
+        final var datasetAddresses = _ownedOutwardSubscriptionDependencies.get(owner);
         return null == datasetAddresses ? Collections.emptySet() : Set.copyOf(datasetAddresses);
     }
 
     /**
-     * Register the specified Dataset Address as outward links. Returns the set of links that were actually added.
+     * Register outward Subscription Dependencies and return the target Dataset Addresses that were newly retained.
      */
     @NonNull
-    DatasetAddress[] registerOutwardSubscriptions(
-            @NonNull final LinkOwner owner, @NonNull final DatasetAddress... datasetAddresses) {
+    DatasetAddress[] registerOutwardSubscriptionDependencies(
+            @NonNull final SubscriptionDependencyOwner owner, @NonNull final DatasetAddress... datasetAddresses) {
         assert null != owner;
         _session.ensureLockedByCurrentThread();
         final var results = new ArrayList<DatasetAddress>(datasetAddresses.length);
-        final var owned = _ownedOutwardSubscriptions.computeIfAbsent(owner, k -> new HashSet<>());
+        final var owned = _ownedOutwardSubscriptionDependencies.computeIfAbsent(owner, k -> new HashSet<>());
         for (final var datasetAddress : datasetAddresses) {
             if (owned.add(datasetAddress)) {
-                final var referenceCount = _outwardSubscriptionReferenceCounts.merge(datasetAddress, 1, Integer::sum);
+                final var referenceCount =
+                        _outwardSubscriptionDependencyReferenceCounts.merge(datasetAddress, 1, Integer::sum);
                 if (1 == referenceCount) {
-                    _outwardSubscriptions.add(datasetAddress);
+                    _outwardSubscriptionDependencies.add(datasetAddress);
                     results.add(datasetAddress);
                 }
             }
@@ -141,14 +144,14 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Deregister the specified Dataset Addresses as outward links. Returns the set of links that were actually deregistered.
+     * Deregister outward Subscription Dependencies and return the target Dataset Addresses no longer retained.
      */
     @NonNull
-    DatasetAddress[] deregisterOutwardSubscriptions(
-            @NonNull final LinkOwner owner, @NonNull final DatasetAddress... datasetAddresses) {
+    DatasetAddress[] deregisterOutwardSubscriptionDependencies(
+            @NonNull final SubscriptionDependencyOwner owner, @NonNull final DatasetAddress... datasetAddresses) {
         assert null != owner;
         _session.ensureLockedByCurrentThread();
-        final var owned = _ownedOutwardSubscriptions.get(owner);
+        final var owned = _ownedOutwardSubscriptionDependencies.get(owner);
         if (null == owned) {
             return new DatasetAddress[0];
         } else {
@@ -156,35 +159,36 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
             for (final var datasetAddress : datasetAddresses) {
                 if (owned.remove(datasetAddress)) {
                     final var existing =
-                            Objects.requireNonNull(_outwardSubscriptionReferenceCounts.get(datasetAddress));
+                            Objects.requireNonNull(_outwardSubscriptionDependencyReferenceCounts.get(datasetAddress));
                     assert existing > 0;
                     if (1 == existing) {
-                        _outwardSubscriptionReferenceCounts.remove(datasetAddress);
-                        _outwardSubscriptions.remove(datasetAddress);
+                        _outwardSubscriptionDependencyReferenceCounts.remove(datasetAddress);
+                        _outwardSubscriptionDependencies.remove(datasetAddress);
                         results.add(datasetAddress);
                     } else {
-                        _outwardSubscriptionReferenceCounts.put(datasetAddress, existing - 1);
+                        _outwardSubscriptionDependencyReferenceCounts.put(datasetAddress, existing - 1);
                     }
                 }
             }
             if (owned.isEmpty()) {
-                _ownedOutwardSubscriptions.remove(owner);
+                _ownedOutwardSubscriptionDependencies.remove(owner);
             }
             return results.toArray(new DatasetAddress[0]);
         }
     }
 
     /**
-     * Deregister the specified Dataset Addresses from all graph-link owners. Returns the set of links that were actually deregistered.
+     * Deregister the target Dataset Addresses from all Subscription Dependency owners and return those no longer
+     * retained.
      */
     @NonNull
-    DatasetAddress[] deregisterAllOutwardSubscriptions(@NonNull final DatasetAddress... datasetAddresses) {
+    DatasetAddress[] deregisterAllOutwardSubscriptionDependencies(@NonNull final DatasetAddress... datasetAddresses) {
         _session.ensureLockedByCurrentThread();
         final var results = new ArrayList<DatasetAddress>(datasetAddresses.length);
         for (final var datasetAddress : datasetAddresses) {
-            if (_outwardSubscriptions.remove(datasetAddress)) {
-                _outwardSubscriptionReferenceCounts.remove(datasetAddress);
-                _ownedOutwardSubscriptions.entrySet().removeIf(e -> {
+            if (_outwardSubscriptionDependencies.remove(datasetAddress)) {
+                _outwardSubscriptionDependencyReferenceCounts.remove(datasetAddress);
+                _ownedOutwardSubscriptionDependencies.entrySet().removeIf(e -> {
                     e.getValue().remove(datasetAddress);
                     return e.getValue().isEmpty();
                 });
@@ -195,23 +199,23 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Return the Dataset Addresses that were auto-subscribed to the current Dataset Address.
+     * Return the source Dataset Addresses of this Subscription's inward Subscription Dependencies.
      */
     @NonNull
-    Set<DatasetAddress> getInwardSubscriptions() {
-        return _roInwardSubscriptions;
+    Set<DatasetAddress> getInwardSubscriptionDependencies() {
+        return _roInwardSubscriptionDependencies;
     }
 
     /**
-     * Register the specified Dataset Address as inward links. Returns the set of links that were actually added.
+     * Register inward Subscription Dependencies and return the source Dataset Addresses that were newly recorded.
      */
     @NonNull
-    DatasetAddress[] registerInwardSubscriptions(@NonNull final DatasetAddress... datasetAddresses) {
+    DatasetAddress[] registerInwardSubscriptionDependencies(@NonNull final DatasetAddress... datasetAddresses) {
         _session.ensureLockedByCurrentThread();
         final var results = new ArrayList<DatasetAddress>(datasetAddresses.length);
         for (final var datasetAddress : datasetAddresses) {
-            if (!_inwardSubscriptions.contains(datasetAddress)) {
-                _inwardSubscriptions.add(datasetAddress);
+            if (!_inwardSubscriptionDependencies.contains(datasetAddress)) {
+                _inwardSubscriptionDependencies.add(datasetAddress);
                 results.add(datasetAddress);
             }
         }
@@ -219,15 +223,15 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Deregister the specified Dataset Addresses as outward links. Returns the set of links that were actually deregistered.
+     * Deregister inward Subscription Dependencies and return the source Dataset Addresses that were removed.
      */
     @NonNull
-    DatasetAddress[] deregisterInwardSubscriptions(@NonNull final DatasetAddress... datasetAddresses) {
+    DatasetAddress[] deregisterInwardSubscriptionDependencies(@NonNull final DatasetAddress... datasetAddresses) {
         _session.ensureLockedByCurrentThread();
         final var results = new ArrayList<DatasetAddress>(datasetAddresses.length);
         for (final var datasetAddress : datasetAddresses) {
-            if (_inwardSubscriptions.contains(datasetAddress)) {
-                _inwardSubscriptions.remove(datasetAddress);
+            if (_inwardSubscriptionDependencies.contains(datasetAddress)) {
+                _inwardSubscriptionDependencies.remove(datasetAddress);
                 results.add(datasetAddress);
             }
         }

@@ -179,32 +179,32 @@ public final class SystemSchema {
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId, final int entityTypeId) {
+    public List<DatasetLink> getInwardDatasetLinks(final int datasetId, final int entityTypeId) {
         return Stream.of(_datasets)
                 .filter(Objects::nonNull)
                 .flatMap(dataset -> dataset.getEntityTypes().stream()
                         .filter(entityType -> entityType.getId() == entityTypeId)
-                        .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
-                                .filter(link -> link.getTargetDatasetId() == datasetId)))
+                        .flatMap(entityType -> Stream.of(entityType.getDatasetLinks())
+                                .filter(datasetLink -> datasetLink.getTargetDatasetId() == datasetId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId) {
+    public List<DatasetLink> getInwardDatasetLinks(final int datasetId) {
         return Stream.of(_datasets)
                 .filter(Objects::nonNull)
                 .flatMap(dataset -> dataset.getEntityTypes().stream()
-                        .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
-                                .filter(link -> link.getTargetDatasetId() == datasetId)))
+                        .flatMap(entityType -> Stream.of(entityType.getDatasetLinks())
+                                .filter(datasetLink -> datasetLink.getTargetDatasetId() == datasetId)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getOutwardChannelLinks(final int datasetId) {
+    public List<DatasetLink> getOutwardDatasetLinks(final int datasetId) {
         return getDataset(datasetId).getEntityTypes().stream()
-                .flatMap(entityType -> entityType.getOutwardChannelLinks(datasetId).stream())
+                .flatMap(entityType -> entityType.getOutwardDatasetLinks(datasetId).stream())
                 .collect(Collectors.toList());
     }
 

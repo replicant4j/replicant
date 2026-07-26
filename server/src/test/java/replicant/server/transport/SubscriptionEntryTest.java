@@ -29,8 +29,8 @@ public class SubscriptionEntryTest {
 
         assertEquals(entry.datasetAddress(), cd1);
         assertFalse(entry.isExplicitlySubscribed());
-        assertEquals(entry.getInwardSubscriptions().size(), 0);
-        assertEquals(entry.getOutwardSubscriptions().size(), 0);
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
         assertTrue(entry.canUnsubscribe());
         assertNull(entry.getFilter());
 
@@ -49,62 +49,68 @@ public class SubscriptionEntryTest {
         assertNull(entry.getFilter());
 
         // Deregister when there is none subscribed
-        assertEquals(entry.deregisterOutwardSubscriptions(LinkOwner.graph(), cd2), new DatasetAddress[0]);
-        assertEquals(entry.deregisterInwardSubscriptions(cd2), new DatasetAddress[0]);
+        assertEquals(
+                entry.deregisterOutwardSubscriptionDependencies(SubscriptionDependencyOwner.dataset(), cd2),
+                new DatasetAddress[0]);
+        assertEquals(entry.deregisterInwardSubscriptionDependencies(cd2), new DatasetAddress[0]);
 
         // Register incoming channels
-        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[] {cd2, cd3, cd4});
+        assertEquals(entry.registerInwardSubscriptionDependencies(cd2, cd3, cd4), new DatasetAddress[] {cd2, cd3, cd4});
         assertFalse(entry.canUnsubscribe());
-        assertEquals(entry.getInwardSubscriptions().size(), 3);
-        assertTrue(entry.getInwardSubscriptions().contains(cd2));
-        assertTrue(entry.getInwardSubscriptions().contains(cd3));
-        assertTrue(entry.getInwardSubscriptions().contains(cd4));
-        assertFalse(entry.getInwardSubscriptions().contains(cd5));
-        assertEquals(entry.getOutwardSubscriptions().size(), 0);
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 3);
+        assertTrue(entry.getInwardSubscriptionDependencies().contains(cd2));
+        assertTrue(entry.getInwardSubscriptionDependencies().contains(cd3));
+        assertTrue(entry.getInwardSubscriptionDependencies().contains(cd4));
+        assertFalse(entry.getInwardSubscriptionDependencies().contains(cd5));
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
 
-        assertEquals(entry.registerInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[0]);
+        assertEquals(entry.registerInwardSubscriptionDependencies(cd2, cd3, cd4), new DatasetAddress[0]);
 
         // Deregister some of those incoming
-        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3), new DatasetAddress[] {cd2, cd3});
+        assertEquals(entry.deregisterInwardSubscriptionDependencies(cd2, cd3), new DatasetAddress[] {cd2, cd3});
         assertFalse(entry.canUnsubscribe());
-        assertEquals(entry.getInwardSubscriptions().size(), 1);
-        assertFalse(entry.getInwardSubscriptions().contains(cd2));
-        assertFalse(entry.getInwardSubscriptions().contains(cd3));
-        assertTrue(entry.getInwardSubscriptions().contains(cd4));
-        assertFalse(entry.getInwardSubscriptions().contains(cd5));
-        assertEquals(entry.getOutwardSubscriptions().size(), 0);
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 1);
+        assertFalse(entry.getInwardSubscriptionDependencies().contains(cd2));
+        assertFalse(entry.getInwardSubscriptionDependencies().contains(cd3));
+        assertTrue(entry.getInwardSubscriptionDependencies().contains(cd4));
+        assertFalse(entry.getInwardSubscriptionDependencies().contains(cd5));
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
 
         // Deregister the remaining
-        assertEquals(entry.deregisterInwardSubscriptions(cd2, cd3, cd4), new DatasetAddress[] {cd4});
+        assertEquals(entry.deregisterInwardSubscriptionDependencies(cd2, cd3, cd4), new DatasetAddress[] {cd4});
         assertTrue(entry.canUnsubscribe());
-        assertEquals(entry.getInwardSubscriptions().size(), 0);
-        assertEquals(entry.getOutwardSubscriptions().size(), 0);
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
 
         // Register outgoing channels
         assertEquals(
-                entry.registerOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3, cd4),
+                entry.registerOutwardSubscriptionDependencies(
+                        SubscriptionDependencyOwner.dataset(), cd2, cd3, cd3, cd4),
                 new DatasetAddress[] {cd2, cd3, cd4});
         assertTrue(entry.canUnsubscribe());
-        assertEquals(entry.getInwardSubscriptions().size(), 0);
-        assertEquals(entry.getOutwardSubscriptions().size(), 3);
-        assertTrue(entry.getOutwardSubscriptions().contains(cd2));
-        assertTrue(entry.getOutwardSubscriptions().contains(cd3));
-        assertTrue(entry.getOutwardSubscriptions().contains(cd4));
-        assertFalse(entry.getOutwardSubscriptions().contains(cd5));
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 3);
+        assertTrue(entry.getOutwardSubscriptionDependencies().contains(cd2));
+        assertTrue(entry.getOutwardSubscriptionDependencies().contains(cd3));
+        assertTrue(entry.getOutwardSubscriptionDependencies().contains(cd4));
+        assertFalse(entry.getOutwardSubscriptionDependencies().contains(cd5));
 
-        assertEquals(entry.registerOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3, cd4), new DatasetAddress[0]);
+        assertEquals(
+                entry.registerOutwardSubscriptionDependencies(
+                        SubscriptionDependencyOwner.dataset(), cd2, cd3, cd3, cd4),
+                new DatasetAddress[0]);
 
         // Deregister some outgoing
         assertEquals(
-                entry.deregisterOutwardSubscriptions(LinkOwner.graph(), cd2, cd3, cd3),
+                entry.deregisterOutwardSubscriptionDependencies(SubscriptionDependencyOwner.dataset(), cd2, cd3, cd3),
                 new DatasetAddress[] {cd2, cd3});
         assertTrue(entry.canUnsubscribe());
-        assertEquals(entry.getInwardSubscriptions().size(), 0);
-        assertEquals(entry.getOutwardSubscriptions().size(), 1);
-        assertFalse(entry.getOutwardSubscriptions().contains(cd2));
-        assertFalse(entry.getOutwardSubscriptions().contains(cd3));
-        assertTrue(entry.getOutwardSubscriptions().contains(cd4));
-        assertFalse(entry.getOutwardSubscriptions().contains(cd5));
+        assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
+        assertEquals(entry.getOutwardSubscriptionDependencies().size(), 1);
+        assertFalse(entry.getOutwardSubscriptionDependencies().contains(cd2));
+        assertFalse(entry.getOutwardSubscriptionDependencies().contains(cd3));
+        assertTrue(entry.getOutwardSubscriptionDependencies().contains(cd4));
+        assertFalse(entry.getOutwardSubscriptionDependencies().contains(cd5));
     }
 
     @Test
@@ -137,28 +143,31 @@ public class SubscriptionEntryTest {
         session.getLock().lock();
         try {
             final var entry = new SubscriptionEntry(session, sourceDatasetAddress);
-            final var ownerA = LinkOwner.entity(7, 11);
-            final var ownerB = LinkOwner.entity(7, 12);
+            final var ownerA = SubscriptionDependencyOwner.entity(7, 11);
+            final var ownerB = SubscriptionDependencyOwner.entity(7, 12);
 
             assertEquals(
-                    entry.registerOutwardSubscriptions(ownerA, targetDatasetAddress),
+                    entry.registerOutwardSubscriptionDependencies(ownerA, targetDatasetAddress),
                     new DatasetAddress[] {targetDatasetAddress});
-            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
-            assertEquals(entry.getOwnedOutwardSubscriptions(ownerA), Set.of(targetDatasetAddress));
-
-            assertEquals(entry.registerOutwardSubscriptions(ownerB, targetDatasetAddress), new DatasetAddress[0]);
-            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
-            assertEquals(entry.getOwnedOutwardSubscriptions(ownerB), Set.of(targetDatasetAddress));
-
-            assertEquals(entry.deregisterOutwardSubscriptions(ownerA, targetDatasetAddress), new DatasetAddress[0]);
-            assertTrue(entry.getOutwardSubscriptions().contains(targetDatasetAddress));
-            assertTrue(entry.getOwnedOutwardSubscriptions(ownerA).isEmpty());
+            assertTrue(entry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertEquals(entry.getOwnedOutwardSubscriptionDependencies(ownerA), Set.of(targetDatasetAddress));
 
             assertEquals(
-                    entry.deregisterOutwardSubscriptions(ownerB, targetDatasetAddress),
+                    entry.registerOutwardSubscriptionDependencies(ownerB, targetDatasetAddress), new DatasetAddress[0]);
+            assertTrue(entry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertEquals(entry.getOwnedOutwardSubscriptionDependencies(ownerB), Set.of(targetDatasetAddress));
+
+            assertEquals(
+                    entry.deregisterOutwardSubscriptionDependencies(ownerA, targetDatasetAddress),
+                    new DatasetAddress[0]);
+            assertTrue(entry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertTrue(entry.getOwnedOutwardSubscriptionDependencies(ownerA).isEmpty());
+
+            assertEquals(
+                    entry.deregisterOutwardSubscriptionDependencies(ownerB, targetDatasetAddress),
                     new DatasetAddress[] {targetDatasetAddress});
-            assertTrue(entry.getOutwardSubscriptions().isEmpty());
-            assertTrue(entry.getOwnedOutwardSubscriptions(ownerB).isEmpty());
+            assertTrue(entry.getOutwardSubscriptionDependencies().isEmpty());
+            assertTrue(entry.getOwnedOutwardSubscriptionDependencies(ownerB).isEmpty());
         } finally {
             session.getLock().unlock();
         }

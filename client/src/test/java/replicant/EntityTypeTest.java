@@ -9,8 +9,7 @@ public class EntityTypeTest extends AbstractReplicantTest {
     public void construct() {
         final EntityType.Creator<Object> creator = (i, d) -> 1;
         final EntityType.Updater<Object> updater = (o, d) -> d.notify();
-        final EntityType entityType =
-                new EntityType(1, "MyObject", Object.class, creator, updater, new ChannelLinkSchema[0]);
+        final EntityType entityType = new EntityType(1, "MyObject", Object.class, creator, updater, new DatasetLink[0]);
         assertEquals(entityType.getId(), 1);
         assertEquals(entityType.getName(), "MyObject");
         assertEquals(entityType.getType(), Object.class);
@@ -23,7 +22,7 @@ public class EntityTypeTest extends AbstractReplicantTest {
     public void getNameWhenNamesDisabled() {
         ReplicantTestUtil.disableNames();
         final EntityType entityType =
-                new EntityType(ValueUtil.randomInt(), null, Object.class, (i, d) -> 1, null, new ChannelLinkSchema[0]);
+                new EntityType(ValueUtil.randomInt(), null, Object.class, (i, d) -> 1, null, new DatasetLink[0]);
         final IllegalStateException exception = expectThrows(IllegalStateException.class, entityType::getName);
         assertEquals(
                 exception.getMessage(),
@@ -34,7 +33,7 @@ public class EntityTypeTest extends AbstractReplicantTest {
     public void toStringWhenNamesDisabled() {
         ReplicantTestUtil.disableNames();
         final EntityType entityType =
-                new EntityType(ValueUtil.randomInt(), null, Object.class, (i, d) -> 1, null, new ChannelLinkSchema[0]);
+                new EntityType(ValueUtil.randomInt(), null, Object.class, (i, d) -> 1, null, new DatasetLink[0]);
         assertEquals(entityType.toString(), "replicant.EntityType@" + Integer.toHexString(entityType.hashCode()));
     }
 
@@ -44,7 +43,7 @@ public class EntityTypeTest extends AbstractReplicantTest {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new EntityType(
-                        ValueUtil.randomInt(), "MyEntity", Object.class, (i, d) -> 1, null, new ChannelLinkSchema[0]));
+                        ValueUtil.randomInt(), "MyEntity", Object.class, (i, d) -> 1, null, new DatasetLink[0]));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0049: EntityType passed a name 'MyEntity' but Replicant.areNamesEnabled() is false");

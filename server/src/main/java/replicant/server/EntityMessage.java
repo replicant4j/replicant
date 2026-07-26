@@ -16,16 +16,16 @@ public final class EntityMessage {
     private final int _typeId;
     /**
      * Routing keys contain two types of values.
-     * For every graph that the entity type is contained within, the map will
+     * For every Dataset that the Entity Type is contained within, the map will
      * contain "filter_in_graphs" attributes for this entity and any entity on
      * the path to the root of the instance graph. The map will also contain the
-     * the id of any instance roots for graphs that graph_link to this entity.
+     * id of any instance roots for Datasets with a Dataset Link to this Entity.
      */
     @NonNull
     private final Map<String, Serializable> _routingKeys;
 
     @Nullable
-    private Set<ChannelLink> _links;
+    private Set<SubscriptionDependency> _subscriptionDependencies;
 
     @Nullable
     private Map<String, Serializable> _attributeValues;
@@ -47,13 +47,13 @@ public final class EntityMessage {
             final long timestamp,
             @NonNull final Map<String, Serializable> routingKeys,
             @Nullable final Map<String, Serializable> attributeValues,
-            @Nullable final Set<ChannelLink> links) {
+            @Nullable final Set<SubscriptionDependency> subscriptionDependencies) {
         _id = id;
         _typeId = typeId;
         _timestamp = timestamp;
         _routingKeys = Objects.requireNonNull(routingKeys);
         _attributeValues = attributeValues;
-        _links = links;
+        _subscriptionDependencies = subscriptionDependencies;
         assertInvariants();
     }
 
@@ -88,8 +88,8 @@ public final class EntityMessage {
     }
 
     @Nullable
-    public Set<ChannelLink> getLinks() {
-        return _links;
+    public Set<SubscriptionDependency> getSubscriptionDependencies() {
+        return _subscriptionDependencies;
     }
 
     @NonNull
@@ -104,7 +104,7 @@ public final class EntityMessage {
         final var message = duplicate();
         message.merge(this);
         message._attributeValues = null;
-        message._links = null;
+        message._subscriptionDependencies = null;
         message.assertInvariants();
         return message;
     }
@@ -116,8 +116,8 @@ public final class EntityMessage {
                 + getTypeId() + ",ID="
                 + getId() + ",RoutingKeys="
                 + getRoutingKeys() + (!isDelete() ? ",Data=" + getAttributeValues() : "")
-                + ",Links="
-                + getLinks() + ")";
+                + ",Subscription Dependencies="
+                + getSubscriptionDependencies() + ")";
     }
 
     public void merge(@NonNull final EntityMessage message) {
@@ -125,9 +125,9 @@ public final class EntityMessage {
         mergeRoutingKeys(message);
         mergeAttributeValues(message);
         if (message.isDelete()) {
-            _links = null;
+            _subscriptionDependencies = null;
         } else {
-            mergeLinks(message);
+            mergeSubscriptionDependencies(message);
         }
         assertInvariants();
     }
@@ -170,17 +170,18 @@ public final class EntityMessage {
         }
     }
 
-    private void mergeLinks(@NonNull final EntityMessage message) {
-        final var links = message.getLinks();
-        if (null != links) {
-            if (null == _links) {
-                _links = new HashSet<>();
+    private void mergeSubscriptionDependencies(@NonNull final EntityMessage message) {
+        final var subscriptionDependencies = message.getSubscriptionDependencies();
+        if (null != subscriptionDependencies) {
+            if (null == _subscriptionDependencies) {
+                _subscriptionDependencies = new HashSet<>();
             }
-            _links.addAll(links);
+            _subscriptionDependencies.addAll(subscriptionDependencies);
         }
     }
 
     private void assertInvariants() {
-        assert null != _attributeValues || null == _links : "Delete EntityMessage must not contain links";
+        assert null != _attributeValues || null == _subscriptionDependencies
+                : "Delete EntityMessage must not contain Subscription Dependencies";
     }
 }

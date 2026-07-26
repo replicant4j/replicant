@@ -2,8 +2,8 @@ package replicant.server.transport;
 
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
-import replicant.server.ChannelLink;
 import replicant.server.DatasetAddress;
+import replicant.server.SubscriptionDependency;
 
 final class InvariantUtil {
     private static final boolean ASSERTIONS_ENABLED = InvariantUtil.class.desiredAssertionStatus();
@@ -53,21 +53,22 @@ final class InvariantUtil {
         }
     }
 
-    static void assertLink(@NonNull final SchemaMetaData schema, @NonNull final ChannelLink link) {
+    static void assertSubscriptionDependency(
+            @NonNull final SchemaMetaData schema, @NonNull final SubscriptionDependency subscriptionDependency) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesDatasetMetadata(schema, link.sourceDatasetAddress());
-            final var targetDataset =
-                    schema.getDatasetMetadata(link.targetDatasetAddress().datasetId());
-            assertDatasetAddressMatchesDatasetMetadata(targetDataset, link.targetDatasetAddress());
+            assertDatasetAddressMatchesDatasetMetadata(schema, subscriptionDependency.sourceDatasetAddress());
+            final var targetDataset = schema.getDatasetMetadata(
+                    subscriptionDependency.targetDatasetAddress().datasetId());
+            assertDatasetAddressMatchesDatasetMetadata(targetDataset, subscriptionDependency.targetDatasetAddress());
 
-            if (link.partial()) {
-                assert link.sourceDatasetAddress().partial()
-                        || link.targetDatasetAddress().partial()
-                        || (targetDataset.requiresFilterParameter() && null == link.targetFilter());
+            if (subscriptionDependency.partial()) {
+                assert subscriptionDependency.sourceDatasetAddress().partial()
+                        || subscriptionDependency.targetDatasetAddress().partial()
+                        || (targetDataset.requiresFilterParameter() && null == subscriptionDependency.targetFilter());
             } else {
-                assert link.sourceDatasetAddress().concrete();
-                assert link.targetDatasetAddress().concrete();
-                assert !targetDataset.requiresFilterParameter() || null != link.targetFilter();
+                assert subscriptionDependency.sourceDatasetAddress().concrete();
+                assert subscriptionDependency.targetDatasetAddress().concrete();
+                assert !targetDataset.requiresFilterParameter() || null != subscriptionDependency.targetFilter();
             }
         }
     }

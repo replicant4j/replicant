@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
  * @param datasetId the Dataset identifier
  * @param datasetRootId the Dataset Root identifier, when required
  * @param datasetKey the Dataset Key, when required
- * @param partial true when the address is a non-concrete link template
+ * @param partial true when the address is a non-concrete Subscription Dependency template
  */
 public record DatasetAddress(
         int datasetId,

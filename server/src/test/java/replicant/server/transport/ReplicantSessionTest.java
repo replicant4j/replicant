@@ -360,7 +360,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void recordGraphScopedGraphLink_linksEntries() {
+    public void recordDatasetScopedSubscriptionDependency_recordsDependency() {
         final var session = new ReplicantSession(mock(Session.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(2);
@@ -370,13 +370,13 @@ public class ReplicantSessionTest {
             session.createSubscriptionEntry(sourceDatasetAddress);
             session.createSubscriptionEntry(targetDatasetAddress);
 
-            session.recordGraphScopedGraphLink(sourceDatasetAddress, targetDatasetAddress);
+            session.recordDatasetScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
 
             assertTrue(session.getSubscriptionEntry(sourceDatasetAddress)
-                    .getOutwardSubscriptions()
+                    .getOutwardSubscriptionDependencies()
                     .contains(targetDatasetAddress));
             assertTrue(session.getSubscriptionEntry(targetDatasetAddress)
-                    .getInwardSubscriptions()
+                    .getInwardSubscriptionDependencies()
                     .contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -384,7 +384,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void recordGraphScopedGraphLink_rejectsPartialAddress() {
+    public void recordDatasetScopedSubscriptionDependency_rejectsPartialAddress() {
         final var session = new ReplicantSession(mock(Session.class));
 
         session.getLock().lock();
@@ -394,14 +394,15 @@ public class ReplicantSessionTest {
 
             expectThrows(
                     AssertionError.class,
-                    () -> session.recordGraphScopedGraphLink(DatasetAddress.partial(1, 2), DatasetAddress.of(2)));
+                    () -> session.recordDatasetScopedSubscriptionDependency(
+                            DatasetAddress.partial(1, 2), DatasetAddress.of(2)));
         } finally {
             session.getLock().unlock();
         }
     }
 
     @Test
-    public void recordGraphScopedGraphLink_rejectsInstanceGraphTarget() {
+    public void recordDatasetScopedSubscriptionDependency_rejectsInstanceDatasetTarget() {
         final var session = new ReplicantSession(mock(Session.class));
 
         session.getLock().lock();
@@ -411,14 +412,15 @@ public class ReplicantSessionTest {
 
             expectThrows(
                     AssertionError.class,
-                    () -> session.recordGraphScopedGraphLink(DatasetAddress.of(1, 2), DatasetAddress.of(2, 3)));
+                    () -> session.recordDatasetScopedSubscriptionDependency(
+                            DatasetAddress.of(1, 2), DatasetAddress.of(2, 3)));
         } finally {
             session.getLock().unlock();
         }
     }
 
     @Test
-    public void recordEntityScopedGraphLink_linksEntries() {
+    public void recordEntityScopedSubscriptionDependency_recordsDependency() {
         final var session = new ReplicantSession(mock(Session.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(2);
@@ -428,14 +430,15 @@ public class ReplicantSessionTest {
             session.createSubscriptionEntry(sourceDatasetAddress);
             session.createSubscriptionEntry(targetDatasetAddress);
 
-            session.recordEntityScopedGraphLink(sourceDatasetAddress, targetDatasetAddress, 7, 11);
+            session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 7, 11);
 
             final var sourceEntry = session.getSubscriptionEntry(sourceDatasetAddress);
-            assertTrue(sourceEntry.getOutwardSubscriptions().contains(targetDatasetAddress));
+            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptions(LinkOwner.entity(7, 11)), Set.of(targetDatasetAddress));
+                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(7, 11)),
+                    Set.of(targetDatasetAddress));
             assertTrue(session.getSubscriptionEntry(targetDatasetAddress)
-                    .getInwardSubscriptions()
+                    .getInwardSubscriptionDependencies()
                     .contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -443,7 +446,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void recordEntityScopedGraphLink_allowsInstanceGraphTarget() {
+    public void recordEntityScopedSubscriptionDependency_allowsInstanceDatasetTarget() {
         final var session = new ReplicantSession(mock(Session.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(2, 3);
@@ -453,17 +456,17 @@ public class ReplicantSessionTest {
             session.createSubscriptionEntry(sourceDatasetAddress);
             session.createSubscriptionEntry(targetDatasetAddress);
 
-            session.recordEntityScopedGraphLink(sourceDatasetAddress, targetDatasetAddress, 7, 11);
+            session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 7, 11);
 
             assertTrue(session.getSubscriptionEntry(sourceDatasetAddress)
-                    .getOutwardSubscriptions()
+                    .getOutwardSubscriptionDependencies()
                     .contains(targetDatasetAddress));
             assertEquals(
                     session.getSubscriptionEntry(sourceDatasetAddress)
-                            .getOwnedOutwardSubscriptions(LinkOwner.entity(7, 11)),
+                            .getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(7, 11)),
                     Set.of(targetDatasetAddress));
             assertTrue(session.getSubscriptionEntry(targetDatasetAddress)
-                    .getInwardSubscriptions()
+                    .getInwardSubscriptionDependencies()
                     .contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -471,7 +474,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void recordEntityScopedGraphLink_rejectsPartialAddress() {
+    public void recordEntityScopedSubscriptionDependency_rejectsPartialAddress() {
         final var session = new ReplicantSession(mock(Session.class));
 
         session.getLock().lock();
@@ -481,7 +484,7 @@ public class ReplicantSessionTest {
 
             expectThrows(
                     AssertionError.class,
-                    () -> session.recordEntityScopedGraphLink(
+                    () -> session.recordEntityScopedSubscriptionDependency(
                             DatasetAddress.partial(1, 2), DatasetAddress.of(2), 7, 11));
         } finally {
             session.getLock().unlock();
@@ -489,7 +492,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void entityOwnedGraphLinks_requireLastOwnerBeforeDelink() {
+    public void entityOwnedSubscriptionDependencies_requireLastOwnerBeforeDependencyRemoval() {
         final var session = new ReplicantSession(mock(Session.class));
         final var changeSet = new ChangeSet();
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
@@ -501,25 +504,29 @@ public class ReplicantSessionTest {
             final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress);
             targetEntry.setExplicitlySubscribed(true);
 
-            session.recordGraphLink(sourceEntry, targetEntry, LinkOwner.entity(7, 11));
-            session.recordGraphLink(sourceEntry, targetEntry, LinkOwner.entity(7, 12));
+            session.recordSubscriptionDependency(sourceEntry, targetEntry, SubscriptionDependencyOwner.entity(7, 11));
+            session.recordSubscriptionDependency(sourceEntry, targetEntry, SubscriptionDependencyOwner.entity(7, 12));
 
-            assertTrue(sourceEntry.getOutwardSubscriptions().contains(targetDatasetAddress));
+            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptions(LinkOwner.entity(7, 11)), Set.of(targetDatasetAddress));
+                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(7, 11)),
+                    Set.of(targetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptions(LinkOwner.entity(7, 12)), Set.of(targetDatasetAddress));
+                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(7, 12)),
+                    Set.of(targetDatasetAddress));
 
-            session.delinkDownstreamSubscription(sourceEntry, LinkOwner.entity(7, 11), targetDatasetAddress, changeSet);
+            session.removeDownstreamSubscriptionDependency(
+                    sourceEntry, SubscriptionDependencyOwner.entity(7, 11), targetDatasetAddress, changeSet);
 
-            assertTrue(sourceEntry.getOutwardSubscriptions().contains(targetDatasetAddress));
-            assertTrue(targetEntry.getInwardSubscriptions().contains(sourceDatasetAddress));
+            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
             assertNotNull(session.findSubscriptionEntry(targetDatasetAddress));
 
-            session.delinkDownstreamSubscription(sourceEntry, LinkOwner.entity(7, 12), targetDatasetAddress, changeSet);
+            session.removeDownstreamSubscriptionDependency(
+                    sourceEntry, SubscriptionDependencyOwner.entity(7, 12), targetDatasetAddress, changeSet);
 
-            assertTrue(sourceEntry.getOutwardSubscriptions().isEmpty());
-            assertTrue(targetEntry.getInwardSubscriptions().isEmpty());
+            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().isEmpty());
+            assertTrue(targetEntry.getInwardSubscriptionDependencies().isEmpty());
             assertNotNull(session.findSubscriptionEntry(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -670,8 +677,8 @@ public class ReplicantSessionTest {
             final var entryA = session.createSubscriptionEntry(a);
             session.createSubscriptionEntry(b);
             session.createSubscriptionEntry(c);
-            session.recordGraphScopedGraphLink(a, b);
-            session.recordGraphScopedGraphLink(b, c);
+            session.recordDatasetScopedSubscriptionDependency(a, b);
+            session.recordDatasetScopedSubscriptionDependency(b, c);
 
             session.performUnsubscribe(entryA, false, false, changeSet);
 
@@ -690,7 +697,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void delinkDownstreamSubscription_keepsExplicitDownstream() {
+    public void removeDownstreamSubscriptionDependency_keepsExplicitDownstream() {
         final var session = new ReplicantSession(mock(Session.class));
         final var changeSet = new ChangeSet();
         final var upstream = DatasetAddress.of(1, 1);
@@ -701,15 +708,15 @@ public class ReplicantSessionTest {
             session.createSubscriptionEntry(upstream);
             final var downstreamEntry = session.createSubscriptionEntry(downstream);
             downstreamEntry.setExplicitlySubscribed(true);
-            session.recordGraphScopedGraphLink(upstream, downstream);
+            session.recordDatasetScopedSubscriptionDependency(upstream, downstream);
 
-            session.delinkDownstreamSubscription(upstream, downstream, changeSet);
+            session.removeDownstreamSubscriptionDependency(upstream, downstream, changeSet);
 
             assertTrue(session.getSubscriptionEntry(upstream)
-                    .getOutwardSubscriptions()
+                    .getOutwardSubscriptionDependencies()
                     .isEmpty());
             assertTrue(session.getSubscriptionEntry(downstream)
-                    .getInwardSubscriptions()
+                    .getInwardSubscriptionDependencies()
                     .isEmpty());
             assertNotNull(session.findSubscriptionEntry(downstream));
         } finally {
@@ -720,7 +727,7 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void delinkDownstreamSubscription_rejectsPartialAddress() {
+    public void removeDownstreamSubscriptionDependency_rejectsPartialAddress() {
         final var session = new ReplicantSession(mock(Session.class));
         final var changeSet = new ChangeSet();
 
@@ -731,7 +738,7 @@ public class ReplicantSessionTest {
 
             expectThrows(
                     AssertionError.class,
-                    () -> session.delinkDownstreamSubscription(
+                    () -> session.removeDownstreamSubscriptionDependency(
                             DatasetAddress.partial(1, 1), DatasetAddress.of(1, 2), changeSet));
         } finally {
             session.getLock().unlock();

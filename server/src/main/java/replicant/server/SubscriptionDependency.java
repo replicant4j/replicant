@@ -5,26 +5,27 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A representation indicating that an entity message will cause another Dataset Address to be subscribed.
+ * A runtime relationship indicating that the Subscription at the source Dataset Address requires the Subscription at
+ * the target Dataset Address.
  */
-public record ChannelLink(
+public record SubscriptionDependency(
         @NonNull DatasetAddress sourceDatasetAddress,
         @NonNull DatasetAddress targetDatasetAddress,
         @Nullable JsonObject targetFilter,
         boolean partial) {
-    public ChannelLink(
+    public SubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress, @NonNull final DatasetAddress targetDatasetAddress) {
         this(sourceDatasetAddress, targetDatasetAddress, null);
     }
 
-    public ChannelLink(
+    public SubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress,
             @NonNull final DatasetAddress targetDatasetAddress,
             @Nullable final JsonObject targetFilter) {
         this(sourceDatasetAddress, targetDatasetAddress, targetFilter, false);
     }
 
-    public ChannelLink {
+    public SubscriptionDependency {
         assert partial || (!sourceDatasetAddress.partial() && !targetDatasetAddress.partial());
         assert !partial || sourceDatasetAddress.partial() || targetDatasetAddress.partial() || null == targetFilter;
     }

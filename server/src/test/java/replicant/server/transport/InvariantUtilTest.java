@@ -3,8 +3,8 @@ package replicant.server.transport;
 import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
-import replicant.server.ChannelLink;
 import replicant.server.DatasetAddress;
+import replicant.server.SubscriptionDependency;
 
 public final class InvariantUtilTest {
     @Test
@@ -42,24 +42,26 @@ public final class InvariantUtilTest {
     }
 
     @Test
-    public void channelLink_constructorRejectsConcreteLinkWithPartialAddress() {
+    public void subscriptionDependency_constructorRejectsConcreteLinkWithPartialAddress() {
         expectThrows(
-                AssertionError.class, () -> new ChannelLink(DatasetAddress.partial(0), DatasetAddress.of(1, 7, "fi")));
+                AssertionError.class,
+                () -> new SubscriptionDependency(DatasetAddress.partial(0), DatasetAddress.of(1, 7, "fi")));
     }
 
     @Test
-    public void assertLink_allowsPartialLinkWithMissingTargetFilter() {
+    public void assertSubscriptionDependency_allowsPartialLinkWithMissingTargetFilter() {
         final var source = new DatasetMetadata(
                 0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
         final var target = new DatasetMetadata(
                 1, "Target", 1, DatasetMetadata.FilterType.STATIC, false, DatasetMetadata.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", source, target);
 
-        InvariantUtil.assertLink(schema, new ChannelLink(DatasetAddress.of(0), DatasetAddress.of(1, 7), null, true));
+        InvariantUtil.assertSubscriptionDependency(
+                schema, new SubscriptionDependency(DatasetAddress.of(0), DatasetAddress.of(1, 7), null, true));
     }
 
     @Test
-    public void assertLink_rejectsConcreteFilteredLinkWithoutTargetFilter() {
+    public void assertSubscriptionDependency_rejectsConcreteFilteredLinkWithoutTargetFilter() {
         final var source = new DatasetMetadata(
                 0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
         final var target = new DatasetMetadata(
@@ -68,6 +70,7 @@ public final class InvariantUtilTest {
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertLink(schema, new ChannelLink(DatasetAddress.of(0), DatasetAddress.of(1, 7))));
+                () -> InvariantUtil.assertSubscriptionDependency(
+                        schema, new SubscriptionDependency(DatasetAddress.of(0), DatasetAddress.of(1, 7))));
     }
 }

@@ -234,10 +234,10 @@ public final class Dataset {
     }
 
     @NonNull
-    public List<ChannelLinkSchema> getOutwardChannelLinks() {
+    public List<DatasetLink> getOutwardDatasetLinks() {
         return getEntityTypes().stream()
-                .flatMap(entityType ->
-                        Stream.of(entityType.getChannelLinks()).filter(link -> link.getSourceDatasetId() == getId()))
+                .flatMap(entityType -> Stream.of(entityType.getDatasetLinks())
+                        .filter(datasetLink -> datasetLink.getSourceDatasetId() == getId()))
                 .collect(Collectors.toList());
     }
 

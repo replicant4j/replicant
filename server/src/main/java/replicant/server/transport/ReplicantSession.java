@@ -309,58 +309,58 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     /**
-     * Configure the subscription entries to reflect a graph-scoped downstream dependency.
+     * Record a Dataset-scoped Subscription Dependency.
      *
-     * <p>This API is intended for downstream application code that needs to record a graph-level dependency after
-     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already be concrete subscriptions in this
-     * session and the target must be a concrete Type Dataset Address.</p>
+     * <p>This API is intended for downstream application code that needs to record an unconditional dependency after
+     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already identify concrete
+     * Subscriptions in this session and the target must be a concrete Type Dataset Address.</p>
      */
-    public void recordGraphScopedGraphLink(
+    public void recordDatasetScopedSubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress, @NonNull final DatasetAddress targetDatasetAddress) {
         assert !targetDatasetAddress.hasDatasetRootId();
-        recordGraphLink(sourceDatasetAddress, targetDatasetAddress, LinkOwner.graph());
+        recordSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, SubscriptionDependencyOwner.dataset());
     }
 
     /**
-     * Configure the subscription entries to reflect an entity-scoped downstream dependency.
+     * Record an Entity-scoped Subscription Dependency.
      *
-     * <p>This API is intended for downstream application code that needs to record an entity-scoped dependency after
-     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already be concrete subscriptions in this
-     * session.</p>
+     * <p>This API is intended for downstream application code that needs to record an Entity-scoped dependency after
+     * subscribing to both Dataset Addresses. The source and target Dataset Addresses must already identify concrete
+     * Subscriptions in this session.</p>
      *
-     * <p>Entity-owned links, including links that resolve to instance graphs, are managed internally by Replicant's
-     * follow-link processing and should not be recorded through this API unless the developer is using postSubscribe
-     * hooks to optimize data loads.</p>
+     * <p>Entity-owned Subscription Dependencies derived from Dataset Links are managed internally and should not be
+     * recorded through this API unless the developer is using post-subscribe hooks to optimize data loads.</p>
      */
-    public void recordEntityScopedGraphLink(
+    public void recordEntityScopedSubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress,
             @NonNull final DatasetAddress targetDatasetAddress,
             final int entityTypeId,
             final int entityId) {
-        recordGraphLink(sourceDatasetAddress, targetDatasetAddress, LinkOwner.entity(entityTypeId, entityId));
+        recordSubscriptionDependency(
+                sourceDatasetAddress, targetDatasetAddress, SubscriptionDependencyOwner.entity(entityTypeId, entityId));
     }
 
-    private void recordGraphLink(
+    private void recordSubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress,
             @NonNull final DatasetAddress targetDatasetAddress,
-            @NonNull final LinkOwner owner) {
+            @NonNull final SubscriptionDependencyOwner owner) {
         InvariantUtil.assertConcreteDatasetAddress(sourceDatasetAddress);
         InvariantUtil.assertConcreteDatasetAddress(targetDatasetAddress);
         final var sourceEntry = getSubscriptionEntry(sourceDatasetAddress);
         final var targetEntry = getSubscriptionEntry(targetDatasetAddress);
-        recordGraphLink(sourceEntry, targetEntry, owner);
+        recordSubscriptionDependency(sourceEntry, targetEntry, owner);
     }
 
-    void recordGraphLink(
+    void recordSubscriptionDependency(
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionEntry targetEntry,
-            @NonNull final LinkOwner owner) {
+            @NonNull final SubscriptionDependencyOwner owner) {
         InvariantUtil.assertConcreteDatasetAddress(sourceEntry.datasetAddress());
         InvariantUtil.assertConcreteDatasetAddress(targetEntry.datasetAddress());
-        assert !owner.isGraphScoped() || !targetEntry.datasetAddress().hasDatasetRootId();
-        final var added = sourceEntry.registerOutwardSubscriptions(owner, targetEntry.datasetAddress());
+        assert !owner.isDatasetScoped() || !targetEntry.datasetAddress().hasDatasetRootId();
+        final var added = sourceEntry.registerOutwardSubscriptionDependencies(owner, targetEntry.datasetAddress());
         if (0 != added.length) {
-            targetEntry.registerInwardSubscriptions(sourceEntry.datasetAddress());
+            targetEntry.registerInwardSubscriptionDependencies(sourceEntry.datasetAddress());
         }
     }
 
@@ -483,60 +483,61 @@ public final class ReplicantSession implements Serializable, Closeable {
             changeSet.mergeSubscriptionAction(
                     entry.datasetAddress(),
                     delete ? SubscriptionAction.Action.DELETE : SubscriptionAction.Action.UNSUBSCRIBE);
-            for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptions())) {
-                delinkAllDownstreamSubscription(entry, downstream, changeSet);
+            for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptionDependencies())) {
+                removeAllDownstreamSubscriptionDependencies(entry, downstream, changeSet);
             }
             deleteSubscriptionEntry(entry);
         }
     }
 
-    public void delinkDownstreamSubscription(
+    public void removeDownstreamSubscriptionDependency(
             @NonNull final DatasetAddress upstream,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
         assert upstream.concrete();
         assert downstream.concrete();
-        delinkDownstreamSubscription(getSubscriptionEntry(upstream), LinkOwner.graph(), downstream, changeSet);
+        removeDownstreamSubscriptionDependency(
+                getSubscriptionEntry(upstream), SubscriptionDependencyOwner.dataset(), downstream, changeSet);
     }
 
-    void delinkDownstreamSubscription(
+    void removeDownstreamSubscriptionDependency(
             @NonNull final SubscriptionEntry sourceEntry,
-            @NonNull final LinkOwner owner,
+            @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
         assert sourceEntry.datasetAddress().concrete();
         assert downstream.concrete();
-        final var removed = sourceEntry.deregisterOutwardSubscriptions(owner, downstream);
+        final var removed = sourceEntry.deregisterOutwardSubscriptionDependencies(owner, downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);
             if (null != downstreamEntry) {
-                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.datasetAddress());
+                downstreamEntry.deregisterInwardSubscriptionDependencies(sourceEntry.datasetAddress());
                 performUnsubscribe(downstreamEntry, false, false, changeSet);
             }
         }
     }
 
-    void delinkDownstreamSubscriptions(
+    void removeDownstreamSubscriptionDependencies(
             @NonNull final SubscriptionEntry sourceEntry,
-            @NonNull final LinkOwner owner,
+            @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final ChangeSet changeSet) {
         assert sourceEntry.datasetAddress().concrete();
-        for (final var downstream : new ArrayList<>(sourceEntry.getOwnedOutwardSubscriptions(owner))) {
-            delinkDownstreamSubscription(sourceEntry, owner, downstream, changeSet);
+        for (final var downstream : new ArrayList<>(sourceEntry.getOwnedOutwardSubscriptionDependencies(owner))) {
+            removeDownstreamSubscriptionDependency(sourceEntry, owner, downstream, changeSet);
         }
     }
 
-    private void delinkAllDownstreamSubscription(
+    private void removeAllDownstreamSubscriptionDependencies(
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
         assert sourceEntry.datasetAddress().concrete();
         assert downstream.concrete();
-        final var removed = sourceEntry.deregisterAllOutwardSubscriptions(downstream);
+        final var removed = sourceEntry.deregisterAllOutwardSubscriptionDependencies(downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);
             if (null != downstreamEntry) {
-                downstreamEntry.deregisterInwardSubscriptions(sourceEntry.datasetAddress());
+                downstreamEntry.deregisterInwardSubscriptionDependencies(sourceEntry.datasetAddress());
                 performUnsubscribe(downstreamEntry, false, false, changeSet);
             }
         }

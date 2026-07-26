@@ -9,8 +9,8 @@ import org.testng.annotations.Test;
 public class DatasetTest extends AbstractReplicantTest {
     @Test
     public void findEntityTypeById() {
-        final EntityType entityType = new EntityType(
-                1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
+        final EntityType entityType =
+                new EntityType(1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new DatasetLink[0]);
         final Dataset dataset = new Dataset(
                 ValueUtil.randomInt(),
                 ValueUtil.randomString(),
@@ -29,8 +29,8 @@ public class DatasetTest extends AbstractReplicantTest {
 
     @Test
     public void typeGraph() {
-        final EntityType entityType = new EntityType(
-                1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
+        final EntityType entityType =
+                new EntityType(1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new DatasetLink[0]);
         final Dataset dataset = new Dataset(
                 1,
                 "MetaData",
