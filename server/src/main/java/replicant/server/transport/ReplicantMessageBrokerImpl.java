@@ -90,13 +90,13 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
     @Override
     public Packet queueChangeMessage(
             @NonNull final ReplicantSession session,
-            final boolean altersExplicitSubscriptions,
+            final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @Nullable final String etag,
             @NonNull final Collection<EntityMessage> messages,
             @NonNull final ChangeSet changeSet) {
-        final var packet = new Packet(altersExplicitSubscriptions, requestId, response, etag, messages, changeSet);
+        final var packet = new Packet(fromSubscriptionRequest, requestId, response, etag, messages, changeSet);
         session.queuePacket(packet);
         final var newlyQueued = enqueueSessionIfRequired(session);
         scheduleDrainTasks();
@@ -107,8 +107,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
                             + requestId + " messageCount="
                             + messages.size() + " changeCount="
                             + changeSet.getChanges().size() + " subscriptionActionCount="
-                            + changeSet.getSubscriptionActions().size() + " altersExplicitSubscriptions="
-                            + altersExplicitSubscriptions + " newlyQueued="
+                            + changeSet.getSubscriptionActions().size() + " fromSubscriptionRequest="
+                            + fromSubscriptionRequest + " newlyQueued="
                             + newlyQueued + " queueSize="
                             + _queue.size() + " workStateCount="
                             + _workStates.size() + " activeDrainTasks="
@@ -444,8 +444,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         return "packetPresent=true requestId=" + packet.requestId() + " messageCount="
                 + packet.messages().size() + " changeCount="
                 + packet.changeSet().getChanges().size() + " subscriptionActionCount="
-                + packet.changeSet().getSubscriptionActions().size() + " altersExplicitSubscriptions="
-                + packet.altersExplicitSubscriptions();
+                + packet.changeSet().getSubscriptionActions().size() + " fromSubscriptionRequest="
+                + packet.fromSubscriptionRequest();
     }
 
     @VisibleForTesting

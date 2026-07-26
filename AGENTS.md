@@ -105,6 +105,9 @@ This guide captures the repo-specific rules and conventions for working effectiv
   produce. Keep schema metadata and runtime retention APIs distinct.
 - Required Type Datasets are unconditional schema requirements. They share Subscription Dependency retention
   machinery but are not Dataset Links.
+- `SubscriptionMode.EXPLICIT` means an Area of Interest currently backs the Subscription, even when dependencies also
+  retain it. `SubscriptionMode.IMPLICIT` means only one or more Subscription Dependencies retain it; remove an
+  Implicit-mode Subscription when its final dependency is removed.
 
 Implementation hotspots:
 

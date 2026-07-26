@@ -218,16 +218,16 @@ abstract class SubscriptionReconciler extends ReplicantService {
                     if (null == groupTemplate && !dataset.hasUpdatableFilterParameter()) {
                         /*
                         If the subscription needs an update but the backend does not support updates
-                        and subscription is explicitly subscribed then need to do a remove. Eventually it will
-                        fall through the add path once remove goes through. If the subscription is NOT explicitly
-                        subscribed then generate an error and fail.
+                        and the Subscription is in Explicit Subscription Mode then need to do a remove. Eventually it
+                        will fall through the add path once remove goes through. If the Subscription is in Implicit
+                        Subscription Mode then generate an error and fail.
                         */
                         if (Replicant.shouldCheckInvariants()) {
                             invariant(
-                                    existingSubscription::isExplicitSubscription,
+                                    () -> SubscriptionMode.EXPLICIT == existingSubscription.getMode(),
                                     () -> "Replicant-0083: Attempting to update Dataset Address " + datasetAddress
                                             + " but the Dataset does not have an updatable Filter Parameter and has not"
-                                            + " been explicitly subscribed.");
+                                            + " been placed in Explicit Subscription Mode.");
                         }
                         connector.requestUnsubscribe(datasetAddress);
                         return Action.SUBMITTED_REMOVE;
@@ -242,12 +242,12 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 } else {
                     /*
                      * The AreaOfInterest was added but an existing subscription matched it exactly.
-                     * If the subscription is explicitly subscribed then just update the status of
-                     * the AreaOfInterest, otherwise request subscription so that the server is aware
-                     * of the explicit subscription.
+                     * If the Subscription is in Explicit Subscription Mode then just update the status of the
+                     * Area of Interest, otherwise request subscription so that the server is aware of the mode
+                     * transition.
                      */
                     if (AreaOfInterest.Status.NOT_ASKED == areaOfInterest.getStatus()) {
-                        if (existingSubscription.isExplicitSubscription()) {
+                        if (SubscriptionMode.EXPLICIT == existingSubscription.getMode()) {
                             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
                         } else {
                             connector.requestSubscribe(datasetAddress, filterParameter);
@@ -300,8 +300,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
             @NonNull final Collection<Subscription> subscriptions,
             @NonNull final Set<DatasetAddress> expectedDatasetAddresses) {
         subscriptions.stream()
-                // Subscription must be explicit
-                .filter(Subscription::isExplicitSubscription)
+                // Subscription must be in Explicit Subscription Mode
+                .filter(subscription -> SubscriptionMode.EXPLICIT == subscription.getMode())
                 // Subscription should not be one of expected
                 .map(Subscription::datasetAddress)
                 .filter(datasetAddress -> !expectedDatasetAddresses.contains(datasetAddress))

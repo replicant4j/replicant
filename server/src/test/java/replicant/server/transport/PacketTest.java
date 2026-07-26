@@ -20,7 +20,7 @@ public class PacketTest {
 
         final var packet = new Packet(true, requestId, response, etag, messages, changeSet);
 
-        assertTrue(packet.altersExplicitSubscriptions());
+        assertTrue(packet.fromSubscriptionRequest());
         assertEquals(packet.requestId(), (Integer) requestId);
         assertEquals(packet.response(), response);
         assertEquals(packet.etag(), etag);
@@ -35,7 +35,7 @@ public class PacketTest {
 
         final var packet = new Packet(false, null, null, null, messages, changeSet);
 
-        assertFalse(packet.altersExplicitSubscriptions());
+        assertFalse(packet.fromSubscriptionRequest());
         assertNull(packet.requestId());
         assertNull(packet.etag());
         assertSame(packet.messages(), messages);

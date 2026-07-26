@@ -604,11 +604,13 @@ abstract class Connector extends ReplicantService {
                         Disposable.dispose(existingSubscription);
                     }
                 }
-                final boolean explicitSubscribe = getReplicantContext().getAreasOfInterest().stream()
-                        .anyMatch(a -> a.getDatasetAddress().equals(datasetAddress));
+                final SubscriptionMode mode = getReplicantContext().getAreasOfInterest().stream()
+                                .anyMatch(a -> a.getDatasetAddress().equals(datasetAddress))
+                        ? SubscriptionMode.EXPLICIT
+                        : SubscriptionMode.IMPLICIT;
                 getReplicantContext()
                         .getSubscriptionService()
-                        .createSubscription(datasetAddress, filterParameter, explicitSubscribe);
+                        .createSubscription(datasetAddress, filterParameter, mode);
             } else if (SubscriptionChange.Type.UNSUBSCRIBE == actionType
                     || SubscriptionChange.Type.DELETE == actionType) {
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -824,7 +826,7 @@ abstract class Connector extends ReplicantService {
             if (AreaOfInterestRequest.Type.ADD == type) {
                 onSubscribeCompleted(datasetAddress);
             } else if (AreaOfInterestRequest.Type.REMOVE == type) {
-                removeExplicitSubscriptions(Collections.singletonList(areaOfInterestRequest));
+                transitionSubscriptionsToImplicitMode(Collections.singletonList(areaOfInterestRequest));
                 onUnsubscribeCompleted(datasetAddress);
             } else {
                 assert AreaOfInterestRequest.Type.UPDATE == type;
@@ -848,17 +850,17 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action
-    void removeExplicitSubscriptions(@NonNull final List<AreaOfInterestRequest> requests) {
+    void transitionSubscriptionsToImplicitMode(@NonNull final List<AreaOfInterestRequest> requests) {
         requests.forEach(request -> {
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> AreaOfInterestRequest.Type.REMOVE == request.getType(),
-                        () -> "Replicant-0034: Connector.removeExplicitSubscriptions() invoked with request "
+                        () -> "Replicant-0034: Connector.transitionSubscriptionsToImplicitMode() invoked with request "
                                 + "with type that is not REMOVE. Request: " + request);
             }
             final Subscription subscription = getReplicantContext().findSubscription(request.getDatasetAddress());
             if (null != subscription) {
-                subscription.setExplicitSubscription(false);
+                subscription.setMode(SubscriptionMode.IMPLICIT);
             }
         });
     }
@@ -898,15 +900,15 @@ abstract class Connector extends ReplicantService {
                         () -> "Replicant-0046: Request to unsubscribe at Dataset Address " + datasetAddress
                                 + " but no Subscription exists.");
                 invariant(
-                        () -> null == subscription || subscription.isExplicitSubscription(),
+                        () -> null == subscription || SubscriptionMode.EXPLICIT == subscription.getMode(),
                         () -> "Replicant-0047: Request to unsubscribe at Dataset Address " + datasetAddress
-                                + " but subscription is not an explicit subscription.");
+                                + " but Subscription is not in Explicit Subscription Mode.");
             }
             // The following code can probably be removed but it was present in the previous system
             // and it is unclear if there is any scenarios where it can still happen. The code has
             // been left in until we can verify it is no longer an issue. The above invariants will trigger
             // in development mode to help us track down these scenarios
-            if (null == subscription || !subscription.isExplicitSubscription()) {
+            if (null == subscription || SubscriptionMode.EXPLICIT != subscription.getMode()) {
                 // We were getting here if a deleted Dataset Root sent DELETED to the client, which
                 // explicitly unsubscribes which gets sent back a successful unsubscribe, even though it had already
                 // been orphaned/deleted on client
@@ -1093,9 +1095,9 @@ abstract class Connector extends ReplicantService {
     void progressAreaOfInterestAddRequests(@NonNull final List<AreaOfInterestRequest> requests) {
         // We very deliberately do not strip out requests even if there is a local subscription.
         // If the local subscription matched exactly the request would not make it to here and
-        // if we are converting an implicit subscription to an explicit subscription then we need
+        // If an Area of Interest is moving a Subscription from Implicit to Explicit Subscription Mode, let the
         // to let it flow through to backend so that the backend knows that the subscription has
-        // been upgraded to explicit.
+        // server observe the mode transition.
         if (requests.isEmpty()) {
             completeAreaOfInterestRequest();
         } else if (1 == requests.size()) {
@@ -1443,6 +1445,10 @@ abstract class Connector extends ReplicantService {
 
     @Action
     void onSubscribeCompleted(@NonNull final DatasetAddress datasetAddress) {
+        final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
+        if (null != subscription) {
+            subscription.setMode(SubscriptionMode.EXPLICIT);
+        }
         final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
         if (null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus()) {
             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);

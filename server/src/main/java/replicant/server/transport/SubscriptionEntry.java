@@ -48,14 +48,19 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     private final Set<DatasetAddress> _roInwardSubscriptionDependencies =
             Collections.unmodifiableSet(_inwardSubscriptionDependencies);
 
-    private boolean _explicitlySubscribed;
+    @NonNull
+    private SubscriptionMode _mode;
 
     @Nullable
     private JsonObject _filterParameter;
 
-    SubscriptionEntry(@NonNull final ReplicantSession session, @NonNull final DatasetAddress datasetAddress) {
+    SubscriptionEntry(
+            @NonNull final ReplicantSession session,
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final SubscriptionMode mode) {
         _session = Objects.requireNonNull(session);
         _datasetAddress = Objects.requireNonNull(datasetAddress);
+        _mode = Objects.requireNonNull(mode);
     }
 
     @NonNull
@@ -64,23 +69,23 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Return true if this Subscription can be automatically unsubscribed. This means it has not
-     * been explicitly subscribed and has no inward Subscription Dependencies.
+     * Return true if this Subscription has no Area of Interest and no retaining Subscription Dependencies.
      */
     boolean canUnsubscribe() {
-        return !isExplicitlySubscribed() && _inwardSubscriptionDependencies.isEmpty();
+        return SubscriptionMode.IMPLICIT == getMode() && _inwardSubscriptionDependencies.isEmpty();
     }
 
     /**
-     * Return true if this Subscription was explicitly requested by the client.
+     * Return the current reason the Subscription is retained.
      */
-    boolean isExplicitlySubscribed() {
-        return _explicitlySubscribed;
+    @NonNull
+    SubscriptionMode getMode() {
+        return _mode;
     }
 
-    void setExplicitlySubscribed(final boolean explicitlySubscribed) {
+    void setMode(@NonNull final SubscriptionMode mode) {
         _session.ensureLockedByCurrentThread();
-        _explicitlySubscribed = explicitlySubscribed;
+        _mode = Objects.requireNonNull(mode);
     }
 
     /**

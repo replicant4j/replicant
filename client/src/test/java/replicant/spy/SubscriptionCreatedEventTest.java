@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.DatasetAddress;
 import replicant.Subscription;
+import replicant.SubscriptionMode;
 import replicant.ValueUtil;
 
 public class SubscriptionCreatedEventTest extends AbstractReplicantTest {
@@ -16,7 +17,8 @@ public class SubscriptionCreatedEventTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final String filterParameter = ValueUtil.randomString();
-        final Subscription subscription = createSubscription(new DatasetAddress(1, 2), filterParameter, true);
+        final Subscription subscription =
+                createSubscription(new DatasetAddress(1, 2), filterParameter, SubscriptionMode.EXPLICIT);
 
         final SubscriptionCreatedEvent event = new SubscriptionCreatedEvent(subscription);
 
@@ -30,7 +32,7 @@ public class SubscriptionCreatedEventTest extends AbstractReplicantTest {
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
         assertEquals(data.get("subscription.filterParameter"), filterParameter);
-        assertEquals(data.get("explicitSubscription"), true);
+        assertEquals(data.get("subscription.mode"), SubscriptionMode.EXPLICIT.name());
         assertEquals(data.size(), 6);
     }
 }

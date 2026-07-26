@@ -74,8 +74,7 @@ public final class Dataset {
      */
     private final boolean _cacheable;
     /**
-     * Flag indicating whether the Dataset should able to be subscribed to externally.
-     * i.e. Can this be explicitly subscribed.
+     * Flag indicating whether the Dataset can be backed by an externally supplied Area of Interest.
      */
     private final boolean _external;
     /**

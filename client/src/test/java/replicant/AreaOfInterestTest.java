@@ -166,7 +166,10 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
         safeAction(() -> Replicant.context()
                 .getSubscriptionService()
-                .createSubscription(areaOfInterest.getDatasetAddress(), areaOfInterest.getFilterParameter(), true));
+                .createSubscription(
+                        areaOfInterest.getDatasetAddress(),
+                        areaOfInterest.getFilterParameter(),
+                        SubscriptionMode.EXPLICIT));
 
         assertEquals(getStatusCallCount.get(), 2);
         assertEquals(getErrorCallCount.get(), 2);
@@ -221,7 +224,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         safeAction(() -> assertNull(aoi.getSubscription()));
         safeAction(() -> assertEquals(aoi.getError(), error));
 
-        final Subscription subscription = createSubscription(aoi.getDatasetAddress(), null, true);
+        final Subscription subscription = createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
 
         aoi.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
         assertEquals(aoi.getStatus(), AreaOfInterest.Status.LOADED);
@@ -302,7 +305,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         pauseScheduler();
         final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
-        createSubscription(aoi.getDatasetAddress(), null, true);
+        createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
 
         aoi.updateAreaOfInterest(AreaOfInterest.Status.NOT_ASKED, null);
         assertEquals(aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED);
@@ -315,7 +318,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         pauseScheduler();
         final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
 
-        createSubscription(aoi.getDatasetAddress(), null, true);
+        createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, null));

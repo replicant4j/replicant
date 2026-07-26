@@ -29,6 +29,7 @@ import replicant.server.EntityMessage;
 import replicant.server.transport.DatasetMetadata;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.SchemaMetaData;
+import replicant.server.transport.SubscriptionMode;
 
 @SuppressWarnings({"resource", "SqlNoDataSourceInspection"})
 public class AbstractSessionContextImplTest {
@@ -101,7 +102,8 @@ public class AbstractSessionContextImplTest {
         final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        context.collectSubscriptionData(session, datasetAddresses, filterParameter, changeSet, true);
+        context.collectSubscriptionData(
+                session, datasetAddresses, filterParameter, changeSet, SubscriptionMode.EXPLICIT);
 
         assertEquals(context.getBulkCollectCalls().size(), 1);
         final var call = context.getBulkCollectCalls().get(0);
@@ -109,7 +111,7 @@ public class AbstractSessionContextImplTest {
         assertEquals(call.datasetAddresses(), datasetAddresses);
         assertEquals(call.filterParameter(), filterParameter);
         assertEquals(call.changeSet(), changeSet);
-        assertTrue(call.explicitSubscribe());
+        assertEquals(call.mode(), SubscriptionMode.EXPLICIT);
     }
 
     @Test
@@ -396,9 +398,8 @@ public class AbstractSessionContextImplTest {
                 @NonNull final List<DatasetAddress> datasetAddresses,
                 @Nullable final JsonObject filterParameter,
                 @NonNull final ChangeSet changeSet,
-                final boolean isExplicitSubscribe) {
-            _bulkCollectCalls.add(
-                    new BulkCollectCall(session, datasetAddresses, filterParameter, changeSet, isExplicitSubscribe));
+                @NonNull final SubscriptionMode mode) {
+            _bulkCollectCalls.add(new BulkCollectCall(session, datasetAddresses, filterParameter, changeSet, mode));
         }
 
         @Nullable
@@ -455,7 +456,7 @@ public class AbstractSessionContextImplTest {
             @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable Object filterParameter,
             @NonNull ChangeSet changeSet,
-            boolean explicitSubscribe) {}
+            @NonNull SubscriptionMode mode) {}
 
     private record ConvertCall(@NonNull Object object, boolean isUpdate, boolean isInitialLoad) {}
 }

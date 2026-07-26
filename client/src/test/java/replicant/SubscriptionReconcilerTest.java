@@ -188,7 +188,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            final Subscription subscription = createSubscription(datasetAddress, null, true);
+            final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -229,7 +229,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
             Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 4), null);
             Replicant.context().createOrUpdateAreaOfInterest(new DatasetAddress(1, 1, 5), null);
 
-            final Subscription subscription = createSubscription(datasetAddress, null, true);
+            final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -259,7 +259,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            createSubscription(datasetAddress, null, true);
+            createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
             connector.setState(ConnectorState.DISCONNECTED);
 
@@ -278,7 +278,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
         safeAction(() -> {
-            createSubscription(datasetAddress, null, false);
+            createSubscription(datasetAddress, null, SubscriptionMode.IMPLICIT);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -301,7 +301,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
             // Add expectation
             Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null);
 
-            createSubscription(datasetAddress, null, true);
+            createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
             connector.setState(ConnectorState.CONNECTED);
 
@@ -321,7 +321,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
-        createSubscription(datasetAddress, null, true);
+        createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         // Enqueue remove request
         connector.requestUnsubscribe(datasetAddress);
@@ -366,7 +366,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
-        createSubscription(datasetAddress, null, true);
+        createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -451,7 +451,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final Object filterParameter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filterParameter));
-        createSubscription(datasetAddress, ValueUtil.randomString(), true);
+        createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
         connector.requestSubscriptionUpdate(datasetAddress, filterParameter);
 
@@ -489,7 +489,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final String filterParameter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filterParameter));
-        createSubscription(datasetAddress, ValueUtil.randomString(), true);
+        createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -539,7 +539,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
-        createSubscription(datasetAddress, null, true);
+        createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
         connector.requestUnsubscribe(datasetAddress);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -577,7 +577,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest = safeAction(
                 () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, ValueUtil.randomString()));
-        createSubscription(datasetAddress, ValueUtil.randomString(), true);
+        createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -614,7 +614,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest = safeAction(
                 () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, ValueUtil.randomString()));
-        createSubscription(datasetAddress, ValueUtil.randomString(), false);
+        createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.IMPLICIT);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
@@ -625,7 +625,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0083: Attempting to update Dataset Address 1.0 but the Dataset does not have an updatable"
-                        + " Filter Parameter and has not been explicitly subscribed.");
+                        + " Filter Parameter and has not been placed in Explicit Subscription Mode.");
     }
 
     @Test
@@ -682,7 +682,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         // areaOfInterest2 would actually require an update as already present
         final AreaOfInterest areaOfInterest2 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null));
-        createSubscription(datasetAddress2, ValueUtil.randomString(), true);
+        createSubscription(datasetAddress2, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -771,10 +771,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final AreaOfInterest areaOfInterest1 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterParameterNew));
-        createSubscription(datasetAddress1, filterParameterOld, true);
+        createSubscription(datasetAddress1, filterParameterOld, SubscriptionMode.EXPLICIT);
         final AreaOfInterest areaOfInterest2 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterParameterNew));
-        createSubscription(datasetAddress2, filterParameterOld, true);
+        createSubscription(datasetAddress2, filterParameterOld, SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -803,7 +803,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final AreaOfInterest areaOfInterest1 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterParameterNew));
-        createSubscription(datasetAddress1, filterParameterOld, true);
+        createSubscription(datasetAddress1, filterParameterOld, SubscriptionMode.EXPLICIT);
         final AreaOfInterest areaOfInterest2 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterParameterNew));
 
@@ -856,10 +856,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final AreaOfInterest areaOfInterest1 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, filterParameterNew));
-        createSubscription(datasetAddress1, filterParameterOld, true);
+        createSubscription(datasetAddress1, filterParameterOld, SubscriptionMode.EXPLICIT);
         final AreaOfInterest areaOfInterest2 =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, filterParameterNew));
-        createSubscription(datasetAddress2, filterParameterOld, true);
+        createSubscription(datasetAddress2, filterParameterOld, SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -909,10 +909,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final AreaOfInterest areaOfInterest1 = safeAction(
                 () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, ValueUtil.randomString()));
-        createSubscription(datasetAddress1, filterParameterOld, true);
+        createSubscription(datasetAddress1, filterParameterOld, SubscriptionMode.EXPLICIT);
         final AreaOfInterest areaOfInterest2 = safeAction(
                 () -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, ValueUtil.randomString()));
-        createSubscription(datasetAddress2, filterParameterOld, true);
+        createSubscription(datasetAddress2, filterParameterOld, SubscriptionMode.EXPLICIT);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

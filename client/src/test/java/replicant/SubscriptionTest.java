@@ -11,11 +11,16 @@ public class SubscriptionTest extends AbstractReplicantTest {
     public void basicConstruction() {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final Object filterParameter = ValueUtil.randomString();
-        final Subscription subscription = Subscription.create(null, datasetAddress, filterParameter, true);
+        final Subscription subscription =
+                Subscription.create(null, datasetAddress, filterParameter, SubscriptionMode.EXPLICIT);
 
         assertEquals(subscription.datasetAddress(), datasetAddress);
 
-        safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
+        safeAction(() -> {
+            assertEquals(subscription.getMode(), SubscriptionMode.EXPLICIT);
+            subscription.setMode(SubscriptionMode.IMPLICIT);
+            assertEquals(subscription.getMode(), SubscriptionMode.IMPLICIT);
+        });
         safeAction(() -> assertEquals(subscription.getReplicaEntries().size(), 0));
         safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter));
     }
@@ -26,7 +31,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final Object filterParameter2 = ValueUtil.randomString();
 
         final Subscription subscription =
-                Subscription.create(null, new DatasetAddress(1, 0), filterParameter1, ValueUtil.randomBoolean());
+                Subscription.create(null, new DatasetAddress(1, 0), filterParameter1, SubscriptionMode.IMPLICIT);
 
         safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter1));
         safeAction(() -> subscription.setFilterParameter(filterParameter2));
@@ -42,7 +47,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/2", A.class, 2));
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, 1);
-        final Subscription subscription = Subscription.create(null, datasetAddress, null, true);
+        final Subscription subscription = Subscription.create(null, datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         final AtomicInteger callCount = new AtomicInteger();
         observer(() -> {
@@ -143,7 +148,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry = safeAction(() ->
                 replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = Subscription.create(null, new DatasetAddress(1, 0, 1), null, true);
+        final Subscription subscription1 =
+                Subscription.create(null, new DatasetAddress(1, 0, 1), null, SubscriptionMode.EXPLICIT);
 
         replicaEntry.subscriptions().put(subscription1.datasetAddress(), subscription1);
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
@@ -162,7 +168,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final ReplicaEntry replicaEntry2 = safeAction(() ->
                 replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
-        final Subscription subscription1 = Subscription.create(null, new DatasetAddress(1, 0, 1), null, true);
+        final Subscription subscription1 =
+                Subscription.create(null, new DatasetAddress(1, 0, 1), null, SubscriptionMode.EXPLICIT);
 
         safeAction(() -> replicaEntry2.linkToSubscription(subscription1));
 
@@ -181,8 +188,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
-        final Subscription subscription2 = Subscription.create(null, datasetAddress2, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
+        final Subscription subscription2 = Subscription.create(null, datasetAddress2, null, SubscriptionMode.EXPLICIT);
 
         assertEquals(subscription1.compareTo(subscription1), 0);
         assertEquals(subscription1.compareTo(subscription2), -1);
@@ -206,7 +213,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         assertEquals(subscription1.getDataset(), dataset);
     }
@@ -227,7 +234,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -256,7 +263,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));
@@ -282,7 +289,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));
@@ -308,7 +315,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 44);
 
-        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
+        final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));

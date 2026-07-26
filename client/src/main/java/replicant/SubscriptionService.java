@@ -110,14 +110,14 @@ abstract class SubscriptionService extends ReplicantService {
      *
      * @param datasetAddress the Dataset Address
      * @param filterParameter the Filter Parameter for the Subscription.
-     * @param explicitSubscription if subscription was explicitly requested by the client.
+     * @param mode the current reason the Subscription is retained.
      * @return the subscription.
      */
     @NonNull
     Subscription createSubscription(
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter,
-            final boolean explicitSubscription) {
+            @NonNull final SubscriptionMode mode) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> null == findSubscription(datasetAddress),
@@ -132,10 +132,7 @@ abstract class SubscriptionService extends ReplicantService {
             getInstanceDatasetSubscriptionsObservableValue().preReportChanged();
         }
         final Subscription subscription = Subscription.create(
-                Replicant.areZonesEnabled() ? getReplicantContext() : null,
-                datasetAddress,
-                filterParameter,
-                explicitSubscription);
+                Replicant.areZonesEnabled() ? getReplicantContext() : null, datasetAddress, filterParameter, mode);
         DisposeNotifier.asDisposeNotifier(subscription).addOnDisposeListener(this, () -> destroy(subscription), true);
         if (null == datasetRootId) {
             _typeDatasetSubscriptions

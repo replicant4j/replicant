@@ -81,14 +81,14 @@ public interface ReplicantSessionContext {
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
      * @param filterParameter  the Filter Parameter. May be null if the Dataset has no Filter Parameter.
      * @param changeSet           the changeSet to add the collected data to.
-     * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
+     * @param mode the Subscription Mode, ignored unless session is non-null.
      */
     void collectSubscriptionData(
             @Nullable ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable JsonObject filterParameter,
             @NonNull ChangeSet changeSet,
-            boolean isExplicitSubscribe);
+            @NonNull SubscriptionMode mode);
 
     /**
      * Add changes to the ChangeSet as a result of changing a Subscription Filter Parameter.

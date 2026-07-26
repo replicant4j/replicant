@@ -423,7 +423,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
 
     @NonNull
     private Subscription createSubscription(@NonNull final DatasetAddress datasetAddress) {
-        return Subscription.create(null, datasetAddress, null, true);
+        return Subscription.create(null, datasetAddress, null, SubscriptionMode.EXPLICIT);
     }
 
     static class A implements Disposable {

@@ -12,17 +12,17 @@ import replicant.server.EntityMessage;
  * This packet has not been fully resolved and is just used to pass the data to another thread that will perform
  * Subscription Dependency expansion operation.
  *
- * @param altersExplicitSubscriptions The request that resulted in this change when packet is being sent back to the initiator.
- * @param requestId                   The request that resulted in this change when the packet is being sent back to the initiator.
- * @param response                    The response to the request that resulted in this change when the packet is being sent back to the initiator.
- * @param etag                        If the request was a subscription and this subscription is a single cacheable Dataset then this
- *                                    etag will contain the cache constant.
- * @param messages                    The change messages that were collected during the transaction.
- * @param changeSet                   Empty ChangeSet unless packet is directed at the request initiator in which case it was
- *                                    whatever was part of the session changes.
+ * @param fromSubscriptionRequest True if the packet resulted from a Subscription request.
+ * @param requestId               The request that resulted in this change when the packet is being sent back to the initiator.
+ * @param response                The response to the request that resulted in this change when the packet is being sent back to the initiator.
+ * @param etag                    If the request was a subscription and this subscription is a single cacheable Dataset then this
+ *                                etag will contain the cache constant.
+ * @param messages                The change messages that were collected during the transaction.
+ * @param changeSet               Empty ChangeSet unless packet is directed at the request initiator in which case it was
+ *                                whatever was part of the session changes.
  */
 public record Packet(
-        boolean altersExplicitSubscriptions,
+        boolean fromSubscriptionRequest,
         @Nullable Integer requestId,
         @Nullable JsonValue response,
         @Nullable String etag,

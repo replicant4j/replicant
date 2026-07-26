@@ -157,7 +157,7 @@
   {
     "code": 34,
     "type": "INVARIANT",
-    "messagePattern": "Connector.removeExplicitSubscriptions() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=%s Address=%s]"
+    "messagePattern": "Connector.transitionSubscriptionsToImplicitMode() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=%s Address=%s]"
   },
   {
     "code": 36,
@@ -212,7 +212,7 @@
   {
     "code": 47,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe at Dataset Address %s but subscription is not an explicit subscription."
+    "messagePattern": "Request to unsubscribe at Dataset Address %s but Subscription is not in Explicit Subscription Mode."
   },
   {
     "code": 48,
@@ -362,7 +362,7 @@
   {
     "code": 83,
     "type": "INVARIANT",
-    "messagePattern": "Attempting to update Dataset Address %s but the Dataset does not have an updatable Filter Parameter and has not been explicitly subscribed."
+    "messagePattern": "Attempting to update Dataset Address %s but the Dataset does not have an updatable Filter Parameter and has not been placed in Explicit Subscription Mode."
   },
   {
     "code": 85,

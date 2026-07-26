@@ -11,7 +11,7 @@ public interface ReplicantMessageBroker {
     @NonNull
     Packet queueChangeMessage(
             @NonNull ReplicantSession session,
-            boolean altersExplicitSubscriptions,
+            boolean fromSubscriptionRequest,
             @Nullable Integer requestId,
             @Nullable JsonValue response,
             @Nullable String etag,

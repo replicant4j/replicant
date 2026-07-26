@@ -2,6 +2,22 @@
 
 ### Unreleased
 
+* Adopt Subscription Mode as the explicit model for why a Subscription is retained:
+  * Add client and server `SubscriptionMode` values `EXPLICIT` and `IMPLICIT`, replace client
+    `explicitSubscription` observable state with `Subscription.getMode()` and `setMode(...)`, and replace server
+    `_explicitlySubscribed` state with mode accessors.
+  * Pass Subscription Mode through client Subscription creation, server session collection and recording, Domgen
+    generation, and generated Rose integration hooks instead of explicit/implicit booleans.
+  * Preserve Subscription identity, Replicas, Filter Parameters, and Subscription Dependencies while transitioning
+    between modes. An Area of Interest always places the Subscription in Explicit Subscription Mode, including when
+    dependencies also retain it; removing the Area of Interest transitions it to Implicit Subscription Mode only
+    while dependencies remain.
+  * Report `subscription.mode` with the enum name in Subscription created/disposed spy events instead of the
+    `explicitSubscription` boolean.
+  * Rename the server packet flag and diagnostic field `altersExplicitSubscriptions` to
+    `fromSubscriptionRequest`; the flag classifies packet priority and is not Subscription Mode state.
+  * Treat this as a hard-cut API and spy-event payload migration: consumers of the old boolean APIs and spy field
+    must update. The client/server wire protocol is unchanged.
 * Adopt the Filter and Filter Parameter model across Replicant, Domgen, and generated integrations:
   * Replace compound `FilterType` states with `FilterMode` values `UNFILTERED`, `IMPLICIT`, and
     `PARAMETER_FILTERED`, and represent Filter Parameter mutability separately with `FilterParameterMode` values

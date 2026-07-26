@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.DatasetAddress;
 import replicant.Subscription;
+import replicant.SubscriptionMode;
 import replicant.ValueUtil;
 
 public class SubscriptionOrphanedEventTest extends AbstractReplicantTest {
@@ -16,7 +17,8 @@ public class SubscriptionOrphanedEventTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final String filterParameter = ValueUtil.randomString();
-        final Subscription subscription = createSubscription(new DatasetAddress(1, 2), filterParameter, true);
+        final Subscription subscription =
+                createSubscription(new DatasetAddress(1, 2), filterParameter, SubscriptionMode.EXPLICIT);
 
         final SubscriptionOrphanedEvent event = new SubscriptionOrphanedEvent(subscription);
 

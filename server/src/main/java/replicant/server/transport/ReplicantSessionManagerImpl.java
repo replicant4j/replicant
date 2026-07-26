@@ -449,11 +449,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         changeSet.setRequired(true);
                     }
                 }
-                final var altersExplicitSubscriptions =
+                final var fromSubscriptionRequest =
                         null != _registry.getResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY);
                 _broker.queueChangeMessage(
                         session,
-                        altersExplicitSubscriptions,
+                        fromSubscriptionRequest,
                         isInitiator ? requestId : null,
                         isInitiator ? response : null,
                         null,
@@ -508,8 +508,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         "event=session.change.skip reason=sessionClosed sessionId=" + session.getId() + " requestId="
                                 + requestId + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
-                                + incomingSubscriptionDependencies + " altersExplicitSubscriptions="
-                                + packet.altersExplicitSubscriptions());
+                                + incomingSubscriptionDependencies + " fromSubscriptionRequest="
+                                + packet.fromSubscriptionRequest());
             }
             return false;
         }
@@ -551,8 +551,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         level,
                         "event=session.change.send sessionId=" + session.getId() + " requestId="
                                 + requestId + " etag="
-                                + etag + " altersExplicitSubscriptions="
-                                + packet.altersExplicitSubscriptions() + " incomingEntityCount="
+                                + etag + " fromSubscriptionRequest="
+                                + packet.fromSubscriptionRequest() + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " outgoingEntityCount="
                                 + outgoingEntityCount + " outgoingSubscriptionDependencyCount="
@@ -569,8 +569,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         Level.FINE,
                         "event=session.change.skip reason=noContent sessionId=" + session.getId() + " requestId="
                                 + requestId + " etag="
-                                + etag + " altersExplicitSubscriptions="
-                                + packet.altersExplicitSubscriptions() + " incomingEntityCount="
+                                + etag + " fromSubscriptionRequest="
+                                + packet.fromSubscriptionRequest() + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " messageCount="
                                 + messages.size() + " changeCount="
@@ -626,7 +626,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var datasetAddresses = toSubscribe.stream()
                         .map(SubscriptionDependencyEntry::targetDatasetAddress)
                         .toList();
-                doSubscribe(session, datasetAddresses, entry.filterParameter(), changeSet, false);
+                doSubscribe(session, datasetAddresses, entry.filterParameter(), changeSet, SubscriptionMode.IMPLICIT);
                 toSubscribe.forEach(pending::remove);
                 for (final var e : toSubscribe) {
                     final var sourceEntry = session.getSubscriptionEntry(e.sourceDatasetAddress());
@@ -977,7 +977,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 sessionChanges.setRequired(true);
                 datasetAddresses.forEach(
                         datasetAddress -> _context.preSubscribe(session, datasetAddress, filterParameter));
-                doSubscribe(session, datasetAddresses, filterParameter, sessionChanges, true);
+                doSubscribe(session, datasetAddresses, filterParameter, sessionChanges, SubscriptionMode.EXPLICIT);
             }
         });
     }
@@ -987,7 +987,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final List<DatasetAddress> datasetAddresses,
             @Nullable final JsonObject filterParameter,
             @NonNull final ChangeSet changeSet,
-            final boolean isExplicitSubscribe) {
+            @NonNull final SubscriptionMode mode) {
         final var uniqueDatasetAddresses = datasetAddresses.stream().distinct().toList();
         if (uniqueDatasetAddresses.isEmpty()) {
             return;
@@ -1017,13 +1017,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (null == entry) {
                 newDatasetAddresses.add(datasetAddress);
             } else {
+                if (SubscriptionMode.EXPLICIT == mode) {
+                    entry.setMode(SubscriptionMode.EXPLICIT);
+                }
                 final var existingFilterParameter = entry.getFilterParameter();
                 if (!FilterParameterUtil.filterParametersEqual(filterParameter, existingFilterParameter)) {
                     datasetAddressesToUpdate
                             .computeIfAbsent(existingFilterParameter, k -> new ArrayList<>())
                             .add(datasetAddress);
-                } else if (!entry.isExplicitlySubscribed() && isExplicitSubscribe) {
-                    entry.setExplicitlySubscribed(true);
                 }
             }
         }
@@ -1061,10 +1062,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             changeSet.setRequired(false);
                         }
 
-                        final var entry = session.createSubscriptionEntry(newDatasetAddress);
-                        if (isExplicitSubscribe) {
-                            entry.setExplicitlySubscribed(true);
-                        }
+                        final var entry = session.createSubscriptionEntry(newDatasetAddress, mode);
                         entry.setFilterParameter(filterParameter);
                     } else {
                         // If we get here then we have requested a cacheable Instance Dataset
@@ -1077,8 +1075,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     }
                 }
             } else {
-                _context.collectSubscriptionData(
-                        session, newDatasetAddresses, filterParameter, changeSet, isExplicitSubscribe);
+                _context.collectSubscriptionData(session, newDatasetAddresses, filterParameter, changeSet, mode);
             }
         }
         if (!datasetAddressesToUpdate.isEmpty()) {
@@ -1111,23 +1108,18 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private void subscribe(
             @NonNull final ReplicantSession session,
             @NonNull final DatasetAddress datasetAddress,
-            final boolean explicitlySubscribe,
+            @NonNull final SubscriptionMode mode,
             @Nullable final JsonObject filterParameter,
             @NonNull final ChangeSet changeSet) {
         final var datasetMetadata = getSchemaMetaData().getDatasetMetadata(datasetAddress);
 
         if (session.isSubscriptionEntryPresent(datasetAddress)) {
             final var entry = session.getSubscriptionEntry(datasetAddress);
-            if (explicitlySubscribe) {
-                entry.setExplicitlySubscribed(true);
+            if (SubscriptionMode.EXPLICIT == mode) {
+                entry.setMode(SubscriptionMode.EXPLICIT);
             }
             if (datasetMetadata.hasUpdatableFilterParameter()) {
-                doSubscribe(
-                        session,
-                        Collections.singletonList(datasetAddress),
-                        filterParameter,
-                        changeSet,
-                        explicitlySubscribe);
+                doSubscribe(session, Collections.singletonList(datasetAddress), filterParameter, changeSet, mode);
             } else if (datasetMetadata.hasFixedFilterParameter()) {
                 final var existingFilterParameter = entry.getFilterParameter();
                 if (!FilterParameterUtil.filterParametersEqual(filterParameter, existingFilterParameter)) {
@@ -1136,12 +1128,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 }
             }
         } else {
-            doSubscribe(
-                    session,
-                    Collections.singletonList(datasetAddress),
-                    filterParameter,
-                    changeSet,
-                    explicitlySubscribe);
+            doSubscribe(session, Collections.singletonList(datasetAddress), filterParameter, changeSet, mode);
         }
     }
 
@@ -1165,8 +1152,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             assert requiredTypeDataset.isUnfiltered();
             final var datasetAddress = DatasetAddress.of(requiredTypeDataset.getDatasetId());
 
-            // This check is sufficient as it is not an explicit subscribe and there are no Filter Parameters that can
-            // change.
+            // This check is sufficient because Required Type Datasets are retained in Implicit Subscription Mode and
+            // have no Filter Parameters that can change.
             if (!session.isSubscriptionEntryPresent(datasetAddress)) {
                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
                 final var requestComplete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
@@ -1180,7 +1167,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, null);
 
                 final var changeSet = new ChangeSet();
-                subscribe(session, datasetAddress, false, null, changeSet);
+                subscribe(session, datasetAddress, SubscriptionMode.IMPLICIT, null, changeSet);
                 if (changeSet.hasContent()) {
                     // In this scenario we have a non-cached changeset, so we send it along
                     _broker.queueChangeMessage(session, true, null, null, null, Collections.emptyList(), changeSet);
@@ -1252,7 +1239,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 return entry;
             }
             final var changeSet = new ChangeSet();
-            _context.collectSubscriptionData(null, Collections.singletonList(datasetAddress), null, changeSet, false);
+            _context.collectSubscriptionData(
+                    null, Collections.singletonList(datasetAddress), null, changeSet, SubscriptionMode.IMPLICIT);
             final var cacheKey = changeSet.getETag();
             final var subscriptionAction = changeSet.getSubscriptionActions().stream()
                     .filter(a -> a.datasetAddress().equals(datasetAddress))

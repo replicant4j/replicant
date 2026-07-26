@@ -219,9 +219,8 @@ public abstract class AreaOfInterest extends ReplicantService {
                     () -> expectError || null == error,
                     () -> "Replicant-0017: Invoked updateAreaOfInterest for Dataset Address " + datasetAddress
                             + " with status " + status + " and supplied an unexpected error.");
-            // It is fine to get here where status == LOADING or NOT_ASKED but a subscription is already present.
-            // as this is part of the process that notifies back-end of upgrade of implicit subscription to explicit
-            // subscription
+            // It is fine to get here where status == LOADING or NOT_ASKED but a Subscription is already present,
+            // as this is part of notifying the server of a transition from Implicit to Explicit Subscription Mode.
             apiInvariant(
                     () -> !shouldExpectNoSubscription(status)
                             || null == getReplicantContext().findSubscription(getDatasetAddress()),
@@ -251,8 +250,8 @@ public abstract class AreaOfInterest extends ReplicantService {
     /**
      * Return true when status indicates that there should defiantly not be a subscription present.
      * Note that {@link #shouldExpectSubscription(Status)} combined with this method does not cover all
-     * statuses. In particular NOT_ASKED and LOADING can potentially have a subscription when we are working
-     * through the process of notifying server of explicit subscription when there is a local implicit subscription.
+     * statuses. In particular NOT_ASKED and LOADING can potentially have a Subscription while notifying the server
+     * of a transition from Implicit to Explicit Subscription Mode.
      */
     private boolean shouldExpectNoSubscription(@NonNull final Status status) {
         return Status.UNLOADED == status;

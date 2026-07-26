@@ -8,10 +8,10 @@ import replicant.DatasetAddress;
 import replicant.Subscription;
 
 /**
- * Notification when an Subscription is "orphaned".
- * An "orphaned" subscription no longer has an explicit subscription to it. This may result in it being
- * unsubscribed if there is no implicit subscription within the system. Subscription Reconciliation is responsible
- * for identifying orphaned subscriptions while comparing desired AreaOfInterest state with actual Subscription state.
+ * Notification when a Subscription is orphaned from its Area of Interest.
+ * Subscription Reconciliation identifies orphaned Subscriptions while comparing desired Area of Interest state with
+ * actual Subscription state. The server either transitions the Subscription to Implicit Subscription Mode when a
+ * Subscription Dependency retains it or removes it.
  */
 public final class SubscriptionOrphanedEvent implements SerializableEvent {
     @NonNull

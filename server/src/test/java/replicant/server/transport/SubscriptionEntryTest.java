@@ -25,20 +25,20 @@ public class SubscriptionEntryTest {
 
         final var session = newSession();
         session.getLock().lock();
-        final var entry = new SubscriptionEntry(session, cd1);
+        final var entry = new SubscriptionEntry(session, cd1, SubscriptionMode.IMPLICIT);
 
         assertEquals(entry.datasetAddress(), cd1);
-        assertFalse(entry.isExplicitlySubscribed());
+        assertEquals(entry.getMode(), SubscriptionMode.IMPLICIT);
         assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
         assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
         assertTrue(entry.canUnsubscribe());
         assertNull(entry.getFilterParameter());
 
-        entry.setExplicitlySubscribed(true);
-        assertTrue(entry.isExplicitlySubscribed());
+        entry.setMode(SubscriptionMode.EXPLICIT);
+        assertEquals(entry.getMode(), SubscriptionMode.EXPLICIT);
         assertFalse(entry.canUnsubscribe());
-        entry.setExplicitlySubscribed(false);
-        assertFalse(entry.isExplicitlySubscribed());
+        entry.setMode(SubscriptionMode.IMPLICIT);
+        assertEquals(entry.getMode(), SubscriptionMode.IMPLICIT);
         assertTrue(entry.canUnsubscribe());
 
         final var filterParameter = Json.createObjectBuilder().build();
@@ -121,10 +121,10 @@ public class SubscriptionEntryTest {
         final var cd5 = DatasetAddress.of(3, null);
 
         final var session = newSession();
-        final var entry1 = new SubscriptionEntry(session, cd1);
-        final var entry3 = new SubscriptionEntry(session, cd3);
-        final var entry4 = new SubscriptionEntry(session, cd4);
-        final var entry5 = new SubscriptionEntry(session, cd5);
+        final var entry1 = new SubscriptionEntry(session, cd1, SubscriptionMode.IMPLICIT);
+        final var entry3 = new SubscriptionEntry(session, cd3, SubscriptionMode.IMPLICIT);
+        final var entry4 = new SubscriptionEntry(session, cd4, SubscriptionMode.IMPLICIT);
+        final var entry5 = new SubscriptionEntry(session, cd5, SubscriptionMode.IMPLICIT);
 
         final var list = new ArrayList<>(Arrays.asList(entry5, entry4, entry3, entry1));
 
@@ -142,7 +142,7 @@ public class SubscriptionEntryTest {
         final var session = newSession();
         session.getLock().lock();
         try {
-            final var entry = new SubscriptionEntry(session, sourceDatasetAddress);
+            final var entry = new SubscriptionEntry(session, sourceDatasetAddress, SubscriptionMode.IMPLICIT);
             final var ownerA = SubscriptionDependencyOwner.entity(7, 11);
             final var ownerB = SubscriptionDependencyOwner.entity(7, 12);
 

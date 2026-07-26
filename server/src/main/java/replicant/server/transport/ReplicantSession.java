@@ -211,7 +211,7 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     void queuePacket(@NonNull final Packet packet) {
-        if (packet.altersExplicitSubscriptions()) {
+        if (packet.fromSubscriptionRequest()) {
             _pendingSubscriptionPackets.add(packet);
         } else {
             _pendingPackets.add(packet);
@@ -368,9 +368,9 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final ChangeSet changeSet,
             @NonNull final Collection<DatasetAddress> datasetAddresses,
             @Nullable final JsonObject filterParameter,
-            final boolean explicitSubscribe) {
+            @NonNull final SubscriptionMode mode) {
         for (final var datasetAddress : datasetAddresses) {
-            recordSubscription(changeSet, datasetAddress, filterParameter, explicitSubscribe);
+            recordSubscription(changeSet, datasetAddress, filterParameter, mode);
         }
     }
 
@@ -378,12 +378,12 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final ChangeSet changeSet,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final JsonObject filterParameter,
-            final boolean explicitSubscribe) {
+            @NonNull final SubscriptionMode mode) {
         assert datasetAddress.concrete();
         final var existing = findSubscriptionEntry(datasetAddress);
-        final var entry = null == existing ? createSubscriptionEntry(datasetAddress) : existing;
-        if (explicitSubscribe) {
-            entry.setExplicitlySubscribed(true);
+        final var entry = null == existing ? createSubscriptionEntry(datasetAddress, mode) : existing;
+        if (SubscriptionMode.EXPLICIT == mode) {
+            entry.setMode(SubscriptionMode.EXPLICIT);
         }
         entry.setFilterParameter(filterParameter);
         changeSet.mergeSubscriptionAction(
@@ -410,14 +410,15 @@ public final class ReplicantSession implements Serializable, Closeable {
      * @throws IllegalStateException if subscription already exists.
      */
     @NonNull
-    SubscriptionEntry createSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
+    SubscriptionEntry createSubscriptionEntry(
+            @NonNull final DatasetAddress datasetAddress, @NonNull final SubscriptionMode mode) {
         assert datasetAddress.concrete();
         if (!_subscriptions.containsKey(datasetAddress)) {
             LOG.log(
                     Level.FINE,
                     () -> "Creating subscription entry for replicant session " + getId() + " at Dataset Address "
                             + datasetAddress);
-            final var entry = new SubscriptionEntry(this, datasetAddress);
+            final var entry = new SubscriptionEntry(this, datasetAddress, mode);
             _subscriptions.put(datasetAddress, entry);
             _subscriptionsByDatasetRoot
                     .computeIfAbsent(
@@ -473,12 +474,12 @@ public final class ReplicantSession implements Serializable, Closeable {
 
     void performUnsubscribe(
             @NonNull final SubscriptionEntry entry,
-            final boolean explicitUnsubscribe,
+            final boolean areaOfInterestRemoved,
             final boolean delete,
             @NonNull final ChangeSet changeSet) {
         assert entry.datasetAddress().concrete();
-        if (explicitUnsubscribe) {
-            entry.setExplicitlySubscribed(false);
+        if (areaOfInterestRemoved) {
+            entry.setMode(SubscriptionMode.IMPLICIT);
         }
         if (entry.canUnsubscribe()) {
             changeSet.mergeSubscriptionAction(

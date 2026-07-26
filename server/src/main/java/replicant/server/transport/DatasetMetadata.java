@@ -68,8 +68,7 @@ public final class DatasetMetadata {
     @NonNull
     private final CacheType _cacheType;
     /**
-     * Flag indicating whether the Dataset can be subscribed to externally.
-     * i.e. Can this be explicitly subscribed.
+     * Flag indicating whether the Dataset can be backed by an externally supplied Area of Interest.
      */
     private final boolean _external;
 
