@@ -18,9 +18,9 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         try {
             final ReplicantContext context = Replicant.context();
             context.deactivate();
-            // Need to dispose converger so can safely dispose runtime
-            final Converger converger = context.getConverger();
-            Disposable.dispose(converger);
+            // Need to dispose the SubscriptionReconciler so the runtime can be safely disposed
+            final SubscriptionReconciler subscriptionReconciler = context.getSubscriptionReconciler();
+            Disposable.dispose(subscriptionReconciler);
             // Dispose the runtime as it can have a once-off scheduled to process at a later date to reflect active
             // states
             Disposable.dispose(context.getRuntime());

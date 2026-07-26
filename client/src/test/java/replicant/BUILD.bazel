@@ -20,7 +20,6 @@ CLIENT_TEST_CLASSES = [
     "replicant.ConnectorEntryTest",
     "replicant.ConnectorStateTest",
     "replicant.ConnectorTest",
-    "replicant.ConvergerTest",
     "replicant.EntityTypeTest",
     "replicant.EntityServiceTest",
     "replicant.EntityTest",
@@ -36,6 +35,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.RequestTest",
     "replicant.SchemaServiceTest",
     "replicant.SpyImplTest",
+    "replicant.SubscriptionReconcilerTest",
     "replicant.SubscriptionServiceTest",
     "replicant.SubscriptionTest",
     "replicant.SystemSchemaTest",
@@ -127,7 +127,6 @@ java_library(
         "ConnectorEntryTest.java",
         "ConnectorStateTest.java",
         "ConnectorTest.java",
-        "ConvergerTest.java",
         "EntityServiceTest.java",
         "EntityTest.java",
         "EntityTypeTest.java",
@@ -143,6 +142,7 @@ java_library(
         "RequestTest.java",
         "SchemaServiceTest.java",
         "SpyImplTest.java",
+        "SubscriptionReconcilerTest.java",
         "SubscriptionServiceTest.java",
         "SubscriptionTest.java",
         "SystemSchemaTest.java",
@@ -290,15 +290,6 @@ java_testng(
 )
 
 java_testng(
-    name = "ConvergerTest",
-    srcs = ["ConvergerTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.ConvergerTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
     name = "EntityTypeTest",
     srcs = ["EntityTypeTest.java"],
     data = CLIENT_TEST_DATA,
@@ -430,6 +421,15 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.SpyImplTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "SubscriptionReconcilerTest",
+    srcs = ["SubscriptionReconcilerTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.SubscriptionReconcilerTest",
     deps = ["//client:client_test_support"],
 )
 

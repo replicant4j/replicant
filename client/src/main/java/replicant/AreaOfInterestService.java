@@ -25,8 +25,7 @@ import replicant.spy.AreaOfInterestFilterUpdatedEvent;
  * An {@link AreaOfInterest} represents a declaration of a desire for a
  * {@link Subscription}. The intention
  * is that user code defines the desired state as instances of {@link AreaOfInterest}
- * and the {@link Converger} converges
- * the actual state towards the desired state.
+ * and the {@link SubscriptionReconciler} reconciles actual Subscription state with that desired state.
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class AreaOfInterestService extends ReplicantService {

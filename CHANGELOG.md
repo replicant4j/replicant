@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation,
+  replacing the former `Converger` and convergence names without changing reconciliation behavior.
+
 ### [v6.203](https://github.com/replicant4j/replicant/tree/v6.203) (2026-07-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.202...v6.203)
 
 Changes in this release:

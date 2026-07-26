@@ -17,9 +17,9 @@ import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionOrphanedEvent;
 
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
-abstract class Converger extends ReplicantService {
+abstract class SubscriptionReconciler extends ReplicantService {
     /**
-     * Enum describing action during converge step.
+     * Enum describing an action during a reconciliation step.
      */
     enum Action {
         /**
@@ -39,97 +39,100 @@ abstract class Converger extends ReplicantService {
          */
         IN_PROGRESS,
         /**
-         * Nothing was done, fully converged.
+         * Nothing was done, fully reconciled.
          */
         NO_ACTION
     }
 
     @NonNull
-    static Converger create(@Nullable final ReplicantContext context) {
-        return new Arez_Converger(context);
+    static SubscriptionReconciler create(@Nullable final ReplicantContext context) {
+        return new Arez_SubscriptionReconciler(context);
     }
 
-    Converger(@Nullable final ReplicantContext context) {
+    SubscriptionReconciler(@Nullable final ReplicantContext context) {
         super(context);
     }
 
     /**
-     * Specify the action that invoked prior to converging the desired AreaOfInterest to actual Subscriptions.
+     * Specify the action invoked before Subscription Reconciliation compares desired Areas of Interest with actual
+     * Subscriptions.
      * This action is often used when subscriptions in one system trigger subscriptions in another system.
      * This property is an Arez observable.
      *
-     * @param preConvergeAction the action.
+     * @param preReconciliationAction the action.
      */
     @Observable
-    abstract void setPreConvergeAction(@Nullable SafeProcedure preConvergeAction);
+    abstract void setPreReconciliationAction(@Nullable SafeProcedure preReconciliationAction);
 
     /**
-     * Return the pre-converge action. See {@link #setPreConvergeAction(SafeProcedure)} for further details.
+     * Return the pre-reconciliation action. See {@link #setPreReconciliationAction(SafeProcedure)} for further details.
      * This property is an Arez observable.
      *
      * @return the action.
      */
     @Nullable
-    abstract SafeProcedure getPreConvergeAction();
+    abstract SafeProcedure getPreReconciliationAction();
 
     /**
-     * Specify the action that is invoked after all the subscriptions converge.
+     * Specify the action that is invoked after Subscription Reconciliation completes.
      * This property is an Arez observable.
      *
-     * @param convergeCompleteAction the action.
+     * @param reconciliationCompleteAction the action.
      */
     @Observable
-    abstract void setConvergeCompleteAction(@Nullable SafeProcedure convergeCompleteAction);
+    abstract void setReconciliationCompleteAction(@Nullable SafeProcedure reconciliationCompleteAction);
 
     /**
-     * Return the converge complete action. See {@link #setConvergeCompleteAction(SafeProcedure)} for further details.
+     * Return the reconciliation-complete action. See {@link #setReconciliationCompleteAction(SafeProcedure)} for
+     * further details.
      * This property is an Arez observable.
      *
      * @return the action.
      */
     @Nullable
-    abstract SafeProcedure getConvergeCompleteAction();
+    abstract SafeProcedure getReconciliationCompleteAction();
 
     // depType allows NONE as during dispose when runtime is component disposed there is nothing left to observe
     @Observe(mutation = true, nestedActionsAllowed = true, depType = DepType.AREZ_OR_NONE)
-    void converge() {
-        preConverge();
+    void reconcile() {
+        preReconciliation();
         final ReplicantRuntime runtime = getReplicantRuntime();
         if (Disposable.isNotDisposed(runtime) && RuntimeState.CONNECTED == runtime.getState()) {
-            convergeStep();
+            reconcileStep();
         }
     }
 
     @arez.annotations.Action(requireNewTransaction = true, verifyRequired = false)
-    void preConverge() {
-        final SafeProcedure preConvergeAction = getPreConvergeAction();
-        if (null != preConvergeAction) {
-            preConvergeAction.call();
+    void preReconciliation() {
+        final SafeProcedure preReconciliationAction = getPreReconciliationAction();
+        if (null != preReconciliationAction) {
+            preReconciliationAction.call();
         }
     }
 
-    void convergeComplete() {
-        final SafeProcedure convergeCompleteAction = getConvergeCompleteAction();
-        if (null != convergeCompleteAction) {
-            convergeCompleteAction.call();
+    void reconciliationComplete() {
+        final SafeProcedure reconciliationCompleteAction = getReconciliationCompleteAction();
+        if (null != reconciliationCompleteAction) {
+            reconciliationCompleteAction.call();
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void convergeStep() {
+    private void reconcileStep() {
         AreaOfInterest groupTemplate = null;
         AreaOfInterestRequest.Type groupAction = null;
         for (final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest()) {
-            // Make sure we observe the filter so that if it is changed, a re-converge will happen
+            // Make sure we observe the filter so that changes trigger another reconciliation
             areaOfInterest.getFilter();
 
-            // Make sure we observe the status so that converger will re-run when status updates. Usually not needed
+            // Make sure we observe the status so that the SubscriptionReconciler reruns when status updates.
+            // This is usually not needed
             // except when multiple areaOfInterest are queued up simultaneously and the later can not be grouped
-            // into first AreaOfInterest. If this is not here then the converger will not re-run.
+            // into first AreaOfInterest. If this is not here then the SubscriptionReconciler will not rerun.
             areaOfInterest.getStatus();
 
             if (AreaOfInterest.Status.DELETED != areaOfInterest.getStatus()) {
-                final Action action = convergeAreaOfInterest(areaOfInterest, groupTemplate, groupAction);
+                final Action action = reconcileAreaOfInterest(areaOfInterest, groupTemplate, groupAction);
                 switch (action) {
                     case SUBMITTED_ADD:
                         groupAction = AreaOfInterestRequest.Type.ADD;
@@ -158,23 +161,23 @@ abstract class Converger extends ReplicantService {
             return;
         }
 
-        convergeComplete();
+        reconciliationComplete();
     }
 
     @arez.annotations.Action(requireNewTransaction = true, verifyRequired = false)
     @NonNull
-    Action convergeAreaOfInterest(
+    Action reconcileAreaOfInterest(
             @NonNull final AreaOfInterest areaOfInterest,
             @Nullable final AreaOfInterest groupTemplate,
             final AreaOfInterestRequest.@Nullable Type groupAction) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> Disposable.isNotDisposed(areaOfInterest),
-                    () -> "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest.");
+                    () -> "Replicant-0020: Invoked reconcileAreaOfInterest() with disposed AreaOfInterest.");
         }
         final ChannelAddress address = areaOfInterest.getAddress();
         final Connector connector = getReplicantRuntime().getConnector(address.schemaId());
-        // service can be disconnected if it is not a required service and will converge later when it connects
+        // Service can be disconnected if it is not required; reconciliation resumes when it reconnects.
         if (ConnectorState.CONNECTED == connector.getState()) {
             final Subscription subscription = getReplicantContext().findSubscription(address);
             final boolean subscribed = null != subscription;

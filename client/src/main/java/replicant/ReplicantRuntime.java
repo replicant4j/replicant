@@ -201,7 +201,7 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Mark the client system as active and start to converge to being CONNECTED.
+     * Mark the client system as active and begin transitioning to CONNECTED.
      */
     @Action
     void activate() {
@@ -209,7 +209,7 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Mark the client system as inactive and start to converge to being DISCONNECTED.
+     * Mark the client system as inactive and begin transitioning to DISCONNECTED.
      */
     @Action
     void deactivate() {

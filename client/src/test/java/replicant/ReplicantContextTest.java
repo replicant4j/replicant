@@ -34,7 +34,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
     @Test
     public void areasOfInterest() {
-        // Pause scheduler so Autoruns don't auto-converge
+        // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
         final ReplicantContext context = Replicant.context();
@@ -133,7 +133,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
     @Test
     public void subscriptions() {
-        // Pause scheduler so Autoruns don't auto-converge
+        // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
         final ReplicantContext context = Replicant.context();
@@ -237,22 +237,22 @@ public class ReplicantContextTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void preConvergeAction() {
+    public void preReconciliationAction() {
         safeAction(() -> {
             final SafeProcedure action = () -> {};
-            assertNull(Replicant.context().getPreConvergeAction());
-            Replicant.context().setPreConvergeAction(action);
-            assertEquals(Replicant.context().getPreConvergeAction(), action);
+            assertNull(Replicant.context().getPreReconciliationAction());
+            Replicant.context().setPreReconciliationAction(action);
+            assertEquals(Replicant.context().getPreReconciliationAction(), action);
         });
     }
 
     @Test
-    public void convergeCompleteAction() {
+    public void reconciliationCompleteAction() {
         safeAction(() -> {
             final SafeProcedure action = () -> {};
-            assertNull(Replicant.context().getConvergeCompleteAction());
-            Replicant.context().setConvergeCompleteAction(action);
-            assertEquals(Replicant.context().getConvergeCompleteAction(), action);
+            assertNull(Replicant.context().getReconciliationCompleteAction());
+            Replicant.context().setReconciliationCompleteAction(action);
+            assertEquals(Replicant.context().getReconciliationCompleteAction(), action);
         });
     }
 

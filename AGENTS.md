@@ -99,7 +99,7 @@ Implementation hotspots:
   - `server/src/main/java/replicant/server/ChannelAddress.java`
 - Client validation and AOI flow:
   - `client/src/main/java/replicant/Connector.java`
-  - `client/src/main/java/replicant/Converger.java`
+  - `client/src/main/java/replicant/SubscriptionReconciler.java`
   - `client/src/main/java/replicant/SubscriptionService.java`
 - Server validation and routing:
   - `server/src/main/java/replicant/server/ee/ReplicantEndpoint.java`

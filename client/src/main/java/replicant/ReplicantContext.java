@@ -28,7 +28,7 @@ public final class ReplicantContext {
     private final ReplicantRuntime _runtime;
 
     @NonNull
-    private final Converger _converger;
+    private final SubscriptionReconciler _subscriptionReconciler;
 
     @NonNull
     private final Validator _validator;
@@ -52,7 +52,7 @@ public final class ReplicantContext {
         _entityService = EntityService.create(Replicant.areZonesEnabled() ? this : null);
         _subscriptionService = SubscriptionService.create(Replicant.areZonesEnabled() ? this : null);
         _runtime = ReplicantRuntime.create();
-        _converger = Converger.create(Replicant.areZonesEnabled() ? this : null);
+        _subscriptionReconciler = SubscriptionReconciler.create(Replicant.areZonesEnabled() ? this : null);
         _validator = Validator.create(Replicant.areZonesEnabled() ? this : null);
         _schemaService = SchemaService.create();
         _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
@@ -253,50 +253,52 @@ public final class ReplicantContext {
     }
 
     /**
-     * Specify the action that invoked prior to converging the desired AreaOfInterest to actual Subscriptions.
+     * Specify the action invoked before Subscription Reconciliation compares desired Areas of Interest with actual
+     * Subscriptions.
      * This action is often used when subscriptions in one system trigger subscriptions in another system.
      * This property is an Arez observable.
      *
-     * @param preConvergeAction the action.
+     * @param preReconciliationAction the action.
      */
-    public void setPreConvergeAction(@Nullable final SafeProcedure preConvergeAction) {
-        getConverger().setPreConvergeAction(preConvergeAction);
+    public void setPreReconciliationAction(@Nullable final SafeProcedure preReconciliationAction) {
+        getSubscriptionReconciler().setPreReconciliationAction(preReconciliationAction);
     }
 
     /**
-     * Return the pre-converge action. See {@link #setPreConvergeAction(SafeProcedure)} for further details.
+     * Return the pre-reconciliation action. See {@link #setPreReconciliationAction(SafeProcedure)} for further details.
      * This property is an Arez observable.
      *
      * @return the action.
      */
     @Nullable
-    public SafeProcedure getPreConvergeAction() {
-        return getConverger().getPreConvergeAction();
+    public SafeProcedure getPreReconciliationAction() {
+        return getSubscriptionReconciler().getPreReconciliationAction();
     }
 
     /**
-     * Specify the action that is invoked after all the subscriptions converge.
+     * Specify the action that is invoked after Subscription Reconciliation completes.
      * This property is an Arez observable.
      *
-     * @param convergeCompleteAction the action.
+     * @param reconciliationCompleteAction the action.
      */
-    public void setConvergeCompleteAction(@Nullable final SafeProcedure convergeCompleteAction) {
-        getConverger().setConvergeCompleteAction(convergeCompleteAction);
+    public void setReconciliationCompleteAction(@Nullable final SafeProcedure reconciliationCompleteAction) {
+        getSubscriptionReconciler().setReconciliationCompleteAction(reconciliationCompleteAction);
     }
 
     /**
-     * Return the converge complete action. See {@link #setConvergeCompleteAction(SafeProcedure)} for further details.
+     * Return the reconciliation-complete action. See {@link #setReconciliationCompleteAction(SafeProcedure)} for
+     * further details.
      * This property is an Arez observable.
      *
      * @return the action.
      */
     @Nullable
-    public SafeProcedure getConvergeCompleteAction() {
-        return getConverger().getConvergeCompleteAction();
+    public SafeProcedure getReconciliationCompleteAction() {
+        return getSubscriptionReconciler().getReconciliationCompleteAction();
     }
 
     /**
-     * Set the desired state of the context as "active" and start to converge Connectors to being CONNECTED.
+     * Set the desired state of the context as "active" and start driving Connectors toward CONNECTED.
      * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
      * context is accessible via {@link #getState()}.
      */
@@ -307,7 +309,7 @@ public final class ReplicantContext {
     }
 
     /**
-     * Set the desired state of the context as "inactive" and start to converge Connectors to being DISCONNECTED.
+     * Set the desired state of the context as "inactive" and start driving Connectors toward DISCONNECTED.
      * The desired state of the context is accessible via {@link #isActive()} while the actual state of the
      * context is accessible via {@link #getState()}.
      */
@@ -437,13 +439,13 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the underlying Converger.
+     * Return the underlying SubscriptionReconciler.
      *
-     * @return the underlying Converger.
+     * @return the underlying SubscriptionReconciler.
      */
     @NonNull
-    Converger getConverger() {
-        return _converger;
+    SubscriptionReconciler getSubscriptionReconciler() {
+        return _subscriptionReconciler;
     }
 
     /**

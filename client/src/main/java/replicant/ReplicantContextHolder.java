@@ -18,7 +18,7 @@ final class ReplicantContextHolder {
     static {
         // Instantiating the replicant context as part of the <clinit>
         // can result in scheduler being activated and in a GWT context
-        // this may result in the converger executing and trying to reference
+        // this may result in the SubscriptionReconciler executing and trying to reference
         // c_context before it has been initialized. Pausing the scheduler
         // works around this problem
         final Disposable schedulerLock = Arez.context().pauseScheduler();

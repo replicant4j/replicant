@@ -87,7 +87,7 @@
   {
     "code": 20,
     "type": "INVARIANT",
-    "messagePattern": "Invoked convergeAreaOfInterest() with disposed AreaOfInterest."
+    "messagePattern": "Invoked reconcileAreaOfInterest() with disposed AreaOfInterest."
   },
   {
     "code": 21,

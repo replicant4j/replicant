@@ -1375,7 +1375,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Linkable userObject1 = mock(Linkable.class);
         final Linkable userObject2 = mock(Linkable.class);
 
-        // Pause scheduler to avoid converge of subscriptions
+        // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
         final ChannelAddress address = new ChannelAddress(connector.getSchema().getId(), 1);
@@ -1458,7 +1458,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        // Pause scheduler to avoid converge of subscriptions
+        // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
         final int rootId = ValueUtil.randomInt();
@@ -1503,7 +1503,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Linkable userObject1 = mock(Linkable.class);
 
-        // Pause scheduler to avoid converge of subscriptions
+        // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
         final EntityChangeData data1 = mock(EntityChangeData.class);
@@ -1542,7 +1542,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        // Pause scheduler to avoid converge of subscriptions
+        // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
         final EntityChange[] entityChanges = {
@@ -2100,7 +2100,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void removeExplicitSubscriptions() {
-        // Pause converger
+        // Pause the SubscriptionReconciler
         pauseScheduler();
 
         final Connector connector = createConnector();
@@ -2117,7 +2117,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription1 = createSubscription(address1, null, true);
         // Address2 is already implicit ...
         createSubscription(address2, null, false);
-        // Address3 has no subscription ... maybe not converged yet
+        // Address3 has no subscription ... maybe not reconciled yet
 
         connector.removeExplicitSubscriptions(requests);
 
@@ -2126,7 +2126,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void removeExplicitSubscriptions_passedBadAction() {
-        // Pause converger
+        // Pause the SubscriptionReconciler
         pauseScheduler();
 
         final Connector connector = createConnector();
@@ -2173,7 +2173,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         createSubscription(address1, null, true);
         // Address2 is already implicit ...
         createSubscription(address2, null, false);
-        // Address3 has no subscription ... maybe not converged yet
+        // Address3 has no subscription ... maybe not reconciled yet
 
         ReplicantTestUtil.noCheckInvariants();
 
@@ -2258,7 +2258,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         createSubscription(address1, null, true);
         // Address2 is already implicit ...
         createSubscription(address2, null, false);
-        // Address3 has no subscription ... maybe not converged yet
+        // Address3 has no subscription ... maybe not reconciled yet
 
         ReplicantTestUtil.noCheckInvariants();
 

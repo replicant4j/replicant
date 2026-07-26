@@ -13,7 +13,7 @@ import replicant.ValueUtil;
 public class AreaOfInterestFilterUpdatedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        // Pause scheduler so Autoruns don't auto-converge
+        // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
         final String filter = ValueUtil.randomString();

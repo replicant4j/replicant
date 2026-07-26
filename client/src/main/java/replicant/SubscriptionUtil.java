@@ -16,13 +16,13 @@ public class SubscriptionUtil {
     private SubscriptionUtil() {}
 
     /**
-     * Converge subscriptions across data sources.
+     * Synchronize subscriptions across data sources.
      * All instances of the subscriptions to the source channelType within the scope are collected.
      * The supplied function is used to generate a stream of expected subscriptions to the target channelType
      * that are reachable from the source channelTypes. If an expected subscription is missing it is added,
      * if an additional subscription is present then it is released.
      */
-    public static void convergeCrossDataSourceSubscriptions(
+    public static void synchronizeCrossDataSourceSubscriptions(
             final int sourceSystemId,
             final int sourceChannelId,
             final int targetSystemId,

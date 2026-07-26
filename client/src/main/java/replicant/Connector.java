@@ -223,7 +223,7 @@ abstract class Connector extends ReplicantService {
 
     void setConnection(@Nullable final Connection connection) {
         _connection = connection;
-        // Lock arez otherwise the purgeSubscriptions will trigger a converge when
+        // Lock arez otherwise purgeSubscriptions will trigger subscription reconciliation when
         // _connection is null but State may be CONNECTED
         final Disposable schedulerLock = Arez.context().pauseScheduler();
         purgeSubscriptions();
@@ -527,7 +527,7 @@ abstract class Connector extends ReplicantService {
             // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
             // incoming change and queries the repository and accesses orphaned and potentially invalid entities.
             // This MUST be done prior to validateWorld()
-            getReplicantContext().getConverger().removeOrphanSubscriptions();
+            getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
             response.markOrphanSubscriptionsRemoved();
             return true;
         } else if (!response.hasWorldBeenValidated()) {
@@ -764,7 +764,7 @@ abstract class Connector extends ReplicantService {
             if (null != requestId && connection.getLastRxSyncRequestId() == requestId) {
                 if (connection.syncComplete()) {
                     onInSync();
-                    getReplicantContext().getConverger().removeOrphanSubscriptions();
+                    getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
                 } else {
                     onOutOfSync();
                 }

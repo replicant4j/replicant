@@ -14,12 +14,12 @@ import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 
-public class ConvergerTest extends AbstractReplicantTest {
+public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     @BeforeMethod
     @Override
     public void preTest() throws Exception {
         super.preTest();
-        // Pause schedule so can manually interact with converger
+        // Pause scheduler so the SubscriptionReconciler can be exercised manually
         pauseScheduler();
     }
 
@@ -27,7 +27,7 @@ public class ConvergerTest extends AbstractReplicantTest {
     public void construct_withUnnecessaryContext() {
         final ReplicantContext context = Replicant.context();
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> Converger.create(context));
+                expectThrows(IllegalStateException.class, () -> SubscriptionReconciler.create(context));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0037: ReplicantService passed a context but Replicant.areZonesEnabled() is false");
@@ -36,9 +36,9 @@ public class ConvergerTest extends AbstractReplicantTest {
     @Test
     public void getReplicantContext() {
         final ReplicantContext context = Replicant.context();
-        final Converger converger = context.getConverger();
-        assertEquals(converger.getReplicantContext(), context);
-        assertNull(getFieldValue(converger, "_context"));
+        final SubscriptionReconciler subscriptionReconciler = context.getSubscriptionReconciler();
+        assertEquals(subscriptionReconciler.getReplicantContext(), context);
+        assertNull(getFieldValue(subscriptionReconciler, "_context"));
     }
 
     @Test
@@ -47,66 +47,66 @@ public class ConvergerTest extends AbstractReplicantTest {
         ReplicantTestUtil.resetState();
 
         final ReplicantContext context = Replicant.context();
-        final Converger converger = context.getConverger();
-        assertEquals(converger.getReplicantContext(), context);
-        assertEquals(getFieldValue(converger, "_context"), context);
+        final SubscriptionReconciler subscriptionReconciler = context.getSubscriptionReconciler();
+        assertEquals(subscriptionReconciler.getReplicantContext(), context);
+        assertEquals(getFieldValue(subscriptionReconciler, "_context"), context);
     }
 
     @Test
-    public void preConvergeAction() {
-        final Converger c = Replicant.context().getConverger();
+    public void preReconciliationAction() {
+        final SubscriptionReconciler c = Replicant.context().getSubscriptionReconciler();
 
         // should do nothing ...
-        c.preConverge();
+        c.preReconciliation();
 
         final AtomicInteger callCount = new AtomicInteger();
 
-        safeAction(() -> c.setPreConvergeAction(callCount::incrementAndGet));
+        safeAction(() -> c.setPreReconciliationAction(callCount::incrementAndGet));
 
-        c.preConverge();
+        c.preReconciliation();
 
         assertEquals(callCount.get(), 1);
 
-        c.preConverge();
+        c.preReconciliation();
 
         assertEquals(callCount.get(), 2);
 
-        safeAction(() -> c.setPreConvergeAction(null));
+        safeAction(() -> c.setPreReconciliationAction(null));
 
-        c.preConverge();
+        c.preReconciliation();
 
         assertEquals(callCount.get(), 2);
     }
 
     @Test
-    public void convergeCompleteAction() {
-        final Converger c = Replicant.context().getConverger();
+    public void reconciliationCompleteAction() {
+        final SubscriptionReconciler c = Replicant.context().getSubscriptionReconciler();
 
         // should do nothing ...
-        safeAction(c::convergeComplete);
+        safeAction(c::reconciliationComplete);
 
         final AtomicInteger callCount = new AtomicInteger();
 
-        safeAction(() -> c.setConvergeCompleteAction(callCount::incrementAndGet));
+        safeAction(() -> c.setReconciliationCompleteAction(callCount::incrementAndGet));
 
-        safeAction(c::convergeComplete);
+        safeAction(c::reconciliationComplete);
 
         assertEquals(callCount.get(), 1);
 
-        safeAction(c::convergeComplete);
+        safeAction(c::reconciliationComplete);
 
         assertEquals(callCount.get(), 2);
 
-        safeAction(() -> c.setConvergeCompleteAction(null));
+        safeAction(() -> c.setReconciliationCompleteAction(null));
 
-        safeAction(c::convergeComplete);
+        safeAction(c::reconciliationComplete);
 
         assertEquals(callCount.get(), 2);
     }
 
     @Test
     public void canGroup() {
-        final Converger c = Replicant.context().getConverger();
+        final SubscriptionReconciler c = Replicant.context().getSubscriptionReconciler();
 
         safeAction(() -> {
             final ChannelAddress address = new ChannelAddress(1, 0);
@@ -190,7 +190,7 @@ public class ConvergerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getConverger().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
             final List<AreaOfInterestRequest> requests =
                     connector.ensureConnection().getPendingAreaOfInterestRequests();
@@ -230,7 +230,7 @@ public class ConvergerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getConverger().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
             final List<AreaOfInterestRequest> requests =
                     connector.ensureConnection().getPendingAreaOfInterestRequests();
@@ -259,7 +259,7 @@ public class ConvergerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getConverger().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
             handler.assertEventCount(0);
         });
@@ -278,7 +278,7 @@ public class ConvergerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getConverger().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
             handler.assertEventCount(0);
         });
@@ -301,7 +301,7 @@ public class ConvergerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getConverger().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
             handler.assertEventCount(0);
         });
@@ -322,12 +322,12 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
-        Replicant.context().getConverger().removeOrphanSubscriptions();
+        Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest() {
+    public void reconcileAreaOfInterest() {
         final Connector connector = createConnector();
         newConnection(connector);
         pauseScheduler();
@@ -341,17 +341,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
     }
 
     @Test
-    public void convergeAreaOfInterest_alreadySubscribed() {
+    public void reconcileAreaOfInterest_alreadySubscribed() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -363,10 +363,10 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
 
@@ -376,7 +376,7 @@ public class ConvergerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void convergeAreaOfInterest_subscribing() {
+    public void reconcileAreaOfInterest_subscribing() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -389,16 +389,16 @@ public class ConvergerTest extends AbstractReplicantTest {
                 new AreaOfInterestRequest(address, AreaOfInterestRequest.Type.ADD, null));
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_addPending() {
+    public void reconcileAreaOfInterest_addPending() {
         final Connector connector = createConnector();
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -412,16 +412,16 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_updatePending() {
+    public void reconcileAreaOfInterest_updatePending() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -449,16 +449,16 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_requestSubscriptionUpdate() {
+    public void reconcileAreaOfInterest_requestSubscriptionUpdate() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -484,10 +484,10 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.SUBMITTED_UPDATE);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_UPDATE);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateRequestQueuedEvent.class, e -> {
@@ -497,7 +497,7 @@ public class ConvergerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void convergeAreaOfInterest_disposedAreaOfInterest() {
+    public void reconcileAreaOfInterest_disposedAreaOfInterest() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -511,16 +511,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(
-                        () -> Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null)));
+                () -> safeAction(() -> Replicant.context()
+                        .getSubscriptionReconciler()
+                        .reconcileAreaOfInterest(areaOfInterest, null, null)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0020: Invoked convergeAreaOfInterest() with disposed AreaOfInterest.");
+                "Replicant-0020: Invoked reconcileAreaOfInterest() with disposed AreaOfInterest.");
     }
 
     @Test
-    public void convergeAreaOfInterest_subscribedButRemovePending() {
+    public void reconcileAreaOfInterest_subscribedButRemovePending() {
         final Connector connector = createConnector();
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -534,17 +535,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
     }
 
     @Test
-    public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStatic() {
+    public void reconcileAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStatic() {
         final ChannelSchema channel0 = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -569,17 +570,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result =
-                Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null);
+        final SubscriptionReconciler.Action result =
+                Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, Converger.Action.SUBMITTED_REMOVE);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_REMOVE);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address));
     }
 
     @Test
-    public void convergeAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStaticAndNotExplicitlySubscribed() {
+    public void reconcileAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStaticAndNotExplicitlySubscribed() {
         final ChannelSchema channel0 = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -604,8 +605,9 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(
-                        () -> Replicant.context().getConverger().convergeAreaOfInterest(areaOfInterest, null, null)));
+                () -> safeAction(() -> Replicant.context()
+                        .getSubscriptionReconciler()
+                        .reconcileAreaOfInterest(areaOfInterest, null, null)));
 
         assertEquals(
                 exception.getMessage(),
@@ -614,7 +616,7 @@ public class ConvergerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void convergeAreaOfInterest_groupingAdd() {
+    public void reconcileAreaOfInterest_groupingAdd() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -629,18 +631,18 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
 
-        assertEquals(result, Converger.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeRequestQueuedEvent.class, e -> assertEquals(e.getAddress(), address2));
     }
 
     @Test
-    public void convergeAreaOfInterest_typeDiffers() {
+    public void reconcileAreaOfInterest_typeDiffers() {
         final ChannelSchema channel0 = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -669,17 +671,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_FilterDiffers() {
+    public void reconcileAreaOfInterest_FilterDiffers() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -693,17 +695,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_ChannelDiffers() {
+    public void reconcileAreaOfInterest_ChannelDiffers() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -717,17 +719,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_groupingUpdate() {
+    public void reconcileAreaOfInterest_groupingUpdate() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -760,11 +762,11 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
 
-        assertEquals(result, Converger.Action.SUBMITTED_UPDATE);
+        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_UPDATE);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -772,7 +774,7 @@ public class ConvergerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void convergeAreaOfInterest_typeDiffersForUpdate() {
+    public void reconcileAreaOfInterest_typeDiffersForUpdate() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -791,17 +793,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_ChannelDiffersForUpdate() {
+    public void reconcileAreaOfInterest_ChannelDiffersForUpdate() {
         final ChannelSchema channel0 = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -843,17 +845,17 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }
 
     @Test
-    public void convergeAreaOfInterest_FilterDiffersForUpdate() {
+    public void reconcileAreaOfInterest_FilterDiffersForUpdate() {
         final ChannelSchema channel0 = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -894,11 +896,11 @@ public class ConvergerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final Converger.Action result = Replicant.context()
-                .getConverger()
-                .convergeAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+        final SubscriptionReconciler.Action result = Replicant.context()
+                .getSubscriptionReconciler()
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
 
-        assertEquals(result, Converger.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
 
         handler.assertEventCount(0);
     }

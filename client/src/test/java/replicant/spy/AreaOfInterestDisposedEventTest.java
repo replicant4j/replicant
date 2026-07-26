@@ -13,7 +13,7 @@ import replicant.ValueUtil;
 public class AreaOfInterestDisposedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        // Pause scheduler so Autoruns don't auto-converge
+        // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
         final ChannelAddress address = new ChannelAddress(1, 2);

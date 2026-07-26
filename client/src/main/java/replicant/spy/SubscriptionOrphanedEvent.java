@@ -10,9 +10,8 @@ import replicant.Subscription;
 /**
  * Notification when an Subscription is "orphaned".
  * An "orphaned" subscription no longer has an explicit subscription to it. This may result in it being
- * unsubscribed if there is no implicit subscription within the system. The process that converges between
- * desired state (i.e. AreaOfInterest) and actual state (i.e. Subscription) is responsible for identifying
- * orphaned subscriptions.
+ * unsubscribed if there is no implicit subscription within the system. Subscription Reconciliation is responsible
+ * for identifying orphaned subscriptions while comparing desired AreaOfInterest state with actual Subscription state.
  */
 public final class SubscriptionOrphanedEvent implements SerializableEvent {
     @NonNull
