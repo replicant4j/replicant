@@ -15,43 +15,43 @@ public class SystemSchemaTest extends AbstractReplicantTest {
         final EntityType entityType2 =
                 new EntityType(1, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
         final EntityType[] entityTypes = new EntityType[] {entityType1, entityType2};
-        final ChannelSchema channel1 = new ChannelSchema(
+        final Dataset dataset1 = new Dataset(
                 1,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        final ChannelSchema[] channels = {null, channel1};
-        final SystemSchema systemSchema = new SystemSchema(id, name, channels, entityTypes);
+        final Dataset[] datasets = {null, dataset1};
+        final SystemSchema systemSchema = new SystemSchema(id, name, datasets, entityTypes);
         assertEquals(systemSchema.getId(), id);
         assertEquals(systemSchema.getName(), name);
         assertEquals(systemSchema.getEntityTypeCount(), 2);
         assertEquals(systemSchema.getEntityType(0), entityType1);
         assertEquals(systemSchema.getEntityType(1), entityType2);
-        assertEquals(systemSchema.getChannelCount(), 2);
-        assertEquals(systemSchema.getChannel(1), channel1);
+        assertEquals(systemSchema.getDatasetCount(), 2);
+        assertEquals(systemSchema.getDataset(1), dataset1);
         assertEquals(systemSchema.toString(), name);
     }
 
     @Test
-    public void getChannel_BadIndex() {
+    public void getDataset_BadIndex() {
         final SystemSchema systemSchema = new SystemSchema(
-                ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[] {}, new EntityType[] {});
+                ValueUtil.randomInt(), ValueUtil.randomString(), new Dataset[] {}, new EntityType[] {});
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> systemSchema.getChannel(2));
+                expectThrows(IllegalStateException.class, () -> systemSchema.getDataset(2));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range.");
+                "Replicant-0058: SystemSchema.getDataset(id) passed an id that is out of range.");
     }
 
     @Test
     public void getEntityType_BadIndex() {
         final SystemSchema systemSchema = new SystemSchema(
-                ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[] {}, new EntityType[] {});
+                ValueUtil.randomInt(), ValueUtil.randomString(), new Dataset[] {}, new EntityType[] {});
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> systemSchema.getEntityType(2));
         assertEquals(
@@ -64,7 +64,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new SystemSchema(ValueUtil.randomInt(), "X", new ChannelSchema[] {}, new EntityType[] {null}));
+                () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {null}));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0053: SystemSchema named 'X' passed an array of entity types that has a null element");
@@ -76,8 +76,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 23, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new ChannelLinkSchema[0]);
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new SystemSchema(
-                        ValueUtil.randomInt(), "X", new ChannelSchema[] {}, new EntityType[] {entityType}));
+                () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {entityType}));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0054: SystemSchema named 'X' passed an array of entity types where entity type at index 0"
@@ -85,12 +84,12 @@ public class SystemSchemaTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void construct_badChannelIndex() {
-        final ChannelSchema channel1 = new ChannelSchema(
+    public void construct_badDatasetIndex() {
+        final Dataset dataset1 = new Dataset(
                 234,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
@@ -98,19 +97,18 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 Collections.emptyList());
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new SystemSchema(
-                        ValueUtil.randomInt(), "X", new ChannelSchema[] {channel1}, new EntityType[] {}));
+                () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {dataset1}, new EntityType[] {}));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0056: SystemSchema named 'X' passed an array of channels where channel at index 0 does not"
-                        + " have id matching index.");
+                "Replicant-0056: SystemSchema named 'X' passed an array of Datasets where Dataset at index 0 does not "
+                        + "have id matching index.");
     }
 
     @Test
     public void getNameWhenNamesDisabled() {
         ReplicantTestUtil.disableNames();
         final SystemSchema systemSchema =
-                new SystemSchema(ValueUtil.randomInt(), null, new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(ValueUtil.randomInt(), null, new Dataset[0], new EntityType[0]);
         final IllegalStateException exception = expectThrows(IllegalStateException.class, systemSchema::getName);
         assertEquals(
                 exception.getMessage(),
@@ -121,7 +119,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
     public void toStringWhenNamesDisabled() {
         ReplicantTestUtil.disableNames();
         final SystemSchema systemSchema =
-                new SystemSchema(ValueUtil.randomInt(), null, new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(ValueUtil.randomInt(), null, new Dataset[0], new EntityType[0]);
         assertEquals(systemSchema.toString(), "replicant.SystemSchema@" + Integer.toHexString(systemSchema.hashCode()));
     }
 
@@ -130,7 +128,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
         ReplicantTestUtil.disableNames();
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new SystemSchema(ValueUtil.randomInt(), "MySystem", new ChannelSchema[0], new EntityType[0]));
+                () -> new SystemSchema(ValueUtil.randomInt(), "MySystem", new Dataset[0], new EntityType[0]));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0051: SystemSchema passed a name 'MySystem' but Replicant.areNamesEnabled() is false");

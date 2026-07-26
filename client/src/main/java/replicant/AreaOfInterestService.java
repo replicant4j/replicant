@@ -78,7 +78,7 @@ abstract class AreaOfInterestService extends ReplicantService {
      * The filter is updated, if required, to match the specified parameter.
      *
      * @param datasetAddress the Dataset Address declared by the Area of Interest
-     * @param filter  the filter that is used to define the channel.
+     * @param filter  the Filter Parameter used for the Subscription.
      * @return the AreaOfInterest.
      */
     @NonNull

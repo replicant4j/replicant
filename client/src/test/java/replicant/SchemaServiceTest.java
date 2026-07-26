@@ -11,7 +11,7 @@ public class SchemaServiceTest extends AbstractReplicantTest {
 
         final int schemaId1 = ValueUtil.randomInt();
         final SystemSchema schema1 =
-                new SystemSchema(schemaId1, ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(schemaId1, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
 
         assertNull(service.findById(schemaId1));
         assertEquals(service.getSchemas().size(), 0);
@@ -36,9 +36,9 @@ public class SchemaServiceTest extends AbstractReplicantTest {
         final SchemaService service = SchemaService.create();
 
         final int schemaId1 = 100;
-        final SystemSchema schema1 = new SystemSchema(schemaId1, "MySchema1", new ChannelSchema[0], new EntityType[0]);
+        final SystemSchema schema1 = new SystemSchema(schemaId1, "MySchema1", new Dataset[0], new EntityType[0]);
         final SystemSchema schema2 =
-                new SystemSchema(schemaId1, ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(schemaId1, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
 
         service.registerSchema(schema1);
 
@@ -56,7 +56,7 @@ public class SchemaServiceTest extends AbstractReplicantTest {
 
         final int schemaId1 = 100;
         final SystemSchema schema2 =
-                new SystemSchema(schemaId1, ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(schemaId1, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> service.deregisterSchema(schema2));

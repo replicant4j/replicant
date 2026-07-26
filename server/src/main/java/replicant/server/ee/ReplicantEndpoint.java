@@ -25,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.DatasetAddress;
 import replicant.server.json.JsonEncoder;
-import replicant.server.transport.ChannelMetaData;
+import replicant.server.transport.DatasetMetadata;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionManager;
 import replicant.server.transport.WebSocketUtil;
@@ -192,34 +192,34 @@ public class ReplicantEndpoint {
     private void onSubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
         final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
-        final var channelMetaData = getChannelMetaData(datasetAddress.datasetId());
-        if (checkSubscribeRequest(replicantSession, channelMetaData, datasetAddress)) {
+        final var datasetMetadata = getDatasetMetadata(datasetAddress.datasetId());
+        if (checkSubscribeRequest(replicantSession, datasetMetadata, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filter = extractFilter(channelMetaData, command);
+            final var filter = extractFilter(datasetMetadata, command);
             _sessionManager.subscribe(replicantSession, requestId, Collections.singletonList(datasetAddress), filter);
         }
     }
 
     private boolean checkSubscribeRequest(
             @NonNull final ReplicantSession replicantSession,
-            @NonNull final ChannelMetaData channelMetaData,
+            @NonNull final DatasetMetadata datasetMetadata,
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
-        if (!channelMetaData.isExternal()) {
+        if (!datasetMetadata.isExternal()) {
             sendErrorAndClose(replicantSession, "Attempted to subscribe to an internal-only Dataset");
             return false;
-        } else if (datasetAddress.hasDatasetRootId() && channelMetaData.isTypeGraph()) {
+        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeGraph()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!datasetAddress.hasDatasetRootId() && channelMetaData.isInstanceGraph()) {
+        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceGraph()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
             return false;
         } else {
-            return validateDatasetKey(replicantSession, channelMetaData, datasetAddress);
+            return validateDatasetKey(replicantSession, datasetMetadata, datasetAddress);
         }
     }
 
@@ -230,9 +230,9 @@ public class ReplicantEndpoint {
         if (0 != datasetAddresses.length) {
             final var datasetId = datasetAddresses[0].datasetId();
 
-            final var channelMetaData = getChannelMetaData(datasetId);
+            final var datasetMetadata = getDatasetMetadata(datasetId);
             for (final var datasetAddress : datasetAddresses) {
-                if (!checkSubscribeRequest(session, channelMetaData, datasetAddress)) {
+                if (!checkSubscribeRequest(session, datasetMetadata, datasetAddress)) {
                     return;
                 }
                 if (datasetAddress.datasetId() != datasetId) {
@@ -242,7 +242,7 @@ public class ReplicantEndpoint {
             }
 
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filter = extractFilter(channelMetaData, command);
+            final var filter = extractFilter(datasetMetadata, command);
             _sessionManager.subscribe(session, requestId, Arrays.asList(datasetAddresses), filter);
         }
     }
@@ -260,8 +260,8 @@ public class ReplicantEndpoint {
 
     @Nullable
     private JsonObject extractFilter(
-            @NonNull final ChannelMetaData channelMetaData, @NonNull final JsonObject command) {
-        return channelMetaData.requiresFilterParameter()
+            @NonNull final DatasetMetadata datasetMetadata, @NonNull final JsonObject command) {
+        return datasetMetadata.requiresFilterParameter()
                         && command.containsKey(Messages.Update.FILTER)
                         && !command.isNull(Messages.Update.FILTER)
                 ? command.getJsonObject(Messages.Update.FILTER)
@@ -271,8 +271,8 @@ public class ReplicantEndpoint {
     private void onUnsubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
             throws IOException {
         final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.CHANNEL));
-        final var channelMetaData = getChannelMetaData(datasetAddress.datasetId());
-        if (checkUnsubscribeRequest(replicantSession, channelMetaData, datasetAddress)) {
+        final var datasetMetadata = getDatasetMetadata(datasetAddress.datasetId());
+        if (checkUnsubscribeRequest(replicantSession, datasetMetadata, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
             _sessionManager.unsubscribe(replicantSession, requestId, Collections.singletonList(datasetAddress));
         }
@@ -285,9 +285,9 @@ public class ReplicantEndpoint {
         if (0 != datasetAddresses.length) {
             final var datasetId = datasetAddresses[0].datasetId();
 
-            final var channelMetaData = getChannelMetaData(datasetId);
+            final var datasetMetadata = getDatasetMetadata(datasetId);
             for (final var datasetAddress : datasetAddresses) {
-                if (!checkUnsubscribeRequest(session, channelMetaData, datasetAddress)) {
+                if (!checkUnsubscribeRequest(session, datasetMetadata, datasetAddress)) {
                     return;
                 } else if (datasetAddress.datasetId() != datasetId) {
                     sendErrorAndClose(session, "Bulk unsubscribe included Dataset Addresses from multiple Datasets");
@@ -302,34 +302,34 @@ public class ReplicantEndpoint {
 
     private boolean checkUnsubscribeRequest(
             @NonNull final ReplicantSession replicantSession,
-            @NonNull final ChannelMetaData channelMetaData,
+            @NonNull final DatasetMetadata datasetMetadata,
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
-        if (!channelMetaData.isExternal()) {
+        if (!datasetMetadata.isExternal()) {
             sendErrorAndClose(replicantSession, "Attempted to unsubscribe from an internal-only Dataset");
             return false;
-        } else if (datasetAddress.hasDatasetRootId() && channelMetaData.isTypeGraph()) {
+        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeGraph()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to unsubscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!datasetAddress.hasDatasetRootId() && channelMetaData.isInstanceGraph()) {
+        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceGraph()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to unsubscribe using a Dataset Address without a required Dataset Root identifier");
             return false;
         } else {
-            return validateDatasetKey(replicantSession, channelMetaData, datasetAddress);
+            return validateDatasetKey(replicantSession, datasetMetadata, datasetAddress);
         }
     }
 
     private boolean validateDatasetKey(
             @NonNull final ReplicantSession session,
-            @NonNull final ChannelMetaData channelMetaData,
+            @NonNull final DatasetMetadata datasetMetadata,
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
         final boolean hasDatasetKey = null != datasetAddress.datasetKey();
-        if (channelMetaData.requiresDatasetKey()) {
+        if (datasetMetadata.requiresDatasetKey()) {
             if (!hasDatasetKey) {
                 sendErrorAndClose(session, "Attempted to use a Dataset Address without a required Dataset Key");
                 return false;
@@ -412,8 +412,8 @@ public class ReplicantEndpoint {
     }
 
     @NonNull
-    private ChannelMetaData getChannelMetaData(final int datasetId) {
-        return _sessionManager.getSchemaMetaData().getChannelMetaData(datasetId);
+    private DatasetMetadata getDatasetMetadata(final int datasetId) {
+        return _sessionManager.getSchemaMetaData().getDatasetMetadata(datasetId);
     }
 
     private void closeWithError(

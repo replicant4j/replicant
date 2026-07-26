@@ -37,7 +37,7 @@
   {
     "code": 8,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getChannel(id) attempted to access null channel."
+    "messagePattern": "SystemSchema.getDataset(id) attempted to access null Dataset."
   },
   {
     "code": 9,
@@ -72,17 +72,17 @@
   {
     "code": 16,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s but failed to supply the expected error."
+    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s but failed to supply the expected error."
   },
   {
     "code": 17,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s and supplied an unexpected error."
+    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and supplied an unexpected error."
   },
   {
     "code": 19,
     "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for channel at Dataset Address %s with status %s and found unexpected subscription in the context."
+    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and found unexpected subscription in the context."
   },
   {
     "code": 20,
@@ -192,12 +192,12 @@
   {
     "code": 44,
     "type": "API_INVARIANT",
-    "messagePattern": "ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false"
+    "messagePattern": "Dataset.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
     "code": 45,
     "type": "API_INVARIANT",
-    "messagePattern": "ChannelSchema passed a name '%s' but Replicant.areNamesEnabled() is false"
+    "messagePattern": "Dataset passed a name '%s' but Replicant.areNamesEnabled() is false"
   },
   {
     "code": 46,
@@ -247,7 +247,7 @@
   {
     "code": 56,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of channels where channel at index %s does not have id matching index."
+    "messagePattern": "SystemSchema named '%s' passed an array of Datasets where Dataset at index %s does not have id matching index."
   },
   {
     "code": 57,
@@ -257,7 +257,7 @@
   {
     "code": 58,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getChannel(id) passed an id that is out of range."
+    "messagePattern": "SystemSchema.getDataset(id) passed an id that is out of range."
   },
   {
     "code": 59,
@@ -322,22 +322,22 @@
   {
     "code": 76,
     "type": "API_INVARIANT",
-    "messagePattern": "ChannelSchema %s has a DYNAMIC filterType but has supplied no filter."
+    "messagePattern": "Dataset %s has a DYNAMIC filterType but has supplied no filter."
   },
   {
     "code": 77,
     "type": "API_INVARIANT",
-    "messagePattern": "ChannelSchema %s does not have a DYNAMIC filterType but has supplied a filter."
+    "messagePattern": "Dataset %s does not have a DYNAMIC filterType but has supplied a filter."
   },
   {
     "code": 78,
     "type": "INVARIANT",
-    "messagePattern": "Received ChannelChange of type %s for Dataset Address %s but the channel does not have a DYNAMIC filter."
+    "messagePattern": "Received ChannelChange of type %s for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
   },
   {
     "code": 79,
     "type": "INVARIANT",
-    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address %s but the channel does not have a DYNAMIC filter."
+    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
   },
   {
     "code": 80,

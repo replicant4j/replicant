@@ -214,9 +214,9 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 if (!FilterUtil.filtersEqual(filter, existingSubscription.getFilter())) {
                     final SystemSchema schema =
                             getReplicantContext().getSchemaService().getById(datasetAddress.schemaId());
-                    final ChannelSchema.FilterType filterType =
-                            schema.getChannel(datasetAddress.datasetId()).getFilterType();
-                    if (null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType) {
+                    final Dataset.FilterType filterType =
+                            schema.getDataset(datasetAddress.datasetId()).getFilterType();
+                    if (null == groupTemplate && Dataset.FilterType.DYNAMIC != filterType) {
                         /*
                         If the subscription needs an update but the backend does not support updates
                         and subscription is explicitly subscribed then need to do a remove. Eventually it will

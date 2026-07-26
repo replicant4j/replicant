@@ -1,16 +1,16 @@
 load("//third_party/java:rules.bzl", "java_testng")
 
 java_testng(
-    name = "ChannelCacheEntryTest",
-    srcs = ["ChannelCacheEntryTest.java"],
-    test_class = "replicant.server.transport.ChannelCacheEntryTest",
+    name = "DatasetCacheEntryTest",
+    srcs = ["DatasetCacheEntryTest.java"],
+    test_class = "replicant.server.transport.DatasetCacheEntryTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "ChannelMetaDataTest",
-    srcs = ["ChannelMetaDataTest.java"],
-    test_class = "replicant.server.transport.ChannelMetaDataTest",
+    name = "DatasetMetadataTest",
+    srcs = ["DatasetMetadataTest.java"],
+    test_class = "replicant.server.transport.DatasetMetadataTest",
     deps = ["//server:server_test_support"],
 )
 

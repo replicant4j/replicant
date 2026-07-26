@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
-public final class ChannelMetaData {
+public final class DatasetMetadata {
     public enum FilterType {
         /**
          * No filtering
@@ -21,7 +21,7 @@ public final class ChannelMetaData {
          */
         INTERNAL,
         /**
-         * Filtering occurs and the client passes a filter parameter but can never change the filter parameter without unsubscribing and resubscribing to graph.
+         * Filtering occurs and the client passes a filter parameter but can never change the filter parameter without unsubscribing and resubscribing to the Dataset.
          */
         STATIC,
         /**
@@ -57,7 +57,7 @@ public final class ChannelMetaData {
          */
         NONE,
         /**
-         * Caching is managed internally by replicant. If a change arrives for an entity in the graph then the
+         * Caching is managed internally by Replicant. If a change arrives for an Entity in the Dataset then the
          * cache is expired.
          */
         INTERNAL
@@ -79,18 +79,18 @@ public final class ChannelMetaData {
     @NonNull
     private final CacheType _cacheType;
     /**
-     * Flag indicating whether the channel can be subscribed to, externally.
+     * Flag indicating whether the Dataset can be subscribed to externally.
      * i.e. Can this be explicitly subscribed.
      */
     private final boolean _external;
 
     @NonNull
-    private final ChannelMetaData[] _requiredTypeChannels;
+    private final DatasetMetadata[] _requiredTypeChannels;
 
     @NonNull
-    private final Set<ChannelMetaData> _dependentChannels = new HashSet<>();
+    private final Set<DatasetMetadata> _dependentChannels = new HashSet<>();
 
-    public ChannelMetaData(
+    public DatasetMetadata(
             final int datasetId,
             @NonNull final String name,
             @Nullable final Integer instanceRootEntityTypeId,
@@ -98,7 +98,7 @@ public final class ChannelMetaData {
             final boolean keyed,
             @NonNull final CacheType cacheType,
             final boolean external,
-            @NonNull final ChannelMetaData... requiredTypeGraphs) {
+            @NonNull final DatasetMetadata... requiredTypeGraphs) {
         _datasetId = datasetId;
         _name = Objects.requireNonNull(name);
         _instanceRootEntityTypeId = instanceRootEntityTypeId;
@@ -165,13 +165,13 @@ public final class ChannelMetaData {
     }
 
     @NonNull
-    public ChannelMetaData[] getRequiredTypeChannels() {
+    public DatasetMetadata[] getRequiredTypeChannels() {
         return _requiredTypeChannels;
     }
 
     @Contract(pure = true)
     @NonNull
-    public @UnmodifiableView Set<ChannelMetaData> getDependentChannels() {
+    public @UnmodifiableView Set<DatasetMetadata> getDependentChannels() {
         return Collections.unmodifiableSet(_dependentChannels);
     }
 }

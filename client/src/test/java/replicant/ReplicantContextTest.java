@@ -21,7 +21,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
         assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 22");
 
         final SystemSchema schema1 =
-                new SystemSchema(schemaId, ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
+                new SystemSchema(schemaId, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
 
         context.getSchemaService().registerSchema(schema1);
 

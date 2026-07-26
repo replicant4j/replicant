@@ -67,7 +67,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
 
     @NonNull
-    private final Map<DatasetAddress, ChannelCacheEntry> _cache = new HashMap<>();
+    private final Map<DatasetAddress, DatasetCacheEntry> _cache = new HashMap<>();
 
     @SuppressWarnings("CdiInjectionPointsInspection")
     @Inject
@@ -391,10 +391,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Send message to the specified session in rsponse to a cacheable channel subscription request.
+     * Send message to the specified session in response to a cacheable Dataset Subscription request.
      * The requesting service must NOT have made any other changes that will be sent to the
      * client, otherwise this message will be discarded.
-     * This can also be sent if the cache request resulted in deleted channel in which case the eTag will be null.
+     * This can also be sent if the cache request resulted in deleted dataset in which case the eTag will be null.
      *
      * @param session   the session.
      * @param changeSet the messages to be sent along to the client.
@@ -756,8 +756,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         final var targetDatasetAddress = resolveTargetDatasetAddress(
                 entityMessage, sourceDatasetAddress, sourceFilter, link.targetDatasetAddress(), link.targetFilter());
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), targetDatasetAddress);
-        final var channel = getSchemaMetaData().getChannelMetaData(targetDatasetAddress);
-        if (channel.requiresFilterParameter()) {
+        final var dataset = getSchemaMetaData().getDatasetMetadata(targetDatasetAddress);
+        if (dataset.requiresFilterParameter()) {
             final var filter = link.hasTargetFilter()
                     ? link.targetFilter()
                     : _context.deriveTargetFilter(
@@ -832,18 +832,18 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final Collection<EntityMessage> messages, @NonNull final ReplicantSession session) {
         final var rootDeletedDatasetAddresses = new HashSet<DatasetAddress>();
         final var schema = getSchemaMetaData();
-        final var instanceChannelCount = schema.getInstanceChannelCount();
+        final var instanceDatasetCount = schema.getInstanceDatasetCount();
         for (final var message : messages) {
             if (message.isDelete()) {
-                for (var i = 0; i < instanceChannelCount; i++) {
-                    final var channel = schema.getInstanceChannelByIndex(i);
+                for (var i = 0; i < instanceDatasetCount; i++) {
+                    final var dataset = schema.getInstanceDatasetByIndex(i);
                     @SuppressWarnings("unchecked")
                     final var datasetRootIds =
-                            (List<Integer>) message.getRoutingKeys().get(channel.getName());
+                            (List<Integer>) message.getRoutingKeys().get(dataset.getName());
                     if (null != datasetRootIds) {
                         for (final var datasetRootId : datasetRootIds) {
-                            final var datasetAddress = DatasetAddress.of(channel.getDatasetId(), datasetRootId);
-                            final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                            final var datasetAddress = DatasetAddress.of(dataset.getDatasetId(), datasetRootId);
+                            final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
                             for (final var entry : session.findSubscriptionEntries(
                                     datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                                 final var entryDatasetAddress = entry.datasetAddress();
@@ -869,14 +869,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
         final var schema = getSchemaMetaData();
-        final var channelCount = schema.getChannelCount();
+        final var datasetCount = schema.getDatasetCount();
         final var owner = LinkOwner.entity(message.getTypeId(), message.getId());
-        for (var i = 0; i < channelCount; i++) {
-            if (schema.hasChannelMetaData(i)) {
-                final var channel = schema.getChannelMetaData(i);
-                final var datasetAddresses = extractDatasetAddressesFromMessage(channel, message);
+        for (var i = 0; i < datasetCount; i++) {
+            if (schema.hasDatasetMetadata(i)) {
+                final var dataset = schema.getDatasetMetadata(i);
+                final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                 if (null != datasetAddresses) {
-                    final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                    final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
                     for (final var datasetAddress : datasetAddresses) {
                         for (final var entry : session.findSubscriptionEntries(
                                 datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
@@ -957,9 +957,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     datasetAddress -> InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress));
         }
         final var datasetId = uniqueDatasetAddresses.get(0).datasetId();
-        final var channel = getSchemaMetaData().getChannelMetaData(datasetId);
+        final var dataset = getSchemaMetaData().getDatasetMetadata(datasetId);
 
-        subscribeToRequiredTypeChannels(session, channel);
+        subscribeToRequiredTypeChannels(session, dataset);
 
         final var newDatasetAddresses = new ArrayList<DatasetAddress>();
         // OriginalFilter => Channels
@@ -967,7 +967,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         for (final var datasetAddress : uniqueDatasetAddresses) {
             assert datasetAddress.datasetId() == datasetId;
-            if (channel.isTypeGraph()) {
+            if (dataset.isTypeGraph()) {
                 assert !datasetAddress.hasDatasetRootId();
             } else {
                 assert datasetAddress.hasDatasetRootId();
@@ -989,12 +989,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
 
         if (!newDatasetAddresses.isEmpty()) {
-            if (channel.isCacheable()) {
+            if (dataset.isCacheable()) {
                 // Only type graphs are cached atm, need to add extra plumbing to cache instance graphs
-                assert channel.isTypeGraph();
+                assert dataset.isTypeGraph();
                 // Only unfiltered graphs currently supported as cache targets, although static or internal
                 // caching would be possible if we wanted to add support
-                assert ChannelMetaData.FilterType.NONE == channel.filterType();
+                assert DatasetMetadata.FilterType.NONE == dataset.filterType();
                 for (var newDatasetAddress : newDatasetAddresses) {
                     final var cacheEntry = tryGetCacheEntry(newDatasetAddress);
                     if (null != cacheEntry) {
@@ -1027,7 +1027,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         }
                         entry.setFilter(filter);
                     } else {
-                        // If we get here then we have requested a cacheable instance channel
+                        // If we get here then we have requested a cacheable instance dataset
                         // where the root has been removed
                         assert newDatasetAddress.hasDatasetRootId();
                         final var cacheChangeSet = new ChangeSet();
@@ -1041,17 +1041,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             }
         }
         if (!datasetAddressesToUpdate.isEmpty()) {
-            assert !channel.isCacheable();
+            assert !dataset.isCacheable();
             for (final var update : datasetAddressesToUpdate.entrySet()) {
                 final var originalFilter = update.getKey();
                 final var updateDatasetAddresses = update.getValue();
 
-                if (channel.filterType().isDynamicFilter()) {
+                if (dataset.filterType().isDynamicFilter()) {
                     _context.collectChannelDataForFilterChange(
                             session, updateDatasetAddresses, originalFilter, Objects.requireNonNull(filter), changeSet);
                 } else {
-                    final var message = "Attempted to update filter on channel " + channel.getName() + " to " + filter
-                            + " but the " + "channel that has a static filter. Unsubscribe and resubscribe to channel.";
+                    final var message = "Attempted to update filter on Dataset " + dataset.getName() + " to " + filter
+                            + " but the Dataset has a static filter. Unsubscribe and resubscribe to the Dataset.";
                     throw new AttemptedToUpdateStaticFilterException(message);
                 }
             }
@@ -1070,16 +1070,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             final boolean explicitlySubscribe,
             @Nullable final JsonObject filter,
             @NonNull final ChangeSet changeSet) {
-        final var channelMetaData = getSchemaMetaData().getChannelMetaData(datasetAddress);
+        final var datasetMetadata = getSchemaMetaData().getDatasetMetadata(datasetAddress);
 
         if (session.isSubscriptionEntryPresent(datasetAddress)) {
             final var entry = session.getSubscriptionEntry(datasetAddress);
             if (explicitlySubscribe) {
                 entry.setExplicitlySubscribed(true);
             }
-            if (channelMetaData.filterType().isDynamicFilter()) {
+            if (datasetMetadata.filterType().isDynamicFilter()) {
                 doSubscribe(session, Collections.singletonList(datasetAddress), filter, changeSet, true);
-            } else if (channelMetaData.filterType().isStaticFilter()) {
+            } else if (datasetMetadata.filterType().isStaticFilter()) {
                 final var existingFilter = entry.getFilter();
                 if (!FilterUtil.filtersEqual(filter, existingFilter)) {
                     final var message = "Attempted to update filter for Dataset Address " + entry.datasetAddress()
@@ -1094,23 +1094,23 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private void subscribeToRequiredTypeChannels(
-            @NonNull final ReplicantSession session, @NonNull final ChannelMetaData channelMetaData) {
-        final var requiredTypeChannels = channelMetaData.getRequiredTypeChannels();
+            @NonNull final ReplicantSession session, @NonNull final DatasetMetadata datasetMetadata) {
+        final var requiredTypeChannels = datasetMetadata.getRequiredTypeChannels();
         if (LOG.isLoggable(Level.FINE) && requiredTypeChannels.length > 0) {
             LOG.log(
                     Level.FINE,
-                    "Subscribing to " + channelMetaData.getName()
+                    "Subscribing to " + datasetMetadata.getName()
                             + " which has "
                             + requiredTypeChannels.length
                             + " required channels. "
                             + Arrays.stream(requiredTypeChannels)
-                                    .map(ChannelMetaData::getName)
+                                    .map(DatasetMetadata::getName)
                                     .collect(Collectors.joining(",")));
         }
         for (final var requiredTypeChannel : requiredTypeChannels) {
             assert requiredTypeChannel.isTypeGraph();
             // At the moment we propagate no filters ... which is fine
-            assert ChannelMetaData.FilterType.NONE == requiredTypeChannel.filterType();
+            assert DatasetMetadata.FilterType.NONE == requiredTypeChannel.filterType();
             final var datasetAddress = DatasetAddress.of(requiredTypeChannel.getDatasetId());
 
             // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
@@ -1145,7 +1145,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
         _cacheLock.writeLock().lock();
         try {
-            final var metaData = getSchemaMetaData().getChannelMetaData(datasetAddress);
+            final var metaData = getSchemaMetaData().getDatasetMetadata(datasetAddress);
             if (null != _cache.remove(datasetAddress)) {
                 // If we expire the cache then any dependent type graphs must also be expired. This is
                 // required as when a cache is on a client then we send back a "use-cache" message immediately
@@ -1155,9 +1155,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
                 // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
                 // invalidate all dependent cached type graphs to avoid this scenario.
-                for (final var channel : metaData.getDependentChannels()) {
-                    if (channel.isTypeGraph() && channel.isCacheable()) {
-                        _cache.remove(DatasetAddress.of(channel.getDatasetId()));
+                for (final var dataset : metaData.getDependentChannels()) {
+                    if (dataset.isTypeGraph() && dataset.isCacheable()) {
+                        _cache.remove(DatasetAddress.of(dataset.getDatasetId()));
                     }
                 }
             }
@@ -1167,14 +1167,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Return a CacheEntry for a specific channel. When this method returns the cache
+     * Return a CacheEntry for a specific dataset. When this method returns the cache
      * data will have already been loaded. The cache data is loaded using a separate lock for
-     * each channel cached.
+     * each dataset cached.
      */
     @Nullable
-    private ChannelCacheEntry tryGetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    private DatasetCacheEntry tryGetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
-        final var metaData = getSchemaMetaData().getChannelMetaData(datasetAddress);
+        final var metaData = getSchemaMetaData().getDatasetMetadata(datasetAddress);
         assert metaData.isCacheable();
         // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove
         // this assertion.
@@ -1205,7 +1205,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     .findFirst()
                     .orElse(null);
             final var action = Objects.requireNonNull(channelAction).action();
-            // Delete indicates the instance channel has been deleted and will never be a valid channel to subscribe to.
+            // Delete indicates the instance dataset has been deleted and will never be a valid dataset to subscribe to.
             if (ChannelAction.Action.DELETE == action) {
                 assert null == cacheKey;
                 return null;
@@ -1234,11 +1234,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Get the CacheEntry for specified channel. Note that the cache is not necessarily
+     * Get the CacheEntry for specified dataset. Note that the cache is not necessarily
      * loaded at this stage. This is done to avoid using a global lock while loading data for a
      * particular cache entry.
      */
-    private ChannelCacheEntry getCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    private DatasetCacheEntry getCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
         _cacheLock.readLock().lock();
         try {
@@ -1256,7 +1256,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (null != entry) {
                 return entry;
             }
-            entry = new ChannelCacheEntry(datasetAddress);
+            entry = new DatasetCacheEntry(datasetAddress);
             _cache.put(datasetAddress, entry);
             return entry;
         } finally {
@@ -1287,12 +1287,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     private void processCachePurge(@NonNull final EntityMessage message) {
         final var schema = getSchemaMetaData();
-        final var channelCount = schema.getChannelCount();
-        for (var i = 0; i < channelCount; i++) {
-            if (schema.hasChannelMetaData(i)) {
-                final var channel = schema.getChannelMetaData(i);
-                if (ChannelMetaData.CacheType.INTERNAL == channel.getCacheType()) {
-                    final var datasetAddresses = extractDatasetAddressesFromMessage(channel, message);
+        final var datasetCount = schema.getDatasetCount();
+        for (var i = 0; i < datasetCount; i++) {
+            if (schema.hasDatasetMetadata(i)) {
+                final var dataset = schema.getDatasetMetadata(i);
+                if (DatasetMetadata.CacheType.INTERNAL == dataset.getCacheType()) {
+                    final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                     if (null != datasetAddresses) {
                         for (final var datasetAddress : datasetAddresses) {
                             deleteCacheEntry(datasetAddress);
@@ -1308,13 +1308,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet) {
         final var schema = getSchemaMetaData();
-        final var channelCount = schema.getChannelCount();
-        for (var i = 0; i < channelCount; i++) {
-            if (schema.hasChannelMetaData(i)) {
-                final var channel = schema.getChannelMetaData(i);
-                final var datasetAddresses = extractDatasetAddressesFromMessage(channel, message);
+        final var datasetCount = schema.getDatasetCount();
+        for (var i = 0; i < datasetCount; i++) {
+            if (schema.hasDatasetMetadata(i)) {
+                final var dataset = schema.getDatasetMetadata(i);
+                final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                 if (null != datasetAddresses) {
-                    final var isFiltered = ChannelMetaData.FilterType.NONE != channel.filterType();
+                    final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
                     for (final var datasetAddress : datasetAddresses) {
                         processUpdateMessage(datasetAddress, message, session, changeSet, isFiltered);
                     }
@@ -1325,20 +1325,20 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @Nullable
     private List<DatasetAddress> extractDatasetAddressesFromMessage(
-            @NonNull final ChannelMetaData channel, @NonNull final EntityMessage message) {
-        if (channel.isInstanceGraph()) {
+            @NonNull final DatasetMetadata dataset, @NonNull final EntityMessage message) {
+        if (dataset.isInstanceGraph()) {
             @SuppressWarnings("unchecked")
-            final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(channel.getName());
+            final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(dataset.getName());
             if (null != datasetRootIds) {
                 return datasetRootIds.stream()
-                        .map(datasetRootId -> DatasetAddress.of(channel.getDatasetId(), datasetRootId))
+                        .map(datasetRootId -> DatasetAddress.of(dataset.getDatasetId(), datasetRootId))
                         .collect(Collectors.toList());
             } else {
                 return null;
             }
         } else {
-            if (message.getRoutingKeys().containsKey(channel.getName())) {
-                return Collections.singletonList(DatasetAddress.of(channel.getDatasetId()));
+            if (message.getRoutingKeys().containsKey(dataset.getName())) {
+                return Collections.singletonList(DatasetAddress.of(dataset.getDatasetId()));
             } else {
                 return null;
             }
@@ -1368,16 +1368,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet) {
         final var schema = getSchemaMetaData();
-        final var instanceChannelCount = schema.getInstanceChannelCount();
-        for (var i = 0; i < instanceChannelCount; i++) {
-            final var channel = schema.getInstanceChannelByIndex(i);
+        final var instanceDatasetCount = schema.getInstanceDatasetCount();
+        for (var i = 0; i < instanceDatasetCount; i++) {
+            final var dataset = schema.getInstanceDatasetByIndex(i);
             @SuppressWarnings("unchecked")
-            final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(channel.getName());
+            final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(dataset.getName());
             if (null != datasetRootIds) {
                 for (final var datasetRootId : datasetRootIds) {
-                    final var datasetAddress = DatasetAddress.of(channel.getDatasetId(), datasetRootId);
-                    final var isFiltered = ChannelMetaData.FilterType.NONE
-                            != schema.getInstanceChannelByIndex(i).filterType();
+                    final var datasetAddress = DatasetAddress.of(dataset.getDatasetId(), datasetRootId);
+                    final var isFiltered = DatasetMetadata.FilterType.NONE
+                            != schema.getInstanceDatasetByIndex(i).filterType();
                     processDeleteMessage(datasetAddress, message, session, changeSet, isFiltered);
                 }
             }
@@ -1424,9 +1424,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final SubscriptionEntry entry,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final EntityMessage message) {
-        final var channel = getSchemaMetaData().getChannelMetaData(entry.datasetAddress());
-        return channel.isInstanceGraph()
-                && channel.getInstanceRootEntityTypeId() == message.getTypeId()
+        final var dataset = getSchemaMetaData().getDatasetMetadata(entry.datasetAddress());
+        return dataset.isInstanceGraph()
+                && dataset.getInstanceRootEntityTypeId() == message.getTypeId()
                 && Objects.equals(datasetAddress.datasetRootId(), message.getId());
     }
 

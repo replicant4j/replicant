@@ -57,11 +57,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_staticKeyedLinkFollow_usesTargetDatasetKey() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", 1, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
 
         final var context = new TestSessionContext(schema);
         final var manager = new ReplicantSessionManagerImpl();
@@ -118,11 +118,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_deleteRemovesOnlyDeletedEntityOwnershipForSharedTarget() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -178,11 +178,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_sameTargetReplacementFromPacketMessage_preservesWithoutTargetReload() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -220,11 +220,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_sameTargetReplacementFromChangeSet_preservesWithoutTargetReload() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -262,11 +262,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_newTargetReplacement_isCollectedByNormalExpansion() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", 3, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", 3, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -307,11 +307,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_filterMismatchReplacement_isCollectedWithNewFilterByNormalExpansion() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.DYNAMIC, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -353,11 +353,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_filteredOutSourceRoute_isNotPreserved() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -401,11 +401,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_shouldFollowLinkFalse_isNotPreserved() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.DYNAMIC, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         context.setShouldFollowLink(false);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -443,11 +443,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_sourceRootDeleteWinsOverPreservation() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -481,11 +481,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_targetRootDeleteWinsOverPreservation() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", 3, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", 3, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -523,13 +523,13 @@ public class ReplicantSessionManagerImplTest {
     public void invalidateSession_removesAndClosesExistingSession() throws Exception {
         final var schema = new SchemaMetaData(
                 "Test",
-                new ChannelMetaData(
+                new DatasetMetadata(
                         0,
                         "Source",
                         null,
-                        ChannelMetaData.FilterType.NONE,
+                        DatasetMetadata.FilterType.NONE,
                         false,
-                        ChannelMetaData.CacheType.NONE,
+                        DatasetMetadata.CacheType.NONE,
                         true));
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -551,13 +551,13 @@ public class ReplicantSessionManagerImplTest {
     public void invalidateSession_ignoresUnknownSession() throws Exception {
         final var schema = new SchemaMetaData(
                 "Test",
-                new ChannelMetaData(
+                new DatasetMetadata(
                         0,
                         "Source",
                         null,
-                        ChannelMetaData.FilterType.NONE,
+                        DatasetMetadata.FilterType.NONE,
                         false,
-                        ChannelMetaData.CacheType.NONE,
+                        DatasetMetadata.CacheType.NONE,
                         true));
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -573,9 +573,9 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void unsubscribe_removesSubscriptionsViaSessionLogic() {
-        final var channel = new ChannelMetaData(
-                0, "Channel", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", channel);
+        final var dataset = new DatasetMetadata(
+                0, "Dataset", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", dataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -619,11 +619,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_deleteRootUnsubscribesRootAndDownstream() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -667,11 +667,11 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeMessage_deleteWithKeyedSubscriptions_unsubscribesConcreteTargetsWithoutMessageLinks() {
-        final var sourceChannel = new ChannelMetaData(
-                0, "Source", 1, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var targetChannel = new ChannelMetaData(
-                1, "Target", null, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", sourceChannel, targetChannel);
+        final var sourceDataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var targetDataset = new DatasetMetadata(
+                1, "Target", null, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -716,9 +716,9 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void tryGetCacheEntry_rejectsPartialAddresses() throws Exception {
-        final var channel = new ChannelMetaData(
-                0, "Source", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.INTERNAL, true);
-        final var schema = new SchemaMetaData("Test", channel);
+        final var dataset = new DatasetMetadata(
+                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.INTERNAL, true);
+        final var schema = new SchemaMetaData("Test", dataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 

@@ -6,103 +6,103 @@ import static org.testng.Assert.*;
 import java.util.Collections;
 import org.testng.annotations.Test;
 
-public class ChannelSchemaTest extends AbstractReplicantTest {
+public class DatasetTest extends AbstractReplicantTest {
     @Test
     public void findEntityTypeById() {
         final EntityType entityType = new EntityType(
                 1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 ValueUtil.randomInt(),
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 false,
                 Collections.singletonList(entityType));
-        assertEquals(channelSchema.getEntityTypes().size(), 1);
-        assertEquals(channelSchema.getEntityTypes().size(), 1);
-        assertEquals(channelSchema.findEntityTypeById(1), entityType);
-        assertNull(channelSchema.findEntityTypeById(0));
+        assertEquals(dataset.getEntityTypes().size(), 1);
+        assertEquals(dataset.getEntityTypes().size(), 1);
+        assertEquals(dataset.findEntityTypeById(1), entityType);
+        assertNull(dataset.findEntityTypeById(0));
     }
 
     @Test
     public void typeGraph() {
         final EntityType entityType = new EntityType(
                 1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new ChannelLinkSchema[0]);
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 1,
                 "MetaData",
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 false,
                 Collections.singletonList(entityType));
-        assertEquals(channelSchema.getId(), 1);
-        assertEquals(channelSchema.getName(), "MetaData");
-        assertEquals(channelSchema.toString(), "MetaData");
-        assertTrue(channelSchema.isTypeChannel());
-        assertFalse(channelSchema.isInstanceChannel());
-        assertNull(channelSchema.getInstanceType());
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.NONE);
-        assertFalse(channelSchema.isCacheable());
-        assertFalse(channelSchema.isExternal());
-        assertEquals(channelSchema.getEntityTypes().size(), 1);
-        assertTrue(channelSchema.getEntityTypes().contains(entityType));
+        assertEquals(dataset.getId(), 1);
+        assertEquals(dataset.getName(), "MetaData");
+        assertEquals(dataset.toString(), "MetaData");
+        assertTrue(dataset.isTypeGraph());
+        assertFalse(dataset.isInstanceGraph());
+        assertNull(dataset.getInstanceType());
+        assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
+        assertFalse(dataset.isCacheable());
+        assertFalse(dataset.isExternal());
+        assertEquals(dataset.getEntityTypes().size(), 1);
+        assertTrue(dataset.getEntityTypes().contains(entityType));
     }
 
     @Test
     public void instanceGraph() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 1,
                 "MetaData",
                 String.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        assertEquals(channelSchema.getId(), 1);
-        assertEquals(channelSchema.getName(), "MetaData");
-        assertEquals(channelSchema.toString(), "MetaData");
-        assertFalse(channelSchema.isTypeChannel());
-        assertTrue(channelSchema.isInstanceChannel());
-        assertEquals(channelSchema.getInstanceType(), String.class);
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.NONE);
-        assertFalse(channelSchema.isCacheable());
-        assertTrue(channelSchema.isExternal());
+        assertEquals(dataset.getId(), 1);
+        assertEquals(dataset.getName(), "MetaData");
+        assertEquals(dataset.toString(), "MetaData");
+        assertFalse(dataset.isTypeGraph());
+        assertTrue(dataset.isInstanceGraph());
+        assertEquals(dataset.getInstanceType(), String.class);
+        assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
+        assertFalse(dataset.isCacheable());
+        assertTrue(dataset.isExternal());
     }
 
     @Test
     public void staticFilteredGraph() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
-        final boolean typeChannel = false;
+        final boolean typeDataset = false;
         final boolean cacheable = false;
         final boolean external = true;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 id,
                 name,
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 cacheable,
                 external,
                 Collections.emptyList());
-        assertEquals(channelSchema.getId(), id);
-        assertEquals(channelSchema.getName(), name);
-        assertEquals(channelSchema.toString(), name);
-        assertEquals(channelSchema.isTypeChannel(), typeChannel);
-        assertTrue(channelSchema.isInstanceChannel());
-        assertEquals(channelSchema.getInstanceType(), String.class);
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC);
-        assertEquals(channelSchema.isCacheable(), cacheable);
-        assertEquals(channelSchema.isExternal(), external);
+        assertEquals(dataset.getId(), id);
+        assertEquals(dataset.getName(), name);
+        assertEquals(dataset.toString(), name);
+        assertEquals(dataset.isTypeGraph(), typeDataset);
+        assertTrue(dataset.isInstanceGraph());
+        assertEquals(dataset.getInstanceType(), String.class);
+        assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
+        assertEquals(dataset.isCacheable(), cacheable);
+        assertEquals(dataset.isExternal(), external);
     }
 
     @Test
@@ -111,25 +111,25 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
         final boolean external = true;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 id,
                 name,
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 true,
                 null,
                 cacheable,
                 external,
                 Collections.emptyList());
-        assertEquals(channelSchema.getId(), id);
-        assertEquals(channelSchema.getName(), name);
-        assertEquals(channelSchema.toString(), name);
-        assertFalse(channelSchema.isTypeChannel());
-        assertTrue(channelSchema.isInstanceChannel());
-        assertEquals(channelSchema.getInstanceType(), String.class);
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC);
-        assertEquals(channelSchema.isCacheable(), cacheable);
-        assertEquals(channelSchema.isExternal(), external);
+        assertEquals(dataset.getId(), id);
+        assertEquals(dataset.getName(), name);
+        assertEquals(dataset.toString(), name);
+        assertFalse(dataset.isTypeGraph());
+        assertTrue(dataset.isInstanceGraph());
+        assertEquals(dataset.getInstanceType(), String.class);
+        assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
+        assertEquals(dataset.isCacheable(), cacheable);
+        assertEquals(dataset.isExternal(), external);
     }
 
     @Test
@@ -139,47 +139,46 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         final boolean cacheable = false;
         final boolean external = true;
         final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 id,
                 name,
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 filter,
                 cacheable,
                 external,
                 Collections.emptyList());
-        assertEquals(channelSchema.getId(), id);
-        assertEquals(channelSchema.getName(), name);
-        assertEquals(channelSchema.toString(), name);
-        assertTrue(channelSchema.isTypeChannel());
-        assertFalse(channelSchema.isInstanceChannel());
-        assertNull(channelSchema.getInstanceType());
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.DYNAMIC);
-        assertEquals(channelSchema.getFilter(), filter);
-        assertEquals(channelSchema.isCacheable(), cacheable);
-        assertEquals(channelSchema.isExternal(), external);
+        assertEquals(dataset.getId(), id);
+        assertEquals(dataset.getName(), name);
+        assertEquals(dataset.toString(), name);
+        assertTrue(dataset.isTypeGraph());
+        assertFalse(dataset.isInstanceGraph());
+        assertNull(dataset.getInstanceType());
+        assertEquals(dataset.getFilterType(), Dataset.FilterType.DYNAMIC);
+        assertEquals(dataset.getFilter(), filter);
+        assertEquals(dataset.isCacheable(), cacheable);
+        assertEquals(dataset.isExternal(), external);
     }
 
     @Test
     public void noNameSuppliedWhenNamesDisabled() {
         ReplicantTestUtil.disableNames();
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 ValueUtil.randomInt(),
                 null,
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 ValueUtil.randomBoolean(),
                 ValueUtil.randomBoolean(),
                 Collections.emptyList());
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, channelSchema::getName);
+        final IllegalStateException exception = expectThrows(IllegalStateException.class, dataset::getName);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false");
-        assertEquals(
-                channelSchema.toString(), "replicant.ChannelSchema@" + Integer.toHexString(channelSchema.hashCode()));
+                "Replicant-0044: Dataset.getName() invoked when Replicant.areNamesEnabled() is false");
+        assertEquals(dataset.toString(), "replicant.Dataset@" + Integer.toHexString(dataset.hashCode()));
     }
 
     @Test
@@ -187,11 +186,11 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         ReplicantTestUtil.disableNames();
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new ChannelSchema(
+                () -> new Dataset(
                         ValueUtil.randomInt(),
-                        "MyChannel",
+                        "MyDataset",
                         null,
-                        ChannelSchema.FilterType.NONE,
+                        Dataset.FilterType.NONE,
                         false,
                         null,
                         ValueUtil.randomBoolean(),
@@ -199,18 +198,18 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0045: ChannelSchema passed a name 'MyChannel' but Replicant.areNamesEnabled() is false");
+                "Replicant-0045: Dataset passed a name 'MyDataset' but Replicant.areNamesEnabled() is false");
     }
 
     @Test
     public void constructorPassedNoFilterWhenExpected() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new ChannelSchema(
+                () -> new Dataset(
                         222,
-                        "MyChannel",
+                        "MyDataset",
                         null,
-                        ChannelSchema.FilterType.DYNAMIC,
+                        Dataset.FilterType.DYNAMIC,
                         false,
                         null,
                         ValueUtil.randomBoolean(),
@@ -218,18 +217,18 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0076: ChannelSchema 222 has a DYNAMIC filterType but has supplied no filter.");
+                "Replicant-0076: Dataset 222 has a DYNAMIC filterType but has supplied no filter.");
     }
 
     @Test
     public void constructorPassedFilterWhenNotExpected() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new ChannelSchema(
+                () -> new Dataset(
                         222,
-                        "MyChannel",
+                        "MyDataset",
                         null,
-                        ChannelSchema.FilterType.STATIC,
+                        Dataset.FilterType.STATIC,
                         false,
                         mock(SubscriptionUpdateReplicaFilter.class),
                         ValueUtil.randomBoolean(),
@@ -237,18 +236,18 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0077: ChannelSchema 222 does not have a DYNAMIC filterType but has supplied a filter.");
+                "Replicant-0077: Dataset 222 does not have a DYNAMIC filterType but has supplied a filter.");
     }
 
     @Test
     public void constructorPassedFilterWhenNotExpected_staticKeyed() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new ChannelSchema(
+                () -> new Dataset(
                         222,
-                        "MyChannel",
+                        "MyDataset",
                         null,
-                        ChannelSchema.FilterType.STATIC,
+                        Dataset.FilterType.STATIC,
                         true,
                         mock(SubscriptionUpdateReplicaFilter.class),
                         ValueUtil.randomBoolean(),
@@ -256,6 +255,6 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0077: ChannelSchema 222 does not have a DYNAMIC filterType but has supplied a filter.");
+                "Replicant-0077: Dataset 222 does not have a DYNAMIC filterType but has supplied a filter.");
     }
 }

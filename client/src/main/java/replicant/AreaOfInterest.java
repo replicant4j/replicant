@@ -18,7 +18,7 @@ import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import zemeckis.Zemeckis;
 
 /**
- * The channel description declares a desired channel subscription and also
+ * An Area of Interest declares a desired Subscription at a Dataset Address and also
  * includes data on the current status of the subscription.
  */
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.ENABLE)
@@ -212,20 +212,20 @@ public abstract class AreaOfInterest extends ReplicantService {
             final DatasetAddress datasetAddress = getDatasetAddress();
             apiInvariant(
                     () -> !expectError || null != error,
-                    () -> "Replicant-0016: Invoked updateAreaOfInterest for channel at Dataset Address "
+                    () -> "Replicant-0016: Invoked updateAreaOfInterest for Dataset Address "
                             + datasetAddress + " with status " + status + " but failed to supply "
                             + "the expected error.");
             apiInvariant(
                     () -> expectError || null == error,
-                    () -> "Replicant-0017: Invoked updateAreaOfInterest for channel at Dataset Address "
-                            + datasetAddress + " with status " + status + " and supplied an unexpected error.");
+                    () -> "Replicant-0017: Invoked updateAreaOfInterest for Dataset Address " + datasetAddress
+                            + " with status " + status + " and supplied an unexpected error.");
             // It is fine to get here where status == LOADING or NOT_ASKED but a subscription is already present.
             // as this is part of the process that notifies back-end of upgrade of implicit subscription to explicit
             // subscription
             apiInvariant(
                     () -> !shouldExpectNoSubscription(status)
                             || null == getReplicantContext().findSubscription(getDatasetAddress()),
-                    () -> "Replicant-0019: Invoked updateAreaOfInterest for channel at Dataset Address "
+                    () -> "Replicant-0019: Invoked updateAreaOfInterest for Dataset Address "
                             + datasetAddress + " with status " + status
                             + " and found unexpected subscription in the context.");
         }

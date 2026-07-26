@@ -429,18 +429,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_updatePending() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -466,18 +466,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_requestSubscriptionUpdate() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -554,18 +554,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStatic() {
-        final ChannelSchema channel0 = new ChannelSchema(
+        final Dataset dataset0 = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -590,18 +590,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_subscribedAndFilterDiffersButFilterTypeStaticAndNotExplicitlySubscribed() {
-        final ChannelSchema channel0 = new ChannelSchema(
+        final Dataset dataset0 = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -653,18 +653,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_typeDiffers() {
-        final ChannelSchema channel0 = new ChannelSchema(
+        final Dataset dataset0 = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channel0}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -715,7 +715,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void reconcileAreaOfInterest_ChannelDiffers() {
+    public void reconcileAreaOfInterest_DatasetDiffers() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -740,18 +740,18 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_groupingUpdate() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -813,29 +813,29 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void reconcileAreaOfInterest_ChannelDiffersForUpdate() {
-        final ChannelSchema channel0 = new ChannelSchema(
+    public void reconcileAreaOfInterest_DatasetDiffersForUpdate() {
+        final Dataset dataset0 = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 true,
                 true,
                 Collections.emptyList());
-        final ChannelSchema channel1 = new ChannelSchema(
+        final Dataset dataset1 = new Dataset(
                 1,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntityType[0]);
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -866,28 +866,28 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
     @Test
     public void reconcileAreaOfInterest_FilterDiffersForUpdate() {
-        final ChannelSchema channel0 = new ChannelSchema(
+        final Dataset dataset0 = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 true,
                 true,
                 Collections.emptyList());
-        final ChannelSchema channel1 = new ChannelSchema(
+        final Dataset dataset1 = new Dataset(
                 1,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channel0, channel1}, new EntityType[0]);
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));

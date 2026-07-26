@@ -71,7 +71,7 @@ Replicant assumes that each server-side Entity selected for replication has a cl
 not be identical to the Entity, but one Replica maps to one Entity and may omit attributes and relationships that the
 client does not need. Replicant manages the Replica's state and lifecycle.
 
-### Graphs and Subscriptions
+### Datasets and Subscriptions
 
 When a client connects to the replicant system, they are typically interested in a subset of the
 data on the server; it is usually prohibitively expensive to transfer and store the entire server-side
@@ -84,12 +84,11 @@ of the domain model, for example they may query:
 * All data pertaining to a particular roster over a particular date range
 * etc.
 
-Each of these queries is represented as a graph within replicant. When a client subscribes to a graph,
-the client will receive an initial message that contains the state of the world at the time of
-subscription, that match the query. All subsequent changes to the world that match the query will be
-propagated to the subscribed clients until they unsubscribe or disconnect from the replicant system.
+Each query is represented by a reusable Dataset definition. A Subscription materializes that Dataset at a
+Dataset Address for one client. The client receives an initial message containing the matching state of the
+world, followed by subsequent matching changes until it unsubscribes or disconnects.
 
-There are two major dimensions on which graphs are defined within the replicant system:
+There are two major dimensions on which Datasets are defined within the replicant system:
 * Is the graph a type graph or an instance graph?
 * Is the graph filtered or unfiltered?
 
@@ -119,33 +118,33 @@ There are two major dimensions on which graphs are defined within the replicant 
  some template methods that the developer must implement to customize the subscription and routing
  capabilities.
 
-There is several other features of graphs within the replicant engine, but these are typically used to
+There is several other features of Datasets within the replicant engine, but these are typically used to
 meet operational or system requirements. Two common features used in most replicant implementations are
-cacheable graphs and making filter parameters in filtered graphs immutable.
+cacheable Datasets and making filter parameters in filtered Datasets immutable.
 
-A cacheable graph is used when the data within the graph has a relatively low frequency of change,
+A cacheable Dataset is used when the data within the Dataset has a relatively low frequency of change,
 the volume of data is relatively large or the time to load the data from the database is relatively
-long. If a graph is cacheable, then the client will store the entire graph in a client-side cache
-along with a cache-key that supplied by the server. When the client re-requests that graph data, it
+long. If a Dataset is cacheable, then the client will store the materialized selection in a client-side cache
+along with a cache-key supplied by the server. When the client re-requests that Dataset, it
 supplies the cache-key and the server can either indicate to the client should use the cached version
-or send a new version of the data contained within the graph.
+or send a new version of the selected data.
 
 Immutable filter parameters indicate that it is not possible to update a parameter supplied during
 subscription and that the client will need to unsubscribe and re-subscribe to change the parameter.
-For example, if the graph for "All alerts within a 50km radius of coordinate X" has an immutable
-parameter for X, then the only way to change X is to unsubscribe from the graph and re-subscribe
+For example, if the Dataset for "All alerts within a 50km radius of coordinate X" has an immutable
+parameter for X, then the only way to change X is to unsubscribe from the Dataset and re-subscribe
 supplying another value for parameter X. Immutable filter parameters are used to optimize routing
 and subscription mechanics.
 
-It is possible and expected that one client may be subscribed to more than one graph and the graphs
-may be overlapping. Often applications will be built such that one graph will link to another graph
-and automatically subscribe the client to the related graph.
+It is possible and expected that one client may have Subscriptions to more than one Dataset, and the
+materialized selections may overlap. Often applications link one Dataset to another and automatically
+subscribe the client to the related Dataset.
 
-Consider a roster application. The developer may define one graph that includes assignment of people
+Consider a roster application. The developer may define one Dataset that includes assignment of people
 to activities on a single day. If the client was to subscribe to three days that shared people, then
 the subscription would send the same people data down to the client multiple times. To avoid this the
-developer can define another graph that contains details about people and **link** the day graph to
-zero or more person graphs.
+developer can define another Dataset that contains details about people and **link** the day Dataset to
+zero or more person Datasets.
 
 TODO: Insert diagram here
 
@@ -157,14 +156,11 @@ Some datasets are keyed, allowing a client to subscribe to multiple independentl
 of the same dataset. Each selection is routed independently by a dataset key. Keying is independent of
 filter type: `DYNAMIC` allows filter updates while `STATIC` rejects them.
 
-The codebase often refers to the "Area of Interest" or AOI of a client. This essentially indicates
-whether an entity is contained within one of the graphs that client is subscribed to.
+The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription
+should exist at a Dataset Address and records progress toward that desired state.
 
-NB: The codebase(s) for replicant map graphs to channels or data channels at the transport layer.
-The identifier for the root entity in instance graphs is used to name a sub-channel. This is useful
-to understand when monitoring the communication between replicant clients and the replicant engines.
-When a dataset is keyed, the dataset key is embedded into the channel descriptor
-after a '#' suffix.
+The identifier for the root entity in instance graphs forms part of the Dataset Address. When a Dataset is
+keyed, its Dataset Key is embedded in the Dataset Address descriptor after a `#` suffix.
 
 ### Services
 

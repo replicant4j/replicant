@@ -8,38 +8,37 @@ import replicant.server.DatasetAddress;
 
 public final class InvariantUtilTest {
     @Test
-    public void assertAddress_MatchesChannelMetaData_MatchesChannelMetaData_allowsConcreteAndPartialKeyedAddresses() {
-        final var unfiltered = new ChannelMetaData(
-                0, "Source", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var keyed = new ChannelMetaData(
-                1, "Target", 7, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
+    public void assertAddressMatchesDatasetMetadata_allowsConcreteAndPartialKeyedAddresses() {
+        final var unfiltered = new DatasetMetadata(
+                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var keyed = new DatasetMetadata(
+                1, "Target", 7, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", unfiltered, keyed);
 
-        InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.of(1, 2, "fi"));
-        InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.partial(1, 2));
+        InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.of(1, 2, "fi"));
+        InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.partial(1, 2));
     }
 
     @Test
-    public void
-            assertAddress_rejectsConcreteKeyedAddressMatchesChannelMetaDataMatchesChannelMetaDataWithoutDatasetKey() {
-        final var keyed = new ChannelMetaData(
-                0, "Target", 7, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
+    public void assertAddress_rejectsConcreteKeyedDatasetAddressWithoutDatasetKey() {
+        final var keyed = new DatasetMetadata(
+                0, "Target", 7, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", keyed);
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.of(0, 2)));
+                () -> InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.of(0, 2)));
     }
 
     @Test
-    public void assertAddress_rejectsPartialAddressMatchesChannelMetaDataMatchesChannelMetaDataForNonKeyedChannel() {
-        final var channel = new ChannelMetaData(
-                0, "Target", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var schema = new SchemaMetaData("Test", channel);
+    public void assertAddress_rejectsPartialAddressForNonKeyedDataset() {
+        final var dataset = new DatasetMetadata(
+                0, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var schema = new SchemaMetaData("Test", dataset);
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertDatasetAddressMatchesChannelMetaData(schema, DatasetAddress.partial(0)));
+                () -> InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.partial(0)));
     }
 
     @Test
@@ -50,10 +49,10 @@ public final class InvariantUtilTest {
 
     @Test
     public void assertLink_allowsPartialLinkWithMissingTargetFilter() {
-        final var source = new ChannelMetaData(
-                0, "Source", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var target = new ChannelMetaData(
-                1, "Target", 1, ChannelMetaData.FilterType.STATIC, false, ChannelMetaData.CacheType.NONE, true);
+        final var source = new DatasetMetadata(
+                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var target = new DatasetMetadata(
+                1, "Target", 1, DatasetMetadata.FilterType.STATIC, false, DatasetMetadata.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", source, target);
 
         InvariantUtil.assertLink(schema, new ChannelLink(DatasetAddress.of(0), DatasetAddress.of(1, 7), null, true));
@@ -61,10 +60,10 @@ public final class InvariantUtilTest {
 
     @Test
     public void assertLink_rejectsConcreteFilteredLinkWithoutTargetFilter() {
-        final var source = new ChannelMetaData(
-                0, "Source", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var target = new ChannelMetaData(
-                1, "Target", 1, ChannelMetaData.FilterType.STATIC, false, ChannelMetaData.CacheType.NONE, true);
+        final var source = new DatasetMetadata(
+                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var target = new DatasetMetadata(
+                1, "Target", 1, DatasetMetadata.FilterType.STATIC, false, DatasetMetadata.CacheType.NONE, true);
         final var schema = new SchemaMetaData("Test", source, target);
 
         expectThrows(

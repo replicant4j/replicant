@@ -151,7 +151,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> safeAction(() -> subscription1.delinkReplicaEntryFromSubscription(replicaEntry, true)));
-        assertEquals(exception.getMessage(), "Replica type A not present in subscription to channel 1.0.1");
+        assertEquals(exception.getMessage(), "Replica type A not present in Subscription at 1.0.1");
     }
 
     @Test
@@ -172,7 +172,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> safeAction(() -> subscription1.delinkReplicaEntryFromSubscription(replicaEntry, true)));
-        assertEquals(exception.getMessage(), "Replica Entry A/123 not present in subscription to channel 1.0.1");
+        assertEquals(exception.getMessage(), "Replica Entry A/123 not present in Subscription at 1.0.1");
     }
 
     @SuppressWarnings({"EqualsWithItself", "SelfComparison"})
@@ -191,40 +191,38 @@ public class SubscriptionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getChannelSchema() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void getDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
-        assertEquals(subscription1.getChannelSchema(), channelSchema);
+        assertEquals(subscription1.getDataset(), dataset);
     }
 
     @Test
     public void getInstanceRoot() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
@@ -242,18 +240,17 @@ public class SubscriptionTest extends AbstractReplicantTest {
 
     @Test
     public void getInstanceRoot_butReplicaNotPresent() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
 
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
@@ -267,19 +264,18 @@ public class SubscriptionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getInstanceRoot_butChannelHasNoId() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void getInstanceRoot_butDatasetAddressHasNoRootId() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
@@ -293,19 +289,18 @@ public class SubscriptionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getInstanceRoot_butChannelIsTypeBased() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void getInstanceRoot_butDatasetIsTypeBased() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
-        createConnector(
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]));
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 44);
 
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);

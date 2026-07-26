@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 
-final class ChannelCacheEntry {
+final class DatasetCacheEntry {
     @NonNull
     private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
@@ -21,7 +21,7 @@ final class ChannelCacheEntry {
     @Nullable
     private ChangeSet _changeSet;
 
-    ChannelCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    DatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         assert datasetAddress.concrete();
         _descriptor = Objects.requireNonNull(datasetAddress);
     }

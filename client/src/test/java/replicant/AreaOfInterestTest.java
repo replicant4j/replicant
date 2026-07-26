@@ -279,7 +279,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.LOAD_FAILED, null));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0016: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status"
+                "Replicant-0016: Invoked updateAreaOfInterest for Dataset Address 1.0 with status"
                         + " LOAD_FAILED but failed to supply the expected error.");
     }
 
@@ -293,7 +293,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, error));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0017: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status UNLOADED"
+                "Replicant-0017: Invoked updateAreaOfInterest for Dataset Address 1.0 with status UNLOADED"
                         + " and supplied an unexpected error.");
     }
 
@@ -321,7 +321,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
                 IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, null));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0019: Invoked updateAreaOfInterest for channel at Dataset Address 1.0 with status UNLOADED"
+                "Replicant-0019: Invoked updateAreaOfInterest for Dataset Address 1.0 with status UNLOADED"
                         + " and found unexpected subscription in the context.");
     }
 

@@ -22,31 +22,31 @@ final class InvariantUtil {
             @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
             assertConcreteDatasetAddress(datasetAddress);
-            assertDatasetAddressMatchesChannelMetaData(schema, datasetAddress);
+            assertDatasetAddressMatchesDatasetMetadata(schema, datasetAddress);
         }
     }
 
     @VisibleForTesting
-    static void assertDatasetAddressMatchesChannelMetaData(
+    static void assertDatasetAddressMatchesDatasetMetadata(
             @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesChannelMetaData(
-                    schema.getChannelMetaData(datasetAddress.datasetId()), datasetAddress);
+            assertDatasetAddressMatchesDatasetMetadata(
+                    schema.getDatasetMetadata(datasetAddress.datasetId()), datasetAddress);
         }
     }
 
-    private static void assertDatasetAddressMatchesChannelMetaData(
-            @NonNull final ChannelMetaData channel, @NonNull final DatasetAddress datasetAddress) {
-        if (channel.isTypeGraph()) {
+    private static void assertDatasetAddressMatchesDatasetMetadata(
+            @NonNull final DatasetMetadata dataset, @NonNull final DatasetAddress datasetAddress) {
+        if (dataset.isTypeGraph()) {
             assert !datasetAddress.hasDatasetRootId();
         } else {
             assert datasetAddress.hasDatasetRootId();
         }
 
         if (datasetAddress.partial()) {
-            assert channel.requiresDatasetKey();
+            assert dataset.requiresDatasetKey();
             assert null == datasetAddress.datasetKey();
-        } else if (channel.requiresDatasetKey()) {
+        } else if (dataset.requiresDatasetKey()) {
             assert null != datasetAddress.datasetKey();
         } else {
             assert null == datasetAddress.datasetKey();
@@ -55,19 +55,19 @@ final class InvariantUtil {
 
     static void assertLink(@NonNull final SchemaMetaData schema, @NonNull final ChannelLink link) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesChannelMetaData(schema, link.sourceDatasetAddress());
-            final var targetChannel =
-                    schema.getChannelMetaData(link.targetDatasetAddress().datasetId());
-            assertDatasetAddressMatchesChannelMetaData(targetChannel, link.targetDatasetAddress());
+            assertDatasetAddressMatchesDatasetMetadata(schema, link.sourceDatasetAddress());
+            final var targetDataset =
+                    schema.getDatasetMetadata(link.targetDatasetAddress().datasetId());
+            assertDatasetAddressMatchesDatasetMetadata(targetDataset, link.targetDatasetAddress());
 
             if (link.partial()) {
                 assert link.sourceDatasetAddress().partial()
                         || link.targetDatasetAddress().partial()
-                        || (targetChannel.requiresFilterParameter() && null == link.targetFilter());
+                        || (targetDataset.requiresFilterParameter() && null == link.targetFilter());
             } else {
                 assert link.sourceDatasetAddress().concrete();
                 assert link.targetDatasetAddress().concrete();
-                assert !targetChannel.requiresFilterParameter() || null != link.targetFilter();
+                assert !targetDataset.requiresFilterParameter() || null != link.targetFilter();
             }
         }
     }

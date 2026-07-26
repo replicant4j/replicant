@@ -357,10 +357,10 @@ abstract class Connector extends ReplicantService {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> {
-                        final ChannelSchema.FilterType filterType = getSchema()
-                                .getChannel(datasetAddress.datasetId())
+                        final Dataset.FilterType filterType = getSchema()
+                                .getDataset(datasetAddress.datasetId())
                                 .getFilterType();
-                        return ChannelSchema.FilterType.DYNAMIC == filterType;
+                        return Dataset.FilterType.DYNAMIC == filterType;
                     },
                     () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for Dataset Address "
                             + datasetAddress + " but the Dataset does not have a dynamic filter.");
@@ -395,9 +395,9 @@ abstract class Connector extends ReplicantService {
     private void validateDatasetKey(@NonNull final DatasetAddress datasetAddress) {
         if (Replicant.shouldCheckInvariants()) {
             final SystemSchema schema = getSchema();
-            if (schema.hasChannel(datasetAddress.datasetId())) {
-                final ChannelSchema channel = schema.getChannel(datasetAddress.datasetId());
-                if (channel.requiresDatasetKey()) {
+            if (schema.hasDataset(datasetAddress.datasetId())) {
+                final Dataset dataset = schema.getDataset(datasetAddress.datasetId());
+                if (dataset.requiresDatasetKey()) {
                     invariant(
                             () -> null != datasetAddress.datasetKey(),
                             () -> "Replicant-0098: Dataset Address " + datasetAddress
@@ -637,13 +637,13 @@ abstract class Connector extends ReplicantService {
                     if (Replicant.shouldCheckInvariants()) {
                         invariant(
                                 () -> {
-                                    final ChannelSchema.FilterType filterType = getSchema()
-                                            .getChannel(datasetAddress.datasetId())
+                                    final Dataset.FilterType filterType = getSchema()
+                                            .getDataset(datasetAddress.datasetId())
                                             .getFilterType();
-                                    return ChannelSchema.FilterType.DYNAMIC == filterType;
+                                    return Dataset.FilterType.DYNAMIC == filterType;
                                 },
                                 () -> "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address "
-                                        + datasetAddress + " but the channel does not have a DYNAMIC filter.");
+                                        + datasetAddress + " but the Dataset does not have a DYNAMIC filter.");
                     }
                 }
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
@@ -688,12 +688,12 @@ abstract class Connector extends ReplicantService {
     @SuppressWarnings("unchecked")
     void updateSubscriptionForFilteredReplicas(@NonNull final Subscription subscription) {
         final DatasetAddress datasetAddress = subscription.datasetAddress();
-        final ChannelSchema channel = getSchema().getChannel(datasetAddress.datasetId());
+        final Dataset dataset = getSchema().getDataset(datasetAddress.datasetId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
+                    () -> Dataset.FilterType.DYNAMIC == dataset.getFilterType(),
                     () -> "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address "
-                            + subscription.datasetAddress() + " but the channel does not have a DYNAMIC filter.");
+                            + subscription.datasetAddress() + " but the Dataset does not have a DYNAMIC filter.");
         }
 
         final List<ReplicaEntry> replicaEntriesToDelink = new ArrayList<>();
@@ -701,7 +701,7 @@ abstract class Connector extends ReplicantService {
             final List<ReplicaEntry> replicaEntries = subscription.findAllReplicaEntriesByType(replicaType);
             if (!replicaEntries.isEmpty()) {
                 @SuppressWarnings("rawtypes")
-                final SubscriptionUpdateReplicaFilter updateFilter = Objects.requireNonNull(channel.getFilter());
+                final SubscriptionUpdateReplicaFilter updateFilter = Objects.requireNonNull(dataset.getFilter());
                 final Object filter = subscription.getFilter();
                 for (final ReplicaEntry replicaEntry : replicaEntries) {
                     if (!updateFilter.doesReplicaMatchFilter(filter, replicaEntry)) {
@@ -916,7 +916,7 @@ abstract class Connector extends ReplicantService {
             if (1 == channelChanges.size()
                     && ChannelChangeDescriptor.Type.ADD == channelChanges.get(0).getType()
                     && getSchema()
-                            .getChannel(
+                            .getDataset(
                                     channelChanges.get(0).getDatasetAddress().datasetId())
                             .isCacheable()) {
                 final DatasetAddress datasetAddress = channelChanges.get(0).getDatasetAddress();

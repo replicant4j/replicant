@@ -10,25 +10,25 @@ public final class SchemaMetaData {
     private final String _name;
 
     @NonNull
-    private final ChannelMetaData[] _channels;
+    private final DatasetMetadata[] _datasets;
 
     @NonNull
-    private final ChannelMetaData[] _instanceChannels;
+    private final DatasetMetadata[] _instanceDatasets;
 
-    public SchemaMetaData(@NonNull final String name, @NonNull final ChannelMetaData... channels) {
-        for (var i = 0; i < channels.length; i++) {
-            final var channel = channels[i];
-            if (null != channel && i != channel.getDatasetId()) {
-                final var message = "Channel at index " + i + " does not have channel id matching index: " + channel;
+    public SchemaMetaData(@NonNull final String name, @NonNull final DatasetMetadata... datasets) {
+        for (var i = 0; i < datasets.length; i++) {
+            final var dataset = datasets[i];
+            if (null != dataset && i != dataset.getDatasetId()) {
+                final var message = "Dataset at index " + i + " does not have Dataset id matching index: " + dataset;
                 throw new IllegalArgumentException(message);
             }
         }
         _name = Objects.requireNonNull(name);
-        _channels = channels;
-        _instanceChannels = Stream.of(channels)
+        _datasets = datasets;
+        _instanceDatasets = Stream.of(datasets)
                 .filter(Objects::nonNull)
-                .filter(ChannelMetaData::isInstanceGraph)
-                .toArray(ChannelMetaData[]::new);
+                .filter(DatasetMetadata::isInstanceGraph)
+                .toArray(DatasetMetadata[]::new);
     }
 
     @NonNull
@@ -36,36 +36,36 @@ public final class SchemaMetaData {
         return _name;
     }
 
-    public int getChannelCount() {
-        return _channels.length;
+    public int getDatasetCount() {
+        return _datasets.length;
     }
 
     @NonNull
-    public ChannelMetaData getChannelMetaData(@NonNull final DatasetAddress datasetAddress) {
-        return getChannelMetaData(datasetAddress.datasetId());
+    public DatasetMetadata getDatasetMetadata(@NonNull final DatasetAddress datasetAddress) {
+        return getDatasetMetadata(datasetAddress.datasetId());
     }
 
     /**
-     * @return the channel metadata.
+     * @return the Dataset metadata.
      */
     @NonNull
-    public ChannelMetaData getChannelMetaData(final int datasetId) {
-        if (!hasChannelMetaData(datasetId)) {
-            throw new IllegalArgumentException("Channel with id " + datasetId + " does not exist");
+    public DatasetMetadata getDatasetMetadata(final int datasetId) {
+        if (!hasDatasetMetadata(datasetId)) {
+            throw new IllegalArgumentException("Dataset with id " + datasetId + " does not exist");
         }
-        return _channels[datasetId];
+        return _datasets[datasetId];
     }
 
-    public boolean hasChannelMetaData(final int datasetId) {
-        return null != _channels[datasetId];
+    public boolean hasDatasetMetadata(final int datasetId) {
+        return null != _datasets[datasetId];
     }
 
-    public int getInstanceChannelCount() {
-        return _instanceChannels.length;
+    public int getInstanceDatasetCount() {
+        return _instanceDatasets.length;
     }
 
     @NonNull
-    public ChannelMetaData getInstanceChannelByIndex(final int index) {
-        return _instanceChannels[index];
+    public DatasetMetadata getInstanceDatasetByIndex(final int index) {
+        return _instanceDatasets[index];
     }
 }

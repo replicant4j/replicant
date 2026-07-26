@@ -163,9 +163,9 @@ public abstract class ReplicaEntry extends ReplicantService {
 
     /**
      * Remove the specified subscription.
-     * This is invoked on the client-side by user code when data changes and is now filtered out from the graph.
-     * This is only intended to be invoked when changes in data can change a graphs subscription. This occurs when
-     * the graph has a mutable routing key or the graph with a filter tpye of INTERNAL has rules that are
+     * This is invoked on the client-side by user code when data changes and is now filtered out from the Dataset.
+     * This is only intended to be invoked when changes in data can change a Dataset's Subscription. This occurs when
+     * the Dataset has a mutable Routing Key or a Filter Type of INTERNAL with rules that are
      * data dependent. This means that the client has to be responsible for removing subscriptions on the client.
      *
      * @param subscription the subscription.
@@ -173,8 +173,7 @@ public abstract class ReplicaEntry extends ReplicantService {
     public void delinkFromFilteringSubscription(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> ChannelSchema.FilterType.NONE
-                            != subscription.getChannelSchema().getFilterType(),
+                    () -> Dataset.FilterType.NONE != subscription.getDataset().getFilterType(),
                     () -> "Replicant-0018: ReplicaEntry.delinkFromFilteringSubscription invoked on Replica Entry "
                             + this
                             + " passing subscription "
@@ -241,8 +240,8 @@ public abstract class ReplicaEntry extends ReplicantService {
             for (final Subscription subscription : new ArrayList<>(_subscriptions.values())) {
                 subscription.delinkReplicaEntryFromSubscription(this, false);
 
-                final ChannelSchema schema = subscription.getChannelSchema();
-                if (schema.isInstanceChannel()
+                final Dataset schema = subscription.getDataset();
+                if (schema.isInstanceGraph()
                         && (schema.getInstanceType() == getType())
                         && (Objects.equals(subscription.datasetAddress().datasetRootId(), getId()))) {
                     // If there is any subscription that this Replica is the instance root of, then explicitly dispose

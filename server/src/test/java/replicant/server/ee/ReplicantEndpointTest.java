@@ -18,7 +18,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.server.DatasetAddress;
-import replicant.server.transport.ChannelMetaData;
+import replicant.server.transport.DatasetMetadata;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionAuthorization;
 import replicant.server.transport.ReplicantSessionManager;
@@ -566,18 +566,18 @@ public final class ReplicantEndpointTest {
 
     @NonNull
     private SchemaMetaData newSchemaMetaData() {
-        final var typeChannel = new ChannelMetaData(
-                0, "type", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
-        final var dynamicChannel = new ChannelMetaData(
-                1, "dynamic", 1, ChannelMetaData.FilterType.DYNAMIC, false, ChannelMetaData.CacheType.NONE, true);
-        final var keyedChannel = new ChannelMetaData(
-                2, "keyed", 2, ChannelMetaData.FilterType.DYNAMIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var staticKeyedChannel = new ChannelMetaData(
-                4, "staticKeyed", 4, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
-        final var internalChannel = new ChannelMetaData(
-                3, "internal", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, false);
+        final var typeDataset = new DatasetMetadata(
+                0, "type", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+        final var dynamicDataset = new DatasetMetadata(
+                1, "dynamic", 1, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+        final var keyedDataset = new DatasetMetadata(
+                2, "keyed", 2, DatasetMetadata.FilterType.DYNAMIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var staticKeyedDataset = new DatasetMetadata(
+                4, "staticKeyed", 4, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+        final var internalDataset = new DatasetMetadata(
+                3, "internal", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, false);
         return new SchemaMetaData(
-                "Test", typeChannel, dynamicChannel, keyedChannel, internalChannel, staticKeyedChannel);
+                "Test", typeDataset, dynamicDataset, keyedDataset, internalDataset, staticKeyedDataset);
     }
 
     private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {

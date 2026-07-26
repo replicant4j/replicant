@@ -2,6 +2,19 @@
 
 ### Unreleased
 
+* Adopt Dataset terminology across reusable definition APIs, metadata, generation, diagnostics, tests, and
+  documentation:
+  * Rename client `ChannelSchema` to `Dataset` and migrate `SystemSchema` Dataset arrays, counts, lookups, and
+    accessors.
+  * Rename server `ChannelMetaData` to `DatasetMetadata`, migrate schema metadata lookups, and rename the
+    definition-oriented `ChannelCacheEntry` to `DatasetCacheEntry`.
+  * Rename Domgen `ReplicationGraph` to `Dataset`, migrate repository Dataset registries and targets, and replace
+    `repository.imit.graph(...)` with `repository.imit.dataset(...)`.
+  * Generate Dataset-qualified names and rename generated `isGraphSubscribed` utilities to the concise
+    Subscription-oriented `isSubscribed`.
+  This hard-cut API migration preserves behavior and the wire protocol. Subscription operation messages,
+  Graph/Channel Link APIs, required-type dependencies, Type Graph/Instance Graph and root terminology, filters, and
+  Subscription Modes remain on their deferred terminology for dedicated migrations.
 * Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation:
   * Rename `Converger` to `SubscriptionReconciler` and `ConvergerTest` to `SubscriptionReconcilerTest`.
   * Rename `converge`, `convergeStep`, and `convergeAreaOfInterest` operations to `reconcile`, `reconcileStep`, and
@@ -31,8 +44,7 @@
   * Rename address components and address-specific APIs from `channelId` and `rootId` to `datasetId` and
     `datasetRootId`, and use Dataset Address terminology for address values and collections.
   This hard-cut API migration preserves serialized address descriptors and the wire protocol, including ordering and
-  partial/concrete address behavior. `ChannelSchema`, `ChannelMetaData`, Domgen `ReplicationGraph`, and subscription
-  operation message fields remain unchanged.
+  partial/concrete address behavior. Subscription operation message fields remain unchanged.
 
 ### [v6.203](https://github.com/replicant4j/replicant/tree/v6.203) (2026-07-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.202...v6.203)
 

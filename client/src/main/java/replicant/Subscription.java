@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionDisposedEvent;
 
 /**
- * Representation of a subscription to a channel.
+ * Representation of a Subscription to a Dataset at a Dataset Address.
  */
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.ENABLE)
 public abstract class Subscription extends ReplicantService implements Comparable<Subscription> {
@@ -117,11 +117,11 @@ public abstract class Subscription extends ReplicantService implements Comparabl
      */
     @NonNull
     public Object getInstanceRoot() {
-        final ChannelSchema channel = getChannelSchema();
+        final Dataset dataset = getDataset();
         final Integer datasetRootId = _datasetAddress.datasetRootId();
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
-                    channel::isInstanceChannel,
+                    dataset::isInstanceGraph,
                     () -> "Replicant-0029: Subscription.getInstanceRoot() invoked for Dataset Address "
                             + _datasetAddress + " but the Dataset is not instance based.");
             invariant(
@@ -130,7 +130,7 @@ public abstract class Subscription extends ReplicantService implements Comparabl
                             + _datasetAddress + " but the Dataset Address has no Dataset Root ID.");
         }
         final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndId(
-                Objects.requireNonNull(channel.getInstanceType()), Objects.requireNonNull(datasetRootId));
+                Objects.requireNonNull(dataset.getInstanceType()), Objects.requireNonNull(datasetRootId));
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
                     () -> null != replicaEntry,
@@ -141,16 +141,16 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     }
 
     /**
-     * Return the channel schema for subscription.
+     * Return the Dataset for this Subscription.
      *
-     * @return the channel schema for subscription.
+     * @return the Dataset for this Subscription.
      */
     @NonNull
-    public ChannelSchema getChannelSchema() {
+    public Dataset getDataset() {
         return getReplicantContext()
                 .getSchemaService()
                 .getById(_datasetAddress.schemaId())
-                .getChannel(_datasetAddress.datasetId());
+                .getDataset(_datasetAddress.datasetId());
     }
 
     @ObservableValueRef
@@ -194,15 +194,14 @@ public abstract class Subscription extends ReplicantService implements Comparabl
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != typeMap,
-                    () -> "Replica type " + replicaType.getSimpleName() + " not present in subscription to channel "
+                    () -> "Replica type " + replicaType.getSimpleName() + " not present in Subscription at "
                             + datasetAddress);
         }
         final ReplicaSubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(replicaEntry.getId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != removed,
-                    () -> "Replica Entry " + replicaEntry + " not present in subscription to channel "
-                            + datasetAddress);
+                    () -> "Replica Entry " + replicaEntry + " not present in Subscription at " + datasetAddress);
         }
         DisposeNotifier.asDisposeNotifier(replicaEntry).removeOnDisposeListener(this, true);
         Disposable.dispose(removed);

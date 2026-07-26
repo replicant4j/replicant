@@ -4,9 +4,9 @@ java_server_library(
     name = "transport_lib",
     srcs = [
         "AttemptedToUpdateStaticFilterException.java",
-        "ChannelCacheEntry.java",
         "ChannelLinkEntry.java",
-        "ChannelMetaData.java",
+        "DatasetCacheEntry.java",
+        "DatasetMetadata.java",
         "EntityReference.java",
         "FilterResult.java",
         "InvariantUtil.java",

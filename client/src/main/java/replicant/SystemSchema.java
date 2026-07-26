@@ -11,7 +11,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Describes an isolated System containing channel and entity types.
+ * Describes an isolated system containing Dataset and Entity Type definitions.
  */
 public final class SystemSchema {
     /**
@@ -28,10 +28,10 @@ public final class SystemSchema {
     @Nullable
     private final OnReplicaUpdateAction _onReplicaUpdateAction;
     /**
-     * The channels within the system.
+     * The Datasets within the system.
      */
     @NonNull
-    private final ChannelSchema[] _channels;
+    private final Dataset[] _datasets;
     /**
      * The entity types within the system.
      */
@@ -41,16 +41,16 @@ public final class SystemSchema {
     public SystemSchema(
             final int id,
             @Nullable final String name,
-            @NonNull final ChannelSchema[] channels,
+            @NonNull final Dataset[] datasets,
             @NonNull final EntityType[] entityTypes) {
-        this(id, name, null, channels, entityTypes);
+        this(id, name, null, datasets, entityTypes);
     }
 
     public SystemSchema(
             final int id,
             @Nullable final String name,
             @Nullable final OnReplicaUpdateAction onReplicaUpdateAction,
-            @NonNull final ChannelSchema[] channels,
+            @NonNull final Dataset[] datasets,
             @NonNull final EntityType[] entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
@@ -69,12 +69,12 @@ public final class SystemSchema {
                                 + "' passed an array of entity types where entity type at index "
                                 + index + " does not " + "have id matching index.");
             }
-            for (int i = 0; i < channels.length; i++) {
+            for (int i = 0; i < datasets.length; i++) {
                 final int index = i;
                 apiInvariant(
-                        () -> null == channels[index] || index == channels[index].getId(),
+                        () -> null == datasets[index] || index == datasets[index].getId(),
                         () -> "Replicant-0056: SystemSchema named '" + (null == name ? "?" : name)
-                                + "' passed an array of channels where channel at index "
+                                + "' passed an array of Datasets where Dataset at index "
                                 + index + " does not " + "have id matching index.");
             }
         }
@@ -82,7 +82,7 @@ public final class SystemSchema {
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _onReplicaUpdateAction = onReplicaUpdateAction;
         _entityTypes = Objects.requireNonNull(entityTypes);
-        _channels = Objects.requireNonNull(channels);
+        _datasets = Objects.requireNonNull(datasets);
     }
 
     /**
@@ -143,46 +143,46 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the number of channels in system.
+     * Return the number of Datasets in the system.
      *
-     * @return the number of channels in system.
+     * @return the number of Datasets in the system.
      */
-    public int getChannelCount() {
-        return _channels.length;
+    public int getDatasetCount() {
+        return _datasets.length;
     }
 
     /**
-     * Return true if system contains a channel with the specified datasetId.
+     * Return true if the system contains a Dataset with the specified datasetId.
      */
-    public boolean hasChannel(final int datasetId) {
-        return datasetId >= 0 && datasetId < _channels.length && null != _channels[datasetId];
+    public boolean hasDataset(final int datasetId) {
+        return datasetId >= 0 && datasetId < _datasets.length && null != _datasets[datasetId];
     }
 
     /**
-     * Return the Channel with specified datasetId.
-     * The typeId MUST be 0 or more and less than {@link #getChannelCount()}.
+     * Return the Dataset with specified datasetId.
+     * The datasetId MUST be 0 or more and less than {@link #getDatasetCount()}.
      *
-     * @param datasetId the channel id.
-     * @return the Channel matching datasetId.
+     * @param datasetId the Dataset id.
+     * @return the Dataset matching datasetId.
      */
     @NonNull
-    public ChannelSchema getChannel(final int datasetId) {
+    public Dataset getDataset(final int datasetId) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> datasetId >= 0 && datasetId < _channels.length,
-                    () -> "Replicant-0058: SystemSchema.getChannel(id) passed an id that is out of range.");
+                    () -> datasetId >= 0 && datasetId < _datasets.length,
+                    () -> "Replicant-0058: SystemSchema.getDataset(id) passed an id that is out of range.");
             apiInvariant(
-                    () -> null != _channels[datasetId],
-                    () -> "Replicant-0008: SystemSchema.getChannel(id) attempted to access null channel.");
+                    () -> null != _datasets[datasetId],
+                    () -> "Replicant-0008: SystemSchema.getDataset(id) attempted to access null Dataset.");
         }
-        return _channels[datasetId];
+        return _datasets[datasetId];
     }
 
     @NonNull
     public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId, final int entityTypeId) {
-        return Stream.of(_channels)
+        return Stream.of(_datasets)
                 .filter(Objects::nonNull)
-                .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
+                .flatMap(dataset -> dataset.getEntityTypes().stream()
                         .filter(entityType -> entityType.getId() == entityTypeId)
                         .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
                                 .filter(link -> link.getTargetDatasetId() == datasetId)))
@@ -192,9 +192,9 @@ public final class SystemSchema {
 
     @NonNull
     public List<ChannelLinkSchema> getInwardChannelLinks(final int datasetId) {
-        return Stream.of(_channels)
+        return Stream.of(_datasets)
                 .filter(Objects::nonNull)
-                .flatMap(channelSchema -> channelSchema.getEntityTypes().stream()
+                .flatMap(dataset -> dataset.getEntityTypes().stream()
                         .flatMap(entityType -> Stream.of(entityType.getChannelLinks())
                                 .filter(link -> link.getTargetDatasetId() == datasetId)))
                 .distinct()
@@ -203,7 +203,7 @@ public final class SystemSchema {
 
     @NonNull
     public List<ChannelLinkSchema> getOutwardChannelLinks(final int datasetId) {
-        return getChannel(datasetId).getEntityTypes().stream()
+        return getDataset(datasetId).getEntityTypes().stream()
                 .flatMap(entityType -> entityType.getOutwardChannelLinks(datasetId).stream())
                 .collect(Collectors.toList());
     }

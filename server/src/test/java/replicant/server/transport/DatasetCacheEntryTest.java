@@ -6,11 +6,11 @@ import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 
-public class ChannelCacheEntryTest {
+public class DatasetCacheEntryTest {
     @Test
     public void basicOperation() {
         final var descriptor = DatasetAddress.of(1, null);
-        final var entry = new ChannelCacheEntry(descriptor);
+        final var entry = new DatasetCacheEntry(descriptor);
         assertEquals(entry.getDescriptor(), descriptor);
 
         assertNotNull(entry.getLock());

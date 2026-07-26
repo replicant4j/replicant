@@ -16,7 +16,7 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 
 /**
- * An abstract React4j component that manages subscription to channels.
+ * An abstract React4j component that manages Subscriptions to Datasets.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @ArezComponentLike

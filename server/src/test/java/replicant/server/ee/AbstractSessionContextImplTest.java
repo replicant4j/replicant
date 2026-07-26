@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
-import replicant.server.transport.ChannelMetaData;
+import replicant.server.transport.DatasetMetadata;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.SchemaMetaData;
 
@@ -312,17 +312,17 @@ public class AbstractSessionContextImplTest {
         @NonNull
         private final SchemaMetaData _schema = new SchemaMetaData(
                 "Test",
-                new ChannelMetaData(
-                        0, "Type0", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true),
-                new ChannelMetaData(
-                        1, "Type1", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true),
-                new ChannelMetaData(
+                new DatasetMetadata(
+                        0, "Type0", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true),
+                new DatasetMetadata(
+                        1, "Type1", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true),
+                new DatasetMetadata(
                         2,
                         "Instance2",
                         1,
-                        ChannelMetaData.FilterType.NONE,
+                        DatasetMetadata.FilterType.NONE,
                         false,
-                        ChannelMetaData.CacheType.NONE,
+                        DatasetMetadata.CacheType.NONE,
                         true));
 
         @NonNull

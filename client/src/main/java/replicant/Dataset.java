@@ -10,11 +10,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Describes a channel within a system.
+ * Describes a Dataset within a System Schema.
  */
-public final class ChannelSchema {
+public final class Dataset {
     /**
-     * The type of filtering applied to the channel.
+     * The type of filtering applied to the Dataset.
      */
     public enum FilterType {
         /// No filtering
@@ -22,18 +22,18 @@ public final class ChannelSchema {
         // Filtering occurs but no parameter is passed to control such behaviour. Filtering rules are internal to the
         // data.
         INTERNAL,
-        /// Filtering is specified when the channel is created and is unable to be changed
+        /// Filtering is specified when the Subscription is created and is unable to be changed
         STATIC,
-        /// Filtering can be changed after the channel has been created
+        /// Filtering can be changed after the Subscription has been created
         DYNAMIC
     }
 
     /**
-     * The id of the channel. This is the value used when transmitting messages across network.
+     * The id of the Dataset. This is the value used when transmitting messages across network.
      */
     private final int _id;
     /**
-     * A human consumable name for channel. It should be non-null if {@link Replicant#areNamesEnabled()} returns
+     * A human consumable name for the Dataset. It should be non-null if {@link Replicant#areNamesEnabled()} returns
      * true and <tt>null</tt> otherwise.
      */
     @Nullable
@@ -44,12 +44,12 @@ public final class ChannelSchema {
     @Nullable
     private final Class<?> _instanceType;
     /**
-     * The filtering applied to the channel.
+     * The filtering applied to the Dataset.
      */
     @NonNull
     private final FilterType _filterType;
     /**
-     * True when independently addressable selections of this channel require a dataset key.
+     * True when independently addressable selections of this Dataset require a Dataset Key.
      */
     private final boolean _keyed;
     /**
@@ -59,20 +59,20 @@ public final class ChannelSchema {
     @Nullable
     private final SubscriptionUpdateReplicaFilter<?> _filter;
     /**
-     * A flag indicating whether the results of the channel can be cached.
+     * A flag indicating whether the results of the Dataset can be cached.
      */
     private final boolean _cacheable;
     /**
-     * Flag indicating whether the channel should able to be subscribed to externally.
+     * Flag indicating whether the Dataset should able to be subscribed to externally.
      * i.e. Can this be explicitly subscribed.
      */
     private final boolean _external;
     /**
-     * The entity types included within the channel.
+     * The Entity Types included within the Dataset.
      */
     private final List<EntityType> _entityTypes;
 
-    public ChannelSchema(
+    public Dataset(
             final int id,
             @Nullable final String name,
             @Nullable final Class<?> instanceType,
@@ -85,15 +85,15 @@ public final class ChannelSchema {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
-                    () -> "Replicant-0045: ChannelSchema passed a name '" + name
+                    () -> "Replicant-0045: Dataset passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
             apiInvariant(
                     () -> FilterType.DYNAMIC != filterType || null != filter,
-                    () -> "Replicant-0076: ChannelSchema " + id + " has a DYNAMIC filterType "
+                    () -> "Replicant-0076: Dataset " + id + " has a DYNAMIC filterType "
                             + "but has supplied no filter.");
             apiInvariant(
                     () -> FilterType.DYNAMIC == filterType || null == filter,
-                    () -> "Replicant-0077: ChannelSchema " + id + " does not have a DYNAMIC filterType "
+                    () -> "Replicant-0077: Dataset " + id + " does not have a DYNAMIC filterType "
                             + "but has supplied a filter.");
         }
         _id = id;
@@ -108,53 +108,53 @@ public final class ChannelSchema {
     }
 
     /**
-     * Return the id of channel.
+     * Return the id of the Dataset.
      *
-     * @return the id of channel.
+     * @return the id of the Dataset.
      */
     public int getId() {
         return _id;
     }
 
     /**
-     * Return the name of the channel.
+     * Return the name of the Dataset.
      * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
      * exception if invariant checking is enabled.
      *
-     * @return the name of the channel.
+     * @return the name of the Dataset.
      */
     @NonNull
     public String getName() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     Replicant::areNamesEnabled,
-                    () -> "Replicant-0044: ChannelSchema.getName() invoked when Replicant.areNamesEnabled() is false");
+                    () -> "Replicant-0044: Dataset.getName() invoked when Replicant.areNamesEnabled() is false");
         }
         return Objects.requireNonNull(_name);
     }
 
     /**
-     * Return true if this channel is an "type" channel, false otherwise.
+     * Return true if this Dataset is type based, false otherwise.
      *
-     * @return true if this channel is an "type" channel, false otherwise.
+     * @return true if this Dataset is type based, false otherwise.
      */
-    public boolean isTypeChannel() {
+    public boolean isTypeGraph() {
         return null == _instanceType;
     }
 
     /**
-     * Return true if this channel is an "instance" channel, false otherwise.
+     * Return true if this Dataset is instance based, false otherwise.
      *
-     * @return true if this channel is an "instance" channel, false otherwise.
+     * @return true if this Dataset is instance based, false otherwise.
      */
-    public boolean isInstanceChannel() {
-        return !isTypeChannel();
+    public boolean isInstanceGraph() {
+        return !isTypeGraph();
     }
 
     /**
-     * Return the type of the entity that is the root of an instance graph if channel is an instance channel.
+     * Return the type of the Entity that is the root of an instance-based Dataset.
      *
-     * @return the type of the entity that is the root of an instance graph if channel is an instance channel.
+     * @return the type of the Entity that is the root of an instance-based Dataset.
      */
     @Nullable
     public Class<?> getInstanceType() {
@@ -162,9 +162,9 @@ public final class ChannelSchema {
     }
 
     /**
-     * Return the type of filtering applied to channel.
+     * Return the type of filtering applied to the Dataset.
      *
-     * @return the type of filtering applied to channel.
+     * @return the type of filtering applied to the Dataset.
      */
     @NonNull
     public FilterType getFilterType() {
@@ -172,9 +172,9 @@ public final class ChannelSchema {
     }
 
     /**
-     * Return true if independently addressable selections of this channel require a dataset key.
+     * Return true if independently addressable selections of this Dataset require a Dataset Key.
      *
-     * @return true if independently addressable selections of this channel require a dataset key.
+     * @return true if independently addressable selections of this Dataset require a Dataset Key.
      */
     public boolean requiresDatasetKey() {
         return _keyed;
@@ -192,27 +192,27 @@ public final class ChannelSchema {
     }
 
     /**
-     * Return a flag indicating whether the results of the channel can be cached.
+     * Return a flag indicating whether the results of the Dataset can be cached.
      *
-     * @return a flag indicating whether the results of the channel can be cached.
+     * @return a flag indicating whether the results of the Dataset can be cached.
      */
     public boolean isCacheable() {
         return _cacheable;
     }
 
     /**
-     * Return the flag indicating whether the channel should able to be subscribed to externally.
+     * Return the flag indicating whether the Dataset should able to be subscribed to externally.
      *
-     * @return the flag indicating whether the channel should able to be subscribed to externally.
+     * @return the flag indicating whether the Dataset should able to be subscribed to externally.
      */
     public boolean isExternal() {
         return _external;
     }
 
     /**
-     * Return the entity types transmitted over the channel.
+     * Return the Entity Types selected by the Dataset.
      *
-     * @return the entity types transmitted over the channel.
+     * @return the Entity Types selected by the Dataset.
      */
     @NonNull
     public List<EntityType> getEntityTypes() {

@@ -60,8 +60,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 0));
 
-        final SystemSchema schema = new SystemSchema(
-                ValueUtil.randomInt(), ValueUtil.randomString(), new ChannelSchema[0], new EntityType[0]);
+        final SystemSchema schema =
+                new SystemSchema(ValueUtil.randomInt(), ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
         final Connector connector = createConnector(schema);
 
         assertEquals(connector.getSchema(), schema);
@@ -954,19 +954,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_requiresDatasetKey_forDynamicKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestSubscribe_requiresDatasetKey_forDynamicKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -981,19 +981,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_requiresDatasetKey_forStaticKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestSubscribe_requiresDatasetKey_forStaticKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 true,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1008,19 +1008,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_rejectsDatasetKey_forNonKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestSubscribe_rejectsDatasetKey_forNonKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1036,18 +1036,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void requestSubscribe_dynamicKeyed_withDatasetKey() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1063,18 +1063,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void requestSubscribe_staticKeyed_withDatasetKey() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 true,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1090,18 +1090,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void requestSubscriptionUpdate() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1122,19 +1122,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscriptionUpdate_requiresDatasetKey_forDynamicKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestSubscriptionUpdate_requiresDatasetKey_forDynamicKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1150,19 +1150,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscriptionUpdate_ChannelNot_DYNAMIC_Filter() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestSubscriptionUpdate_DatasetNot_DYNAMIC_Filter() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -1181,19 +1181,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestUnsubscribe_requiresDatasetKey_forDynamicKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestUnsubscribe_requiresDatasetKey_forDynamicKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 (f, e) -> true,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1208,19 +1208,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestUnsubscribe_requiresDatasetKey_forStaticKeyedChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void requestUnsubscribe_requiresDatasetKey_forStaticKeyedDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 true,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         newConnection(connector);
 
@@ -1263,18 +1263,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @Test
     public void updateSubscriptionForFilteredReplicas() {
         final SubscriptionUpdateReplicaFilter<?> filter = (f, replicaEntry) -> replicaEntry.getId() > 0;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 filter,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         newConnection(connector);
@@ -1336,18 +1336,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void updateSubscriptionForFilteredReplicas_badFilterType() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         newConnection(connector);
@@ -1363,18 +1363,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address 1.0.1 but"
-                        + " the channel does not have a DYNAMIC filter.");
+                        + " the Dataset does not have a DYNAMIC filter.");
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void processEntityChanges() {
         final int schemaId = 1;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
@@ -1385,7 +1385,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1455,13 +1455,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void processEntityChanges_withDatasetKeyChannel() {
+    public void processEntityChanges_withDatasetKey() {
         final int schemaId = 1;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 Linkable.class,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 (f, e) -> true,
                 false,
@@ -1472,7 +1472,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1503,11 +1503,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @Test
     public void processEntityChanges_referenceNonExistentSubscription() {
         final int schemaId = 1;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
@@ -1518,7 +1518,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1547,11 +1547,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @Test
     public void processEntityChanges_deleteNonExistingEntity() {
         final int schemaId = 1;
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
@@ -1560,7 +1560,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType entityType = new EntityType(
                 0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new ChannelLinkSchema[0]);
         final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
         final Connector connector = createConnector(schema);
         connector.setLinksToProcessPerTick(1);
 
@@ -1967,11 +1967,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @Test
     public void processChannelChanges_update() {
         final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 filter,
                 true,
@@ -1979,8 +1979,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Collections.emptyList());
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new ChannelLinkSchema[0]);
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 
         final Connector connector = createConnector(schema);
         connector.pauseMessageScheduler();
@@ -2019,18 +2019,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @Test
     public void processChannelChanges_update_withDatasetKey() {
         final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 Integer.class,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 true,
                 filter,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
         final Connector connector = createConnector(schema);
         connector.pauseMessageScheduler();
@@ -2061,19 +2061,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_update_forNonDYNAMICChannel() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+    public void processChannelChanges_update_forNonDYNAMICDataset() {
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[0]);
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
@@ -2090,7 +2090,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address 1.0.2223 but the channel"
+                "Replicant-0078: Received ChannelChange of type UPDATE for Dataset Address 1.0.2223 but the Dataset"
                         + " does not have a DYNAMIC filter.");
     }
 
@@ -2515,11 +2515,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
          * This test steps through each stage of a message processing.
          */
 
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
@@ -2529,8 +2529,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new ChannelLinkSchema[0]);
-        final SystemSchema schema = new SystemSchema(
-                1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {entityType});
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2613,18 +2613,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestAddRequest_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2668,18 +2668,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2723,18 +2723,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 true,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2785,18 +2785,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void progressBulkAreaOfInterestAddRequests_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2864,18 +2864,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestAddRequests_onFailure_zeroRequests() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2904,18 +2904,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestUpdateRequest_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -2960,18 +2960,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void progressBulkAreaOfInterestUpdateRequests_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3039,18 +3039,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestUpdateRequests_onFailure_zeroRequests() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3079,18 +3079,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRemoveRequest_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3134,18 +3134,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void progressBulkAreaOfInterestRemoveRequests_onSuccess() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3212,18 +3212,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3251,18 +3251,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRequestProcessing_Noop() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3282,18 +3282,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRequestProcessing_InProgress() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3322,18 +3322,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRequestProcessing_Add() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.STATIC,
+                Dataset.FilterType.STATIC,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3361,18 +3361,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRequestProcessing_Update() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.DYNAMIC,
+                Dataset.FilterType.DYNAMIC,
                 false,
                 mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
@@ -3402,18 +3402,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressAreaOfInterestRequestProcessing_Remove() {
-        final ChannelSchema channelSchema = new ChannelSchema(
+        final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                ChannelSchema.FilterType.NONE,
+                Dataset.FilterType.NONE,
                 false,
                 null,
                 false,
                 true,
                 Collections.emptyList());
         final SystemSchema schema =
-                new SystemSchema(1, ValueUtil.randomString(), new ChannelSchema[] {channelSchema}, new EntityType[] {});
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
