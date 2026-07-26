@@ -59,9 +59,11 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+    public final void requestSubscribe(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
         final int requestId = newRequestId(toRequestKey("Subscribe", datasetAddress), null);
-        sendRemoteMessage(SubscribeMessage.create(requestId, datasetAddress.asDatasetAddressDescriptor(), filter));
+        sendRemoteMessage(
+                SubscribeMessage.create(requestId, datasetAddress.asDatasetAddressDescriptor(), filterParameter));
     }
 
     @Override
@@ -72,12 +74,12 @@ public abstract class AbstractTransport implements Transport {
 
     @Override
     public final void requestBulkSubscribe(
-            @NonNull final List<DatasetAddress> datasetAddresses, @Nullable final Object filter) {
+            @NonNull final List<DatasetAddress> datasetAddresses, @Nullable final Object filterParameter) {
         final int requestId = newRequestId(toRequestKey("BulkSubscribe", datasetAddresses), null);
         final String[] datasetAddressDescriptors = datasetAddresses.stream()
                 .map(DatasetAddress::asDatasetAddressDescriptor)
                 .toArray(String[]::new);
-        sendRemoteMessage(BulkSubscribeMessage.create(requestId, datasetAddressDescriptors, filter));
+        sendRemoteMessage(BulkSubscribeMessage.create(requestId, datasetAddressDescriptors, filterParameter));
     }
 
     @Override

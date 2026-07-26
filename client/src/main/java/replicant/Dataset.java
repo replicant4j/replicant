@@ -16,16 +16,23 @@ public final class Dataset {
     /**
      * The type of filtering applied to the Dataset.
      */
-    public enum FilterType {
-        /// No filtering
-        NONE,
-        // Filtering occurs but no parameter is passed to control such behaviour. Filtering rules are internal to the
-        // data.
-        INTERNAL,
-        /// Filtering is specified when the Subscription is created and is unable to be changed
-        STATIC,
-        /// Filtering can be changed after the Subscription has been created
-        DYNAMIC
+    public enum FilterMode {
+        /// No filtering.
+        UNFILTERED,
+        /// Filtering with system-supplied rules and inputs.
+        IMPLICIT,
+        /// Filtering that consumes a subscriber-supplied Filter Parameter.
+        PARAMETER_FILTERED
+    }
+
+    /**
+     * The mutability of the Filter Parameter.
+     */
+    public enum FilterParameterMode {
+        /// The Filter Parameter can not change while the Subscription persists.
+        FIXED,
+        /// The Filter Parameter can change while the Subscription persists.
+        UPDATABLE
     }
 
     /**
@@ -47,17 +54,21 @@ public final class Dataset {
      * The filtering applied to the Dataset.
      */
     @NonNull
-    private final FilterType _filterType;
+    private final FilterMode _filterMode;
+    /**
+     * The mutability of the Filter Parameter, or null when the Dataset is not parameter-filtered.
+     */
+    @Nullable
+    private final FilterParameterMode _filterParameterMode;
     /**
      * True when independently addressable selections of this Dataset require a Dataset Key.
      */
     private final boolean _keyed;
     /**
-     * The hook to filter Replica Entries when the filter changes. This should be null unless {@link #_filterType} is
-     * {@link FilterType#DYNAMIC}.
+     * The hook to re-evaluate Replica membership after an updatable Filter Parameter changes.
      */
     @Nullable
-    private final SubscriptionUpdateReplicaFilter<?> _filter;
+    private final FilterParameterUpdateReplicaMatcher<?> _filterParameterUpdateReplicaMatcher;
     /**
      * A flag indicating whether the results of the Dataset can be cached.
      */
@@ -76,9 +87,10 @@ public final class Dataset {
             final int id,
             @Nullable final String name,
             @Nullable final Class<?> datasetRootEntityType,
-            @NonNull final FilterType filterType,
+            @NonNull final FilterMode filterMode,
+            @Nullable final FilterParameterMode filterParameterMode,
             final boolean keyed,
-            @Nullable final SubscriptionUpdateReplicaFilter<?> filter,
+            @Nullable final FilterParameterUpdateReplicaMatcher<?> filterParameterUpdateReplicaMatcher,
             final boolean cacheable,
             final boolean external,
             @NonNull final List<EntityType> entityTypes) {
@@ -88,20 +100,34 @@ public final class Dataset {
                     () -> "Replicant-0045: Dataset passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
             apiInvariant(
-                    () -> FilterType.DYNAMIC != filterType || null != filter,
-                    () -> "Replicant-0076: Dataset " + id + " has a DYNAMIC filterType "
-                            + "but has supplied no filter.");
+                    () -> FilterMode.PARAMETER_FILTERED == filterMode || null == filterParameterMode,
+                    () -> "Replicant-0100: Dataset " + id + " is not parameter-filtered "
+                            + "but has supplied a Filter Parameter mode.");
             apiInvariant(
-                    () -> FilterType.DYNAMIC == filterType || null == filter,
-                    () -> "Replicant-0077: Dataset " + id + " does not have a DYNAMIC filterType "
-                            + "but has supplied a filter.");
+                    () -> FilterMode.PARAMETER_FILTERED != filterMode || null != filterParameterMode,
+                    () -> "Replicant-0101: Dataset " + id + " is parameter-filtered "
+                            + "but has supplied no Filter Parameter mode.");
+            apiInvariant(
+                    () -> !keyed || FilterMode.PARAMETER_FILTERED == filterMode,
+                    () -> "Replicant-0102: Dataset " + id + " is keyed but is not parameter-filtered.");
+            apiInvariant(
+                    () -> FilterParameterMode.UPDATABLE != filterParameterMode
+                            || null != filterParameterUpdateReplicaMatcher,
+                    () -> "Replicant-0076: Dataset " + id + " has an updatable Filter Parameter "
+                            + "but has supplied no Filter Parameter update Replica matcher.");
+            apiInvariant(
+                    () -> FilterParameterMode.UPDATABLE == filterParameterMode
+                            || null == filterParameterUpdateReplicaMatcher,
+                    () -> "Replicant-0077: Dataset " + id + " does not have an updatable Filter Parameter "
+                            + "but has supplied a Filter Parameter update Replica matcher.");
         }
         _id = id;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _datasetRootEntityType = datasetRootEntityType;
-        _filterType = Objects.requireNonNull(filterType);
+        _filterMode = Objects.requireNonNull(filterMode);
+        _filterParameterMode = filterParameterMode;
         _keyed = keyed;
-        _filter = filter;
+        _filterParameterUpdateReplicaMatcher = filterParameterUpdateReplicaMatcher;
         _cacheable = cacheable;
         _external = external;
         _entityTypes = entityTypes;
@@ -162,13 +188,38 @@ public final class Dataset {
     }
 
     /**
-     * Return the type of filtering applied to the Dataset.
+     * Return the mode of filtering applied to the Dataset.
      *
-     * @return the type of filtering applied to the Dataset.
+     * @return the mode of filtering applied to the Dataset.
      */
     @NonNull
-    public FilterType getFilterType() {
-        return _filterType;
+    public FilterMode getFilterMode() {
+        return _filterMode;
+    }
+
+    public boolean isUnfiltered() {
+        return FilterMode.UNFILTERED == _filterMode;
+    }
+
+    public boolean isImplicitlyFiltered() {
+        return FilterMode.IMPLICIT == _filterMode;
+    }
+
+    public boolean isParameterFiltered() {
+        return FilterMode.PARAMETER_FILTERED == _filterMode;
+    }
+
+    @Nullable
+    public FilterParameterMode getFilterParameterMode() {
+        return _filterParameterMode;
+    }
+
+    public boolean hasFixedFilterParameter() {
+        return FilterParameterMode.FIXED == _filterParameterMode;
+    }
+
+    public boolean hasUpdatableFilterParameter() {
+        return FilterParameterMode.UPDATABLE == _filterParameterMode;
     }
 
     /**
@@ -176,19 +227,18 @@ public final class Dataset {
      *
      * @return true if independently addressable selections of this Dataset require a Dataset Key.
      */
-    public boolean requiresDatasetKey() {
+    public boolean isKeyed() {
         return _keyed;
     }
 
     /**
-     * Return the hook that filters entities when the filter changes.
-     * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC}.
+     * Return the hook that re-evaluates Replica membership after an updatable Filter Parameter changes.
      *
-     * @return the hook to filter entities.
+     * @return the Replica membership matcher.
      */
     @Nullable
-    public SubscriptionUpdateReplicaFilter<?> getFilter() {
-        return _filter;
+    public FilterParameterUpdateReplicaMatcher<?> getFilterParameterUpdateReplicaMatcher() {
+        return _filterParameterUpdateReplicaMatcher;
     }
 
     /**

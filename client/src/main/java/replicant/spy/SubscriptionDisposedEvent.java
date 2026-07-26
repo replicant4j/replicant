@@ -30,7 +30,7 @@ public final class SubscriptionDisposedEvent implements SerializableEvent {
         map.put("datasetAddress.schemaId", datasetAddress.schemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
-        map.put("subscription.filter", getSubscription().getFilter());
+        map.put("subscription.filterParameter", getSubscription().getFilterParameter());
         map.put("explicitSubscription", getSubscription().isExplicitSubscription());
     }
 }

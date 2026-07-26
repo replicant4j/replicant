@@ -15,7 +15,9 @@ public interface ReplicantSessionContext {
     boolean isAuthorized(@NonNull ReplicantSession session);
 
     void preSubscribe(
-            @NonNull ReplicantSession session, @NonNull DatasetAddress datasetAddress, @Nullable JsonObject filter);
+            @NonNull ReplicantSession session,
+            @NonNull DatasetAddress datasetAddress,
+            @Nullable JsonObject filterParameter);
 
     /**
      * Hook invoked before sending a change message to the given session.
@@ -27,19 +29,20 @@ public interface ReplicantSessionContext {
     void preSendChangeMessage(@NonNull ReplicantSession session, @NonNull Packet packet);
 
     /**
-     * Derive a filter for the target Dataset Address based on the source Dataset Address and filter.
+     * Derive a Filter Parameter for the target Dataset Address based on the source Dataset Address and Filter
+     * Parameter.
      *
      * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
      * @param sourceDatasetAddress the source Dataset Address.
-     * @param sourceFilter         the filter for the source Dataset Address.
+     * @param sourceFilterParameter the Filter Parameter for the source Dataset Address.
      * @param targetDatasetAddress the target Dataset Address.
-     * @return the filter for the target Dataset Address.
+     * @return the Filter Parameter for the target Dataset Address.
      */
     @NonNull
-    JsonObject deriveTargetFilter(
+    JsonObject deriveTargetFilterParameter(
             @NonNull EntityMessage entityMessage,
             @NonNull DatasetAddress sourceDatasetAddress,
-            @Nullable JsonObject sourceFilter,
+            @Nullable JsonObject sourceFilterParameter,
             @NonNull DatasetAddress targetDatasetAddress);
 
     /**
@@ -47,18 +50,18 @@ public interface ReplicantSessionContext {
      *
      * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
      * @param sourceDatasetAddress the concrete source Dataset Address.
-     * @param sourceFilter         the filter for the source Dataset Address.
+     * @param sourceFilterParameter the Filter Parameter for the source Dataset Address.
      * @param targetDatasetAddress the target Dataset Address template with a missing Dataset Key.
-     * @param targetFilter         the target filter if already known, null otherwise.
+     * @param targetFilterParameter the target Filter Parameter if already known, null otherwise.
      * @return the Dataset Key for the target Dataset Address.
      */
     @NonNull
     String deriveTargetDatasetKey(
             @NonNull EntityMessage entityMessage,
             @NonNull DatasetAddress sourceDatasetAddress,
-            @Nullable JsonObject sourceFilter,
+            @Nullable JsonObject sourceFilterParameter,
             @NonNull DatasetAddress targetDatasetAddress,
-            @Nullable JsonObject targetFilter);
+            @Nullable JsonObject targetFilterParameter);
 
     /**
      * Flush the EntityManager that contains replicated entities.
@@ -76,33 +79,33 @@ public interface ReplicantSessionContext {
      *
      * @param session             the session. May be null if data is being collected for caching.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
-     * @param filter           the Filter Parameter. May be null if the Dataset has no Filter Parameter.
+     * @param filterParameter  the Filter Parameter. May be null if the Dataset has no Filter Parameter.
      * @param changeSet           the changeSet to add the collected data to.
      * @param isExplicitSubscribe true if the subscribe action is explicit, false if it is implicit, ignored unless session is non-null.
      */
     void collectSubscriptionData(
             @Nullable ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
-            @Nullable JsonObject filter,
+            @Nullable JsonObject filterParameter,
             @NonNull ChangeSet changeSet,
             boolean isExplicitSubscribe);
 
     /**
      * Add changes to the ChangeSet as a result of changing a Subscription Filter Parameter.
      * It is expected that the hook does everything including updating SubscriptionEntry with new
-     * filter and reconciling Subscription Dependencies.
+     * Filter Parameter and reconciling Subscription Dependencies.
      *
      * @param session        the session.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
-     * @param originalFilter the old Filter Parameter.
-     * @param newFilter      the new Filter Parameter.
+     * @param originalFilterParameter the old Filter Parameter.
+     * @param newFilterParameter      the new Filter Parameter.
      * @param changeSet      the changeSet to add the collected data to.
      */
-    void collectSubscriptionDataForFilterChange(
+    void collectSubscriptionDataForFilterParameterChange(
             @NonNull ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
-            @NonNull JsonObject originalFilter,
-            @NonNull JsonObject newFilter,
+            @NonNull JsonObject originalFilterParameter,
+            @NonNull JsonObject newFilterParameter,
             @NonNull ChangeSet changeSet);
 
     @Nullable
@@ -111,7 +114,7 @@ public interface ReplicantSessionContext {
 
     boolean shouldFollowDatasetLink(
             @NonNull DatasetAddress sourceDatasetAddress,
-            @Nullable JsonObject sourceFilter,
+            @Nullable JsonObject sourceFilterParameter,
             @NonNull DatasetAddress targetDatasetAddress,
-            @Nullable JsonObject targetFilter);
+            @Nullable JsonObject targetFilterParameter);
 }

@@ -205,10 +205,11 @@ public class MessageResponseTest extends AbstractReplicantTest {
         final int requestId = ValueUtil.randomInt();
 
         // Subscription changes
-        final String filter1 = ValueUtil.randomString();
-        final String filter2 = ValueUtil.randomString();
-        final SubscriptionChangeMessage subscriptionChange1 = SubscriptionChangeMessage.create("+42", filter1);
-        final SubscriptionChangeMessage subscriptionChange2 = SubscriptionChangeMessage.create("=43.1", filter2);
+        final String filterParameter1 = ValueUtil.randomString();
+        final String filterParameter2 = ValueUtil.randomString();
+        final SubscriptionChangeMessage subscriptionChange1 = SubscriptionChangeMessage.create("+42", filterParameter1);
+        final SubscriptionChangeMessage subscriptionChange2 =
+                SubscriptionChangeMessage.create("=43.1", filterParameter2);
         final SubscriptionChangeMessage[] subscriptionChanges =
                 new SubscriptionChangeMessage[] {subscriptionChange1, subscriptionChange2};
 

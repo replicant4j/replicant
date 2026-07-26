@@ -88,9 +88,13 @@ Each query is represented by a reusable Dataset definition. A Subscription mater
 Dataset Address for one client. The client receives an initial message containing the matching state of the
 world, followed by subsequent matching changes until it unsubscribes or disconnects.
 
-There are two major dimensions on which Datasets are defined within the replicant system:
-* Is it a Type Dataset or an Instance Dataset?
-* Is the Dataset filtered or unfiltered?
+Datasets have several independent dimensions:
+
+* Selection shape: Type Dataset or Instance Dataset.
+* Filter source, represented by `FilterMode`: `UNFILTERED`, `IMPLICIT`, or `PARAMETER_FILTERED`.
+* Keying: unkeyed or keyed. Keying is valid only for a Parameter-Filtered Dataset.
+
+A Parameter-Filtered Dataset also has a `FilterParameterMode`: `FIXED` or `UPDATABLE`.
 
 **Type Datasets**: A Type Dataset starts with the populations of one or more configured Entity Types. Applications
 commonly use Type Datasets for reference data so that the complete configured populations arrive in one selection.
@@ -104,30 +108,27 @@ associated with Bob.
 
 **Unfiltered Dataset**: An unfiltered Dataset includes every otherwise eligible Entity without further filtering.
 
-**Filtered Dataset**: A filtered Dataset allows the developer to customize which otherwise eligible Entity instances
- are included. In the typical scenario where replicant is used in conjunction with Domgen,
- the developer specifies which fields of which entities participate in the routing decision and the
- parameter that the client passes to the replicant engine to control the routing. Domgen then generates
- some template methods that the developer must implement to customize the subscription and routing
- capabilities.
+**Implicitly Filtered Dataset**: An implicitly filtered Dataset restricts membership without a Filter Parameter. The
+system supplies the filtering rule and its inputs.
 
-There is several other features of Datasets within the replicant engine, but these are typically used to
-meet operational or system requirements. Two common features used in most replicant implementations are
-cacheable Datasets and making filter parameters in filtered Datasets immutable.
+**Parameter-Filtered Dataset**: A parameter-filtered Dataset restricts membership using a subscriber-supplied Filter
+Parameter. In the typical Domgen integration, the developer identifies the Entity fields involved in routing and
+defines the Filter Parameter supplied by the client. Domgen then generates the integration hooks used to customize
+subscription and routing behavior.
+
+A Fixed Filter Parameter cannot change while the Subscription at a Dataset Address persists. Changing it replaces the
+Subscription. An Updatable Filter Parameter may change while retaining the same Subscription and Dataset Address. A
+Filter Parameter is never part of the Dataset Address.
+
+Datasets also support operational features such as caching. Cacheable Datasets are unfiltered Type Datasets whose data
+changes relatively infrequently, is relatively large, or is relatively expensive to load.
 
 A cacheable Dataset is used when the data within the Dataset has a relatively low frequency of change,
 the volume of data is relatively large or the time to load the data from the database is relatively
 long. If a Dataset is cacheable, then the client will store the materialized selection in a client-side cache
 along with a cache-key supplied by the server. When the client re-requests that Dataset, it
-supplies the cache-key and the server can either indicate to the client should use the cached version
+supplies the cache-key and the server can either indicate that the client should use the cached version
 or send a new version of the selected data.
-
-Immutable filter parameters indicate that it is not possible to update a parameter supplied during
-subscription and that the client will need to unsubscribe and re-subscribe to change the parameter.
-For example, if the Dataset for "All alerts within a 50km radius of coordinate X" has an immutable
-parameter for X, then the only way to change X is to unsubscribe from the Dataset and re-subscribe
-supplying another value for parameter X. Immutable filter parameters are used to optimize routing
-and subscription mechanics.
 
 It is possible and expected that one client may have Subscriptions to more than one Dataset, and the
 materialized selections may overlap. Often applications link one Dataset to another and automatically
@@ -145,15 +146,16 @@ It is also possible to define multiple Instance Datasets with the same Dataset R
 Dataset could include a person and related accreditations, while another includes the same person and related contact
 details.
 
-Some datasets are keyed, allowing a client to subscribe to multiple independently addressable selections
-of the same dataset. Each selection is routed independently by a dataset key. Keying is independent of
-filter type: `DYNAMIC` allows filter updates while `STATIC` rejects them.
+A Keyed Dataset is a Parameter-Filtered Dataset that allows a client to subscribe to multiple independently
+addressable selections of the same Dataset. The Dataset Key distinguishes and routes each selection independently.
+Keying is independent of whether the Filter Parameter is Fixed or Updatable.
 
 The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription
 should exist at a Dataset Address and records progress toward that desired state.
 
-The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. When a Dataset is
-keyed, its Dataset Key is embedded in the Dataset Address descriptor after a `#` suffix.
+The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. A Dataset Key is also part of
+the address and is embedded in its descriptor after a `#` suffix. The Filter Parameter remains outside the Dataset
+Address.
 
 ### Services
 

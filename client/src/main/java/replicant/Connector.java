@@ -299,13 +299,14 @@ abstract class Connector extends ReplicantService {
 
     /**
      * Return true if an area of interest action with specified parameters is pending or being processed.
-     * When the action parameter is DELETE the filter parameter is ignored.
+     * When the action parameter is DELETE the Filter Parameter is ignored.
      */
     boolean isAreaOfInterestRequestPending(
             final AreaOfInterestRequest.@NonNull Type action,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
-        return null != _connection && _connection.isAreaOfInterestRequestPending(action, datasetAddress, filter);
+            @Nullable final Object filterParameter) {
+        return null != _connection
+                && _connection.isAreaOfInterestRequestPending(action, datasetAddress, filterParameter);
     }
 
     /**
@@ -314,10 +315,10 @@ abstract class Connector extends ReplicantService {
     int lastIndexOfPendingAreaOfInterestRequest(
             final AreaOfInterestRequest.@NonNull Type action,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
+            @Nullable final Object filterParameter) {
         return null == _connection
                 ? -1
-                : _connection.lastIndexOfPendingAreaOfInterestRequest(action, datasetAddress, filter);
+                : _connection.lastIndexOfPendingAreaOfInterestRequest(action, datasetAddress, filterParameter);
     }
 
     void requestSync() {
@@ -344,34 +345,36 @@ abstract class Connector extends ReplicantService {
         tryTriggerMessageScheduler();
     }
 
-    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-            getReplicantContext().getSpy().reportSpyEvent(new SubscribeRequestQueuedEvent(datasetAddress, filter));
+            getReplicantContext()
+                    .getSpy()
+                    .reportSpyEvent(new SubscribeRequestQueuedEvent(datasetAddress, filterParameter));
         }
         validateDatasetKey(datasetAddress);
-        ensureConnection().requestSubscribe(datasetAddress, filter);
+        ensureConnection().requestSubscribe(datasetAddress, filterParameter);
         tryTriggerMessageScheduler();
     }
 
-    void requestSubscriptionUpdate(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+    void requestSubscriptionUpdate(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> {
-                        final Dataset.FilterType filterType = getSchema()
+                        return getSchema()
                                 .getDataset(datasetAddress.datasetId())
-                                .getFilterType();
-                        return Dataset.FilterType.DYNAMIC == filterType;
+                                .hasUpdatableFilterParameter();
                     },
                     () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for Dataset Address "
-                            + datasetAddress + " but the Dataset does not have a dynamic filter.");
+                            + datasetAddress + " but the Dataset does not have an updatable Filter Parameter.");
         }
         validateDatasetKey(datasetAddress);
-        ensureConnection().requestSubscriptionUpdate(datasetAddress, filter);
+        ensureConnection().requestSubscriptionUpdate(datasetAddress, filterParameter);
         tryTriggerMessageScheduler();
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new SubscriptionUpdateRequestQueuedEvent(datasetAddress, filter));
+                    .reportSpyEvent(new SubscriptionUpdateRequestQueuedEvent(datasetAddress, filterParameter));
         }
     }
 
@@ -397,7 +400,7 @@ abstract class Connector extends ReplicantService {
             final SystemSchema schema = getSchema();
             if (schema.hasDataset(datasetAddress.datasetId())) {
                 final Dataset dataset = schema.getDataset(datasetAddress.datasetId());
-                if (dataset.requiresDatasetKey()) {
+                if (dataset.isKeyed()) {
                     invariant(
                             () -> null != datasetAddress.datasetKey(),
                             () -> "Replicant-0098: Dataset Address " + datasetAddress
@@ -587,16 +590,25 @@ abstract class Connector extends ReplicantService {
 
         for (final SubscriptionChange subscriptionChange : response.getSubscriptionChanges()) {
             final DatasetAddress datasetAddress = subscriptionChange.getDatasetAddress();
-            final Object filter = subscriptionChange.getFilter();
+            final Object filterParameter = subscriptionChange.getFilterParameter();
             final SubscriptionChange.Type actionType = subscriptionChange.getType();
 
             if (SubscriptionChange.Type.SUBSCRIBE == actionType) {
                 response.incSubscriptionSubscribeCount();
+                final Subscription existingSubscription = getReplicantContext().findSubscription(datasetAddress);
+                if (null != existingSubscription) {
+                    final Dataset dataset = getSchema().getDataset(datasetAddress.datasetId());
+                    if (dataset.hasFixedFilterParameter()
+                            && !FilterParameterUtil.filterParametersEqual(
+                                    filterParameter, existingSubscription.getFilterParameter())) {
+                        Disposable.dispose(existingSubscription);
+                    }
+                }
                 final boolean explicitSubscribe = getReplicantContext().getAreasOfInterest().stream()
                         .anyMatch(a -> a.getDatasetAddress().equals(datasetAddress));
                 getReplicantContext()
                         .getSubscriptionService()
-                        .createSubscription(datasetAddress, filter, explicitSubscribe);
+                        .createSubscription(datasetAddress, filterParameter, explicitSubscribe);
             } else if (SubscriptionChange.Type.UNSUBSCRIBE == actionType
                     || SubscriptionChange.Type.DELETE == actionType) {
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -636,18 +648,18 @@ abstract class Connector extends ReplicantService {
                     if (Replicant.shouldCheckInvariants()) {
                         invariant(
                                 () -> {
-                                    final Dataset.FilterType filterType = getSchema()
+                                    return getSchema()
                                             .getDataset(datasetAddress.datasetId())
-                                            .getFilterType();
-                                    return Dataset.FilterType.DYNAMIC == filterType;
+                                            .hasUpdatableFilterParameter();
                                 },
                                 () -> "Replicant-0078: Received SubscriptionChange of type UPDATE for Dataset Address "
-                                        + datasetAddress + " but the Dataset does not have a DYNAMIC filter.");
+                                        + datasetAddress
+                                        + " but the Dataset does not have an updatable Filter Parameter.");
                     }
                 }
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
-                existingSubscription.setFilter(filter);
-                updateSubscriptionForFilteredReplicas(existingSubscription);
+                existingSubscription.setFilterParameter(filterParameter);
+                reevaluateReplicaMembershipAfterFilterParameterUpdate(existingSubscription);
                 response.incSubscriptionUpdateCount();
             }
         }
@@ -679,20 +691,21 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Method invoked when a filter has updated and the Connector needs to delink any Replicas
-     * that are no longer part of the subscription now that the filter has changed.
+     * Re-evaluate Replica membership after a Filter Parameter update and delink any Replicas that no longer match.
      *
      * @param subscription the subscription that was updated.
      */
     @SuppressWarnings("unchecked")
-    void updateSubscriptionForFilteredReplicas(@NonNull final Subscription subscription) {
+    void reevaluateReplicaMembershipAfterFilterParameterUpdate(@NonNull final Subscription subscription) {
         final DatasetAddress datasetAddress = subscription.datasetAddress();
         final Dataset dataset = getSchema().getDataset(datasetAddress.datasetId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> Dataset.FilterType.DYNAMIC == dataset.getFilterType(),
-                    () -> "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address "
-                            + subscription.datasetAddress() + " but the Dataset does not have a DYNAMIC filter.");
+                    dataset::hasUpdatableFilterParameter,
+                    () -> "Replicant-0079: Connector.reevaluateReplicaMembershipAfterFilterParameterUpdate invoked"
+                            + " for Dataset Address "
+                            + subscription.datasetAddress()
+                            + " but the Dataset does not have an updatable Filter Parameter.");
         }
 
         final List<ReplicaEntry> replicaEntriesToDelink = new ArrayList<>();
@@ -700,13 +713,15 @@ abstract class Connector extends ReplicantService {
             final List<ReplicaEntry> replicaEntries = subscription.findAllReplicaEntriesByType(replicaType);
             if (!replicaEntries.isEmpty()) {
                 @SuppressWarnings("rawtypes")
-                final SubscriptionUpdateReplicaFilter updateFilter = Objects.requireNonNull(dataset.getFilter());
-                final Object filter = subscription.getFilter();
+                final FilterParameterUpdateReplicaMatcher matcher =
+                        Objects.requireNonNull(dataset.getFilterParameterUpdateReplicaMatcher());
+                final Object filterParameter = subscription.getFilterParameter();
                 for (final ReplicaEntry replicaEntry : replicaEntries) {
-                    if (!updateFilter.doesReplicaMatchFilter(filter, replicaEntry)) {
+                    if (!matcher.doesReplicaMatchFilterParameter(filterParameter, replicaEntry)) {
                         // We need to collect all the Replica Entries into a separate list and delink later.
                         // If we delink immediately and the Arez Replica is disposed and a subsequent Replica
-                        // calls `doesReplicaMatchFilter` and tries to traverse across the already disposed Replica,
+                        // calls `doesReplicaMatchFilterParameter` and tries to traverse across the already disposed
+                        // Replica,
                         // then we get a crash or unexpected behaviour.
                         // i.e. Moving days in planner will match the day first and remove it before attempting
                         // to match RosterEntry but RosterEntry involves walking from RosterEntry->Day->Shift
@@ -911,7 +926,7 @@ abstract class Connector extends ReplicantService {
         boolean candidate = false;
         if (null != cacheService
                 && null != eTag
-                && (changeSet.hasSubscriptionChanges() || changeSet.hasFilteredSubscriptionChanges())) {
+                && (changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges())) {
             final List<SubscriptionChange> subscriptionChanges = response.getSubscriptionChanges();
 
             if (1 == subscriptionChanges.size()
@@ -1094,7 +1109,7 @@ abstract class Connector extends ReplicantService {
         final DatasetAddress datasetAddress = request.getDatasetAddress();
         onSubscribeStarted(datasetAddress);
 
-        _transport.requestSubscribe(request.getDatasetAddress(), request.getFilter());
+        _transport.requestSubscribe(request.getDatasetAddress(), request.getFilterParameter());
         request.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
@@ -1103,7 +1118,7 @@ abstract class Connector extends ReplicantService {
                 requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscribeStarted);
 
-        _transport.requestBulkSubscribe(datasetAddresses, requests.get(0).getFilter());
+        _transport.requestBulkSubscribe(datasetAddresses, requests.get(0).getFilterParameter());
         final int requestId = ensureConnection().getLastTxRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
@@ -1124,9 +1139,9 @@ abstract class Connector extends ReplicantService {
         final DatasetAddress datasetAddress = request.getDatasetAddress();
         onSubscriptionUpdateStarted(datasetAddress);
 
-        final Object filter = request.getFilter();
-        assert null != filter;
-        _transport.requestSubscribe(datasetAddress, filter);
+        final Object filterParameter = request.getFilterParameter();
+        assert null != filterParameter;
+        _transport.requestSubscribe(datasetAddress, filterParameter);
         final int requestId = ensureConnection().getLastTxRequestId();
         request.markAsInProgress(requestId);
     }
@@ -1136,10 +1151,10 @@ abstract class Connector extends ReplicantService {
                 requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscriptionUpdateStarted);
 
-        // All filters will be the same if they are grouped
-        final Object filter = requests.get(0).getFilter();
-        assert null != filter;
-        _transport.requestBulkSubscribe(datasetAddresses, filter);
+        // All Filter Parameters will be the same if they are grouped
+        final Object filterParameter = requests.get(0).getFilterParameter();
+        assert null != filterParameter;
+        _transport.requestBulkSubscribe(datasetAddresses, filterParameter);
         final int requestId = ensureConnection().getLastTxRequestId();
         requests.forEach(r -> r.markAsInProgress(requestId));
     }

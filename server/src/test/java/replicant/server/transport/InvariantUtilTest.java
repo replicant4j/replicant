@@ -10,9 +10,23 @@ public final class InvariantUtilTest {
     @Test
     public void assertAddressMatchesDatasetMetadata_allowsConcreteAndPartialKeyedAddresses() {
         final var unfiltered = new DatasetMetadata(
-                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var keyed = new DatasetMetadata(
-                1, "Target", 7, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                7,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", unfiltered, keyed);
 
         InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.of(1, 2, "fi"));
@@ -22,7 +36,14 @@ public final class InvariantUtilTest {
     @Test
     public void assertAddress_rejectsConcreteKeyedDatasetAddressWithoutDatasetKey() {
         final var keyed = new DatasetMetadata(
-                0, "Target", 7, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Target",
+                7,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", keyed);
 
         expectThrows(
@@ -33,7 +54,14 @@ public final class InvariantUtilTest {
     @Test
     public void assertAddress_rejectsPartialAddressForNonKeyedDataset() {
         final var dataset = new DatasetMetadata(
-                0, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", dataset);
 
         expectThrows(
@@ -49,11 +77,25 @@ public final class InvariantUtilTest {
     }
 
     @Test
-    public void assertSubscriptionDependency_allowsPartialLinkWithMissingTargetFilter() {
+    public void assertSubscriptionDependency_allowsPartialLinkWithMissingTargetFilterParameter() {
         final var source = new DatasetMetadata(
-                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var target = new DatasetMetadata(
-                1, "Target", 1, DatasetMetadata.FilterType.STATIC, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", source, target);
 
         InvariantUtil.assertSubscriptionDependency(
@@ -61,11 +103,25 @@ public final class InvariantUtilTest {
     }
 
     @Test
-    public void assertSubscriptionDependency_rejectsConcreteFilteredLinkWithoutTargetFilter() {
+    public void assertSubscriptionDependency_rejectsConcreteParameterFilteredLinkWithoutTargetFilterParameter() {
         final var source = new DatasetMetadata(
-                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var target = new DatasetMetadata(
-                1, "Target", 1, DatasetMetadata.FilterType.STATIC, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", source, target);
 
         expectThrows(

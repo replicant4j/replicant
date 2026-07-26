@@ -100,12 +100,13 @@ abstract class Connection {
         _pendingExecRequests.add(new ExecRequest(command, payload, responseHandler));
     }
 
-    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
-        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
+    void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
+        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filterParameter);
     }
 
-    void requestSubscriptionUpdate(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
-        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filter);
+    void requestSubscriptionUpdate(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
+        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filterParameter);
     }
 
     void requestUnsubscribe(@NonNull final DatasetAddress datasetAddress) {
@@ -115,8 +116,8 @@ abstract class Connection {
     private void enqueueAreaOfInterestRequest(
             @NonNull final DatasetAddress datasetAddress,
             final AreaOfInterestRequest.@NonNull Type action,
-            @Nullable final Object filter) {
-        _pendingAreaOfInterestRequests.add(new AreaOfInterestRequest(datasetAddress, action, filter));
+            @Nullable final Object filterParameter) {
+        _pendingAreaOfInterestRequests.add(new AreaOfInterestRequest(datasetAddress, action, filterParameter));
     }
 
     void enqueueResponse(@NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
@@ -125,21 +126,23 @@ abstract class Connection {
 
     /**
      * Return true if an area of interest request with specified parameters is pending or being processed.
-     * When the action parameter is DELETE the filter parameter is ignored.
+     * When the action parameter is DELETE the Filter Parameter is ignored.
      */
     boolean isAreaOfInterestRequestPending(
             final AreaOfInterestRequest.@NonNull Type action,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
+            @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
+                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filterParameter,
                     () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE "
-                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "request for Dataset Address '" + datasetAddress
+                            + "' with a non-null Filter Parameter '" + filterParameter
                             + "'.");
         }
-        return _currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter))
-                || _pendingAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter));
+        return _currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filterParameter))
+                || _pendingAreaOfInterestRequests.stream()
+                        .anyMatch(a -> a.match(action, datasetAddress, filterParameter));
     }
 
     /**
@@ -148,12 +151,13 @@ abstract class Connection {
     int lastIndexOfPendingAreaOfInterestRequest(
             final AreaOfInterestRequest.@NonNull Type action,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
+            @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filter,
+                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filterParameter,
                     () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE "
-                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "request for Dataset Address '" + datasetAddress
+                            + "' with a non-null Filter Parameter '" + filterParameter
                             + "'.");
         }
         int index = _pendingAreaOfInterestRequests.size();
@@ -161,12 +165,12 @@ abstract class Connection {
         final Iterator<AreaOfInterestRequest> iterator = _pendingAreaOfInterestRequests.descendingIterator();
         while (iterator.hasNext()) {
             final AreaOfInterestRequest request = iterator.next();
-            if (request.match(action, datasetAddress, filter)) {
+            if (request.match(action, datasetAddress, filterParameter)) {
                 return index;
             }
             index -= 1;
         }
-        if (_currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filter))) {
+        if (_currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filterParameter))) {
             return 0;
         } else {
             return -1;
@@ -348,7 +352,8 @@ abstract class Connection {
                 && template.getDatasetAddress().datasetId()
                         == match.getDatasetAddress().datasetId()
                 && (AreaOfInterestRequest.Type.REMOVE == match.getType()
-                        || FilterUtil.filtersEqual(match.getFilter(), template.getFilter()));
+                        || FilterParameterUtil.filterParametersEqual(
+                                match.getFilterParameter(), template.getFilterParameter()));
     }
 
     /**

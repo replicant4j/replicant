@@ -40,7 +40,7 @@ import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityMessage;
-import replicant.server.FilterUtil;
+import replicant.server.FilterParameterUtil;
 import replicant.server.ServerConstants;
 import replicant.server.SubscriptionAction;
 import replicant.server.SubscriptionDependency;
@@ -620,13 +620,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var toSubscribe = targetDatasetAddress.hasDatasetRootId()
                         ? pending.stream()
                                 .filter(a -> a.targetDatasetAddress().datasetId() == targetDatasetAddress.datasetId()
-                                        && Objects.equals(a.filter(), entry.filter()))
+                                        && Objects.equals(a.filterParameter(), entry.filterParameter()))
                                 .toList()
                         : Collections.singletonList(entry);
                 final var datasetAddresses = toSubscribe.stream()
                         .map(SubscriptionDependencyEntry::targetDatasetAddress)
                         .toList();
-                doSubscribe(session, datasetAddresses, entry.filter(), changeSet, false);
+                doSubscribe(session, datasetAddresses, entry.filterParameter(), changeSet, false);
                 toSubscribe.forEach(pending::remove);
                 for (final var e : toSubscribe) {
                     final var sourceEntry = session.getSubscriptionEntry(e.sourceDatasetAddress());
@@ -687,13 +687,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private DatasetAddress resolveTargetDatasetAddress(
             @NonNull final EntityMessage entityMessage,
             @NonNull final DatasetAddress sourceDatasetAddress,
-            @Nullable final JsonObject sourceFilter,
+            @Nullable final JsonObject sourceFilterParameter,
             @NonNull final DatasetAddress targetDatasetAddress,
-            @Nullable final JsonObject targetFilter) {
+            @Nullable final JsonObject targetFilterParameter) {
         if (targetDatasetAddress.partial()) {
             assert entityMessage.isUpdate();
             final var datasetKey = _context.deriveTargetDatasetKey(
-                    entityMessage, sourceDatasetAddress, sourceFilter, targetDatasetAddress, targetFilter);
+                    entityMessage,
+                    sourceDatasetAddress,
+                    sourceFilterParameter,
+                    targetDatasetAddress,
+                    targetFilterParameter);
             final var concreteTargetDatasetAddress = DatasetAddress.of(
                     targetDatasetAddress.datasetId(), targetDatasetAddress.datasetRootId(), datasetKey);
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), concreteTargetDatasetAddress);
@@ -721,8 +725,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             resolveSubscriptionDependencyIfRequired(entityMessage, sourceEntry, subscriptionDependency);
                     if (null != resolved) {
                         final var existing =
-                                desiredTargets.putIfAbsent(resolved.targetDatasetAddress(), resolved.filter());
-                        assert null == existing || Objects.equals(existing, resolved.filter());
+                                desiredTargets.putIfAbsent(resolved.targetDatasetAddress(), resolved.filterParameter());
+                        assert null == existing || Objects.equals(existing, resolved.filterParameter());
                     }
                 }
             }
@@ -746,7 +750,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         for (final var entry : desiredTargets.entrySet()) {
             final var pending = createOrUpdateSubscriptionDependencyEntry(
-                    session, owner, sourceEntry, entry.getKey(), entry.getValue());
+                    session, owner, sourceEntry, entry.getKey(), entry.getValue(), changeSet);
             if (null != pending) {
                 targets.add(pending);
             }
@@ -760,22 +764,23 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final SubscriptionDependency subscriptionDependency) {
         final var sourceDatasetAddress = sourceEntry.datasetAddress();
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), sourceDatasetAddress);
-        final var sourceFilter = sourceEntry.getFilter();
+        final var sourceFilterParameter = sourceEntry.getFilterParameter();
         final var targetDatasetAddress = resolveTargetDatasetAddress(
                 entityMessage,
                 sourceDatasetAddress,
-                sourceFilter,
+                sourceFilterParameter,
                 subscriptionDependency.targetDatasetAddress(),
-                subscriptionDependency.targetFilter());
+                subscriptionDependency.targetFilterParameter());
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), targetDatasetAddress);
         final var dataset = getSchemaMetaData().getDatasetMetadata(targetDatasetAddress);
-        if (dataset.requiresFilterParameter()) {
-            final var filter = subscriptionDependency.hasTargetFilter()
-                    ? subscriptionDependency.targetFilter()
-                    : _context.deriveTargetFilter(
-                            entityMessage, sourceDatasetAddress, sourceFilter, targetDatasetAddress);
-            return _context.shouldFollowDatasetLink(sourceDatasetAddress, sourceFilter, targetDatasetAddress, filter)
-                    ? new ResolvedSubscriptionDependency(targetDatasetAddress, filter)
+        if (dataset.isParameterFiltered()) {
+            final var filterParameter = subscriptionDependency.hasTargetFilterParameter()
+                    ? subscriptionDependency.targetFilterParameter()
+                    : _context.deriveTargetFilterParameter(
+                            entityMessage, sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress);
+            return _context.shouldFollowDatasetLink(
+                            sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress, filterParameter)
+                    ? new ResolvedSubscriptionDependency(targetDatasetAddress, filterParameter)
                     : null;
         } else {
             return new ResolvedSubscriptionDependency(targetDatasetAddress, null);
@@ -788,16 +793,35 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final DatasetAddress targetDatasetAddress,
-            @Nullable final JsonObject filter) {
+            @Nullable final JsonObject filterParameter,
+            @NonNull final ChangeSet changeSet) {
         final var targetEntry = session.findSubscriptionEntry(targetDatasetAddress);
         if (null == targetEntry) {
-            return new SubscriptionDependencyEntry(owner, sourceEntry.datasetAddress(), targetDatasetAddress, filter);
+            return new SubscriptionDependencyEntry(
+                    owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
         } else {
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), sourceEntry.datasetAddress());
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), targetEntry.datasetAddress());
-            session.recordSubscriptionDependency(sourceEntry, targetEntry, owner);
-            targetEntry.setFilter(filter);
-            return null;
+            if (FilterParameterUtil.filterParametersEqual(filterParameter, targetEntry.getFilterParameter())) {
+                session.recordSubscriptionDependency(sourceEntry, targetEntry, owner);
+                return null;
+            } else if (getSchemaMetaData()
+                    .getDatasetMetadata(targetDatasetAddress)
+                    .hasUpdatableFilterParameter()) {
+                return new SubscriptionDependencyEntry(
+                        owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
+            } else {
+                session.removeDownstreamSubscriptionDependency(sourceEntry, owner, targetDatasetAddress, changeSet);
+                if (session.isSubscriptionEntryPresent(targetDatasetAddress)) {
+                    throw fixedFilterParameterUpdateException(
+                            getSchemaMetaData().getDatasetMetadata(targetDatasetAddress),
+                            targetDatasetAddress,
+                            targetEntry.getFilterParameter(),
+                            filterParameter);
+                }
+                return new SubscriptionDependencyEntry(
+                        owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
+            }
         }
     }
 
@@ -856,11 +880,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     if (null != datasetRootIds) {
                         for (final var datasetRootId : datasetRootIds) {
                             final var datasetAddress = DatasetAddress.of(dataset.getDatasetId(), datasetRootId);
-                            final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
+                            final var hasFilter = !dataset.isUnfiltered();
                             for (final var entry : session.findSubscriptionEntries(
                                     datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                                 final var entryDatasetAddress = entry.datasetAddress();
-                                final var m = isFiltered
+                                final var m = hasFilter
                                         ? _context.filterEntityMessage(session, entryDatasetAddress, message)
                                         : message;
                                 if (null != m && m.isDelete()) {
@@ -889,12 +913,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var dataset = schema.getDatasetMetadata(i);
                 final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                 if (null != datasetAddresses) {
-                    final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
+                    final var hasFilter = !dataset.isUnfiltered();
                     for (final var datasetAddress : datasetAddresses) {
                         for (final var entry : session.findSubscriptionEntries(
                                 datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                             final var entryDatasetAddress = entry.datasetAddress();
-                            final var m = isFiltered
+                            final var m = hasFilter
                                     ? _context.filterEntityMessage(session, entryDatasetAddress, message)
                                     : message;
                             if (null != m) {
@@ -923,7 +947,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     // semantics must
                     // win.
                     if (!datasetRootDeletedDatasetAddresses.contains(targetEntry.datasetAddress())
-                            && FilterUtil.filtersEqual(entry.getValue(), targetEntry.getFilter())) {
+                            && FilterParameterUtil.filterParametersEqual(
+                                    entry.getValue(), targetEntry.getFilterParameter())) {
                         session.recordSubscriptionDependency(sourceEntry, targetEntry, owner);
                     }
                 }
@@ -936,7 +961,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             final int requestId,
             @NonNull final List<DatasetAddress> datasetAddresses,
-            @Nullable final JsonObject filter) {
+            @Nullable final JsonObject filterParameter) {
         if (InvariantUtil.isInvariantCheckingEnabled()) {
             datasetAddresses.forEach(
                     datasetAddress -> InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress));
@@ -950,8 +975,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (session.isOpen()) {
                 final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
                 sessionChanges.setRequired(true);
-                datasetAddresses.forEach(datasetAddress -> _context.preSubscribe(session, datasetAddress, filter));
-                doSubscribe(session, datasetAddresses, filter, sessionChanges, true);
+                datasetAddresses.forEach(
+                        datasetAddress -> _context.preSubscribe(session, datasetAddress, filterParameter));
+                doSubscribe(session, datasetAddresses, filterParameter, sessionChanges, true);
             }
         });
     }
@@ -959,7 +985,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private void doSubscribe(
             @NonNull final ReplicantSession session,
             @NonNull final List<DatasetAddress> datasetAddresses,
-            @Nullable final JsonObject filter,
+            @Nullable final JsonObject filterParameter,
             @NonNull final ChangeSet changeSet,
             final boolean isExplicitSubscribe) {
         final var uniqueDatasetAddresses = datasetAddresses.stream().distinct().toList();
@@ -976,7 +1002,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         subscribeToRequiredTypeDatasets(session, dataset);
 
         final var newDatasetAddresses = new ArrayList<DatasetAddress>();
-        // Original Filter => Dataset Addresses
+        // Original Filter Parameter => Dataset Addresses
         final var datasetAddressesToUpdate = new HashMap<JsonObject, List<DatasetAddress>>();
 
         for (final var datasetAddress : uniqueDatasetAddresses) {
@@ -991,10 +1017,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (null == entry) {
                 newDatasetAddresses.add(datasetAddress);
             } else {
-                final var existingFilter = entry.getFilter();
-                if (!FilterUtil.filtersEqual(filter, existingFilter)) {
+                final var existingFilterParameter = entry.getFilterParameter();
+                if (!FilterParameterUtil.filterParametersEqual(filterParameter, existingFilterParameter)) {
                     datasetAddressesToUpdate
-                            .computeIfAbsent(existingFilter, k -> new ArrayList<>())
+                            .computeIfAbsent(existingFilterParameter, k -> new ArrayList<>())
                             .add(datasetAddress);
                 } else if (!entry.isExplicitlySubscribed() && isExplicitSubscribe) {
                     entry.setExplicitlySubscribed(true);
@@ -1006,9 +1032,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (dataset.isCacheable()) {
                 // Only Type Datasets are cached at present; caching Instance Datasets requires additional plumbing.
                 assert dataset.isTypeDataset();
-                // Only unfiltered Datasets are currently supported as cache targets, although static or internal
-                // caching would be possible if we wanted to add support
-                assert DatasetMetadata.FilterType.NONE == dataset.filterType();
+                // Only Unfiltered Datasets are currently supported as cache targets.
+                assert dataset.isUnfiltered();
                 for (var newDatasetAddress : newDatasetAddresses) {
                     final var cacheEntry = tryGetCacheEntry(newDatasetAddress);
                     if (null != cacheEntry) {
@@ -1031,7 +1056,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             final var cacheChangeSet = new ChangeSet();
                             cacheChangeSet.merge(cacheEntry.getChangeSet());
                             // cacheChangeSet.mergeSubscriptionAction(
-                            //     newDatasetAddress, SubscriptionAction.Action.SUBSCRIBE, filter );
+                            //     newDatasetAddress, SubscriptionAction.Action.SUBSCRIBE, filterParameter );
                             queueCachedChangeSet(session, cacheChangeSet);
                             changeSet.setRequired(false);
                         }
@@ -1040,7 +1065,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         if (isExplicitSubscribe) {
                             entry.setExplicitlySubscribed(true);
                         }
-                        entry.setFilter(filter);
+                        entry.setFilterParameter(filterParameter);
                     } else {
                         // If we get here then we have requested a cacheable Instance Dataset
                         // whose Dataset Root has been removed
@@ -1052,22 +1077,26 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     }
                 }
             } else {
-                _context.collectSubscriptionData(session, newDatasetAddresses, filter, changeSet, isExplicitSubscribe);
+                _context.collectSubscriptionData(
+                        session, newDatasetAddresses, filterParameter, changeSet, isExplicitSubscribe);
             }
         }
         if (!datasetAddressesToUpdate.isEmpty()) {
             assert !dataset.isCacheable();
             for (final var update : datasetAddressesToUpdate.entrySet()) {
-                final var originalFilter = update.getKey();
+                final var originalFilterParameter = update.getKey();
                 final var updateDatasetAddresses = update.getValue();
 
-                if (dataset.filterType().isDynamicFilter()) {
-                    _context.collectSubscriptionDataForFilterChange(
-                            session, updateDatasetAddresses, originalFilter, Objects.requireNonNull(filter), changeSet);
+                if (dataset.hasUpdatableFilterParameter()) {
+                    _context.collectSubscriptionDataForFilterParameterChange(
+                            session,
+                            updateDatasetAddresses,
+                            originalFilterParameter,
+                            Objects.requireNonNull(filterParameter),
+                            changeSet);
                 } else {
-                    final var message = "Attempted to update filter on Dataset " + dataset.getName() + " to " + filter
-                            + " but the Dataset has a static filter. Unsubscribe and resubscribe to the Dataset.";
-                    throw new AttemptedToUpdateStaticFilterException(message);
+                    throw fixedFilterParameterUpdateException(
+                            dataset, updateDatasetAddresses.get(0), originalFilterParameter, filterParameter);
                 }
             }
         }
@@ -1083,7 +1112,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final DatasetAddress datasetAddress,
             final boolean explicitlySubscribe,
-            @Nullable final JsonObject filter,
+            @Nullable final JsonObject filterParameter,
             @NonNull final ChangeSet changeSet) {
         final var datasetMetadata = getSchemaMetaData().getDatasetMetadata(datasetAddress);
 
@@ -1092,19 +1121,27 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (explicitlySubscribe) {
                 entry.setExplicitlySubscribed(true);
             }
-            if (datasetMetadata.filterType().isDynamicFilter()) {
-                doSubscribe(session, Collections.singletonList(datasetAddress), filter, changeSet, true);
-            } else if (datasetMetadata.filterType().isStaticFilter()) {
-                final var existingFilter = entry.getFilter();
-                if (!FilterUtil.filtersEqual(filter, existingFilter)) {
-                    final var message = "Attempted to update filter for Dataset Address " + entry.datasetAddress()
-                            + " from " + existingFilter + " to " + filter
-                            + " for a Dataset that has a static filter. Unsubscribe and resubscribe to the Dataset.";
-                    throw new AttemptedToUpdateStaticFilterException(message);
+            if (datasetMetadata.hasUpdatableFilterParameter()) {
+                doSubscribe(
+                        session,
+                        Collections.singletonList(datasetAddress),
+                        filterParameter,
+                        changeSet,
+                        explicitlySubscribe);
+            } else if (datasetMetadata.hasFixedFilterParameter()) {
+                final var existingFilterParameter = entry.getFilterParameter();
+                if (!FilterParameterUtil.filterParametersEqual(filterParameter, existingFilterParameter)) {
+                    throw fixedFilterParameterUpdateException(
+                            datasetMetadata, entry.datasetAddress(), existingFilterParameter, filterParameter);
                 }
             }
         } else {
-            doSubscribe(session, Collections.singletonList(datasetAddress), filter, changeSet, true);
+            doSubscribe(
+                    session,
+                    Collections.singletonList(datasetAddress),
+                    filterParameter,
+                    changeSet,
+                    explicitlySubscribe);
         }
     }
 
@@ -1124,11 +1161,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
         for (final var requiredTypeDataset : requiredTypeDatasets) {
             assert requiredTypeDataset.isTypeDataset();
-            // At the moment we propagate no filters ... which is fine
-            assert DatasetMetadata.FilterType.NONE == requiredTypeDataset.filterType();
+            // At the moment we propagate no Filter Parameters.
+            assert requiredTypeDataset.isUnfiltered();
             final var datasetAddress = DatasetAddress.of(requiredTypeDataset.getDatasetId());
 
-            // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
+            // This check is sufficient as it is not an explicit subscribe and there are no Filter Parameters that can
+            // change.
             if (!session.isSubscriptionEntryPresent(datasetAddress)) {
                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
                 final var requestComplete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
@@ -1193,7 +1231,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         assert metaData.isCacheable();
         // We have not implemented the ability to cache filtered Datasets. When it has been implemented, we can remove
         // this assertion.
-        assert !metaData.requiresFilterParameter();
+        assert metaData.isUnfiltered();
         // We have not implemented the ability to cache Instance Datasets. When it has been implemented we can remove
         // this
         // assertion.
@@ -1227,7 +1265,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 assert null == cacheKey;
                 return null;
             } else {
-                // action can only be an update as we have supplied no filter and we are not attemptint to unsubscribe
+                // The action can only be a subscribe as we supplied no Filter Parameter and are not attempting to
+                // unsubscribe.
                 assert SubscriptionAction.Action.SUBSCRIBE == action;
                 entry.init(Objects.requireNonNull(cacheKey), changeSet);
                 return entry;
@@ -1331,9 +1370,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var dataset = schema.getDatasetMetadata(i);
                 final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                 if (null != datasetAddresses) {
-                    final var isFiltered = DatasetMetadata.FilterType.NONE != dataset.filterType();
+                    final var hasFilter = !dataset.isUnfiltered();
                     for (final var datasetAddress : datasetAddresses) {
-                        processUpdateMessage(datasetAddress, message, session, changeSet, isFiltered);
+                        processUpdateMessage(datasetAddress, message, session, changeSet, hasFilter);
                     }
                 }
             }
@@ -1367,11 +1406,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final EntityMessage message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
-            final boolean isFiltered) {
+            final boolean hasFilter) {
         final var entries = session.findSubscriptionEntries(datasetAddress.datasetId(), datasetAddress.datasetRootId());
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
-            final var m = isFiltered ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
+            final var m = hasFilter ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
 
             // Process any messages that are in scope for session
             if (null != m) {
@@ -1393,9 +1432,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (null != datasetRootIds) {
                 for (final var datasetRootId : datasetRootIds) {
                     final var datasetAddress = DatasetAddress.of(dataset.getDatasetId(), datasetRootId);
-                    final var isFiltered = DatasetMetadata.FilterType.NONE
-                            != schema.getInstanceDatasetByIndex(i).filterType();
-                    processDeleteMessage(datasetAddress, message, session, changeSet, isFiltered);
+                    final var hasFilter = !schema.getInstanceDatasetByIndex(i).isUnfiltered();
+                    processDeleteMessage(datasetAddress, message, session, changeSet, hasFilter);
                 }
             }
         }
@@ -1408,18 +1446,18 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
      * @param message    the message to process
      * @param session    the session that message is being processed for.
      * @param changeSet  for changeSet for session.
-     * @param isFiltered a flag indicating that the Dataset is filtered.
+     * @param hasFilter true if the Dataset has a Filter.
      */
     private void processDeleteMessage(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final EntityMessage message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
-            final boolean isFiltered) {
+            final boolean hasFilter) {
         final var entries = session.findSubscriptionEntries(datasetAddress.datasetId(), datasetAddress.datasetRootId());
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
-            final var m = isFiltered ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
+            final var m = hasFilter ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
 
             // Process any deleted messages that are in scope for session
             if (null != m && m.isDelete()) {
@@ -1448,7 +1486,21 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 && Objects.equals(datasetAddress.datasetRootId(), message.getId());
     }
 
+    @NonNull
+    private AttemptedToUpdateFixedFilterParameterException fixedFilterParameterUpdateException(
+            @NonNull final DatasetMetadata dataset,
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final JsonObject existingFilterParameter,
+            @Nullable final JsonObject newFilterParameter) {
+        return new AttemptedToUpdateFixedFilterParameterException(
+                "Attempted to update the Fixed Filter Parameter for Dataset Address " + datasetAddress + " from "
+                        + existingFilterParameter + " to "
+                        + newFilterParameter + " on Dataset "
+                        + dataset.getName()
+                        + ". Unsubscribe and resubscribe to replace the Subscription.");
+    }
+
     private record ResolvedSubscriptionDependency(
             @NonNull DatasetAddress targetDatasetAddress,
-            @Nullable JsonObject filter) {}
+            @Nullable JsonObject filterParameter) {}
 }

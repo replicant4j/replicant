@@ -106,16 +106,16 @@ public final class ReplicantContext {
 
     /**
      * Locate an existing AreaOfInterest with specified Dataset Address or create a new AreaOfInterest.
-     * The filter is updated, if required, to match the specified parameter.
+     * The Filter Parameter is updated, if required, to match the specified parameter.
      *
      * @param datasetAddress the Dataset Address declared by the Area of Interest
-     * @param filter  the Filter Parameter used for the Subscription.
+     * @param filterParameter  the Filter Parameter used for the Subscription.
      * @return the AreaOfInterest.
      */
     @NonNull
     public AreaOfInterest createOrUpdateAreaOfInterest(
-            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
-        return getAreaOfInterestService().createOrUpdateAreaOfInterest(datasetAddress, filter);
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
+        return getAreaOfInterestService().createOrUpdateAreaOfInterest(datasetAddress, filterParameter);
     }
 
     /**

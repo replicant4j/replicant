@@ -195,8 +195,9 @@ public class ReplicantEndpoint {
         final var datasetMetadata = getDatasetMetadata(datasetAddress.datasetId());
         if (checkSubscribeRequest(replicantSession, datasetMetadata, datasetAddress)) {
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filter = extractFilter(datasetMetadata, command);
-            _sessionManager.subscribe(replicantSession, requestId, Collections.singletonList(datasetAddress), filter);
+            final var filterParameter = extractFilterParameter(datasetMetadata, command);
+            _sessionManager.subscribe(
+                    replicantSession, requestId, Collections.singletonList(datasetAddress), filterParameter);
         }
     }
 
@@ -242,8 +243,8 @@ public class ReplicantEndpoint {
             }
 
             final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filter = extractFilter(datasetMetadata, command);
-            _sessionManager.subscribe(session, requestId, Arrays.asList(datasetAddresses), filter);
+            final var filterParameter = extractFilterParameter(datasetMetadata, command);
+            _sessionManager.subscribe(session, requestId, Arrays.asList(datasetAddresses), filterParameter);
         }
     }
 
@@ -259,12 +260,12 @@ public class ReplicantEndpoint {
     }
 
     @Nullable
-    private JsonObject extractFilter(
+    private JsonObject extractFilterParameter(
             @NonNull final DatasetMetadata datasetMetadata, @NonNull final JsonObject command) {
-        return datasetMetadata.requiresFilterParameter()
-                        && command.containsKey(Messages.Update.FILTER)
-                        && !command.isNull(Messages.Update.FILTER)
-                ? command.getJsonObject(Messages.Update.FILTER)
+        return datasetMetadata.isParameterFiltered()
+                        && command.containsKey(Messages.Update.FILTER_PARAMETER)
+                        && !command.isNull(Messages.Update.FILTER_PARAMETER)
+                ? command.getJsonObject(Messages.Update.FILTER_PARAMETER)
                 : null;
     }
 
@@ -329,7 +330,7 @@ public class ReplicantEndpoint {
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
         final boolean hasDatasetKey = null != datasetAddress.datasetKey();
-        if (datasetMetadata.requiresDatasetKey()) {
+        if (datasetMetadata.isKeyed()) {
             if (!hasDatasetKey) {
                 sendErrorAndClose(session, "Attempted to use a Dataset Address without a required Dataset Key");
                 return false;

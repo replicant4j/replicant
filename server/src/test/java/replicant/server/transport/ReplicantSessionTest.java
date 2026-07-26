@@ -280,12 +280,13 @@ public class ReplicantSessionTest {
 
         session.getLock().lock();
         try {
-            final JsonObject filter = Json.createObjectBuilder().add("k", "v").build();
-            session.recordSubscription(changeSet, datasetAddress, filter, true);
+            final JsonObject filterParameter =
+                    Json.createObjectBuilder().add("k", "v").build();
+            session.recordSubscription(changeSet, datasetAddress, filterParameter, true);
 
             final var entry = session.getSubscriptionEntry(datasetAddress);
             assertTrue(entry.isExplicitlySubscribed());
-            assertEquals(entry.getFilter(), filter);
+            assertEquals(entry.getFilterParameter(), filterParameter);
         } finally {
             session.getLock().unlock();
         }
@@ -294,8 +295,8 @@ public class ReplicantSessionTest {
         final var action = changeSet.getSubscriptionActions().get(0);
         assertEquals(action.datasetAddress(), datasetAddress);
         assertEquals(action.action(), SubscriptionAction.Action.SUBSCRIBE);
-        assertNotNull(action.filter());
-        assertEquals(Objects.requireNonNull(action.filter()).getString("k"), "v");
+        assertNotNull(action.filterParameter());
+        assertEquals(Objects.requireNonNull(action.filterParameter()).getString("k"), "v");
     }
 
     @Test
@@ -307,14 +308,16 @@ public class ReplicantSessionTest {
         session.getLock().lock();
         try {
             final var entry = session.createSubscriptionEntry(datasetAddress);
-            entry.setFilter(Json.createObjectBuilder().add("old", "value").build());
+            entry.setFilterParameter(
+                    Json.createObjectBuilder().add("old", "value").build());
             assertFalse(entry.isExplicitlySubscribed());
 
-            final var newFilter = Json.createObjectBuilder().add("k", "v").build();
-            session.recordSubscription(changeSet, datasetAddress, newFilter, true);
+            final var newFilterParameter =
+                    Json.createObjectBuilder().add("k", "v").build();
+            session.recordSubscription(changeSet, datasetAddress, newFilterParameter, true);
 
             assertTrue(entry.isExplicitlySubscribed());
-            assertEquals(entry.getFilter(), newFilter);
+            assertEquals(entry.getFilterParameter(), newFilterParameter);
         } finally {
             session.getLock().unlock();
         }
@@ -543,12 +546,13 @@ public class ReplicantSessionTest {
         session.getLock().lock();
         try {
             session.createSubscriptionEntry(datasetAddress);
-            final JsonObject filter = Json.createObjectBuilder().add("k", "v").build();
-            session.setFilter(datasetAddress, filter);
-            assertEquals(session.getFilter(datasetAddress), filter);
+            final JsonObject filterParameter =
+                    Json.createObjectBuilder().add("k", "v").build();
+            session.setFilterParameter(datasetAddress, filterParameter);
+            assertEquals(session.getFilterParameter(datasetAddress), filterParameter);
 
-            session.setFilter(datasetAddress, null);
-            assertNull(session.getFilter(datasetAddress));
+            session.setFilterParameter(datasetAddress, null);
+            assertNull(session.getFilterParameter(datasetAddress));
         } finally {
             session.getLock().unlock();
         }

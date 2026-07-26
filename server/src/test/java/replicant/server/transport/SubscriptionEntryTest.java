@@ -32,7 +32,7 @@ public class SubscriptionEntryTest {
         assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
         assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
         assertTrue(entry.canUnsubscribe());
-        assertNull(entry.getFilter());
+        assertNull(entry.getFilterParameter());
 
         entry.setExplicitlySubscribed(true);
         assertTrue(entry.isExplicitlySubscribed());
@@ -41,12 +41,12 @@ public class SubscriptionEntryTest {
         assertFalse(entry.isExplicitlySubscribed());
         assertTrue(entry.canUnsubscribe());
 
-        final var filter = Json.createObjectBuilder().build();
+        final var filterParameter = Json.createObjectBuilder().build();
 
-        entry.setFilter(filter);
-        assertEquals(entry.getFilter(), filter);
-        entry.setFilter(null);
-        assertNull(entry.getFilter());
+        entry.setFilterParameter(filterParameter);
+        assertEquals(entry.getFilterParameter(), filterParameter);
+        entry.setFilterParameter(null);
+        assertNull(entry.getFilterParameter());
 
         // Deregister when there is none subscribed
         assertEquals(

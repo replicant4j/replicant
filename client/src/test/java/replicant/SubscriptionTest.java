@@ -10,27 +10,27 @@ public class SubscriptionTest extends AbstractReplicantTest {
     @Test
     public void basicConstruction() {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final Object filter = ValueUtil.randomString();
-        final Subscription subscription = Subscription.create(null, datasetAddress, filter, true);
+        final Object filterParameter = ValueUtil.randomString();
+        final Subscription subscription = Subscription.create(null, datasetAddress, filterParameter, true);
 
         assertEquals(subscription.datasetAddress(), datasetAddress);
 
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
         safeAction(() -> assertEquals(subscription.getReplicaEntries().size(), 0));
-        safeAction(() -> assertEquals(subscription.getFilter(), filter));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter));
     }
 
     @Test
-    public void filter() {
-        final Object filter1 = ValueUtil.randomString();
-        final Object filter2 = ValueUtil.randomString();
+    public void filterParameter() {
+        final Object filterParameter1 = ValueUtil.randomString();
+        final Object filterParameter2 = ValueUtil.randomString();
 
         final Subscription subscription =
-                Subscription.create(null, new DatasetAddress(1, 0), filter1, ValueUtil.randomBoolean());
+                Subscription.create(null, new DatasetAddress(1, 0), filterParameter1, ValueUtil.randomBoolean());
 
-        safeAction(() -> assertEquals(subscription.getFilter(), filter1));
-        safeAction(() -> subscription.setFilter(filter2));
-        safeAction(() -> assertEquals(subscription.getFilter(), filter2));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter1));
+        safeAction(() -> subscription.setFilterParameter(filterParameter2));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter2));
     }
 
     @Test
@@ -196,7 +196,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -216,7 +217,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -244,7 +246,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -269,7 +272,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 A.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -294,7 +298,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,

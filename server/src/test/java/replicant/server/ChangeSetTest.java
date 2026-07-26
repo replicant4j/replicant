@@ -58,8 +58,10 @@ public class ChangeSetTest {
 
         assertEquals(changeSet.getSubscriptionActions().size(), 0);
 
-        final var filter = Json.createBuilderFactory(null).createObjectBuilder().build();
-        changeSet.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(1, 2), Action.SUBSCRIBE, filter));
+        final var filterParameter =
+                Json.createBuilderFactory(null).createObjectBuilder().build();
+        changeSet.mergeSubscriptionAction(
+                SubscriptionAction.of(DatasetAddress.of(1, 2), Action.SUBSCRIBE, filterParameter));
 
         assertEquals(changeSet.getSubscriptionActions().size(), 1);
 
@@ -67,7 +69,7 @@ public class ChangeSetTest {
         assertEquals(action.datasetAddress().datasetId(), 1);
         assertEquals(action.datasetAddress().datasetRootId(), (Integer) 2);
         assertEquals(action.action(), Action.SUBSCRIBE);
-        assertEquals(action.filter(), filter);
+        assertEquals(action.filterParameter(), filterParameter);
     }
 
     @Test
@@ -76,8 +78,8 @@ public class ChangeSetTest {
 
         assertEquals(changeSet.getSubscriptionActions().size(), 0);
 
-        final var myFilter = Json.createObjectBuilder().add("k", "v").build();
-        changeSet.mergeSubscriptionAction(DatasetAddress.of(1, 2), Action.SUBSCRIBE, myFilter);
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
+        changeSet.mergeSubscriptionAction(DatasetAddress.of(1, 2), Action.SUBSCRIBE, filterParameter);
 
         assertEquals(changeSet.getSubscriptionActions().size(), 1);
 
@@ -86,7 +88,7 @@ public class ChangeSetTest {
         assertEquals(action.datasetAddress().datasetRootId(), (Integer) 2);
         assertEquals(action.action(), Action.SUBSCRIBE);
 
-        assertEquals(action.filter(), myFilter);
+        assertEquals(action.filterParameter(), filterParameter);
     }
 
     @Test
@@ -121,8 +123,10 @@ public class ChangeSetTest {
         final var change1 = new Change(message1);
         changeSet.merge(change1);
 
-        final var filter = Json.createBuilderFactory(null).createObjectBuilder().build();
-        changeSet.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(1, 2), Action.SUBSCRIBE, filter));
+        final var filterParameter =
+                Json.createBuilderFactory(null).createObjectBuilder().build();
+        changeSet.mergeSubscriptionAction(
+                SubscriptionAction.of(DatasetAddress.of(1, 2), Action.SUBSCRIBE, filterParameter));
 
         final var changeSet2 = new ChangeSet();
         changeSet2.merge(changeSet);
@@ -140,7 +144,7 @@ public class ChangeSetTest {
         assertEquals(action.datasetAddress().datasetId(), 1);
         assertEquals(action.datasetAddress().datasetRootId(), (Integer) 2);
         assertEquals(action.action(), Action.SUBSCRIBE);
-        assertEquals(action.filter(), filter);
+        assertEquals(action.filterParameter(), filterParameter);
     }
 
     @Test
@@ -187,11 +191,11 @@ public class ChangeSetTest {
         final var datasetAddress2 = DatasetAddress.of(1, 3);
         final var datasetAddress3 = DatasetAddress.of(1, 4);
 
-        final var filter = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
 
-        changeSet.mergeSubscriptionAction(datasetAddress1, Action.SUBSCRIBE, filter);
+        changeSet.mergeSubscriptionAction(datasetAddress1, Action.SUBSCRIBE, filterParameter);
         changeSet.mergeSubscriptionAction(datasetAddress2, Action.UNSUBSCRIBE);
-        changeSet.mergeSubscriptionAction(datasetAddress3, Action.UPDATE, filter);
+        changeSet.mergeSubscriptionAction(datasetAddress3, Action.UPDATE, filterParameter);
 
         assertEquals(changeSet.getSubscriptionActions().size(), 3);
 
@@ -241,22 +245,24 @@ public class ChangeSetTest {
     }
 
     @Test
-    public void mergeSubscriptionAction_filteredSubscribeAndUnsubscribeWithSameFilterCancel() {
+    public void mergeSubscriptionAction_parameterFilteredReplacementCollapsesToSubscribe() {
         final var datasetAddress = DatasetAddress.of(1, 2);
-        final var filter1 = Json.createObjectBuilder().add("k", "v").build();
-        final var filter2 = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter1 = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter2 = Json.createObjectBuilder().add("k", "v").build();
 
         final var subscribeThenUnsubscribe = new ChangeSet();
-        subscribeThenUnsubscribe.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filter1);
+        subscribeThenUnsubscribe.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filterParameter1);
         subscribeThenUnsubscribe.mergeSubscriptionAction(datasetAddress, Action.UNSUBSCRIBE);
 
         assertTrue(subscribeThenUnsubscribe.getSubscriptionActions().isEmpty());
 
         final var unsubscribeThenSubscribe = new ChangeSet();
         unsubscribeThenSubscribe.mergeSubscriptionAction(datasetAddress, Action.UNSUBSCRIBE);
-        unsubscribeThenSubscribe.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filter2);
+        unsubscribeThenSubscribe.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filterParameter2);
 
-        assertTrue(unsubscribeThenSubscribe.getSubscriptionActions().isEmpty());
+        assertEquals(
+                unsubscribeThenSubscribe.getSubscriptionActions(),
+                List.of(SubscriptionAction.of(datasetAddress, Action.SUBSCRIBE, filterParameter2)));
     }
 
     @Test
@@ -272,33 +278,33 @@ public class ChangeSetTest {
     }
 
     @Test
-    public void mergeSubscriptionAction_filteredUpdateAfterSubscribeWithSameFilterIsIgnored() {
+    public void mergeSubscriptionAction_withFilterParameterUpdateAfterSubscribeWithSameFilterIsIgnored() {
         final var datasetAddress = DatasetAddress.of(1, 2);
-        final var filter1 = Json.createObjectBuilder().add("k", "v").build();
-        final var filter2 = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter1 = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter2 = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        changeSet.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filter1);
-        changeSet.mergeSubscriptionAction(datasetAddress, Action.UPDATE, filter2);
+        changeSet.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filterParameter1);
+        changeSet.mergeSubscriptionAction(datasetAddress, Action.UPDATE, filterParameter2);
 
         assertEquals(
                 changeSet.getSubscriptionActions(),
-                List.of(SubscriptionAction.of(datasetAddress, Action.SUBSCRIBE, filter1)));
+                List.of(SubscriptionAction.of(datasetAddress, Action.SUBSCRIBE, filterParameter1)));
     }
 
     @Test
-    public void mergeSubscriptionAction_filteredUpdateAfterSubscribeWithDifferentFilterIsMerged() {
+    public void mergeSubscriptionAction_withFilterParameterUpdateAfterSubscribeWithDifferentFilterIsMerged() {
         final var datasetAddress = DatasetAddress.of(1, 2);
-        final var filter1 = Json.createObjectBuilder().add("k", "v1").build();
-        final var filter2 = Json.createObjectBuilder().add("k", "v2").build();
+        final var filterParameter1 = Json.createObjectBuilder().add("k", "v1").build();
+        final var filterParameter2 = Json.createObjectBuilder().add("k", "v2").build();
         final var changeSet = new ChangeSet();
 
-        changeSet.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filter1);
-        changeSet.mergeSubscriptionAction(datasetAddress, Action.UPDATE, filter2);
+        changeSet.mergeSubscriptionAction(datasetAddress, Action.SUBSCRIBE, filterParameter1);
+        changeSet.mergeSubscriptionAction(datasetAddress, Action.UPDATE, filterParameter2);
 
         assertEquals(
                 changeSet.getSubscriptionActions(),
-                List.of(SubscriptionAction.of(datasetAddress, Action.SUBSCRIBE, filter2)));
+                List.of(SubscriptionAction.of(datasetAddress, Action.SUBSCRIBE, filterParameter2)));
     }
 
     private void assertAction(

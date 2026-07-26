@@ -58,12 +58,12 @@ public final class ChangeSet {
     public void mergeSubscriptionAction(
             @NonNull final DatasetAddress datasetAddress,
             final SubscriptionAction.@NonNull Action action,
-            @Nullable final JsonObject filter) {
+            @Nullable final JsonObject filterParameter) {
         //noinspection ConstantValue
         assert SubscriptionAction.Action.DELETE != action
                 || SubscriptionAction.Action.UNSUBSCRIBE != action
-                || null == filter;
-        mergeSubscriptionAction(SubscriptionAction.of(datasetAddress, action, filter));
+                || null == filterParameter;
+        mergeSubscriptionAction(SubscriptionAction.of(datasetAddress, action, filterParameter));
     }
 
     public void mergeSubscriptionAction(@NonNull final SubscriptionAction action) {
@@ -71,31 +71,34 @@ public final class ChangeSet {
         /*
          * If we have a matching inverse action in actions list then we can remove
          * that action and avoid adding this action. This avoids scenario where there
-         * are multiple actions for the same Dataset Address and filter in ChangeSet.
+         * are multiple actions for the same Dataset Address and Filter Parameter in ChangeSet.
+         * A parameterized SUBSCRIBE after an UNSUBSCRIBE is retained as a single SUBSCRIBE so a
+         * Fixed Filter Parameter replacement reaches the client.
          */
         if (SubscriptionAction.Action.SUBSCRIBE == actionType) {
             final var removedUnsubscribe =
                     _subscriptionActions.removeIf(a -> SubscriptionAction.Action.UNSUBSCRIBE == a.action()
                             && a.datasetAddress().equals(action.datasetAddress())
-                            && null == a.filter());
+                            && null == a.filterParameter());
             _subscriptionActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
-            if (removedUnsubscribe) {
+            if (removedUnsubscribe && null == action.filterParameter()) {
                 return;
             }
         } else if (SubscriptionAction.Action.UPDATE == actionType) {
             // We have got an update for one we are subscribing to so ignore the update and maybe update the existing
             // action
-            final var newFilter = action.filter();
+            final var newFilterParameter = action.filterParameter();
             var flags = new boolean[1];
             _subscriptionActions.replaceAll(a -> {
                 final var datasetAddress = a.datasetAddress();
                 if (SubscriptionAction.Action.SUBSCRIBE == a.action()
                         && datasetAddress.equals(action.datasetAddress())) {
                     flags[0] = true;
-                    if (FilterUtil.filtersEqual(a.filter(), newFilter)) {
+                    if (FilterParameterUtil.filterParametersEqual(a.filterParameter(), newFilterParameter)) {
                         return a;
                     } else {
-                        return SubscriptionAction.of(datasetAddress, SubscriptionAction.Action.SUBSCRIBE, newFilter);
+                        return SubscriptionAction.of(
+                                datasetAddress, SubscriptionAction.Action.SUBSCRIBE, newFilterParameter);
                     }
                 } else {
                     return a;

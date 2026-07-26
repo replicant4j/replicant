@@ -2,6 +2,22 @@
 
 ### Unreleased
 
+* Adopt the Filter and Filter Parameter model across Replicant, Domgen, and generated integrations:
+  * Replace compound `FilterType` states with `FilterMode` values `UNFILTERED`, `IMPLICIT`, and
+    `PARAMETER_FILTERED`, and represent Filter Parameter mutability separately with `FilterParameterMode` values
+    `FIXED` and `UPDATABLE`.
+  * Keep Dataset keying as independent metadata that is valid only for Parameter-Filtered Datasets, and migrate schema
+    metadata, predicates, validation, routing, filtering, diagnostics, and generated tests to the separated model.
+  * Replace the Domgen `:filtered`, `:dynamic_filter`, and Filter Parameter `:immutable` configuration with explicit
+    `FilterMode`, `FilterParameterMode`, and client Replica-membership re-evaluation configuration.
+  * Rename client Replica-membership hooks for the behavior they perform rather than Filter Parameter mutability.
+  * Rename Filter Parameter fields and accessors throughout the client and server, including the serialized
+    `filterParameter` and `filterParameterSubscriptionChanges` protocol fields.
+  This hard-cut API, DSL, and protocol migration is intentionally wire-incompatible with older clients and servers;
+  they must be upgraded together. A Dataset Key remains part of the Dataset Address while a Filter Parameter remains
+  outside it. Fixed Filter Parameter replacement, Updatable Filter Parameter updates, Dataset Link propagation,
+  routing, caching restrictions, membership removal, security, and Subscription Reconciliation behavior are
+  preserved. Subscription Mode is unchanged.
 * Adopt Type Dataset, Instance Dataset, and Dataset Root terminology across Replicant, Domgen, and generated
   integrations:
   * Rename client and server Dataset shape predicates to `isTypeDataset` and `isInstanceDataset`, and rename configured

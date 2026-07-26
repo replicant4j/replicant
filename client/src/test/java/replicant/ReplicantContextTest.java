@@ -39,23 +39,24 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
         final ReplicantContext context = Replicant.context();
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
-        final String filter2 = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
+        final String filterParameter2 = ValueUtil.randomString();
 
         safeAction(() -> {
             assertEquals(context.getAreasOfInterest().size(), 0);
             assertNull(context.findAreaOfInterestByDatasetAddress(datasetAddress));
 
-            final AreaOfInterest areaOfInterest = context.createOrUpdateAreaOfInterest(datasetAddress, filter);
+            final AreaOfInterest areaOfInterest = context.createOrUpdateAreaOfInterest(datasetAddress, filterParameter);
 
-            assertEquals(areaOfInterest.getFilter(), filter);
+            assertEquals(areaOfInterest.getFilterParameter(), filterParameter);
             assertEquals(context.getAreasOfInterest().size(), 1);
             assertEquals(context.findAreaOfInterestByDatasetAddress(datasetAddress), areaOfInterest);
 
-            final AreaOfInterest areaOfInterest2 = context.createOrUpdateAreaOfInterest(datasetAddress, filter2);
+            final AreaOfInterest areaOfInterest2 =
+                    context.createOrUpdateAreaOfInterest(datasetAddress, filterParameter2);
 
             assertEquals(areaOfInterest2, areaOfInterest);
-            assertEquals(areaOfInterest2.getFilter(), filter2);
+            assertEquals(areaOfInterest2.getFilterParameter(), filterParameter2);
             assertEquals(context.getAreasOfInterest().size(), 1);
             assertEquals(context.findAreaOfInterestByDatasetAddress(datasetAddress), areaOfInterest2);
             assertEquals(context.findAreaOfInterestByDatasetAddress(datasetAddress), areaOfInterest2);
@@ -154,9 +155,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 2);
-        final String filter1 = null;
-        final String filter2 = ValueUtil.randomString();
-        final String filter3 = ValueUtil.randomString();
+        final String filterParameter1 = null;
+        final String filterParameter2 = ValueUtil.randomString();
+        final String filterParameter3 = ValueUtil.randomString();
         final boolean explicitSubscription1 = true;
         final boolean explicitSubscription2 = true;
         final boolean explicitSubscription3 = false;
@@ -169,10 +170,11 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
 
-            final Subscription subscription1 = createSubscription(datasetAddress1, filter1, explicitSubscription1);
+            final Subscription subscription1 =
+                    createSubscription(datasetAddress1, filterParameter1, explicitSubscription1);
 
             assertEquals(subscription1.datasetAddress(), datasetAddress1);
-            assertEquals(subscription1.getFilter(), filter1);
+            assertEquals(subscription1.getFilterParameter(), filterParameter1);
             assertEquals(subscription1.isExplicitSubscription(), explicitSubscription1);
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
@@ -182,10 +184,11 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
 
-            final Subscription subscription2 = createSubscription(datasetAddress2, filter2, explicitSubscription2);
+            final Subscription subscription2 =
+                    createSubscription(datasetAddress2, filterParameter2, explicitSubscription2);
 
             assertEquals(subscription2.datasetAddress(), datasetAddress2);
-            assertEquals(subscription2.getFilter(), filter2);
+            assertEquals(subscription2.getFilterParameter(), filterParameter2);
             assertEquals(subscription2.isExplicitSubscription(), explicitSubscription2);
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
@@ -195,10 +198,11 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertEquals(context.findSubscription(datasetAddress2), subscription2);
             assertNull(context.findSubscription(datasetAddress3));
 
-            final Subscription subscription3 = createSubscription(datasetAddress3, filter3, explicitSubscription3);
+            final Subscription subscription3 =
+                    createSubscription(datasetAddress3, filterParameter3, explicitSubscription3);
 
             assertEquals(subscription3.datasetAddress(), datasetAddress3);
-            assertEquals(subscription3.getFilter(), filter3);
+            assertEquals(subscription3.getFilterParameter(), filterParameter3);
             assertEquals(subscription3.isExplicitSubscription(), explicitSubscription3);
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);

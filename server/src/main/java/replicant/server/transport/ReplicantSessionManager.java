@@ -61,7 +61,7 @@ public interface ReplicantSessionManager {
             @NonNull ReplicantSession session,
             int requestId,
             @NonNull List<DatasetAddress> datasetAddresses,
-            @Nullable JsonObject filter);
+            @Nullable JsonObject filterParameter);
 
     void unsubscribe(@NonNull ReplicantSession session, int requestId, @NonNull List<DatasetAddress> datasetAddresses);
 

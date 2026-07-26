@@ -37,7 +37,7 @@ final class MessageResponse {
     private LinkedList<Linkable> _replicasToLink = new LinkedList<>();
     /**
      * The list of Replicas that have been changed during processing.
-     * Used to provide a hook to perform local internal filtered subscription management.
+     * Used to invoke the schema hook after replicated data changes.
      */
     @NonNull
     private final LinkedList<Object> _replicasChanged = new LinkedList<>();
@@ -149,8 +149,8 @@ final class MessageResponse {
             final UpdateMessage message = (UpdateMessage) _message;
             return !_subscriptionActionsProcessed
                     && (message.hasSubscriptionChanges() && 0 != message.getSubscriptionChanges().length
-                            || message.hasFilteredSubscriptionChanges()
-                                    && 0 != message.getFilteredSubscriptionChanges().length);
+                            || message.hasFilterParameterSubscriptionChanges()
+                                    && 0 != message.getFilterParameterSubscriptionChanges().length);
         } else {
             return false;
         }
@@ -164,7 +164,7 @@ final class MessageResponse {
     List<SubscriptionChange> getSubscriptionChanges() {
         assert UpdateMessage.TYPE.equals(_message.getType());
         final UpdateMessage changeSet = (UpdateMessage) _message;
-        assert changeSet.hasSubscriptionChanges() || changeSet.hasFilteredSubscriptionChanges();
+        assert changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges();
         if (null == _parsedSubscriptionChanges) {
             _parsedSubscriptionChanges = toSubscriptionChanges(changeSet);
         }
@@ -274,8 +274,9 @@ final class MessageResponse {
                 changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
             }
         }
-        if (changeSet.hasFilteredSubscriptionChanges()) {
-            for (final SubscriptionChangeMessage subscriptionChange : changeSet.getFilteredSubscriptionChanges()) {
+        if (changeSet.hasFilterParameterSubscriptionChanges()) {
+            for (final SubscriptionChangeMessage subscriptionChange :
+                    changeSet.getFilterParameterSubscriptionChanges()) {
                 changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
             }
         }

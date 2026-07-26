@@ -20,22 +20,25 @@ final class AreaOfInterestRequest {
     private final Type _type;
 
     @Nullable
-    private final Object _filter;
+    private final Object _filterParameter;
 
     private int _requestId;
 
     AreaOfInterestRequest(
-            @NonNull final DatasetAddress datasetAddress, @NonNull final Type type, @Nullable final Object filter) {
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final Type type,
+            @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> type != Type.REMOVE || null == filter,
+                    () -> type != Type.REMOVE || null == filterParameter,
                     () -> "Replicant-0027: AreaOfInterestRequest constructor passed a REMOVE "
-                            + "request for Dataset Address '" + datasetAddress + "' with a non-null filter '" + filter
+                            + "request for Dataset Address '" + datasetAddress
+                            + "' with a non-null Filter Parameter '" + filterParameter
                             + "'.");
         }
         _datasetAddress = Objects.requireNonNull(datasetAddress);
         _type = Objects.requireNonNull(type);
-        _filter = filter;
+        _filterParameter = filterParameter;
         _requestId = -1;
     }
 
@@ -50,8 +53,8 @@ final class AreaOfInterestRequest {
     }
 
     @Nullable
-    Object getFilter() {
-        return _filter;
+    Object getFilterParameter() {
+        return _filterParameter;
     }
 
     boolean isInProgress() {
@@ -71,10 +74,13 @@ final class AreaOfInterestRequest {
     }
 
     boolean match(
-            @NonNull final Type action, @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+            @NonNull final Type action,
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final Object filterParameter) {
         return getType().equals(action)
                 && getDatasetAddress().equals(datasetAddress)
-                && (Type.REMOVE == action || FilterUtil.filtersEqual(filter, getFilter()));
+                && (Type.REMOVE == action
+                        || FilterParameterUtil.filterParametersEqual(filterParameter, getFilterParameter()));
     }
 
     @Override
@@ -83,7 +89,10 @@ final class AreaOfInterestRequest {
             final DatasetAddress datasetAddress = getDatasetAddress();
             return "AreaOfInterestRequest[" + "Type="
                     + _type + " Address="
-                    + datasetAddress + (null == _filter ? "" : " Filter=" + FilterUtil.filterToString(_filter))
+                    + datasetAddress
+                    + (null == _filterParameter
+                            ? ""
+                            : " Filter Parameter=" + FilterParameterUtil.filterParameterToString(_filterParameter))
                     + "]" + (-1 != _requestId ? "(InProgress)" : "");
         } else {
             return super.toString();

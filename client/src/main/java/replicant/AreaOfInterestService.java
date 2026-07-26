@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.spy.AreaOfInterestCreatedEvent;
-import replicant.spy.AreaOfInterestFilterUpdatedEvent;
+import replicant.spy.AreaOfInterestFilterParameterUpdatedEvent;
 
 /**
  * The AreaOfInterestService is responsible for managing AreaOfInterest instance.
@@ -75,28 +75,30 @@ abstract class AreaOfInterestService extends ReplicantService {
 
     /**
      * Locate an existing AreaOfInterest with specified Dataset Address or create a new AreaOfInterest.
-     * The filter is updated, if required, to match the specified parameter.
+     * The Filter Parameter is updated, if required, to match the specified parameter.
      *
      * @param datasetAddress the Dataset Address declared by the Area of Interest
-     * @param filter  the Filter Parameter used for the Subscription.
+     * @param filterParameter  the Filter Parameter used for the Subscription.
      * @return the AreaOfInterest.
      */
     @NonNull
     AreaOfInterest createOrUpdateAreaOfInterest(
-            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
         final AreaOfInterest areaOfInterest = findAreaOfInterestByDatasetAddress(datasetAddress);
         if (null != areaOfInterest) {
-            if (!FilterUtil.filtersEqual(areaOfInterest.getFilter(), filter)) {
-                areaOfInterest.setFilter(filter);
+            if (!FilterParameterUtil.filterParametersEqual(areaOfInterest.getFilterParameter(), filterParameter)) {
+                areaOfInterest.setFilterParameter(filterParameter);
                 if (Replicant.areSpiesEnabled()
                         && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-                    getReplicantContext().getSpy().reportSpyEvent(new AreaOfInterestFilterUpdatedEvent(areaOfInterest));
+                    getReplicantContext()
+                            .getSpy()
+                            .reportSpyEvent(new AreaOfInterestFilterParameterUpdatedEvent(areaOfInterest));
                 }
             }
             return areaOfInterest;
         } else {
             final AreaOfInterest newAreaOfInterest = AreaOfInterest.create(
-                    Replicant.areZonesEnabled() ? getReplicantContext() : null, datasetAddress, filter);
+                    Replicant.areZonesEnabled() ? getReplicantContext() : null, datasetAddress, filterParameter);
             attach(newAreaOfInterest);
             if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
                 getReplicantContext().getSpy().reportSpyEvent(new AreaOfInterestCreatedEvent(newAreaOfInterest));

@@ -163,21 +163,23 @@ public abstract class ReplicaEntry extends ReplicantService {
 
     /**
      * Remove the specified subscription.
-     * This is invoked on the client-side by user code when data changes and is now filtered out from the Dataset.
+     * This is invoked on the client-side by user code when data changes and no longer belongs to the Dataset.
      * This is only intended to be invoked when changes in data can change a Dataset's Subscription. This occurs when
-     * the Dataset has a mutable Routing Key or a Filter Type of INTERNAL with rules that are
+     * the Dataset has a mutable Routing Key or an implicit Filter with rules that are
      * data dependent. This means that the client has to be responsible for removing subscriptions on the client.
      *
      * @param subscription the subscription.
      */
-    public void delinkFromFilteringSubscription(@NonNull final Subscription subscription) {
+    public void delinkFromSubscriptionAfterMembershipChange(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> Dataset.FilterType.NONE != subscription.getDataset().getFilterType(),
-                    () -> "Replicant-0018: ReplicaEntry.delinkFromFilteringSubscription invoked on Replica Entry "
+                    () -> !subscription.getDataset().isUnfiltered(),
+                    () -> "Replicant-0018: ReplicaEntry.delinkFromSubscriptionAfterMembershipChange invoked on"
+                            + " Replica Entry "
                             + this
                             + " passing subscription "
-                            + subscription.datasetAddress() + " but subscription is " + "not filtered.");
+                            + subscription.datasetAddress()
+                            + " but the Subscription's Dataset is unfiltered.");
         }
         delinkFromSubscription(subscription);
     }

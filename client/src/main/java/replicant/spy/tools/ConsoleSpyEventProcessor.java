@@ -3,11 +3,11 @@ package replicant.spy.tools;
 import akasha.Console;
 import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
-import replicant.FilterUtil;
+import replicant.FilterParameterUtil;
 import replicant.Subscription;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestFilterUpdatedEvent;
+import replicant.spy.AreaOfInterestFilterParameterUpdatedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -64,7 +64,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     public ConsoleSpyEventProcessor() {
         on(AreaOfInterestCreatedEvent.class, this::onAreaOfInterestCreated);
-        on(AreaOfInterestFilterUpdatedEvent.class, this::onAreaOfInterestFilterUpdated);
+        on(AreaOfInterestFilterParameterUpdatedEvent.class, this::onAreaOfInterestFilterParameterUpdated);
         on(AreaOfInterestStatusUpdatedEvent.class, this::onAreaOfInterestStatusUpdated);
         on(AreaOfInterestDisposedEvent.class, this::onAreaOfInterestDisposed);
 
@@ -310,22 +310,26 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onAreaOfInterestCreated(@NonNull final AreaOfInterestCreatedEvent e) {
         final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
-        final Object filter = areaOfInterest.getFilter();
-        final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cAreaOfInterest Created " + areaOfInterest.getDatasetAddress() + filterString, AREA_OF_INTEREST_COLOR);
+        final Object filterParameter = areaOfInterest.getFilterParameter();
+        final String filterParameterString =
+                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
+        log(
+                "%cAreaOfInterest Created " + areaOfInterest.getDatasetAddress() + filterParameterString,
+                AREA_OF_INTEREST_COLOR);
     }
 
     /**
-     * Handle the AreaOfInterestFilterUpdatedEvent.
+     * Handle the AreaOfInterestFilterParameterUpdatedEvent.
      *
      * @param e the event.
      */
-    protected void onAreaOfInterestFilterUpdated(@NonNull final AreaOfInterestFilterUpdatedEvent e) {
+    protected void onAreaOfInterestFilterParameterUpdated(@NonNull final AreaOfInterestFilterParameterUpdatedEvent e) {
         final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
-        final Object filter = areaOfInterest.getFilter();
-        final String filterString = FilterUtil.filterToString(filter);
+        final Object filterParameter = areaOfInterest.getFilterParameter();
+        final String filterParameterString = FilterParameterUtil.filterParameterToString(filterParameter);
         log(
-                "%cAreaOfInterest Filter Updated " + areaOfInterest.getDatasetAddress() + " - " + filterString,
+                "%cAreaOfInterest Filter Parameter Updated " + areaOfInterest.getDatasetAddress() + " - "
+                        + filterParameterString,
                 AREA_OF_INTEREST_COLOR);
     }
 
@@ -336,10 +340,11 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onAreaOfInterestStatusUpdated(@NonNull final AreaOfInterestStatusUpdatedEvent e) {
         final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
-        final Object filter = areaOfInterest.getFilter();
-        final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
+        final Object filterParameter = areaOfInterest.getFilterParameter();
+        final String filterParameterString =
+                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
         log(
-                "%cAreaOfInterest Status Updated " + areaOfInterest.getDatasetAddress() + filterString + " :: "
+                "%cAreaOfInterest Status Updated " + areaOfInterest.getDatasetAddress() + filterParameterString + " :: "
                         + areaOfInterest.getStatus(),
                 AREA_OF_INTEREST_COLOR);
     }
@@ -359,9 +364,10 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onSubscribeRequestQueued(@NonNull final SubscribeRequestQueuedEvent e) {
-        final Object filter = e.getFilter();
-        final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscribe Request Queued " + e.getDatasetAddress() + filterString, SUBSCRIPTION_COLOR);
+        final Object filterParameter = e.getFilterParameter();
+        final String filterParameterString =
+                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
+        log("%cSubscribe Request Queued " + e.getDatasetAddress() + filterParameterString, SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -370,9 +376,12 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onSubscriptionUpdateRequestQueued(@NonNull final SubscriptionUpdateRequestQueuedEvent e) {
-        final Object filter = e.getFilter();
-        final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscription Update Request Queued " + e.getDatasetAddress() + filterString, SUBSCRIPTION_COLOR);
+        final Object filterParameter = e.getFilterParameter();
+        final String filterParameterString =
+                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
+        log(
+                "%cSubscription Update Request Queued " + e.getDatasetAddress() + filterParameterString,
+                SUBSCRIPTION_COLOR);
     }
 
     /**
@@ -391,9 +400,10 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscriptionCreated(@NonNull final SubscriptionCreatedEvent e) {
         final Subscription subscription = e.getSubscription();
-        final Object filter = subscription.getFilter();
-        final String filterString = null == filter ? "" : " - " + FilterUtil.filterToString(filter);
-        log("%cSubscription Created " + subscription.datasetAddress() + filterString, SUBSCRIPTION_COLOR);
+        final Object filterParameter = subscription.getFilterParameter();
+        final String filterParameterString =
+                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
+        log("%cSubscription Created " + subscription.datasetAddress() + filterParameterString, SUBSCRIPTION_COLOR);
     }
 
     /**

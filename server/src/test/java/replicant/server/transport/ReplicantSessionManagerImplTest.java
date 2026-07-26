@@ -56,11 +56,25 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
-    public void sendChangeMessage_staticKeyedLinkFollow_usesTargetDatasetKey() {
+    public void sendChangeMessage_fixedKeyedLinkFollow_usesTargetDatasetKey() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
 
         final var context = new TestSessionContext(schema);
@@ -88,7 +102,7 @@ public class ReplicantSessionManagerImplTest {
         attributes.put("ID", 1);
         final var message = new EntityMessage(1, 1, 0L, routingKeys, attributes, Set.of(subscriptionDependency));
 
-        final var newFilter = Json.createObjectBuilder().add("k", "v").build();
+        final var newFilterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var packet = new Packet(false, null, null, null, List.of(message), new ChangeSet());
 
         session.getLock().lock();
@@ -96,13 +110,13 @@ public class ReplicantSessionManagerImplTest {
             final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
             final var originalFilter =
                     Json.createObjectBuilder().add("old", "value").build();
-            sourceEntry.setFilter(originalFilter);
+            sourceEntry.setFilterParameter(originalFilter);
 
             manager.sendChangeMessage(session, packet);
 
             assertEquals(context.getPreSendChangeMessages(), List.of(packet));
             final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertEquals(targetEntry.getFilter(), newFilter);
+            assertEquals(targetEntry.getFilterParameter(), newFilterParameter);
             assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
             assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
         } finally {
@@ -113,16 +127,30 @@ public class ReplicantSessionManagerImplTest {
         assertEquals(collectCalls.size(), 1);
         final var call = collectCalls.get(0);
         assertEquals(call.datasetAddresses(), List.of(targetDatasetAddress));
-        assertEquals(call.filter(), newFilter);
+        assertEquals(call.filterParameter(), newFilterParameter);
         assertFalse(call.isExplicitSubscribe());
     }
 
     @Test
     public void sendChangeMessage_deleteRemovesOnlyDeletedEntityOwnershipForSharedTarget() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -183,9 +211,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_sameTargetReplacementFromPacketMessage_preservesWithoutTargetReload() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -227,9 +269,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_sameTargetReplacementFromChangeSet_preservesWithoutTargetReload() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -271,9 +327,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_newTargetReplacement_isCollectedByNormalExpansion() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", 3, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                3,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -310,16 +380,30 @@ public class ReplicantSessionManagerImplTest {
         final var collectCalls = context.getBulkCollectCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(newTargetDatasetAddress));
-        assertNull(collectCalls.get(0).filter());
+        assertNull(collectCalls.get(0).filterParameter());
         assertFalse(collectCalls.get(0).isExplicitSubscribe());
     }
 
     @Test
     public void sendChangeMessage_filterMismatchReplacement_isCollectedWithNewFilterByNormalExpansion() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -327,11 +411,13 @@ public class ReplicantSessionManagerImplTest {
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
-        final var oldFilter = Json.createObjectBuilder().add("filter", "old").build();
-        final var newFilter = Json.createObjectBuilder().add("filter", "new").build();
+        final var oldFilterParameter =
+                Json.createObjectBuilder().add("parameter", "old").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("parameter", "new").build();
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilter);
+                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
         final var updateNew = new EntityMessage(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
         final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
@@ -341,14 +427,14 @@ public class ReplicantSessionManagerImplTest {
             final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
             sourceEntry.setExplicitlySubscribed(true);
             final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress);
-            targetEntry.setFilter(oldFilter);
+            targetEntry.setFilterParameter(oldFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeMessage(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
             final var reloadedTargetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertEquals(reloadedTargetEntry.getFilter(), newFilter);
+            assertEquals(reloadedTargetEntry.getFilterParameter(), newFilterParameter);
             assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -357,16 +443,205 @@ public class ReplicantSessionManagerImplTest {
         final var collectCalls = context.getBulkCollectCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(targetDatasetAddress));
-        assertEquals(collectCalls.get(0).filter(), newFilter);
+        assertEquals(collectCalls.get(0).filterParameter(), newFilterParameter);
         assertFalse(collectCalls.get(0).isExplicitSubscribe());
+    }
+
+    @Test
+    public void sendChangeMessage_existingLinkedUpdatableFilterParameterRetainsTargetSubscription() {
+        final var sourceDataset = new DatasetMetadata(
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var targetDataset = new DatasetMetadata(
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = createManagerContext(new SchemaMetaData("Test", sourceDataset, targetDataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var sourceDatasetAddress = DatasetAddress.of(0, 10);
+        final var targetDatasetAddress = DatasetAddress.of(1);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("parameter", "old").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("parameter", "new").build();
+        final var owner = SubscriptionDependencyOwner.entity(2, 101);
+        final var subscriptionDependency =
+                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityMessage(
+                101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
+
+        final SubscriptionEntry originalTargetEntry;
+        session.getLock().lock();
+        try {
+            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
+            sourceEntry.setExplicitlySubscribed(true);
+            originalTargetEntry = session.createSubscriptionEntry(targetDatasetAddress);
+            originalTargetEntry.setFilterParameter(originalFilterParameter);
+            session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
+
+            manager.sendChangeMessage(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+
+            assertSame(session.getSubscriptionEntry(targetDatasetAddress), originalTargetEntry);
+            assertEquals(originalTargetEntry.getFilterParameter(), newFilterParameter);
+            assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(owner), Set.of(targetDatasetAddress));
+        } finally {
+            session.getLock().unlock();
+        }
+
+        assertEquals(
+                context.getFilterParameterChangeCalls(),
+                List.of(new FilterParameterChangeCall(
+                        List.of(targetDatasetAddress), originalFilterParameter, newFilterParameter)));
+    }
+
+    @Test
+    public void sendChangeMessage_existingLinkedFixedFilterParameterReplacesSubscription() throws Exception {
+        final var sourceDataset = new DatasetMetadata(
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var targetDataset = new DatasetMetadata(
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = createManagerContext(new SchemaMetaData("Test", sourceDataset, targetDataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var sourceDatasetAddress = DatasetAddress.of(0, 10);
+        final var targetDatasetAddress = DatasetAddress.of(1);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("parameter", "old").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("parameter", "new").build();
+        final var subscriptionDependency =
+                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityMessage(
+                101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
+
+        session.getLock().lock();
+        try {
+            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
+            sourceEntry.setExplicitlySubscribed(true);
+            final var originalTargetEntry = session.createSubscriptionEntry(targetDatasetAddress);
+            originalTargetEntry.setFilterParameter(originalFilterParameter);
+            session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
+
+            manager.sendChangeMessage(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+
+            final var replacementTargetEntry = session.getSubscriptionEntry(targetDatasetAddress);
+            assertNotSame(replacementTargetEntry, originalTargetEntry);
+            assertEquals(replacementTargetEntry.getFilterParameter(), newFilterParameter);
+            assertEquals(
+                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 101)),
+                    Set.of(targetDatasetAddress));
+        } finally {
+            session.getLock().unlock();
+        }
+        verify(session.getWebSocketSession(), never()).close(any(javax.websocket.CloseReason.class));
+        assertEquals(
+                context.getBulkCollectCalls(),
+                List.of(new BulkCollectCall(List.of(targetDatasetAddress), newFilterParameter, false)));
+        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
+    }
+
+    @Test
+    public void sendChangeMessage_existingLinkedFixedFilterParameterRejectsReplacementWhenTargetIsRetained()
+            throws Exception {
+        final var sourceDataset = new DatasetMetadata(
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var targetDataset = new DatasetMetadata(
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = createManagerContext(new SchemaMetaData("Test", sourceDataset, targetDataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var sourceDatasetAddress = DatasetAddress.of(0, 10);
+        final var targetDatasetAddress = DatasetAddress.of(1);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("parameter", "old").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("parameter", "new").build();
+        final var subscriptionDependency =
+                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityMessage(
+                101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
+
+        session.getLock().lock();
+        try {
+            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
+            sourceEntry.setExplicitlySubscribed(true);
+            final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress);
+            targetEntry.setExplicitlySubscribed(true);
+            targetEntry.setFilterParameter(originalFilterParameter);
+            session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
+
+            manager.sendChangeMessage(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+
+            assertSame(session.getSubscriptionEntry(targetDatasetAddress), targetEntry);
+            assertEquals(targetEntry.getFilterParameter(), originalFilterParameter);
+        } finally {
+            session.getLock().unlock();
+        }
+        verify(session.getWebSocketSession()).close(any(javax.websocket.CloseReason.class));
+        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
     }
 
     @Test
     public void sendChangeMessage_filteredOutSourceRoute_isNotPreserved() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -419,11 +694,50 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void sendChangeMessage_implicitlyFilteredDatasetAppliesMembershipFilter() {
+        final var dataset = new DatasetMetadata(
+                0, "Source", 1, DatasetMetadata.FilterMode.IMPLICIT, null, false, DatasetMetadata.CacheType.NONE, true);
+        final var context = createManagerContext(new SchemaMetaData("Test", dataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var datasetAddress = DatasetAddress.of(0, 10);
+        context.excludeFilterEntityMessageDatasetAddress(datasetAddress);
+        final var message = new EntityMessage(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
+        final var changeSet = new ChangeSet();
+
+        session.getLock().lock();
+        try {
+            final var entry = session.createSubscriptionEntry(datasetAddress);
+            entry.setExplicitlySubscribed(true);
+
+            manager.sendChangeMessage(session, new Packet(false, null, null, null, List.of(message), changeSet));
+        } finally {
+            session.getLock().unlock();
+        }
+
+        assertTrue(changeSet.getChanges().isEmpty());
+    }
+
+    @Test
     public void sendChangeMessage_shouldFollowDatasetLinkFalse_isNotPreserved() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         context.setShouldFollowDatasetLink(false);
@@ -432,11 +746,11 @@ public class ReplicantSessionManagerImplTest {
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
-        final var targetFilter =
-                Json.createObjectBuilder().add("filter", "current").build();
+        final var targetFilterParameter =
+                Json.createObjectBuilder().add("parameter", "current").build();
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, targetFilter);
+                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, targetFilterParameter);
         final var updateNew = new EntityMessage(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
         final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
@@ -446,7 +760,7 @@ public class ReplicantSessionManagerImplTest {
             final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress);
             sourceEntry.setExplicitlySubscribed(true);
             final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress);
-            targetEntry.setFilter(targetFilter);
+            targetEntry.setFilterParameter(targetFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeMessage(
@@ -466,9 +780,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_sourceRootDeleteWinsOverPreservation() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -504,9 +832,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_targetRootDeleteWinsOverPreservation() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", 3, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                3,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -546,12 +888,20 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void subscribe_requiredTypeDatasetPrecedesRequiringDatasetAndCleansUpWithDependency() {
         final var requiredTypeDataset = new DatasetMetadata(
-                0, "MetaData", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, false);
+                0,
+                "MetaData",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                false);
         final var requiringDataset = new DatasetMetadata(
                 1,
                 "Event",
                 7,
-                DatasetMetadata.FilterType.NONE,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
                 false,
                 DatasetMetadata.CacheType.NONE,
                 true,
@@ -592,6 +942,136 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void subscribe_updatableFilterParameterChangeRetainsSubscription() {
+        final var dataset = new DatasetMetadata(
+                0,
+                "Dataset",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = new TestSessionContext(new SchemaMetaData("Test", dataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var datasetAddress = DatasetAddress.of(0);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("value", "original").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("value", "new").build();
+
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.subscribe(session, 1, List.of(datasetAddress), originalFilterParameter);
+        final SubscriptionEntry originalEntry;
+        session.getLock().lock();
+        try {
+            originalEntry = session.getSubscriptionEntry(datasetAddress);
+        } finally {
+            session.getLock().unlock();
+        }
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+
+        manager.subscribe(session, 2, List.of(datasetAddress), newFilterParameter);
+
+        session.getLock().lock();
+        try {
+            assertSame(session.getSubscriptionEntry(datasetAddress), originalEntry);
+            assertEquals(originalEntry.getFilterParameter(), newFilterParameter);
+        } finally {
+            session.getLock().unlock();
+        }
+        assertEquals(
+                context.getFilterParameterChangeCalls(),
+                List.of(new FilterParameterChangeCall(
+                        List.of(datasetAddress), originalFilterParameter, newFilterParameter)));
+    }
+
+    @Test
+    public void subscribe_fixedFilterParameterChangeRejectsUpdateWhileSubscriptionPersists() {
+        final var dataset = new DatasetMetadata(
+                0,
+                "Dataset",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = new TestSessionContext(new SchemaMetaData("Test", dataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var datasetAddress = DatasetAddress.of(0);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("value", "original").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("value", "new").build();
+
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.subscribe(session, 1, List.of(datasetAddress), originalFilterParameter);
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+
+        final var error = expectThrows(
+                AttemptedToUpdateFixedFilterParameterException.class,
+                () -> manager.subscribe(session, 2, List.of(datasetAddress), newFilterParameter));
+
+        assertTrue(Objects.requireNonNull(error.getMessage()).contains("Fixed Filter Parameter"));
+        session.getLock().lock();
+        try {
+            assertEquals(session.getSubscriptionEntry(datasetAddress).getFilterParameter(), originalFilterParameter);
+        } finally {
+            session.getLock().unlock();
+        }
+        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
+    }
+
+    @Test
+    public void subscribe_fixedFilterParameterReplacementUsesNewSubscriptionAfterUnsubscribe() {
+        final var dataset = new DatasetMetadata(
+                0,
+                "Dataset",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var context = new TestSessionContext(new SchemaMetaData("Test", dataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var datasetAddress = DatasetAddress.of(0);
+        final var originalFilterParameter =
+                Json.createObjectBuilder().add("value", "original").build();
+        final var newFilterParameter =
+                Json.createObjectBuilder().add("value", "new").build();
+
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.subscribe(session, 1, List.of(datasetAddress), originalFilterParameter);
+        final SubscriptionEntry originalEntry;
+        session.getLock().lock();
+        try {
+            originalEntry = session.getSubscriptionEntry(datasetAddress);
+        } finally {
+            session.getLock().unlock();
+        }
+        final var registry = TransactionSynchronizationRegistryUtil.lookup();
+        registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.unsubscribe(session, 2, List.of(datasetAddress));
+        registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+
+        manager.subscribe(session, 3, List.of(datasetAddress), newFilterParameter);
+
+        session.getLock().lock();
+        try {
+            final var replacementEntry = session.getSubscriptionEntry(datasetAddress);
+            assertNotSame(replacementEntry, originalEntry);
+            assertEquals(replacementEntry.getFilterParameter(), newFilterParameter);
+        } finally {
+            session.getLock().unlock();
+        }
+    }
+
+    @Test
     public void invalidateSession_removesAndClosesExistingSession() throws Exception {
         final var schema = new SchemaMetaData(
                 "Test",
@@ -599,7 +1079,8 @@ public class ReplicantSessionManagerImplTest {
                         0,
                         "Source",
                         null,
-                        DatasetMetadata.FilterType.NONE,
+                        DatasetMetadata.FilterMode.UNFILTERED,
+                        null,
                         false,
                         DatasetMetadata.CacheType.NONE,
                         true));
@@ -627,7 +1108,8 @@ public class ReplicantSessionManagerImplTest {
                         0,
                         "Source",
                         null,
-                        DatasetMetadata.FilterType.NONE,
+                        DatasetMetadata.FilterMode.UNFILTERED,
+                        null,
                         false,
                         DatasetMetadata.CacheType.NONE,
                         true));
@@ -646,7 +1128,14 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void unsubscribe_removesSubscriptionsViaSessionLogic() {
         final var dataset = new DatasetMetadata(
-                0, "Dataset", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Dataset",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", dataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -692,9 +1181,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_deleteRootUnsubscribesRootAndDownstream() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -741,9 +1244,23 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeMessage_deleteWithKeyedSubscriptions_unsubscribesConcreteTargetsWithoutMessageLinks() {
         final var sourceDataset = new DatasetMetadata(
-                0, "Source", 1, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "Source",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var targetDataset = new DatasetMetadata(
-                1, "Target", null, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
+                1,
+                "Target",
+                null,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var schema = new SchemaMetaData("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -790,7 +1307,14 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void tryGetCacheEntry_rejectsPartialAddresses() throws Exception {
         final var dataset = new DatasetMetadata(
-                0, "Source", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.INTERNAL, true);
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.INTERNAL,
+                true);
         final var schema = new SchemaMetaData("Test", dataset);
         final var context = new TestSessionContext(schema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -801,6 +1325,29 @@ public class ReplicantSessionManagerImplTest {
 
         final var exception =
                 expectThrows(InvocationTargetException.class, () -> method.invoke(manager, DatasetAddress.partial(0)));
+        assertTrue(exception.getCause() instanceof AssertionError);
+    }
+
+    @Test
+    public void tryGetCacheEntry_rejectsImplicitlyFilteredDataset() throws Exception {
+        final var dataset = new DatasetMetadata(
+                0,
+                "Source",
+                null,
+                DatasetMetadata.FilterMode.IMPLICIT,
+                null,
+                false,
+                DatasetMetadata.CacheType.INTERNAL,
+                true);
+        final var manager = createManager(
+                new TestSessionContext(new SchemaMetaData("Test", dataset)), mock(ReplicantMessageBroker.class));
+        final var method =
+                ReplicantSessionManagerImpl.class.getDeclaredMethod("tryGetCacheEntry", DatasetAddress.class);
+        method.setAccessible(true);
+
+        final var exception =
+                expectThrows(InvocationTargetException.class, () -> method.invoke(manager, DatasetAddress.of(0)));
+
         assertTrue(exception.getCause() instanceof AssertionError);
     }
 
@@ -861,6 +1408,9 @@ public class ReplicantSessionManagerImplTest {
         private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
 
         @NonNull
+        private final List<FilterParameterChangeCall> _filterParameterChangeCalls = new ArrayList<>();
+
+        @NonNull
         private final List<Packet> _preSendChangeMessages = new ArrayList<>();
 
         @NonNull
@@ -887,7 +1437,7 @@ public class ReplicantSessionManagerImplTest {
         public void preSubscribe(
                 @NonNull final ReplicantSession session,
                 @NonNull final DatasetAddress datasetAddress,
-                @Nullable final JsonObject filter) {}
+                @Nullable final JsonObject filterParameter) {}
 
         @Override
         public void preSendChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
@@ -896,10 +1446,10 @@ public class ReplicantSessionManagerImplTest {
 
         @NonNull
         @Override
-        public JsonObject deriveTargetFilter(
+        public JsonObject deriveTargetFilterParameter(
                 @NonNull final EntityMessage entityMessage,
                 @NonNull final DatasetAddress sourceDatasetAddress,
-                @Nullable final JsonObject sourceFilter,
+                @Nullable final JsonObject sourceFilterParameter,
                 @NonNull final DatasetAddress targetDatasetAddress) {
             return Json.createObjectBuilder().add("k", "v").build();
         }
@@ -909,9 +1459,9 @@ public class ReplicantSessionManagerImplTest {
         public String deriveTargetDatasetKey(
                 @NonNull final EntityMessage entityMessage,
                 @NonNull final DatasetAddress sourceDatasetAddress,
-                @Nullable final JsonObject sourceFilter,
+                @Nullable final JsonObject sourceFilterParameter,
                 @NonNull final DatasetAddress targetDatasetAddress,
-                @Nullable final JsonObject targetFilter) {
+                @Nullable final JsonObject targetFilterParameter) {
             final var sourceDatasetKey = sourceDatasetAddress.datasetKey();
             return null == sourceDatasetKey ? "fi-7" : sourceDatasetKey;
         }
@@ -932,30 +1482,40 @@ public class ReplicantSessionManagerImplTest {
         public void collectSubscriptionData(
                 @Nullable final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
-                @Nullable final JsonObject filter,
+                @Nullable final JsonObject filterParameter,
                 @NonNull final ChangeSet changeSet,
                 final boolean isExplicitSubscribe) {
-            _bulkCollectCalls.add(new BulkCollectCall(datasetAddresses, filter, isExplicitSubscribe));
+            _bulkCollectCalls.add(new BulkCollectCall(datasetAddresses, filterParameter, isExplicitSubscribe));
             if (null != session) {
                 for (final var datasetAddress : datasetAddresses) {
                     final var existing = session.findSubscriptionEntry(datasetAddress);
                     final var entry = null == existing ? session.createSubscriptionEntry(datasetAddress) : existing;
-                    entry.setFilter(filter);
+                    entry.setFilterParameter(filterParameter);
+                    if (isExplicitSubscribe) {
+                        entry.setExplicitlySubscribed(true);
+                    }
                     changeSet.mergeSubscriptionAction(
                             datasetAddress,
                             null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
-                            filter);
+                            filterParameter);
                 }
             }
         }
 
         @Override
-        public void collectSubscriptionDataForFilterChange(
+        public void collectSubscriptionDataForFilterParameterChange(
                 @NonNull final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
-                @Nullable final JsonObject originalFilter,
-                @Nullable final JsonObject newFilter,
-                @NonNull final ChangeSet changeSet) {}
+                @NonNull final JsonObject originalFilterParameter,
+                @NonNull final JsonObject newFilterParameter,
+                @NonNull final ChangeSet changeSet) {
+            _filterParameterChangeCalls.add(
+                    new FilterParameterChangeCall(datasetAddresses, originalFilterParameter, newFilterParameter));
+            for (final var datasetAddress : datasetAddresses) {
+                session.setFilterParameter(datasetAddress, newFilterParameter);
+                changeSet.mergeSubscriptionAction(datasetAddress, SubscriptionAction.Action.UPDATE, newFilterParameter);
+            }
+        }
 
         @Nullable
         @Override
@@ -972,15 +1532,20 @@ public class ReplicantSessionManagerImplTest {
         @Override
         public boolean shouldFollowDatasetLink(
                 @NonNull final DatasetAddress sourceDatasetAddress,
-                @Nullable final JsonObject sourceFilter,
+                @Nullable final JsonObject sourceFilterParameter,
                 @NonNull final DatasetAddress targetDatasetAddress,
-                @Nullable final JsonObject targetFilter) {
+                @Nullable final JsonObject targetFilterParameter) {
             return _shouldFollowDatasetLink;
         }
 
         @NonNull
         List<BulkCollectCall> getBulkCollectCalls() {
             return _bulkCollectCalls;
+        }
+
+        @NonNull
+        List<FilterParameterChangeCall> getFilterParameterChangeCalls() {
+            return _filterParameterChangeCalls;
         }
 
         @NonNull
@@ -999,13 +1564,18 @@ public class ReplicantSessionManagerImplTest {
 
     private record BulkCollectCall(
             @NonNull List<DatasetAddress> datasetAddresses,
-            @Nullable JsonObject filter,
+            @Nullable JsonObject filterParameter,
             boolean isExplicitSubscribe) {}
+
+    private record FilterParameterChangeCall(
+            @NonNull List<DatasetAddress> datasetAddresses,
+            @NonNull JsonObject originalFilterParameter,
+            @NonNull JsonObject newFilterParameter) {}
 
     private record DeriveTargetDatasetKeyCall(
             @NonNull EntityMessage entityMessage,
             @NonNull DatasetAddress sourceDatasetAddress,
-            @Nullable JsonObject sourceFilter,
+            @Nullable JsonObject sourceFilterParameter,
             @NonNull DatasetAddress targetDatasetAddress,
-            @Nullable JsonObject targetFilter) {}
+            @Nullable JsonObject targetFilterParameter) {}
 }

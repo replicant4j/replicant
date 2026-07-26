@@ -15,7 +15,7 @@ public class SubscriptionChangeMessage {
     private String subscriptionAction;
 
     @Nullable
-    private Object filter;
+    private Object filterParameter;
 
     /**
      * Create a SubscriptionChangeMessage.
@@ -24,10 +24,10 @@ public class SubscriptionChangeMessage {
      */
     @JsOverlay
     public static SubscriptionChangeMessage create(
-            @NonNull final String subscriptionAction, @Nullable final Object filter) {
+            @NonNull final String subscriptionAction, @Nullable final Object filterParameter) {
         final SubscriptionChangeMessage message = new SubscriptionChangeMessage();
         message.subscriptionAction = subscriptionAction;
-        message.filter = filter;
+        message.filterParameter = filterParameter;
         return message;
     }
 
@@ -49,7 +49,7 @@ public class SubscriptionChangeMessage {
      */
     @Nullable
     @JsOverlay
-    public final Object getFilter() {
-        return filter;
+    public final Object getFilterParameter() {
+        return filterParameter;
     }
 }

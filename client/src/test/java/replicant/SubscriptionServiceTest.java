@@ -419,11 +419,11 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        // Instance Dataset, no filter, explicit subscription
+        // Instance Dataset, no filterParameter, explicit subscription
         safeAction(() -> {
             final Subscription subscription = service.createSubscription(datasetAddress, null, true);
             assertEquals(subscription.datasetAddress(), datasetAddress);
-            assertNull(subscription.getFilter());
+            assertNull(subscription.getFilterParameter());
             assertTrue(subscription.isExplicitSubscription());
         });
     }
@@ -434,13 +434,14 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        // Instance Dataset, filter, not explicit subscription
+        // Instance Dataset, filterParameter, not explicit subscription
         safeAction(() -> {
-            final String filter = ValueUtil.randomString();
+            final String filterParameter = ValueUtil.randomString();
             final boolean explicitSubscription = false;
-            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            final Subscription subscription =
+                    service.createSubscription(datasetAddress, filterParameter, explicitSubscription);
             assertEquals(subscription.datasetAddress(), datasetAddress);
-            assertEquals(subscription.getFilter(), filter);
+            assertEquals(subscription.getFilterParameter(), filterParameter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
     }
@@ -451,13 +452,14 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        // Type Dataset, no filter, no explicit subscription
+        // Type Dataset, no filterParameter, no explicit subscription
         safeAction(() -> {
-            final String filter = null;
+            final String filterParameter = null;
             final boolean explicitSubscription = false;
-            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            final Subscription subscription =
+                    service.createSubscription(datasetAddress, filterParameter, explicitSubscription);
             assertEquals(subscription.datasetAddress(), datasetAddress);
-            assertEquals(subscription.getFilter(), filter);
+            assertEquals(subscription.getFilterParameter(), filterParameter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
     }
@@ -468,13 +470,14 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
 
         final SubscriptionService service = SubscriptionService.create(null);
 
-        // Type Dataset, filter, explicit subscription
+        // Type Dataset, filterParameter, explicit subscription
         safeAction(() -> {
-            final String filter = ValueUtil.randomString();
+            final String filterParameter = ValueUtil.randomString();
             final boolean explicitSubscription = true;
-            final Subscription subscription = service.createSubscription(datasetAddress, filter, explicitSubscription);
+            final Subscription subscription =
+                    service.createSubscription(datasetAddress, filterParameter, explicitSubscription);
             assertEquals(subscription.datasetAddress(), datasetAddress);
-            assertEquals(subscription.getFilter(), filter);
+            assertEquals(subscription.getFilterParameter(), filterParameter);
             assertEquals(subscription.isExplicitSubscription(), explicitSubscription);
         });
     }

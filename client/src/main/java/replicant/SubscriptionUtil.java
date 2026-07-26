@@ -26,15 +26,16 @@ public class SubscriptionUtil {
             final int sourceDatasetId,
             final int targetSystemId,
             final int targetDatasetId,
-            @Nullable final Object filter,
+            @Nullable final Object filterParameter,
             @NonNull final Function<Integer, Stream<Integer>> sourceIdToTargetIds) {
-        // Need to check both subscription and filters are identical.
-        // If they are not the next step will either update the filters or add subscriptions
+        // Need to check both subscription and Filter Parameters are identical.
+        // If they are not the next step will either update the Filter Parameters or add subscriptions
         final ReplicantContext context = Replicant.context();
         final Map<Integer, AreaOfInterest> existing = context.getAreasOfInterest().stream()
                 .filter(s -> s.getDatasetAddress().schemaId() == targetSystemId
                         && s.getDatasetAddress().datasetId() == targetDatasetId)
-                .filter(subscription -> FilterUtil.filtersEqual(subscription.getFilter(), filter))
+                .filter(subscription ->
+                        FilterParameterUtil.filterParametersEqual(subscription.getFilterParameter(), filterParameter))
                 .collect(Collectors.toMap(s -> s.getDatasetAddress().datasetRootId(), Function.identity()));
 
         context.getAreasOfInterest().stream()
@@ -45,14 +46,14 @@ public class SubscriptionUtil {
                 .filter(Objects::nonNull)
                 .filter(id -> null == existing.remove(id))
                 .forEach(id -> context.createOrUpdateAreaOfInterest(
-                        new DatasetAddress(targetSystemId, targetDatasetId, id), filter));
+                        new DatasetAddress(targetSystemId, targetDatasetId, id), filterParameter));
 
         context.getInstanceDatasetSubscriptionIds(sourceSystemId, sourceDatasetId).stream()
                 .flatMap(sourceIdToTargetIds)
                 .filter(Objects::nonNull)
                 .filter(id -> null == existing.remove(id))
                 .forEach(id -> context.createOrUpdateAreaOfInterest(
-                        new DatasetAddress(targetSystemId, targetDatasetId, id), filter));
+                        new DatasetAddress(targetSystemId, targetDatasetId, id), filterParameter));
 
         existing.values().forEach(Disposable::dispose);
     }

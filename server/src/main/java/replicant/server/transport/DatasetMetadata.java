@@ -11,44 +11,30 @@ import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("WeakerAccess")
 public final class DatasetMetadata {
-    public enum FilterType {
+    public enum FilterMode {
         /**
          * No filtering
          */
-        NONE,
+        UNFILTERED,
         /**
-         * Filtering occurs but no parameter is passed to control such behaviour. Filtering rules are internal to the data.
+         * Filtering occurs without a Filter Parameter; the system supplies the rule and its inputs.
          */
-        INTERNAL,
+        IMPLICIT,
         /**
-         * Filtering occurs and the client passes a filter parameter but can never change the filter parameter without unsubscribing and resubscribing to the Dataset.
+         * Filtering occurs and the subscriber supplies a Filter Parameter.
          */
-        STATIC,
-        /**
-         * Filtering occurs and the client passes a filter parameter and can change the filter parameter.
-         */
-        DYNAMIC;
+        PARAMETER_FILTERED
+    }
 
+    public enum FilterParameterMode {
         /**
-         * Return true if the filter is a dynamic parameter that can be updated.
+         * The Filter Parameter cannot change while the Subscription persists.
          */
-        public boolean isDynamicFilter() {
-            return this == DYNAMIC;
-        }
-
+        FIXED,
         /**
-         * Return true if the filter is a static parameter.
+         * The Filter Parameter can change while the Subscription persists.
          */
-        public boolean isStaticFilter() {
-            return this == STATIC;
-        }
-
-        /**
-         * Return true if the filter requires a parameter to be passed to it.
-         */
-        public boolean hasFilterParameter() {
-            return isDynamicFilter() || isStaticFilter();
-        }
+        UPDATABLE
     }
 
     public enum CacheType {
@@ -72,7 +58,10 @@ public final class DatasetMetadata {
     private final Integer _datasetRootEntityTypeId;
 
     @NonNull
-    private final FilterType _filterType;
+    private final FilterMode _filterMode;
+
+    @Nullable
+    private final FilterParameterMode _filterParameterMode;
 
     private final boolean _keyed;
 
@@ -94,7 +83,8 @@ public final class DatasetMetadata {
             final int datasetId,
             @NonNull final String name,
             @Nullable final Integer datasetRootEntityTypeId,
-            @NonNull final FilterType filterType,
+            @NonNull final FilterMode filterMode,
+            @Nullable final FilterParameterMode filterParameterMode,
             final boolean keyed,
             @NonNull final CacheType cacheType,
             final boolean external,
@@ -102,7 +92,18 @@ public final class DatasetMetadata {
         _datasetId = datasetId;
         _name = Objects.requireNonNull(name);
         _datasetRootEntityTypeId = datasetRootEntityTypeId;
-        _filterType = Objects.requireNonNull(filterType);
+        _filterMode = Objects.requireNonNull(filterMode);
+        if (isParameterFiltered()) {
+            if (null == filterParameterMode) {
+                throw new IllegalArgumentException("Parameter-Filtered Dataset requires a Filter Parameter Mode");
+            }
+        } else if (null != filterParameterMode) {
+            throw new IllegalArgumentException("Filter Parameter Mode is only valid for a Parameter-Filtered Dataset");
+        }
+        _filterParameterMode = filterParameterMode;
+        if (keyed && !isParameterFiltered()) {
+            throw new IllegalArgumentException("Only a Parameter-Filtered Dataset can be keyed");
+        }
         _keyed = keyed;
         _cacheType = Objects.requireNonNull(cacheType);
         _external = external;
@@ -133,11 +134,27 @@ public final class DatasetMetadata {
         return !isTypeDataset();
     }
 
-    public boolean requiresFilterParameter() {
-        return filterType().hasFilterParameter();
+    public boolean isUnfiltered() {
+        return FilterMode.UNFILTERED == getFilterMode();
     }
 
-    public boolean requiresDatasetKey() {
+    public boolean isImplicitlyFiltered() {
+        return FilterMode.IMPLICIT == getFilterMode();
+    }
+
+    public boolean isParameterFiltered() {
+        return FilterMode.PARAMETER_FILTERED == getFilterMode();
+    }
+
+    public boolean hasFixedFilterParameter() {
+        return FilterParameterMode.FIXED == getFilterParameterMode();
+    }
+
+    public boolean hasUpdatableFilterParameter() {
+        return FilterParameterMode.UPDATABLE == getFilterParameterMode();
+    }
+
+    public boolean isKeyed() {
         return _keyed;
     }
 
@@ -147,8 +164,13 @@ public final class DatasetMetadata {
     }
 
     @NonNull
-    public FilterType filterType() {
-        return _filterType;
+    public FilterMode getFilterMode() {
+        return _filterMode;
+    }
+
+    @Nullable
+    public FilterParameterMode getFilterParameterMode() {
+        return _filterParameterMode;
     }
 
     public boolean isCacheable() {

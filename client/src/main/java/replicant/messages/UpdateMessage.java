@@ -29,7 +29,7 @@ public class UpdateMessage extends ServerToClientMessage {
     private String[] subscriptionChanges;
 
     @Nullable
-    private SubscriptionChangeMessage[] filteredSubscriptionChanges;
+    private SubscriptionChangeMessage[] filterParameterSubscriptionChanges;
 
     @Nullable
     private EntityChange[] changes;
@@ -44,7 +44,7 @@ public class UpdateMessage extends ServerToClientMessage {
             @Nullable final Integer requestId,
             @Nullable final String eTag,
             @Nullable final String[] subscriptionChanges,
-            @Nullable final SubscriptionChangeMessage[] filteredSubscriptionChanges,
+            @Nullable final SubscriptionChangeMessage[] filterParameterSubscriptionChanges,
             @Nullable final EntityChange[] entityChanges,
             @Nullable final Object response) {
         final UpdateMessage updateMessage = new UpdateMessage();
@@ -52,7 +52,7 @@ public class UpdateMessage extends ServerToClientMessage {
         updateMessage.requestId = null == requestId ? null : requestId.doubleValue();
         updateMessage.etag = eTag;
         updateMessage.subscriptionChanges = subscriptionChanges;
-        updateMessage.filteredSubscriptionChanges = filteredSubscriptionChanges;
+        updateMessage.filterParameterSubscriptionChanges = filterParameterSubscriptionChanges;
         updateMessage.changes = entityChanges;
         updateMessage.response = response;
         return updateMessage;
@@ -106,20 +106,21 @@ public class UpdateMessage extends ServerToClientMessage {
 
     /**
      * Return the Subscription changes with Filter Parameters that are part of the message.
-     * This should only be invoked if {@link #hasFilteredSubscriptionChanges()} returns true.
+     * This should only be invoked if {@link #hasFilterParameterSubscriptionChanges()} returns true.
      *
      * @return the Subscription changes with Filter Parameters.
      */
     @NonNull
     @JsOverlay
-    public final SubscriptionChangeMessage[] getFilteredSubscriptionChanges() {
+    public final SubscriptionChangeMessage[] getFilterParameterSubscriptionChanges() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null != filteredSubscriptionChanges,
-                    () -> "Replicant-0030: UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes"
-                            + " are present. Should guard call with UpdateMessage.hasFilteredSubscriptionChanges().");
+                    () -> null != filterParameterSubscriptionChanges,
+                    () -> "Replicant-0030: UpdateMessage.getFilterParameterSubscriptionChanges() invoked when no"
+                            + " changes are present. Should guard call with"
+                            + " UpdateMessage.hasFilterParameterSubscriptionChanges().");
         }
-        return Objects.requireNonNull(filteredSubscriptionChanges);
+        return Objects.requireNonNull(filterParameterSubscriptionChanges);
     }
 
     /**
@@ -128,8 +129,8 @@ public class UpdateMessage extends ServerToClientMessage {
      * @return true if this UpdateMessage contains Subscription changes with Filter Parameters.
      */
     @JsOverlay
-    public final boolean hasFilteredSubscriptionChanges() {
-        return null != filteredSubscriptionChanges;
+    public final boolean hasFilterParameterSubscriptionChanges() {
+        return null != filterParameterSubscriptionChanges;
     }
 
     /**
@@ -188,8 +189,8 @@ public class UpdateMessage extends ServerToClientMessage {
                                     + "for Dataset Address " + subscriptionAction.substring(1) + ".");
                 }
             }
-            if (null != filteredSubscriptionChanges) {
-                for (final SubscriptionChangeMessage subscriptionChange : filteredSubscriptionChanges) {
+            if (null != filterParameterSubscriptionChanges) {
+                for (final SubscriptionChangeMessage subscriptionChange : filterParameterSubscriptionChanges) {
                     final String subscriptionAction = subscriptionChange.getSubscriptionAction();
                     final String key = subscriptionAction.substring(1);
                     apiInvariant(

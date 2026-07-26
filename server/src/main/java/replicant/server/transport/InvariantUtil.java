@@ -44,9 +44,9 @@ final class InvariantUtil {
         }
 
         if (datasetAddress.partial()) {
-            assert dataset.requiresDatasetKey();
+            assert dataset.isKeyed();
             assert null == datasetAddress.datasetKey();
-        } else if (dataset.requiresDatasetKey()) {
+        } else if (dataset.isKeyed()) {
             assert null != datasetAddress.datasetKey();
         } else {
             assert null == datasetAddress.datasetKey();
@@ -64,11 +64,12 @@ final class InvariantUtil {
             if (subscriptionDependency.partial()) {
                 assert subscriptionDependency.sourceDatasetAddress().partial()
                         || subscriptionDependency.targetDatasetAddress().partial()
-                        || (targetDataset.requiresFilterParameter() && null == subscriptionDependency.targetFilter());
+                        || (targetDataset.isParameterFiltered()
+                                && null == subscriptionDependency.targetFilterParameter());
             } else {
                 assert subscriptionDependency.sourceDatasetAddress().concrete();
                 assert subscriptionDependency.targetDatasetAddress().concrete();
-                assert !targetDataset.requiresFilterParameter() || null != subscriptionDependency.targetFilter();
+                assert !targetDataset.isParameterFiltered() || null != subscriptionDependency.targetFilterParameter();
             }
         }
     }

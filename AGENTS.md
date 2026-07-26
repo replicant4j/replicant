@@ -87,11 +87,20 @@ This guide captures the repo-specific rules and conventions for working effectiv
 - Dataset Address descriptor grammar: `datasetId[.datasetRootId][#datasetKey]`.
   - `#` is reserved; the dataset key is the substring after the first `#` and may be empty.
   - No escaping is supported; JSON transport handles encoding.
-- Keying is independent of filter type:
+- Dataset filtering has separate metadata dimensions:
+  - `FilterMode` is `UNFILTERED`, `IMPLICIT`, or `PARAMETER_FILTERED`.
+  - Only a Parameter-Filtered Dataset has a `FilterParameterMode`, either `FIXED` or `UPDATABLE`.
+  - Client Replica-membership re-evaluation is an independent behavior and must not be inferred from Filter Parameter
+    mutability.
+- Keying is independent metadata but is valid only for a Parameter-Filtered Dataset:
   - Keyed Datasets require `#` on subscribe, update, and unsubscribe.
-  - `DYNAMIC` allows filter updates; `STATIC` rejects filter updates regardless of whether the Dataset is keyed.
-- Bulk subscribe and unsubscribe uses a shared filter for all Dataset Addresses; the Dataset Key lives on each
-  `DatasetAddress`.
+  - The Dataset Key is part of `DatasetAddress`; the Filter Parameter is not.
+- Changing a Fixed Filter Parameter replaces the Subscription at the same Dataset Address. Changing an Updatable
+  Filter Parameter retains the Subscription and Dataset Address.
+- Bulk subscribe uses one shared Filter Parameter for all Dataset Addresses. Bulk unsubscribe identifies
+  Subscriptions only by Dataset Address.
+- Filter Parameter protocol fields are `filterParameter` and `filterParameterSubscriptionChanges`; client and server
+  protocol changes must remain synchronized.
 - A Dataset Link is a reusable schema rule; a Subscription Dependency is the current runtime relationship it may
   produce. Keep schema metadata and runtime retention APIs distinct.
 - Required Type Datasets are unconditional schema requirements. They share Subscription Dependency retention

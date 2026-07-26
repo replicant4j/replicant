@@ -12,7 +12,7 @@ java_library(
     srcs = [
         "AreaOfInterestCreatedEventTest.java",
         "AreaOfInterestDisposedEventTest.java",
-        "AreaOfInterestFilterUpdatedEventTest.java",
+        "AreaOfInterestFilterParameterUpdatedEventTest.java",
         "AreaOfInterestStatusUpdatedEventTest.java",
         "ConnectFailureEventTest.java",
         "ConnectedEventTest.java",
@@ -70,11 +70,11 @@ java_testng(
 )
 
 java_testng(
-    name = "AreaOfInterestFilterUpdatedEventTest",
-    srcs = ["AreaOfInterestFilterUpdatedEventTest.java"],
+    name = "AreaOfInterestFilterParameterUpdatedEventTest",
+    srcs = ["AreaOfInterestFilterParameterUpdatedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.AreaOfInterestFilterUpdatedEventTest",
+    test_class = "replicant.spy.AreaOfInterestFilterParameterUpdatedEventTest",
     deps = ["//client:client_test_support"],
 )
 

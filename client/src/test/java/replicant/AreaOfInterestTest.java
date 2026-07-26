@@ -88,7 +88,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         safeAction(() -> {
             assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
             assertEquals(areaOfInterest.getDatasetAddress(), new DatasetAddress(1, 0));
-            assertNull(areaOfInterest.getFilter());
+            assertNull(areaOfInterest.getFilterParameter());
             assertNull(areaOfInterest.getSubscription());
             assertNull(areaOfInterest.getError());
         });
@@ -166,7 +166,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
         safeAction(() -> Replicant.context()
                 .getSubscriptionService()
-                .createSubscription(areaOfInterest.getDatasetAddress(), areaOfInterest.getFilter(), true));
+                .createSubscription(areaOfInterest.getDatasetAddress(), areaOfInterest.getFilterParameter(), true));
 
         assertEquals(getStatusCallCount.get(), 2);
         assertEquals(getErrorCallCount.get(), 2);
@@ -184,9 +184,9 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void testToStringWithFilter() {
+    public void testToStringWithFilterParameter() {
         final AreaOfInterest areaOfInterest = AreaOfInterest.create(null, new DatasetAddress(1, 0), "MyFilter");
-        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Filter: MyFilter Status: NOT_ASKED]");
+        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Filter Parameter: MyFilter Status: NOT_ASKED]");
     }
 
     @Test

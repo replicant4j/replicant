@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 public record SubscriptionAction(
         @NonNull DatasetAddress datasetAddress,
         @NonNull Action action,
-        @Nullable JsonObject filter) {
+        @Nullable JsonObject filterParameter) {
     public enum Action {
         // The Subscription has been created.
         SUBSCRIBE,
@@ -31,11 +31,11 @@ public record SubscriptionAction(
     public static SubscriptionAction of(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final Action action,
-            @Nullable final JsonObject filter) {
-        return new SubscriptionAction(datasetAddress, action, filter);
+            @Nullable final JsonObject filterParameter) {
+        return new SubscriptionAction(datasetAddress, action, filterParameter);
     }
 
     public SubscriptionAction {
-        assert (Action.SUBSCRIBE == action || Action.UPDATE == action) || null == filter;
+        assert (Action.SUBSCRIBE == action || Action.UPDATE == action) || null == filterParameter;
     }
 }

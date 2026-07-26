@@ -248,21 +248,25 @@ public final class ReplicantEndpointTest {
     @Test
     public void command_subscribe_withFilter() throws Exception {
         final var fixture = newFixture();
-        final var filter = Json.createObjectBuilder().add("k", "v").build();
-        final var command = createSubscribeCommand("1.5", 2, filter);
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("1.5", 2, filterParameter);
 
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
-                .subscribe(fixture.replicantSession, 2, Collections.singletonList(DatasetAddress.of(1, 5)), filter);
+                .subscribe(
+                        fixture.replicantSession,
+                        2,
+                        Collections.singletonList(DatasetAddress.of(1, 5)),
+                        filterParameter);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
     @Test
     public void command_subscribe_ignoresFilterWhenNotSupported() throws Exception {
         final var fixture = newFixture();
-        final var filter = Json.createObjectBuilder().add("k", "v").build();
-        final var command = createSubscribeCommand("0", 3, filter);
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("0", 3, filterParameter);
 
         fixture.endpoint.command(fixture.session, command.toString());
 
@@ -271,7 +275,7 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_internalDataset() throws Exception {
+    public void command_subscribe_nonExternalDataset() throws Exception {
         assertInvalidSubscribe("3", "Attempted to subscribe to an internal-only Dataset");
     }
 
@@ -293,7 +297,7 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_staticKeyedWithoutDatasetKey() throws Exception {
+    public void command_subscribe_fixedKeyedWithoutDatasetKey() throws Exception {
         assertInvalidSubscribe("4.7", "Attempted to use a Dataset Address without a required Dataset Key");
     }
 
@@ -303,35 +307,38 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_staticKeyedWithDatasetKey() throws Exception {
+    public void command_subscribe_fixedKeyedWithDatasetKey() throws Exception {
         final var fixture = newFixture();
-        final var filter = Json.createObjectBuilder().add("k", "v").build();
-        final var command = createSubscribeCommand("4.7#fi", 5, filter);
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
+        final var command = createSubscribeCommand("4.7#fi", 5, filterParameter);
 
         fixture.endpoint.command(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .subscribe(
-                        fixture.replicantSession, 5, Collections.singletonList(DatasetAddress.of(4, 7, "fi")), filter);
+                        fixture.replicantSession,
+                        5,
+                        Collections.singletonList(DatasetAddress.of(4, 7, "fi")),
+                        filterParameter);
     }
 
     @Test
     public void command_bulkSubscribe_success() throws Exception {
         final var fixture = newFixture();
-        final var filter = Json.createObjectBuilder().add("x", "y").build();
+        final var filterParameter = Json.createObjectBuilder().add("x", "y").build();
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
                 .add(
                         Messages.Update.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("2.8#fi2"))
-                .add(Messages.Update.FILTER, filter)
+                .add(Messages.Update.FILTER_PARAMETER, filterParameter)
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
 
         final var expected = Arrays.asList(DatasetAddress.of(2, 7, "fi"), DatasetAddress.of(2, 8, "fi2"));
-        verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filter);
+        verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filterParameter);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
@@ -497,13 +504,15 @@ public final class ReplicantEndpointTest {
 
     @NonNull
     private JsonObject createSubscribeCommand(
-            @NonNull final String datasetAddressDescriptor, final int requestId, @Nullable final JsonObject filter) {
+            @NonNull final String datasetAddressDescriptor,
+            final int requestId,
+            @Nullable final JsonObject filterParameter) {
         final var builder = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.SUB)
                 .add(Messages.Common.REQUEST_ID, requestId)
                 .add(Messages.Common.DATASET_ADDRESS, datasetAddressDescriptor);
-        if (null != filter) {
-            builder.add(Messages.Update.FILTER, filter);
+        if (null != filterParameter) {
+            builder.add(Messages.Update.FILTER_PARAMETER, filterParameter);
         }
         return builder.build();
     }
@@ -567,17 +576,52 @@ public final class ReplicantEndpointTest {
     @NonNull
     private SchemaMetaData newSchemaMetaData() {
         final var typeDataset = new DatasetMetadata(
-                0, "type", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
-        final var dynamicDataset = new DatasetMetadata(
-                1, "dynamic", 1, DatasetMetadata.FilterType.DYNAMIC, false, DatasetMetadata.CacheType.NONE, true);
+                0,
+                "type",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var updatableDataset = new DatasetMetadata(
+                1,
+                "updatable",
+                1,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true);
         final var keyedDataset = new DatasetMetadata(
-                2, "keyed", 2, DatasetMetadata.FilterType.DYNAMIC, true, DatasetMetadata.CacheType.NONE, true);
-        final var staticKeyedDataset = new DatasetMetadata(
-                4, "staticKeyed", 4, DatasetMetadata.FilterType.STATIC, true, DatasetMetadata.CacheType.NONE, true);
-        final var internalDataset = new DatasetMetadata(
-                3, "internal", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, false);
+                2,
+                "keyed",
+                2,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var fixedKeyedDataset = new DatasetMetadata(
+                4,
+                "fixedKeyed",
+                4,
+                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
+                DatasetMetadata.FilterParameterMode.FIXED,
+                true,
+                DatasetMetadata.CacheType.NONE,
+                true);
+        final var nonExternalDataset = new DatasetMetadata(
+                3,
+                "nonExternal",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                false);
         return new SchemaMetaData(
-                "Test", typeDataset, dynamicDataset, keyedDataset, internalDataset, staticKeyedDataset);
+                "Test", typeDataset, updatableDataset, keyedDataset, nonExternalDataset, fixedKeyedDataset);
     }
 
     private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {

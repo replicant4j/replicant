@@ -7,7 +7,7 @@ import java.util.Collection;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestFilterUpdatedEvent;
+import replicant.spy.AreaOfInterestFilterParameterUpdatedEvent;
 
 public class AreaOfInterestServiceTest extends AbstractReplicantTest {
     @Test
@@ -44,10 +44,10 @@ public class AreaOfInterestServiceTest extends AbstractReplicantTest {
             assertFalse(
                     subscriptions.stream().anyMatch(n -> n.getDatasetAddress().equals(datasetAddress3)));
 
-            final Object newFilter = new Object();
-            areaOfInterest1.setFilter(newFilter);
+            final Object newFilterParameter = new Object();
+            areaOfInterest1.setFilterParameter(newFilterParameter);
 
-            assertEquals(areaOfInterest1.getFilter(), newFilter);
+            assertEquals(areaOfInterest1.getFilterParameter(), newFilterParameter);
 
             Disposable.dispose(areaOfInterest1);
             assertTrue(Disposable.isDisposed(areaOfInterest1));
@@ -88,7 +88,8 @@ public class AreaOfInterestServiceTest extends AbstractReplicantTest {
             handler.assertEventCount(1);
 
             handler.assertNextEvent(
-                    AreaOfInterestFilterUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+                    AreaOfInterestFilterParameterUpdatedEvent.class,
+                    e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
         });
     }
 
@@ -117,18 +118,20 @@ public class AreaOfInterestServiceTest extends AbstractReplicantTest {
             final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
             final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1);
 
-            final String filer1 = "Filer1";
-            final String filer2 = null;
+            final String filterParameter1 = "Filer1";
+            final String filterParameter2 = null;
 
-            final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest(datasetAddress1, filer1);
+            final AreaOfInterest areaOfInterest1 =
+                    service.createOrUpdateAreaOfInterest(datasetAddress1, filterParameter1);
 
             assertEquals(areaOfInterest1.getDatasetAddress(), datasetAddress1);
-            assertEquals(areaOfInterest1.getFilter(), filer1);
+            assertEquals(areaOfInterest1.getFilterParameter(), filterParameter1);
 
-            final AreaOfInterest areaOfInterest2 = service.createOrUpdateAreaOfInterest(datasetAddress2, filer2);
+            final AreaOfInterest areaOfInterest2 =
+                    service.createOrUpdateAreaOfInterest(datasetAddress2, filterParameter2);
 
             assertEquals(areaOfInterest2.getDatasetAddress(), datasetAddress2);
-            assertEquals(areaOfInterest2.getFilter(), filer2);
+            assertEquals(areaOfInterest2.getFilterParameter(), filterParameter2);
         });
     }
 
@@ -136,30 +139,32 @@ public class AreaOfInterestServiceTest extends AbstractReplicantTest {
     public void createOrUpdateAreaOfInterest() {
         safeAction(() -> {
             final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-            final String filter1 = ValueUtil.randomString();
-            final String filter2 = ValueUtil.randomString();
+            final String filterParameter1 = ValueUtil.randomString();
+            final String filterParameter2 = ValueUtil.randomString();
 
             final AreaOfInterestService service = AreaOfInterestService.create(null);
 
             // No existing subscription
-            final AreaOfInterest areaOfInterest1 = service.createOrUpdateAreaOfInterest(datasetAddress, filter1);
+            final AreaOfInterest areaOfInterest1 =
+                    service.createOrUpdateAreaOfInterest(datasetAddress, filterParameter1);
             assertEquals(areaOfInterest1.getDatasetAddress(), datasetAddress);
-            assertEquals(areaOfInterest1.getFilter(), filter1);
+            assertEquals(areaOfInterest1.getFilterParameter(), filterParameter1);
             assertEquals(service.findAreaOfInterestByDatasetAddress(datasetAddress), areaOfInterest1);
             assertEquals(service.getAreasOfInterest().size(), 1);
 
-            // Existing subscription, same filter
-            final AreaOfInterest areaOfInterest2 = service.createOrUpdateAreaOfInterest(datasetAddress, filter1);
+            // Existing subscription, same filterParameter
+            final AreaOfInterest areaOfInterest2 =
+                    service.createOrUpdateAreaOfInterest(datasetAddress, filterParameter1);
             assertEquals(areaOfInterest2.getDatasetAddress(), datasetAddress);
-            assertEquals(areaOfInterest2.getFilter(), filter1);
+            assertEquals(areaOfInterest2.getFilterParameter(), filterParameter1);
             assertEquals(areaOfInterest1, areaOfInterest2);
             assertEquals(service.findAreaOfInterestByDatasetAddress(datasetAddress), areaOfInterest2);
             assertEquals(service.getAreasOfInterest().size(), 1);
 
-            // Existing subscription, different filter
-            final AreaOfInterest subscription3 = service.createOrUpdateAreaOfInterest(datasetAddress, filter2);
+            // Existing subscription, different filterParameter
+            final AreaOfInterest subscription3 = service.createOrUpdateAreaOfInterest(datasetAddress, filterParameter2);
             assertEquals(subscription3.getDatasetAddress(), datasetAddress);
-            assertEquals(subscription3.getFilter(), filter2);
+            assertEquals(subscription3.getFilterParameter(), filterParameter2);
             assertEquals(areaOfInterest1, subscription3);
             assertEquals(service.findAreaOfInterestByDatasetAddress(datasetAddress), subscription3);
             assertEquals(service.getAreasOfInterest().size(), 1);

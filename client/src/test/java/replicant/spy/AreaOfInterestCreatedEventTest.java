@@ -17,9 +17,9 @@ public class AreaOfInterestCreatedEventTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 2);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterest areaOfInterest =
-                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filter));
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filterParameter));
 
         final AreaOfInterestCreatedEvent event = new AreaOfInterestCreatedEvent(areaOfInterest);
 
@@ -32,7 +32,7 @@ public class AreaOfInterestCreatedEventTest extends AbstractReplicantTest {
         assertEquals(data.get("datasetAddress.schemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
-        assertEquals(data.get("areaOfInterest.filter"), filter);
+        assertEquals(data.get("areaOfInterest.filterParameter"), filterParameter);
         assertEquals(data.size(), 5);
     }
 }

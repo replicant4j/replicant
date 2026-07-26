@@ -41,11 +41,11 @@ public interface Transport {
 
     void requestExec(@NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
 
-    void requestSubscribe(@NonNull DatasetAddress datasetAddress, @Nullable Object filter);
+    void requestSubscribe(@NonNull DatasetAddress datasetAddress, @Nullable Object filterParameter);
 
     void requestUnsubscribe(@NonNull DatasetAddress datasetAddress);
 
-    void requestBulkSubscribe(@NonNull List<DatasetAddress> datasetAddresses, @Nullable Object filter);
+    void requestBulkSubscribe(@NonNull List<DatasetAddress> datasetAddresses, @Nullable Object filterParameter);
 
     void requestBulkUnsubscribe(@NonNull List<DatasetAddress> datasetAddresses);
 }

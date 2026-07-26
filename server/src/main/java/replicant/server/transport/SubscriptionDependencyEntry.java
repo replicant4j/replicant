@@ -9,7 +9,7 @@ record SubscriptionDependencyEntry(
         @NonNull SubscriptionDependencyOwner owner,
         @NonNull DatasetAddress sourceDatasetAddress,
         @NonNull DatasetAddress targetDatasetAddress,
-        @Nullable JsonObject filter) {
+        @Nullable JsonObject filterParameter) {
     SubscriptionDependencyEntry {
         assert sourceDatasetAddress.concrete();
         assert targetDatasetAddress.concrete();

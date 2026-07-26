@@ -746,28 +746,31 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
+        assertFalse(connector.isAreaOfInterestRequestPending(
+                AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter));
         assertEquals(
                 connector.lastIndexOfPendingAreaOfInterestRequest(
-                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter),
                 -1);
 
         final Connection connection = newConnection(connector);
 
-        assertFalse(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
+        assertFalse(connector.isAreaOfInterestRequestPending(
+                AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter));
         assertEquals(
                 connector.lastIndexOfPendingAreaOfInterestRequest(
-                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter),
                 -1);
 
-        connection.requestSubscribe(datasetAddress, filter);
+        connection.requestSubscribe(datasetAddress, filterParameter);
 
-        assertTrue(connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.ADD, datasetAddress, filter));
+        assertTrue(connector.isAreaOfInterestRequestPending(
+                AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter));
         assertEquals(
                 connector.lastIndexOfPendingAreaOfInterestRequest(
-                        AreaOfInterestRequest.Type.ADD, datasetAddress, filter),
+                        AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter),
                 1);
     }
 
@@ -955,12 +958,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_requiresDatasetKey_forDynamicKeyedDataset() {
+    public void requestSubscribe_isKeyed_forUpdatableParameterKeyedDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 (f, e) -> true,
                 false,
@@ -982,12 +986,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_requiresDatasetKey_forStaticKeyedDataset() {
+    public void requestSubscribe_isKeyed_forFixedParameterKeyedDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
                 null,
                 false,
@@ -1014,7 +1019,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 (f, e) -> true,
                 false,
@@ -1036,12 +1042,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_dynamicKeyed_withDatasetKey() {
+    public void requestSubscribe_updatableParameterKeyed_withDatasetKey() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 (f, e) -> true,
                 false,
@@ -1063,12 +1070,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_staticKeyed_withDatasetKey() {
+    public void requestSubscribe_fixedParameterKeyed_withDatasetKey() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
                 null,
                 false,
@@ -1095,7 +1103,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 (f, e) -> true,
                 false,
@@ -1123,12 +1132,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscriptionUpdate_requiresDatasetKey_forDynamicKeyedDataset() {
+    public void requestSubscriptionUpdate_isKeyed_forUpdatableParameterKeyedDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 (f, e) -> true,
                 false,
@@ -1151,12 +1161,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscriptionUpdate_DatasetNot_DYNAMIC_Filter() {
+    public void requestSubscriptionUpdate_rejectsDatasetWithoutUpdatableFilterParameter() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -1178,16 +1189,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0082: Connector.requestSubscriptionUpdate invoked for Dataset Address 1.0 but the Dataset"
-                        + " does not have a dynamic filter.");
+                        + " does not have an updatable Filter Parameter.");
     }
 
     @Test
-    public void requestUnsubscribe_requiresDatasetKey_forDynamicKeyedDataset() {
+    public void requestUnsubscribe_isKeyed_forUpdatableParameterKeyedDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 (f, e) -> true,
                 false,
@@ -1209,12 +1221,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestUnsubscribe_requiresDatasetKey_forStaticKeyedDataset() {
+    public void requestUnsubscribe_isKeyed_forFixedParameterKeyedDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
                 null,
                 false,
@@ -1262,15 +1275,16 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void updateSubscriptionForFilteredReplicas() {
-        final SubscriptionUpdateReplicaFilter<?> filter = (f, replicaEntry) -> replicaEntry.getId() > 0;
+    public void reevaluateReplicaMembershipAfterFilterParameterUpdate() {
+        final FilterParameterUpdateReplicaMatcher<?> filterParameter = (f, replicaEntry) -> replicaEntry.getId() > 0;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                filter,
+                filterParameter,
                 true,
                 true,
                 Collections.emptyList());
@@ -1315,7 +1329,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     subscription2.findAllReplicaEntriesByType(Integer.class).size(), 2);
         });
 
-        safeAction(() -> connector.updateSubscriptionForFilteredReplicas(subscription1));
+        safeAction(() -> connector.reevaluateReplicaMembershipAfterFilterParameterUpdate(subscription1));
 
         safeAction(() -> {
             assertTrue(Disposable.isDisposed(replicaEntry1));
@@ -1336,12 +1350,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void updateSubscriptionForFilteredReplicas_badFilterType() {
+    public void reevaluateReplicaMembershipAfterFilterParameterUpdate_rejectsFixedFilterParameter() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 true,
@@ -1359,12 +1374,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(() -> connector.updateSubscriptionForFilteredReplicas(subscription1)));
+                () -> safeAction(() -> connector.reevaluateReplicaMembershipAfterFilterParameterUpdate(subscription1)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address 1.0.1 but"
-                        + " the Dataset does not have a DYNAMIC filter.");
+                "Replicant-0079: Connector.reevaluateReplicaMembershipAfterFilterParameterUpdate invoked for Dataset"
+                        + " Address 1.0.1 but the Dataset does not have an updatable Filter Parameter.");
     }
 
     @SuppressWarnings("unchecked")
@@ -1375,7 +1390,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -1462,7 +1478,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 Linkable.class,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 (f, e) -> true,
                 false,
@@ -1508,7 +1525,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -1552,7 +1570,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -1653,7 +1672,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final int datasetId = 0;
         final int datasetRootId = ValueUtil.randomInt();
-        final String filter = null;
+        final String filterParameter = null;
         final String[] subscriptionChanges = {"+0." + datasetRootId};
 
         final MessageResponse response = setCurrentMessageResponse(
@@ -1673,13 +1692,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
         assertEquals(subscription.datasetAddress(), datasetAddress);
-        safeAction(() -> assertEquals(subscription.getFilter(), filter));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter));
         safeAction(() -> assertFalse(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
             assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
-            safeAction(() -> assertEquals(e.getSubscription().getFilter(), filter));
+            safeAction(() -> assertEquals(e.getSubscription().getFilterParameter(), filterParameter));
         });
     }
 
@@ -1690,14 +1709,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final int datasetId = 0;
         final int datasetRootId = ValueUtil.randomInt();
-        final String filter = ValueUtil.randomString();
-        final SubscriptionChangeMessage[] filteredSubscriptionChanges = {
-            SubscriptionChangeMessage.create("+0." + datasetRootId, filter)
+        final String filterParameter = ValueUtil.randomString();
+        final SubscriptionChangeMessage[] filterParameterSubscriptionChanges = {
+            SubscriptionChangeMessage.create("+0." + datasetRootId, filterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, filteredSubscriptionChanges, null, null));
+                connection, UpdateMessage.create(null, null, null, filterParameterSubscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, filteredSubscriptionChanges[0])));
+                Collections.singletonList(SubscriptionChange.from(1, filterParameterSubscriptionChanges[0])));
 
         assertTrue(response.needsSubscriptionChangesProcessed());
 
@@ -1711,14 +1730,139 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
         assertEquals(subscription.datasetAddress(), datasetAddress);
-        safeAction(() -> assertEquals(subscription.getFilter(), filter));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), filterParameter));
         safeAction(() -> assertFalse(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
             assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
-            safeAction(() -> assertEquals(e.getSubscription().getFilter(), filter));
+            safeAction(() -> assertEquals(e.getSubscription().getFilterParameter(), filterParameter));
         });
+    }
+
+    @Test
+    public void processSubscriptionChanges_subscribe_replacesFixedFilterParameterSubscription() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
+                false,
+                null,
+                false,
+                true,
+                Collections.emptyList());
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
+        final Connector connector = createConnector(schema);
+        connector.pauseMessageScheduler();
+        final Connection connection = newConnection(connector);
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final String oldFilterParameter = ValueUtil.randomString();
+        final String newFilterParameter = ValueUtil.randomString();
+        safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, newFilterParameter));
+        final Subscription initialSubscription = createSubscription(datasetAddress, oldFilterParameter, true);
+        final ReplicaEntry replicaEntry = findOrCreateReplicaEntry(String.class, ValueUtil.randomInt());
+        safeAction(() -> replicaEntry.linkToSubscription(initialSubscription));
+
+        final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", newFilterParameter);
+        final MessageResponse response = setCurrentMessageResponse(
+                connection,
+                UpdateMessage.create(
+                        null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+
+        connector.processSubscriptionChanges();
+
+        final Subscription replacementSubscription =
+                Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
+        assertNotSame(replacementSubscription, initialSubscription);
+        assertTrue(Disposable.isDisposed(initialSubscription));
+        assertFalse(Disposable.isDisposed(replacementSubscription));
+        safeAction(() -> assertEquals(replacementSubscription.getFilterParameter(), newFilterParameter));
+        safeAction(() -> assertTrue(replacementSubscription.isExplicitSubscription()));
+        assertTrue(Disposable.isDisposed(replicaEntry));
+        assertTrue(replicaEntry.subscriptions().isEmpty());
+        assertEquals(response.getSubscriptionSubscribeCount(), 1);
+    }
+
+    @Test
+    public void processSubscriptionChanges_subscribe_rejectsSameFixedFilterParameter() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
+                false,
+                null,
+                false,
+                true,
+                Collections.emptyList());
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
+        final Connector connector = createConnector(schema);
+        final Connection connection = newConnection(connector);
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final String filterParameter = ValueUtil.randomString();
+        createSubscription(datasetAddress, filterParameter, true);
+        final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", filterParameter);
+        final MessageResponse response = setCurrentMessageResponse(
+                connection,
+                UpdateMessage.create(
+                        null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+
+        final IllegalStateException exception =
+                expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
+
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0064: createSubscription invoked with Dataset Address 1.0 but a subscription with that"
+                        + " Dataset Address already exists.");
+    }
+
+    @Test
+    public void processSubscriptionChanges_subscribe_rejectsExistingUpdatableFilterParameterSubscription() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
+                false,
+                (filterParameter, replicaEntry) -> true,
+                false,
+                true,
+                Collections.emptyList());
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
+        final Connector connector = createConnector(schema);
+        final Connection connection = newConnection(connector);
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        createSubscription(datasetAddress, ValueUtil.randomString(), true);
+        final SubscriptionChangeMessage subscriptionChange =
+                SubscriptionChangeMessage.create("+0", ValueUtil.randomString());
+        final MessageResponse response = setCurrentMessageResponse(
+                connection,
+                UpdateMessage.create(
+                        null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+
+        final IllegalStateException exception =
+                expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
+
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0064: createSubscription invoked with Dataset Address 1.0 but a subscription with that"
+                        + " Dataset Address already exists.");
     }
 
     @Test
@@ -1750,13 +1894,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
         assertEquals(subscription.datasetAddress(), datasetAddress);
-        safeAction(() -> assertNull(subscription.getFilter()));
+        safeAction(() -> assertNull(subscription.getFilterParameter()));
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
             assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
-            safeAction(() -> assertNull(e.getSubscription().getFilter()));
+            safeAction(() -> assertNull(e.getSubscription().getFilterParameter()));
         });
     }
 
@@ -1795,13 +1939,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
         assertEquals(subscription.datasetAddress(), datasetAddress);
-        safeAction(() -> assertNull(subscription.getFilter()));
+        safeAction(() -> assertNull(subscription.getFilterParameter()));
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionCreatedEvent.class, e -> {
             assertEquals(e.getSubscription().datasetAddress(), datasetAddress);
-            safeAction(() -> assertNull(e.getSubscription().getFilter()));
+            safeAction(() -> assertNull(e.getSubscription().getFilterParameter()));
         });
     }
 
@@ -1978,14 +2122,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processSubscriptionChanges_update() {
-        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
+        final FilterParameterUpdateReplicaMatcher<?> filterParameter = mock(FilterParameterUpdateReplicaMatcher.class);
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                filter,
+                filterParameter,
                 true,
                 true,
                 Collections.emptyList());
@@ -2001,17 +2146,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
-        final String oldFilter = ValueUtil.randomString();
-        final String newFilter = ValueUtil.randomString();
+        final String oldFilterParameter = ValueUtil.randomString();
+        final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
-            SubscriptionChangeMessage.create("=0." + datasetAddress.datasetRootId(), newFilter)
+            SubscriptionChangeMessage.create("=0." + datasetAddress.datasetRootId(), newFilterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        final Subscription initialSubscription = createSubscription(datasetAddress, oldFilter, true);
+        final Subscription initialSubscription = createSubscription(datasetAddress, oldFilterParameter, true);
 
         assertTrue(response.needsSubscriptionChangesProcessed());
         assertEquals(response.getSubscriptionUpdateCount(), 0);
@@ -2032,14 +2177,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processSubscriptionChanges_update_withDatasetKey() {
-        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
+        final FilterParameterUpdateReplicaMatcher<?> filterParameter = mock(FilterParameterUpdateReplicaMatcher.class);
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 Integer.class,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
-                filter,
+                filterParameter,
                 true,
                 true,
                 Collections.emptyList());
@@ -2054,17 +2200,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final int datasetRootId = ValueUtil.randomInt();
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, datasetRootId, "fi");
 
-        final String oldFilter = ValueUtil.randomString();
-        final String newFilter = ValueUtil.randomString();
+        final String oldFilterParameter = ValueUtil.randomString();
+        final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
-            SubscriptionChangeMessage.create("=0." + datasetRootId + "#fi", newFilter)
+            SubscriptionChangeMessage.create("=0." + datasetRootId + "#fi", newFilterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        final Subscription subscription = createSubscription(datasetAddress, oldFilter, true);
+        final Subscription subscription = createSubscription(datasetAddress, oldFilterParameter, true);
 
         assertTrue(response.needsSubscriptionChangesProcessed());
         assertEquals(response.getSubscriptionUpdateCount(), 0);
@@ -2073,16 +2219,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertFalse(response.needsSubscriptionChangesProcessed());
         assertEquals(response.getSubscriptionUpdateCount(), 1);
-        safeAction(() -> assertEquals(subscription.getFilter(), newFilter));
+        safeAction(() -> assertEquals(subscription.getFilterParameter(), newFilterParameter));
     }
 
     @Test
-    public void processSubscriptionChanges_update_forNonDYNAMICDataset() {
+    public void processSubscriptionChanges_update_rejectsDatasetWithoutUpdatableFilterParameter() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 true,
@@ -2093,15 +2240,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final String oldFilter = ValueUtil.randomString();
-        final String newFilter = ValueUtil.randomString();
+        final String oldFilterParameter = ValueUtil.randomString();
+        final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges =
-                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilter)};
+                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilterParameter)};
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
-        createSubscription(new DatasetAddress(1, 0, 2223), oldFilter, true);
+        createSubscription(new DatasetAddress(1, 0, 2223), oldFilterParameter, true);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
@@ -2109,7 +2256,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0078: Received SubscriptionChange of type UPDATE for Dataset Address 1.0.2223 but the"
-                        + " Dataset does not have a DYNAMIC filter.");
+                        + " Dataset does not have an updatable Filter Parameter.");
     }
 
     @Test
@@ -2117,9 +2264,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        final String newFilter = ValueUtil.randomString();
+        final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges =
-                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilter)};
+                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilterParameter)};
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
@@ -2538,7 +2685,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -2636,7 +2784,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -2649,9 +2798,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
 
@@ -2663,11 +2812,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         doAnswer(i -> {
                     callCount.incrementAndGet();
                     assertEquals(i.getArguments()[0], datasetAddress);
-                    assertEquals(i.getArguments()[1], filter);
+                    assertEquals(i.getArguments()[1], filterParameter);
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2691,7 +2840,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 true,
@@ -2706,9 +2856,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.pauseMessageScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         connection.injectCurrentAreaOfInterestRequest(request);
 
@@ -2722,7 +2872,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2746,7 +2896,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 true,
@@ -2759,9 +2910,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
         connector.pauseMessageScheduler();
@@ -2781,7 +2932,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2808,7 +2959,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -2823,13 +2975,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.ADD, filterParameter);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
 
@@ -2853,7 +3005,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestBulkSubscribe(any(), eq(filter));
+                .requestBulkSubscribe(any(), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2887,7 +3039,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -2900,9 +3053,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
 
@@ -2927,9 +3080,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                mock(SubscriptionUpdateReplicaFilter.class),
+                mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -2940,9 +3094,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request =
-                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
@@ -2958,7 +3112,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filter));
+                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -2983,9 +3137,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                mock(SubscriptionUpdateReplicaFilter.class),
+                mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -2998,13 +3153,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filterParameter);
         final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.UPDATE, filterParameter);
         final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress3, AreaOfInterestRequest.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
@@ -3028,7 +3183,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestBulkSubscribe(any(), eq(filter));
+                .requestBulkSubscribe(any(), eq(filterParameter));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentAreaOfInterestRequests().isEmpty());
@@ -3062,9 +3217,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                mock(SubscriptionUpdateReplicaFilter.class),
+                mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -3075,9 +3231,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
@@ -3102,7 +3258,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -3157,7 +3314,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -3235,7 +3393,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -3274,7 +3433,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -3305,7 +3465,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -3318,9 +3479,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
 
@@ -3345,7 +3506,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 false,
@@ -3358,9 +3520,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter);
 
         pauseScheduler();
 
@@ -3384,9 +3546,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                mock(SubscriptionUpdateReplicaFilter.class),
+                mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -3397,9 +3560,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
         final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filter);
+                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
@@ -3425,7 +3588,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 0,
                 ValueUtil.randomString(),
                 String.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,

@@ -15,11 +15,12 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     private final DatasetAddress _datasetAddress;
 
     @Nullable
-    private final Object _filter;
+    private final Object _filterParameter;
 
-    public SubscribeRequestQueuedEvent(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+    public SubscribeRequestQueuedEvent(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
         _datasetAddress = Objects.requireNonNull(datasetAddress);
-        _filter = filter;
+        _filterParameter = filterParameter;
     }
 
     @NonNull
@@ -28,8 +29,8 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     }
 
     @Nullable
-    public Object getFilter() {
-        return _filter;
+    public Object getFilterParameter() {
+        return _filterParameter;
     }
 
     @Override
@@ -39,6 +40,6 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
         map.put("datasetAddress.schemaId", datasetAddress.schemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
-        map.put("subscription.filter", getFilter());
+        map.put("subscription.filterParameter", getFilterParameter());
     }
 }

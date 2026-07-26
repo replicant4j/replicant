@@ -57,9 +57,9 @@ java_testng(
 )
 
 java_testng(
-    name = "FilterUtilTest",
-    srcs = ["FilterUtilTest.java"],
-    test_class = "replicant.server.FilterUtilTest",
+    name = "FilterParameterUtilTest",
+    srcs = ["FilterParameterUtilTest.java"],
+    test_class = "replicant.server.FilterParameterUtilTest",
     deps = ["//server:server_test_support"],
 )
 

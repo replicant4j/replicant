@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import replicant.DatasetAddress;
 
 /**
- * Notification when a Connector completes an update of the filter of a subscription.
+ * Notification when a Connector completes an update of a Subscription's Filter Parameter.
  */
 public final class SubscriptionUpdateCompletedEvent implements SerializableEvent {
     private final int _schemaId;

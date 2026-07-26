@@ -33,7 +33,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
          */
         SUBMITTED_UPDATE,
         /**
-         * The request to update subscription with static filter has resulted in a remove request added to the AOI queue.
+         * Updating a fixed Filter Parameter submitted a remove request to replace the Subscription.
          */
         SUBMITTED_REMOVE,
         /**
@@ -124,8 +124,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
         AreaOfInterest groupTemplate = null;
         AreaOfInterestRequest.Type groupAction = null;
         for (final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest()) {
-            // Make sure we observe the filter so that changes trigger another reconciliation
-            areaOfInterest.getFilter();
+            // Make sure we observe the Filter Parameter so that changes trigger another reconciliation
+            areaOfInterest.getFilterParameter();
 
             // Make sure we observe the status so that the SubscriptionReconciler reruns when status updates.
             // This is usually not needed
@@ -145,8 +145,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                         groupTemplate = areaOfInterest;
                         break;
                     case SUBMITTED_REMOVE:
-                        // A request to update a subscription that has static filter has resulted in remove being
-                        // submitted.
+                        // Updating a fixed Filter Parameter submitted a remove request to replace the Subscription.
                         return;
                     case IN_PROGRESS:
                         if (null == groupTemplate) {
@@ -183,19 +182,19 @@ abstract class SubscriptionReconciler extends ReplicantService {
         if (ConnectorState.CONNECTED == connector.getState()) {
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             final boolean subscribed = null != subscription;
-            final Object filter = areaOfInterest.getFilter();
+            final Object filterParameter = areaOfInterest.getFilterParameter();
 
             final int addIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.ADD, datasetAddress, filter);
+                    AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter);
             final int removeIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
                     AreaOfInterestRequest.Type.REMOVE, datasetAddress, null);
             final int updateIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.UPDATE, datasetAddress, filter);
+                    AreaOfInterestRequest.Type.UPDATE, datasetAddress, filterParameter);
 
             if ((!subscribed && addIndex < 0) || removeIndex > addIndex) {
                 if (null == groupTemplate
                         || canGroup(groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD)) {
-                    connector.requestSubscribe(datasetAddress, filter);
+                    connector.requestSubscribe(datasetAddress, filterParameter);
                     return Action.SUBMITTED_ADD;
                 } else {
                     return Action.NO_ACTION;
@@ -211,12 +210,12 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 }
 
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
-                if (!FilterUtil.filtersEqual(filter, existingSubscription.getFilter())) {
+                if (!FilterParameterUtil.filterParametersEqual(
+                        filterParameter, existingSubscription.getFilterParameter())) {
                     final SystemSchema schema =
                             getReplicantContext().getSchemaService().getById(datasetAddress.schemaId());
-                    final Dataset.FilterType filterType =
-                            schema.getDataset(datasetAddress.datasetId()).getFilterType();
-                    if (null == groupTemplate && Dataset.FilterType.DYNAMIC != filterType) {
+                    final Dataset dataset = schema.getDataset(datasetAddress.datasetId());
+                    if (null == groupTemplate && !dataset.hasUpdatableFilterParameter()) {
                         /*
                         If the subscription needs an update but the backend does not support updates
                         and subscription is explicitly subscribed then need to do a remove. Eventually it will
@@ -227,7 +226,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                             invariant(
                                     existingSubscription::isExplicitSubscription,
                                     () -> "Replicant-0083: Attempting to update Dataset Address " + datasetAddress
-                                            + " but the Dataset does not allow dynamic filter updates and has not"
+                                            + " but the Dataset does not have an updatable Filter Parameter and has not"
                                             + " been explicitly subscribed.");
                         }
                         connector.requestUnsubscribe(datasetAddress);
@@ -235,7 +234,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                     } else if (null == groupTemplate
                             || canGroup(
                                     groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE)) {
-                        connector.requestSubscriptionUpdate(datasetAddress, filter);
+                        connector.requestSubscriptionUpdate(datasetAddress, filterParameter);
                         return Action.SUBMITTED_UPDATE;
                     } else {
                         return Action.NO_ACTION;
@@ -251,7 +250,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                         if (existingSubscription.isExplicitSubscription()) {
                             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
                         } else {
-                            connector.requestSubscribe(datasetAddress, filter);
+                            connector.requestSubscribe(datasetAddress, filterParameter);
                             return Action.SUBMITTED_ADD;
                         }
                     }
@@ -280,7 +279,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
             return sameDataset
                     && sameDatasetKey
                     && (AreaOfInterestRequest.Type.REMOVE == action
-                            || FilterUtil.filtersEqual(groupTemplate.getFilter(), areaOfInterest.getFilter()));
+                            || FilterParameterUtil.filterParametersEqual(
+                                    groupTemplate.getFilterParameter(), areaOfInterest.getFilterParameter()));
         }
     }
 

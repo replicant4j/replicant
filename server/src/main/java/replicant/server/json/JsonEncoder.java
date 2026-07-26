@@ -63,7 +63,7 @@ public final class JsonEncoder {
         }
 
         final var actions = changeSet.getSubscriptionActions().stream()
-                .filter(c -> null == c.filter())
+                .filter(c -> null == c.filterParameter())
                 .toList();
         if (!actions.isEmpty()) {
             generator.writeStartArray(Messages.Update.SUBSCRIPTION_CHANGES);
@@ -71,15 +71,15 @@ public final class JsonEncoder {
             generator.writeEnd();
         }
 
-        final var filteredActions = changeSet.getSubscriptionActions().stream()
-                .filter(c -> null != c.filter())
+        final var filterParameterActions = changeSet.getSubscriptionActions().stream()
+                .filter(c -> null != c.filterParameter())
                 .toList();
-        if (!filteredActions.isEmpty()) {
-            generator.writeStartArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES);
-            filteredActions.forEach(a -> {
+        if (!filterParameterActions.isEmpty()) {
+            generator.writeStartArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES);
+            filterParameterActions.forEach(a -> {
                 generator.writeStartObject();
                 generator.write(Messages.Update.SUBSCRIPTION_ACTION, toDescriptor(a));
-                generator.write(Messages.Update.FILTER, a.filter());
+                generator.write(Messages.Update.FILTER_PARAMETER, a.filterParameter());
                 generator.writeEnd();
             });
             generator.writeEnd();

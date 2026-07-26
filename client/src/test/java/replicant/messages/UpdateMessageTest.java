@@ -11,22 +11,22 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     public void construct() {
         final EntityChange[] entityChanges = {};
         final String[] subscriptionChanges = {};
-        final SubscriptionChangeMessage[] filteredSubscriptionChanges = new SubscriptionChangeMessage[0];
+        final SubscriptionChangeMessage[] filterParameterSubscriptionChanges = new SubscriptionChangeMessage[0];
 
         final int requestId = ValueUtil.randomInt();
         final String eTag = ValueUtil.randomString();
 
         final UpdateMessage updateMessage = UpdateMessage.create(
-                requestId, eTag, subscriptionChanges, filteredSubscriptionChanges, entityChanges, null);
+                requestId, eTag, subscriptionChanges, filterParameterSubscriptionChanges, entityChanges, null);
 
         assertEquals(updateMessage.getRequestId(), (Integer) requestId);
         assertEquals(updateMessage.getETag(), eTag);
         assertEquals(updateMessage.getEntityChanges(), entityChanges);
         assertTrue(updateMessage.hasEntityChanges());
         assertTrue(updateMessage.hasSubscriptionChanges());
-        assertTrue(updateMessage.hasFilteredSubscriptionChanges());
+        assertTrue(updateMessage.hasFilterParameterSubscriptionChanges());
         assertEquals(updateMessage.getSubscriptionChanges(), subscriptionChanges);
-        assertEquals(updateMessage.getFilteredSubscriptionChanges(), filteredSubscriptionChanges);
+        assertEquals(updateMessage.getFilterParameterSubscriptionChanges(), filterParameterSubscriptionChanges);
 
         updateMessage.validate();
     }
@@ -39,7 +39,7 @@ public class UpdateMessageTest extends AbstractReplicantTest {
         assertNull(updateMessage.getETag());
         assertFalse(updateMessage.hasEntityChanges());
         assertFalse(updateMessage.hasSubscriptionChanges());
-        assertFalse(updateMessage.hasFilteredSubscriptionChanges());
+        assertFalse(updateMessage.hasFilterParameterSubscriptionChanges());
 
         updateMessage.validate();
     }
@@ -123,15 +123,15 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getFilteredSubscriptionChanges_WhenNone() {
+    public void getFilterParameterSubscriptionChanges_WhenNone() {
         final UpdateMessage updateMessage = UpdateMessage.create(null, null, null, null, null, null);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, updateMessage::getFilteredSubscriptionChanges);
+                expectThrows(IllegalStateException.class, updateMessage::getFilterParameterSubscriptionChanges);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0030: UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes are present."
-                        + " Should guard call with UpdateMessage.hasFilteredSubscriptionChanges().");
+                "Replicant-0030: UpdateMessage.getFilterParameterSubscriptionChanges() invoked when no changes are"
+                        + " present. Should guard call with UpdateMessage.hasFilterParameterSubscriptionChanges().");
     }
 
     @Test

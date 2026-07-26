@@ -15,8 +15,8 @@ public class SubscriptionOrphanedEventTest extends AbstractReplicantTest {
         // Pause scheduler to prevent automatic subscription reconciliation
         pauseScheduler();
 
-        final String filter = ValueUtil.randomString();
-        final Subscription subscription = createSubscription(new DatasetAddress(1, 2), filter, true);
+        final String filterParameter = ValueUtil.randomString();
+        final Subscription subscription = createSubscription(new DatasetAddress(1, 2), filterParameter, true);
 
         final SubscriptionOrphanedEvent event = new SubscriptionOrphanedEvent(subscription);
 
@@ -29,7 +29,7 @@ public class SubscriptionOrphanedEventTest extends AbstractReplicantTest {
         assertEquals(data.get("datasetAddress.schemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
-        assertEquals(data.get("subscription.filter"), filter);
+        assertEquals(data.get("subscription.filterParameter"), filterParameter);
         assertEquals(data.size(), 5);
     }
 }

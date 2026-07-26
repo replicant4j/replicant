@@ -80,6 +80,11 @@
     "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and supplied an unexpected error."
   },
   {
+    "code": 18,
+    "type": "INVARIANT",
+    "messagePattern": "ReplicaEntry.delinkFromSubscriptionAfterMembershipChange invoked on Replica Entry %s passing subscription %s but the Subscription's Dataset is unfiltered."
+  },
+  {
     "code": 19,
     "type": "API_INVARIANT",
     "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and found unexpected subscription in the context."
@@ -107,17 +112,17 @@
   {
     "code": 24,
     "type": "INVARIANT",
-    "messagePattern": "Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
+    "messagePattern": "Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 25,
     "type": "INVARIANT",
-    "messagePattern": "Connection.isAreaOfInterestRequestPending passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
+    "messagePattern": "Connection.isAreaOfInterestRequestPending passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 27,
     "type": "INVARIANT",
-    "messagePattern": "AreaOfInterestRequest constructor passed a REMOVE request for Dataset Address '%s' with a non-null filter '%s'."
+    "messagePattern": "AreaOfInterestRequest constructor passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 28,
@@ -132,7 +137,7 @@
   {
     "code": 30,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getFilteredSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasFilteredSubscriptionChanges()."
+    "messagePattern": "UpdateMessage.getFilterParameterSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasFilterParameterSubscriptionChanges()."
   },
   {
     "code": 31,
@@ -322,22 +327,22 @@
   {
     "code": 76,
     "type": "API_INVARIANT",
-    "messagePattern": "Dataset %s has a DYNAMIC filterType but has supplied no filter."
+    "messagePattern": "Dataset %s has an updatable Filter Parameter but has supplied no Filter Parameter update Replica matcher."
   },
   {
     "code": 77,
     "type": "API_INVARIANT",
-    "messagePattern": "Dataset %s does not have a DYNAMIC filterType but has supplied a filter."
+    "messagePattern": "Dataset %s does not have an updatable Filter Parameter but has supplied a Filter Parameter update Replica matcher."
   },
   {
     "code": 78,
     "type": "INVARIANT",
-    "messagePattern": "Received SubscriptionChange of type %s for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
+    "messagePattern": "Received SubscriptionChange of type %s for Dataset Address %s but the Dataset does not have an updatable Filter Parameter."
   },
   {
     "code": 79,
     "type": "INVARIANT",
-    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for Dataset Address %s but the Dataset does not have a DYNAMIC filter."
+    "messagePattern": "Connector.reevaluateReplicaMembershipAfterFilterParameterUpdate invoked for Dataset Address %s but the Dataset does not have an updatable Filter Parameter."
   },
   {
     "code": 80,
@@ -352,12 +357,12 @@
   {
     "code": 82,
     "type": "INVARIANT",
-    "messagePattern": "Connector.requestSubscriptionUpdate invoked for Dataset Address %s but the Dataset does not have a dynamic filter."
+    "messagePattern": "Connector.requestSubscriptionUpdate invoked for Dataset Address %s but the Dataset does not have an updatable Filter Parameter."
   },
   {
     "code": 83,
     "type": "INVARIANT",
-    "messagePattern": "Attempting to update Dataset Address %s but the Dataset does not allow dynamic filter updates and has not been explicitly subscribed."
+    "messagePattern": "Attempting to update Dataset Address %s but the Dataset does not have an updatable Filter Parameter and has not been explicitly subscribed."
   },
   {
     "code": 85,
@@ -393,5 +398,20 @@
     "code": 99,
     "type": "INVARIANT",
     "messagePattern": "Dataset Address %s does not support Dataset Keys but one was supplied."
+  },
+  {
+    "code": 100,
+    "type": "API_INVARIANT",
+    "messagePattern": "Dataset %s is not parameter-filtered but has supplied a Filter Parameter mode."
+  },
+  {
+    "code": 101,
+    "type": "API_INVARIANT",
+    "messagePattern": "Dataset %s is parameter-filtered but has supplied no Filter Parameter mode."
+  },
+  {
+    "code": 102,
+    "type": "API_INVARIANT",
+    "messagePattern": "Dataset %s is keyed but is not parameter-filtered."
   }
 ]

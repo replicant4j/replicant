@@ -17,18 +17,18 @@ public final class SubscribeMessage extends ClientToServerMessage {
     private String datasetAddress;
 
     @Nullable
-    private Object filter;
+    private Object filterParameter;
 
     @JsOverlay
     @NonNull
     public static SubscribeMessage create(
-            final int req, @NonNull final String datasetAddress, @Nullable final Object filter) {
+            final int req, @NonNull final String datasetAddress, @Nullable final Object filterParameter) {
         final SubscribeMessage message = new SubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
         message.datasetAddress = datasetAddress;
-        if (null != filter) {
-            message.filter = filter;
+        if (null != filterParameter) {
+            message.filterParameter = filterParameter;
         }
         return message;
     }

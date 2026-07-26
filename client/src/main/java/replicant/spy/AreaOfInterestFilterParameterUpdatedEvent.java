@@ -8,13 +8,13 @@ import replicant.AreaOfInterest;
 import replicant.DatasetAddress;
 
 /**
- * Notification when an AreaOfInterest filter has been updated.
+ * Notification when an AreaOfInterest Filter Parameter has been updated.
  */
-public final class AreaOfInterestFilterUpdatedEvent implements SerializableEvent {
+public final class AreaOfInterestFilterParameterUpdatedEvent implements SerializableEvent {
     @NonNull
     private final AreaOfInterest _areaOfInterest;
 
-    public AreaOfInterestFilterUpdatedEvent(@NonNull final AreaOfInterest areaOfInterest) {
+    public AreaOfInterestFilterParameterUpdatedEvent(@NonNull final AreaOfInterest areaOfInterest) {
         _areaOfInterest = Objects.requireNonNull(areaOfInterest);
     }
 
@@ -31,6 +31,6 @@ public final class AreaOfInterestFilterUpdatedEvent implements SerializableEvent
         map.put("datasetAddress.schemaId", datasetAddress.schemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
-        map.put("areaOfInterest.filter", areaOfInterest.getFilter());
+        map.put("areaOfInterest.filterParameter", areaOfInterest.getFilterParameter());
     }
 }

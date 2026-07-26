@@ -367,17 +367,17 @@ public final class ReplicantSession implements Serializable, Closeable {
     public void recordSubscriptions(
             @NonNull final ChangeSet changeSet,
             @NonNull final Collection<DatasetAddress> datasetAddresses,
-            @Nullable final JsonObject filter,
+            @Nullable final JsonObject filterParameter,
             final boolean explicitSubscribe) {
         for (final var datasetAddress : datasetAddresses) {
-            recordSubscription(changeSet, datasetAddress, filter, explicitSubscribe);
+            recordSubscription(changeSet, datasetAddress, filterParameter, explicitSubscribe);
         }
     }
 
     public void recordSubscription(
             @NonNull final ChangeSet changeSet,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final JsonObject filter,
+            @Nullable final JsonObject filterParameter,
             final boolean explicitSubscribe) {
         assert datasetAddress.concrete();
         final var existing = findSubscriptionEntry(datasetAddress);
@@ -385,22 +385,23 @@ public final class ReplicantSession implements Serializable, Closeable {
         if (explicitSubscribe) {
             entry.setExplicitlySubscribed(true);
         }
-        entry.setFilter(filter);
+        entry.setFilterParameter(filterParameter);
         changeSet.mergeSubscriptionAction(
                 datasetAddress,
                 null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
-                filter);
+                filterParameter);
     }
 
     @Nullable
-    public JsonObject getFilter(@NonNull final DatasetAddress datasetAddress) {
+    public JsonObject getFilterParameter(@NonNull final DatasetAddress datasetAddress) {
         assert datasetAddress.concrete();
-        return getSubscriptionEntry(datasetAddress).getFilter();
+        return getSubscriptionEntry(datasetAddress).getFilterParameter();
     }
 
-    public void setFilter(@NonNull final DatasetAddress datasetAddress, @Nullable final JsonObject filter) {
+    public void setFilterParameter(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final JsonObject filterParameter) {
         assert datasetAddress.concrete();
-        getSubscriptionEntry(datasetAddress).setFilter(filter);
+        getSubscriptionEntry(datasetAddress).setFilterParameter(filterParameter);
     }
 
     /**

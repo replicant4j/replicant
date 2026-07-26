@@ -41,15 +41,15 @@ public abstract class AreaOfInterest extends ReplicantService {
          */
         LOAD_FAILED,
         /**
-         * The process of asking the server to update the filter for an existing subscription has started.
+         * The process of asking the server to update the Filter Parameter for an existing Subscription has started.
          */
         UPDATING,
         /**
-         * The server has updated the filter for an existing subscription and the data is present.
+         * The server has updated the Filter Parameter for an existing Subscription and the data is present.
          */
         UPDATED,
         /**
-         * The process of asking the server to update the filter for an existing subscription has failed.
+         * The process of asking the server to update the Filter Parameter for an existing Subscription has failed.
          */
         UPDATE_FAILED,
         /**
@@ -106,7 +106,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     private final DatasetAddress _datasetAddress;
 
     @Nullable
-    private Object _filter;
+    private Object _filterParameter;
 
     @NonNull
     private Status _status = Status.NOT_ASKED;
@@ -121,17 +121,17 @@ public abstract class AreaOfInterest extends ReplicantService {
     static AreaOfInterest create(
             @Nullable final ReplicantContext context,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
-        return new Arez_AreaOfInterest(context, datasetAddress, filter);
+            @Nullable final Object filterParameter) {
+        return new Arez_AreaOfInterest(context, datasetAddress, filterParameter);
     }
 
     AreaOfInterest(
             @Nullable final ReplicantContext context,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter) {
+            @Nullable final Object filterParameter) {
         super(context);
         _datasetAddress = Objects.requireNonNull(datasetAddress);
-        _filter = filter;
+        _filterParameter = filterParameter;
     }
 
     public void incRefCount() {
@@ -170,12 +170,12 @@ public abstract class AreaOfInterest extends ReplicantService {
 
     @Observable
     @Nullable
-    public Object getFilter() {
-        return _filter;
+    public Object getFilterParameter() {
+        return _filterParameter;
     }
 
-    void setFilter(@Nullable final Object filter) {
-        _filter = filter;
+    void setFilterParameter(@Nullable final Object filterParameter) {
+        _filterParameter = filterParameter;
     }
 
     @Observable(readOutsideTransaction = Feature.ENABLE)
@@ -262,7 +262,9 @@ public abstract class AreaOfInterest extends ReplicantService {
     public String toString() {
         if (Replicant.areNamesEnabled()) {
             return "AreaOfInterest[" + _datasetAddress
-                    + (null == _filter ? "" : " Filter: " + FilterUtil.filterToString(_filter))
+                    + (null == _filterParameter
+                            ? ""
+                            : " Filter Parameter: " + FilterParameterUtil.filterParameterToString(_filterParameter))
                     + " Status: "
                     + _status + "]";
         } else {

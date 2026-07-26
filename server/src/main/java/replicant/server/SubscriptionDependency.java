@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 public record SubscriptionDependency(
         @NonNull DatasetAddress sourceDatasetAddress,
         @NonNull DatasetAddress targetDatasetAddress,
-        @Nullable JsonObject targetFilter,
+        @Nullable JsonObject targetFilterParameter,
         boolean partial) {
     public SubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress, @NonNull final DatasetAddress targetDatasetAddress) {
@@ -21,24 +21,28 @@ public record SubscriptionDependency(
     public SubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress,
             @NonNull final DatasetAddress targetDatasetAddress,
-            @Nullable final JsonObject targetFilter) {
-        this(sourceDatasetAddress, targetDatasetAddress, targetFilter, false);
+            @Nullable final JsonObject targetFilterParameter) {
+        this(sourceDatasetAddress, targetDatasetAddress, targetFilterParameter, false);
     }
 
     public SubscriptionDependency {
         assert partial || (!sourceDatasetAddress.partial() && !targetDatasetAddress.partial());
-        assert !partial || sourceDatasetAddress.partial() || targetDatasetAddress.partial() || null == targetFilter;
+        assert !partial
+                || sourceDatasetAddress.partial()
+                || targetDatasetAddress.partial()
+                || null == targetFilterParameter;
     }
 
-    public boolean hasTargetFilter() {
-        return null != targetFilter;
+    public boolean hasTargetFilterParameter() {
+        return null != targetFilterParameter;
     }
 
     @NonNull
     @Override
     public String toString() {
         return "[" + sourceDatasetAddress
-                + "=>" + targetDatasetAddress + (hasTargetFilter() ? ("~<" + targetFilter + ">") : "")
+                + "=>" + targetDatasetAddress
+                + (hasTargetFilterParameter() ? ("~<" + targetFilterParameter + ">") : "")
                 + (partial ? "?" : "")
                 + "]";
     }

@@ -11,15 +11,15 @@ public class SubscriptionChangeMessageTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("+1.2", null);
 
         assertEquals(action.getSubscriptionAction(), "+1.2");
-        assertNull(action.getFilter());
+        assertNull(action.getFilterParameter());
     }
 
     @Test
     public void construct_withoutSubdatasetId() {
-        final Object filter = ValueUtil.randomString();
-        final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("-1", filter);
+        final Object filterParameter = ValueUtil.randomString();
+        final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("-1", filterParameter);
 
         assertEquals(action.getSubscriptionAction(), "-1");
-        assertEquals(action.getFilter(), filter);
+        assertEquals(action.getFilterParameter(), filterParameter);
     }
 }

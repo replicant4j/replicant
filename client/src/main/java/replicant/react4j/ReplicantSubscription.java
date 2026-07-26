@@ -29,7 +29,7 @@ public abstract class ReplicantSubscription {
     private AreaOfInterest _areaOfInterest;
 
     @Nullable
-    protected Object getFilter() {
+    protected Object getFilterParameter() {
         return null;
     }
 
@@ -57,16 +57,17 @@ public abstract class ReplicantSubscription {
         updateAreaOfInterest();
     }
 
-    protected final void updateAreaOfInterestOnFilterChange(@Nullable final Object newFilter) {
+    protected final void updateAreaOfInterestOnFilterParameterChange(@Nullable final Object newFilterParameter) {
         if (null != _areaOfInterest) {
-            Replicant.context().createOrUpdateAreaOfInterest(_areaOfInterest.getDatasetAddress(), newFilter);
+            Replicant.context().createOrUpdateAreaOfInterest(_areaOfInterest.getDatasetAddress(), newFilterParameter);
         }
     }
 
     @Action
     protected void updateAreaOfInterest() {
         final ReplicantContext context = Replicant.context();
-        final AreaOfInterest newAreaOfInterest = context.createOrUpdateAreaOfInterest(getDatasetAddress(), getFilter());
+        final AreaOfInterest newAreaOfInterest =
+                context.createOrUpdateAreaOfInterest(getDatasetAddress(), getFilterParameter());
         if (null == _areaOfInterest) {
             newAreaOfInterest.incRefCount();
             setAreaOfInterest(newAreaOfInterest);

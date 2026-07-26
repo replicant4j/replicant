@@ -49,7 +49,7 @@ public final class JsonEncoderTest {
         final var response = Json.createArrayBuilder().add(17).add(42).build();
 
         final var etag = "#1";
-        final var filter = Json.createBuilderFactory(null)
+        final var filterParameter = Json.createBuilderFactory(null)
                 .createObjectBuilder()
                 .add("a", "b")
                 .build();
@@ -60,7 +60,7 @@ public final class JsonEncoderTest {
         change.getDatasetAddresses().add(DatasetAddress.of(3, 73));
         final var cs = new ChangeSet();
         cs.merge(change);
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filter));
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filterParameter));
         final var encoded = JsonEncoder.encodeChangeSet(requestId, response, etag, cs);
         final var changeSet = toJsonObject(encoded);
 
@@ -74,10 +74,10 @@ public final class JsonEncoderTest {
         assertEquals(changeSet.getString(Messages.S2C_Common.ETAG), etag);
 
         final var action = changeSet
-                .getJsonArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES)
+                .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
         assertEquals(action.getString(Messages.Update.SUBSCRIPTION_ACTION), "=45.77");
-        assertEquals(action.getJsonObject(Messages.Update.FILTER).toString(), filter.toString());
+        assertEquals(action.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
 
         final var object = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
 
@@ -136,7 +136,7 @@ public final class JsonEncoderTest {
         assertFalse(changeSet.containsKey(Messages.Update.RESPONSE));
         assertFalse(changeSet.containsKey(Messages.S2C_Common.ETAG));
         assertFalse(changeSet.containsKey(Messages.Update.SUBSCRIPTION_CHANGES));
-        assertFalse(changeSet.containsKey(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES));
+        assertFalse(changeSet.containsKey(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES));
         assertFalse(changeSet.containsKey(Messages.Update.CHANGES));
     }
 
@@ -173,8 +173,8 @@ public final class JsonEncoderTest {
         cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(2, 5), Action.UNSUBSCRIBE));
         cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(3, 7, "inst"), Action.UPDATE));
 
-        final var filter = Json.createObjectBuilder().add("a", "b").build();
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(4, 9), Action.SUBSCRIBE, filter));
+        final var filterParameter = Json.createObjectBuilder().add("a", "b").build();
+        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(4, 9), Action.SUBSCRIBE, filterParameter));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
@@ -186,10 +186,11 @@ public final class JsonEncoderTest {
         assertEquals(actions.getString(2), "=3.7#inst");
 
         final var filteredAction = changeSet
-                .getJsonArray(Messages.Update.FILTERED_SUBSCRIPTION_CHANGES)
+                .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
         assertEquals(filteredAction.getString(Messages.Update.SUBSCRIPTION_ACTION), "+4.9");
-        assertEquals(filteredAction.getJsonObject(Messages.Update.FILTER).toString(), filter.toString());
+        assertEquals(
+                filteredAction.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
     }
 
     @Test

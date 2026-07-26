@@ -3,6 +3,7 @@ package replicant;
 import static org.testng.Assert.*;
 
 import arez.Disposable;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
@@ -234,6 +235,64 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
                 exception.getMessage(),
                 "Replicant-0081: ReplicaEntry.delinkFromSubscription invoked on Replica Entry MyEntity passing"
                         + " subscription 1.0.1 but Replica Entry is not linked to subscription.");
+    }
+
+    @Test
+    public void delinkFromSubscriptionAfterMembershipChange() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.IMPLICIT,
+                null,
+                false,
+                null,
+                false,
+                false,
+                Collections.emptyList());
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
+
+        final ReplicaEntry replicaEntry = safeAction(() -> Replicant.context()
+                .getReplicaRegistry()
+                .findOrCreateReplicaEntry("MyEntity", String.class, ValueUtil.randomInt()));
+        final Subscription subscription = createSubscription(new DatasetAddress(1, 0));
+        safeAction(() -> replicaEntry.linkToSubscription(subscription));
+
+        safeAction(() -> replicaEntry.delinkFromSubscriptionAfterMembershipChange(subscription));
+
+        assertTrue(Disposable.isDisposed(replicaEntry));
+        assertEquals(replicaEntry.subscriptions().size(), 0);
+    }
+
+    @Test
+    public void delinkFromSubscriptionAfterMembershipChange_whenDatasetUnfiltered() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                null,
+                false,
+                false,
+                Collections.emptyList());
+        createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
+
+        final ReplicaEntry replicaEntry = safeAction(() -> Replicant.context()
+                .getReplicaRegistry()
+                .findOrCreateReplicaEntry("MyEntity", String.class, ValueUtil.randomInt()));
+        final Subscription subscription = createSubscription(new DatasetAddress(1, 0));
+        safeAction(() -> replicaEntry.linkToSubscription(subscription));
+
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> safeAction(() -> replicaEntry.delinkFromSubscriptionAfterMembershipChange(subscription)));
+
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0018: ReplicaEntry.delinkFromSubscriptionAfterMembershipChange invoked on Replica Entry"
+                        + " MyEntity passing subscription 1.0 but the Subscription's Dataset is unfiltered.");
     }
 
     @Test

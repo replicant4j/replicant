@@ -33,17 +33,19 @@ import replicant.server.transport.ReplicantSessionContext;
 public abstract class AbstractSessionContextImpl implements ReplicantChangeRecorder, ReplicantSessionContext {
     @NonNull
     @Override
-    public JsonObject deriveTargetFilter(
+    public JsonObject deriveTargetFilterParameter(
             @NonNull final EntityMessage entityMessage,
             @NonNull final DatasetAddress sourceDatasetAddress,
-            @Nullable final JsonObject sourceFilter,
+            @Nullable final JsonObject sourceFilterParameter,
             @NonNull final DatasetAddress targetDatasetAddress) {
-        throw new IllegalStateException("deriveTargetFilter called for Dataset Link from " + sourceDatasetAddress
+        throw new IllegalStateException("deriveTargetFilterParameter called for Dataset Link from "
+                + sourceDatasetAddress
                 + " to "
                 + targetDatasetAddress
-                + (null == sourceFilter ? "" : " with source filter " + sourceFilter)
+                + (null == sourceFilterParameter ? "" : " with source Filter Parameter " + sourceFilterParameter)
                 + " in the context of the entity message "
-                + entityMessage + " but no such Dataset Link exists or the target Dataset has no filter parameter");
+                + entityMessage
+                + " but no such Dataset Link exists or the target Dataset has no Filter Parameter");
     }
 
     @NonNull
@@ -51,17 +53,17 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     public String deriveTargetDatasetKey(
             @NonNull final EntityMessage entityMessage,
             @NonNull final DatasetAddress sourceDatasetAddress,
-            @Nullable final JsonObject sourceFilter,
+            @Nullable final JsonObject sourceFilterParameter,
             @NonNull final DatasetAddress targetDatasetAddress,
-            @Nullable final JsonObject targetFilter) {
-        throw new IllegalStateException(
-                "deriveTargetDatasetKey called for Dataset Link from " + sourceDatasetAddress + " to "
-                        + targetDatasetAddress
-                        + (null == sourceFilter ? "" : " with source filter " + sourceFilter)
-                        + (null == targetFilter ? "" : " with target filter " + targetFilter)
-                        + " in the context of the entity message "
-                        + entityMessage
-                        + " but no such Dataset Link exists or the target Dataset does not require a dataset key");
+            @Nullable final JsonObject targetFilterParameter) {
+        throw new IllegalStateException("deriveTargetDatasetKey called for Dataset Link from " + sourceDatasetAddress
+                + " to "
+                + targetDatasetAddress
+                + (null == sourceFilterParameter ? "" : " with source Filter Parameter " + sourceFilterParameter)
+                + (null == targetFilterParameter ? "" : " with target Filter Parameter " + targetFilterParameter)
+                + " in the context of the entity message "
+                + entityMessage
+                + " but no such Dataset Link exists or the target Dataset does not require a dataset key");
     }
 
     @Override

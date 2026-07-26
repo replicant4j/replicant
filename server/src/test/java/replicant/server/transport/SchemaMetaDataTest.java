@@ -12,7 +12,8 @@ public class SchemaMetaDataTest {
                 0,
                 ValueUtil.randomString(),
                 2,
-                DatasetMetadata.FilterType.NONE,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
                 false,
                 DatasetMetadata.CacheType.NONE,
                 false);
@@ -20,7 +21,8 @@ public class SchemaMetaDataTest {
                 1,
                 ValueUtil.randomString(),
                 null,
-                DatasetMetadata.FilterType.NONE,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
                 false,
                 DatasetMetadata.CacheType.NONE,
                 false);
@@ -28,7 +30,8 @@ public class SchemaMetaDataTest {
                 2,
                 ValueUtil.randomString(),
                 54,
-                DatasetMetadata.FilterType.NONE,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
                 false,
                 DatasetMetadata.CacheType.NONE,
                 false);

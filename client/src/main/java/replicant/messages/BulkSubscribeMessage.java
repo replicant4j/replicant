@@ -18,17 +18,17 @@ public final class BulkSubscribeMessage extends ClientToServerMessage {
     private String[] datasetAddresses;
 
     @Nullable
-    private Object filter;
+    private Object filterParameter;
 
     @JsOverlay
     @NonNull
     public static BulkSubscribeMessage create(
-            final int req, @NonNull final String[] datasetAddresses, @Nullable final Object filter) {
+            final int req, @NonNull final String[] datasetAddresses, @Nullable final Object filterParameter) {
         final BulkSubscribeMessage message = new BulkSubscribeMessage();
         message.type = TYPE;
         message.requestId = req;
         message.datasetAddresses = Objects.requireNonNull(datasetAddresses);
-        message.filter = filter;
+        message.filterParameter = filterParameter;
         return message;
     }
 }

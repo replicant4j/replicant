@@ -15,7 +15,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 ValueUtil.randomInt(),
                 ValueUtil.randomString(),
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -35,7 +36,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 1,
                 "MetaData",
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -47,7 +49,15 @@ public class DatasetTest extends AbstractReplicantTest {
         assertTrue(dataset.isTypeDataset());
         assertFalse(dataset.isInstanceDataset());
         assertNull(dataset.getDatasetRootEntityType());
-        assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.UNFILTERED);
+        assertTrue(dataset.isUnfiltered());
+        assertFalse(dataset.isImplicitlyFiltered());
+        assertFalse(dataset.isParameterFiltered());
+        assertNull(dataset.getFilterParameterMode());
+        assertFalse(dataset.hasFixedFilterParameter());
+        assertFalse(dataset.hasUpdatableFilterParameter());
+        assertFalse(dataset.isKeyed());
+        assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertFalse(dataset.isCacheable());
         assertFalse(dataset.isExternal());
         assertEquals(dataset.getEntityTypes().size(), 1);
@@ -60,7 +70,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 1,
                 "MetaData",
                 String.class,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 false,
@@ -72,13 +83,21 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isTypeDataset());
         assertTrue(dataset.isInstanceDataset());
         assertEquals(dataset.getDatasetRootEntityType(), String.class);
-        assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.UNFILTERED);
+        assertTrue(dataset.isUnfiltered());
+        assertFalse(dataset.isImplicitlyFiltered());
+        assertFalse(dataset.isParameterFiltered());
+        assertNull(dataset.getFilterParameterMode());
+        assertFalse(dataset.hasFixedFilterParameter());
+        assertFalse(dataset.hasUpdatableFilterParameter());
+        assertFalse(dataset.isKeyed());
+        assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertFalse(dataset.isCacheable());
         assertTrue(dataset.isExternal());
     }
 
     @Test
-    public void staticFilteredDataset() {
+    public void fixedParameterFilteredDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean typeDataset = false;
@@ -88,7 +107,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 id,
                 name,
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 false,
                 null,
                 cacheable,
@@ -100,13 +120,21 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.isTypeDataset(), typeDataset);
         assertTrue(dataset.isInstanceDataset());
         assertEquals(dataset.getDatasetRootEntityType(), String.class);
-        assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.PARAMETER_FILTERED);
+        assertEquals(dataset.getFilterParameterMode(), Dataset.FilterParameterMode.FIXED);
+        assertFalse(dataset.isUnfiltered());
+        assertFalse(dataset.isImplicitlyFiltered());
+        assertTrue(dataset.isParameterFiltered());
+        assertTrue(dataset.hasFixedFilterParameter());
+        assertFalse(dataset.hasUpdatableFilterParameter());
+        assertFalse(dataset.isKeyed());
+        assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertEquals(dataset.isCacheable(), cacheable);
         assertEquals(dataset.isExternal(), external);
     }
 
     @Test
-    public void staticKeyedFilteredDataset() {
+    public void fixedParameterFilteredKeyedDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
@@ -115,7 +143,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 id,
                 name,
                 String.class,
-                Dataset.FilterType.STATIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
                 null,
                 cacheable,
@@ -127,25 +156,32 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isTypeDataset());
         assertTrue(dataset.isInstanceDataset());
         assertEquals(dataset.getDatasetRootEntityType(), String.class);
-        assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.PARAMETER_FILTERED);
+        assertEquals(dataset.getFilterParameterMode(), Dataset.FilterParameterMode.FIXED);
+        assertTrue(dataset.isParameterFiltered());
+        assertTrue(dataset.hasFixedFilterParameter());
+        assertFalse(dataset.hasUpdatableFilterParameter());
+        assertTrue(dataset.isKeyed());
+        assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertEquals(dataset.isCacheable(), cacheable);
         assertEquals(dataset.isExternal(), external);
     }
 
     @Test
-    public void dynamicFilteredDataset() {
+    public void updatableParameterFilteredDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
         final boolean external = true;
-        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
+        final FilterParameterUpdateReplicaMatcher<?> matcher = mock(FilterParameterUpdateReplicaMatcher.class);
         final Dataset dataset = new Dataset(
                 id,
                 name,
                 null,
-                Dataset.FilterType.DYNAMIC,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                filter,
+                matcher,
                 cacheable,
                 external,
                 Collections.emptyList());
@@ -155,8 +191,15 @@ public class DatasetTest extends AbstractReplicantTest {
         assertTrue(dataset.isTypeDataset());
         assertFalse(dataset.isInstanceDataset());
         assertNull(dataset.getDatasetRootEntityType());
-        assertEquals(dataset.getFilterType(), Dataset.FilterType.DYNAMIC);
-        assertEquals(dataset.getFilter(), filter);
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.PARAMETER_FILTERED);
+        assertEquals(dataset.getFilterParameterMode(), Dataset.FilterParameterMode.UPDATABLE);
+        assertFalse(dataset.isUnfiltered());
+        assertFalse(dataset.isImplicitlyFiltered());
+        assertTrue(dataset.isParameterFiltered());
+        assertFalse(dataset.hasFixedFilterParameter());
+        assertTrue(dataset.hasUpdatableFilterParameter());
+        assertFalse(dataset.isKeyed());
+        assertEquals(dataset.getFilterParameterUpdateReplicaMatcher(), matcher);
         assertEquals(dataset.isCacheable(), cacheable);
         assertEquals(dataset.isExternal(), external);
     }
@@ -168,7 +211,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 ValueUtil.randomInt(),
                 null,
                 null,
-                Dataset.FilterType.NONE,
+                Dataset.FilterMode.UNFILTERED,
+                null,
                 false,
                 null,
                 ValueUtil.randomBoolean(),
@@ -190,7 +234,8 @@ public class DatasetTest extends AbstractReplicantTest {
                         ValueUtil.randomInt(),
                         "MyDataset",
                         null,
-                        Dataset.FilterType.NONE,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
                         false,
                         null,
                         ValueUtil.randomBoolean(),
@@ -202,14 +247,15 @@ public class DatasetTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void constructorPassedNoFilterWhenExpected() {
+    public void constructorPassedNoMatcherForUpdatableFilterParameter() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new Dataset(
                         222,
                         "MyDataset",
                         null,
-                        Dataset.FilterType.DYNAMIC,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        Dataset.FilterParameterMode.UPDATABLE,
                         false,
                         null,
                         ValueUtil.randomBoolean(),
@@ -217,44 +263,189 @@ public class DatasetTest extends AbstractReplicantTest {
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0076: Dataset 222 has a DYNAMIC filterType but has supplied no filter.");
+                "Replicant-0076: Dataset 222 has an updatable Filter Parameter but has supplied no Filter Parameter"
+                        + " update Replica matcher.");
     }
 
     @Test
-    public void constructorPassedFilterWhenNotExpected() {
+    public void constructorPassedMatcherForFixedFilterParameter() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new Dataset(
                         222,
                         "MyDataset",
                         null,
-                        Dataset.FilterType.STATIC,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        Dataset.FilterParameterMode.FIXED,
                         false,
-                        mock(SubscriptionUpdateReplicaFilter.class),
+                        mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0077: Dataset 222 does not have a DYNAMIC filterType but has supplied a filter.");
+                "Replicant-0077: Dataset 222 does not have an updatable Filter Parameter but has supplied a Filter"
+                        + " Parameter update Replica matcher.");
     }
 
     @Test
-    public void constructorPassedFilterWhenNotExpected_staticKeyed() {
+    public void constructorPassedMatcherForFixedFilterParameterOnKeyedDataset() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new Dataset(
                         222,
                         "MyDataset",
                         null,
-                        Dataset.FilterType.STATIC,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        Dataset.FilterParameterMode.FIXED,
                         true,
-                        mock(SubscriptionUpdateReplicaFilter.class),
+                        mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0077: Dataset 222 does not have a DYNAMIC filterType but has supplied a filter.");
+                "Replicant-0077: Dataset 222 does not have an updatable Filter Parameter but has supplied a Filter"
+                        + " Parameter update Replica matcher.");
+    }
+
+    @Test
+    public void implicitlyFilteredDataset() {
+        final Dataset dataset = new Dataset(
+                1,
+                "MetaData",
+                null,
+                Dataset.FilterMode.IMPLICIT,
+                null,
+                false,
+                null,
+                false,
+                true,
+                Collections.emptyList());
+        assertEquals(dataset.getFilterMode(), Dataset.FilterMode.IMPLICIT);
+        assertFalse(dataset.isUnfiltered());
+        assertTrue(dataset.isImplicitlyFiltered());
+        assertFalse(dataset.isParameterFiltered());
+        assertNull(dataset.getFilterParameterMode());
+        assertFalse(dataset.hasFixedFilterParameter());
+        assertFalse(dataset.hasUpdatableFilterParameter());
+        assertFalse(dataset.isKeyed());
+        assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
+    }
+
+    @Test
+    public void updatableParameterFilteredKeyedDataset() {
+        final FilterParameterUpdateReplicaMatcher<?> matcher = mock(FilterParameterUpdateReplicaMatcher.class);
+        final Dataset dataset = new Dataset(
+                1,
+                "MetaData",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
+                true,
+                matcher,
+                false,
+                true,
+                Collections.emptyList());
+        assertTrue(dataset.isParameterFiltered());
+        assertTrue(dataset.hasUpdatableFilterParameter());
+        assertTrue(dataset.isKeyed());
+        assertEquals(dataset.getFilterParameterUpdateReplicaMatcher(), matcher);
+    }
+
+    @Test
+    public void constructorPassedFilterParameterModeForUnfilteredDataset() {
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> new Dataset(
+                        222,
+                        "MyDataset",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        Dataset.FilterParameterMode.FIXED,
+                        false,
+                        null,
+                        false,
+                        true,
+                        Collections.emptyList()));
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0100: Dataset 222 is not parameter-filtered but has supplied a Filter Parameter mode.");
+    }
+
+    @Test
+    public void constructorPassedFilterParameterModeForImplicitlyFilteredDataset() {
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> new Dataset(
+                        222,
+                        "MyDataset",
+                        null,
+                        Dataset.FilterMode.IMPLICIT,
+                        Dataset.FilterParameterMode.UPDATABLE,
+                        false,
+                        mock(FilterParameterUpdateReplicaMatcher.class),
+                        false,
+                        true,
+                        Collections.emptyList()));
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0100: Dataset 222 is not parameter-filtered but has supplied a Filter Parameter mode.");
+    }
+
+    @Test
+    public void constructorPassedNoFilterParameterModeForParameterFilteredDataset() {
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> new Dataset(
+                        222,
+                        "MyDataset",
+                        null,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        null,
+                        false,
+                        null,
+                        false,
+                        true,
+                        Collections.emptyList()));
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0101: Dataset 222 is parameter-filtered but has supplied no Filter Parameter mode.");
+    }
+
+    @Test
+    public void constructorPassedKeyForUnfilteredDataset() {
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> new Dataset(
+                        222,
+                        "MyDataset",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
+                        true,
+                        null,
+                        false,
+                        true,
+                        Collections.emptyList()));
+        assertEquals(exception.getMessage(), "Replicant-0102: Dataset 222 is keyed but is not parameter-filtered.");
+    }
+
+    @Test
+    public void constructorPassedKeyForImplicitlyFilteredDataset() {
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class,
+                () -> new Dataset(
+                        222,
+                        "MyDataset",
+                        null,
+                        Dataset.FilterMode.IMPLICIT,
+                        null,
+                        true,
+                        null,
+                        false,
+                        true,
+                        Collections.emptyList()));
+        assertEquals(exception.getMessage(), "Replicant-0102: Dataset 222 is keyed but is not parameter-filtered.");
     }
 }

@@ -31,6 +31,6 @@ public final class AreaOfInterestDisposedEvent implements SerializableEvent {
         map.put("datasetAddress.schemaId", datasetAddress.schemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
-        map.put("areaOfInterest.filter", areaOfInterest.getFilter());
+        map.put("areaOfInterest.filterParameter", areaOfInterest.getFilterParameter());
     }
 }

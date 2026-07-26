@@ -21,7 +21,7 @@ final class SubscriptionChange {
     private final DatasetAddress _datasetAddress;
 
     @Nullable
-    private final Object _filter;
+    private final Object _filterParameter;
 
     @NonNull
     static SubscriptionChange from(final int schema, @NonNull final String subscriptionAction) {
@@ -30,16 +30,16 @@ final class SubscriptionChange {
 
     @NonNull
     static SubscriptionChange from(final int schema, @NonNull final SubscriptionChangeMessage subscriptionChange) {
-        return from(schema, subscriptionChange.getSubscriptionAction(), subscriptionChange.getFilter());
+        return from(schema, subscriptionChange.getSubscriptionAction(), subscriptionChange.getFilterParameter());
     }
 
     @NonNull
     private static SubscriptionChange from(
-            final int schema, @NonNull final String subscriptionAction, @Nullable final Object filter) {
+            final int schema, @NonNull final String subscriptionAction, @Nullable final Object filterParameter) {
         try {
             final String descriptor = subscriptionAction.substring(1);
             final DatasetAddress datasetAddress = DatasetAddress.parse(schema, descriptor);
-            return new SubscriptionChange(actionToType(subscriptionAction), datasetAddress, filter);
+            return new SubscriptionChange(actionToType(subscriptionAction), datasetAddress, filterParameter);
         } catch (final Throwable t) {
             throw new IllegalStateException("Failed to parse Subscription action '" + subscriptionAction + "'", t);
         }
@@ -63,10 +63,12 @@ final class SubscriptionChange {
     }
 
     private SubscriptionChange(
-            @NonNull final Type type, @NonNull final DatasetAddress datasetAddress, @Nullable final Object filter) {
+            @NonNull final Type type,
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final Object filterParameter) {
         _type = Objects.requireNonNull(type);
         _datasetAddress = Objects.requireNonNull(datasetAddress);
-        _filter = filter;
+        _filterParameter = filterParameter;
     }
 
     @NonNull
@@ -80,7 +82,7 @@ final class SubscriptionChange {
     }
 
     @Nullable
-    Object getFilter() {
-        return _filter;
+    Object getFilterParameter() {
+        return _filterParameter;
     }
 }

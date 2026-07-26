@@ -110,7 +110,7 @@ public final class Messages {
         public static final String DATA = "data";
 
         @NonNull
-        public static final String FILTERED_SUBSCRIPTION_CHANGES = "filteredSubscriptionChanges";
+        public static final String FILTER_PARAMETER_SUBSCRIPTION_CHANGES = "filterParameterSubscriptionChanges";
 
         @NonNull
         public static final String SUBSCRIPTION_CHANGES = "subscriptionChanges";
@@ -125,7 +125,7 @@ public final class Messages {
         public static final String SUBSCRIPTION_ACTION = "subscriptionAction";
 
         @NonNull
-        public static final String FILTER = "filter";
+        public static final String FILTER_PARAMETER = "filterParameter";
 
         private Update() {}
     }

@@ -109,14 +109,14 @@ abstract class SubscriptionService extends ReplicantService {
      * This method should not be invoked if a subscription with the existing name already exists.
      *
      * @param datasetAddress the Dataset Address
-     * @param filter the filter if subscription is filterable.
+     * @param filterParameter the Filter Parameter for the Subscription.
      * @param explicitSubscription if subscription was explicitly requested by the client.
      * @return the subscription.
      */
     @NonNull
     Subscription createSubscription(
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter,
+            @Nullable final Object filterParameter,
             final boolean explicitSubscription) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
@@ -134,7 +134,7 @@ abstract class SubscriptionService extends ReplicantService {
         final Subscription subscription = Subscription.create(
                 Replicant.areZonesEnabled() ? getReplicantContext() : null,
                 datasetAddress,
-                filter,
+                filterParameter,
                 explicitSubscription);
         DisposeNotifier.asDisposeNotifier(subscription).addOnDisposeListener(this, () -> destroy(subscription), true);
         if (null == datasetRootId) {

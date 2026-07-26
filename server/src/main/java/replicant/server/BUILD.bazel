@@ -9,7 +9,7 @@ java_server_library(
         "EntityMessage.java",
         "EntityMessageSet.java",
         "EntityMessageSorter.java",
-        "FilterUtil.java",
+        "FilterParameterUtil.java",
         "ServerConstants.java",
         "SubscriptionAction.java",
         "SubscriptionDependency.java",

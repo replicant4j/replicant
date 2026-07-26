@@ -39,9 +39,9 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     static Subscription create(
             @Nullable final ReplicantContext context,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filter,
+            @Nullable final Object filterParameter,
             final boolean explicitSubscription) {
-        return new Arez_Subscription(context, datasetAddress, filter, explicitSubscription);
+        return new Arez_Subscription(context, datasetAddress, filterParameter, explicitSubscription);
     }
 
     Subscription(@Nullable final ReplicantContext context, @NonNull final DatasetAddress datasetAddress) {
@@ -56,9 +56,9 @@ public abstract class Subscription extends ReplicantService implements Comparabl
 
     @Observable(initializer = Feature.ENABLE)
     @Nullable
-    public abstract Object getFilter();
+    public abstract Object getFilterParameter();
 
-    abstract void setFilter(@Nullable Object filter);
+    abstract void setFilterParameter(@Nullable Object filterParameter);
 
     @Observable(initializer = Feature.ENABLE)
     public abstract boolean isExplicitSubscription();

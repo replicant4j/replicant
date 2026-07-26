@@ -46,7 +46,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.messages.UpdateMessageTest",
     "replicant.spy.AreaOfInterestCreatedEventTest",
     "replicant.spy.AreaOfInterestDisposedEventTest",
-    "replicant.spy.AreaOfInterestFilterUpdatedEventTest",
+    "replicant.spy.AreaOfInterestFilterParameterUpdatedEventTest",
     "replicant.spy.AreaOfInterestStatusUpdatedEventTest",
     "replicant.spy.ConnectFailureEventTest",
     "replicant.spy.ConnectedEventTest",

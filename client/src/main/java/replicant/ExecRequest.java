@@ -61,7 +61,7 @@ final class ExecRequest {
     public String toString() {
         if (Replicant.areNamesEnabled()) {
             return "ExecRequest[" + "Command="
-                    + _command + (null == _payload ? "" : " Filter=" + FilterUtil.filterToString(_payload))
+                    + _command + (null == _payload ? "" : " Payload=" + String.valueOf(_payload))
                     + "]" + (-1 != _requestId ? "(InProgress)" : "");
         } else {
             return super.toString();

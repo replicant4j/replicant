@@ -12,13 +12,13 @@ public class SubscriptionUpdateRequestQueuedEventTest extends AbstractReplicantT
     @Test
     public void basicOperation() {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 2);
-        final String filter = ValueUtil.randomString();
+        final String filterParameter = ValueUtil.randomString();
 
         final SubscriptionUpdateRequestQueuedEvent event =
-                new SubscriptionUpdateRequestQueuedEvent(datasetAddress, filter);
+                new SubscriptionUpdateRequestQueuedEvent(datasetAddress, filterParameter);
 
         assertEquals(event.getDatasetAddress(), datasetAddress);
-        assertEquals(event.getFilter(), filter);
+        assertEquals(event.getFilterParameter(), filterParameter);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
@@ -27,7 +27,7 @@ public class SubscriptionUpdateRequestQueuedEventTest extends AbstractReplicantT
         assertEquals(data.get("datasetAddress.schemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
-        assertEquals(data.get("subscription.filter"), filter);
+        assertEquals(data.get("subscription.filterParameter"), filterParameter);
         assertEquals(data.size(), 5);
     }
 }

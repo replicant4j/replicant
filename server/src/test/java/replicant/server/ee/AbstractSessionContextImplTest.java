@@ -43,7 +43,7 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void deriveTargetFilter_throwsWhenNotOverridden() {
+    public void deriveTargetFilterParameter_throwsWhenNotOverridden() {
         final var context = newContext(mock(EntityManager.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(3, 4);
@@ -51,7 +51,7 @@ public class AbstractSessionContextImplTest {
 
         final var exception = expectThrows(
                 IllegalStateException.class,
-                () -> context.deriveTargetFilter(
+                () -> context.deriveTargetFilterParameter(
                         message,
                         sourceDatasetAddress,
                         Json.createObjectBuilder().build(),
@@ -59,10 +59,10 @@ public class AbstractSessionContextImplTest {
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetFilter called for Dataset Link from " + sourceDatasetAddress + " to "
+                "deriveTargetFilterParameter called for Dataset Link from " + sourceDatasetAddress + " to "
                         + targetDatasetAddress
-                        + " with source filter {} in the context of the entity message "
-                        + message + " but no such Dataset Link exists or the target Dataset has no filter parameter");
+                        + " with source Filter Parameter {} in the context of the entity message "
+                        + message + " but no such Dataset Link exists or the target Dataset has no Filter Parameter");
     }
 
     @Test
@@ -85,7 +85,8 @@ public class AbstractSessionContextImplTest {
                 exception.getMessage(),
                 "deriveTargetDatasetKey called for Dataset Link from " + sourceDatasetAddress + " to "
                         + targetDatasetAddress
-                        + " with source filter {\"src\":true} with target filter {\"target\":true} in the context "
+                        + " with source Filter Parameter {\"src\":true} with target Filter Parameter "
+                        + "{\"target\":true} in the context "
                         + "of the entity message "
                         + message + " but no such Dataset Link exists or the target Dataset "
                         + "does not require a dataset key");
@@ -97,16 +98,16 @@ public class AbstractSessionContextImplTest {
         final var context = newContext(em);
         final var session = newSession();
         final var datasetAddresses = List.of(DatasetAddress.of(1, 2), DatasetAddress.of(3, 4));
-        final var filter = Json.createObjectBuilder().add("k", "v").build();
+        final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        context.collectSubscriptionData(session, datasetAddresses, filter, changeSet, true);
+        context.collectSubscriptionData(session, datasetAddresses, filterParameter, changeSet, true);
 
         assertEquals(context.getBulkCollectCalls().size(), 1);
         final var call = context.getBulkCollectCalls().get(0);
         assertEquals(call.session(), session);
         assertEquals(call.datasetAddresses(), datasetAddresses);
-        assertEquals(call.filter(), filter);
+        assertEquals(call.filterParameter(), filterParameter);
         assertEquals(call.changeSet(), changeSet);
         assertTrue(call.explicitSubscribe());
     }
@@ -314,14 +315,29 @@ public class AbstractSessionContextImplTest {
         private final SchemaMetaData _schema = new SchemaMetaData(
                 "Test",
                 new DatasetMetadata(
-                        0, "Type0", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true),
+                        0,
+                        "Type0",
+                        null,
+                        DatasetMetadata.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        DatasetMetadata.CacheType.NONE,
+                        true),
                 new DatasetMetadata(
-                        1, "Type1", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true),
+                        1,
+                        "Type1",
+                        null,
+                        DatasetMetadata.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        DatasetMetadata.CacheType.NONE,
+                        true),
                 new DatasetMetadata(
                         2,
                         "Instance2",
                         1,
-                        DatasetMetadata.FilterType.NONE,
+                        DatasetMetadata.FilterMode.UNFILTERED,
+                        null,
                         false,
                         DatasetMetadata.CacheType.NONE,
                         true));
@@ -360,7 +376,7 @@ public class AbstractSessionContextImplTest {
         public void preSubscribe(
                 @NonNull final ReplicantSession session,
                 @NonNull final DatasetAddress datasetAddress,
-                @Nullable final JsonObject filter) {}
+                @Nullable final JsonObject filterParameter) {}
 
         @Override
         public boolean flushOpenEntityManager() {
@@ -378,11 +394,11 @@ public class AbstractSessionContextImplTest {
         public void collectSubscriptionData(
                 @Nullable final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
-                @Nullable final JsonObject filter,
+                @Nullable final JsonObject filterParameter,
                 @NonNull final ChangeSet changeSet,
                 final boolean isExplicitSubscribe) {
             _bulkCollectCalls.add(
-                    new BulkCollectCall(session, datasetAddresses, filter, changeSet, isExplicitSubscribe));
+                    new BulkCollectCall(session, datasetAddresses, filterParameter, changeSet, isExplicitSubscribe));
         }
 
         @Nullable
@@ -394,11 +410,11 @@ public class AbstractSessionContextImplTest {
         }
 
         @Override
-        public void collectSubscriptionDataForFilterChange(
+        public void collectSubscriptionDataForFilterParameterChange(
                 @NonNull final ReplicantSession session,
                 @NonNull final List<DatasetAddress> datasetAddresses,
-                @Nullable final JsonObject originalFilter,
-                @Nullable final JsonObject newFilter,
+                @NonNull final JsonObject originalFilterParameter,
+                @NonNull final JsonObject newFilterParameter,
                 @NonNull final ChangeSet changeSet) {}
 
         @Nullable
@@ -413,9 +429,9 @@ public class AbstractSessionContextImplTest {
         @Override
         public boolean shouldFollowDatasetLink(
                 @NonNull final DatasetAddress sourceDatasetAddress,
-                @Nullable final JsonObject sourceFilter,
+                @Nullable final JsonObject sourceFilterParameter,
                 @NonNull final DatasetAddress targetDatasetAddress,
-                @Nullable final JsonObject targetFilter) {
+                @Nullable final JsonObject targetFilterParameter) {
             return false;
         }
 
@@ -437,7 +453,7 @@ public class AbstractSessionContextImplTest {
     private record BulkCollectCall(
             @Nullable ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
-            @Nullable Object filter,
+            @Nullable Object filterParameter,
             @NonNull ChangeSet changeSet,
             boolean explicitSubscribe) {}
 

@@ -51,7 +51,7 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     private boolean _explicitlySubscribed;
 
     @Nullable
-    private JsonObject _filter;
+    private JsonObject _filterParameter;
 
     SubscriptionEntry(@NonNull final ReplicantSession session, @NonNull final DatasetAddress datasetAddress) {
         _session = Objects.requireNonNull(session);
@@ -84,24 +84,23 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     /**
-     * Return the filter that was applied to this Subscription. A particular Dataset Address
-     * may or may not have a filter.
+     * Return the Filter Parameter applied to this Subscription, if any.
      */
     @Nullable
-    JsonObject getFilter() {
-        return _filter;
+    JsonObject getFilterParameter() {
+        return _filterParameter;
     }
 
     /**
-     * Set the filter.
+     * Set the Filter Parameter.
      * User code should not invoke this unless they are implementing bulk loading and are propagating
-     * filters between multiple Datasets loaded in a single sweep.
+     * Filter Parameters between multiple Datasets loaded in a single sweep.
      *
-     * @param filter the filter.
+     * @param filterParameter the Filter Parameter.
      */
-    void setFilter(@Nullable final JsonObject filter) {
+    void setFilterParameter(@Nullable final JsonObject filterParameter) {
         _session.ensureLockedByCurrentThread();
-        _filter = filter;
+        _filterParameter = filterParameter;
     }
 
     /**
