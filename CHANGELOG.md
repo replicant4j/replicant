@@ -14,6 +14,16 @@
   * Rename `convergeCrossDataSourceSubscriptions` to `synchronizeCrossDataSourceSubscriptions` to distinguish that
     separate process from Subscription Reconciliation.
   These terminology-only changes preserve reconciliation behavior.
+* Adopt Replica terminology across the client API, runtime, tests, diagnostics, configuration, and documentation:
+  * Rename the internal `Entity` tracking wrapper to `ReplicaEntry`, `EntityService` to `ReplicaRegistry`, and
+    `EntitySubscriptionEntry` to `ReplicaSubscriptionEntry`.
+  * Rename client lookup and lifecycle operations to use Replica Entry terminology and replace `userObject` accessors
+    with `getReplica`, `maybeReplica`, and `setReplica`.
+  * Rename Replica creation, update, filter, validation, and post-update callbacks, including `createReplica`,
+    `updateReplica`, `OnReplicaUpdateAction`, and `SubscriptionUpdateReplicaFilter`.
+  * Rename the client validation setting to `replicant.validateReplicasOnLoad`.
+  This hard-cut API migration preserves behavior and the wire protocol; Entity Type definitions, Entity changes, and
+  server-side Entity terminology remain unchanged.
 
 ### [v6.203](https://github.com/replicant4j/replicant/tree/v6.203) (2026-07-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.202...v6.203)
 

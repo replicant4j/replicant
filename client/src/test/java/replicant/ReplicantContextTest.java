@@ -63,72 +63,86 @@ public class ReplicantContextTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void entities() {
+    public void replicaEntries() {
         final ReplicantContext context = Replicant.context();
 
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 0));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 0));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 0));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 2)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(B.class, 47)));
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 0));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 0));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 0));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(B.class, 47)));
 
-        final Entity entity1 = findOrCreateEntity(A.class, 1);
+        final ReplicaEntry replicaEntry1 = findOrCreateReplicaEntry(A.class, 1);
 
-        assertEquals(entity1.getName(), "A/1");
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 1));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 0));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 2)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(B.class, 47)));
+        assertEquals(replicaEntry1.getName(), "A/1");
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 1));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 1));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 0));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(B.class, 47)));
 
-        final Entity entity2 =
-                safeAction(() -> context.getEntityService().findOrCreateEntity("Super-dee-duper", A.class, 2));
+        final ReplicaEntry replicaEntry2 =
+                safeAction(() -> context.getReplicaRegistry().findOrCreateReplicaEntry("Super-dee-duper", A.class, 2));
 
-        assertEquals(entity2.getName(), "Super-dee-duper");
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 2));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 0));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 2), entity2));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(B.class, 47)));
+        assertEquals(replicaEntry2.getName(), "Super-dee-duper");
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 1));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 2));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 0));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(B.class, 47)));
 
-        final Entity entity3 = findOrCreateEntity(B.class, 47);
+        final ReplicaEntry replicaEntry3 = findOrCreateReplicaEntry(B.class, 47);
 
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 2));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 2));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 1));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 2), entity2));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(B.class, 47), entity3));
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 2));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 2));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 1));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(B.class, 47), replicaEntry3));
 
-        Disposable.dispose(entity1);
+        Disposable.dispose(replicaEntry1);
 
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 2));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 1));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 1));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(A.class, 2), entity2));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(B.class, 47), entity3));
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 2));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 1));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 1));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(B.class, 47), replicaEntry3));
 
-        Disposable.dispose(entity2);
+        Disposable.dispose(replicaEntry2);
 
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 0));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 1));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 2)));
-        safeAction(() -> assertEquals(context.findEntityByTypeAndId(B.class, 47), entity3));
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 1));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 0));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 1));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertEquals(context.findReplicaEntryByTypeAndId(B.class, 47), replicaEntry3));
 
-        Disposable.dispose(entity3);
+        Disposable.dispose(replicaEntry3);
 
-        safeAction(() -> assertEquals(context.findAllEntityTypes().size(), 0));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(A.class).size(), 0));
-        safeAction(() -> assertEquals(context.findAllEntitiesByType(B.class).size(), 0));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(A.class, 2)));
-        safeAction(() -> assertNull(context.findEntityByTypeAndId(B.class, 47)));
+        safeAction(() -> assertEquals(context.findAllReplicaTypes().size(), 0));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(A.class).size(), 0));
+        safeAction(
+                () -> assertEquals(context.findAllReplicaEntriesByType(B.class).size(), 0));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(context.findReplicaEntryByTypeAndId(B.class, 47)));
     }
 
     @Test

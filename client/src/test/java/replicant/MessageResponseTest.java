@@ -17,7 +17,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         final MessageResponse action =
                 new MessageResponse(1, UpdateMessage.create(null, null, null, null, null, null), null);
 
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.hasWorldBeenValidated());
 
@@ -93,13 +93,13 @@ public class MessageResponseTest extends AbstractReplicantTest {
                 UpdateMessage.create(null, null, null, new ChannelChange[0], new EntityChange[0], null);
         final MessageResponse action = new MessageResponse(1, changeSet, null);
         assertEquals(
-                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,EntitiesToLink.size=0]");
+                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
 
         // Null out Entities
-        action.nextEntityToLink();
+        action.nextReplicaToLink();
 
         assertEquals(
-                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,EntitiesToLink.size=0]");
+                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
 
         ReplicantTestUtil.disableNames();
 
@@ -143,13 +143,13 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertFalse(action.needsChannelChangesProcessed());
         assertTrue(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         // Process entity changes
         {
             assertEquals(action.nextEntityChange(), entityChanges[0]);
-            action.changeProcessed(entities[0]);
+            action.replicaProcessed(entities[0]);
             action.incEntityUpdateCount();
 
             assertTrue(action.areEntityChangesPending());
@@ -161,7 +161,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
             assertEquals(action.nextEntityChange(), entityChanges[2]);
             action.incEntityUpdateCount();
-            action.changeProcessed(entities[2]);
+            action.replicaProcessed(entities[2]);
 
             assertFalse(action.areEntityChangesPending());
 
@@ -175,27 +175,27 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertFalse(action.needsChannelChangesProcessed());
         assertFalse(action.areEntityChangesPending());
-        assertTrue(action.areEntityLinksPending());
+        assertTrue(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         // process links
         {
-            assertEquals(action.nextEntityToLink(), entities[0]);
+            assertEquals(action.nextReplicaToLink(), entities[0]);
             action.incEntityLinkCount();
-            assertNull(action.nextEntityToLink());
+            assertNull(action.nextReplicaToLink());
             assertEquals(action.getEntityLinkCount(), 1);
         }
 
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
 
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         action.markWorldAsValidated();
 
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertTrue(action.hasWorldBeenValidated());
     }
 
@@ -225,7 +225,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertTrue(action.needsChannelChangesProcessed());
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         // processed as single block in caller
@@ -233,14 +233,14 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertFalse(action.needsChannelChangesProcessed());
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertFalse(action.hasWorldBeenValidated());
 
         action.markWorldAsValidated();
 
         assertFalse(action.needsChannelChangesProcessed());
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.areEntityLinksPending());
+        assertFalse(action.areReplicaLinksPending());
         assertTrue(action.hasWorldBeenValidated());
     }
 

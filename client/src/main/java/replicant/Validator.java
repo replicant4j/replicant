@@ -24,22 +24,23 @@ abstract class Validator extends ReplicantService {
     }
 
     /**
-     * Verify that all entities contained within the EntityService will pass verification.
-     * An entity can be verified by implementing the {@link Verifiable} interface.
+     * Verify that all Replicas contained within the ReplicaRegistry will pass verification.
+     * A Replica can be verified by implementing the {@link Verifiable} interface.
      */
     @Action
-    void validateEntities() {
+    void validateReplicas() {
         if (Replicant.shouldCheckInvariants()) {
-            for (final Class<?> entityType : getReplicantContext().findAllEntityTypes()) {
-                for (final Entity entity : getReplicantContext().findAllEntitiesByType(entityType)) {
+            for (final Class<?> replicaType : getReplicantContext().findAllReplicaTypes()) {
+                for (final ReplicaEntry replicaEntry : getReplicantContext().findAllReplicaEntriesByType(replicaType)) {
                     try {
-                        final Object userObject = entity.maybeUserObject();
-                        if (null != userObject) {
-                            Verifiable.verify(userObject);
+                        final Object replica = replicaEntry.maybeReplica();
+                        if (null != replica) {
+                            Verifiable.verify(replica);
                         }
                     } catch (final Exception e) {
-                        fail(() -> "Replicant-0065: Entity failed to verify during validation process. Entity = "
-                                + entity);
+                        fail(() ->
+                                "Replicant-0065: Replica failed to verify during validation process. Replica Entry = "
+                                        + replicaEntry);
                     }
                 }
             }

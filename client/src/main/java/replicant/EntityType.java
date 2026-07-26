@@ -15,36 +15,36 @@ import replicant.messages.EntityChangeData;
  */
 public final class EntityType {
     /**
-     * Function used to create entity on receipt of initial message.
+     * Function used to create a Replica on receipt of an initial Entity change.
      *
-     * @param <T> the type of the entity.
+     * @param <T> the type of the Replica.
      */
     @FunctionalInterface
     public interface Creator<T> {
         /**
-         * Create entity from supplied entity data.
+         * Create a Replica from the supplied Entity change data.
          *
-         * @param id   the entity identifier.
-         * @param data the state to use to create entity.
+         * @param id   the Entity identifier.
+         * @param data the state to use to create the Replica.
          */
         @NonNull
-        T createEntity(int id, @NonNull EntityChangeData data);
+        T createReplica(int id, @NonNull EntityChangeData data);
     }
 
     /**
-     * Function used to update entity on receipt of subsequent messages.
+     * Function used to update a Replica on receipt of subsequent Entity changes.
      *
-     * @param <T> the type of the entity.
+     * @param <T> the type of the Replica.
      */
     @FunctionalInterface
     public interface Updater<T> {
         /**
-         * Update specified entity from supplied entity data.
+         * Update the specified Replica from the supplied Entity change data.
          *
-         * @param entity the entity.
-         * @param data   the state to use to create entity.
+         * @param replica the Replica.
+         * @param data    the state to apply to the Replica.
          */
-        void updateEntity(@NonNull T entity, @NonNull EntityChangeData data);
+        void updateReplica(@NonNull T replica, @NonNull EntityChangeData data);
     }
 
     /**
@@ -58,18 +58,18 @@ public final class EntityType {
     @Nullable
     private final String _name;
     /**
-     * The java-type of the entity.
+     * The Java type of the Replica.
      */
     @NonNull
     private final Class<?> _type;
     /**
-     * The function to create entity.
+     * The function to create a Replica.
      */
     @NonNull
     private final Creator<?> _creator;
     /**
-     * The function to update entity.
-     * This may be null if the entity has no fields that can be updated.
+     * The function to update a Replica.
+     * This may be null if the Replica has no fields that can be updated.
      */
     @Nullable
     private final Updater<?> _updater;
@@ -125,9 +125,9 @@ public final class EntityType {
     }
 
     /**
-     * Return the java type of entity.
+     * Return the Java type of the Replica.
      *
-     * @return the java type of entity.
+     * @return the Java type of the Replica.
      */
     @NonNull
     public Class<?> getType() {
@@ -135,9 +135,9 @@ public final class EntityType {
     }
 
     /**
-     * Return the function to create entity.
+     * Return the function to create a Replica.
      *
-     * @return the function to create entity.
+     * @return the function to create a Replica.
      */
     @NonNull
     public Creator<?> getCreator() {
@@ -145,9 +145,9 @@ public final class EntityType {
     }
 
     /**
-     * Return the function to update entity.
+     * Return the function to update a Replica.
      *
-     * @return the function to update entity.
+     * @return the function to update a Replica.
      */
     @Nullable
     public Updater<?> getUpdater() {

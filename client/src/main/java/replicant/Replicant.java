@@ -82,12 +82,12 @@ public final class Replicant {
     }
 
     /**
-     * Return true if entities should be validated after message has been processed, false otherwise.
+     * Return true if Replicas should be validated after a message has been processed, false otherwise.
      *
-     * @return true if entities should be validated after message has been processed, false otherwise.
+     * @return true if Replicas should be validated after a message has been processed, false otherwise.
      */
-    public static boolean shouldValidateEntitiesOnLoad() {
-        return shouldCheckInvariants() && ReplicantConfig.shouldValidateEntitiesOnLoad();
+    public static boolean shouldValidateReplicasOnLoad() {
+        return shouldCheckInvariants() && ReplicantConfig.shouldValidateReplicasOnLoad();
     }
 
     /**

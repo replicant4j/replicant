@@ -42,7 +42,7 @@
   {
     "code": 9,
     "type": "API_INVARIANT",
-    "messagePattern": "Entity.getName() invoked when Replicant.areNamesEnabled() is false"
+    "messagePattern": "ReplicaEntry.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
     "code": 11,
@@ -142,7 +142,7 @@
   {
     "code": 32,
     "type": "API_INVARIANT",
-    "messagePattern": "Entity passed a name '%s' but Replicant.areNamesEnabled() is false"
+    "messagePattern": "ReplicaEntry passed a name '%s' but Replicant.areNamesEnabled() is false"
   },
   {
     "code": 33,
@@ -292,7 +292,7 @@
   {
     "code": 65,
     "type": "FAIL",
-    "messagePattern": "Entity failed to verify during validation process. Entity = MyEntity/1"
+    "messagePattern": "Replica failed to verify during validation process. Replica Entry = MyEntity/1"
   },
   {
     "code": 66,
@@ -317,7 +317,7 @@
   {
     "code": 71,
     "type": "API_INVARIANT",
-    "messagePattern": "Entity.getUserObject() invoked when no userObject present"
+    "messagePattern": "ReplicaEntry.getReplica() invoked when no replica present"
   },
   {
     "code": 76,
@@ -337,17 +337,17 @@
   {
     "code": 79,
     "type": "INVARIANT",
-    "messagePattern": "Connector.updateSubscriptionForFilteredEntities invoked for address %s but the channel does not have a DYNAMIC filter."
+    "messagePattern": "Connector.updateSubscriptionForFilteredReplicas invoked for address %s but the channel does not have a DYNAMIC filter."
   },
   {
     "code": 80,
     "type": "INVARIANT",
-    "messagePattern": "Entity.linkToSubscription invoked on Entity %s passing subscription %s but entity is already linked to subscription."
+    "messagePattern": "ReplicaEntry.linkToSubscription invoked on Replica Entry %s passing subscription %s but Replica Entry is already linked to subscription."
   },
   {
     "code": 81,
     "type": "INVARIANT",
-    "messagePattern": "Entity.delinkFromSubscription invoked on Entity %s passing subscription %s but entity is not linked to subscription."
+    "messagePattern": "ReplicaEntry.delinkFromSubscription invoked on Replica Entry %s passing subscription %s but Replica Entry is not linked to subscription."
   },
   {
     "code": 82,
@@ -372,7 +372,7 @@
   {
     "code": 88,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but entity is not present."
+    "messagePattern": "Subscription.getInstanceRoot() invoked on subscription for channel %s but Replica is not present."
   },
   {
     "code": 93,

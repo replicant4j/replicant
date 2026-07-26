@@ -1246,8 +1246,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void updateSubscriptionForFilteredEntities() {
-        final SubscriptionUpdateEntityFilter<?> filter = (f, entity) -> entity.getId() > 0;
+    public void updateSubscriptionForFilteredReplicas() {
+        final SubscriptionUpdateReplicaFilter<?> filter = (f, replicaEntry) -> replicaEntry.getId() > 0;
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -1270,53 +1270,57 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription1 = createSubscription(address1, ValueUtil.randomString(), true);
         final Subscription subscription2 = createSubscription(address2, ValueUtil.randomString(), true);
 
-        // Use Integer and String as arbitrary types for our entities...
+        // Use Integer and String as arbitrary types for our Replica Entries...
         // Anything with id below 0 will be removed during update ...
-        final Entity entity1 = findOrCreateEntity(Integer.class, -1);
-        final Entity entity2 = findOrCreateEntity(Integer.class, -2);
-        final Entity entity3 = findOrCreateEntity(Integer.class, -3);
-        final Entity entity4 = findOrCreateEntity(Integer.class, -4);
-        final Entity entity5 = findOrCreateEntity(String.class, 5);
-        final Entity entity6 = findOrCreateEntity(String.class, 6);
+        final ReplicaEntry replicaEntry1 = findOrCreateReplicaEntry(Integer.class, -1);
+        final ReplicaEntry replicaEntry2 = findOrCreateReplicaEntry(Integer.class, -2);
+        final ReplicaEntry replicaEntry3 = findOrCreateReplicaEntry(Integer.class, -3);
+        final ReplicaEntry replicaEntry4 = findOrCreateReplicaEntry(Integer.class, -4);
+        final ReplicaEntry replicaEntry5 = findOrCreateReplicaEntry(String.class, 5);
+        final ReplicaEntry replicaEntry6 = findOrCreateReplicaEntry(String.class, 6);
 
         safeAction(() -> {
-            entity1.linkToSubscription(subscription1);
-            entity2.linkToSubscription(subscription1);
-            entity3.linkToSubscription(subscription1);
-            entity4.linkToSubscription(subscription1);
-            entity5.linkToSubscription(subscription1);
-            entity6.linkToSubscription(subscription1);
+            replicaEntry1.linkToSubscription(subscription1);
+            replicaEntry2.linkToSubscription(subscription1);
+            replicaEntry3.linkToSubscription(subscription1);
+            replicaEntry4.linkToSubscription(subscription1);
+            replicaEntry5.linkToSubscription(subscription1);
+            replicaEntry6.linkToSubscription(subscription1);
 
-            entity3.linkToSubscription(subscription2);
-            entity4.linkToSubscription(subscription2);
+            replicaEntry3.linkToSubscription(subscription2);
+            replicaEntry4.linkToSubscription(subscription2);
 
-            assertEquals(subscription1.getEntities().size(), 2);
-            assertEquals(subscription1.findAllEntitiesByType(Integer.class).size(), 4);
-            assertEquals(subscription1.findAllEntitiesByType(String.class).size(), 2);
-            assertEquals(subscription2.getEntities().size(), 1);
-            assertEquals(subscription2.findAllEntitiesByType(Integer.class).size(), 2);
+            assertEquals(subscription1.getReplicaEntries().size(), 2);
+            assertEquals(
+                    subscription1.findAllReplicaEntriesByType(Integer.class).size(), 4);
+            assertEquals(subscription1.findAllReplicaEntriesByType(String.class).size(), 2);
+            assertEquals(subscription2.getReplicaEntries().size(), 1);
+            assertEquals(
+                    subscription2.findAllReplicaEntriesByType(Integer.class).size(), 2);
         });
 
-        safeAction(() -> connector.updateSubscriptionForFilteredEntities(subscription1));
+        safeAction(() -> connector.updateSubscriptionForFilteredReplicas(subscription1));
 
         safeAction(() -> {
-            assertTrue(Disposable.isDisposed(entity1));
-            assertTrue(Disposable.isDisposed(entity2));
-            assertFalse(Disposable.isDisposed(entity3));
-            assertFalse(Disposable.isDisposed(entity4));
-            assertFalse(Disposable.isDisposed(entity5));
-            assertFalse(Disposable.isDisposed(entity6));
+            assertTrue(Disposable.isDisposed(replicaEntry1));
+            assertTrue(Disposable.isDisposed(replicaEntry2));
+            assertFalse(Disposable.isDisposed(replicaEntry3));
+            assertFalse(Disposable.isDisposed(replicaEntry4));
+            assertFalse(Disposable.isDisposed(replicaEntry5));
+            assertFalse(Disposable.isDisposed(replicaEntry6));
 
-            assertEquals(subscription1.getEntities().size(), 1);
-            assertEquals(subscription1.findAllEntitiesByType(Integer.class).size(), 0);
-            assertEquals(subscription1.findAllEntitiesByType(String.class).size(), 2);
-            assertEquals(subscription2.getEntities().size(), 1);
-            assertEquals(subscription2.findAllEntitiesByType(Integer.class).size(), 2);
+            assertEquals(subscription1.getReplicaEntries().size(), 1);
+            assertEquals(
+                    subscription1.findAllReplicaEntriesByType(Integer.class).size(), 0);
+            assertEquals(subscription1.findAllReplicaEntriesByType(String.class).size(), 2);
+            assertEquals(subscription2.getReplicaEntries().size(), 1);
+            assertEquals(
+                    subscription2.findAllReplicaEntriesByType(Integer.class).size(), 2);
         });
     }
 
     @Test
-    public void updateSubscriptionForFilteredEntities_badFilterType() {
+    public void updateSubscriptionForFilteredReplicas_badFilterType() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -1339,11 +1343,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(() -> connector.updateSubscriptionForFilteredEntities(subscription1)));
+                () -> safeAction(() -> connector.updateSubscriptionForFilteredReplicas(subscription1)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address 1.0.1 but the"
+                "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for address 1.0.1 but the"
                         + " channel does not have a DYNAMIC filter.");
     }
 
@@ -1372,8 +1376,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final Linkable userObject1 = mock(Linkable.class);
-        final Linkable userObject2 = mock(Linkable.class);
+        final Linkable replica1 = mock(Linkable.class);
+        final Linkable replica2 = mock(Linkable.class);
 
         // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
@@ -1381,13 +1385,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final ChannelAddress address = new ChannelAddress(connector.getSchema().getId(), 1);
         final Subscription subscription = createSubscription(address, null, true);
 
-        // This entity is to be updated
-        final Entity entity2 = findOrCreateEntity(Linkable.class, 2);
-        safeAction(() -> entity2.setUserObject(userObject2));
+        // This Replica Entry is to be updated
+        final ReplicaEntry replicaEntry2 = findOrCreateReplicaEntry(Linkable.class, 2);
+        safeAction(() -> replicaEntry2.setReplica(replica2));
         // It is already subscribed to channel and that should be fine
-        safeAction(() -> entity2.linkToSubscription(subscription));
-        // This entity is to be removed
-        final Entity entity3 = findOrCreateEntity(Linkable.class, 3);
+        safeAction(() -> replicaEntry2.linkToSubscription(subscription));
+        // This Replica Entry is to be removed
+        final ReplicaEntry replicaEntry3 = findOrCreateReplicaEntry(Linkable.class, 3);
 
         final EntityChangeData data1 = mock(EntityChangeData.class);
         final EntityChangeData data2 = mock(EntityChangeData.class);
@@ -1401,7 +1405,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createEntity(1, data1)).thenReturn(userObject1);
+        when(creator.createReplica(1, data1)).thenReturn(replica1);
 
         assertEquals(response.getEntityUpdateCount(), 0);
         assertEquals(response.getEntityRemoveCount(), 0);
@@ -1410,10 +1414,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processEntityChanges();
 
-        verify(creator, times(1)).createEntity(1, data1);
-        verify(updater, never()).updateEntity(userObject1, data1);
-        verify(creator, never()).createEntity(2, data2);
-        verify(updater, never()).updateEntity(userObject2, data2);
+        verify(creator, times(1)).createReplica(1, data1);
+        verify(updater, never()).updateReplica(replica1, data1);
+        verify(creator, never()).createReplica(2, data2);
+        verify(updater, never()).updateReplica(replica2, data2);
 
         assertEquals(response.getEntityUpdateCount(), 1);
         assertEquals(response.getEntityRemoveCount(), 0);
@@ -1422,15 +1426,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processEntityChanges();
 
-        verify(creator, times(1)).createEntity(1, data1);
-        verify(updater, never()).updateEntity(userObject1, data1);
-        verify(creator, never()).createEntity(2, data2);
-        verify(updater, times(1)).updateEntity(userObject2, data2);
+        verify(creator, times(1)).createReplica(1, data1);
+        verify(updater, never()).updateReplica(replica1, data1);
+        verify(creator, never()).createReplica(2, data2);
+        verify(updater, times(1)).updateReplica(replica2, data2);
 
         assertEquals(response.getEntityUpdateCount(), 2);
         assertEquals(response.getEntityRemoveCount(), 1);
-        assertFalse(Disposable.isDisposed(entity2));
-        assertTrue(Disposable.isDisposed(entity3));
+        assertFalse(Disposable.isDisposed(replicaEntry2));
+        assertTrue(Disposable.isDisposed(replicaEntry3));
     }
 
     @SuppressWarnings("unchecked")
@@ -1469,11 +1473,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"0." + rootId + "#fi"}, data)};
         setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createEntity(1, data)).thenReturn(mock(Linkable.class));
+        when(creator.createReplica(1, data)).thenReturn(mock(Linkable.class));
 
         connector.processEntityChanges();
 
-        safeAction(() -> assertNotNull(subscription.findEntityByTypeAndId(Linkable.class, 1)));
+        safeAction(() -> assertNotNull(subscription.findReplicaEntryByTypeAndId(Linkable.class, 1)));
     }
 
     @SuppressWarnings("unchecked")
@@ -1501,7 +1505,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
 
-        final Linkable userObject1 = mock(Linkable.class);
+        final Linkable replica1 = mock(Linkable.class);
 
         // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
@@ -1510,7 +1514,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"1"}, data1)};
         setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createEntity(1, data1)).thenReturn(userObject1);
+        when(creator.createReplica(1, data1)).thenReturn(replica1);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processEntityChanges);
@@ -1560,7 +1564,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processEntityLinks() {
+    public void processReplicaLinks() {
         final Connector connector = createConnector();
         connector.setLinksToProcessPerTick(1);
 
@@ -1568,42 +1572,42 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final MessageResponse response = setCurrentMessageResponse(
                 connection, UpdateMessage.create(null, null, new String[0], null, new EntityChange[0], null));
 
-        final Linkable entity1 = mock(Linkable.class);
-        final Linkable entity2 = mock(Linkable.class);
-        final Linkable entity3 = mock(Linkable.class);
-        final Linkable entity4 = mock(Linkable.class);
+        final Linkable replica1 = mock(Linkable.class);
+        final Linkable replica2 = mock(Linkable.class);
+        final Linkable replica3 = mock(Linkable.class);
+        final Linkable replica4 = mock(Linkable.class);
 
-        response.changeProcessed(entity1);
-        response.changeProcessed(entity2);
-        response.changeProcessed(entity3);
-        response.changeProcessed(entity4);
+        response.replicaProcessed(replica1);
+        response.replicaProcessed(replica2);
+        response.replicaProcessed(replica3);
+        response.replicaProcessed(replica4);
 
-        verify(entity1, never()).link();
-        verify(entity2, never()).link();
-        verify(entity3, never()).link();
-        verify(entity4, never()).link();
+        verify(replica1, never()).link();
+        verify(replica2, never()).link();
+        verify(replica3, never()).link();
+        verify(replica4, never()).link();
 
         assertEquals(response.getEntityLinkCount(), 0);
 
         connector.setLinksToProcessPerTick(1);
 
-        connector.processEntityLinks();
+        connector.processReplicaLinks();
 
         assertEquals(response.getEntityLinkCount(), 1);
-        verify(entity1, times(1)).link();
-        verify(entity2, never()).link();
-        verify(entity3, never()).link();
-        verify(entity4, never()).link();
+        verify(replica1, times(1)).link();
+        verify(replica2, never()).link();
+        verify(replica3, never()).link();
+        verify(replica4, never()).link();
 
         connector.setLinksToProcessPerTick(2);
 
-        connector.processEntityLinks();
+        connector.processReplicaLinks();
 
         assertEquals(response.getEntityLinkCount(), 3);
-        verify(entity1, times(1)).link();
-        verify(entity2, times(1)).link();
-        verify(entity3, times(1)).link();
-        verify(entity4, never()).link();
+        verify(replica1, times(1)).link();
+        verify(replica2, times(1)).link();
+        verify(replica3, times(1)).link();
+        verify(replica4, never()).link();
     }
 
     @Test
@@ -1941,7 +1945,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processChannelChanges_update() {
-        final SubscriptionUpdateEntityFilter<?> filter = mock(SubscriptionUpdateEntityFilter.class);
+        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -1993,7 +1997,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processChannelChanges_update_withDatasetKey() {
-        final SubscriptionUpdateEntityFilter<?> filter = mock(SubscriptionUpdateEntityFilter.class);
+        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -2303,23 +2307,24 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertFalse(response.hasWorldBeenValidated());
 
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("MyEntity/1", MyEntity.class, 1));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
         final Exception error = new Exception();
-        safeAction(() -> entity1.setUserObject(new MyEntity(error)));
+        safeAction(() -> replicaEntry1.setReplica(new MyEntity(error)));
 
         final IllegalStateException exception = expectThrows(IllegalStateException.class, connector::validateWorld);
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0065: Entity failed to verify during validation process. Entity = MyEntity/1");
+                "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
 
         assertTrue(response.hasWorldBeenValidated());
     }
 
     @Test
     public void validateWorld_invalidEntity_ignoredIfCompileSettingDisablesValidation() {
-        ReplicantTestUtil.noValidateEntitiesOnLoad();
+        ReplicantTestUtil.noValidateReplicasOnLoad();
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
@@ -2327,10 +2332,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertTrue(response.hasWorldBeenValidated());
 
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("MyEntity/1", MyEntity.class, 1));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
         final Exception error = new Exception();
-        safeAction(() -> entity1.setUserObject(new MyEntity(error)));
+        safeAction(() -> replicaEntry1.setReplica(new MyEntity(error)));
 
         connector.validateWorld();
 
@@ -2346,8 +2352,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertFalse(response.hasWorldBeenValidated());
 
-        final EntityService entityService = Replicant.context().getEntityService();
-        safeAction(() -> entityService.findOrCreateEntity("MyEntity/1", MyEntity.class, 1));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
 
         connector.validateWorld();
 
@@ -2538,30 +2544,30 @@ public final class ConnectorTest extends AbstractReplicantTest {
         {
             assertTrue(response.areEntityChangesPending());
 
-            when(creator.createEntity(anyInt(), any(EntityChangeData.class))).thenReturn(mock(Linkable.class));
+            when(creator.createReplica(anyInt(), any(EntityChangeData.class))).thenReturn(mock(Linkable.class));
 
-            // Process Entity Changes in response
+            // Process ReplicaEntry Changes in response
             assertTrue(connector.progressResponseProcessing());
 
             assertFalse(response.areEntityChangesPending());
         }
 
         {
-            assertTrue(response.areEntityLinksPending());
+            assertTrue(response.areReplicaLinksPending());
 
-            // Process Entity Links in response
+            // Process ReplicaEntry Links in response
             assertTrue(connector.progressResponseProcessing());
 
-            assertFalse(response.areEntityLinksPending());
+            assertFalse(response.areReplicaLinksPending());
         }
 
         {
-            assertTrue(response.areEntityUpdateActionsPending());
+            assertTrue(response.areReplicaUpdateActionsPending());
 
             // EntityUpdateActions processed
             assertTrue(connector.progressResponseProcessing());
 
-            assertFalse(response.areEntityUpdateActionsPending());
+            assertFalse(response.areReplicaUpdateActionsPending());
         }
 
         {
@@ -2882,7 +2888,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
                 false,
-                mock(SubscriptionUpdateEntityFilter.class),
+                mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -2938,7 +2944,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
                 false,
-                mock(SubscriptionUpdateEntityFilter.class),
+                mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -3017,7 +3023,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
                 false,
-                mock(SubscriptionUpdateEntityFilter.class),
+                mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());
@@ -3339,7 +3345,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
                 false,
-                mock(SubscriptionUpdateEntityFilter.class),
+                mock(SubscriptionUpdateReplicaFilter.class),
                 false,
                 true,
                 Collections.emptyList());

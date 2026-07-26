@@ -67,16 +67,9 @@ Swing application that used a custom application server.
 
 ### Entities and Replicas
 
-Replicant assumes that there is a client-side representation of the domain model. Each entity within the
-server-side domain model that is to be replicated to the client-side should have a client-side entity
-that mirrors the server-side model. The client-side representation or replica, need not be identical
-to the server-side model but one replica should map to one entity on the server. The replica may also
-omit attributes and relationships that are not needed on the client. The state and lifecycle of the
-replica's will be managed by the replicant system.
-
-NB: It should be noted that as replicant was extracted and derived from several existing systems that
-used slightly different terminology, you may see terms such as _imitation_ used to refer to client-side
-entities or replicas. Over time these terms will be evolved out of the codebase and documentation.
+Replicant assumes that each server-side Entity selected for replication has a client-side Replica. The Replica need
+not be identical to the Entity, but one Replica maps to one Entity and may omit attributes and relationships that the
+client does not need. Replicant manages the Replica's state and lifecycle.
 
 ### Graphs and Subscriptions
 
@@ -236,12 +229,11 @@ numeric strings; non-numeric strings, wrong types, and values below `1` fail sta
 
 There are several replicant components that developers directly interact with in client-side code.
 
-### EntitySubscriptionManager
+### Replica Registry
 
-The `EntitySubscriptionManager` records the state of subscriptions on the client-side. This includes
-which graphs are subscribed two and the mapping between client-side replicas and the graph(s) that
-caused the replica to be replicated to the client. The subscription state is typically managed by the
-server-side but it is not uncommon for clients to query which subscriptions state.
+The `ReplicaRegistry` owns the shared `ReplicaEntry` tracking wrapper for each Replica. Each `Subscription` records
+which Replica Entries belong to it, allowing one Replica to be shared across multiple Subscriptions. Subscription
+state is typically managed by the server, but client code can query both the registry and Subscription membership.
 
 # History
 

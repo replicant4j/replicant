@@ -16,7 +16,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         assertEquals(subscription.address(), address);
 
         safeAction(() -> assertTrue(subscription.isExplicitSubscription()));
-        safeAction(() -> assertEquals(subscription.getEntities().size(), 0));
+        safeAction(() -> assertEquals(subscription.getReplicaEntries().size(), 0));
         safeAction(() -> assertEquals(subscription.getFilter(), filter));
     }
 
@@ -34,10 +34,12 @@ public class SubscriptionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void entities() {
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("A/1", A.class, 1));
-        final Entity entity2 = safeAction(() -> entityService.findOrCreateEntity("A/2", A.class, 2));
+    public void replicaEntries() {
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/1", A.class, 1));
+        final ReplicaEntry replicaEntry2 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/2", A.class, 2));
 
         final ChannelAddress address = new ChannelAddress(1, 0, 1);
         final Subscription subscription = Subscription.create(null, address, null, true);
@@ -46,130 +48,131 @@ public class SubscriptionTest extends AbstractReplicantTest {
         observer(() -> {
             // Just invoke method to get observing
             //noinspection ResultOfMethodCallIgnored
-            subscription.getEntities();
+            subscription.getReplicaEntries();
             callCount.incrementAndGet();
         });
 
         final AtomicInteger findCallCount = new AtomicInteger();
         observer(() -> {
             // Just invoke method to get observing
-            subscription.findEntityByTypeAndId(A.class, 1);
+            subscription.findReplicaEntryByTypeAndId(A.class, 1);
             findCallCount.incrementAndGet();
         });
 
         assertEquals(callCount.get(), 1);
         assertEquals(findCallCount.get(), 1);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 0));
-        safeAction(() -> assertFalse(subscription.findAllEntityTypes().contains(A.class)));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 0));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 0));
+        safeAction(() -> assertFalse(subscription.findAllReplicaTypes().contains(A.class)));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 2)));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 0));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
 
-        safeAction(() -> subscription.linkSubscriptionToEntity(entity1));
+        safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry1));
 
         assertEquals(callCount.get(), 2);
         assertEquals(findCallCount.get(), 2);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertTrue(subscription.findAllEntityTypes().contains(A.class)));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 1));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 1));
+        safeAction(() -> assertTrue(subscription.findAllReplicaTypes().contains(A.class)));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 2)));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 1));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
 
-        // Add second entity, finder no need to re-find
-        safeAction(() -> subscription.linkSubscriptionToEntity(entity2));
+        // Add second replicaEntry, finder no need to re-find
+        safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry2));
 
         assertEquals(callCount.get(), 3);
         assertEquals(findCallCount.get(), 2);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertTrue(subscription.findAllEntityTypes().contains(A.class)));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 2));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 1));
+        safeAction(() -> assertTrue(subscription.findAllReplicaTypes().contains(A.class)));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 2), entity2));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 2));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
 
         // Duplicate link ... ignored as no change
-        safeAction(() -> subscription.linkSubscriptionToEntity(entity2));
+        safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry2));
 
         assertEquals(callCount.get(), 3);
         assertEquals(findCallCount.get(), 2);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 1));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 2));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 1));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 1), entity1));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 2), entity2));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 2));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
 
-        // Removing entity 1, finder will react
-        safeAction(() -> subscription.delinkEntityFromSubscription(entity1, true));
+        // Removing replicaEntry 1, finder will react
+        safeAction(() -> subscription.delinkReplicaEntryFromSubscription(replicaEntry1, true));
 
         assertEquals(callCount.get(), 4);
         assertEquals(findCallCount.get(), 3);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 1));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 1));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 1));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertEquals(subscription.findEntityByTypeAndId(A.class, 2), entity2));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 1));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
 
-        // Removing entity 2, state is reset
-        safeAction(() -> subscription.delinkEntityFromSubscription(entity2, true));
+        // Removing replicaEntry 2, state is reset
+        safeAction(() -> subscription.delinkReplicaEntryFromSubscription(replicaEntry2, true));
 
         assertEquals(callCount.get(), 5);
         assertEquals(findCallCount.get(), 4);
-        safeAction(() -> assertEquals(subscription.findAllEntityTypes().size(), 0));
-        safeAction(
-                () -> assertEquals(subscription.findAllEntitiesByType(A.class).size(), 0));
+        safeAction(() -> assertEquals(subscription.findAllReplicaTypes().size(), 0));
         safeAction(() ->
-                assertEquals(subscription.findAllEntitiesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(subscription.findEntityByTypeAndId(A.class, 2)));
+                assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 0));
+        safeAction(() -> assertEquals(
+                subscription.findAllReplicaEntriesByType(String.class).size(), 0));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
     }
 
     @Test
-    public void delinkEntityFromChannel_noSuchType() {
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity = safeAction(
-                () -> entityService.findOrCreateEntity(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
+    public void delinkReplicaEntryFromSubscription_noSuchType() {
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry = safeAction(() ->
+                replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
         final Subscription subscription1 = Subscription.create(null, new ChannelAddress(1, 0, 1), null, true);
 
-        entity.subscriptions().put(subscription1.address(), subscription1);
-        safeAction(() -> assertEquals(entity.getSubscriptions().size(), 1));
+        replicaEntry.subscriptions().put(subscription1.address(), subscription1);
+        safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(() -> subscription1.delinkEntityFromSubscription(entity, true)));
-        assertEquals(exception.getMessage(), "Entity type A not present in subscription to channel 1.0.1");
+                () -> safeAction(() -> subscription1.delinkReplicaEntryFromSubscription(replicaEntry, true)));
+        assertEquals(exception.getMessage(), "Replica type A not present in subscription to channel 1.0.1");
     }
 
     @Test
-    public void delinkEntityFromChannel_noSuchInstance() {
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity = safeAction(() -> entityService.findOrCreateEntity("A/123", A.class, 123));
-        final Entity entity2 = safeAction(
-                () -> entityService.findOrCreateEntity(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
+    public void delinkReplicaEntryFromSubscription_noSuchInstance() {
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/123", A.class, 123));
+        final ReplicaEntry replicaEntry2 = safeAction(() ->
+                replicaRegistry.findOrCreateReplicaEntry(ValueUtil.randomString(), A.class, ValueUtil.randomInt()));
 
         final Subscription subscription1 = Subscription.create(null, new ChannelAddress(1, 0, 1), null, true);
 
-        safeAction(() -> entity2.linkToSubscription(subscription1));
+        safeAction(() -> replicaEntry2.linkToSubscription(subscription1));
 
-        entity.subscriptions().put(subscription1.address(), subscription1);
-        safeAction(() -> assertEquals(entity.getSubscriptions().size(), 1));
+        replicaEntry.subscriptions().put(subscription1.address(), subscription1);
+        safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 1));
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(() -> subscription1.delinkEntityFromSubscription(entity, true)));
-        assertEquals(exception.getMessage(), "Entity instance A/123 not present in subscription to channel 1.0.1");
+                () -> safeAction(() -> subscription1.delinkReplicaEntryFromSubscription(replicaEntry, true)));
+        assertEquals(exception.getMessage(), "Replica Entry A/123 not present in subscription to channel 1.0.1");
     }
 
     @SuppressWarnings({"EqualsWithItself", "SelfComparison"})
@@ -226,18 +229,19 @@ public class SubscriptionTest extends AbstractReplicantTest {
 
         final Subscription subscription1 = Subscription.create(null, address1, null, true);
 
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("A/33", A.class, 33));
-        final A entity = new A();
-        safeAction(() -> entity1.setUserObject(entity));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/33", A.class, 33));
+        final A replica = new A();
+        safeAction(() -> replicaEntry1.setReplica(replica));
 
-        safeAction(() -> subscription1.linkSubscriptionToEntity(entity1));
+        safeAction(() -> subscription1.linkSubscriptionToReplicaEntry(replicaEntry1));
 
-        safeAction(() -> assertEquals(subscription1.getInstanceRoot(), entity));
+        safeAction(() -> assertEquals(subscription1.getInstanceRoot(), replica));
     }
 
     @Test
-    public void getInstanceRoot_butEntityNotPresent() {
+    public void getInstanceRoot_butReplicaNotPresent() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
@@ -258,7 +262,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but entity"
+                "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel 1.0.33 but Replica"
                         + " is not present.");
     }
 

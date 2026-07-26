@@ -618,7 +618,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
     public void dispose_delinksFromEntity() {
         createConnector();
 
-        final EntityService entityService = Replicant.context().getEntityService();
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final SubscriptionService subscriptionService = Replicant.context().getSubscriptionService();
 
         final Subscription subscription1 =
@@ -626,30 +626,32 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
         final Subscription subscription2 =
                 safeAction(() -> subscriptionService.createSubscription(new ChannelAddress(1, 0, 2), null, true));
 
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("A/1", A.class, 1));
-        final Entity entity2 = safeAction(() -> entityService.findOrCreateEntity("A/2", A.class, 2));
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/1", A.class, 1));
+        final ReplicaEntry replicaEntry2 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("A/2", A.class, 2));
 
-        safeAction(() -> entity1.linkToSubscription(subscription1));
-        safeAction(() -> entity2.linkToSubscription(subscription1));
-        safeAction(() -> entity1.linkToSubscription(subscription2));
+        safeAction(() -> replicaEntry1.linkToSubscription(subscription1));
+        safeAction(() -> replicaEntry2.linkToSubscription(subscription1));
+        safeAction(() -> replicaEntry1.linkToSubscription(subscription2));
 
-        safeAction(() -> assertEquals(subscription1.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertEquals(subscription2.findAllEntityTypes().size(), 1));
-        safeAction(() -> assertEquals(entity1.getSubscriptions().size(), 2));
+        safeAction(() -> assertEquals(subscription1.findAllReplicaTypes().size(), 1));
+        safeAction(() -> assertEquals(subscription2.findAllReplicaTypes().size(), 1));
+        safeAction(() -> assertEquals(replicaEntry1.getSubscriptions().size(), 2));
 
         assertFalse(Disposable.isDisposed(subscription1));
         assertFalse(Disposable.isDisposed(subscription2));
-        assertFalse(Disposable.isDisposed(entity1));
-        assertFalse(Disposable.isDisposed(entity2));
+        assertFalse(Disposable.isDisposed(replicaEntry1));
+        assertFalse(Disposable.isDisposed(replicaEntry2));
 
         Disposable.dispose(subscription1);
 
         assertTrue(Disposable.isDisposed(subscription1));
         assertFalse(Disposable.isDisposed(subscription2));
-        // entity2 is associated with subscription2 so it stays
-        assertFalse(Disposable.isDisposed(entity1));
-        // entity2 had no other subscriptions so it went away
-        assertTrue(Disposable.isDisposed(entity2));
+        // replicaEntry2 is associated with subscription2 so it stays
+        assertFalse(Disposable.isDisposed(replicaEntry1));
+        // replicaEntry2 had no other subscriptions so it went away
+        assertTrue(Disposable.isDisposed(replicaEntry2));
     }
 
     @Test

@@ -42,10 +42,11 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
     }
 
     @NonNull
-    final Entity findOrCreateEntity(@NonNull final Class<?> type, final int id) {
+    final ReplicaEntry findOrCreateReplicaEntry(@NonNull final Class<?> type, final int id) {
         return safeAction(() -> Replicant.context()
-                .getEntityService()
-                .findOrCreateEntity(Replicant.areNamesEnabled() ? type.getSimpleName() + "/" + id : null, type, id));
+                .getReplicaRegistry()
+                .findOrCreateReplicaEntry(
+                        Replicant.areNamesEnabled() ? type.getSimpleName() + "/" + id : null, type, id));
     }
 
     @NonNull

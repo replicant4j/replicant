@@ -30,7 +30,7 @@ import replicant.spy.SubscriptionDisposedEvent;
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.ENABLE)
 public abstract class Subscription extends ReplicantService implements Comparable<Subscription> {
     @NonNull
-    private final Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> _entities = new HashMap<>();
+    private final Map<Class<?>, NavigableMap<Integer, ReplicaSubscriptionEntry>> _replicaEntries = new HashMap<>();
 
     @NonNull
     private final ChannelAddress _address;
@@ -67,38 +67,44 @@ public abstract class Subscription extends ReplicantService implements Comparabl
 
     @NonNull
     @Observable(expectSetter = false)
-    Map<Class<?>, NavigableMap<Integer, EntitySubscriptionEntry>> getEntities() {
-        return _entities;
+    Map<Class<?>, NavigableMap<Integer, ReplicaSubscriptionEntry>> getReplicaEntries() {
+        return _replicaEntries;
+    }
+
+    /**
+     * Return the Replica types present in this Subscription.
+     *
+     * @return the Replica types.
+     */
+    @NonNull
+    public Collection<Class<?>> findAllReplicaTypes() {
+        return getReplicaEntries().keySet();
     }
 
     @NonNull
-    public Collection<Class<?>> findAllEntityTypes() {
-        return getEntities().keySet();
-    }
-
-    @NonNull
-    public List<Entity> findAllEntitiesByType(@NonNull final Class<?> type) {
-        final Map<Integer, EntitySubscriptionEntry> typeMap = getEntities().get(type);
+    public List<ReplicaEntry> findAllReplicaEntriesByType(@NonNull final Class<?> type) {
+        final Map<Integer, ReplicaSubscriptionEntry> typeMap =
+                getReplicaEntries().get(type);
         return null == typeMap
                 ? Collections.emptyList()
-                : CollectionsUtil.asList(typeMap.values().stream().map(EntitySubscriptionEntry::getEntity));
+                : CollectionsUtil.asList(typeMap.values().stream().map(ReplicaSubscriptionEntry::getReplicaEntry));
     }
 
     @Nullable
-    public Entity findEntityByTypeAndId(@NonNull final Class<?> type, final int id) {
-        final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get(type);
+    public ReplicaEntry findReplicaEntryByTypeAndId(@NonNull final Class<?> type, final int id) {
+        final Map<Integer, ReplicaSubscriptionEntry> typeMap = _replicaEntries.get(type);
         if (null == typeMap) {
-            getEntitiesObservableValue().reportObserved();
+            getReplicaEntriesObservableValue().reportObserved();
             return null;
         } else {
-            final EntitySubscriptionEntry entry = typeMap.get(id);
+            final ReplicaSubscriptionEntry entry = typeMap.get(id);
             if (null == entry) {
-                getEntitiesObservableValue().reportObserved();
+                getReplicaEntriesObservableValue().reportObserved();
                 return null;
             } else {
-                final Entity entity = entry.getEntity();
-                ComponentObservable.observe(entity);
-                return entity;
+                final ReplicaEntry replicaEntry = entry.getReplicaEntry();
+                ComponentObservable.observe(replicaEntry);
+                return replicaEntry;
             }
         }
     }
@@ -123,15 +129,15 @@ public abstract class Subscription extends ReplicantService implements Comparabl
                     () -> "Replicant-0087: Subscription.getInstanceRoot() invoked on subscription for channel "
                             + _address + " but channel has not supplied expected id.");
         }
-        final Entity entity = findEntityByTypeAndId(
+        final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndId(
                 Objects.requireNonNull(channel.getInstanceType()), Objects.requireNonNull(rootId));
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
-                    () -> null != entity,
+                    () -> null != replicaEntry,
                     () -> "Replicant-0088: Subscription.getInstanceRoot() invoked on subscription for channel "
-                            + _address + " but entity is not present.");
+                            + _address + " but Replica is not present.");
         }
-        return Objects.requireNonNull(entity).getUserObject();
+        return Objects.requireNonNull(replicaEntry).getReplica();
     }
 
     /**
@@ -148,60 +154,62 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     }
 
     @ObservableValueRef
-    abstract ObservableValue<?> getEntitiesObservableValue();
+    abstract ObservableValue<?> getReplicaEntriesObservableValue();
 
     @Override
     public int compareTo(@NonNull final Subscription o) {
         return address().compareTo(o.address());
     }
 
-    void linkSubscriptionToEntity(@NonNull final Entity entity) {
-        getEntitiesObservableValue().preReportChanged();
-        final Class<?> type = entity.getType();
-        final int id = entity.getId();
-        final NavigableMap<Integer, EntitySubscriptionEntry> typeMap =
-                _entities.computeIfAbsent(type, t -> new TreeMap<>());
+    void linkSubscriptionToReplicaEntry(@NonNull final ReplicaEntry replicaEntry) {
+        getReplicaEntriesObservableValue().preReportChanged();
+        final Class<?> type = replicaEntry.getType();
+        final int id = replicaEntry.getId();
+        final NavigableMap<Integer, ReplicaSubscriptionEntry> typeMap =
+                _replicaEntries.computeIfAbsent(type, t -> new TreeMap<>());
         if (!typeMap.containsKey(id)) {
-            createSubscriptionEntry(typeMap, entity);
+            createSubscriptionEntry(typeMap, replicaEntry);
         }
     }
 
     private void createSubscriptionEntry(
-            @NonNull final Map<Integer, EntitySubscriptionEntry> typeMap, @NonNull final Entity entity) {
-        typeMap.put(entity.getId(), EntitySubscriptionEntry.create(entity));
-        DisposeNotifier.asDisposeNotifier(entity).addOnDisposeListener(this, () -> detachEntity(entity, false), true);
-        getEntitiesObservableValue().reportChanged();
+            @NonNull final Map<Integer, ReplicaSubscriptionEntry> typeMap, @NonNull final ReplicaEntry replicaEntry) {
+        typeMap.put(replicaEntry.getId(), ReplicaSubscriptionEntry.create(replicaEntry));
+        DisposeNotifier.asDisposeNotifier(replicaEntry)
+                .addOnDisposeListener(this, () -> detachReplicaEntry(replicaEntry, false), true);
+        getReplicaEntriesObservableValue().reportChanged();
     }
 
-    void delinkEntityFromSubscription(@NonNull final Entity entity, final boolean disposeEntityIfNoSubscriptions) {
-        getEntitiesObservableValue().preReportChanged();
-        detachEntity(entity, disposeEntityIfNoSubscriptions);
-        getEntitiesObservableValue().reportChanged();
+    void delinkReplicaEntryFromSubscription(
+            @NonNull final ReplicaEntry replicaEntry, final boolean disposeIfNoSubscriptions) {
+        getReplicaEntriesObservableValue().preReportChanged();
+        detachReplicaEntry(replicaEntry, disposeIfNoSubscriptions);
+        getReplicaEntriesObservableValue().reportChanged();
     }
 
-    private void detachEntity(@NonNull final Entity entity, final boolean disposeEntityIfNoSubscriptions) {
-        final Class<?> entityType = entity.getType();
-        final Map<Integer, EntitySubscriptionEntry> typeMap = _entities.get(entityType);
+    private void detachReplicaEntry(@NonNull final ReplicaEntry replicaEntry, final boolean disposeIfNoSubscriptions) {
+        final Class<?> replicaType = replicaEntry.getType();
+        final Map<Integer, ReplicaSubscriptionEntry> typeMap = _replicaEntries.get(replicaType);
         final ChannelAddress address = address();
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != typeMap,
-                    () -> "Entity type " + entityType.getSimpleName() + " not present in subscription " + "to channel "
+                    () -> "Replica type " + replicaType.getSimpleName() + " not present in subscription to channel "
                             + address);
         }
-        final EntitySubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(entity.getId());
+        final ReplicaSubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(replicaEntry.getId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != removed,
-                    () -> "Entity instance " + entity + " not present in subscription to channel " + address);
+                    () -> "Replica Entry " + replicaEntry + " not present in subscription to channel " + address);
         }
-        DisposeNotifier.asDisposeNotifier(entity).removeOnDisposeListener(this, true);
+        DisposeNotifier.asDisposeNotifier(replicaEntry).removeOnDisposeListener(this, true);
         Disposable.dispose(removed);
-        if (disposeEntityIfNoSubscriptions) {
-            entity.disposeIfNoSubscriptions();
+        if (disposeIfNoSubscriptions) {
+            replicaEntry.disposeReplicaEntryIfNoSubscriptions();
         }
         if (typeMap.isEmpty()) {
-            _entities.remove(entityType);
+            _replicaEntries.remove(replicaType);
         }
     }
 
@@ -210,13 +218,14 @@ public abstract class Subscription extends ReplicantService implements Comparabl
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext().getSpy().reportSpyEvent(new SubscriptionDisposedEvent(this));
         }
-        delinkSubscriptionFromAllEntities();
+        delinkSubscriptionFromAllReplicaEntries();
     }
 
-    private void delinkSubscriptionFromAllEntities() {
-        new ArrayList<>(_entities.values())
+    private void delinkSubscriptionFromAllReplicaEntries() {
+        new ArrayList<>(_replicaEntries.values())
                 .stream()
-                        .flatMap(entitySet -> new ArrayList<>(entitySet.values()).stream())
-                        .forEachOrdered(entity -> entity.getEntity().delinkSubscriptionFromEntity(this));
+                        .flatMap(replicaEntrySet -> new ArrayList<>(replicaEntrySet.values()).stream())
+                        .forEachOrdered(replicaEntry ->
+                                replicaEntry.getReplicaEntry().delinkSubscriptionFromReplicaEntry(this));
     }
 }

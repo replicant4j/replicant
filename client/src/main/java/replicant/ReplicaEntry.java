@@ -18,14 +18,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A representation of an entity within the replicant system.
+ * The internal tracking entry for a client-side Replica.
  */
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.DISABLE)
-public abstract class Entity extends ReplicantService {
+public abstract class ReplicaEntry extends ReplicantService {
     @NonNull
     private final Map<ChannelAddress, Subscription> _subscriptions = new HashMap<>();
     /**
-     * A human consumable name for Entity. It should be non-null if {@link Replicant#areNamesEnabled()} returns
+     * A human consumable name for the Replica Entry. It should be non-null if {@link Replicant#areNamesEnabled()} returns
      * true and <tt>null</tt> otherwise.
      */
     @Nullable
@@ -37,17 +37,17 @@ public abstract class Entity extends ReplicantService {
     private final int _id;
 
     @Nullable
-    private Object _userObject;
+    private Object _replica;
 
-    static Entity create(
+    static ReplicaEntry create(
             @Nullable final ReplicantContext context,
             @Nullable final String name,
             @NonNull final Class<?> type,
             final int id) {
-        return new Arez_Entity(context, name, type, id);
+        return new Arez_ReplicaEntry(context, name, type, id);
     }
 
-    Entity(
+    ReplicaEntry(
             @Nullable final ReplicantContext context,
             @Nullable final String name,
             @NonNull final Class<?> type,
@@ -56,7 +56,7 @@ public abstract class Entity extends ReplicantService {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
-                    () -> "Replicant-0032: Entity passed a name '" + name
+                    () -> "Replicant-0032: ReplicaEntry passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
         }
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
@@ -65,18 +65,18 @@ public abstract class Entity extends ReplicantService {
     }
 
     /**
-     * Return the name of the Entity.
+     * Return the name of the ReplicaEntry.
      * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
      * exception if invariant checking is enabled.
      *
-     * @return the name of the Entity.
+     * @return the name of the ReplicaEntry.
      */
     @NonNull
     public String getName() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     Replicant::areNamesEnabled,
-                    () -> "Replicant-0009: Entity.getName() invoked when Replicant.areNamesEnabled() is false");
+                    () -> "Replicant-0009: ReplicaEntry.getName() invoked when Replicant.areNamesEnabled() is false");
         }
         return Objects.requireNonNull(_name);
     }
@@ -91,28 +91,28 @@ public abstract class Entity extends ReplicantService {
     }
 
     @NonNull
-    public Object getUserObject() {
-        final Object userObject = maybeUserObject();
+    public Object getReplica() {
+        final Object replica = maybeReplica();
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null != userObject,
-                    () -> "Replicant-0071: Entity.getUserObject() invoked when no userObject present");
+                    () -> null != replica,
+                    () -> "Replicant-0071: ReplicaEntry.getReplica() invoked when no replica present");
         }
-        return Objects.requireNonNull(userObject);
+        return Objects.requireNonNull(replica);
     }
 
-    @Observable(name = "userObject")
+    @Observable(name = "replica")
     @Nullable
-    public Object maybeUserObject() {
-        return _userObject;
+    public Object maybeReplica() {
+        return _replica;
     }
 
-    void setUserObject(@Nullable final Object userObject) {
-        _userObject = userObject;
+    void setReplica(@Nullable final Object replica) {
+        _replica = replica;
     }
 
     /**
-     * Return the collection of subscriptions for the entity.
+     * Return the collection of subscriptions for the Replica Entry.
      *
      * @return the subscriptions.
      */
@@ -143,16 +143,16 @@ public abstract class Entity extends ReplicantService {
     void linkToSubscription(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> null == subscription.findEntityByTypeAndId(getType(), getId()),
-                    () -> "Replicant-0080: Entity.linkToSubscription invoked on Entity " + this
+                    () -> null == subscription.findReplicaEntryByTypeAndId(getType(), getId()),
+                    () -> "Replicant-0080: ReplicaEntry.linkToSubscription invoked on Replica Entry " + this
                             + " passing subscription "
-                            + subscription.address() + " but entity is " + "already linked to subscription.");
+                            + subscription.address() + " but Replica Entry is already linked to subscription.");
         }
-        linkEntityToSubscription(subscription);
-        subscription.linkSubscriptionToEntity(this);
+        linkReplicaEntryToSubscription(subscription);
+        subscription.linkSubscriptionToReplicaEntry(this);
     }
 
-    private void linkEntityToSubscription(@NonNull final Subscription subscription) {
+    private void linkReplicaEntryToSubscription(@NonNull final Subscription subscription) {
         getSubscriptionsObservableValue().preReportChanged();
         final ChannelAddress address = subscription.address();
         if (!_subscriptions.containsKey(address)) {
@@ -175,7 +175,8 @@ public abstract class Entity extends ReplicantService {
             invariant(
                     () -> ChannelSchema.FilterType.NONE
                             != subscription.getChannelSchema().getFilterType(),
-                    () -> "Replicant-0018: Entity.delinkFromFilteringSubscription invoked on Entity " + this
+                    () -> "Replicant-0018: ReplicaEntry.delinkFromFilteringSubscription invoked on Replica Entry "
+                            + this
                             + " passing subscription "
                             + subscription.address() + " but subscription is " + "not filtered.");
         }
@@ -190,29 +191,29 @@ public abstract class Entity extends ReplicantService {
     void delinkFromSubscription(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> null != subscription.findEntityByTypeAndId(getType(), getId()),
-                    () -> "Replicant-0081: Entity.delinkFromSubscription invoked on Entity " + this
+                    () -> null != subscription.findReplicaEntryByTypeAndId(getType(), getId()),
+                    () -> "Replicant-0081: ReplicaEntry.delinkFromSubscription invoked on Replica Entry " + this
                             + " passing subscription "
-                            + subscription.address() + " but entity is " + "not linked to subscription.");
+                            + subscription.address() + " but Replica Entry is not linked to subscription.");
         }
-        delinkSubscriptionFromEntity(subscription, false);
-        subscription.delinkEntityFromSubscription(this, false);
-        disposeIfNoSubscriptions();
+        delinkSubscriptionFromReplicaEntry(subscription, false);
+        subscription.delinkReplicaEntryFromSubscription(this, false);
+        disposeReplicaEntryIfNoSubscriptions();
     }
 
     /**
-     * Delink the specified subscription from this entity.
-     * This method does not delink entity from subscription and it is assumed this is achieved through
-     * other means such as {@link Subscription#delinkEntityFromSubscription(Entity, boolean)}.
+     * Delink the specified subscription from this Replica Entry.
+     * This method does not delink the Replica Entry from the subscription and it is assumed this is achieved through
+     * other means such as {@link Subscription#delinkReplicaEntryFromSubscription(ReplicaEntry, boolean)}.
      *
      * @param subscription the subscription.
      */
-    void delinkSubscriptionFromEntity(@NonNull final Subscription subscription) {
-        delinkSubscriptionFromEntity(subscription, true);
+    void delinkSubscriptionFromReplicaEntry(@NonNull final Subscription subscription) {
+        delinkSubscriptionFromReplicaEntry(subscription, true);
     }
 
-    private void delinkSubscriptionFromEntity(
-            @NonNull final Subscription subscription, final boolean disposeEntityIfNoSubscriptions) {
+    private void delinkSubscriptionFromReplicaEntry(
+            @NonNull final Subscription subscription, final boolean disposeIfNoSubscriptions) {
         getSubscriptionsObservableValue().preReportChanged();
         final ChannelAddress address = subscription.address();
         final Subscription candidate = _subscriptions.remove(address);
@@ -220,14 +221,14 @@ public abstract class Entity extends ReplicantService {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> null != candidate,
-                    () -> "Unable to locate subscription for channel " + address + " on entity " + this);
+                    () -> "Unable to locate subscription for channel " + address + " on Replica Entry " + this);
         }
-        if (disposeEntityIfNoSubscriptions) {
-            disposeIfNoSubscriptions();
+        if (disposeIfNoSubscriptions) {
+            disposeReplicaEntryIfNoSubscriptions();
         }
     }
 
-    void disposeIfNoSubscriptions() {
+    void disposeReplicaEntryIfNoSubscriptions() {
         if (_subscriptions.isEmpty()) {
             Disposable.dispose(this);
         }
@@ -235,15 +236,15 @@ public abstract class Entity extends ReplicantService {
 
     @PreDispose
     void preDispose() {
-        if (null != _userObject) {
+        if (null != _replica) {
             for (final Subscription subscription : new ArrayList<>(_subscriptions.values())) {
-                subscription.delinkEntityFromSubscription(this, false);
+                subscription.delinkReplicaEntryFromSubscription(this, false);
 
                 final ChannelSchema schema = subscription.getChannelSchema();
                 if (schema.isInstanceChannel()
                         && (schema.getInstanceType() == getType())
                         && (Objects.equals(subscription.address().rootId(), getId()))) {
-                    // If there is any subscription that this entity is the instance root of, then explicitly dispose
+                    // If there is any subscription that this Replica is the instance root of, then explicitly dispose
                     // it.
                     // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but
                     // now
@@ -259,7 +260,7 @@ public abstract class Entity extends ReplicantService {
                     Disposable.dispose(subscription);
                 }
             }
-            Disposable.dispose(_userObject);
+            Disposable.dispose(_replica);
         }
         if (Replicant.shouldCheckInvariants()) {
             // This is not needed but we do it to make it easier to understand behaviour during debugging

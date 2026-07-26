@@ -19,7 +19,7 @@ final class ReplicantConfig {
     private static boolean ENABLE_NAMES = PROVIDER.areNamesEnabled();
     private static boolean ENABLE_ZONES = PROVIDER.enableZones();
     private static boolean VALIDATE_CHANGE_SET_ON_READ = PROVIDER.validateChangeSetOnRead();
-    private static boolean VALIDATE_ENTITIES_ON_LOAD = PROVIDER.validateEntitiesOnLoad();
+    private static boolean VALIDATE_REPLICAS_ON_LOAD = PROVIDER.validateReplicasOnLoad();
     private static boolean ENABLE_SPIES = PROVIDER.enableSpies();
 
     @NonNull
@@ -71,12 +71,12 @@ final class ReplicantConfig {
         ENABLE_ZONES = enableZones;
     }
 
-    static boolean shouldValidateEntitiesOnLoad() {
-        return VALIDATE_ENTITIES_ON_LOAD;
+    static boolean shouldValidateReplicasOnLoad() {
+        return VALIDATE_REPLICAS_ON_LOAD;
     }
 
-    static void setValidateEntitiesOnLoad(final boolean validateEntitiesOnLoad) {
-        VALIDATE_ENTITIES_ON_LOAD = validateEntitiesOnLoad;
+    static void setValidateReplicasOnLoad(final boolean validateReplicasOnLoad) {
+        VALIDATE_REPLICAS_ON_LOAD = validateReplicasOnLoad;
     }
 
     static boolean shouldValidateChangeSetOnRead() {
@@ -137,9 +137,9 @@ final class ReplicantConfig {
 
         @GwtIncompatible
         @Override
-        boolean validateEntitiesOnLoad() {
+        boolean validateReplicasOnLoad() {
             return "true"
-                    .equals(System.getProperty("replicant.validateEntitiesOnLoad", PRODUCTION_MODE ? "false" : "true"));
+                    .equals(System.getProperty("replicant.validateReplicasOnLoad", PRODUCTION_MODE ? "false" : "true"));
         }
 
         @GwtIncompatible
@@ -188,8 +188,8 @@ final class ReplicantConfig {
             return "true" == System.getProperty("replicant.validateChangeSetOnRead");
         }
 
-        boolean validateEntitiesOnLoad() {
-            return "true" == System.getProperty("replicant.validateEntitiesOnLoad");
+        boolean validateReplicasOnLoad() {
+            return "true" == System.getProperty("replicant.validateReplicasOnLoad");
         }
 
         boolean enableSpies() {

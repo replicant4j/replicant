@@ -21,10 +21,10 @@ CLIENT_TEST_CLASSES = [
     "replicant.ConnectorStateTest",
     "replicant.ConnectorTest",
     "replicant.EntityTypeTest",
-    "replicant.EntityServiceTest",
-    "replicant.EntityTest",
     "replicant.MessageResponseTest",
     "replicant.RateLimitedValueTest",
+    "replicant.ReplicaEntryTest",
+    "replicant.ReplicaRegistryTest",
     "replicant.ReplicantContextTest",
     "replicant.ReplicantLoggerTest",
     "replicant.ReplicantRuntimeTest",
@@ -127,11 +127,11 @@ java_library(
         "ConnectorEntryTest.java",
         "ConnectorStateTest.java",
         "ConnectorTest.java",
-        "EntityServiceTest.java",
-        "EntityTest.java",
         "EntityTypeTest.java",
         "MessageResponseTest.java",
         "RateLimitedValueTest.java",
+        "ReplicaEntryTest.java",
+        "ReplicaRegistryTest.java",
         "ReplicantContextTest.java",
         "ReplicantLoggerTest.java",
         "ReplicantRuntimeTest.java",
@@ -299,24 +299,6 @@ java_testng(
 )
 
 java_testng(
-    name = "EntityServiceTest",
-    srcs = ["EntityServiceTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.EntityServiceTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
-    name = "EntityTest",
-    srcs = ["EntityTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.EntityTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
     name = "MessageResponseTest",
     srcs = ["MessageResponseTest.java"],
     data = CLIENT_TEST_DATA,
@@ -331,6 +313,24 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.RateLimitedValueTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "ReplicaEntryTest",
+    srcs = ["ReplicaEntryTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicaEntryTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "ReplicaRegistryTest",
+    srcs = ["ReplicaRegistryTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.ReplicaRegistryTest",
     deps = ["//client:client_test_support"],
 )
 

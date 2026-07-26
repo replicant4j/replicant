@@ -102,7 +102,7 @@ abstract class Connector extends ReplicantService {
     @Nullable
     private Disposable _schedulerLock;
     /**
-     * Maximum number of entity links to attempt in a single tick of the scheduler. After this many links have
+     * Maximum number of Replica links to attempt in a single tick of the scheduler. After this many links have
      * been processed then return and any remaining links can occur in a later tick.
      */
     private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
@@ -515,17 +515,17 @@ abstract class Connector extends ReplicantService {
             // Process a chunk of entity changes
             processEntityChanges();
             return true;
-        } else if (response.areEntityLinksPending()) {
-            // Process a chunk of links
-            processEntityLinks();
+        } else if (response.areReplicaLinksPending()) {
+            // Process a chunk of Replica links
+            processReplicaLinks();
             return true;
-        } else if (response.areEntityUpdateActionsPending()) {
-            // Process all update actions. The presumption is that they do not do much
-            processEntityUpdateActions();
+        } else if (response.areReplicaUpdateActionsPending()) {
+            // Process all Replica update actions. The presumption is that they do not do much
+            processReplicaUpdateActions();
             return true;
         } else if (response.areOrphanSubscriptionsRemoved()) {
             // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
-            // incoming change and queries the repository and accesses orphaned and potentially invalid entities.
+            // incoming change and queries the repository and accesses orphaned and potentially invalid Replicas.
             // This MUST be done prior to validateWorld()
             getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
             response.markOrphanSubscriptionsRemoved();
@@ -640,7 +640,7 @@ abstract class Connector extends ReplicantService {
                 }
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
                 existingSubscription.setFilter(filter);
-                updateSubscriptionForFilteredEntities(existingSubscription);
+                updateSubscriptionForFilteredReplicas(existingSubscription);
                 response.incChannelUpdateCount();
             }
         }
@@ -648,23 +648,23 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action(verifyRequired = false)
-    void processEntityLinks() {
+    void processReplicaLinks() {
         final MessageResponse response = ensureCurrentMessageResponse();
         Linkable linkable;
-        for (int i = 0; i < _linksToProcessPerTick && null != (linkable = response.nextEntityToLink()); i++) {
+        for (int i = 0; i < _linksToProcessPerTick && null != (linkable = response.nextReplicaToLink()); i++) {
             linkable.link();
             response.incEntityLinkCount();
         }
     }
 
     @Action(verifyRequired = false)
-    void processEntityUpdateActions() {
+    void processReplicaUpdateActions() {
         final MessageResponse response = ensureCurrentMessageResponse();
-        final OnEntityUpdateAction action = getSchema().getOnEntityUpdateAction();
+        final OnReplicaUpdateAction action = getSchema().getOnReplicaUpdateAction();
         if (null != action) {
-            Object entity;
-            while (null != (entity = response.nextEntityToPostAction())) {
-                action.onEntityUpdate(getReplicantContext(), entity);
+            Object replica;
+            while (null != (replica = response.nextReplicaToPostAction())) {
+                action.onReplicaUpdate(getReplicantContext(), replica);
             }
         } else {
             response.completePostActions();
@@ -672,46 +672,46 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Method invoked when a filter has updated and the Connector needs to delink any entities
+     * Method invoked when a filter has updated and the Connector needs to delink any Replicas
      * that are no longer part of the subscription now that the filter has changed.
      *
      * @param subscription the subscription that was updated.
      */
     @SuppressWarnings("unchecked")
-    void updateSubscriptionForFilteredEntities(@NonNull final Subscription subscription) {
+    void updateSubscriptionForFilteredReplicas(@NonNull final Subscription subscription) {
         final ChannelAddress address = subscription.address();
         final ChannelSchema channel = getSchema().getChannel(address.channelId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
-                    () -> "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address "
+                    () -> "Replicant-0079: Connector.updateSubscriptionForFilteredReplicas invoked for address "
                             + subscription.address() + " but the channel does not have a DYNAMIC filter.");
         }
 
-        final List<Entity> entitiesToDelink = new ArrayList<>();
-        for (final Class<?> entityType : new ArrayList<>(subscription.findAllEntityTypes())) {
-            final List<Entity> entities = subscription.findAllEntitiesByType(entityType);
-            if (!entities.isEmpty()) {
+        final List<ReplicaEntry> replicaEntriesToDelink = new ArrayList<>();
+        for (final Class<?> replicaType : new ArrayList<>(subscription.findAllReplicaTypes())) {
+            final List<ReplicaEntry> replicaEntries = subscription.findAllReplicaEntriesByType(replicaType);
+            if (!replicaEntries.isEmpty()) {
                 @SuppressWarnings("rawtypes")
-                final SubscriptionUpdateEntityFilter updateFilter = Objects.requireNonNull(channel.getFilter());
+                final SubscriptionUpdateReplicaFilter updateFilter = Objects.requireNonNull(channel.getFilter());
                 final Object filter = subscription.getFilter();
-                for (final Entity entity : entities) {
-                    if (!updateFilter.doesEntityMatchFilter(filter, entity)) {
-                        // We need to collect all the entities into a separate list and delink later.
-                        // If we delink immediately and the arez userObject is disposed and a subsequent entity
-                        // calls `doesEntityMatchFilter` and tries to traverse across the already disposed
-                        // userObject then we get a crash or unexpected behaviour.
+                for (final ReplicaEntry replicaEntry : replicaEntries) {
+                    if (!updateFilter.doesReplicaMatchFilter(filter, replicaEntry)) {
+                        // We need to collect all the Replica Entries into a separate list and delink later.
+                        // If we delink immediately and the Arez Replica is disposed and a subsequent Replica
+                        // calls `doesReplicaMatchFilter` and tries to traverse across the already disposed Replica,
+                        // then we get a crash or unexpected behaviour.
                         // i.e. Moving days in planner will match the day first and remove it before attempting
                         // to match RosterEntry but RosterEntry involves walking from RosterEntry->Day->Shift
                         // which will crash
-                        entitiesToDelink.add(entity);
+                        replicaEntriesToDelink.add(replicaEntry);
                     }
                 }
             }
         }
 
-        for (final Entity entity : entitiesToDelink) {
-            entity.delinkFromSubscription(subscription);
+        for (final ReplicaEntry replicaEntry : replicaEntriesToDelink) {
+            replicaEntry.delinkFromSubscription(subscription);
         }
     }
 
@@ -946,7 +946,8 @@ abstract class Connector extends ReplicantService {
             }
             final EntityType entityType = getSchema().getEntityType(typeId);
             final Class<?> type = entityType.getType();
-            Entity entity = getReplicantContext().getEntityService().findEntityByTypeAndId(type, entityId);
+            ReplicaEntry replicaEntry =
+                    getReplicantContext().getReplicaRegistry().findReplicaEntryByTypeAndId(type, entityId);
             if (change.isRemove()) {
                 /*
                  * Sometimes a remove can occur for an entity that is no longer present on the client. The most
@@ -955,22 +956,23 @@ abstract class Connector extends ReplicantService {
                  * locally but has a remove message in the queue. Other interleaved async operations can also
                  * trigger this scenario.
                  */
-                if (null != entity) {
-                    Disposable.dispose(entity);
+                if (null != replicaEntry) {
+                    Disposable.dispose(replicaEntry);
                     response.incEntityRemoveCount();
                 }
             } else {
                 final EntityChangeData data = change.getData();
-                if (null == entity) {
+                if (null == replicaEntry) {
                     final String name = Replicant.areNamesEnabled() ? entityType.getName() + "/" + entityId : null;
-                    entity = getReplicantContext().getEntityService().findOrCreateEntity(name, type, entityId);
-                    final Object userObject = entityType.getCreator().createEntity(entityId, data);
-                    entity.setUserObject(userObject);
+                    replicaEntry =
+                            getReplicantContext().getReplicaRegistry().findOrCreateReplicaEntry(name, type, entityId);
+                    final Object replica = entityType.getCreator().createReplica(entityId, data);
+                    replicaEntry.setReplica(replica);
                 } else {
                     @SuppressWarnings("rawtypes")
                     final EntityType.Updater updater = entityType.getUpdater();
                     if (null != updater) {
-                        updater.updateEntity(entity.getUserObject(), data);
+                        updater.updateReplica(replicaEntry.getReplica(), data);
                     }
                 }
 
@@ -988,7 +990,7 @@ abstract class Connector extends ReplicantService {
                                             + address + " but no such subscription exists locally.");
                         }
                         if (null != subscription) {
-                            entity.tryLinkToSubscription(subscription);
+                            replicaEntry.tryLinkToSubscription(subscription);
                         } else {
                             onOutOfSync();
                             return;
@@ -1002,22 +1004,22 @@ abstract class Connector extends ReplicantService {
                     }
                 }
                 /*
-                We could get the existing subscriptions for an entity, and any that are not present
-                in the EntityChannel could be removed here. However we assume the code generated in
+                We could get the existing subscriptions for a Replica Entry, and any that are not present
+                in the Entity change could be removed here. However we assume the code generated in
                 subscription change will handle subscription changes and remove subscriptions no longer
                 relevant.
                 */
 
                 response.incEntityUpdateCount();
-                response.changeProcessed(entity.getUserObject());
+                response.replicaProcessed(replicaEntry.getReplica());
             }
         }
     }
 
     void validateWorld() {
         ensureCurrentMessageResponse().markWorldAsValidated();
-        if (Replicant.shouldValidateEntitiesOnLoad()) {
-            getReplicantContext().getValidator().validateEntities();
+        if (Replicant.shouldValidateReplicasOnLoad()) {
+            getReplicantContext().getValidator().validateReplicas();
         }
     }
 

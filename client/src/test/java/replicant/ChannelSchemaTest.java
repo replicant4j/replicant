@@ -138,7 +138,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
         final boolean external = true;
-        final SubscriptionUpdateEntityFilter<?> filter = mock(SubscriptionUpdateEntityFilter.class);
+        final SubscriptionUpdateReplicaFilter<?> filter = mock(SubscriptionUpdateReplicaFilter.class);
         final ChannelSchema channelSchema = new ChannelSchema(
                 id,
                 name,
@@ -231,7 +231,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         null,
                         ChannelSchema.FilterType.STATIC,
                         false,
-                        mock(SubscriptionUpdateEntityFilter.class),
+                        mock(SubscriptionUpdateReplicaFilter.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
                         Collections.emptyList()));
@@ -250,7 +250,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         null,
                         ChannelSchema.FilterType.STATIC,
                         true,
-                        mock(SubscriptionUpdateEntityFilter.class),
+                        mock(SubscriptionUpdateReplicaFilter.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
                         Collections.emptyList()));

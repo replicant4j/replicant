@@ -9,33 +9,35 @@ import org.testng.annotations.Test;
 public class ValidatorTest extends AbstractReplicantTest {
     @Test
     public void noEntities() {
-        Validator.create(null).validateEntities();
+        Validator.create(null).validateReplicas();
     }
 
     @Test
     public void entitiesAllValid() {
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("MyEntity/1", MyEntity.class, 1));
-        safeAction(() -> entity1.setUserObject(new MyEntity(null)));
-        safeAction(() -> entityService.findOrCreateEntity("MyEntity/2", MyEntity.class, 2));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
+        safeAction(() -> replicaEntry1.setReplica(new MyEntity(null)));
+        safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/2", MyEntity.class, 2));
 
         // Entities fine
-        Validator.create(null).validateEntities();
+        Validator.create(null).validateReplicas();
     }
 
     @Test
     public void invalidEntity() {
-        final EntityService entityService = Replicant.context().getEntityService();
-        final Entity entity1 = safeAction(() -> entityService.findOrCreateEntity("MyEntity/1", MyEntity.class, 1));
+        final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
+        final ReplicaEntry replicaEntry1 =
+                safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
         final Exception error = new Exception();
-        safeAction(() -> entity1.setUserObject(new MyEntity(error)));
+        safeAction(() -> replicaEntry1.setReplica(new MyEntity(error)));
 
         final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> Validator.create(null).validateEntities());
+                IllegalStateException.class, () -> Validator.create(null).validateReplicas());
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0065: Entity failed to verify during validation process. Entity = MyEntity/1");
+                "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
     }
 
     static class MyEntity implements Verifiable {

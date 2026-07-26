@@ -12,14 +12,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The ReplicantContext defines the top level container of interconnected subscriptions, entities and areas of interest.
+ * The ReplicantContext defines the top-level container of interconnected Subscriptions, Replica Entries, and Areas of
+ * Interest.
  */
 public final class ReplicantContext {
     @NonNull
     private final AreaOfInterestService _areaOfInterestService;
 
     @NonNull
-    private final EntityService _entityService;
+    private final ReplicaRegistry _replicaRegistry;
 
     @NonNull
     private final SubscriptionService _subscriptionService;
@@ -49,7 +50,7 @@ public final class ReplicantContext {
     ReplicantContext() {
         assert Arez.context().isSchedulerPaused();
         _areaOfInterestService = AreaOfInterestService.create(Replicant.areZonesEnabled() ? this : null);
-        _entityService = EntityService.create(Replicant.areZonesEnabled() ? this : null);
+        _replicaRegistry = ReplicaRegistry.create(Replicant.areZonesEnabled() ? this : null);
         _subscriptionService = SubscriptionService.create(Replicant.areZonesEnabled() ? this : null);
         _runtime = ReplicantRuntime.create();
         _subscriptionReconciler = SubscriptionReconciler.create(Replicant.areZonesEnabled() ? this : null);
@@ -118,33 +119,33 @@ public final class ReplicantContext {
     }
 
     /**
-     * Find the Entity by type and id.
+     * Find the Replica Entry by type and id.
      *
-     * @param type the type of the entity.
-     * @param id   the id of the entity.
-     * @return the Entity if it exists, null otherwise.
+     * @param type the type of the Replica.
+     * @param id   the Entity identifier.
+     * @return the Replica Entry if it exists, null otherwise.
      */
     @Nullable
-    public Entity findEntityByTypeAndId(@NonNull final Class<?> type, final int id) {
-        return getEntityService().findEntityByTypeAndId(type, id);
+    public ReplicaEntry findReplicaEntryByTypeAndId(@NonNull final Class<?> type, final int id) {
+        return getReplicaRegistry().findReplicaEntryByTypeAndId(type, id);
     }
 
     @NonNull
-    public List<Entity> findAllEntitiesByType(@NonNull final Class<?> type) {
-        return getEntityService().findAllEntitiesByType(type);
+    public List<ReplicaEntry> findAllReplicaEntriesByType(@NonNull final Class<?> type) {
+        return getReplicaRegistry().findAllReplicaEntriesByType(type);
     }
 
     /**
-     * Return the collection of entity types that exist in the system.
-     * Only entity types that have at least one instance will be returned from this method unless
-     * an Entity has been disposed and the scheduler is yet to invoke code to remove type from set.
-     * This is a unlikely to be exposed to normal user code.
+     * Return the collection of Replica types that exist in the system.
+     * Only Replica types that have at least one instance will be returned from this method unless
+     * a Replica Entry has been disposed and the scheduler is yet to invoke code to remove the type from the set.
+     * This is unlikely to be exposed to normal user code.
      *
-     * @return the collection of entity types.
+     * @return the collection of Replica types.
      */
     @NonNull
-    public Collection<Class<?>> findAllEntityTypes() {
-        return getEntityService().findAllEntityTypes();
+    public Collection<Class<?>> findAllReplicaTypes() {
+        return getReplicaRegistry().findAllReplicaTypes();
     }
 
     /**
@@ -409,13 +410,13 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the underlying EntityService.
+     * Return the underlying ReplicaRegistry.
      *
-     * @return the underlying EntityService.
+     * @return the underlying ReplicaRegistry.
      */
     @NonNull
-    EntityService getEntityService() {
-        return _entityService;
+    ReplicaRegistry getReplicaRegistry() {
+        return _replicaRegistry;
     }
 
     /**

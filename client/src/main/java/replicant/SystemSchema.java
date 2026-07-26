@@ -26,7 +26,7 @@ public final class SystemSchema {
     private final String _name;
 
     @Nullable
-    private final OnEntityUpdateAction _onEntityUpdateAction;
+    private final OnReplicaUpdateAction _onReplicaUpdateAction;
     /**
      * The channels within the system.
      */
@@ -49,7 +49,7 @@ public final class SystemSchema {
     public SystemSchema(
             final int id,
             @Nullable final String name,
-            @Nullable final OnEntityUpdateAction onEntityUpdateAction,
+            @Nullable final OnReplicaUpdateAction onReplicaUpdateAction,
             @NonNull final ChannelSchema[] channels,
             @NonNull final EntityType[] entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
@@ -80,7 +80,7 @@ public final class SystemSchema {
         }
         _id = id;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
-        _onEntityUpdateAction = onEntityUpdateAction;
+        _onReplicaUpdateAction = onReplicaUpdateAction;
         _entityTypes = Objects.requireNonNull(entityTypes);
         _channels = Objects.requireNonNull(channels);
     }
@@ -112,8 +112,8 @@ public final class SystemSchema {
     }
 
     @Nullable
-    public OnEntityUpdateAction getOnEntityUpdateAction() {
-        return _onEntityUpdateAction;
+    public OnReplicaUpdateAction getOnReplicaUpdateAction() {
+        return _onReplicaUpdateAction;
     }
 
     /**

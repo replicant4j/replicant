@@ -25,14 +25,14 @@ public final class ReplicantTestUtil {
         if (productionMode) {
             disableNames();
             noValidateChangeSetOnRead();
-            noValidateEntitiesOnLoad();
+            noValidateReplicasOnLoad();
             disableSpies();
             noCheckInvariants();
             noCheckApiInvariants();
         } else {
             enableNames();
             validateChangeSetOnRead();
-            validateEntitiesOnLoad();
+            validateReplicasOnLoad();
             enableSpies();
             checkInvariants();
             checkApiInvariants();
@@ -80,17 +80,17 @@ public final class ReplicantTestUtil {
     }
 
     /**
-     * Set `replicant.validateEntitiesOnLoad` setting to true.
+     * Set `replicant.validateReplicasOnLoad` setting to true.
      */
-    public static void validateEntitiesOnLoad() {
-        ReplicantConfig.setValidateEntitiesOnLoad(true);
+    public static void validateReplicasOnLoad() {
+        ReplicantConfig.setValidateReplicasOnLoad(true);
     }
 
     /**
-     * Set `replicant.validateEntitiesOnLoad` setting to false.
+     * Set `replicant.validateReplicasOnLoad` setting to false.
      */
-    public static void noValidateEntitiesOnLoad() {
-        ReplicantConfig.setValidateEntitiesOnLoad(false);
+    public static void noValidateReplicasOnLoad() {
+        ReplicantConfig.setValidateReplicasOnLoad(false);
     }
 
     /**

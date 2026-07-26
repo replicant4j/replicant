@@ -6,8 +6,9 @@ import arez.annotations.ComponentDependency;
 import arez.annotations.Observable;
 import arez.annotations.PreDispose;
 import arez.annotations.SuppressArezWarnings;
+// Temporary workaround until Arez propagates JSpecify nullability to generated observable setters.
+import javax.annotation.Nullable;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 import react4j.annotations.PostMountOrUpdate;
 import replicant.AreaOfInterest;
 import replicant.ChannelAddress;

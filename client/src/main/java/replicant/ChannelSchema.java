@@ -53,11 +53,11 @@ public final class ChannelSchema {
      */
     private final boolean _keyed;
     /**
-     * The hook to filter entities when filter changes. This should be null unless {@link #_filterType} is
+     * The hook to filter Replica Entries when the filter changes. This should be null unless {@link #_filterType} is
      * {@link FilterType#DYNAMIC}.
      */
     @Nullable
-    private final SubscriptionUpdateEntityFilter<?> _filter;
+    private final SubscriptionUpdateReplicaFilter<?> _filter;
     /**
      * A flag indicating whether the results of the channel can be cached.
      */
@@ -78,7 +78,7 @@ public final class ChannelSchema {
             @Nullable final Class<?> instanceType,
             @NonNull final FilterType filterType,
             final boolean keyed,
-            @Nullable final SubscriptionUpdateEntityFilter<?> filter,
+            @Nullable final SubscriptionUpdateReplicaFilter<?> filter,
             final boolean cacheable,
             final boolean external,
             @NonNull final List<EntityType> entityTypes) {
@@ -187,7 +187,7 @@ public final class ChannelSchema {
      * @return the hook to filter entities.
      */
     @Nullable
-    public SubscriptionUpdateEntityFilter<?> getFilter() {
+    public SubscriptionUpdateReplicaFilter<?> getFilter() {
         return _filter;
     }
 

@@ -34,13 +34,13 @@ final class MessageResponse {
     private int _entityChangeIndex;
 
     @Nullable
-    private LinkedList<Linkable> _entitiesToLink = new LinkedList<>();
+    private LinkedList<Linkable> _replicasToLink = new LinkedList<>();
     /**
-     * The list of entities that have been changed during processing.
+     * The list of Replicas that have been changed during processing.
      * Used to provide a hook to perform local internal filtered subscription management.
      */
     @NonNull
-    private final LinkedList<Object> _entitiesChanged = new LinkedList<>();
+    private final LinkedList<Object> _replicasChanged = new LinkedList<>();
 
     @Nullable
     private List<ChannelChangeDescriptor> _parsedChannelChanges;
@@ -185,42 +185,42 @@ final class MessageResponse {
         }
     }
 
-    void changeProcessed(@NonNull final Object entity) {
-        if (entity instanceof Linkable) {
-            Objects.requireNonNull(_entitiesToLink).add((Linkable) entity);
+    void replicaProcessed(@NonNull final Object replica) {
+        if (replica instanceof Linkable) {
+            Objects.requireNonNull(_replicasToLink).add((Linkable) replica);
         }
-        _entitiesChanged.add(entity);
+        _replicasChanged.add(replica);
     }
 
-    boolean areEntityLinksPending() {
-        return null != _entitiesToLink && !_entitiesToLink.isEmpty();
+    boolean areReplicaLinksPending() {
+        return null != _replicasToLink && !_replicasToLink.isEmpty();
     }
 
     @Nullable
-    Linkable nextEntityToLink() {
-        if (areEntityLinksPending()) {
-            return Objects.requireNonNull(_entitiesToLink).remove();
+    Linkable nextReplicaToLink() {
+        if (areReplicaLinksPending()) {
+            return Objects.requireNonNull(_replicasToLink).remove();
         } else {
-            _entitiesToLink = null;
+            _replicasToLink = null;
             return null;
         }
     }
 
-    boolean areEntityUpdateActionsPending() {
-        return !_entitiesChanged.isEmpty();
+    boolean areReplicaUpdateActionsPending() {
+        return !_replicasChanged.isEmpty();
     }
 
     @Nullable
-    Object nextEntityToPostAction() {
-        if (areEntityUpdateActionsPending()) {
-            return _entitiesChanged.remove();
+    Object nextReplicaToPostAction() {
+        if (areReplicaUpdateActionsPending()) {
+            return _replicasChanged.remove();
         } else {
             return null;
         }
     }
 
     void completePostActions() {
-        _entitiesChanged.clear();
+        _replicasChanged.clear();
     }
 
     @NonNull
@@ -229,13 +229,13 @@ final class MessageResponse {
     }
 
     void markWorldAsValidated() {
-        if (Replicant.shouldValidateEntitiesOnLoad()) {
+        if (Replicant.shouldValidateReplicasOnLoad()) {
             _worldValidated = true;
         }
     }
 
     boolean hasWorldBeenValidated() {
-        return !Replicant.shouldValidateEntitiesOnLoad() || _worldValidated;
+        return !Replicant.shouldValidateReplicasOnLoad() || _worldValidated;
     }
 
     @NonNull
@@ -257,8 +257,8 @@ final class MessageResponse {
             return "MessageResponse[" + "Type="
                     + _message.getType() + ",RequestId="
                     + _message.getRequestId() + ",ChangeIndex="
-                    + _entityChangeIndex + ",EntitiesToLink.size="
-                    + (null == _entitiesToLink ? 0 : _entitiesToLink.size()) + "]";
+                    + _entityChangeIndex + ",ReplicasToLink.size="
+                    + (null == _replicasToLink ? 0 : _replicasToLink.size()) + "]";
         } else {
             return super.toString();
         }

@@ -229,7 +229,7 @@ Diagnostics fixtures and invariants:
   - `replicant.enable_zones`
   - `replicant.enable_spies`
   - `replicant.validateChangeSetOnRead`
-  - `replicant.validateEntitiesOnLoad`
+  - `replicant.validateReplicasOnLoad`
   - `replicant.logger`
 - Server broker runtime entries include:
   - `java:replicant/concurrent/ManagedExecutorService`
