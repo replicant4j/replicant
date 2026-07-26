@@ -2,8 +2,18 @@
 
 ### Unreleased
 
-* Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation,
-  replacing the former `Converger` and convergence names without changing reconciliation behavior.
+* Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation:
+  * Rename `Converger` to `SubscriptionReconciler` and `ConvergerTest` to `SubscriptionReconcilerTest`.
+  * Rename `converge`, `convergeStep`, and `convergeAreaOfInterest` operations to `reconcile`, `reconcileStep`, and
+    `reconcileAreaOfInterest`.
+  * Rename `_converger` and `getConverger` to `_subscriptionReconciler` and `getSubscriptionReconciler`.
+  * Rename the pre-convergence and convergence-complete hooks to `preReconciliation` and `reconciliationComplete`.
+  * Rename `setPreConvergeAction` and `getPreConvergeAction` to `setPreReconciliationAction` and
+    `getPreReconciliationAction`, and rename `setConvergeCompleteAction` and `getConvergeCompleteAction` to
+    `setReconciliationCompleteAction` and `getReconciliationCompleteAction`.
+  * Rename `convergeCrossDataSourceSubscriptions` to `synchronizeCrossDataSourceSubscriptions` to distinguish that
+    separate process from Subscription Reconciliation.
+  These terminology-only changes preserve reconciliation behavior.
 
 ### [v6.203](https://github.com/replicant4j/replicant/tree/v6.203) (2026-07-25) · [Full Changelog](https://github.com/replicant4j/replicant/compare/v6.202...v6.203)
 
