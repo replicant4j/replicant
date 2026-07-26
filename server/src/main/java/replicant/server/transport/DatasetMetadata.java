@@ -69,7 +69,7 @@ public final class DatasetMetadata {
     private final String _name;
 
     @Nullable
-    private final Integer _instanceRootEntityTypeId;
+    private final Integer _datasetRootEntityTypeId;
 
     @NonNull
     private final FilterType _filterType;
@@ -93,7 +93,7 @@ public final class DatasetMetadata {
     public DatasetMetadata(
             final int datasetId,
             @NonNull final String name,
-            @Nullable final Integer instanceRootEntityTypeId,
+            @Nullable final Integer datasetRootEntityTypeId,
             @NonNull final FilterType filterType,
             final boolean keyed,
             @NonNull final CacheType cacheType,
@@ -101,14 +101,14 @@ public final class DatasetMetadata {
             @NonNull final DatasetMetadata... requiredTypeDatasets) {
         _datasetId = datasetId;
         _name = Objects.requireNonNull(name);
-        _instanceRootEntityTypeId = instanceRootEntityTypeId;
+        _datasetRootEntityTypeId = datasetRootEntityTypeId;
         _filterType = Objects.requireNonNull(filterType);
         _keyed = keyed;
         _cacheType = Objects.requireNonNull(cacheType);
         _external = external;
         _requiredTypeDatasets = Objects.requireNonNull(requiredTypeDatasets);
         for (final var requiredTypeDataset : _requiredTypeDatasets) {
-            if (requiredTypeDataset.isInstanceGraph()) {
+            if (requiredTypeDataset.isInstanceDataset()) {
                 throw new IllegalArgumentException(
                         "Specified Required Type Dataset " + requiredTypeDataset.getName() + " is not a Type Dataset");
             }
@@ -125,12 +125,12 @@ public final class DatasetMetadata {
         return _name;
     }
 
-    public boolean isTypeGraph() {
-        return null == _instanceRootEntityTypeId;
+    public boolean isTypeDataset() {
+        return null == _datasetRootEntityTypeId;
     }
 
-    public boolean isInstanceGraph() {
-        return !isTypeGraph();
+    public boolean isInstanceDataset() {
+        return !isTypeDataset();
     }
 
     public boolean requiresFilterParameter() {
@@ -142,8 +142,8 @@ public final class DatasetMetadata {
     }
 
     @NonNull
-    public Integer getInstanceRootEntityTypeId() {
-        return Objects.requireNonNull(_instanceRootEntityTypeId);
+    public Integer getDatasetRootEntityTypeId() {
+        return Objects.requireNonNull(_datasetRootEntityTypeId);
     }
 
     @NonNull

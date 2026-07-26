@@ -142,7 +142,7 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     @SuppressWarnings("unchecked")
-    protected void addInstanceRootRouterKey(
+    protected void addDatasetRootRouterKey(
             @NonNull final Map<String, Serializable> routerKeys, @NonNull final String key, @NonNull final Integer id) {
         ((List<Integer>) routerKeys.computeIfAbsent(key, v -> new ArrayList<>())).add(id);
     }

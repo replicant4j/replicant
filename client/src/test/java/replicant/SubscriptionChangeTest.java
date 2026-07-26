@@ -7,7 +7,7 @@ import replicant.messages.SubscriptionChangeMessage;
 
 public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
-    void subscribeTypeGraph() {
+    void subscribeTypeDataset() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "+23");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);
@@ -17,7 +17,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void subscribeInstanceGraph() {
+    void subscribeInstanceDataset() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "+23.2");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);
@@ -27,7 +27,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeTypeGraph() {
+    void unsubscribeTypeDataset() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "-23");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);
@@ -37,7 +37,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeInstanceGraph() {
+    void unsubscribeInstanceDataset() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "-23.2");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);
@@ -47,7 +47,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void subscribeFilteredTypeGraph() {
+    void subscribeFilteredTypeDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -59,7 +59,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void subscribeFilteredInstanceGraph() {
+    void subscribeFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -71,7 +71,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeFilteredTypeGraph() {
+    void unsubscribeFilteredTypeDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -83,7 +83,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeFilteredInstanceGraph() {
+    void unsubscribeFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -95,7 +95,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void updateFilteredTypeGraph() {
+    void updateFilteredTypeDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -107,7 +107,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void updateFilteredInstanceGraph() {
+    void updateFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -119,7 +119,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void deleteInstanceGraph() {
+    void deleteInstanceDataset() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "!23.2");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);

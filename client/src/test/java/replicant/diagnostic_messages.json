@@ -127,7 +127,7 @@
   {
     "code": 29,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but the Dataset is not instance based."
+    "messagePattern": "Subscription.getDatasetRoot() invoked for Dataset Address %s but the Dataset is not an Instance Dataset."
   },
   {
     "code": 30,
@@ -367,12 +367,12 @@
   {
     "code": 87,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but the Dataset Address has no Dataset Root ID."
+    "messagePattern": "Subscription.getDatasetRoot() invoked for Dataset Address %s but the Dataset Address has no Dataset Root ID."
   },
   {
     "code": 88,
     "type": "INVARIANT",
-    "messagePattern": "Subscription.getInstanceRoot() invoked for Dataset Address %s but Replica is not present."
+    "messagePattern": "Subscription.getDatasetRoot() invoked for Dataset Address %s but Replica is not present."
   },
   {
     "code": 93,

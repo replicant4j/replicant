@@ -26,7 +26,7 @@ public final class DatasetLink {
      */
     private final boolean _automatic;
     /**
-     * The path of attributes from the entity in the source Dataset to the root entity of the target Dataset.
+     * The path of attributes from the Entity in the source Dataset to the Dataset Root of the target Dataset.
      * It is expected that the attributes are immutable and all but the first are non-null.(Unlike Domgen where
      * the path omits the first attribute, this path includes the entire path)
      */

@@ -292,8 +292,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 .forEach(aoi -> expectedDatasetAddresses.add(aoi.getDatasetAddress()));
 
         final SubscriptionService subscriptionService = getReplicantContext().getSubscriptionService();
-        removeOrphanSubscriptions(subscriptionService.getTypeSubscriptions(), expectedDatasetAddresses);
-        removeOrphanSubscriptions(subscriptionService.getInstanceSubscriptions(), expectedDatasetAddresses);
+        removeOrphanSubscriptions(subscriptionService.getTypeDatasetSubscriptions(), expectedDatasetAddresses);
+        removeOrphanSubscriptions(subscriptionService.getInstanceDatasetSubscriptions(), expectedDatasetAddresses);
     }
 
     private void removeOrphanSubscriptions(

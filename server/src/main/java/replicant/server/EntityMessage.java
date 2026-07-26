@@ -15,11 +15,9 @@ public final class EntityMessage {
     private final int _id;
     private final int _typeId;
     /**
-     * Routing keys contain two types of values.
-     * For every Dataset that the Entity Type is contained within, the map will
-     * contain "filter_in_graphs" attributes for this entity and any entity on
-     * the path to the root of the instance graph. The map will also contain the
-     * id of any instance roots for Datasets with a Dataset Link to this Entity.
+     * Routing keys contain values used to select affected Dataset Addresses. They include configured routing values
+     * for this Entity and Entities on an Instance Dataset traversal path, plus identifiers for Dataset Roots reached
+     * through Dataset Links.
      */
     @NonNull
     private final Map<String, Serializable> _routingKeys;

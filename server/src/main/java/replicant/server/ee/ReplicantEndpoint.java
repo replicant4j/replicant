@@ -208,12 +208,12 @@ public class ReplicantEndpoint {
         if (!datasetMetadata.isExternal()) {
             sendErrorAndClose(replicantSession, "Attempted to subscribe to an internal-only Dataset");
             return false;
-        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeGraph()) {
+        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeDataset()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceGraph()) {
+        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceDataset()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
@@ -308,12 +308,12 @@ public class ReplicantEndpoint {
         if (!datasetMetadata.isExternal()) {
             sendErrorAndClose(replicantSession, "Attempted to unsubscribe from an internal-only Dataset");
             return false;
-        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeGraph()) {
+        } else if (datasetAddress.hasDatasetRootId() && datasetMetadata.isTypeDataset()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to unsubscribe using a Dataset Address with an unexpected Dataset Root identifier");
             return false;
-        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceGraph()) {
+        } else if (!datasetAddress.hasDatasetRootId() && datasetMetadata.isInstanceDataset()) {
             sendErrorAndClose(
                     replicantSession,
                     "Attempted to unsubscribe using a Dataset Address without a required Dataset Root identifier");

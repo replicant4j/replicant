@@ -211,7 +211,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void getInstanceRoot() {
+    public void getDatasetRoot() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -235,11 +235,11 @@ public class SubscriptionTest extends AbstractReplicantTest {
 
         safeAction(() -> subscription1.linkSubscriptionToReplicaEntry(replicaEntry1));
 
-        safeAction(() -> assertEquals(subscription1.getInstanceRoot(), replica));
+        safeAction(() -> assertEquals(subscription1.getDatasetRoot(), replica));
     }
 
     @Test
-    public void getInstanceRoot_butReplicaNotPresent() {
+    public void getDatasetRoot_butReplicaNotPresent() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -256,15 +256,15 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
+                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0088: Subscription.getInstanceRoot() invoked for Dataset Address 1.0.33 but Replica"
+                "Replicant-0088: Subscription.getDatasetRoot() invoked for Dataset Address 1.0.33 but Replica"
                         + " is not present.");
     }
 
     @Test
-    public void getInstanceRoot_butDatasetAddressHasNoRootId() {
+    public void getDatasetRoot_butDatasetAddressHasNoRootId() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -281,15 +281,15 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
+                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0087: Subscription.getInstanceRoot() invoked for Dataset Address 1.0 but the Dataset"
+                "Replicant-0087: Subscription.getDatasetRoot() invoked for Dataset Address 1.0 but the Dataset"
                         + " Address has no Dataset Root ID.");
     }
 
     @Test
-    public void getInstanceRoot_butDatasetIsTypeBased() {
+    public void getDatasetRoot_butDatasetIsTypeDataset() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -306,11 +306,11 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final Subscription subscription1 = Subscription.create(null, datasetAddress1, null, true);
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getInstanceRoot));
+                expectThrows(IllegalStateException.class, () -> safeAction(subscription1::getDatasetRoot));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0029: Subscription.getInstanceRoot() invoked for Dataset Address 1.0.44 but the Dataset is"
-                        + " not instance based.");
+                "Replicant-0029: Subscription.getDatasetRoot() invoked for Dataset Address 1.0.44 but the Dataset is"
+                        + " not an Instance Dataset.");
     }
 
     static class A {}

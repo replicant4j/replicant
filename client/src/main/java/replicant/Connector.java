@@ -275,11 +275,11 @@ abstract class Connector extends ReplicantService {
     void purgeSubscriptions() {
         final SubscriptionService subscriptionService = getReplicantContext().getSubscriptionService();
         Stream.concat(
-                        subscriptionService.getTypeSubscriptions().stream(),
-                        subscriptionService.getInstanceSubscriptions().stream())
+                        subscriptionService.getTypeDatasetSubscriptions().stream(),
+                        subscriptionService.getInstanceDatasetSubscriptions().stream())
                 // Only purge subscriptions for current system
                 .filter(s -> s.datasetAddress().schemaId() == getSchema().getId())
-                // Purge in reverse order. First instance subscriptions then type subscriptions
+                // Purge in reverse order. First Instance Dataset subscriptions then Type Dataset subscriptions
                 .sorted(Comparator.reverseOrder())
                 .forEachOrdered(Disposable::dispose);
 
@@ -892,7 +892,7 @@ abstract class Connector extends ReplicantService {
             // been left in until we can verify it is no longer an issue. The above invariants will trigger
             // in development mode to help us track down these scenarios
             if (null == subscription || !subscription.isExplicitSubscription()) {
-                // We were getting here if we had a instant root deleted that sent DELETED to client which
+                // We were getting here if a deleted Dataset Root sent DELETED to the client, which
                 // explicitly unsubscribes which gets sent back a successful unsubscribe, even though it had already
                 // been orphaned/deleted on client
                 request.markAsComplete();

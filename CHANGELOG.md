@@ -2,6 +2,20 @@
 
 ### Unreleased
 
+* Adopt Type Dataset, Instance Dataset, and Dataset Root terminology across Replicant, Domgen, and generated
+  integrations:
+  * Rename client and server Dataset shape predicates to `isTypeDataset` and `isInstanceDataset`, and rename configured
+    root metadata to `datasetRootEntityType` / `datasetRootEntityTypeId`.
+  * Rename `Subscription.getInstanceRoot()` to `getDatasetRoot()` and migrate runtime root routing, deletion,
+    unsubscription, validation, diagnostics, and generated Dataset utilities to Dataset Root terminology.
+  * Replace Domgen `type_graph?`, `instance_root?`, `type_roots`, and `instance_root` model APIs with
+    `type_dataset?`, `instance_dataset?`, `candidate_entity_types`, and `dataset_root_entity_type`.
+  * Replace `entity.imit.replicate(dataset, :type|:instance)` with the explicit
+    `include_in_type_dataset(dataset)` and `root_of_instance_dataset(dataset)` declarations, and rename generated
+    Type/Instance Dataset collection, routing, filtering, and schema-test APIs.
+  This hard-cut API and DSL migration preserves Dataset shapes, traversal and pruning, filtering, caching restrictions,
+  Dataset Link and Required Type Dataset direction, Subscription Dependency behavior, Dataset Address semantics, and
+  the wire protocol.
 * Adopt Required Type Dataset terminology for unconditional schema requirements:
   * Rename the server Dataset metadata constructor parameter, backing fields, and accessors from Required Type
     Graph/Channel terminology to `requiredTypeDatasets`, `_requiredTypeDatasets`, `getRequiredTypeDatasets`,
@@ -13,7 +27,6 @@
     diagnostics, and cache invalidation to Required Type Dataset terminology.
   This hard-cut API and DSL migration preserves unconditional requirement direction, transitive inclusion, cache
   compatibility, Subscription Dependency retention and teardown, subscription ordering, and the wire protocol.
-  Type/Instance Dataset and Dataset Root terminology remain deferred.
 * Adopt Dataset Link terminology for reusable schema rules and Subscription Dependency terminology for current runtime
   retention relationships:
   * Rename client `ChannelLinkSchema` to `DatasetLink` and migrate Entity Type, Dataset, and System Schema metadata
@@ -28,8 +41,7 @@
     integration code to Subscription Dependency terminology.
   This hard-cut API migration preserves Dataset Link direction and derivation, Subscription Dependency ownership and
   retention behavior, partial and concrete Dataset Address semantics, automatic Subscription behavior, and the wire
-  protocol. Required Type Dataset schema APIs, Type/Instance Dataset terminology, filters, and Subscription Modes
-  remain deferred.
+  protocol. Filter and Subscription Mode terminology remain deferred.
 * Adopt Subscription operation terminology across client and server APIs, protocol messages, processing, diagnostics,
   metrics, tests, Domgen generation, and generated integrations:
   * Rename server `ChannelAction` to `SubscriptionAction`, client parsed `ChannelChangeDescriptor` to
@@ -43,7 +55,7 @@
     `filteredSubscriptionChanges`, and `subscriptionAction`.
   This hard-cut protocol and API migration is intentionally wire-incompatible with older clients and servers; they
   must be upgraded together. Descriptor codes, behavior, ordering, batching, reconciliation, and ETag address keys are
-  unchanged. Required Type Dataset, Type/Instance Dataset, Filter, and Subscription Mode terminology remain deferred.
+  unchanged. Filter and Subscription Mode terminology remain deferred.
 * Adopt Dataset terminology across reusable definition APIs, metadata, generation, diagnostics, tests, and
   documentation:
   * Rename client `ChannelSchema` to `Dataset` and migrate `SystemSchema` Dataset arrays, counts, lookups, and
@@ -54,9 +66,8 @@
     `repository.imit.graph(...)` with `repository.imit.dataset(...)`.
   * Generate Dataset-qualified names and rename generated `isGraphSubscribed` utilities to the concise
     Subscription-oriented `isSubscribed`.
-  This hard-cut API migration preserves behavior and the wire protocol. Subscription operation messages,
-  Required Type Dataset dependencies, Type Graph/Instance Graph and root terminology, filters, and Subscription Modes
-  remain on their deferred terminology for dedicated migrations.
+  This hard-cut API migration preserves behavior and the wire protocol. Filter and Subscription Mode terminology
+  remain deferred for dedicated migrations.
 * Adopt Subscription Reconciliation terminology across the client API, tests, diagnostics, and documentation:
   * Rename `Converger` to `SubscriptionReconciler` and `ConvergerTest` to `SubscriptionReconcilerTest`.
   * Rename `converge`, `convergeStep`, and `convergeAreaOfInterest` operations to `reconcile`, `reconcileStep`, and

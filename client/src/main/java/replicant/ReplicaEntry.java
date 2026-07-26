@@ -240,19 +240,19 @@ public abstract class ReplicaEntry extends ReplicantService {
             for (final Subscription subscription : new ArrayList<>(_subscriptions.values())) {
                 subscription.delinkReplicaEntryFromSubscription(this, false);
 
-                final Dataset schema = subscription.getDataset();
-                if (schema.isInstanceGraph()
-                        && (schema.getInstanceType() == getType())
+                final Dataset dataset = subscription.getDataset();
+                if (dataset.isInstanceDataset()
+                        && (dataset.getDatasetRootEntityType() == getType())
                         && (Objects.equals(subscription.datasetAddress().datasetRootId(), getId()))) {
-                    // If there is any subscription that this Replica is the instance root of, then explicitly dispose
+                    // If there is any subscription that this Replica is the Dataset Root of, then explicitly dispose
                     // it.
                     // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but
                     // now
                     // downstream code is directly subscribing to subscription objects which may be briefly invalid.
                     // when
-                    // the instance root has been removed but the subscription has not been cleaned up then the
+                    // the Dataset Root has been removed but the subscription has not been cleaned up then the
                     // Subscription
-                    // is in a zombie state and accessing methods like getInstanceRoot will cause crashes at best and
+                    // is in a zombie state and accessing methods like getDatasetRoot will cause crashes at best and
                     // assertions
                     // in development mode. Explicitly unsubscribing from subscriptions will cause any result in almost
                     // all that

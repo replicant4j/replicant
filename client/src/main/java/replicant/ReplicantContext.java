@@ -149,40 +149,40 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the collection of type subscriptions.
+     * Return the collection of Type Dataset subscriptions.
      *
-     * @return the collection of type subscriptions.
+     * @return the collection of Type Dataset subscriptions.
      */
     @NonNull
-    public List<Subscription> getTypeSubscriptions() {
-        return getSubscriptionService().getTypeSubscriptions();
+    public List<Subscription> getTypeDatasetSubscriptions() {
+        return getSubscriptionService().getTypeDatasetSubscriptions();
     }
 
     /**
-     * Return the collection of instance subscriptions.
+     * Return the collection of Instance Dataset subscriptions.
      *
-     * @return the collection of instance subscriptions.
+     * @return the collection of Instance Dataset subscriptions.
      */
     @NonNull
-    public Collection<Subscription> getInstanceSubscriptions() {
-        return getSubscriptionService().getInstanceSubscriptions();
+    public Collection<Subscription> getInstanceDatasetSubscriptions() {
+        return getSubscriptionService().getInstanceDatasetSubscriptions();
     }
 
     /**
-     * Return the collection of instance Subscriptions for the Dataset.
+     * Return the collection of Instance Dataset subscriptions for the Dataset.
      *
      * @param schemaId  the schema id.
      * @param datasetId the Dataset id.
-     * @return the set of ids for all instance Subscriptions to the specified Dataset.
+     * @return the set of Dataset Root identifiers for all Instance Dataset subscriptions to the specified Dataset.
      */
     @NonNull
-    public Set<Integer> getInstanceSubscriptionIds(final int schemaId, final int datasetId) {
-        return getSubscriptionService().getInstanceSubscriptionIds(schemaId, datasetId);
+    public Set<Integer> getInstanceDatasetSubscriptionIds(final int schemaId, final int datasetId) {
+        return getSubscriptionService().getInstanceDatasetSubscriptionIds(schemaId, datasetId);
     }
 
     /**
      * Return the subscription for the specified Dataset Address.
-     * This method will observe the <code>typeSubscriptions</code> or <code>instanceSubscriptions</code>
+     * This method will observe the <code>typeDatasetSubscriptions</code> or <code>instanceDatasetSubscriptions</code>
      * property if not found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *

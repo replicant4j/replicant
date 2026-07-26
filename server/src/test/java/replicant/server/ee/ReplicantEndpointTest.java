@@ -234,7 +234,7 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_typeChannel() throws Exception {
+    public void command_subscribe_typeDataset() throws Exception {
         final var fixture = newFixture();
         final var command = createSubscribeCommand("0", 1, null);
 
@@ -271,7 +271,7 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_internalChannel() throws Exception {
+    public void command_subscribe_internalDataset() throws Exception {
         assertInvalidSubscribe("3", "Attempted to subscribe to an internal-only Dataset");
     }
 

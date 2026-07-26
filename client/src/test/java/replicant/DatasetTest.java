@@ -28,7 +28,7 @@ public class DatasetTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void typeGraph() {
+    public void typeDataset() {
         final EntityType entityType =
                 new EntityType(1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new DatasetLink[0]);
         final Dataset dataset = new Dataset(
@@ -44,9 +44,9 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "MetaData");
         assertEquals(dataset.toString(), "MetaData");
-        assertTrue(dataset.isTypeGraph());
-        assertFalse(dataset.isInstanceGraph());
-        assertNull(dataset.getInstanceType());
+        assertTrue(dataset.isTypeDataset());
+        assertFalse(dataset.isInstanceDataset());
+        assertNull(dataset.getDatasetRootEntityType());
         assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
         assertFalse(dataset.isCacheable());
         assertFalse(dataset.isExternal());
@@ -55,7 +55,7 @@ public class DatasetTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void instanceGraph() {
+    public void instanceDataset() {
         final Dataset dataset = new Dataset(
                 1,
                 "MetaData",
@@ -69,16 +69,16 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "MetaData");
         assertEquals(dataset.toString(), "MetaData");
-        assertFalse(dataset.isTypeGraph());
-        assertTrue(dataset.isInstanceGraph());
-        assertEquals(dataset.getInstanceType(), String.class);
+        assertFalse(dataset.isTypeDataset());
+        assertTrue(dataset.isInstanceDataset());
+        assertEquals(dataset.getDatasetRootEntityType(), String.class);
         assertEquals(dataset.getFilterType(), Dataset.FilterType.NONE);
         assertFalse(dataset.isCacheable());
         assertTrue(dataset.isExternal());
     }
 
     @Test
-    public void staticFilteredGraph() {
+    public void staticFilteredDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean typeDataset = false;
@@ -97,16 +97,16 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
         assertEquals(dataset.toString(), name);
-        assertEquals(dataset.isTypeGraph(), typeDataset);
-        assertTrue(dataset.isInstanceGraph());
-        assertEquals(dataset.getInstanceType(), String.class);
+        assertEquals(dataset.isTypeDataset(), typeDataset);
+        assertTrue(dataset.isInstanceDataset());
+        assertEquals(dataset.getDatasetRootEntityType(), String.class);
         assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
         assertEquals(dataset.isCacheable(), cacheable);
         assertEquals(dataset.isExternal(), external);
     }
 
     @Test
-    public void staticKeyedFilteredGraph() {
+    public void staticKeyedFilteredDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
@@ -124,16 +124,16 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
         assertEquals(dataset.toString(), name);
-        assertFalse(dataset.isTypeGraph());
-        assertTrue(dataset.isInstanceGraph());
-        assertEquals(dataset.getInstanceType(), String.class);
+        assertFalse(dataset.isTypeDataset());
+        assertTrue(dataset.isInstanceDataset());
+        assertEquals(dataset.getDatasetRootEntityType(), String.class);
         assertEquals(dataset.getFilterType(), Dataset.FilterType.STATIC);
         assertEquals(dataset.isCacheable(), cacheable);
         assertEquals(dataset.isExternal(), external);
     }
 
     @Test
-    public void dynamicFilteredGraph() {
+    public void dynamicFilteredDataset() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
@@ -152,9 +152,9 @@ public class DatasetTest extends AbstractReplicantTest {
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
         assertEquals(dataset.toString(), name);
-        assertTrue(dataset.isTypeGraph());
-        assertFalse(dataset.isInstanceGraph());
-        assertNull(dataset.getInstanceType());
+        assertTrue(dataset.isTypeDataset());
+        assertFalse(dataset.isInstanceDataset());
+        assertNull(dataset.getDatasetRootEntityType());
         assertEquals(dataset.getFilterType(), Dataset.FilterType.DYNAMIC);
         assertEquals(dataset.getFilter(), filter);
         assertEquals(dataset.isCacheable(), cacheable);

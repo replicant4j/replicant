@@ -89,30 +89,23 @@ Dataset Address for one client. The client receives an initial message containin
 world, followed by subsequent matching changes until it unsubscribes or disconnects.
 
 There are two major dimensions on which Datasets are defined within the replicant system:
-* Is the graph a type graph or an instance graph?
-* Is the graph filtered or unfiltered?
+* Is it a Type Dataset or an Instance Dataset?
+* Is the Dataset filtered or unfiltered?
 
-**Type Graphs**: A type graph is used when you want to replicate instances in the domain model based on
- the type of the entity. It is common for applications to place common reference data in type graphs,
- so that the entire set of reference data received in one message.
+**Type Datasets**: A Type Dataset starts with the populations of one or more configured Entity Types. Applications
+commonly use Type Datasets for reference data so that the complete configured populations arrive in one selection.
 
-**Instance Graphs**: An instance graph is used when you want to replicate details about a particular
- entity or root instance. All entities related to the root instance are considered to be part of the
- graph. An entity is related to the root instance if it references the root instance
- and the root instance can traverse to the entity. This relationship is transitive. For example, a
- `Person` entity may be referenced by the `Accreditation` entity, the `Accreditation` entity may be
- referenced by the `EvaluationResult` entity. If the `Person` entity is able to traverse to the
- `EvaluationResult` entity via the `Accreditation` entity then all three would be included in the
- instance graph rooted at a particular person. When the client subscribes to the Person graph with
- the root set to the person "Bob", then they will receive all of Bob's `Accreditation`s and all of
- Bob's `EvaluationResult`s. The developer may also explicitly shape and prune the graph so include
- or exclude entities from the instance graph.
+**Instance Datasets**: An Instance Dataset selects candidates by configured traversal beginning at a Dataset Root. The
+Dataset definition specifies the Dataset Root Entity Type, while each Dataset Address supplies the Dataset Root
+identifier. Traversal is transitive but may be explicitly shaped or pruned and need not form a mathematical graph. For
+example, an Instance Dataset whose Dataset Root Entity Type is `Person` may traverse through `Accreditation` entities
+to `EvaluationResult` entities. A subscription whose Dataset Root is "Bob" then receives the selected entities
+associated with Bob.
 
-**Unfiltered Graph**: An unfiltered graph includes all entities in the _type graph_ or _instance graph_
- without further filtering.
+**Unfiltered Dataset**: An unfiltered Dataset includes every otherwise eligible Entity without further filtering.
 
-**Filtered Graph**: An filtered graph allows the developer to customize which entity instances are
- included in the graph. In the typical scenario where replicant is used in conjunction with domgen,
+**Filtered Dataset**: A filtered Dataset allows the developer to customize which otherwise eligible Entity instances
+ are included. In the typical scenario where replicant is used in conjunction with Domgen,
  the developer specifies which fields of which entities participate in the routing decision and the
  parameter that the client passes to the replicant engine to control the routing. Domgen then generates
  some template methods that the developer must implement to customize the subscription and routing
@@ -148,9 +141,9 @@ zero or more person Datasets.
 
 TODO: Insert diagram here
 
-It is also possible to define multiple instance graphs for a single entity. For example there could be
-one graph that includes a person and all their related accreditations, and another graph that includes
-a person and all their related contact details.
+It is also possible to define multiple Instance Datasets with the same Dataset Root Entity Type. For example, one
+Dataset could include a person and related accreditations, while another includes the same person and related contact
+details.
 
 Some datasets are keyed, allowing a client to subscribe to multiple independently addressable selections
 of the same dataset. Each selection is routed independently by a dataset key. Keying is independent of
@@ -159,7 +152,7 @@ filter type: `DYNAMIC` allows filter updates while `STATIC` rejects them.
 The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription
 should exist at a Dataset Address and records progress toward that desired state.
 
-The identifier for the root entity in instance graphs forms part of the Dataset Address. When a Dataset is
+The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. When a Dataset is
 keyed, its Dataset Key is embedded in the Dataset Address descriptor after a `#` suffix.
 
 ### Services

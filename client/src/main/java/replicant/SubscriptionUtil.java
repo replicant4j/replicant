@@ -47,7 +47,7 @@ public class SubscriptionUtil {
                 .forEach(id -> context.createOrUpdateAreaOfInterest(
                         new DatasetAddress(targetSystemId, targetDatasetId, id), filter));
 
-        context.getInstanceSubscriptionIds(sourceSystemId, sourceDatasetId).stream()
+        context.getInstanceDatasetSubscriptionIds(sourceSystemId, sourceDatasetId).stream()
                 .flatMap(sourceIdToTargetIds)
                 .filter(Objects::nonNull)
                 .filter(id -> null == existing.remove(id))

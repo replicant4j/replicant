@@ -39,10 +39,10 @@ public final class Dataset {
     @Nullable
     private final String _name;
     /**
-     * The type of the root entity if the graph is an instance graph.
+     * The Dataset Root Entity Type for an Instance Dataset, or null for a Type Dataset.
      */
     @Nullable
-    private final Class<?> _instanceType;
+    private final Class<?> _datasetRootEntityType;
     /**
      * The filtering applied to the Dataset.
      */
@@ -75,7 +75,7 @@ public final class Dataset {
     public Dataset(
             final int id,
             @Nullable final String name,
-            @Nullable final Class<?> instanceType,
+            @Nullable final Class<?> datasetRootEntityType,
             @NonNull final FilterType filterType,
             final boolean keyed,
             @Nullable final SubscriptionUpdateReplicaFilter<?> filter,
@@ -98,7 +98,7 @@ public final class Dataset {
         }
         _id = id;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
-        _instanceType = instanceType;
+        _datasetRootEntityType = datasetRootEntityType;
         _filterType = Objects.requireNonNull(filterType);
         _keyed = keyed;
         _filter = filter;
@@ -134,31 +134,31 @@ public final class Dataset {
     }
 
     /**
-     * Return true if this Dataset is type based, false otherwise.
+     * Return true if this is a Type Dataset.
      *
-     * @return true if this Dataset is type based, false otherwise.
+     * @return true if this is a Type Dataset.
      */
-    public boolean isTypeGraph() {
-        return null == _instanceType;
+    public boolean isTypeDataset() {
+        return null == _datasetRootEntityType;
     }
 
     /**
-     * Return true if this Dataset is instance based, false otherwise.
+     * Return true if this is an Instance Dataset.
      *
-     * @return true if this Dataset is instance based, false otherwise.
+     * @return true if this is an Instance Dataset.
      */
-    public boolean isInstanceGraph() {
-        return !isTypeGraph();
+    public boolean isInstanceDataset() {
+        return !isTypeDataset();
     }
 
     /**
-     * Return the type of the Entity that is the root of an instance-based Dataset.
+     * Return the Dataset Root Entity Type for an Instance Dataset.
      *
-     * @return the type of the Entity that is the root of an instance-based Dataset.
+     * @return the Dataset Root Entity Type, or null for a Type Dataset.
      */
     @Nullable
-    public Class<?> getInstanceType() {
-        return _instanceType;
+    public Class<?> getDatasetRootEntityType() {
+        return _datasetRootEntityType;
     }
 
     /**

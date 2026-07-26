@@ -62,7 +62,7 @@ public abstract class AreaOfInterest extends ReplicantService {
         UNLOADED,
         /**
          * The server has unsubscribed from a subscription without being requested.
-         * This is usually in response to the root object of an instance graph being deleted.
+         * This is usually in response to the Dataset Root of an Instance Dataset being deleted.
          */
         DELETED;
 

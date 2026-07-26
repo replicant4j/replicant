@@ -54,7 +54,7 @@ public class SubscriptionEntryTest {
                 new DatasetAddress[0]);
         assertEquals(entry.deregisterInwardSubscriptionDependencies(cd2), new DatasetAddress[0]);
 
-        // Register incoming channels
+        // Register inward Subscription Dependencies
         assertEquals(entry.registerInwardSubscriptionDependencies(cd2, cd3, cd4), new DatasetAddress[] {cd2, cd3, cd4});
         assertFalse(entry.canUnsubscribe());
         assertEquals(entry.getInwardSubscriptionDependencies().size(), 3);
@@ -82,7 +82,7 @@ public class SubscriptionEntryTest {
         assertEquals(entry.getInwardSubscriptionDependencies().size(), 0);
         assertEquals(entry.getOutwardSubscriptionDependencies().size(), 0);
 
-        // Register outgoing channels
+        // Register outward Subscription Dependencies
         assertEquals(
                 entry.registerOutwardSubscriptionDependencies(
                         SubscriptionDependencyOwner.dataset(), cd2, cd3, cd3, cd4),

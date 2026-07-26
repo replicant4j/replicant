@@ -207,12 +207,12 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void addInstanceRootRouterKey_appendsIds() {
+    public void addDatasetRootRouterKey_appendsIds() {
         final var context = newContext(mock(EntityManager.class));
         final var routingKeys = new HashMap<String, Serializable>();
 
-        context.addInstanceRootRouterKey(routingKeys, "R", 1);
-        context.addInstanceRootRouterKey(routingKeys, "R", 2);
+        context.addDatasetRootRouterKey(routingKeys, "R", 1);
+        context.addDatasetRootRouterKey(routingKeys, "R", 2);
 
         @SuppressWarnings("unchecked")
         final var ids = (List<Integer>) routingKeys.get("R");

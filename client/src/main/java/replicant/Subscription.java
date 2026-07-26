@@ -110,32 +110,32 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     }
 
     /**
-     * Return the instance root for this subscription.
-     * This method should NOT be invoked on subscriptions for type graphs
+     * Return the Dataset Root for this subscription.
+     * This method should NOT be invoked on subscriptions for Type Datasets.
      *
-     * @return the instance root.
+     * @return the Dataset Root.
      */
     @NonNull
-    public Object getInstanceRoot() {
+    public Object getDatasetRoot() {
         final Dataset dataset = getDataset();
         final Integer datasetRootId = _datasetAddress.datasetRootId();
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
-                    dataset::isInstanceGraph,
-                    () -> "Replicant-0029: Subscription.getInstanceRoot() invoked for Dataset Address "
-                            + _datasetAddress + " but the Dataset is not instance based.");
+                    dataset::isInstanceDataset,
+                    () -> "Replicant-0029: Subscription.getDatasetRoot() invoked for Dataset Address " + _datasetAddress
+                            + " but the Dataset is not an Instance Dataset.");
             invariant(
                     () -> null != datasetRootId,
-                    () -> "Replicant-0087: Subscription.getInstanceRoot() invoked for Dataset Address "
-                            + _datasetAddress + " but the Dataset Address has no Dataset Root ID.");
+                    () -> "Replicant-0087: Subscription.getDatasetRoot() invoked for Dataset Address " + _datasetAddress
+                            + " but the Dataset Address has no Dataset Root ID.");
         }
         final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndId(
-                Objects.requireNonNull(dataset.getInstanceType()), Objects.requireNonNull(datasetRootId));
+                Objects.requireNonNull(dataset.getDatasetRootEntityType()), Objects.requireNonNull(datasetRootId));
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
                     () -> null != replicaEntry,
-                    () -> "Replicant-0088: Subscription.getInstanceRoot() invoked for Dataset Address "
-                            + _datasetAddress + " but Replica is not present.");
+                    () -> "Replicant-0088: Subscription.getDatasetRoot() invoked for Dataset Address " + _datasetAddress
+                            + " but Replica is not present.");
         }
         return Objects.requireNonNull(replicaEntry).getReplica();
     }

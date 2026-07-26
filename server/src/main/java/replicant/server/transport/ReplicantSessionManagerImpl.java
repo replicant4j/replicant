@@ -514,11 +514,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             return false;
         }
         final var hasDeletes = messages.stream().anyMatch(EntityMessage::isDelete);
-        final var rootDeletedDatasetAddresses =
+        final var datasetRootDeletedDatasetAddresses =
                 hasDeletes ? collectRootDeletedEntries(messages, session) : Collections.<DatasetAddress>emptySet();
         if (hasDeletes) {
             preserveOwnedSubscriptionDependenciesBeforeDelete(
-                    messages, session, changeSet, rootDeletedDatasetAddresses);
+                    messages, session, changeSet, datasetRootDeletedDatasetAddresses);
         }
         processMessages(messages, session, changeSet);
 
@@ -528,7 +528,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         if (changeSet.hasContent()) {
             final var start = System.nanoTime();
 
-            final var expandCycleCount = completeMessageProcessing(session, changeSet, rootDeletedDatasetAddresses);
+            final var expandCycleCount =
+                    completeMessageProcessing(session, changeSet, datasetRootDeletedDatasetAddresses);
             final var end = System.nanoTime();
             final var expansionDuration = (end - start) / 1000000;
 
@@ -583,7 +584,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private int completeMessageProcessing(
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
-            @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
+            @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         var expandCycleCount = 0;
         try {
             final var pending = new HashSet<SubscriptionDependencyEntry>();
@@ -607,7 +608,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                             .toList());
                 }
                 expandCycleCount++;
-                collectSubscriptionDependenciesToFollow(session, changeSet, pending, rootDeletedDatasetAddresses);
+                collectSubscriptionDependenciesToFollow(
+                        session, changeSet, pending, datasetRootDeletedDatasetAddresses);
                 if (pending.isEmpty()) {
                     break;
                 }
@@ -652,7 +654,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
             @NonNull final Set<SubscriptionDependencyEntry> targets,
-            @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
+            @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         for (final var change : changeSet.getChanges()) {
             final var entityMessage = change.getEntityMessage();
             if (entityMessage.isUpdate()) {
@@ -662,7 +664,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     if (null != sourceEntry) {
                         final var desiredTargets =
                                 resolveDesiredSubscriptionDependencyTargets(entityMessage, sourceEntry);
-                        desiredTargets.keySet().removeAll(rootDeletedDatasetAddresses);
+                        desiredTargets.keySet().removeAll(datasetRootDeletedDatasetAddresses);
                         reconcileOwnedSubscriptionDependencies(
                                 session, sourceEntry, owner, desiredTargets, changeSet, targets);
                     }
@@ -816,10 +818,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final Collection<EntityMessage> messages,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
-            @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
+            @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         for (final var message : messages) {
             if (message.isUpdate()) {
-                preserveOwnedSubscriptionDependenciesFromPacketMessage(message, session, rootDeletedDatasetAddresses);
+                preserveOwnedSubscriptionDependenciesFromPacketMessage(
+                        message, session, datasetRootDeletedDatasetAddresses);
             }
         }
         for (final var change : changeSet.getChanges()) {
@@ -830,7 +833,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     final var sourceEntry = session.findSubscriptionEntry(sourceDatasetAddress);
                     if (null != sourceEntry) {
                         preserveOwnedSubscriptionDependenciesForSourceEntry(
-                                message, session, sourceEntry, owner, rootDeletedDatasetAddresses);
+                                message, session, sourceEntry, owner, datasetRootDeletedDatasetAddresses);
                     }
                 }
             }
@@ -840,7 +843,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     @NonNull
     private Set<DatasetAddress> collectRootDeletedEntries(
             @NonNull final Collection<EntityMessage> messages, @NonNull final ReplicantSession session) {
-        final var rootDeletedDatasetAddresses = new HashSet<DatasetAddress>();
+        final var datasetRootDeletedDatasetAddresses = new HashSet<DatasetAddress>();
         final var schema = getSchemaMetaData();
         final var instanceDatasetCount = schema.getInstanceDatasetCount();
         for (final var message : messages) {
@@ -861,8 +864,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                         ? _context.filterEntityMessage(session, entryDatasetAddress, message)
                                         : message;
                                 if (null != m && m.isDelete()) {
-                                    if (isEntityMessageChannelRoot(entry, datasetAddress, m)) {
-                                        rootDeletedDatasetAddresses.add(entryDatasetAddress);
+                                    if (isEntityMessageDatasetRoot(entry, datasetAddress, m)) {
+                                        datasetRootDeletedDatasetAddresses.add(entryDatasetAddress);
                                     }
                                 }
                             }
@@ -871,13 +874,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 }
             }
         }
-        return rootDeletedDatasetAddresses;
+        return datasetRootDeletedDatasetAddresses;
     }
 
     private void preserveOwnedSubscriptionDependenciesFromPacketMessage(
             @NonNull final EntityMessage message,
             @NonNull final ReplicantSession session,
-            @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
+            @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         final var schema = getSchemaMetaData();
         final var datasetCount = schema.getDatasetCount();
         final var owner = SubscriptionDependencyOwner.entity(message.getTypeId(), message.getId());
@@ -896,7 +899,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     : message;
                             if (null != m) {
                                 preserveOwnedSubscriptionDependenciesForSourceEntry(
-                                        message, session, entry, owner, rootDeletedDatasetAddresses);
+                                        message, session, entry, owner, datasetRootDeletedDatasetAddresses);
                             }
                         }
                     }
@@ -910,15 +913,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ReplicantSession session,
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionDependencyOwner owner,
-            @NonNull final Set<DatasetAddress> rootDeletedDatasetAddresses) {
-        if (!rootDeletedDatasetAddresses.contains(sourceEntry.datasetAddress())) {
+            @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
+        if (!datasetRootDeletedDatasetAddresses.contains(sourceEntry.datasetAddress())) {
             final var desiredTargets = resolveDesiredSubscriptionDependencyTargets(message, sourceEntry);
             for (final var entry : desiredTargets.entrySet()) {
                 final var targetEntry = session.findSubscriptionEntry(entry.getKey());
                 if (null != targetEntry) {
-                    // An update can point at a graph whose root is deleted by the same packet; DELETE semantics must
+                    // An update can point at a Dataset whose Dataset Root is deleted by the same packet; DELETE
+                    // semantics must
                     // win.
-                    if (!rootDeletedDatasetAddresses.contains(targetEntry.datasetAddress())
+                    if (!datasetRootDeletedDatasetAddresses.contains(targetEntry.datasetAddress())
                             && FilterUtil.filtersEqual(entry.getValue(), targetEntry.getFilter())) {
                         session.recordSubscriptionDependency(sourceEntry, targetEntry, owner);
                     }
@@ -972,12 +976,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         subscribeToRequiredTypeDatasets(session, dataset);
 
         final var newDatasetAddresses = new ArrayList<DatasetAddress>();
-        // OriginalFilter => Channels
+        // Original Filter => Dataset Addresses
         final var datasetAddressesToUpdate = new HashMap<JsonObject, List<DatasetAddress>>();
 
         for (final var datasetAddress : uniqueDatasetAddresses) {
             assert datasetAddress.datasetId() == datasetId;
-            if (dataset.isTypeGraph()) {
+            if (dataset.isTypeDataset()) {
                 assert !datasetAddress.hasDatasetRootId();
             } else {
                 assert datasetAddress.hasDatasetRootId();
@@ -1000,9 +1004,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         if (!newDatasetAddresses.isEmpty()) {
             if (dataset.isCacheable()) {
-                // Only type graphs are cached atm, need to add extra plumbing to cache instance graphs
-                assert dataset.isTypeGraph();
-                // Only unfiltered graphs currently supported as cache targets, although static or internal
+                // Only Type Datasets are cached at present; caching Instance Datasets requires additional plumbing.
+                assert dataset.isTypeDataset();
+                // Only unfiltered Datasets are currently supported as cache targets, although static or internal
                 // caching would be possible if we wanted to add support
                 assert DatasetMetadata.FilterType.NONE == dataset.filterType();
                 for (var newDatasetAddress : newDatasetAddresses) {
@@ -1038,8 +1042,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         }
                         entry.setFilter(filter);
                     } else {
-                        // If we get here then we have requested a cacheable instance dataset
-                        // where the root has been removed
+                        // If we get here then we have requested a cacheable Instance Dataset
+                        // whose Dataset Root has been removed
                         assert newDatasetAddress.hasDatasetRootId();
                         final var cacheChangeSet = new ChangeSet();
                         cacheChangeSet.mergeSubscriptionAction(newDatasetAddress, SubscriptionAction.Action.DELETE);
@@ -1119,7 +1123,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     .collect(Collectors.joining(",")));
         }
         for (final var requiredTypeDataset : requiredTypeDatasets) {
-            assert requiredTypeDataset.isTypeGraph();
+            assert requiredTypeDataset.isTypeDataset();
             // At the moment we propagate no filters ... which is fine
             assert DatasetMetadata.FilterType.NONE == requiredTypeDataset.filterType();
             final var datasetAddress = DatasetAddress.of(requiredTypeDataset.getDatasetId());
@@ -1167,7 +1171,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
                 // invalidate all dependent cached Datasets to avoid this scenario.
                 for (final var dataset : metaData.getDependentDatasets()) {
-                    if (dataset.isTypeGraph() && dataset.isCacheable()) {
+                    if (dataset.isTypeDataset() && dataset.isCacheable()) {
                         _cache.remove(DatasetAddress.of(dataset.getDatasetId()));
                     }
                 }
@@ -1187,12 +1191,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
         final var metaData = getSchemaMetaData().getDatasetMetadata(datasetAddress);
         assert metaData.isCacheable();
-        // We have not implemented the ability to cache filtered graphs. When it has been implemented, we can remove
+        // We have not implemented the ability to cache filtered Datasets. When it has been implemented, we can remove
         // this assertion.
         assert !metaData.requiresFilterParameter();
-        // We have not implemented the ability to cache instance graphs. When it has been implemented we can remove this
+        // We have not implemented the ability to cache Instance Datasets. When it has been implemented we can remove
+        // this
         // assertion.
-        assert metaData.isTypeGraph();
+        assert metaData.isTypeDataset();
         final var entry = getCacheEntry(datasetAddress);
         entry.getLock().readLock().lock();
         try {
@@ -1216,7 +1221,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     .findFirst()
                     .orElse(null);
             final var action = Objects.requireNonNull(subscriptionAction).action();
-            // Delete indicates the instance dataset has been deleted and will never be a valid dataset to subscribe to.
+            // Delete indicates the Dataset Root has been deleted and the Instance Dataset's Dataset Address will never
+            // be valid to subscribe to again.
             if (SubscriptionAction.Action.DELETE == action) {
                 assert null == cacheKey;
                 return null;
@@ -1337,7 +1343,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     @Nullable
     private List<DatasetAddress> extractDatasetAddressesFromMessage(
             @NonNull final DatasetMetadata dataset, @NonNull final EntityMessage message) {
-        if (dataset.isInstanceGraph()) {
+        if (dataset.isInstanceDataset()) {
             @SuppressWarnings("unchecked")
             final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(dataset.getName());
             if (null != datasetRootIds) {
@@ -1402,7 +1408,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
      * @param message    the message to process
      * @param session    the session that message is being processed for.
      * @param changeSet  for changeSet for session.
-     * @param isFiltered a flag indicating that the graph is filtered.
+     * @param isFiltered a flag indicating that the Dataset is filtered.
      */
     private void processDeleteMessage(
             @NonNull final DatasetAddress datasetAddress,
@@ -1417,14 +1423,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
             // Process any deleted messages that are in scope for session
             if (null != m && m.isDelete()) {
-                var rootDeleted = false;
+                var datasetRootDeleted = false;
 
-                // if the deletion message is for the root of the graph then perform an unsubscribe on the graph
-                if (isEntityMessageChannelRoot(entry, datasetAddress, m)) {
+                // If the deletion message is for the Dataset Root, unsubscribe from the Instance Dataset.
+                if (isEntityMessageDatasetRoot(entry, datasetAddress, m)) {
                     session.performUnsubscribe(entry, true, true, changeSet);
-                    rootDeleted = null == session.findSubscriptionEntry(entryDatasetAddress);
+                    datasetRootDeleted = null == session.findSubscriptionEntry(entryDatasetAddress);
                 }
-                if (!rootDeleted) {
+                if (!datasetRootDeleted) {
                     session.removeDownstreamSubscriptionDependencies(
                             entry, SubscriptionDependencyOwner.entity(m.getTypeId(), m.getId()), changeSet);
                 }
@@ -1432,13 +1438,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
     }
 
-    private boolean isEntityMessageChannelRoot(
+    private boolean isEntityMessageDatasetRoot(
             @NonNull final SubscriptionEntry entry,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final EntityMessage message) {
         final var dataset = getSchemaMetaData().getDatasetMetadata(entry.datasetAddress());
-        return dataset.isInstanceGraph()
-                && dataset.getInstanceRootEntityTypeId() == message.getTypeId()
+        return dataset.isInstanceDataset()
+                && dataset.getDatasetRootEntityTypeId() == message.getTypeId()
                 && Objects.equals(datasetAddress.datasetRootId(), message.getId());
     }
 

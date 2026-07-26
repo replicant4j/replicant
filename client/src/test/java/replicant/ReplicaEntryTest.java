@@ -104,7 +104,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void typeSubscriptions() {
+    public void typeDatasetSubscriptions() {
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
 
         final ReplicaEntry replicaEntry = safeAction(() -> replicaRegistry.findOrCreateReplicaEntry(
@@ -161,7 +161,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void instanceSubscriptions() {
+    public void instanceDatasetSubscriptions() {
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
 
         final ReplicaEntry replicaEntry = safeAction(() -> replicaRegistry.findOrCreateReplicaEntry(
@@ -191,7 +191,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         }
 
         // Add second subscription and thus get notified
-        // second subscription is of the same channelType, so should go through second path
+        // second subscription is of the same Dataset, so should go through second path
         {
             safeAction(() -> replicaEntry.linkToSubscription(subscription2));
 

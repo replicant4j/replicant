@@ -27,7 +27,7 @@ public final class SchemaMetaData {
         _datasets = datasets;
         _instanceDatasets = Stream.of(datasets)
                 .filter(Objects::nonNull)
-                .filter(DatasetMetadata::isInstanceGraph)
+                .filter(DatasetMetadata::isInstanceDataset)
                 .toArray(DatasetMetadata[]::new);
     }
 

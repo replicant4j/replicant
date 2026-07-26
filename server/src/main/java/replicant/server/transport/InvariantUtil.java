@@ -37,7 +37,7 @@ final class InvariantUtil {
 
     private static void assertDatasetAddressMatchesDatasetMetadata(
             @NonNull final DatasetMetadata dataset, @NonNull final DatasetAddress datasetAddress) {
-        if (dataset.isTypeGraph()) {
+        if (dataset.isTypeDataset()) {
             assert !datasetAddress.hasDatasetRootId();
         } else {
             assert datasetAddress.hasDatasetRootId();
