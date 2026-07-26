@@ -387,11 +387,11 @@
   {
     "code": 98,
     "type": "INVARIANT",
-    "messagePattern": "Channel %s requires a filter instance id but none was supplied."
+    "messagePattern": "Channel %s requires a dataset key but none was supplied."
   },
   {
     "code": 99,
     "type": "INVARIANT",
-    "messagePattern": "Channel %s does not support filter instance ids but one was supplied."
+    "messagePattern": "Channel %s does not support dataset keys but one was supplied."
   }
 ]

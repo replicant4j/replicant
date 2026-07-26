@@ -7,8 +7,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * A channel address is immutable reference that defines the channel address.
  * A "type" channel is addressed by the type while an "instance" channel is addressed
- * by the "type" and the instance "id". Channels that support multiple filter instances
- * include a filter instance id.
+ * by the "type" and the instance "id". Keyed channels include a dataset key.
  */
 public final class ChannelAddress implements Comparable<ChannelAddress> {
     private final int _schemaId;
@@ -18,7 +17,7 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
     private final Integer _rootId;
 
     @Nullable
-    private final String _filterInstanceId;
+    private final String _datasetKey;
 
     public ChannelAddress(final int schemaId, final int channelId) {
         this(schemaId, channelId, null, null);
@@ -32,11 +31,11 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
             final int schemaId,
             final int channelId,
             @Nullable final Integer rootId,
-            @Nullable final String filterInstanceId) {
+            @Nullable final String datasetKey) {
         _schemaId = schemaId;
         _channelId = channelId;
         _rootId = rootId;
-        _filterInstanceId = filterInstanceId;
+        _datasetKey = datasetKey;
     }
 
     public int schemaId() {
@@ -53,8 +52,8 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
     }
 
     @Nullable
-    public String filterInstanceId() {
-        return _filterInstanceId;
+    public String datasetKey() {
+        return _datasetKey;
     }
 
     @Override
@@ -73,8 +72,8 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
         if (null != _rootId) {
             sb.append(".").append(_rootId);
         }
-        if (null != _filterInstanceId) {
-            sb.append("#").append(_filterInstanceId);
+        if (null != _datasetKey) {
+            sb.append("#").append(_datasetKey);
         }
         return sb.toString();
     }
@@ -86,13 +85,13 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
 
     @NonNull
     public static ChannelAddress parse(final int schema, @NonNull final String channel) {
-        final int instanceOffset = channel.indexOf('#');
-        final String channelPart = -1 == instanceOffset ? channel : channel.substring(0, instanceOffset);
-        final String filterInstanceId = -1 == instanceOffset ? null : channel.substring(instanceOffset + 1);
+        final int datasetKeyOffset = channel.indexOf('#');
+        final String channelPart = -1 == datasetKeyOffset ? channel : channel.substring(0, datasetKeyOffset);
+        final String datasetKey = -1 == datasetKeyOffset ? null : channel.substring(datasetKeyOffset + 1);
         final int offset = channelPart.indexOf(".", 1);
         final int channelId = Integer.parseInt(-1 == offset ? channelPart : channelPart.substring(0, offset));
         final Integer rootId = -1 == offset ? null : Integer.parseInt(channelPart.substring(offset + 1));
-        return new ChannelAddress(schema, channelId, rootId, filterInstanceId);
+        return new ChannelAddress(schema, channelId, rootId, datasetKey);
     }
 
     @Override
@@ -106,7 +105,7 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
             return Objects.equals(_schemaId, that._schemaId)
                     && Objects.equals(_channelId, that._channelId)
                     && Objects.equals(_rootId, that._rootId)
-                    && Objects.equals(_filterInstanceId, that._filterInstanceId);
+                    && Objects.equals(_datasetKey, that._datasetKey);
         }
     }
 
@@ -115,7 +114,7 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
         int result = _schemaId;
         result = 17 * result + _channelId;
         result = 31 * result + (_rootId != null ? _rootId.hashCode() : 0);
-        result = 31 * result + (_filterInstanceId != null ? _filterInstanceId.hashCode() : 0);
+        result = 31 * result + (_datasetKey != null ? _datasetKey.hashCode() : 0);
         return result;
     }
 
@@ -144,8 +143,8 @@ public final class ChannelAddress implements Comparable<ChannelAddress> {
                         }
                     }
                 }
-                final String f1 = filterInstanceId();
-                final String f2 = o.filterInstanceId();
+                final String f1 = datasetKey();
+                final String f2 = o.datasetKey();
                 if (null == f1 && null == f2) {
                     return 0;
                 } else if (null == f1) {

@@ -24,13 +24,8 @@ public final class ChannelSchema {
         INTERNAL,
         /// Filtering is specified when the channel is created and is unable to be changed
         STATIC,
-        /// Filtering is specified when the channel is created and is unable to be changed but supports multiple
-        /// instances
-        STATIC_INSTANCED,
         /// Filtering can be changed after the channel has been created
-        DYNAMIC,
-        /// Filtering can be changed after the channel has been created and supports multiple instances
-        DYNAMIC_INSTANCED
+        DYNAMIC
     }
 
     /**
@@ -54,8 +49,12 @@ public final class ChannelSchema {
     @NonNull
     private final FilterType _filterType;
     /**
+     * True when independently addressable selections of this channel require a dataset key.
+     */
+    private final boolean _keyed;
+    /**
      * The hook to filter entities when filter changes. This should be null unless {@link #_filterType} is
-     * {@link FilterType#DYNAMIC} or {@link FilterType#DYNAMIC_INSTANCED}.
+     * {@link FilterType#DYNAMIC}.
      */
     @Nullable
     private final SubscriptionUpdateEntityFilter<?> _filter;
@@ -78,6 +77,7 @@ public final class ChannelSchema {
             @Nullable final String name,
             @Nullable final Class<?> instanceType,
             @NonNull final FilterType filterType,
+            final boolean keyed,
             @Nullable final SubscriptionUpdateEntityFilter<?> filter,
             final boolean cacheable,
             final boolean external,
@@ -88,13 +88,11 @@ public final class ChannelSchema {
                     () -> "Replicant-0045: ChannelSchema passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
             apiInvariant(
-                    () -> (FilterType.DYNAMIC != filterType && FilterType.DYNAMIC_INSTANCED != filterType)
-                            || null != filter,
+                    () -> FilterType.DYNAMIC != filterType || null != filter,
                     () -> "Replicant-0076: ChannelSchema " + id + " has a DYNAMIC filterType "
                             + "but has supplied no filter.");
             apiInvariant(
-                    () -> (FilterType.DYNAMIC == filterType || FilterType.DYNAMIC_INSTANCED == filterType)
-                            || null == filter,
+                    () -> FilterType.DYNAMIC == filterType || null == filter,
                     () -> "Replicant-0077: ChannelSchema " + id + " does not have a DYNAMIC filterType "
                             + "but has supplied a filter.");
         }
@@ -102,6 +100,7 @@ public final class ChannelSchema {
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _instanceType = instanceType;
         _filterType = Objects.requireNonNull(filterType);
+        _keyed = keyed;
         _filter = filter;
         _cacheable = cacheable;
         _external = external;
@@ -173,9 +172,17 @@ public final class ChannelSchema {
     }
 
     /**
+     * Return true if independently addressable selections of this channel require a dataset key.
+     *
+     * @return true if independently addressable selections of this channel require a dataset key.
+     */
+    public boolean requiresDatasetKey() {
+        return _keyed;
+    }
+
+    /**
      * Return the hook that filters entities when the filter changes.
-     * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC} or
-     * {@link FilterType#DYNAMIC_INSTANCED}.
+     * This will not be null if and only if {@link #_filterType} is {@link FilterType#DYNAMIC}.
      *
      * @return the hook to filter entities.
      */

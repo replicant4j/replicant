@@ -55,28 +55,28 @@ public class ChannelAddressTest {
         final var address1 = ChannelAddress.parse("1.22");
         assertEquals(address1.channelId(), 1);
         assertEquals(address1.rootId(), (Integer) 22);
-        assertNull(address1.filterInstanceId());
+        assertNull(address1.datasetKey());
         assertFalse(address1.partial());
         assertTrue(address1.concrete());
         final var address2 = ChannelAddress.parse("0");
         assertEquals(address2.channelId(), 0);
         assertNull(address2.rootId());
-        assertNull(address2.filterInstanceId());
+        assertNull(address2.datasetKey());
         assertFalse(address2.partial());
         assertTrue(address2.concrete());
     }
 
     @Test
-    public void parseWithInstanceId() {
+    public void parseWithDatasetKey() {
         final var address1 = ChannelAddress.parse("1.22#alpha");
         assertEquals(address1.channelId(), 1);
         assertEquals(address1.rootId(), (Integer) 22);
-        assertEquals(address1.filterInstanceId(), "alpha");
+        assertEquals(address1.datasetKey(), "alpha");
         assertFalse(address1.partial());
         final var address2 = ChannelAddress.parse("0#alpha");
         assertEquals(address2.channelId(), 0);
         assertNull(address2.rootId());
-        assertEquals(address2.filterInstanceId(), "alpha");
+        assertEquals(address2.datasetKey(), "alpha");
         assertFalse(address2.partial());
     }
 
@@ -86,7 +86,7 @@ public class ChannelAddressTest {
 
         assertEquals(address.channelId(), 1);
         assertEquals(address.rootId(), (Integer) 22);
-        assertNull(address.filterInstanceId());
+        assertNull(address.datasetKey());
         assertTrue(address.partial());
         assertEquals(address.toString(), "1.22?");
     }

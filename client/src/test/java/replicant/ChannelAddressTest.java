@@ -12,7 +12,7 @@ public final class ChannelAddressTest extends AbstractReplicantTest {
         assertEquals(address.schemaId(), 2);
         assertEquals(address.channelId(), 4);
         assertEquals(address.rootId(), (Integer) 1);
-        assertEquals(address.filterInstanceId(), "a");
+        assertEquals(address.datasetKey(), "a");
     }
 
     @Test
@@ -22,7 +22,7 @@ public final class ChannelAddressTest extends AbstractReplicantTest {
         assertEquals(address.schemaId(), 2);
         assertEquals(address.channelId(), 4);
         assertNull(address.rootId());
-        assertNull(address.filterInstanceId());
+        assertNull(address.datasetKey());
     }
 
     @Test
@@ -44,23 +44,23 @@ public final class ChannelAddressTest extends AbstractReplicantTest {
     }
 
     @Test
-    void parseWithInstanceId() {
+    void parseWithDatasetKey() {
         final ChannelAddress address = ChannelAddress.parse(4, "77#alpha");
 
         assertEquals(address.schemaId(), 4);
         assertEquals(address.channelId(), 77);
         assertNull(address.rootId());
-        assertEquals(address.filterInstanceId(), "alpha");
+        assertEquals(address.datasetKey(), "alpha");
     }
 
     @Test
-    void parseWithRootAndInstanceId() {
+    void parseWithRootAndDatasetKey() {
         final ChannelAddress address = ChannelAddress.parse(4, "77.5#alpha");
 
         assertEquals(address.schemaId(), 4);
         assertEquals(address.channelId(), 77);
         assertEquals(address.rootId(), (Integer) 5);
-        assertEquals(address.filterInstanceId(), "alpha");
+        assertEquals(address.datasetKey(), "alpha");
     }
 
     @Test

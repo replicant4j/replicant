@@ -228,7 +228,7 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void encodeChangeSet_channelDescriptors_includeFilterInstanceId() {
+    public void encodeChangeSet_channelDescriptors_includeDatasetKey() {
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("x", "y");

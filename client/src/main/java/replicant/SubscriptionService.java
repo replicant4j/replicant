@@ -31,11 +31,11 @@ import replicant.spy.SubscriptionCreatedEvent;
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionService extends ReplicantService {
-    // SystemId -> ChannelId -> RootId -> FilterInstanceId => Entry
+    // SystemId -> ChannelId -> RootId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<Integer, Map<String, Subscription>>>> _instanceSubscriptions =
             new HashMap<>();
-    // SystemId -> ChannelId -> FilterInstanceId => Entry
+    // SystemId -> ChannelId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<String, Subscription>>> _typeSubscriptions = new HashMap<>();
 
@@ -121,7 +121,7 @@ abstract class SubscriptionService extends ReplicantService {
                             + " but a subscription with that address already exists.");
         }
         final Integer rootId = address.rootId();
-        final String filterInstanceId = address.filterInstanceId();
+        final String datasetKey = address.datasetKey();
         if (null == rootId) {
             getTypeSubscriptionsObservableValue().preReportChanged();
         } else {
@@ -134,14 +134,14 @@ abstract class SubscriptionService extends ReplicantService {
             _typeSubscriptions
                     .computeIfAbsent(address.schemaId(), key -> new HashMap<>())
                     .computeIfAbsent(address.channelId(), key -> new HashMap<>())
-                    .put(filterInstanceId, subscription);
+                    .put(datasetKey, subscription);
             getTypeSubscriptionsObservableValue().reportChanged();
         } else {
             _instanceSubscriptions
                     .computeIfAbsent(address.schemaId(), key -> new HashMap<>())
                     .computeIfAbsent(address.channelId(), key -> new HashMap<>())
                     .computeIfAbsent(rootId, key -> new HashMap<>())
-                    .put(filterInstanceId, subscription);
+                    .put(datasetKey, subscription);
             getInstanceSubscriptionsObservableValue().reportChanged();
         }
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
@@ -173,10 +173,10 @@ abstract class SubscriptionService extends ReplicantService {
         final int schemaId = address.schemaId();
         final int channelId = address.channelId();
         final Integer rootId = address.rootId();
-        final String filterInstanceId = address.filterInstanceId();
+        final String datasetKey = address.datasetKey();
         return null == rootId
-                ? findTypeSubscription(schemaId, channelId, filterInstanceId)
-                : findInstanceSubscription(schemaId, channelId, rootId, filterInstanceId);
+                ? findTypeSubscription(schemaId, channelId, datasetKey)
+                : findInstanceSubscription(schemaId, channelId, rootId, datasetKey);
     }
 
     /**
@@ -191,10 +191,10 @@ abstract class SubscriptionService extends ReplicantService {
      */
     @Nullable
     private Subscription findTypeSubscription(
-            final int schemaId, final int channelId, @Nullable final String filterInstanceId) {
+            final int schemaId, final int channelId, @Nullable final String datasetKey) {
         final Map<Integer, Map<String, Subscription>> channelMap = _typeSubscriptions.get(schemaId);
-        final Map<String, Subscription> instanceMap = null == channelMap ? null : channelMap.get(channelId);
-        final Subscription subscription = null == instanceMap ? null : instanceMap.get(filterInstanceId);
+        final Map<String, Subscription> datasetKeyMap = null == channelMap ? null : channelMap.get(channelId);
+        final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.get(datasetKey);
         if (null == subscription) {
             getTypeSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
             return null;
@@ -219,12 +219,11 @@ abstract class SubscriptionService extends ReplicantService {
      */
     @Nullable
     private Subscription findInstanceSubscription(
-            final int schemaId, final int channelId, final int id, @Nullable final String filterInstanceId) {
+            final int schemaId, final int channelId, final int id, @Nullable final String datasetKey) {
         final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap = _instanceSubscriptions.get(schemaId);
-        final Map<Integer, Map<String, Subscription>> instanceMap =
-                null == channelMap ? null : channelMap.get(channelId);
-        final Map<String, Subscription> filterMap = null == instanceMap ? null : instanceMap.get(id);
-        final Subscription subscription = null == filterMap ? null : filterMap.get(filterInstanceId);
+        final Map<Integer, Map<String, Subscription>> rootMap = null == channelMap ? null : channelMap.get(channelId);
+        final Map<String, Subscription> datasetKeyMap = null == rootMap ? null : rootMap.get(id);
+        final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.get(datasetKey);
         if (null == subscription || Disposable.isDisposed(subscription)) {
             getInstanceSubscriptionsObservableValue().reportObservedIfTrackingTransactionActive();
             return null;
@@ -248,13 +247,13 @@ abstract class SubscriptionService extends ReplicantService {
         final int schemaId = address.schemaId();
         final int channelId = address.channelId();
         final Integer rootId = address.rootId();
-        final String filterInstanceId = address.filterInstanceId();
+        final String datasetKey = address.datasetKey();
         if (null == rootId) {
             getTypeSubscriptionsObservableValue().preReportChanged();
             final Map<Integer, Map<String, Subscription>> map = _typeSubscriptions.get(schemaId);
-            final Map<String, Subscription> instanceMap = null == map ? null : map.get(channelId);
-            final Subscription subscription = null == instanceMap ? null : instanceMap.remove(filterInstanceId);
-            if (null != instanceMap && instanceMap.isEmpty()) {
+            final Map<String, Subscription> datasetKeyMap = null == map ? null : map.get(channelId);
+            final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.remove(datasetKey);
+            if (null != datasetKeyMap && datasetKeyMap.isEmpty()) {
                 Objects.requireNonNull(map).remove(channelId);
             }
             if (null != subscription && Objects.requireNonNull(map).isEmpty()) {
@@ -277,14 +276,14 @@ abstract class SubscriptionService extends ReplicantService {
             getInstanceSubscriptionsObservableValue().preReportChanged();
             final Map<Integer, Map<Integer, Map<String, Subscription>>> channelMap =
                     _instanceSubscriptions.get(schemaId);
-            final Map<Integer, Map<String, Subscription>> instanceMap =
+            final Map<Integer, Map<String, Subscription>> rootMap =
                     null == channelMap ? null : channelMap.get(channelId);
-            final Map<String, Subscription> filterMap = null == instanceMap ? null : instanceMap.get(rootId);
-            final Subscription subscription = null == filterMap ? null : filterMap.remove(filterInstanceId);
-            if (null != filterMap && filterMap.isEmpty()) {
-                Objects.requireNonNull(instanceMap).remove(rootId);
+            final Map<String, Subscription> datasetKeyMap = null == rootMap ? null : rootMap.get(rootId);
+            final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.remove(datasetKey);
+            if (null != datasetKeyMap && datasetKeyMap.isEmpty()) {
+                Objects.requireNonNull(rootMap).remove(rootId);
             }
-            if (null != subscription && Objects.requireNonNull(instanceMap).isEmpty()) {
+            if (null != subscription && Objects.requireNonNull(rootMap).isEmpty()) {
                 Objects.requireNonNull(channelMap).remove(channelId);
                 if (channelMap.isEmpty()) {
                     _instanceSubscriptions.remove(schemaId);

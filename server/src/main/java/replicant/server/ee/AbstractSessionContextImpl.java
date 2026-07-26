@@ -46,18 +46,17 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
 
     @NonNull
     @Override
-    public String deriveTargetFilterInstanceId(
+    public String deriveTargetDatasetKey(
             @NonNull final EntityMessage entityMessage,
             @NonNull final ChannelAddress source,
             @Nullable final JsonObject sourceFilter,
             @NonNull final ChannelAddress target,
             @Nullable final JsonObject targetFilter) {
-        throw new IllegalStateException("deriveTargetFilterInstanceId called for link from " + source + " to " + target
+        throw new IllegalStateException("deriveTargetDatasetKey called for link from " + source + " to " + target
                 + (null == sourceFilter ? "" : " with source filter " + sourceFilter)
                 + (null == targetFilter ? "" : " with target filter " + targetFilter)
                 + " in the context of the entity message "
-                + entityMessage + " but no such graph link exists or the target graph does not require a filter "
-                + "instance id");
+                + entityMessage + " but no such graph link exists or the target graph does not require a dataset key");
     }
 
     @Override
@@ -94,14 +93,13 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     @Language("TSQL")
-    protected String generateTempIdAndFilterIdTable(@NonNull final Collection<ChannelAddress> addresses) {
+    protected String generateTempIdAndDatasetKeyTable(@NonNull final Collection<ChannelAddress> addresses) {
         //noinspection SqlUnused
-        return "DECLARE @IdAndFilterIds TABLE ( Id INTEGER NOT NULL, FilterInstanceId VARCHAR(255) NOT NULL );\n"
+        return "DECLARE @IdAndDatasetKeys TABLE ( Id INTEGER NOT NULL, DatasetKey VARCHAR(255) NOT NULL );\n"
                 + chunked(addresses.stream(), 900)
-                        .map(chunk -> "INSERT INTO @IdAndFilterIds VALUES "
+                        .map(chunk -> "INSERT INTO @IdAndDatasetKeys VALUES "
                                 + chunk.stream()
-                                        .map(address ->
-                                                "(" + address.rootId() + ",'" + address.filterInstanceId() + "')")
+                                        .map(address -> "(" + address.rootId() + ",'" + address.datasetKey() + "')")
                                         .collect(Collectors.joining(",")))
                         .collect(Collectors.joining("\n"))
                 + "\n";

@@ -157,7 +157,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void typeSubscriptions_withFilterInstanceId() {
+    public void typeSubscriptions_withDatasetKey() {
         final ChannelAddress address1 = new ChannelAddress(1, 0, null, "fi1");
         final ChannelAddress address2 = new ChannelAddress(1, 0, null, "fi2");
 
@@ -184,7 +184,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void typeSubscriptions_emptyFilterInstanceId() {
+    public void typeSubscriptions_emptyDatasetKey() {
         final ChannelAddress address1 = new ChannelAddress(1, 0, null, "");
         final ChannelAddress address2 = new ChannelAddress(1, 0, null, null);
 
@@ -372,7 +372,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void instanceSubscriptions_withFilterInstanceId() {
+    public void instanceSubscriptions_withDatasetKey() {
         final ChannelAddress address1 = new ChannelAddress(1, 0, 7, "fi1");
         final ChannelAddress address2 = new ChannelAddress(1, 0, 7, "fi2");
         final ChannelAddress address3 = new ChannelAddress(1, 0, 8, "fi1");
@@ -653,7 +653,7 @@ public class SubscriptionServiceTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void disposeService_disposesFilterInstanceSubscriptions() {
+    public void disposeService_disposesKeyedSubscriptions() {
         final SubscriptionService service = SubscriptionService.create(null);
 
         final Subscription typeSubscription =

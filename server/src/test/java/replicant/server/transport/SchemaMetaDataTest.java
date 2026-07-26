@@ -9,12 +9,19 @@ public class SchemaMetaDataTest {
     @Test
     public void basicOperation() {
         final var ch0 = new ChannelMetaData(
-                0, ValueUtil.randomString(), 2, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, false);
+                0,
+                ValueUtil.randomString(),
+                2,
+                ChannelMetaData.FilterType.NONE,
+                false,
+                ChannelMetaData.CacheType.NONE,
+                false);
         final var ch1 = new ChannelMetaData(
                 1,
                 ValueUtil.randomString(),
                 null,
                 ChannelMetaData.FilterType.NONE,
+                false,
                 ChannelMetaData.CacheType.NONE,
                 false);
         final var ch2 = new ChannelMetaData(
@@ -22,6 +29,7 @@ public class SchemaMetaDataTest {
                 ValueUtil.randomString(),
                 54,
                 ChannelMetaData.FilterType.NONE,
+                false,
                 ChannelMetaData.CacheType.NONE,
                 false);
         final var name = ValueUtil.randomString();

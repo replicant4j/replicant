@@ -62,7 +62,7 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void deriveTargetFilterInstanceId_throwsWhenNotOverridden() {
+    public void deriveTargetDatasetKey_throwsWhenNotOverridden() {
         final var context = newContext(mock(EntityManager.class));
         final var source = ChannelAddress.of(1, 2, "fi");
         final var target = ChannelAddress.partial(3, 4);
@@ -70,7 +70,7 @@ public class AbstractSessionContextImplTest {
 
         final var exception = expectThrows(
                 IllegalStateException.class,
-                () -> context.deriveTargetFilterInstanceId(
+                () -> context.deriveTargetDatasetKey(
                         message,
                         source,
                         Json.createObjectBuilder().add("src", true).build(),
@@ -79,11 +79,11 @@ public class AbstractSessionContextImplTest {
 
         assertEquals(
                 exception.getMessage(),
-                "deriveTargetFilterInstanceId called for link from " + source + " to " + target
+                "deriveTargetDatasetKey called for link from " + source + " to " + target
                         + " with source filter {\"src\":true} with target filter {\"target\":true} in the context "
                         + "of the entity message "
                         + message + " but no such graph link exists or the target graph "
-                        + "does not require a filter instance id");
+                        + "does not require a dataset key");
     }
 
     @Test
@@ -174,16 +174,16 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void generateTempIdAndFilterIdTable_buildsSql() {
+    public void generateTempIdAndDatasetKeyTable_buildsSql() {
         final var context = newContext(mock(EntityManager.class));
         final var addresses = List.of(
                 ChannelAddress.of(1, 11, "fi-1"), ChannelAddress.of(1, 12, "fi-2"), ChannelAddress.of(1, 13, "fi-3"));
 
-        final var sql = context.generateTempIdAndFilterIdTable(addresses);
+        final var sql = context.generateTempIdAndDatasetKeyTable(addresses);
 
         assertEquals(sql, """
-            DECLARE @IdAndFilterIds TABLE ( Id INTEGER NOT NULL, FilterInstanceId VARCHAR(255) NOT NULL );
-            INSERT INTO @IdAndFilterIds VALUES (11,'fi-1'),(12,'fi-2'),(13,'fi-3')
+            DECLARE @IdAndDatasetKeys TABLE ( Id INTEGER NOT NULL, DatasetKey VARCHAR(255) NOT NULL );
+            INSERT INTO @IdAndDatasetKeys VALUES (11,'fi-1'),(12,'fi-2'),(13,'fi-3')
             """);
     }
 
@@ -308,11 +308,17 @@ public class AbstractSessionContextImplTest {
         private final SchemaMetaData _schema = new SchemaMetaData(
                 "Test",
                 new ChannelMetaData(
-                        0, "Type0", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, true),
+                        0, "Type0", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true),
                 new ChannelMetaData(
-                        1, "Type1", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, true),
+                        1, "Type1", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true),
                 new ChannelMetaData(
-                        2, "Instance2", 1, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, true));
+                        2,
+                        "Instance2",
+                        1,
+                        ChannelMetaData.FilterType.NONE,
+                        false,
+                        ChannelMetaData.CacheType.NONE,
+                        true));
 
         @NonNull
         private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();

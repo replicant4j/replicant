@@ -42,12 +42,12 @@ final class InvariantUtil {
         }
 
         if (address.partial()) {
-            assert channel.requiresFilterInstanceId();
-            assert null == address.filterInstanceId();
-        } else if (channel.requiresFilterInstanceId()) {
-            assert null != address.filterInstanceId();
+            assert channel.requiresDatasetKey();
+            assert null == address.datasetKey();
+        } else if (channel.requiresDatasetKey()) {
+            assert null != address.datasetKey();
         } else {
-            assert null == address.filterInstanceId();
+            assert null == address.datasetKey();
         }
     }
 

@@ -946,12 +946,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_requiresFilterInstanceId_forDynamicInstancedChannel() {
+    public void requestSubscribe_requiresDatasetKey_forDynamicKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 (f, e) -> true,
                 false,
                 true,
@@ -967,17 +968,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(address, null));
 
         assertEquals(
-                exception.getMessage(),
-                "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied.");
+                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
     }
 
     @Test
-    public void requestSubscribe_requiresFilterInstanceId_forStaticInstancedChannel() {
+    public void requestSubscribe_requiresDatasetKey_forStaticKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC_INSTANCED,
+                ChannelSchema.FilterType.STATIC,
+                true,
                 null,
                 false,
                 true,
@@ -993,17 +994,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connector.requestSubscribe(address, null));
 
         assertEquals(
-                exception.getMessage(),
-                "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied.");
+                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
     }
 
     @Test
-    public void requestSubscribe_rejectsFilterInstanceId_forNonInstancedChannel() {
+    public void requestSubscribe_rejectsDatasetKey_forNonKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 (f, e) -> true,
                 false,
                 true,
@@ -1020,16 +1021,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0099: Channel 1.0#inst does not support filter instance ids but one was supplied.");
+                "Replicant-0099: Channel 1.0#inst does not support dataset keys but one was supplied.");
     }
 
     @Test
-    public void requestSubscribe_dynamicInstanced_withFilterInstanceId() {
+    public void requestSubscribe_dynamicKeyed_withDatasetKey() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 (f, e) -> true,
                 false,
                 true,
@@ -1050,12 +1052,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscribe_staticInstanced_withFilterInstanceId() {
+    public void requestSubscribe_staticKeyed_withDatasetKey() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC_INSTANCED,
+                ChannelSchema.FilterType.STATIC,
+                true,
                 null,
                 false,
                 true,
@@ -1082,6 +1085,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 (f, e) -> true,
                 false,
                 true,
@@ -1107,12 +1111,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestSubscriptionUpdate_requiresFilterInstanceId_forDynamicInstancedChannel() {
+    public void requestSubscriptionUpdate_requiresDatasetKey_forDynamicKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 (f, e) -> true,
                 false,
                 true,
@@ -1129,8 +1134,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connector.requestSubscriptionUpdate(address, null));
 
         assertEquals(
-                exception.getMessage(),
-                "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied.");
+                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
     }
 
     @Test
@@ -1140,6 +1144,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -1164,12 +1169,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void requestUnsubscribe_requiresFilterInstanceId_forDynamicInstancedChannel() {
+    public void requestUnsubscribe_requiresDatasetKey_forDynamicKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 (f, e) -> true,
                 false,
                 true,
@@ -1185,17 +1191,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(address));
 
         assertEquals(
-                exception.getMessage(),
-                "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied.");
+                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
     }
 
     @Test
-    public void requestUnsubscribe_requiresFilterInstanceId_forStaticInstancedChannel() {
+    public void requestUnsubscribe_requiresDatasetKey_forStaticKeyedChannel() {
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 null,
-                ChannelSchema.FilterType.STATIC_INSTANCED,
+                ChannelSchema.FilterType.STATIC,
+                true,
                 null,
                 false,
                 true,
@@ -1211,8 +1217,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connector.requestUnsubscribe(address));
 
         assertEquals(
-                exception.getMessage(),
-                "Replicant-0098: Channel 1.0 requires a filter instance id but none was supplied.");
+                exception.getMessage(), "Replicant-0098: Channel 1.0 requires a dataset key but none was supplied.");
     }
 
     @Test
@@ -1248,6 +1253,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 filter,
                 true,
                 true,
@@ -1316,6 +1322,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 true,
                 true,
@@ -1349,6 +1356,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -1429,13 +1437,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void processEntityChanges_withFilterInstanceIdChannel() {
+    public void processEntityChanges_withDatasetKeyChannel() {
         final int schemaId = 1;
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 Linkable.class,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 (f, e) -> true,
                 false,
                 true,
@@ -1480,6 +1489,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -1524,6 +1534,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -1944,6 +1955,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 filter,
                 true,
                 true,
@@ -1988,13 +2000,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void processChannelChanges_update_withFilterInstanceId() {
+    public void processChannelChanges_update_withDatasetKey() {
         final SubscriptionUpdateEntityFilter<?> filter = mock(SubscriptionUpdateEntityFilter.class);
         final ChannelSchema channelSchema = new ChannelSchema(
                 0,
                 ValueUtil.randomString(),
                 Integer.class,
-                ChannelSchema.FilterType.DYNAMIC_INSTANCED,
+                ChannelSchema.FilterType.DYNAMIC,
+                true,
                 filter,
                 true,
                 true,
@@ -2037,6 +2050,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 true,
                 true,
@@ -2486,6 +2500,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -2583,6 +2598,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -2637,6 +2653,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 true,
                 true,
@@ -2691,6 +2708,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 true,
                 true,
@@ -2752,6 +2770,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -2830,6 +2849,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -2869,6 +2889,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 mock(SubscriptionUpdateEntityFilter.class),
                 false,
                 true,
@@ -2924,6 +2945,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 mock(SubscriptionUpdateEntityFilter.class),
                 false,
                 true,
@@ -3002,6 +3024,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 mock(SubscriptionUpdateEntityFilter.class),
                 false,
                 true,
@@ -3041,6 +3064,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -3095,6 +3119,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -3172,6 +3197,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,
@@ -3210,6 +3236,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -3240,6 +3267,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -3279,6 +3307,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 false,
                 true,
@@ -3317,6 +3346,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.DYNAMIC,
+                false,
                 mock(SubscriptionUpdateEntityFilter.class),
                 false,
                 true,
@@ -3356,6 +3386,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 String.class,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 true,

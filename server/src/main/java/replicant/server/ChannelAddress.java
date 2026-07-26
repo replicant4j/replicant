@@ -4,17 +4,17 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public record ChannelAddress(
-        int channelId, @Nullable Integer rootId, @Nullable String filterInstanceId, boolean partial)
+        int channelId, @Nullable Integer rootId, @Nullable String datasetKey, boolean partial)
         implements Comparable<ChannelAddress> {
     @NonNull
     public static ChannelAddress parse(@NonNull final String name) {
-        final var instanceOffset = name.indexOf('#');
-        final var channelPart = -1 == instanceOffset ? name : name.substring(0, instanceOffset);
-        final var filterInstanceId = -1 == instanceOffset ? null : name.substring(instanceOffset + 1);
+        final var datasetKeyOffset = name.indexOf('#');
+        final var channelPart = -1 == datasetKeyOffset ? name : name.substring(0, datasetKeyOffset);
+        final var datasetKey = -1 == datasetKeyOffset ? null : name.substring(datasetKeyOffset + 1);
         final var offset = channelPart.indexOf(".");
         final var channelId = Integer.parseInt(-1 == offset ? channelPart : channelPart.substring(0, offset));
         final var rootId = -1 == offset ? null : Integer.parseInt(channelPart.substring(offset + 1));
-        return new ChannelAddress(channelId, rootId, filterInstanceId, false);
+        return new ChannelAddress(channelId, rootId, datasetKey, false);
     }
 
     @NonNull
@@ -39,12 +39,12 @@ public record ChannelAddress(
 
     @NonNull
     public static ChannelAddress of(
-            final int channelId, @Nullable final Integer rootId, @Nullable final String filterInstanceId) {
-        return new ChannelAddress(channelId, rootId, filterInstanceId, false);
+            final int channelId, @Nullable final Integer rootId, @Nullable final String datasetKey) {
+        return new ChannelAddress(channelId, rootId, datasetKey, false);
     }
 
     public ChannelAddress {
-        assert !partial || null == filterInstanceId;
+        assert !partial || null == datasetKey;
     }
 
     public boolean concrete() {
@@ -76,8 +76,8 @@ public record ChannelAddress(
                 }
             }
         }
-        final var f1 = filterInstanceId();
-        final var f2 = other.filterInstanceId();
+        final var f1 = datasetKey();
+        final var f2 = other.datasetKey();
         if (null == f1 && null == f2) {
             if (partial() == other.partial()) {
                 return 0;
@@ -101,6 +101,6 @@ public record ChannelAddress(
     @Override
     public String toString() {
         final var base = channelId + (null == rootId ? "" : "." + rootId);
-        return base + (null == filterInstanceId ? "" : "#" + filterInstanceId) + (partial ? "?" : "");
+        return base + (null == datasetKey ? "" : "#" + datasetKey) + (partial ? "?" : "");
     }
 }

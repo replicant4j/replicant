@@ -84,13 +84,13 @@ This guide captures the repo-specific rules and conventions for working effectiv
 
 ## Protocol and Hotspots
 
-- Channel descriptor grammar: `channelId[.rootId][#filterInstanceId]`.
-  - `#` is reserved; the filter instance id is the substring after the first `#` and may be empty.
+- Channel descriptor grammar: `channelId[.rootId][#datasetKey]`.
+  - `#` is reserved; the dataset key is the substring after the first `#` and may be empty.
   - No escaping is supported; JSON transport handles encoding.
-- Instanced filter types:
-  - `DYNAMIC_INSTANCED` requires `#` on subscribe, update, and unsubscribe, and allows filter updates.
-  - `STATIC_INSTANCED` requires `#` on subscribe and unsubscribe, and rejects filter updates.
-- Bulk subscribe and unsubscribe uses a shared filter for all addresses; the instance id lives on each `ChannelAddress`.
+- Keying is independent of filter type:
+  - Keyed channels require `#` on subscribe, update, and unsubscribe.
+  - `DYNAMIC` allows filter updates; `STATIC` rejects filter updates regardless of whether the channel is keyed.
+- Bulk subscribe and unsubscribe uses a shared filter for all addresses; the dataset key lives on each `ChannelAddress`.
 
 Implementation hotspots:
 

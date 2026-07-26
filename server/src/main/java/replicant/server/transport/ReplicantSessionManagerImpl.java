@@ -684,9 +684,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @Nullable final JsonObject targetFilter) {
         if (target.partial()) {
             assert entityMessage.isUpdate();
-            final var filterInstanceId =
-                    _context.deriveTargetFilterInstanceId(entityMessage, source, sourceFilter, target, targetFilter);
-            final var concreteTarget = ChannelAddress.of(target.channelId(), target.rootId(), filterInstanceId);
+            final var datasetKey =
+                    _context.deriveTargetDatasetKey(entityMessage, source, sourceFilter, target, targetFilter);
+            final var concreteTarget = ChannelAddress.of(target.channelId(), target.rootId(), datasetKey);
             InvariantUtil.assertConcreteAddress(getSchemaMetaData(), concreteTarget);
             return concreteTarget;
         } else {

@@ -16,6 +16,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 false,
@@ -35,6 +36,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 "MetaData",
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 false,
                 false,
@@ -55,7 +57,15 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
     @Test
     public void instanceGraph() {
         final ChannelSchema channelSchema = new ChannelSchema(
-                1, "MetaData", String.class, ChannelSchema.FilterType.NONE, null, false, true, Collections.emptyList());
+                1,
+                "MetaData",
+                String.class,
+                ChannelSchema.FilterType.NONE,
+                false,
+                null,
+                false,
+                true,
+                Collections.emptyList());
         assertEquals(channelSchema.getId(), 1);
         assertEquals(channelSchema.getName(), "MetaData");
         assertEquals(channelSchema.toString(), "MetaData");
@@ -79,6 +89,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 name,
                 String.class,
                 ChannelSchema.FilterType.STATIC,
+                false,
                 null,
                 cacheable,
                 external,
@@ -95,7 +106,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void staticInstancedFilteredGraph() {
+    public void staticKeyedFilteredGraph() {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
@@ -104,7 +115,8 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 id,
                 name,
                 String.class,
-                ChannelSchema.FilterType.STATIC_INSTANCED,
+                ChannelSchema.FilterType.STATIC,
+                true,
                 null,
                 cacheable,
                 external,
@@ -115,7 +127,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         assertFalse(channelSchema.isTypeChannel());
         assertTrue(channelSchema.isInstanceChannel());
         assertEquals(channelSchema.getInstanceType(), String.class);
-        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC_INSTANCED);
+        assertEquals(channelSchema.getFilterType(), ChannelSchema.FilterType.STATIC);
         assertEquals(channelSchema.isCacheable(), cacheable);
         assertEquals(channelSchema.isExternal(), external);
     }
@@ -128,7 +140,15 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
         final boolean external = true;
         final SubscriptionUpdateEntityFilter<?> filter = mock(SubscriptionUpdateEntityFilter.class);
         final ChannelSchema channelSchema = new ChannelSchema(
-                id, name, null, ChannelSchema.FilterType.DYNAMIC, filter, cacheable, external, Collections.emptyList());
+                id,
+                name,
+                null,
+                ChannelSchema.FilterType.DYNAMIC,
+                false,
+                filter,
+                cacheable,
+                external,
+                Collections.emptyList());
         assertEquals(channelSchema.getId(), id);
         assertEquals(channelSchema.getName(), name);
         assertEquals(channelSchema.toString(), name);
@@ -149,6 +169,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                 null,
                 null,
                 ChannelSchema.FilterType.NONE,
+                false,
                 null,
                 ValueUtil.randomBoolean(),
                 ValueUtil.randomBoolean(),
@@ -171,6 +192,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         "MyChannel",
                         null,
                         ChannelSchema.FilterType.NONE,
+                        false,
                         null,
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
@@ -189,6 +211,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         "MyChannel",
                         null,
                         ChannelSchema.FilterType.DYNAMIC,
+                        false,
                         null,
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
@@ -207,6 +230,7 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
                         "MyChannel",
                         null,
                         ChannelSchema.FilterType.STATIC,
+                        false,
                         mock(SubscriptionUpdateEntityFilter.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),
@@ -217,14 +241,15 @@ public class ChannelSchemaTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void constructorPassedFilterWhenNotExpected_staticInstanced() {
+    public void constructorPassedFilterWhenNotExpected_staticKeyed() {
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
                 () -> new ChannelSchema(
                         222,
                         "MyChannel",
                         null,
-                        ChannelSchema.FilterType.STATIC_INSTANCED,
+                        ChannelSchema.FilterType.STATIC,
+                        true,
                         mock(SubscriptionUpdateEntityFilter.class),
                         ValueUtil.randomBoolean(),
                         ValueUtil.randomBoolean(),

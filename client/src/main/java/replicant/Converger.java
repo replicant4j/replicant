@@ -211,9 +211,7 @@ abstract class Converger extends ReplicantService {
                             getReplicantContext().getSchemaService().getById(address.schemaId());
                     final ChannelSchema.FilterType filterType =
                             schema.getChannel(address.channelId()).getFilterType();
-                    if (null == groupTemplate
-                            && ChannelSchema.FilterType.DYNAMIC != filterType
-                            && ChannelSchema.FilterType.DYNAMIC_INSTANCED != filterType) {
+                    if (null == groupTemplate && ChannelSchema.FilterType.DYNAMIC != filterType) {
                         /*
                         If the subscription needs an update but the backend does not support updates
                         and subscription is explicitly subscribed then need to do a remove. Eventually it will
@@ -270,12 +268,12 @@ abstract class Converger extends ReplicantService {
                             == areaOfInterest.getAddress().schemaId()
                     && groupTemplate.getAddress().channelId()
                             == areaOfInterest.getAddress().channelId();
-            final boolean sameInstanceId = Objects.equals(
-                    groupTemplate.getAddress().filterInstanceId(),
-                    areaOfInterest.getAddress().filterInstanceId());
+            final boolean sameDatasetKey = Objects.equals(
+                    groupTemplate.getAddress().datasetKey(),
+                    areaOfInterest.getAddress().datasetKey());
 
             return sameChannel
-                    && sameInstanceId
+                    && sameDatasetKey
                     && (AreaOfInterestRequest.Type.REMOVE == action
                             || FilterUtil.filtersEqual(groupTemplate.getFilter(), areaOfInterest.getFilter()));
         }

@@ -74,7 +74,7 @@ public class ChangeTest {
     }
 
     @Test
-    public void constructor_includesFilterInstanceId() {
+    public void constructor_includesDatasetKey() {
         final var id = 3;
         final var typeID = 4;
 
@@ -87,7 +87,7 @@ public class ChangeTest {
     }
 
     @Test
-    public void merge_preservesDistinctFilterInstanceIds() {
+    public void merge_preservesDistinctDatasetKeys() {
         final var id = 8;
         final var typeID = 9;
 

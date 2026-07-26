@@ -346,7 +346,7 @@ abstract class Connector extends ReplicantService {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext().getSpy().reportSpyEvent(new SubscribeRequestQueuedEvent(address, filter));
         }
-        validateFilterInstanceId(address);
+        validateDatasetKey(address);
         ensureConnection().requestSubscribe(address, filter);
         tryTriggerMessageScheduler();
     }
@@ -357,13 +357,12 @@ abstract class Connector extends ReplicantService {
                     () -> {
                         final ChannelSchema.FilterType filterType =
                                 getSchema().getChannel(address.channelId()).getFilterType();
-                        return ChannelSchema.FilterType.DYNAMIC == filterType
-                                || ChannelSchema.FilterType.DYNAMIC_INSTANCED == filterType;
+                        return ChannelSchema.FilterType.DYNAMIC == filterType;
                     },
                     () -> "Replicant-0082: Connector.requestSubscriptionUpdate invoked for channel " + address
                             + " but channel does not have a dynamic filter.");
         }
-        validateFilterInstanceId(address);
+        validateDatasetKey(address);
         ensureConnection().requestSubscriptionUpdate(address, filter);
         tryTriggerMessageScheduler();
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
@@ -372,7 +371,7 @@ abstract class Connector extends ReplicantService {
     }
 
     void requestUnsubscribe(@NonNull final ChannelAddress address) {
-        validateFilterInstanceId(address);
+        validateDatasetKey(address);
         ensureConnection().requestUnsubscribe(address);
         tryTriggerMessageScheduler();
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
@@ -388,22 +387,21 @@ abstract class Connector extends ReplicantService {
         context().task(this::triggerMessageScheduler);
     }
 
-    private void validateFilterInstanceId(@NonNull final ChannelAddress address) {
+    private void validateDatasetKey(@NonNull final ChannelAddress address) {
         if (Replicant.shouldCheckInvariants()) {
             final SystemSchema schema = getSchema();
             if (schema.hasChannel(address.channelId())) {
                 final ChannelSchema channel = schema.getChannel(address.channelId());
-                if (ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType()
-                        || ChannelSchema.FilterType.STATIC_INSTANCED == channel.getFilterType()) {
+                if (channel.requiresDatasetKey()) {
                     invariant(
-                            () -> null != address.filterInstanceId(),
+                            () -> null != address.datasetKey(),
                             () -> "Replicant-0098: Channel " + address
-                                    + " requires a filter instance id but none was supplied.");
+                                    + " requires a dataset key but none was supplied.");
                 } else {
                     invariant(
-                            () -> null == address.filterInstanceId(),
+                            () -> null == address.datasetKey(),
                             () -> "Replicant-0099: Channel " + address
-                                    + " does not support filter instance ids but one was supplied.");
+                                    + " does not support dataset keys but one was supplied.");
                 }
             }
         }
@@ -634,8 +632,7 @@ abstract class Connector extends ReplicantService {
                                     final ChannelSchema.FilterType filterType = getSchema()
                                             .getChannel(address.channelId())
                                             .getFilterType();
-                                    return ChannelSchema.FilterType.DYNAMIC == filterType
-                                            || ChannelSchema.FilterType.DYNAMIC_INSTANCED == filterType;
+                                    return ChannelSchema.FilterType.DYNAMIC == filterType;
                                 },
                                 () -> "Replicant-0078: Received ChannelChange of type UPDATE for address " + address
                                         + " but the channel does not have a DYNAMIC filter.");
@@ -686,8 +683,7 @@ abstract class Connector extends ReplicantService {
         final ChannelSchema channel = getSchema().getChannel(address.channelId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType()
-                            || ChannelSchema.FilterType.DYNAMIC_INSTANCED == channel.getFilterType(),
+                    () -> ChannelSchema.FilterType.DYNAMIC == channel.getFilterType(),
                     () -> "Replicant-0079: Connector.updateSubscriptionForFilteredEntities invoked for address "
                             + subscription.address() + " but the channel does not have a DYNAMIC filter.");
         }

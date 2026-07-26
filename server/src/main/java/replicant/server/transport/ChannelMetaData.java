@@ -25,39 +25,22 @@ public final class ChannelMetaData {
          */
         STATIC,
         /**
-         * Filtering occurs and the client passes a filter parameter, can never change the filter parameter without
-         * unsubscribing and resubscribing to graph, and can subscribe to multiple instances of the channel.
-         */
-        STATIC_INSTANCED,
-        /**
          * Filtering occurs and the client passes a filter parameter and can change the filter parameter.
          */
-        DYNAMIC,
-        /**
-         * Filtering occurs and the client passes a filter parameter, can change the filter parameter, and can
-         * subscribe to multiple instances of the channel.
-         */
-        DYNAMIC_INSTANCED;
+        DYNAMIC;
 
         /**
          * Return true if the filter is a dynamic parameter that can be updated.
          */
         public boolean isDynamicFilter() {
-            return this == DYNAMIC || this == DYNAMIC_INSTANCED;
+            return this == DYNAMIC;
         }
 
         /**
          * Return true if the filter is a static parameter.
          */
         public boolean isStaticFilter() {
-            return this == STATIC || this == STATIC_INSTANCED;
-        }
-
-        /**
-         * Return true if the filter is instance-able and the graph can be subscribed to multiple times.
-         */
-        public boolean isInstancedFilter() {
-            return this == DYNAMIC_INSTANCED || this == STATIC_INSTANCED;
+            return this == STATIC;
         }
 
         /**
@@ -91,6 +74,8 @@ public final class ChannelMetaData {
     @NonNull
     private final FilterType _filterType;
 
+    private final boolean _keyed;
+
     @NonNull
     private final CacheType _cacheType;
     /**
@@ -110,6 +95,7 @@ public final class ChannelMetaData {
             @NonNull final String name,
             @Nullable final Integer instanceRootEntityTypeId,
             @NonNull final FilterType filterType,
+            final boolean keyed,
             @NonNull final CacheType cacheType,
             final boolean external,
             @NonNull final ChannelMetaData... requiredTypeGraphs) {
@@ -117,6 +103,7 @@ public final class ChannelMetaData {
         _name = Objects.requireNonNull(name);
         _instanceRootEntityTypeId = instanceRootEntityTypeId;
         _filterType = Objects.requireNonNull(filterType);
+        _keyed = keyed;
         _cacheType = Objects.requireNonNull(cacheType);
         _external = external;
         _requiredTypeChannels = Objects.requireNonNull(requiredTypeGraphs);
@@ -150,8 +137,8 @@ public final class ChannelMetaData {
         return filterType().hasFilterParameter();
     }
 
-    public boolean requiresFilterInstanceId() {
-        return filterType().isInstancedFilter();
+    public boolean requiresDatasetKey() {
+        return _keyed;
     }
 
     @NonNull

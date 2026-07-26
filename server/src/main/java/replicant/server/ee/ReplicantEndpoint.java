@@ -215,7 +215,7 @@ public class ReplicantEndpoint {
             sendErrorAndClose(replicantSession, "Attempted to subscribe to instance channel without instance data");
             return false;
         } else {
-            return validateFilterInstanceId(replicantSession, channelMetaData, address);
+            return validateDatasetKey(replicantSession, channelMetaData, address);
         }
     }
 
@@ -311,25 +311,25 @@ public class ReplicantEndpoint {
             sendErrorAndClose(replicantSession, "Attempted to unsubscribe from instance channel without instance data");
             return false;
         } else {
-            return validateFilterInstanceId(replicantSession, channelMetaData, address);
+            return validateDatasetKey(replicantSession, channelMetaData, address);
         }
     }
 
-    private boolean validateFilterInstanceId(
+    private boolean validateDatasetKey(
             @NonNull final ReplicantSession session,
             @NonNull final ChannelMetaData channelMetaData,
             @NonNull final ChannelAddress address)
             throws IOException {
-        final boolean hasInstanceId = null != address.filterInstanceId();
-        if (channelMetaData.requiresFilterInstanceId()) {
-            if (!hasInstanceId) {
-                sendErrorAndClose(session, "Attempted to use instanced channel without filter instance id");
+        final boolean hasDatasetKey = null != address.datasetKey();
+        if (channelMetaData.requiresDatasetKey()) {
+            if (!hasDatasetKey) {
+                sendErrorAndClose(session, "Attempted to use keyed channel without dataset key");
                 return false;
             } else {
                 return true;
             }
-        } else if (hasInstanceId) {
-            sendErrorAndClose(session, "Attempted to use non-instanced channel with filter instance id");
+        } else if (hasDatasetKey) {
+            sendErrorAndClose(session, "Attempted to use non-keyed channel with dataset key");
             return false;
         } else {
             return true;

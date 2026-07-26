@@ -42,17 +42,17 @@ public interface ReplicantSessionContext {
             @NonNull ChannelAddress target);
 
     /**
-     * Derive the target filter instance id for a partially specified target address.
+     * Derive the target dataset key for a partially specified target address.
      *
      * @param entityMessage the entityMessage in the context of which the link is being created.
      * @param source        the concrete source channel.
      * @param sourceFilter  the filter for the source channel.
-     * @param target        the target channel template with a missing instance id.
+     * @param target        the target channel template with a missing dataset key.
      * @param targetFilter  the target filter if already known, null otherwise.
-     * @return the filter instance id for the target channel.
+     * @return the dataset key for the target channel.
      */
     @NonNull
-    String deriveTargetFilterInstanceId(
+    String deriveTargetDatasetKey(
             @NonNull EntityMessage entityMessage,
             @NonNull ChannelAddress source,
             @Nullable JsonObject sourceFilter,

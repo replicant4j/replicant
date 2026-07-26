@@ -286,22 +286,22 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_instancedWithoutFilterInstanceId() throws Exception {
-        assertInvalidSubscribe("2.7", "Attempted to use instanced channel without filter instance id");
+    public void command_subscribe_keyedWithoutDatasetKey() throws Exception {
+        assertInvalidSubscribe("2.7", "Attempted to use keyed channel without dataset key");
     }
 
     @Test
-    public void command_subscribe_staticInstancedWithoutFilterInstanceId() throws Exception {
-        assertInvalidSubscribe("4.7", "Attempted to use instanced channel without filter instance id");
+    public void command_subscribe_staticKeyedWithoutDatasetKey() throws Exception {
+        assertInvalidSubscribe("4.7", "Attempted to use keyed channel without dataset key");
     }
 
     @Test
-    public void command_subscribe_nonInstancedWithFilterInstanceId() throws Exception {
-        assertInvalidSubscribe("1.5#fi", "Attempted to use non-instanced channel with filter instance id");
+    public void command_subscribe_nonKeyedWithDatasetKey() throws Exception {
+        assertInvalidSubscribe("1.5#fi", "Attempted to use non-keyed channel with dataset key");
     }
 
     @Test
-    public void command_subscribe_staticInstancedWithFilterInstanceId() throws Exception {
+    public void command_subscribe_staticKeyedWithDatasetKey() throws Exception {
         final var fixture = newFixture();
         final var filter = Json.createObjectBuilder().add("k", "v").build();
         final var command = createSubscribeCommand("4.7#fi", 5, filter);
@@ -390,7 +390,7 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_unsubscribe_nonInstancedWithFilterInstanceId() throws Exception {
+    public void command_unsubscribe_nonKeyedWithDatasetKey() throws Exception {
         final var fixture = newFixture();
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.UNSUB)
@@ -564,22 +564,17 @@ public final class ReplicantEndpointTest {
     @NonNull
     private SchemaMetaData newSchemaMetaData() {
         final var typeChannel = new ChannelMetaData(
-                0, "type", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, true);
+                0, "type", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, true);
         final var dynamicChannel = new ChannelMetaData(
-                1, "dynamic", 1, ChannelMetaData.FilterType.DYNAMIC, ChannelMetaData.CacheType.NONE, true);
-        final var instancedChannel = new ChannelMetaData(
-                2, "instanced", 2, ChannelMetaData.FilterType.DYNAMIC_INSTANCED, ChannelMetaData.CacheType.NONE, true);
-        final var staticInstancedChannel = new ChannelMetaData(
-                4,
-                "staticInstanced",
-                4,
-                ChannelMetaData.FilterType.STATIC_INSTANCED,
-                ChannelMetaData.CacheType.NONE,
-                true);
+                1, "dynamic", 1, ChannelMetaData.FilterType.DYNAMIC, false, ChannelMetaData.CacheType.NONE, true);
+        final var keyedChannel = new ChannelMetaData(
+                2, "keyed", 2, ChannelMetaData.FilterType.DYNAMIC, true, ChannelMetaData.CacheType.NONE, true);
+        final var staticKeyedChannel = new ChannelMetaData(
+                4, "staticKeyed", 4, ChannelMetaData.FilterType.STATIC, true, ChannelMetaData.CacheType.NONE, true);
         final var internalChannel = new ChannelMetaData(
-                3, "internal", null, ChannelMetaData.FilterType.NONE, ChannelMetaData.CacheType.NONE, false);
+                3, "internal", null, ChannelMetaData.FilterType.NONE, false, ChannelMetaData.CacheType.NONE, false);
         return new SchemaMetaData(
-                "Test", typeChannel, dynamicChannel, instancedChannel, internalChannel, staticInstancedChannel);
+                "Test", typeChannel, dynamicChannel, keyedChannel, internalChannel, staticKeyedChannel);
     }
 
     private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {
