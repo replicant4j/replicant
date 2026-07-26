@@ -2,6 +2,7 @@ package replicant.server.transport;
 
 import static org.testng.Assert.*;
 
+import java.util.Set;
 import org.testng.annotations.Test;
 
 public class DatasetMetadataTest {
@@ -82,5 +83,44 @@ public class DatasetMetadataTest {
         assertTrue(metaData.requiresFilterParameter());
         assertTrue(metaData.requiresDatasetKey());
         assertTrue(metaData.isExternal());
+    }
+
+    @Test
+    public void requiredTypeDatasetsTrackDependencyDirection() {
+        final var requiredTypeDataset = new DatasetMetadata(
+                1, "MetaData", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, false);
+        final var requiringDataset = new DatasetMetadata(
+                2,
+                "Event",
+                22,
+                DatasetMetadata.FilterType.NONE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true,
+                requiredTypeDataset);
+
+        assertEquals(requiringDataset.getRequiredTypeDatasets(), new DatasetMetadata[] {requiredTypeDataset});
+        assertEquals(requiredTypeDataset.getDependentDatasets(), Set.of(requiringDataset));
+        assertTrue(requiringDataset.getDependentDatasets().isEmpty());
+        assertEquals(requiredTypeDataset.getRequiredTypeDatasets().length, 0);
+    }
+
+    @Test
+    public void requiredTypeDatasetMustBeTypeDataset() {
+        final var instanceDataset = new DatasetMetadata(
+                1, "Event", 22, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, true);
+
+        final var error = expectThrows(
+                IllegalArgumentException.class,
+                () -> new DatasetMetadata(
+                        2,
+                        "Requiring",
+                        null,
+                        DatasetMetadata.FilterType.NONE,
+                        false,
+                        DatasetMetadata.CacheType.NONE,
+                        true,
+                        instanceDataset));
+        assertEquals(error.getMessage(), "Specified Required Type Dataset Event is not a Type Dataset");
     }
 }

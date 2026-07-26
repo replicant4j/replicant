@@ -2,6 +2,18 @@
 
 ### Unreleased
 
+* Adopt Required Type Dataset terminology for unconditional schema requirements:
+  * Rename the server Dataset metadata constructor parameter, backing fields, and accessors from Required Type
+    Graph/Channel terminology to `requiredTypeDatasets`, `_requiredTypeDatasets`, `getRequiredTypeDatasets`,
+    `_dependentDatasets`, and `getDependentDatasets`.
+  * Rename the Domgen Dataset model APIs from `required_type_graphs` and `require_type_graph` to
+    `required_type_datasets` and `require_type_dataset`, and rename the DSL option from `:require_type_graphs` to
+    `:require_type_datasets`.
+  * Migrate validation, dependency registries, templates, generated metadata and constants, subscription ordering,
+    diagnostics, and cache invalidation to Required Type Dataset terminology.
+  This hard-cut API and DSL migration preserves unconditional requirement direction, transitive inclusion, cache
+  compatibility, Subscription Dependency retention and teardown, subscription ordering, and the wire protocol.
+  Type/Instance Dataset and Dataset Root terminology remain deferred.
 * Adopt Dataset Link terminology for reusable schema rules and Subscription Dependency terminology for current runtime
   retention relationships:
   * Rename client `ChannelLinkSchema` to `DatasetLink` and migrate Entity Type, Dataset, and System Schema metadata

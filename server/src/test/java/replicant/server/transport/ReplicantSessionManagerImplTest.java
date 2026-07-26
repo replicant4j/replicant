@@ -544,6 +544,54 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void subscribe_requiredTypeDatasetPrecedesRequiringDatasetAndCleansUpWithDependency() {
+        final var requiredTypeDataset = new DatasetMetadata(
+                0, "MetaData", null, DatasetMetadata.FilterType.NONE, false, DatasetMetadata.CacheType.NONE, false);
+        final var requiringDataset = new DatasetMetadata(
+                1,
+                "Event",
+                7,
+                DatasetMetadata.FilterType.NONE,
+                false,
+                DatasetMetadata.CacheType.NONE,
+                true,
+                requiredTypeDataset);
+        final var schema = new SchemaMetaData("Test", requiredTypeDataset, requiringDataset);
+        final var context = new TestSessionContext(schema);
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var requiredTypeDatasetAddress = DatasetAddress.of(0);
+        final var requiringDatasetAddress = DatasetAddress.of(1, 42);
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+
+        manager.subscribe(session, 7, List.of(requiringDatasetAddress), null);
+
+        final var collectCalls = context.getBulkCollectCalls();
+        assertEquals(collectCalls.size(), 2);
+        assertEquals(collectCalls.get(0).datasetAddresses(), List.of(requiredTypeDatasetAddress));
+        assertEquals(collectCalls.get(1).datasetAddresses(), List.of(requiringDatasetAddress));
+
+        final var lock = session.getLock();
+        lock.lock();
+        try {
+            session.recordDatasetScopedSubscriptionDependency(requiringDatasetAddress, requiredTypeDatasetAddress);
+        } finally {
+            lock.unlock();
+        }
+
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.unsubscribe(session, 8, List.of(requiringDatasetAddress));
+
+        lock.lock();
+        try {
+            assertFalse(session.isSubscriptionEntryPresent(requiringDatasetAddress));
+            assertFalse(session.isSubscriptionEntryPresent(requiredTypeDatasetAddress));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Test
     public void invalidateSession_removesAndClosesExistingSession() throws Exception {
         final var schema = new SchemaMetaData(
                 "Test",

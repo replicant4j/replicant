@@ -969,7 +969,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         final var datasetId = uniqueDatasetAddresses.get(0).datasetId();
         final var dataset = getSchemaMetaData().getDatasetMetadata(datasetId);
 
-        subscribeToRequiredTypeChannels(session, dataset);
+        subscribeToRequiredTypeDatasets(session, dataset);
 
         final var newDatasetAddresses = new ArrayList<DatasetAddress>();
         // OriginalFilter => Channels
@@ -1104,25 +1104,25 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
     }
 
-    private void subscribeToRequiredTypeChannels(
+    private void subscribeToRequiredTypeDatasets(
             @NonNull final ReplicantSession session, @NonNull final DatasetMetadata datasetMetadata) {
-        final var requiredTypeChannels = datasetMetadata.getRequiredTypeChannels();
-        if (LOG.isLoggable(Level.FINE) && requiredTypeChannels.length > 0) {
+        final var requiredTypeDatasets = datasetMetadata.getRequiredTypeDatasets();
+        if (LOG.isLoggable(Level.FINE) && requiredTypeDatasets.length > 0) {
             LOG.log(
                     Level.FINE,
                     "Subscribing to " + datasetMetadata.getName()
                             + " which has "
-                            + requiredTypeChannels.length
-                            + " required channels. "
-                            + Arrays.stream(requiredTypeChannels)
+                            + requiredTypeDatasets.length
+                            + " Required Type Datasets. "
+                            + Arrays.stream(requiredTypeDatasets)
                                     .map(DatasetMetadata::getName)
                                     .collect(Collectors.joining(",")));
         }
-        for (final var requiredTypeChannel : requiredTypeChannels) {
-            assert requiredTypeChannel.isTypeGraph();
+        for (final var requiredTypeDataset : requiredTypeDatasets) {
+            assert requiredTypeDataset.isTypeGraph();
             // At the moment we propagate no filters ... which is fine
-            assert DatasetMetadata.FilterType.NONE == requiredTypeChannel.filterType();
-            final var datasetAddress = DatasetAddress.of(requiredTypeChannel.getDatasetId());
+            assert DatasetMetadata.FilterType.NONE == requiredTypeDataset.filterType();
+            final var datasetAddress = DatasetAddress.of(requiredTypeDataset.getDatasetId());
 
             // This check is sufficient as it is not an explicit subscribe and there are no filters that can change
             if (!session.isSubscriptionEntryPresent(datasetAddress)) {
@@ -1158,15 +1158,15 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         try {
             final var metaData = getSchemaMetaData().getDatasetMetadata(datasetAddress);
             if (null != _cache.remove(datasetAddress)) {
-                // If we expire the cache then any dependent type graphs must also be expired. This is
+                // If we expire the cache then any dependent Datasets must also be expired. This is
                 // required as when a cache is on a client then we send back a "use-cache" message immediately
                 // whereas if a message for a cached has to be loaded and sent back then we queue it on
                 // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
-                // up required graphs when sending cached results this may cause the later "use-cached" to arrive
+                // up Required Type Datasets when sending cached results this may cause the later "use-cached" to arrive
                 // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
                 // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
-                // invalidate all dependent cached type graphs to avoid this scenario.
-                for (final var dataset : metaData.getDependentChannels()) {
+                // invalidate all dependent cached Datasets to avoid this scenario.
+                for (final var dataset : metaData.getDependentDatasets()) {
                     if (dataset.isTypeGraph() && dataset.isCacheable()) {
                         _cache.remove(DatasetAddress.of(dataset.getDatasetId()));
                     }

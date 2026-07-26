@@ -85,10 +85,10 @@ public final class DatasetMetadata {
     private final boolean _external;
 
     @NonNull
-    private final DatasetMetadata[] _requiredTypeChannels;
+    private final DatasetMetadata[] _requiredTypeDatasets;
 
     @NonNull
-    private final Set<DatasetMetadata> _dependentChannels = new HashSet<>();
+    private final Set<DatasetMetadata> _dependentDatasets = new HashSet<>();
 
     public DatasetMetadata(
             final int datasetId,
@@ -98,7 +98,7 @@ public final class DatasetMetadata {
             final boolean keyed,
             @NonNull final CacheType cacheType,
             final boolean external,
-            @NonNull final DatasetMetadata... requiredTypeGraphs) {
+            @NonNull final DatasetMetadata... requiredTypeDatasets) {
         _datasetId = datasetId;
         _name = Objects.requireNonNull(name);
         _instanceRootEntityTypeId = instanceRootEntityTypeId;
@@ -106,13 +106,13 @@ public final class DatasetMetadata {
         _keyed = keyed;
         _cacheType = Objects.requireNonNull(cacheType);
         _external = external;
-        _requiredTypeChannels = Objects.requireNonNull(requiredTypeGraphs);
-        for (final var requiredTypeChannel : _requiredTypeChannels) {
-            if (requiredTypeChannel.isInstanceGraph()) {
+        _requiredTypeDatasets = Objects.requireNonNull(requiredTypeDatasets);
+        for (final var requiredTypeDataset : _requiredTypeDatasets) {
+            if (requiredTypeDataset.isInstanceGraph()) {
                 throw new IllegalArgumentException(
-                        "Specified RequiredTypeChannel " + requiredTypeChannel.getName() + " is not a type channel");
+                        "Specified Required Type Dataset " + requiredTypeDataset.getName() + " is not a Type Dataset");
             }
-            requiredTypeChannel._dependentChannels.add(this);
+            requiredTypeDataset._dependentDatasets.add(this);
         }
     }
 
@@ -164,14 +164,24 @@ public final class DatasetMetadata {
         return _external;
     }
 
+    /**
+     * Return the Type Datasets that this Dataset requires unconditionally.
+     *
+     * @return the Required Type Datasets
+     */
     @NonNull
-    public DatasetMetadata[] getRequiredTypeChannels() {
-        return _requiredTypeChannels;
+    public DatasetMetadata[] getRequiredTypeDatasets() {
+        return _requiredTypeDatasets;
     }
 
+    /**
+     * Return the Datasets that unconditionally require this Type Dataset.
+     *
+     * @return the dependent Datasets
+     */
     @Contract(pure = true)
     @NonNull
-    public @UnmodifiableView Set<DatasetMetadata> getDependentChannels() {
-        return Collections.unmodifiableSet(_dependentChannels);
+    public @UnmodifiableView Set<DatasetMetadata> getDependentDatasets() {
+        return Collections.unmodifiableSet(_dependentDatasets);
     }
 }
