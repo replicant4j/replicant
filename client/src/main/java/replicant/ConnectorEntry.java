@@ -21,7 +21,7 @@ final class ConnectorEntry implements Disposable {
     @NonNull
     private final Connector _connector;
     /**
-     * Does the system require this DataLoader to be present to be operational.
+     * Whether the Replicant Context requires this Connector to be connected to be operational.
      */
     private boolean _required;
 

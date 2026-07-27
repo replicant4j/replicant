@@ -3,27 +3,31 @@ package replicant;
 import org.jspecify.annotations.NonNull;
 
 /**
- * An isolated Replicant context.
+ * An activation scope for one isolated {@link ReplicantContext}.
+ *
+ * <p>A Zone selects which Replicant Context is returned by {@link Replicant#context()} while code runs in the Zone.
+ * The Zone is not Replicant Session state and does not itself own System Schemas, Areas of Interest, Subscriptions, or
+ * Replicas.
  */
 public final class Zone {
     /**
-     * The underlying context for zone.
+     * The Replicant Context selected by this Zone.
      */
     @NonNull
     private final ReplicantContext _context = new ReplicantContext();
 
     /**
-     * Return the context for the zone.
+     * Return the Replicant Context selected by this Zone.
      *
-     * @return the context for the zone.
+     * @return the Replicant Context selected by this Zone.
      */
     @NonNull
-    public ReplicantContext getContext() {
+    public ReplicantContext getReplicantContext() {
         return _context;
     }
 
     /**
-     * Create a zone.
+     * Create an activation scope containing a new, isolated Replicant Context.
      * Should only be done via {@link Replicant} methods.
      */
     Zone() {}
@@ -33,8 +37,8 @@ public final class Zone {
     }
 
     /**
-     * Run the specified function in the zone.
-     * Activate the zone on entry, deactivate on exit.
+     * Run the specified function with this Zone's Replicant Context current.
+     * Activate the Zone on entry and restore the previous Zone on exit.
      *
      * @param <T>    The type of the value returned from function.
      * @param action the function to execute.
@@ -50,8 +54,8 @@ public final class Zone {
     }
 
     /**
-     * Run the specified function in the zone.
-     * Activate the zone on entry, deactivate on exit.
+     * Run the specified function with this Zone's Replicant Context current.
+     * Activate the Zone on entry and restore the previous Zone on exit.
      *
      * @param <T>    The type of the value returned from function.
      * @param action the function to execute.
@@ -68,8 +72,8 @@ public final class Zone {
     }
 
     /**
-     * Run the specified procedure in the zone.
-     * Activate the zone on entry, deactivate on exit.
+     * Run the specified procedure with this Zone's Replicant Context current.
+     * Activate the Zone on entry and restore the previous Zone on exit.
      *
      * @param action the procedure to execute.
      */
@@ -83,8 +87,8 @@ public final class Zone {
     }
 
     /**
-     * Run the specified procedure in the zone.
-     * Activate the zone on entry, deactivate on exit.
+     * Run the specified procedure with this Zone's Replicant Context current.
+     * Activate the Zone on entry and restore the previous Zone on exit.
      *
      * @param action the procedure to execute.
      * @throws Throwable if the procedure throws an exception.

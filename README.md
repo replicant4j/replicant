@@ -77,6 +77,16 @@ A System Schema catalogs every Entity Type and Dataset belonging to one isolated
 distinguishes that system within a Replicant Context. Connectors and Dataset Addresses use the identifier to keep
 multiple systems in the same context isolated.
 
+### Replicant Contexts
+
+A Replicant Context is the client-side boundary that owns System Schema registrations, Areas of Interest,
+Subscriptions, connector lifecycle, cache-service integration, and shared Replica instances. One Context can own
+multiple System Schemas. A Replica may be shared by overlapping Subscriptions in the same Context, but no Replicant
+state is shared between Contexts.
+
+A Zone is only an activation scope that selects which Replicant Context is returned by `Replicant.context()`. It is
+not a Replicant Session. A Replicant Session is the distinct server-side state for one active transport session.
+
 ### Datasets and Subscriptions
 
 When a client connects to the replicant system, they are typically interested in a subset of the

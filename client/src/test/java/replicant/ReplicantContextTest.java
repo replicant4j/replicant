@@ -4,10 +4,117 @@ import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
 import arez.Disposable;
+import java.util.Collections;
 import java.util.List;
 import org.testng.annotations.Test;
 
 public class ReplicantContextTest extends AbstractReplicantTest {
+    @Test
+    public void stateIsIsolatedBetweenContexts() {
+        ReplicantTestUtil.enableZones();
+        ReplicantTestUtil.resetState();
+        pauseScheduler();
+
+        final Dataset dataset1 = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                null,
+                false,
+                Dataset.Visibility.INTERNAL,
+                Collections.emptyList());
+        final Dataset dataset2 = new Dataset(
+                1,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                null,
+                false,
+                Dataset.Visibility.INTERNAL,
+                Collections.emptyList());
+        final SystemSchema systemSchema =
+                new SystemSchema(42, ValueUtil.randomString(), new Dataset[] {dataset1, dataset2}, new EntityType[0]);
+        final SystemSchema additionalSystemSchema =
+                new SystemSchema(43, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
+        final DatasetAddress datasetAddress1 = new DatasetAddress(systemSchema.getId(), dataset1.getId());
+        final DatasetAddress datasetAddress2 = new DatasetAddress(systemSchema.getId(), dataset2.getId());
+        final Zone zone1 = Replicant.createZone();
+        final Zone zone2 = Replicant.createZone();
+        final ReplicantContext[] contexts = new ReplicantContext[2];
+        final AreaOfInterest[] areasOfInterest = new AreaOfInterest[2];
+        final Subscription[] subscriptions = new Subscription[2];
+        final ReplicaEntry[] replicaEntries = new ReplicaEntry[2];
+        final DatasetCacheService[] datasetCacheServices =
+                new DatasetCacheService[] {mock(DatasetCacheService.class), mock(DatasetCacheService.class)};
+        final Disposable[] connectorRegistrations = new Disposable[3];
+
+        zone1.safeRun(() -> safeAction(() -> {
+            final ReplicantContext context = Replicant.context();
+            contexts[0] = context;
+            context.setDatasetCacheService(datasetCacheServices[0]);
+            connectorRegistrations[0] = context.registerConnector(systemSchema, mock(Transport.class));
+            connectorRegistrations[1] = context.registerConnector(additionalSystemSchema, mock(Transport.class));
+            areasOfInterest[0] = context.createOrUpdateAreaOfInterest(datasetAddress1, null);
+            subscriptions[0] = context.getSubscriptionService()
+                    .createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
+            final Subscription secondSubscription = context.getSubscriptionService()
+                    .createSubscription(datasetAddress2, null, SubscriptionMode.EXPLICIT);
+            replicaEntries[0] = context.getReplicaRegistry().findOrCreateReplicaEntry("Replica/7", A.class, 7);
+            replicaEntries[0].linkToSubscription(subscriptions[0]);
+            replicaEntries[0].linkToSubscription(secondSubscription);
+
+            assertSame(context.findReplicaEntryByTypeAndId(A.class, 7), replicaEntries[0]);
+            assertEquals(replicaEntries[0].getSubscriptions().size(), 2);
+        }));
+
+        zone2.safeRun(() -> safeAction(() -> {
+            final ReplicantContext context = Replicant.context();
+            contexts[1] = context;
+            context.setDatasetCacheService(datasetCacheServices[1]);
+            connectorRegistrations[2] = context.registerConnector(systemSchema, mock(Transport.class));
+            areasOfInterest[1] = context.createOrUpdateAreaOfInterest(datasetAddress1, null);
+            subscriptions[1] = context.getSubscriptionService()
+                    .createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
+            replicaEntries[1] = context.getReplicaRegistry().findOrCreateReplicaEntry("Replica/7", A.class, 7);
+            replicaEntries[1].linkToSubscription(subscriptions[1]);
+        }));
+
+        safeAction(() -> {
+            assertNotSame(contexts[0], contexts[1]);
+            assertEquals(contexts[0].getSystemSchemas().size(), 2);
+            assertTrue(contexts[0].getSystemSchemas().contains(systemSchema));
+            assertTrue(contexts[0].getSystemSchemas().contains(additionalSystemSchema));
+            assertEquals(contexts[1].getSystemSchemas().size(), 1);
+            assertTrue(contexts[1].getSystemSchemas().contains(systemSchema));
+            assertFalse(contexts[1].getSystemSchemas().contains(additionalSystemSchema));
+            assertNotSame(areasOfInterest[0], areasOfInterest[1]);
+            assertSame(contexts[0].findAreaOfInterestByDatasetAddress(datasetAddress1), areasOfInterest[0]);
+            assertSame(contexts[1].findAreaOfInterestByDatasetAddress(datasetAddress1), areasOfInterest[1]);
+            assertNotSame(subscriptions[0], subscriptions[1]);
+            assertSame(contexts[0].findSubscription(datasetAddress1), subscriptions[0]);
+            assertSame(contexts[1].findSubscription(datasetAddress1), subscriptions[1]);
+            assertNotSame(replicaEntries[0], replicaEntries[1]);
+            assertSame(contexts[0].findReplicaEntryByTypeAndId(A.class, 7), replicaEntries[0]);
+            assertSame(contexts[1].findReplicaEntryByTypeAndId(A.class, 7), replicaEntries[1]);
+            assertSame(contexts[0].getDatasetCacheService(), datasetCacheServices[0]);
+            assertSame(contexts[1].getDatasetCacheService(), datasetCacheServices[1]);
+
+            connectorRegistrations[0].dispose();
+
+            assertEquals(contexts[0].getSystemSchemas().size(), 1);
+            assertFalse(contexts[0].getSystemSchemas().contains(systemSchema));
+            assertTrue(contexts[0].getSystemSchemas().contains(additionalSystemSchema));
+            assertTrue(contexts[1].getSystemSchemas().contains(systemSchema));
+            assertEquals(contexts[0].getRuntime().getConnectors().size(), 1);
+            assertEquals(contexts[1].getRuntime().getConnectors().size(), 1);
+        });
+    }
+
     @Test
     public void schemas() {
         final int systemSchemaId = 22;

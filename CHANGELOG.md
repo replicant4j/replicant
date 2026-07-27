@@ -2,6 +2,20 @@
 
 ### Unreleased
 
+* Adopt Replicant Context terminology for the client-side boundary that owns System Schema registrations, Areas of
+  Interest, Subscriptions, connector lifecycle, Dataset Cache Service integration, and shared Replica instances:
+  * Document that one Context may own multiple System Schemas, Replicas are shared only among Subscriptions in that
+    Context, and no in-memory Replicant state is shared between Contexts.
+  * Keep `Zone` as the activation scope that selects the current Replicant Context and rename
+    `Zone.getContext()` to `getReplicantContext()`.
+  * Rename Domgen's misleading client `gwt_client_session_context` artifact to `system_schema_hooks`, generating
+    `<Repository>SystemSchemaHooks` for application callbacks that construct and support a System Schema without
+    representing a Replicant Context.
+  * Rename the unrelated server request thread-local from `ReplicantContextHolder` to
+    `ReplicantRequestContextHolder`, while preserving `ReplicantSession` and `ReplicantSessionContext` as server-side
+    transport-session state.
+  This is a hard-cut public API, Domgen model, generated-source, and server API migration; no compatibility aliases
+  are provided.
 * Adopt Dataset Visibility terminology for the Dataset declaration that controls how Subscriptions may originate:
   * Replace client and server `external` booleans and `isExternal()` APIs with explicit `Dataset.Visibility` values
     `EXTERNAL`, `INTERNAL`, and `UNIVERSAL`, preserving the Domgen DSL's universal default.

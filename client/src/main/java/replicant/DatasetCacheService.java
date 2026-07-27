@@ -11,6 +11,9 @@ import replicant.messages.ChangeSetMessage;
  * <p>Each stored representation is identified by an opaque Dataset Cache Version supplied by the server. Callers
  * compare Dataset Cache Versions only for equality and treat absent, unreadable, corrupt, or mismatched entries as
  * recoverable cache misses.
+ *
+ * <p>A Replicant Context owns its association with this service. Implementations may reuse external persistence
+ * across Contexts, but each Context materializes independent Subscription and Replica state from a stored Change Set.
  */
 public interface DatasetCacheService {
     /**

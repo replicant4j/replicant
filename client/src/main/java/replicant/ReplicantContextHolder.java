@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A utility class that contains reference to singleton context when zones are disabled.
+ * A utility class that contains the singleton Replicant Context when Zones are disabled.
  * This is extracted to a separate class to eliminate the <clinit> from Replicant and thus
  * make it much easier for GWT to optimize out code based on build time compilation parameters.
  */
@@ -32,9 +32,9 @@ final class ReplicantContextHolder {
     private ReplicantContextHolder() {}
 
     /**
-     * Return the ReplicantContext from the provider.
+     * Return the singleton Replicant Context.
      *
-     * @return the ReplicantContext.
+     * @return the singleton Replicant Context.
      */
     @NonNull
     static ReplicantContext context() {
@@ -42,7 +42,7 @@ final class ReplicantContextHolder {
     }
 
     /**
-     * cleanup context.
+     * Reset the singleton Replicant Context.
      * This is dangerous as it may leave dangling references and should only be done in tests.
      */
     static void reset() {

@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.spy.SubscriptionCreatedEvent;
 
 /**
- * A class that records the subscriptions within the system.
+ * Records the Subscriptions owned by one Replicant Context.
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionService extends ReplicantService {

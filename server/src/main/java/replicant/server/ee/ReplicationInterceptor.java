@@ -8,7 +8,7 @@ import javax.interceptor.InvocationContext;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import replicant.server.ServerConstants;
-import replicant.server.runtime.ReplicantContextHolder;
+import replicant.server.runtime.ReplicantRequestContextHolder;
 import replicant.server.transport.ReplicantSessionManager;
 
 /**
@@ -25,10 +25,10 @@ public class ReplicationInterceptor {
 
     @AroundInvoke
     public Object businessIntercept(final InvocationContext context) throws Exception {
-        final var sessionId = (String) ReplicantContextHolder.get(ServerConstants.SESSION_ID_KEY);
-        final var requestId = (Integer) ReplicantContextHolder.get(ServerConstants.REQUEST_ID_KEY);
+        final var sessionId = (String) ReplicantRequestContextHolder.get(ServerConstants.SESSION_ID_KEY);
+        final var requestId = (Integer) ReplicantRequestContextHolder.get(ServerConstants.REQUEST_ID_KEY);
         final var session = null != sessionId ? _sessionManager.getSession(sessionId) : null;
-        ReplicantContextHolder.clean();
+        ReplicantRequestContextHolder.clean();
         return _sessionManager.runRequest(getInvocationKey(context), session, requestId, context::proceed);
     }
 

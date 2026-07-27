@@ -26,8 +26,8 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     private final Storage _storage;
 
     /**
-     * Install the Dataset Cache Service into the default context where persistence occurs in storage attached to the
-     * root window.
+     * Install the Dataset Cache Service into the default Replicant Context where persistence occurs in storage
+     * attached to the root window.
      * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
      */
     public static void install() {
@@ -35,20 +35,21 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     }
 
     /**
-     * Install the Dataset Cache Service into the specified context where persistence occurs in storage attached to the
-     * root window.
+     * Install a distinct Dataset Cache Service into the specified Replicant Context where persistence occurs in
+     * storage attached to the root window.
      * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
      *
-     * @param context the replicant context.
+     * @param context the Replicant Context that owns the service association.
      */
     public static void install(@NonNull final ReplicantContext context) {
         install(context, WindowGlobal.localStorage());
     }
 
     /**
-     * Install the Dataset Cache Service into the specified context where persistence occurs in the specified storage.
+     * Install a distinct Dataset Cache Service into the specified Replicant Context where persistence occurs in the
+     * specified storage.
      *
-     * @param context the replicant context.
+     * @param context the Replicant Context that owns the service association.
      * @param storage the storage used for Dataset Cache Entries.
      */
     public static void install(@NonNull final ReplicantContext context, @NonNull final Storage storage) {

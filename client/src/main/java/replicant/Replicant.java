@@ -91,9 +91,12 @@ public final class Replicant {
     }
 
     /**
-     * Return the ReplicantContext from the provider.
+     * Return the current Replicant Context.
      *
-     * @return the ReplicantContext.
+     * <p>When Zones are disabled this returns the singleton Context. When Zones are enabled this returns the Context
+     * selected by the active Zone. Replicant state is isolated between the Contexts selected by different Zones.
+     *
+     * @return the current Replicant Context.
      */
     @NonNull
     public static ReplicantContext context() {
@@ -101,10 +104,10 @@ public final class Replicant {
     }
 
     /**
-     * Create a new zone.
-     * This zone is not yet activated.
+     * Create a new Zone containing an isolated Replicant Context.
+     * This Zone is not yet activated.
      *
-     * @return the new zone.
+     * @return the new Zone.
      */
     @NonNull
     public static Zone createZone() {

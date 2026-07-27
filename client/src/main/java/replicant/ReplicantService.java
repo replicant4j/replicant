@@ -7,11 +7,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A base class that interacts with ReplicantContext.
+ * A base class for state owned by one {@link ReplicantContext}.
  */
 abstract class ReplicantService {
     /**
-     * Reference to the context to which this service belongs.
+     * Reference to the Replicant Context to which this service belongs when Zones are enabled.
      */
     @Nullable
     private final ReplicantContext _context;

@@ -6,20 +6,23 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A mechanism for passing context data from the servlet/ejb tier to the ejb tier.
+ * Passes Replicant request metadata from the servlet tier to the EJB tier.
  *
  * <p>The expectation is that an interceptor in the ejb tier will inspect and utilize
- * the context data. The implementation uses thread-locals as it assumes that at least
+ * the request metadata. The implementation uses thread-locals as it assumes that at least
  * the first interceptor will be invoked in the thread that initiates the request.</p>
+ *
+ * <p>This server-side request context is unrelated to the client-side Replicant Context and does not own System
+ * Schemas, Areas of Interest, Subscriptions, or Replicas.
  */
-public final class ReplicantContextHolder {
+public final class ReplicantRequestContextHolder {
     @NonNull
     private static final ThreadLocal<Map<String, Object>> c_context = new ThreadLocal<>();
 
-    private ReplicantContextHolder() {}
+    private ReplicantRequestContextHolder() {}
 
     /**
-     * Specify some context data for a particular key.
+     * Specify request metadata for a particular key.
      *
      * @param key  the key.
      * @param data the data.
@@ -41,10 +44,10 @@ public final class ReplicantContextHolder {
     }
 
     /**
-     * Retrieve context data specified for key.
+     * Retrieve request metadata specified for key.
      *
      * @param key the key.
-     * @return the context data if any, else null.
+     * @return the request metadata if any, else null.
      */
     @Nullable
     public static Object get(@NonNull final String key) {
@@ -53,7 +56,7 @@ public final class ReplicantContextHolder {
     }
 
     /**
-     * Cleanup and remove any context data associated with the current request.
+     * Cleanup and remove any metadata associated with the current request.
      * This should be invoked by the outer interceptor.
      */
     public static void clean() {

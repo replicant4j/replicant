@@ -62,22 +62,22 @@ public class ReplicantTest extends AbstractReplicantTest {
     public void zone_basicOperation() {
         ReplicantTestUtil.enableZones();
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
 
         final Zone zone1 = Replicant.createZone();
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
         assertFalse(zone1.isActive());
 
         zone1.safeRun(() -> {
-            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(zone1.getReplicantContext(), Replicant.context());
             assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
             assertTrue(zone1.isActive());
         });
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
     }
 
@@ -85,28 +85,28 @@ public class ReplicantTest extends AbstractReplicantTest {
     public void zone_multipleZones() {
         ReplicantTestUtil.enableZones();
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
 
         final Zone zone1 = Replicant.createZone();
         final Zone zone2 = Replicant.createZone();
         final Zone zone3 = Replicant.createZone();
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
         assertFalse(zone1.isActive());
         assertFalse(zone2.isActive());
         assertFalse(zone3.isActive());
 
         zone1.safeRun(() -> {
-            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(zone1.getReplicantContext(), Replicant.context());
             assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
             assertTrue(zone1.isActive());
             assertFalse(zone2.isActive());
             assertFalse(zone3.isActive());
 
             zone2.safeRun(() -> {
-                assertEquals(zone2.getContext(), Replicant.context());
+                assertEquals(zone2.getReplicantContext(), Replicant.context());
                 assertEquals(ReplicantZoneHolder.getZoneStack().size(), 2);
                 assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
                 assertEquals(ReplicantZoneHolder.getZoneStack().get(1), zone1);
@@ -115,7 +115,7 @@ public class ReplicantTest extends AbstractReplicantTest {
                 assertFalse(zone3.isActive());
 
                 zone1.safeRun(() -> {
-                    assertEquals(zone1.getContext(), Replicant.context());
+                    assertEquals(zone1.getReplicantContext(), Replicant.context());
                     assertEquals(ReplicantZoneHolder.getZoneStack().size(), 3);
                     assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
                     assertEquals(ReplicantZoneHolder.getZoneStack().get(1), zone1);
@@ -125,7 +125,7 @@ public class ReplicantTest extends AbstractReplicantTest {
                     assertFalse(zone3.isActive());
 
                     zone3.safeRun(() -> {
-                        assertEquals(zone3.getContext(), Replicant.context());
+                        assertEquals(zone3.getReplicantContext(), Replicant.context());
                         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 4);
                         assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
                         assertEquals(ReplicantZoneHolder.getZoneStack().get(1), zone1);
@@ -136,7 +136,7 @@ public class ReplicantTest extends AbstractReplicantTest {
                         assertTrue(zone3.isActive());
                     });
 
-                    assertEquals(zone1.getContext(), Replicant.context());
+                    assertEquals(zone1.getReplicantContext(), Replicant.context());
                     assertEquals(ReplicantZoneHolder.getZoneStack().size(), 3);
                     assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
                     assertEquals(ReplicantZoneHolder.getZoneStack().get(1), zone1);
@@ -146,7 +146,7 @@ public class ReplicantTest extends AbstractReplicantTest {
                     assertFalse(zone3.isActive());
                 });
 
-                assertEquals(zone2.getContext(), Replicant.context());
+                assertEquals(zone2.getReplicantContext(), Replicant.context());
                 assertEquals(ReplicantZoneHolder.getZoneStack().size(), 2);
                 assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
                 assertEquals(ReplicantZoneHolder.getZoneStack().get(1), zone1);
@@ -155,7 +155,7 @@ public class ReplicantTest extends AbstractReplicantTest {
                 assertFalse(zone3.isActive());
             });
 
-            assertEquals(zone1.getContext(), Replicant.context());
+            assertEquals(zone1.getReplicantContext(), Replicant.context());
             assertEquals(ReplicantZoneHolder.getZoneStack().size(), 1);
             assertEquals(ReplicantZoneHolder.getZoneStack().get(0), ReplicantZoneHolder.getDefaultZone());
             assertTrue(zone1.isActive());
@@ -163,7 +163,7 @@ public class ReplicantTest extends AbstractReplicantTest {
             assertFalse(zone3.isActive());
         });
 
-        assertEquals(ReplicantZoneHolder.getDefaultZone().getContext(), Replicant.context());
+        assertEquals(ReplicantZoneHolder.getDefaultZone().getReplicantContext(), Replicant.context());
         assertEquals(ReplicantZoneHolder.getZoneStack().size(), 0);
         assertFalse(zone1.isActive());
         assertFalse(zone2.isActive());

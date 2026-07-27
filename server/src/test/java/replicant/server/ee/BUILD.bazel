@@ -32,9 +32,9 @@ java_testng(
 )
 
 java_testng(
-    name = "ReplicantContextHolderTest",
-    srcs = ["ReplicantContextHolderTest.java"],
-    test_class = "replicant.server.ee.ReplicantContextHolderTest",
+    name = "ReplicantRequestContextHolderTest",
+    srcs = ["ReplicantRequestContextHolderTest.java"],
+    test_class = "replicant.server.ee.ReplicantRequestContextHolderTest",
     deps = ["//server:server_test_support"],
 )
 

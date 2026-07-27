@@ -12,8 +12,14 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The ReplicantContext defines the top-level container of interconnected Subscriptions, Replica Entries, and Areas of
- * Interest.
+ * The client-side ownership boundary for Replicant state.
+ *
+ * <p>A Replicant Context owns its System Schema registrations, Areas of Interest, Subscriptions, connector lifecycle,
+ * Dataset Cache Service integration, and Replica Entries. A Replica Entry may be shared by multiple Subscriptions in
+ * this Context, but no Replicant state is shared with another Replicant Context. Immutable System Schema definitions
+ * and external Dataset Cache storage may be reused by multiple Contexts without sharing their in-memory state.
+ *
+ * <p>One Replicant Context may register multiple System Schemas, identified independently within the Context.
  */
 public final class ReplicantContext {
     @NonNull
@@ -72,8 +78,11 @@ public final class ReplicantContext {
     }
 
     /**
-     * Register a connector with specified System Schema and transport. The transport instance must be unique
-     * to this connector but the System Schema may be shared between multiple connectors.
+     * Register a Connector owned by this Replicant Context for the specified System Schema and Transport.
+     *
+     * <p>The Transport instance must be unique to this Connector. A Context may own Connectors for multiple System
+     * Schemas, but only one Connector for each System Schema identifier. Disposing the returned handle deregisters the
+     * Connector and its System Schema from this Context without affecting any other Replicant Context.
      *
      * @param systemSchema    the System Schema defining datasource.
      * @param transport the transport.
@@ -137,7 +146,7 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the collection of Replica types that exist in the system.
+     * Return the collection of Replica types that exist in this Replicant Context.
      * Only Replica types that have at least one instance will be returned from this method unless
      * a Replica Entry has been disposed and the scheduler is yet to invoke code to remove the type from the set.
      * This is unlikely to be exposed to normal user code.
@@ -209,9 +218,9 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the System Schema instances registered with the context.
+     * Return the System Schema definitions registered with this Replicant Context.
      *
-     * @return the System Schema instances registered with the context.
+     * @return the System Schema definitions registered with this Replicant Context.
      */
     @NonNull
     public Collection<SystemSchema> getSystemSchemas() {
@@ -333,10 +342,10 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return true if the desired state of the system is "active", false otherwise.
+     * Return true if the desired state of this Replicant Context is "active", false otherwise.
      * This property is Arez observable.
      *
-     * @return true if the desired state of the system is "active", false otherwise.
+     * @return true if the desired state of this Replicant Context is "active", false otherwise.
      */
     public boolean isActive() {
         return getRuntime().isActive();
@@ -395,9 +404,9 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the Dataset Cache Service associated with the context, if any.
+     * Return the Dataset Cache Service associated with this Replicant Context, if any.
      *
-     * @return the Dataset Cache Service associated with the context, if any.
+     * @return the Dataset Cache Service associated with this Replicant Context, if any.
      */
     @Nullable
     public DatasetCacheService getDatasetCacheService() {
@@ -405,7 +414,11 @@ public final class ReplicantContext {
     }
 
     /**
-     * Specify the Dataset Cache Service used by the context, if any.
+     * Specify the Dataset Cache Service used by this Replicant Context, if any.
+     *
+     * <p>The service association belongs only to this Context. A service may use external storage that is also used by
+     * other Contexts, but applying a stored Change Set always materializes separate Subscription and Replica state in
+     * this Context.
      *
      * @param datasetCacheService the Dataset Cache Service.
      */

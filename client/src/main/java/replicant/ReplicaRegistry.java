@@ -20,7 +20,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The registry of Replica Entry instances within the Replicant system.
+ * The registry of Replica Entry instances owned by one Replicant Context.
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class ReplicaRegistry extends ReplicantService {
@@ -45,7 +45,7 @@ abstract class ReplicaRegistry extends ReplicantService {
     }
 
     /**
-     * Return the collection of Replica types that exist in the system.
+     * Return the collection of Replica types that exist in the Replicant Context.
      * Only Replica types that have at least one instance will be returned from this method unless
      * a Replica Entry has been disposed and the scheduler is yet to invoke code to remove the type from the set.
      * This is unlikely to be exposed to normal user code.

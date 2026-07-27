@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A utility class that is used to validate state within the replicant context is consistent.
+ * Validates that the state owned by one Replicant Context is consistent.
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class Validator extends ReplicantService {

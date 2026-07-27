@@ -45,13 +45,13 @@ final class ReplicantZoneHolder {
     private ReplicantZoneHolder() {}
 
     /**
-     * Return the ReplicantContext from the provider.
+     * Return the Replicant Context selected by the current Zone.
      *
-     * @return the ReplicantContext.
+     * @return the Replicant Context selected by the current Zone.
      */
     @NonNull
     static ReplicantContext context() {
-        return Objects.requireNonNull(c_zone).getContext();
+        return Objects.requireNonNull(c_zone).getReplicantContext();
     }
 
     /**

@@ -49,7 +49,7 @@ import replicant.server.SubscriptionChange;
 import replicant.server.SubscriptionDependencyCandidate;
 import replicant.server.json.JsonEncoder;
 import replicant.server.runtime.EntityChangeCandidateCacheUtil;
-import replicant.server.runtime.ReplicantContextHolder;
+import replicant.server.runtime.ReplicantRequestContextHolder;
 import replicant.server.runtime.ReplicantSystem;
 
 @SuppressWarnings("DuplicatedCode")
@@ -180,7 +180,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Start a replication context.
+     * Start a replication invocation.
      *
      * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
      * @param session       the session that initiated change if any.
@@ -213,7 +213,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Complete a replication context and submit changes for replication.
+     * Complete a replication invocation and submit changes for replication.
      */
     @SuppressWarnings({"deprecation", "RedundantSuppression"})
     private void completeReplication(@NonNull final String invocationKey) {
@@ -237,7 +237,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 }
             }
             final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
-            // Clear all state in case there is multiple replication contexts started in one transaction
+            // Clear all state in case multiple replication invocations started in one transaction
             _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
             _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
@@ -247,11 +247,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             _registry.putResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY, null);
 
             final var isComplete = !(null != complete && !"1".equals(complete)) && requestComplete;
-            ReplicantContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0");
-            ReplicantContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, response);
+            ReplicantRequestContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, isComplete ? "1" : "0");
+            ReplicantRequestContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, response);
         } else {
-            ReplicantContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, "1");
-            ReplicantContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, null);
+            ReplicantRequestContextHolder.put(ServerConstants.REQUEST_COMPLETE_KEY, "1");
+            ReplicantRequestContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, null);
         }
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Completed invocation of " + invocationKey + " Thread: "

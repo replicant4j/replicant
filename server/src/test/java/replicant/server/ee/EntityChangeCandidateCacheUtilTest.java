@@ -66,7 +66,7 @@ public class EntityChangeCandidateCacheUtilTest {
     }
 
     @Test(expectedExceptions = IllegalStateException.class)
-    public void lookupOfResourceOutsideReplicationContext() {
+    public void lookupOfResourceOutsideReplicationInvocation() {
         TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
 
         EntityChangeCandidateCacheUtil.lookupSessionChanges();
