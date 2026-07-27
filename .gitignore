@@ -1,3 +1,6 @@
+# Location where bazel builds dist for uploading to Maven Central
+/dist
+
 /.bazelbsp
 /.idea
 /tmp
