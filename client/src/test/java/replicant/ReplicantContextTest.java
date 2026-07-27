@@ -169,6 +169,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertNull(context.findSubscription(datasetAddress1));
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
+            assertFalse(context.isDataAvailable(datasetAddress1));
+            assertFalse(context.isDataAvailable(datasetAddress2));
+            assertFalse(context.isDataAvailable(datasetAddress3));
 
             final Subscription subscription1 = createSubscription(datasetAddress1, filterParameter1, mode1);
 
@@ -182,6 +185,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
+            assertTrue(context.isDataAvailable(datasetAddress1));
+            assertFalse(context.isDataAvailable(datasetAddress2));
+            assertFalse(context.isDataAvailable(datasetAddress3));
 
             final Subscription subscription2 = createSubscription(datasetAddress2, filterParameter2, mode2);
 
@@ -195,6 +201,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertEquals(context.findSubscription(datasetAddress2), subscription2);
             assertNull(context.findSubscription(datasetAddress3));
+            assertTrue(context.isDataAvailable(datasetAddress1));
+            assertTrue(context.isDataAvailable(datasetAddress2));
+            assertFalse(context.isDataAvailable(datasetAddress3));
 
             final Subscription subscription3 = createSubscription(datasetAddress3, filterParameter3, mode3);
 
@@ -208,6 +217,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertEquals(context.findSubscription(datasetAddress2), subscription2);
             assertEquals(context.findSubscription(datasetAddress3), subscription3);
+            assertTrue(context.isDataAvailable(datasetAddress1));
+            assertTrue(context.isDataAvailable(datasetAddress2));
+            assertTrue(context.isDataAvailable(datasetAddress3));
 
             Disposable.dispose(subscription2);
             Disposable.dispose(subscription3);
@@ -218,6 +230,9 @@ public class ReplicantContextTest extends AbstractReplicantTest {
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
+            assertTrue(context.isDataAvailable(datasetAddress1));
+            assertFalse(context.isDataAvailable(datasetAddress2));
+            assertFalse(context.isDataAvailable(datasetAddress3));
         });
     }
 

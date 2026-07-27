@@ -196,6 +196,19 @@ public final class ReplicantContext {
     }
 
     /**
+     * Return whether complete data for the Dataset Address is currently usable in this Replicant Context.
+     *
+     * <p>This reports actual Data Availability. It is independent of Area of Interest satisfaction and observes the
+     * Subscription state, so an Arez observer is rescheduled when Data Availability changes.
+     *
+     * @param datasetAddress the Dataset Address.
+     * @return true if complete data for the Dataset Address is currently usable in this Replicant Context.
+     */
+    public boolean isDataAvailable(@NonNull final DatasetAddress datasetAddress) {
+        return null != findSubscription(datasetAddress);
+    }
+
+    /**
      * Return the System Schema instances registered with the context.
      *
      * @return the System Schema instances registered with the context.

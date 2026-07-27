@@ -16,7 +16,7 @@ import zemeckis.Zemeckis;
 /**
  * An Area of Interest declares the latest desired Subscription at a Dataset Address.
  *
- * <p>The satisfaction status describes whether the desired Subscription is established. Data availability is
+ * <p>The satisfaction status describes whether the desired Subscription is established. Data Availability is
  * reported independently by {@link #isDataAvailable()} because data can remain locally available while a replacement
  * Subscription is pending.
  */
@@ -146,17 +146,19 @@ public abstract class AreaOfInterest extends ReplicantService {
     }
 
     /**
-     * Return whether complete data for the Dataset Address is currently available locally.
+     * Return whether complete data for the Dataset Address is currently usable in this Replicant Context.
      *
-     * <p>This property is independent of {@link #getStatus()}. It can be {@code true} while the Area of Interest is
-     * {@link Status#PENDING}, such as while replacing an established Subscription with one using a newer Filter
-     * Parameter. Changes become observable only after the complete server Change Set has been applied atomically.
+     * <p>This reports actual Data Availability, independently of {@link #getStatus()}. It can be {@code true} while
+     * the Area of Interest is {@link Status#PENDING}, such as while an established Subscription applies a newer
+     * Updatable Filter Parameter. It becomes {@code false} when no Subscription exists, including while replacing a
+     * Subscription to apply a newer Fixed Filter Parameter and after disconnection. Changes become observable only
+     * after the complete server Change Set has been applied atomically.
      *
-     * @return true if complete data for the Dataset Address is available locally.
+     * @return true if complete data for the Dataset Address is currently usable in this Replicant Context.
      */
     @Memoize(readOutsideTransaction = Feature.ENABLE)
     public boolean isDataAvailable() {
-        return null != getSubscription();
+        return getReplicantContext().isDataAvailable(getDatasetAddress());
     }
 
     @Override

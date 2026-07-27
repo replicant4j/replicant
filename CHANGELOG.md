@@ -2,6 +2,16 @@
 
 ### Unreleased
 
+* Adopt Data Availability terminology for complete data at a Dataset Address that is currently usable in a Replicant
+  Context:
+  * Add `ReplicantContext.isDataAvailable(...)`, generate `isDataAvailable(...)` utilities for every Dataset
+    visibility, and use them consistently in handwritten Rose consumers, replacing misleading data-present,
+    data-loaded, and subscription-state wrapper names.
+  * Document actual Data Availability independently from Area of Interest satisfaction, including pending Updatable
+    Filter Parameter changes, Fixed Filter Parameter replacement, atomic Change Set application, and disconnection.
+  This is a hard-cut source and generated-API migration; no compatibility aliases are provided. Subscription existence
+  APIs, serialization-field presence, transport loading, storage, and unrelated application data terminology remain
+  unchanged.
 * Adopt Entity Change Candidate terminology for potential server-side Entity changes captured before routing and
   per-Subscription filtering:
   * Replace candidate `message` names across transaction collection, packet queueing, Routing Key derivation, Filter

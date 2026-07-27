@@ -163,7 +163,7 @@ Keying is independent of whether the Filter Parameter is Fixed or Updatable.
 
 The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription should exist
 at a Dataset Address using the latest desired Filter Parameter. Its satisfaction status is exactly `PENDING`,
-`SATISFIED`, or `INVALIDATED`. Data availability is reported independently because complete data can remain usable
+`SATISFIED`, or `INVALIDATED`. Data Availability is reported independently because complete data can remain usable
 while a changed Filter Parameter is pending. Invalidation is terminal for that Dataset Address within the Replicant
 Context, including across reconnects.
 
