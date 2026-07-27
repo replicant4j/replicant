@@ -8,19 +8,19 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Connector requested synchronized but is out of synchronization with the backend.
  */
 public final class OutOfSyncEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
-    public OutOfSyncEvent(final int schemaId) {
-        _schemaId = schemaId;
+    public OutOfSyncEvent(final int systemSchemaId) {
+        _systemSchemaId = systemSchemaId;
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.OutOfSync");
-        map.put("schema.id", getSchemaId());
+        map.put("systemSchema.id", getSystemSchemaId());
     }
 }

@@ -8,19 +8,19 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Connector requested a sync with a datasource.
  */
 public final class SyncRequestEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
-    public SyncRequestEvent(final int schemaId) {
-        _schemaId = schemaId;
+    public SyncRequestEvent(final int systemSchemaId) {
+        _systemSchemaId = systemSchemaId;
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.SyncRequest");
-        map.put("schema.id", getSchemaId());
+        map.put("systemSchema.id", getSystemSchemaId());
     }
 }

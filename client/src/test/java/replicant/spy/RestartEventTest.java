@@ -11,15 +11,15 @@ public class RestartEventTest extends AbstractReplicantTest {
     public void basicOperation() {
         final RestartEvent event = new RestartEvent(23, "Rose");
 
-        assertEquals(event.getSchemaId(), 23);
-        assertEquals(event.getSchemaName(), "Rose");
+        assertEquals(event.getSystemSchemaId(), 23);
+        assertEquals(event.getSystemSchemaName(), "Rose");
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.Restart");
-        assertEquals(data.get("schema.id"), 23);
-        assertEquals(data.get("schema.name"), "Rose");
+        assertEquals(data.get("systemSchema.id"), 23);
+        assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.size(), 3);
     }
 }

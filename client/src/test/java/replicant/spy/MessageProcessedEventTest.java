@@ -27,16 +27,16 @@ public class MessageProcessedEventTest extends AbstractReplicantTest {
                 entityLinkCount);
         final MessageProcessedEvent event = new MessageProcessedEvent(23, "Rose", dataLoadStatus);
 
-        assertEquals(event.getSchemaId(), 23);
-        assertEquals(event.getSchemaName(), "Rose");
+        assertEquals(event.getSystemSchemaId(), 23);
+        assertEquals(event.getSystemSchemaName(), "Rose");
         assertEquals(event.getDataLoadStatus(), dataLoadStatus);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.MessageProcess");
-        assertEquals(data.get("schema.id"), 23);
-        assertEquals(data.get("schema.name"), "Rose");
+        assertEquals(data.get("systemSchema.id"), 23);
+        assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.get("requestId"), requestId);
         assertEquals(data.get("subscriptionSubscribeCount"), subscriptionSubscribeCount);
         assertEquals(data.get("subscriptionUpdateCount"), subscriptionUpdateCount);

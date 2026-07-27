@@ -26,8 +26,8 @@ public class RequestCompletedEventTest extends AbstractReplicantTest {
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.RequestCompleted");
-        assertEquals(data.get("schema.id"), 23);
-        assertEquals(data.get("schema.name"), "Rose");
+        assertEquals(data.get("systemSchema.id"), 23);
+        assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.get("requestId"), requestId);
         assertEquals(data.get("name"), name);
         assertEquals(data.get("expectingResults"), expectingResults);

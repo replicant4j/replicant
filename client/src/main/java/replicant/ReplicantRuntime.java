@@ -72,10 +72,11 @@ abstract class ReplicantRuntime {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> _connectors.stream()
-                            .noneMatch(e -> e.getConnector().getSchema().getId()
-                                    == connector.getSchema().getId()),
-                    () -> "Replicant-0015: Invoked registerConnector for system schema named '"
-                            + connector.getSchema().getName() + "' but a Connector for specified schema exists.");
+                            .noneMatch(e -> e.getConnector().getSystemSchema().getId()
+                                    == connector.getSystemSchema().getId()),
+                    () -> "Replicant-0015: Invoked registerConnector for System Schema named '"
+                            + connector.getSystemSchema().getName()
+                            + "' but a Connector for specified System Schema exists.");
         }
         getConnectorsObservableValue().preReportChanged();
         final ConnectorEntry entry = new ConnectorEntry(connector, true);
@@ -95,13 +96,14 @@ abstract class ReplicantRuntime {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> _connectors.stream()
-                            .anyMatch(e -> e.getConnector().getSchema().getId()
-                                    == connector.getSchema().getId()),
-                    () -> "Replicant-0006: Invoked deregisterConnector for schema named '"
-                            + connector.getSchema().getName() + "' but no Connector for specified schema exists.");
+                            .anyMatch(e -> e.getConnector().getSystemSchema().getId()
+                                    == connector.getSystemSchema().getId()),
+                    () -> "Replicant-0006: Invoked deregisterConnector for System Schema named '"
+                            + connector.getSystemSchema().getName()
+                            + "' but no Connector for specified System Schema exists.");
         }
-        _connectors.removeIf(e ->
-                e.getConnector().getSchema().getId() == connector.getSchema().getId());
+        _connectors.removeIf(e -> e.getConnector().getSystemSchema().getId()
+                == connector.getSystemSchema().getId());
         DisposeNotifier.asDisposeNotifier(connector).removeOnDisposeListener(this, true);
     }
 
@@ -117,11 +119,11 @@ abstract class ReplicantRuntime {
     /**
      * Set the "required" flag for connector for specified type.
      *
-     * @param schemaId the if of the schema handled by connector.
+     * @param systemSchemaId the if of the System Schema handled by connector.
      * @param required true if connector is required for the context to be active, false otherwise.
      */
-    void setConnectorRequired(final int schemaId, final boolean required) {
-        getConnectorEntryBySchemaId(schemaId).setRequired(required);
+    void setConnectorRequired(final int systemSchemaId, final boolean required) {
+        getConnectorEntryBySystemSchemaId(systemSchemaId).setRequired(required);
     }
 
     /**
@@ -217,26 +219,28 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Retrieve the Connector service associated with the schema.
+     * Retrieve the Connector service associated with the System Schema.
      */
     @NonNull
-    Connector getConnector(final int schemaId) {
-        return getConnectorEntryBySchemaId(schemaId).getConnector();
+    Connector getConnector(final int systemSchemaId) {
+        return getConnectorEntryBySystemSchemaId(systemSchemaId).getConnector();
     }
 
     @NonNull
-    ConnectorEntry getConnectorEntryBySchemaId(final int schemaId) {
-        final ConnectorEntry entry = findConnectorEntryBySchemaId(schemaId);
+    ConnectorEntry getConnectorEntryBySystemSchemaId(final int systemSchemaId) {
+        final ConnectorEntry entry = findConnectorEntryBySystemSchemaId(systemSchemaId);
         if (Replicant.shouldCheckInvariants()) {
-            invariant(() -> null != entry, () -> "Replicant-0007: Unable to locate Connector by schemaId " + schemaId);
+            invariant(
+                    () -> null != entry,
+                    () -> "Replicant-0007: Unable to locate Connector by System Schema identifier " + systemSchemaId);
         }
         return Objects.requireNonNull(entry);
     }
 
     @Nullable
-    private ConnectorEntry findConnectorEntryBySchemaId(final int schemaId) {
+    private ConnectorEntry findConnectorEntryBySystemSchemaId(final int systemSchemaId) {
         for (final ConnectorEntry dataLoader : _connectors) {
-            if (dataLoader.getConnector().getSchema().getId() == schemaId) {
+            if (dataLoader.getConnector().getSystemSchema().getId() == systemSchemaId) {
                 return dataLoader;
             }
         }

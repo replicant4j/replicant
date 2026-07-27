@@ -11,13 +11,13 @@ public class SyncRequestEventTest extends AbstractReplicantTest {
     public void basicOperation() {
         final SyncRequestEvent event = new SyncRequestEvent(23);
 
-        assertEquals(event.getSchemaId(), 23);
+        assertEquals(event.getSystemSchemaId(), 23);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.SyncRequest");
-        assertEquals(data.get("schema.id"), 23);
+        assertEquals(data.get("systemSchema.id"), 23);
         assertEquals(data.size(), 2);
     }
 }

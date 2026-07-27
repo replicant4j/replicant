@@ -19,7 +19,7 @@ import replicant.spy.DataLoadStatus;
  * Encapsulates incremental processing state for one server-to-client transport message.
  */
 final class MessageResponse {
-    private final int _schemaId;
+    private final int _systemSchemaId;
     /**
      * The message to process.
      */
@@ -37,7 +37,7 @@ final class MessageResponse {
     private LinkedList<Linkable> _replicasToLink = new LinkedList<>();
     /**
      * The list of Replicas that have been changed during processing.
-     * Used to invoke the schema hook after replicated data changes.
+     * Used to invoke the System Schema hook after replicated data changes.
      */
     @NonNull
     private final LinkedList<Object> _replicasChanged = new LinkedList<>();
@@ -56,7 +56,9 @@ final class MessageResponse {
     private int _entityLinkCount;
 
     MessageResponse(
-            final int schemaId, @NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
+            final int systemSchemaId,
+            @NonNull final ServerToClientMessage message,
+            @Nullable final RequestEntry request) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null == request || ((Integer) request.getRequestId()).equals(message.getRequestId()),
@@ -65,7 +67,7 @@ final class MessageResponse {
                             + Objects.requireNonNull(request).getRequestId() + "'.");
         }
         assert null != message;
-        _schemaId = schemaId;
+        _systemSchemaId = systemSchemaId;
         _message = message;
         _request = request;
         _entityChangeIndex = 0;
@@ -272,13 +274,13 @@ final class MessageResponse {
 
         if (changeSet.hasSubscriptionChanges()) {
             for (final String subscriptionChange : changeSet.getSubscriptionChanges()) {
-                changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
+                changes.add(SubscriptionChange.from(_systemSchemaId, subscriptionChange));
             }
         }
         if (changeSet.hasFilterParameterSubscriptionChanges()) {
             for (final SubscriptionChangeMessage subscriptionChange :
                     changeSet.getFilterParameterSubscriptionChanges()) {
-                changes.add(SubscriptionChange.from(_schemaId, subscriptionChange));
+                changes.add(SubscriptionChange.from(_systemSchemaId, subscriptionChange));
             }
         }
         return changes;

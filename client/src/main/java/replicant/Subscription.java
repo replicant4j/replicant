@@ -149,8 +149,8 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     @NonNull
     public Dataset getDataset() {
         return getReplicantContext()
-                .getSchemaService()
-                .getById(_datasetAddress.schemaId())
+                .getSystemSchemaService()
+                .getById(_datasetAddress.systemSchemaId())
                 .getDataset(_datasetAddress.datasetId());
     }
 

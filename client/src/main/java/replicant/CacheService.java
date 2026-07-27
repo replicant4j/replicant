@@ -16,11 +16,11 @@ public interface CacheService {
     /**
      * Return the Dataset Addresses with locally stored entries for the System Schema.
      *
-     * @param schemaId the System Schema identifier.
+     * @param systemSchemaId the System Schema identifier.
      * @return the Dataset Addresses with stored entries.
      */
     @NonNull
-    Set<DatasetAddress> keySet(int schemaId);
+    Set<DatasetAddress> keySet(int systemSchemaId);
 
     /**
      * Return the Dataset Cache Version for the specified Dataset Address.

@@ -30,7 +30,7 @@ public final class SubscriptionOrphanedEvent implements SerializableEvent {
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Subscription.Orphaned");
         final DatasetAddress datasetAddress = getSubscription().datasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("subscription.filterParameter", getSubscription().getFilterParameter());

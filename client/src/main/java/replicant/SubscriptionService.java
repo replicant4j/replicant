@@ -31,11 +31,11 @@ import replicant.spy.SubscriptionCreatedEvent;
  */
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionService extends ReplicantService {
-    // SystemId -> DatasetId -> DatasetRootId -> DatasetKey => Entry
+    // SystemSchemaId -> DatasetId -> DatasetRootId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<Integer, Map<String, Subscription>>>> _instanceDatasetSubscriptions =
             new HashMap<>();
-    // SystemId -> DatasetId -> DatasetKey => Entry
+    // SystemSchemaId -> DatasetId -> DatasetKey => Entry
     @NonNull
     private final Map<Integer, Map<Integer, Map<String, Subscription>>> _typeDatasetSubscriptions = new HashMap<>();
 
@@ -86,15 +86,15 @@ abstract class SubscriptionService extends ReplicantService {
     /**
      * Return the collection of Instance Dataset subscriptions for a Dataset.
      *
-     * @param schemaId  the schema id.
+     * @param systemSchemaId  the System Schema identifier.
      * @param datasetId the Dataset ID.
      * @return the set of Dataset Root IDs for all Instance Dataset subscriptions with the specified Dataset ID.
      */
     @NonNull
-    Set<Integer> getInstanceDatasetSubscriptionIds(final int schemaId, final int datasetId) {
+    Set<Integer> getInstanceDatasetSubscriptionIds(final int systemSchemaId, final int datasetId) {
         getInstanceDatasetSubscriptionsObservableValue().reportObserved();
         final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMaps =
-                _instanceDatasetSubscriptions.get(schemaId);
+                _instanceDatasetSubscriptions.get(systemSchemaId);
         final Map<Integer, Map<String, Subscription>> datasetRootMap =
                 null == datasetMaps ? null : datasetMaps.get(datasetId);
         if (null == datasetRootMap) {
@@ -136,13 +136,13 @@ abstract class SubscriptionService extends ReplicantService {
         DisposeNotifier.asDisposeNotifier(subscription).addOnDisposeListener(this, () -> destroy(subscription), true);
         if (null == datasetRootId) {
             _typeDatasetSubscriptions
-                    .computeIfAbsent(datasetAddress.schemaId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.systemSchemaId(), key -> new HashMap<>())
                     .computeIfAbsent(datasetAddress.datasetId(), key -> new HashMap<>())
                     .put(datasetKey, subscription);
             getTypeDatasetSubscriptionsObservableValue().reportChanged();
         } else {
             _instanceDatasetSubscriptions
-                    .computeIfAbsent(datasetAddress.schemaId(), key -> new HashMap<>())
+                    .computeIfAbsent(datasetAddress.systemSchemaId(), key -> new HashMap<>())
                     .computeIfAbsent(datasetAddress.datasetId(), key -> new HashMap<>())
                     .computeIfAbsent(datasetRootId, key -> new HashMap<>())
                     .put(datasetKey, subscription);
@@ -174,13 +174,13 @@ abstract class SubscriptionService extends ReplicantService {
      */
     @Nullable
     Subscription findSubscription(@NonNull final DatasetAddress datasetAddress) {
-        final int schemaId = datasetAddress.schemaId();
+        final int systemSchemaId = datasetAddress.systemSchemaId();
         final int datasetId = datasetAddress.datasetId();
         final Integer datasetRootId = datasetAddress.datasetRootId();
         final String datasetKey = datasetAddress.datasetKey();
         return null == datasetRootId
-                ? findTypeDatasetSubscription(schemaId, datasetId, datasetKey)
-                : findInstanceDatasetSubscription(schemaId, datasetId, datasetRootId, datasetKey);
+                ? findTypeDatasetSubscription(systemSchemaId, datasetId, datasetKey)
+                : findInstanceDatasetSubscription(systemSchemaId, datasetId, datasetRootId, datasetKey);
     }
 
     /**
@@ -189,14 +189,14 @@ abstract class SubscriptionService extends ReplicantService {
      * found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
-     * @param schemaId  the schema id.
+     * @param systemSchemaId  the System Schema identifier.
      * @param datasetId the Dataset ID.
      * @return the subscription if any matches.
      */
     @Nullable
     private Subscription findTypeDatasetSubscription(
-            final int schemaId, final int datasetId, @Nullable final String datasetKey) {
-        final Map<Integer, Map<String, Subscription>> datasetMap = _typeDatasetSubscriptions.get(schemaId);
+            final int systemSchemaId, final int datasetId, @Nullable final String datasetKey) {
+        final Map<Integer, Map<String, Subscription>> datasetMap = _typeDatasetSubscriptions.get(systemSchemaId);
         final Map<String, Subscription> datasetKeyMap = null == datasetMap ? null : datasetMap.get(datasetId);
         final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.get(datasetKey);
         if (null == subscription) {
@@ -216,16 +216,16 @@ abstract class SubscriptionService extends ReplicantService {
      * found and the result {@link Subscription} if found. This ensures that if an observer
      * invokes this method then the observer will be rescheduled when the result changes.
      *
-     * @param schemaId  the schema id.
+     * @param systemSchemaId  the System Schema identifier.
      * @param datasetId     the Dataset ID.
      * @param datasetRootId the Dataset Root ID.
      * @return the subscription if any matches.
      */
     @Nullable
     private Subscription findInstanceDatasetSubscription(
-            final int schemaId, final int datasetId, final int datasetRootId, @Nullable final String datasetKey) {
+            final int systemSchemaId, final int datasetId, final int datasetRootId, @Nullable final String datasetKey) {
         final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMap =
-                _instanceDatasetSubscriptions.get(schemaId);
+                _instanceDatasetSubscriptions.get(systemSchemaId);
         final Map<Integer, Map<String, Subscription>> datasetRootMap =
                 null == datasetMap ? null : datasetMap.get(datasetId);
         final Map<String, Subscription> datasetKeyMap =
@@ -251,20 +251,20 @@ abstract class SubscriptionService extends ReplicantService {
      */
     @NonNull
     Subscription unlinkSubscription(@NonNull final DatasetAddress datasetAddress) {
-        final int schemaId = datasetAddress.schemaId();
+        final int systemSchemaId = datasetAddress.systemSchemaId();
         final int datasetId = datasetAddress.datasetId();
         final Integer datasetRootId = datasetAddress.datasetRootId();
         final String datasetKey = datasetAddress.datasetKey();
         if (null == datasetRootId) {
             getTypeDatasetSubscriptionsObservableValue().preReportChanged();
-            final Map<Integer, Map<String, Subscription>> datasetMap = _typeDatasetSubscriptions.get(schemaId);
+            final Map<Integer, Map<String, Subscription>> datasetMap = _typeDatasetSubscriptions.get(systemSchemaId);
             final Map<String, Subscription> datasetKeyMap = null == datasetMap ? null : datasetMap.get(datasetId);
             final Subscription subscription = null == datasetKeyMap ? null : datasetKeyMap.remove(datasetKey);
             if (null != datasetKeyMap && datasetKeyMap.isEmpty()) {
                 Objects.requireNonNull(datasetMap).remove(datasetId);
             }
             if (null != subscription && Objects.requireNonNull(datasetMap).isEmpty()) {
-                _typeDatasetSubscriptions.remove(schemaId);
+                _typeDatasetSubscriptions.remove(systemSchemaId);
             }
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
@@ -282,7 +282,7 @@ abstract class SubscriptionService extends ReplicantService {
         } else {
             getInstanceDatasetSubscriptionsObservableValue().preReportChanged();
             final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMap =
-                    _instanceDatasetSubscriptions.get(schemaId);
+                    _instanceDatasetSubscriptions.get(systemSchemaId);
             final Map<Integer, Map<String, Subscription>> datasetRootMap =
                     null == datasetMap ? null : datasetMap.get(datasetId);
             final Map<String, Subscription> datasetKeyMap =
@@ -294,7 +294,7 @@ abstract class SubscriptionService extends ReplicantService {
             if (null != subscription && Objects.requireNonNull(datasetRootMap).isEmpty()) {
                 Objects.requireNonNull(datasetMap).remove(datasetId);
                 if (datasetMap.isEmpty()) {
-                    _instanceDatasetSubscriptions.remove(schemaId);
+                    _instanceDatasetSubscriptions.remove(systemSchemaId);
                 }
             }
             if (Replicant.shouldCheckInvariants()) {

@@ -59,17 +59,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 0));
 
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(ValueUtil.randomInt(), ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
 
-        assertEquals(connector.getSchema(), schema);
+        assertEquals(connector.getSystemSchema(), systemSchema);
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 1));
 
         assertEquals(connector.getReplicantRuntime(), runtime);
-        assertTrue(
-                connector.getReplicantContext().getSchemaService().getSchemas().contains(schema));
+        assertTrue(connector
+                .getReplicantContext()
+                .getSystemSchemaService()
+                .getSystemSchemas()
+                .contains(systemSchema));
 
         assertEquals(connector.getState(), ConnectorState.DISCONNECTED);
 
@@ -84,25 +87,31 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 0));
 
-        final SystemSchema schema = newSchema();
-        final Connector connector = createConnector(schema);
+        final SystemSchema systemSchema = newSystemSchema();
+        final Connector connector = createConnector(systemSchema);
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 1));
-        assertTrue(
-                connector.getReplicantContext().getSchemaService().getSchemas().contains(schema));
+        assertTrue(connector
+                .getReplicantContext()
+                .getSystemSchemaService()
+                .getSystemSchemas()
+                .contains(systemSchema));
 
         Disposable.dispose(connector);
 
         safeAction(() -> assertEquals(runtime.getConnectors().size(), 0));
-        assertFalse(
-                connector.getReplicantContext().getSchemaService().getSchemas().contains(schema));
+        assertFalse(connector
+                .getReplicantContext()
+                .getSystemSchemaService()
+                .getSystemSchemas()
+                .contains(systemSchema));
     }
 
     @Test
     public void testToString() {
-        final SystemSchema schema = newSchema();
-        final Connector connector = createConnector(schema);
-        assertEquals(connector.toString(), "Connector[" + schema.getName() + "]");
+        final SystemSchema systemSchema = newSystemSchema();
+        final Connector connector = createConnector(systemSchema);
+        assertEquals(connector.toString(), "Connector[" + systemSchema.getName() + "]");
         ReplicantTestUtil.disableNames();
         assertEquals(connector.toString(), "replicant.Arez_Connector@" + Integer.toHexString(connector.hashCode()));
     }
@@ -119,7 +128,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final DatasetAddress datasetAddress =
-                new DatasetAddress(connector.getSchema().getId(), 0);
+                new DatasetAddress(connector.getSystemSchema().getId(), 0);
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         connector.onConnection(ValueUtil.randomString());
@@ -271,7 +280,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 DisconnectedEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -307,7 +317,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 DisconnectFailureEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -346,7 +357,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 ConnectedEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -382,7 +394,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 ConnectFailureEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -490,7 +503,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final CacheService cacheService = mock(CacheService.class);
         Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(connector.getSchema().getId())).thenThrow(new IllegalStateException("Unavailable"));
+        when(cacheService.keySet(connector.getSystemSchema().getId()))
+                .thenThrow(new IllegalStateException("Unavailable"));
 
         connector.onConnection(ValueUtil.randomString());
 
@@ -505,10 +519,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final DatasetAddress datasetAddress =
-                new DatasetAddress(connector.getSchema().getId(), 0);
+                new DatasetAddress(connector.getSystemSchema().getId(), 0);
         final CacheService cacheService = mock(CacheService.class);
         Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(datasetAddress.schemaId())).thenReturn(Collections.singleton(datasetAddress));
+        when(cacheService.keySet(datasetAddress.systemSchemaId())).thenReturn(Collections.singleton(datasetAddress));
         when(cacheService.lookupDatasetCacheVersion(datasetAddress))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
@@ -529,7 +543,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final CacheService cacheService = mock(CacheService.class);
         Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(datasetAddress.schemaId())).thenReturn(Collections.singleton(datasetAddress));
+        when(cacheService.keySet(datasetAddress.systemSchemaId())).thenReturn(Collections.singleton(datasetAddress));
         when(cacheService.lookupDatasetCacheVersion(datasetAddress)).thenReturn(ValueUtil.randomString());
 
         connector.onMessageReceived(UseCachedDatasetMessage.create(
@@ -559,7 +573,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertNextEvent(
                 MessageProcessedEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -593,7 +608,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(MessageProcessFailureEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getError(), error);
         });
     }
@@ -639,7 +654,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 RestartEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -670,7 +686,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 MessageReadFailureEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -693,7 +710,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -731,7 +748,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -756,7 +773,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -784,7 +801,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -809,7 +826,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeCompletedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -837,7 +854,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -865,7 +882,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateCompletedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -936,8 +953,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void purgeSubscriptions() {
-        final Connector connector1 = createConnector(newSchema(1));
-        createConnector(newSchema(2));
+        final Connector connector1 = createConnector(newSystemSchema(1));
+        createConnector(newSystemSchema(2));
         final DatasetAddress invalidatedDatasetAddress = new DatasetAddress(1, 0);
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(invalidatedDatasetAddress, null));
@@ -1129,7 +1146,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCountAtLeast(1);
         handler.assertNextEvent(MessageProcessFailureEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(
                     e.getError().getMessage(),
                     "Replicant-0046: Request to unsubscribe at Dataset Address 0.0 but no Subscription exists.");
@@ -1172,9 +1189,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -1200,9 +1217,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -1228,9 +1245,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, null, "inst");
@@ -1256,9 +1273,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
 
@@ -1286,9 +1303,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
 
@@ -1316,9 +1333,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
 
@@ -1350,9 +1367,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
 
@@ -1379,9 +1396,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
 
@@ -1411,9 +1428,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -1439,9 +1456,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -1496,10 +1513,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -1572,10 +1589,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -1596,7 +1613,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void processEntityChanges() {
-        final int schemaId = 1;
+        final int systemSchemaId = 1;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -1612,9 +1629,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
-        final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
-        final Connector connector = createConnector(schema);
+        final SystemSchema systemSchema = new SystemSchema(
+                systemSchemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
+        final Connector connector = createConnector(systemSchema);
         connector.setLinksToProcessPerTick(1);
 
         final Connection connection = newConnection(connector);
@@ -1626,7 +1643,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final DatasetAddress datasetAddress =
-                new DatasetAddress(connector.getSchema().getId(), 1);
+                new DatasetAddress(connector.getSystemSchema().getId(), 1);
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         // This Replica Entry is to be updated
@@ -1684,7 +1701,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void processEntityChanges_withDatasetKey() {
-        final int schemaId = 1;
+        final int systemSchemaId = 1;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -1700,9 +1717,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
-        final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
-        final Connector connector = createConnector(schema);
+        final SystemSchema systemSchema = new SystemSchema(
+                systemSchemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
+        final Connector connector = createConnector(systemSchema);
         connector.setLinksToProcessPerTick(1);
 
         final Connection connection = newConnection(connector);
@@ -1712,7 +1729,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final int datasetRootId = ValueUtil.randomInt();
         final DatasetAddress datasetAddress =
-                new DatasetAddress(connector.getSchema().getId(), 0, datasetRootId, "fi");
+                new DatasetAddress(connector.getSystemSchema().getId(), 0, datasetRootId, "fi");
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
         final EntityChangeData data = mock(EntityChangeData.class);
@@ -1731,7 +1748,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     @SuppressWarnings("unchecked")
     @Test
     public void processEntityChanges_referenceNonExistentSubscription() {
-        final int schemaId = 1;
+        final int systemSchemaId = 1;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -1747,9 +1764,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
-        final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
-        final Connector connector = createConnector(schema);
+        final SystemSchema systemSchema = new SystemSchema(
+                systemSchemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
+        final Connector connector = createConnector(systemSchema);
         connector.setLinksToProcessPerTick(1);
 
         final Connection connection = newConnection(connector);
@@ -1776,7 +1793,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processEntityChanges_deleteNonExistingEntity() {
-        final int schemaId = 1;
+        final int systemSchemaId = 1;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -1790,9 +1807,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Collections.emptyList());
         final EntityType entityType = new EntityType(
                 0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new DatasetLink[0]);
-        final SystemSchema schema = new SystemSchema(
-                schemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
-        final Connector connector = createConnector(schema);
+        final SystemSchema systemSchema = new SystemSchema(
+                systemSchemaId, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
+        final Connector connector = createConnector(systemSchema);
         connector.setLinksToProcessPerTick(1);
 
         final Connection connection = newConnection(connector);
@@ -1964,9 +1981,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         connector.pauseMessageScheduler();
         final Connection connection = newConnection(connector);
 
@@ -2014,9 +2031,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -2052,9 +2069,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -2345,10 +2362,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Collections.emptyList());
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new DatasetLink[0]);
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         connector.pauseMessageScheduler();
 
         final Connection connection = newConnection(connector);
@@ -2399,10 +2416,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         connector.pauseMessageScheduler();
 
         final Connection connection = newConnection(connector);
@@ -2446,9 +2463,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final String oldFilterParameter = ValueUtil.randomString();
@@ -2805,8 +2822,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
         });
     }
 
@@ -2830,12 +2847,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(2);
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
         });
         handler.assertNextEvent(
                 SyncRequestEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -2851,18 +2869,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
-        final DatasetAddress datasetAddress = new DatasetAddress(schema.getId(), dataset.getId());
+        final DatasetAddress datasetAddress = new DatasetAddress(systemSchema.getId(), dataset.getId());
         final String datasetCacheVersion = ValueUtil.randomString();
         final String[] subscriptionChanges = {"+0"};
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
         final MessageResponse response = setCurrentMessageResponse(connection, changeSet);
         response.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(schema.getId(), subscriptionChanges[0])));
+                Collections.singletonList(SubscriptionChange.from(systemSchema.getId(), subscriptionChanges[0])));
         final CacheService cacheService = mock(CacheService.class);
         Replicant.context().setCacheService(cacheService);
         when(cacheService.store(datasetAddress, datasetCacheVersion, changeSet))
@@ -2931,8 +2949,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
         });
     }
 
@@ -2958,10 +2976,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), Linkable.class, creator, updater, new DatasetLink[0]);
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {entityType});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final ChangeSetMessage message = ChangeSetMessage.create(
@@ -3053,10 +3071,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -3091,7 +3109,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -3109,10 +3127,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
         pauseScheduler();
         connector.pauseMessageScheduler();
@@ -3147,7 +3165,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -3165,10 +3183,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -3208,7 +3226,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
 
@@ -3229,10 +3247,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3283,15 +3301,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(3);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
@@ -3309,10 +3327,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3350,10 +3368,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -3388,7 +3406,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -3407,10 +3425,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3461,15 +3479,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(3);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
@@ -3487,10 +3505,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3528,10 +3546,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -3565,7 +3583,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
         });
     }
@@ -3584,10 +3602,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3637,15 +3655,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(3);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress1);
         });
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress2);
         });
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress3);
         });
     }
@@ -3663,10 +3681,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3703,10 +3721,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         pauseScheduler();
@@ -3735,10 +3753,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3776,10 +3794,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3816,10 +3834,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -3858,10 +3876,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
 
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -4011,7 +4029,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 InSyncEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -4025,7 +4044,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 OutOfSyncEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -4041,7 +4061,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(
                 SyncRequestEvent.class,
-                e -> assertEquals(e.getSchemaId(), connector.getSchema().getId()));
+                e -> assertEquals(
+                        e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
@@ -4076,8 +4097,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(ExecStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
             assertEquals(e.getCommand(), command);
             assertEquals(e.getRequestId(), requestId);
         });
@@ -4095,8 +4116,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(ExecCompletedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
             assertEquals(e.getCommand(), command);
             assertEquals(e.getRequestId(), requestId);
         });
@@ -4116,8 +4137,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(ExecRequestQueuedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
-            assertEquals(e.getSchemaName(), connector.getSchema().getName());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
             assertEquals(e.getCommand(), command);
         });
 

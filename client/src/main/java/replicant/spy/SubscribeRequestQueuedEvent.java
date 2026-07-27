@@ -37,7 +37,7 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.SubscribeRequestQueued");
         final DatasetAddress datasetAddress = getDatasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("subscription.filterParameter", getFilterParameter());

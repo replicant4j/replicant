@@ -228,7 +228,9 @@ abstract class AreaOfInterestService extends ReplicantService {
             final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
             final Subscription subscription = context.findSubscription(datasetAddress);
             if (null != subscription) {
-                context.getRuntime().getConnector(datasetAddress.schemaId()).requestSync();
+                context.getRuntime()
+                        .getConnector(datasetAddress.systemSchemaId())
+                        .requestSync();
             }
         }
     }

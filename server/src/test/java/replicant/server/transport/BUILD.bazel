@@ -8,9 +8,9 @@ java_testng(
 )
 
 java_testng(
-    name = "DatasetMetadataTest",
-    srcs = ["DatasetMetadataTest.java"],
-    test_class = "replicant.server.transport.DatasetMetadataTest",
+    name = "DatasetTest",
+    srcs = ["DatasetTest.java"],
+    test_class = "replicant.server.transport.DatasetTest",
     deps = ["//server:server_test_support"],
 )
 
@@ -50,9 +50,9 @@ java_testng(
 )
 
 java_testng(
-    name = "SchemaMetaDataTest",
-    srcs = ["SchemaMetaDataTest.java"],
-    test_class = "replicant.server.transport.SchemaMetaDataTest",
+    name = "SystemSchemaTest",
+    srcs = ["SystemSchemaTest.java"],
+    test_class = "replicant.server.transport.SystemSchemaTest",
     deps = ["//server:server_test_support"],
 )
 

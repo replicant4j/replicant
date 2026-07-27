@@ -9,10 +9,10 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Connector receives a response to an Exec message.
  */
 public final class ExecCompletedEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
     @NonNull
-    private final String _schemaName;
+    private final String _systemSchemaName;
 
     @NonNull
     private final String _command;
@@ -20,20 +20,23 @@ public final class ExecCompletedEvent implements SerializableEvent {
     private final int _requestId;
 
     public ExecCompletedEvent(
-            final int schemaId, @NonNull final String schemaName, @NonNull final String command, final int requestId) {
-        _schemaId = schemaId;
-        _schemaName = Objects.requireNonNull(schemaName);
+            final int systemSchemaId,
+            @NonNull final String systemSchemaName,
+            @NonNull final String command,
+            final int requestId) {
+        _systemSchemaId = systemSchemaId;
+        _systemSchemaName = Objects.requireNonNull(systemSchemaName);
         _command = Objects.requireNonNull(command);
         _requestId = requestId;
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @NonNull
-    public String getSchemaName() {
-        return _schemaName;
+    public String getSystemSchemaName() {
+        return _systemSchemaName;
     }
 
     @NonNull
@@ -48,8 +51,8 @@ public final class ExecCompletedEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.ExecCompleted");
-        map.put("schema.id", getSchemaId());
-        map.put("schema.name", getSchemaName());
+        map.put("systemSchema.id", getSystemSchemaId());
+        map.put("systemSchema.name", getSystemSchemaName());
         map.put("command", getCommand());
         map.put("requestId", getRequestId());
     }

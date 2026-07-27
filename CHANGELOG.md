@@ -2,6 +2,16 @@
 
 ### Unreleased
 
+* Adopt System Schema and Dataset definition terminology across Replicant, Domgen, and generated integrations:
+  * Rename client schema identifiers, names, registries, lookups, diagnostics, and spy-event fields to System Schema
+    terminology.
+  * Replace server `SchemaMetaData` and `DatasetMetadata` with `SystemSchema` and `Dataset`, and migrate their
+    registries and lookups.
+  * Replace Domgen `schema_id`, schema artifact, and metadata APIs with System Schema names, generating
+    `<Repository>SystemSchemaConstants`, `<Repository>SystemSchema`, `SYSTEM_SCHEMA_ID`, and
+    `Simple<Repository>SystemSchemaTest`.
+  This hard-cut API, DSL, generated-source, and spy-event payload migration preserves runtime and wire-protocol
+  behavior.
 * Adopt Change Set terminology for the ordered server-to-client atomic unit:
   * Rename the `update` wire type to `change-set`, rename its `changes` field to `entityChanges`, and replace
     `UpdateMessage` with `ChangeSetMessage`.
@@ -55,8 +65,9 @@
   * Replace compound `FilterType` states with `FilterMode` values `UNFILTERED`, `IMPLICIT`, and
     `PARAMETER_FILTERED`, and represent Filter Parameter mutability separately with `FilterParameterMode` values
     `FIXED` and `UPDATABLE`.
-  * Keep Dataset keying as independent metadata that is valid only for Parameter-Filtered Datasets, and migrate schema
-    metadata, predicates, validation, routing, filtering, diagnostics, and generated tests to the separated model.
+  * Keep Dataset keying as independent metadata that is valid only for Parameter-Filtered Datasets, and migrate
+    System Schema metadata, predicates, validation, routing, filtering, diagnostics, and generated tests to the
+    separated model.
   * Replace the Domgen `:filtered`, `:dynamic_filter`, and Filter Parameter `:immutable` configuration with explicit
     `FilterMode`, `FilterParameterMode`, and client Replica-membership re-evaluation configuration.
   * Rename client Replica-membership hooks for the behavior they perform rather than Filter Parameter mutability.
@@ -77,11 +88,11 @@
     `type_dataset?`, `instance_dataset?`, `candidate_entity_types`, and `dataset_root_entity_type`.
   * Replace `entity.imit.replicate(dataset, :type|:instance)` with the explicit
     `include_in_type_dataset(dataset)` and `root_of_instance_dataset(dataset)` declarations, and rename generated
-    Type/Instance Dataset collection, routing, filtering, and schema-test APIs.
+    Type/Instance Dataset collection, routing, filtering, and System Schema test APIs.
   This hard-cut API and DSL migration preserves Dataset shapes, traversal and pruning, filtering, caching restrictions,
   Dataset Link and Required Type Dataset direction, Subscription Dependency behavior, Dataset Address semantics, and
   the wire protocol.
-* Adopt Required Type Dataset terminology for unconditional schema requirements:
+* Adopt Required Type Dataset terminology for unconditional System Schema requirements:
   * Rename the server Dataset metadata constructor parameter, backing fields, and accessors from Required Type
     Graph/Channel terminology to `requiredTypeDatasets`, `_requiredTypeDatasets`, `getRequiredTypeDatasets`,
     `_dependentDatasets`, and `getDependentDatasets`.
@@ -92,13 +103,13 @@
     diagnostics, and cache invalidation to Required Type Dataset terminology.
   This hard-cut API and DSL migration preserves unconditional requirement direction, transitive inclusion, cache
   compatibility, Subscription Dependency retention and teardown, subscription ordering, and the wire protocol.
-* Adopt Dataset Link terminology for reusable schema rules and Subscription Dependency terminology for current runtime
-  retention relationships:
+* Adopt Dataset Link terminology for reusable System Schema rules and Subscription Dependency terminology for current
+  runtime retention relationships:
   * Rename client `ChannelLinkSchema` to `DatasetLink` and migrate Entity Type, Dataset, and System Schema metadata
     accessors to Dataset Link terminology.
   * Rename Domgen `GraphLink` to `DatasetLink`, replace `.graph_link(...)` with `.dataset_link(...)`, and migrate
     source/target Dataset fields, registries, validation, filter and Dataset Key derivation strategies, templates,
-    generated schema metadata, and generated tests.
+    generated System Schema metadata, and generated tests.
   * Rename server `ChannelLink` to `SubscriptionDependency`, `ChannelLinkEntry` to
     `SubscriptionDependencyEntry`, and runtime `LinkOwner` to `SubscriptionDependencyOwner`.
   * Migrate Entity Message dependency data, Dataset- and Entity-scoped dependency recording, ownership, reference

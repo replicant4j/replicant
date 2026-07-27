@@ -27,10 +27,10 @@ import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 import replicant.server.DatasetAddressTemplate;
 import replicant.server.EntityChangeCandidate;
-import replicant.server.transport.DatasetMetadata;
+import replicant.server.transport.Dataset;
 import replicant.server.transport.ReplicantSession;
-import replicant.server.transport.SchemaMetaData;
 import replicant.server.transport.SubscriptionMode;
+import replicant.server.transport.SystemSchema;
 
 @SuppressWarnings({"resource", "SqlNoDataSourceInspection"})
 public class AbstractSessionContextImplTest {
@@ -315,35 +315,12 @@ public class AbstractSessionContextImplTest {
         private final EntityManager _em;
 
         @NonNull
-        private final SchemaMetaData _schema = new SchemaMetaData(
+        private final SystemSchema _systemSchema = new SystemSchema(
                 "Test",
-                new DatasetMetadata(
-                        0,
-                        "Type0",
-                        null,
-                        DatasetMetadata.FilterMode.UNFILTERED,
-                        null,
-                        false,
-                        DatasetMetadata.CacheType.NONE,
-                        true),
-                new DatasetMetadata(
-                        1,
-                        "Type1",
-                        null,
-                        DatasetMetadata.FilterMode.UNFILTERED,
-                        null,
-                        false,
-                        DatasetMetadata.CacheType.NONE,
-                        true),
-                new DatasetMetadata(
-                        2,
-                        "Instance2",
-                        1,
-                        DatasetMetadata.FilterMode.UNFILTERED,
-                        null,
-                        false,
-                        DatasetMetadata.CacheType.NONE,
-                        true));
+                new Dataset(0, "Type0", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true),
+                new Dataset(1, "Type1", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true),
+                new Dataset(
+                        2, "Instance2", 1, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true));
 
         @NonNull
         private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
@@ -366,8 +343,8 @@ public class AbstractSessionContextImplTest {
 
         @NonNull
         @Override
-        public SchemaMetaData getSchemaMetaData() {
-            return _schema;
+        public SystemSchema getSystemSchema() {
+            return _systemSchema;
         }
 
         @Override

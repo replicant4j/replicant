@@ -67,10 +67,10 @@ abstract class Connector extends ReplicantService {
     private static final int DEFAULT_LINKS_TO_PROCESS_PER_TICK = 20;
     private static final int DEFAULT_CHANGES_TO_PROCESS_PER_TICK = 20;
     /**
-     * The schema that defines data-API used to interact with datasource.
+     * The System Schema that defines the replicated system exposed by the data source.
      */
     @NonNull
-    private final SystemSchema _schema;
+    private final SystemSchema _systemSchema;
     /**
      * The transport that connects to the backend system.
      */
@@ -131,24 +131,24 @@ abstract class Connector extends ReplicantService {
     @NonNull
     static Connector create(
             @Nullable final ReplicantContext context,
-            @NonNull final SystemSchema schema,
+            @NonNull final SystemSchema systemSchema,
             @NonNull final Transport transport) {
-        return new Arez_Connector(context, schema, transport);
+        return new Arez_Connector(context, systemSchema, transport);
     }
 
     Connector(
             @Nullable final ReplicantContext context,
-            @NonNull final SystemSchema schema,
+            @NonNull final SystemSchema systemSchema,
             @NonNull final Transport transport) {
         super(context);
-        _schema = Objects.requireNonNull(schema);
+        _systemSchema = Objects.requireNonNull(systemSchema);
         _transport = Objects.requireNonNull(transport);
     }
 
     @PostConstruct
     void postConstruct() {
         getReplicantRuntime().registerConnector(this);
-        getReplicantContext().getSchemaService().registerSchema(_schema);
+        getReplicantContext().getSystemSchemaService().registerSystemSchema(_systemSchema);
     }
 
     @PreDispose
@@ -156,7 +156,7 @@ abstract class Connector extends ReplicantService {
         _schedulerPaused = true;
         _schedulerActive = false;
         releaseSchedulerLock();
-        getReplicantContext().getSchemaService().deregisterSchema(_schema);
+        getReplicantContext().getSystemSchemaService().deregisterSystemSchema(_systemSchema);
     }
 
     /**
@@ -194,13 +194,13 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Return the schema associated with the connector.
+     * Return the System Schema associated with the connector.
      *
-     * @return the schema associated with the connector.
+     * @return the System Schema associated with the connector.
      */
     @NonNull
-    SystemSchema getSchema() {
-        return _schema;
+    SystemSchema getSystemSchema() {
+        return _systemSchema;
     }
 
     void onConnection(@NonNull final String connectionId) {
@@ -252,10 +252,12 @@ abstract class Connector extends ReplicantService {
             final List<DatasetAddress> datasetAddresses;
             try {
                 datasetAddresses =
-                        new ArrayList<>(cacheService.keySet(getSchema().getId()));
+                        new ArrayList<>(cacheService.keySet(getSystemSchema().getId()));
             } catch (final Throwable t) {
                 ReplicantLogger.log(
-                        "Failed to enumerate cached Datasets for " + getSchema().getName() + ".", t);
+                        "Failed to enumerate cached Datasets for "
+                                + getSystemSchema().getName() + ".",
+                        t);
                 return;
             }
             final HashMap<String, String> datasetCacheVersions = new HashMap<>();
@@ -301,7 +303,8 @@ abstract class Connector extends ReplicantService {
                         subscriptionService.getTypeDatasetSubscriptions().stream(),
                         subscriptionService.getInstanceDatasetSubscriptions().stream())
                 // Only purge subscriptions for current system
-                .filter(s -> s.datasetAddress().schemaId() == getSchema().getId())
+                .filter(s ->
+                        s.datasetAddress().systemSchemaId() == getSystemSchema().getId())
                 // Purge in reverse order. First Instance Dataset subscriptions then Type Dataset subscriptions
                 .sorted(Comparator.reverseOrder())
                 .forEachOrdered(Disposable::dispose);
@@ -342,7 +345,7 @@ abstract class Connector extends ReplicantService {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new SyncRequestEvent(getSchema().getId()));
+                    .reportSpyEvent(new SyncRequestEvent(getSystemSchema().getId()));
         }
         _transport.requestSync();
         tryTriggerMessageScheduler();
@@ -356,7 +359,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new ExecRequestQueuedEvent(
-                            getSchema().getId(), getSchema().getName(), command));
+                            getSystemSchema().getId(), getSystemSchema().getName(), command));
         }
         ensureConnection().requestExec(command, payload, responseHandler);
         tryTriggerMessageScheduler();
@@ -378,7 +381,7 @@ abstract class Connector extends ReplicantService {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> {
-                        return getSchema()
+                        return getSystemSchema()
                                 .getDataset(datasetAddress.datasetId())
                                 .hasUpdatableFilterParameter();
                     },
@@ -414,9 +417,9 @@ abstract class Connector extends ReplicantService {
 
     private void validateDatasetKey(@NonNull final DatasetAddress datasetAddress) {
         if (Replicant.shouldCheckInvariants()) {
-            final SystemSchema schema = getSchema();
-            if (schema.hasDataset(datasetAddress.datasetId())) {
-                final Dataset dataset = schema.getDataset(datasetAddress.datasetId());
+            final SystemSchema systemSchema = getSystemSchema();
+            if (systemSchema.hasDataset(datasetAddress.datasetId())) {
+                final Dataset dataset = systemSchema.getDataset(datasetAddress.datasetId());
                 if (dataset.isKeyed()) {
                     invariant(
                             () -> null != datasetAddress.datasetKey(),
@@ -616,7 +619,7 @@ abstract class Connector extends ReplicantService {
                 response.incSubscriptionSubscribeCount();
                 final Subscription existingSubscription = getReplicantContext().findSubscription(datasetAddress);
                 if (null != existingSubscription) {
-                    final Dataset dataset = getSchema().getDataset(datasetAddress.datasetId());
+                    final Dataset dataset = getSystemSchema().getDataset(datasetAddress.datasetId());
                     if (dataset.hasFixedFilterParameter()
                             && !FilterParameterUtil.filterParametersEqual(
                                     filterParameter, existingSubscription.getFilterParameter())) {
@@ -658,7 +661,7 @@ abstract class Connector extends ReplicantService {
                     if (Replicant.shouldCheckInvariants()) {
                         invariant(
                                 () -> {
-                                    return getSchema()
+                                    return getSystemSchema()
                                             .getDataset(datasetAddress.datasetId())
                                             .hasUpdatableFilterParameter();
                                 },
@@ -689,7 +692,7 @@ abstract class Connector extends ReplicantService {
     @Action(verifyRequired = false)
     void processReplicaUpdateActions() {
         final MessageResponse response = ensureCurrentMessageResponse();
-        final OnReplicaUpdateAction action = getSchema().getOnReplicaUpdateAction();
+        final OnReplicaUpdateAction action = getSystemSchema().getOnReplicaUpdateAction();
         if (null != action) {
             Object replica;
             while (null != (replica = response.nextReplicaToPostAction())) {
@@ -708,7 +711,7 @@ abstract class Connector extends ReplicantService {
     @SuppressWarnings("unchecked")
     void reevaluateReplicaMembershipAfterFilterParameterUpdate(@NonNull final Subscription subscription) {
         final DatasetAddress datasetAddress = subscription.datasetAddress();
-        final Dataset dataset = getSchema().getDataset(datasetAddress.datasetId());
+        final Dataset dataset = getSystemSchema().getDataset(datasetAddress.datasetId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     dataset::hasUpdatableFilterParameter,
@@ -947,7 +950,7 @@ abstract class Connector extends ReplicantService {
             if (1 == subscriptionChanges.size()
                     && SubscriptionChange.Type.SUBSCRIBE
                             == subscriptionChanges.get(0).getType()
-                    && getSchema()
+                    && getSystemSchema()
                             .getDataset(subscriptionChanges
                                     .get(0)
                                     .getDatasetAddress()
@@ -994,7 +997,7 @@ abstract class Connector extends ReplicantService {
                 onMessageProcessFailure(t);
                 return;
             }
-            final EntityType entityType = getSchema().getEntityType(typeId);
+            final EntityType entityType = getSystemSchema().getEntityType(typeId);
             final Class<?> type = entityType.getType();
             ReplicaEntry replicaEntry =
                     getReplicantContext().getReplicaRegistry().findReplicaEntryByTypeAndId(type, entityId);
@@ -1027,10 +1030,11 @@ abstract class Connector extends ReplicantService {
                 }
 
                 final String[] datasetAddressDescriptors = change.getDatasetAddresses();
-                final int schemaId = getSchema().getId();
+                final int systemSchemaId = getSystemSchema().getId();
                 for (final String datasetAddressDescriptor : datasetAddressDescriptors) {
                     try {
-                        final DatasetAddress datasetAddress = DatasetAddress.parse(schemaId, datasetAddressDescriptor);
+                        final DatasetAddress datasetAddress =
+                                DatasetAddress.parse(systemSchemaId, datasetAddressDescriptor);
                         final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                         if (Replicant.shouldCheckInvariants()) {
                             invariant(
@@ -1236,8 +1240,8 @@ abstract class Connector extends ReplicantService {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(
-                            new ConnectedEvent(getSchema().getId(), getSchema().getName()));
+                    .reportSpyEvent(new ConnectedEvent(
+                            getSystemSchema().getId(), getSystemSchema().getName()));
         }
     }
 
@@ -1251,7 +1255,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new ConnectFailureEvent(
-                            getSchema().getId(), getSchema().getName()));
+                            getSystemSchema().getId(), getSystemSchema().getName()));
         }
     }
 
@@ -1265,7 +1269,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new DisconnectedEvent(
-                            getSchema().getId(), getSchema().getName()));
+                            getSystemSchema().getId(), getSystemSchema().getName()));
         }
     }
 
@@ -1280,7 +1284,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new DisconnectFailureEvent(
-                            getSchema().getId(), getSchema().getName()));
+                            getSystemSchema().getId(), getSystemSchema().getName()));
         }
     }
 
@@ -1301,7 +1305,7 @@ abstract class Connector extends ReplicantService {
             final String datasetAddressDescriptor = useCachedDatasetMessage.getDatasetAddress();
             final DatasetAddress datasetAddress;
             try {
-                datasetAddress = DatasetAddress.parse(getSchema().getId(), datasetAddressDescriptor);
+                datasetAddress = DatasetAddress.parse(getSystemSchema().getId(), datasetAddressDescriptor);
             } catch (final Throwable t) {
                 onMessageProcessFailure(t);
                 return;
@@ -1378,7 +1382,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new MessageProcessedEvent(
-                            getSchema().getId(), getSchema().getName(), response.toStatus()));
+                            getSystemSchema().getId(), getSystemSchema().getName(), response.toStatus()));
         }
     }
 
@@ -1392,7 +1396,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new ExecStartedEvent(
-                            getSchema().getId(), getSchema().getName(), command, requestId));
+                            getSystemSchema().getId(), getSystemSchema().getName(), command, requestId));
         }
     }
 
@@ -1406,7 +1410,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new ExecCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), command, requestId));
+                            getSystemSchema().getId(), getSystemSchema().getName(), command, requestId));
         }
     }
 
@@ -1421,7 +1425,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new MessageProcessFailureEvent(
-                            getSchema().getId(), getSchema().getName(), error));
+                            getSystemSchema().getId(), getSystemSchema().getName(), error));
         }
         disconnectIfPossible();
     }
@@ -1435,7 +1439,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new MessageReadFailureEvent(
-                            getSchema().getId(), getSchema().getName()));
+                            getSystemSchema().getId(), getSystemSchema().getName()));
         }
         disconnectIfPossible();
     }
@@ -1446,7 +1450,7 @@ abstract class Connector extends ReplicantService {
                 getReplicantContext()
                         .getSpy()
                         .reportSpyEvent(new RestartEvent(
-                                getSchema().getId(), getSchema().getName()));
+                                getSystemSchema().getId(), getSystemSchema().getName()));
             }
             disconnect();
         }
@@ -1456,7 +1460,7 @@ abstract class Connector extends ReplicantService {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new InSyncEvent(getSchema().getId()));
+                    .reportSpyEvent(new InSyncEvent(getSystemSchema().getId()));
         }
     }
 
@@ -1464,7 +1468,7 @@ abstract class Connector extends ReplicantService {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new OutOfSyncEvent(getSchema().getId()));
+                    .reportSpyEvent(new OutOfSyncEvent(getSystemSchema().getId()));
         }
     }
 
@@ -1473,7 +1477,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscribeStartedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1487,7 +1491,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscribeCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1496,7 +1500,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new UnsubscribeStartedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1505,7 +1509,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new UnsubscribeCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1514,7 +1518,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscriptionUpdateStartedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1523,7 +1527,7 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscriptionUpdateCompletedEvent(
-                            getSchema().getId(), getSchema().getName(), datasetAddress));
+                            getSystemSchema().getId(), getSystemSchema().getName(), datasetAddress));
         }
     }
 
@@ -1538,7 +1542,7 @@ abstract class Connector extends ReplicantService {
 
     @Override
     public String toString() {
-        return Replicant.areNamesEnabled() ? "Connector[" + getSchema().getName() + "]" : super.toString();
+        return Replicant.areNamesEnabled() ? "Connector[" + getSystemSchema().getName() + "]" : super.toString();
     }
 
     @Nullable

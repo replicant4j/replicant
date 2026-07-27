@@ -213,7 +213,7 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         handler.assertEventCount(1);
         handler.assertNextEvent(RequestStartedEvent.class, e -> {
-            assertEquals(e.getSchemaId(), connector.getSchema().getId());
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getRequestId(), request.getRequestId());
             assertEquals(e.getName(), requestName);
         });

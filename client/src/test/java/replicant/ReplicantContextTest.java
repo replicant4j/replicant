@@ -10,26 +10,26 @@ import org.testng.annotations.Test;
 public class ReplicantContextTest extends AbstractReplicantTest {
     @Test
     public void schemas() {
-        final int schemaId = 22;
+        final int systemSchemaId = 22;
 
         final ReplicantContext context = Replicant.context();
-        assertEquals(context.getSchemas().size(), 0);
-        assertNull(context.findSchemaById(schemaId));
+        assertEquals(context.getSystemSchemas().size(), 0);
+        assertNull(context.findSystemSchemaById(systemSchemaId));
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> safeAction(() -> context.getSchemaById(schemaId)));
-        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate SystemSchema with id 22");
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> safeAction(() -> context.getSystemSchemaById(systemSchemaId)));
+        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate System Schema with id 22");
 
-        final SystemSchema schema1 =
-                new SystemSchema(schemaId, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
+        final SystemSchema systemSchema =
+                new SystemSchema(systemSchemaId, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
 
-        context.getSchemaService().registerSchema(schema1);
+        context.getSystemSchemaService().registerSystemSchema(systemSchema);
 
-        assertEquals(context.getSchemas().size(), 1);
-        assertTrue(context.getSchemas().contains(schema1));
+        assertEquals(context.getSystemSchemas().size(), 1);
+        assertTrue(context.getSystemSchemas().contains(systemSchema));
 
-        assertEquals(context.findSchemaById(schemaId), schema1);
-        assertEquals(context.getSchemaById(schemaId), schema1);
+        assertEquals(context.findSystemSchemaById(systemSchemaId), systemSchema);
+        assertEquals(context.getSystemSchemaById(systemSchemaId), systemSchema);
     }
 
     @Test
@@ -286,16 +286,20 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
     @Test
     public void setConnectorRequired() {
-        final SystemSchema schema = newSchema();
+        final SystemSchema systemSchema = newSystemSchema();
 
-        createConnector(schema);
+        createConnector(systemSchema);
 
         final ReplicantContext context = Replicant.context();
 
-        final int schemaId = schema.getId();
-        assertTrue(context.getRuntime().getConnectorEntryBySchemaId(schemaId).isRequired());
-        context.setConnectorRequired(schemaId, false);
-        assertFalse(context.getRuntime().getConnectorEntryBySchemaId(schemaId).isRequired());
+        final int systemSchemaId = systemSchema.getId();
+        assertTrue(context.getRuntime()
+                .getConnectorEntryBySystemSchemaId(systemSchemaId)
+                .isRequired());
+        context.setConnectorRequired(systemSchemaId, false);
+        assertFalse(context.getRuntime()
+                .getConnectorEntryBySystemSchemaId(systemSchemaId)
+                .isRequired());
     }
 
     @SuppressWarnings("ConstantValue")
@@ -326,7 +330,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
         final String command = ValueUtil.randomString();
         final Object payload = new Object();
 
-        Replicant.context().exec(connector.getSchema().getId(), command, payload, null);
+        Replicant.context().exec(connector.getSystemSchema().getId(), command, payload, null);
 
         final List<ExecRequest> requests = connection.getPendingExecRequests();
         assertEquals(requests.size(), 1);
@@ -338,32 +342,32 @@ public class ReplicantContextTest extends AbstractReplicantTest {
     @Test
     public void findConnectionId() {
         final Connector connector = createConnector();
-        final int schemaId = connector.getSchema().getId();
+        final int systemSchemaId = connector.getSystemSchema().getId();
 
-        assertNull(Replicant.context().findConnectionId(schemaId));
+        assertNull(Replicant.context().findConnectionId(systemSchemaId));
 
         final Connection connection = newConnection(connector);
 
-        assertEquals(Replicant.context().findConnectionId(schemaId), connection.getConnectionId());
+        assertEquals(Replicant.context().findConnectionId(systemSchemaId), connection.getConnectionId());
     }
 
     @Test
     public void registerConnector() {
         safeAction(() ->
                 assertEquals(Replicant.context().getRuntime().getConnectors().size(), 0));
-        assertEquals(Replicant.context().getSchemas().size(), 0);
+        assertEquals(Replicant.context().getSystemSchemas().size(), 0);
 
-        final Disposable disposable = Replicant.context().registerConnector(newSchema(), mock(Transport.class));
+        final Disposable disposable = Replicant.context().registerConnector(newSystemSchema(), mock(Transport.class));
 
         safeAction(() ->
                 assertEquals(Replicant.context().getRuntime().getConnectors().size(), 1));
-        assertEquals(Replicant.context().getSchemas().size(), 1);
+        assertEquals(Replicant.context().getSystemSchemas().size(), 1);
 
         disposable.dispose();
 
         safeAction(() ->
                 assertEquals(Replicant.context().getRuntime().getConnectors().size(), 0));
-        assertEquals(Replicant.context().getSchemas().size(), 0);
+        assertEquals(Replicant.context().getSystemSchemas().size(), 0);
     }
 
     static class A {}

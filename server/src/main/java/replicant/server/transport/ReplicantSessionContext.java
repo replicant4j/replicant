@@ -12,7 +12,7 @@ import replicant.server.EntityChangeCandidate;
 
 public interface ReplicantSessionContext {
     @NonNull
-    SchemaMetaData getSchemaMetaData();
+    SystemSchema getSystemSchema();
 
     boolean isAuthorized(@NonNull ReplicantSession session);
 

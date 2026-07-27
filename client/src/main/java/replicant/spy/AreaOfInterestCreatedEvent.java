@@ -27,7 +27,7 @@ public final class AreaOfInterestCreatedEvent implements SerializableEvent {
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "AreaOfInterest.Created");
         final DatasetAddress datasetAddress = getAreaOfInterest().getDatasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("areaOfInterest.filterParameter", getAreaOfInterest().getFilterParameter());

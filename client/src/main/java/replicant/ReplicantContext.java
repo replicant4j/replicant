@@ -35,7 +35,7 @@ public final class ReplicantContext {
     private final Validator _validator;
 
     @NonNull
-    private final SchemaService _schemaService;
+    private final SystemSchemaService _systemSchemaService;
     /**
      * Support infrastructure for spy events.
      */
@@ -55,7 +55,7 @@ public final class ReplicantContext {
         _runtime = ReplicantRuntime.create();
         _subscriptionReconciler = SubscriptionReconciler.create(Replicant.areZonesEnabled() ? this : null);
         _validator = Validator.create(Replicant.areZonesEnabled() ? this : null);
-        _schemaService = SchemaService.create();
+        _systemSchemaService = SystemSchemaService.create();
         _spy = Replicant.areSpiesEnabled() ? new SpyImpl() : null;
     }
 
@@ -72,15 +72,16 @@ public final class ReplicantContext {
     }
 
     /**
-     * Register a connector with specified schema and transport. The transport instance must be unique
-     * to this connector but the schema may be shared between multiple connectors.
+     * Register a connector with specified System Schema and transport. The transport instance must be unique
+     * to this connector but the System Schema may be shared between multiple connectors.
      *
-     * @param schema    the schema defining datasource.
+     * @param systemSchema    the System Schema defining datasource.
      * @param transport the transport.
      */
     @NonNull
-    public Disposable registerConnector(@NonNull final SystemSchema schema, @NonNull final Transport transport) {
-        return Disposable.asDisposable(Connector.create(Replicant.areZonesEnabled() ? this : null, schema, transport));
+    public Disposable registerConnector(@NonNull final SystemSchema systemSchema, @NonNull final Transport transport) {
+        return Disposable.asDisposable(
+                Connector.create(Replicant.areZonesEnabled() ? this : null, systemSchema, transport));
     }
 
     /**
@@ -171,13 +172,13 @@ public final class ReplicantContext {
     /**
      * Return the collection of Instance Dataset subscriptions for the Dataset.
      *
-     * @param schemaId  the schema id.
+     * @param systemSchemaId  the System Schema identifier.
      * @param datasetId the Dataset id.
      * @return the set of Dataset Root identifiers for all Instance Dataset subscriptions to the specified Dataset.
      */
     @NonNull
-    public Set<Integer> getInstanceDatasetSubscriptionIds(final int schemaId, final int datasetId) {
-        return getSubscriptionService().getInstanceDatasetSubscriptionIds(schemaId, datasetId);
+    public Set<Integer> getInstanceDatasetSubscriptionIds(final int systemSchemaId, final int datasetId) {
+        return getSubscriptionService().getInstanceDatasetSubscriptionIds(systemSchemaId, datasetId);
     }
 
     /**
@@ -195,36 +196,36 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the SystemSchema instances registered with the context.
+     * Return the System Schema instances registered with the context.
      *
-     * @return the SystemSchema instances registered with the context.
+     * @return the System Schema instances registered with the context.
      */
     @NonNull
-    public Collection<SystemSchema> getSchemas() {
-        return getSchemaService().getSchemas();
+    public Collection<SystemSchema> getSystemSchemas() {
+        return getSystemSchemaService().getSystemSchemas();
     }
 
     /**
-     * Return the schema with the specified schemaId or null if no such schema.
+     * Return the System Schema with the specified systemSchemaId or null if no such System Schema.
      *
-     * @param schemaId the id of the schema.
-     * @return the schema or null if no such schema.
+     * @param systemSchemaId the id of the System Schema.
+     * @return the System Schema or null if no such System Schema.
      */
     @Nullable
-    public SystemSchema findSchemaById(final int schemaId) {
-        return getSchemaService().findById(schemaId);
+    public SystemSchema findSystemSchemaById(final int systemSchemaId) {
+        return getSystemSchemaService().findById(systemSchemaId);
     }
 
     /**
-     * Return the schema with the specified schemaId.
-     * This should not be invoked unless the schema with specified id exists.
+     * Return the System Schema with the specified systemSchemaId.
+     * This should not be invoked unless the System Schema with specified id exists.
      *
-     * @param schemaId the id of the schema.
-     * @return the schema.
+     * @param systemSchemaId the id of the System Schema.
+     * @return the System Schema.
      */
     @NonNull
-    public SystemSchema getSchemaById(final int schemaId) {
-        return getSchemaService().getById(schemaId);
+    public SystemSchema getSystemSchemaById(final int systemSchemaId) {
+        return getSystemSchemaService().getById(systemSchemaId);
     }
 
     /**
@@ -342,21 +343,21 @@ public final class ReplicantContext {
      * Set the "required" flag for connector for specified type.
      * NOTE: It is expected that the way this is done will change in the future.
      *
-     * @param schemaId the id of the schema handled by connector.
+     * @param systemSchemaId the id of the System Schema handled by connector.
      * @param required true if connector is required for the context to be active, false otherwise.
      */
-    public void setConnectorRequired(final int schemaId, final boolean required) {
-        getRuntime().setConnectorRequired(schemaId, required);
+    public void setConnectorRequired(final int systemSchemaId, final boolean required) {
+        getRuntime().setConnectorRequired(systemSchemaId, required);
     }
 
     /**
-     * Get the connection id from the connector for specified schema if the connector has established a connection else return null.
+     * Get the connection id from the connector for specified System Schema if the connector has established a connection else return null.
      *
-     * @param schemaId the id of the schema.
+     * @param systemSchemaId the id of the System Schema.
      */
     @Nullable
-    public String findConnectionId(final int schemaId) {
-        final Connector connector = getRuntime().getConnector(schemaId);
+    public String findConnectionId(final int systemSchemaId) {
+        final Connector connector = getRuntime().getConnector(systemSchemaId);
         final Connection connection = connector.getConnection();
         return null == connection ? null : connection.getConnectionId();
     }
@@ -367,17 +368,17 @@ public final class ReplicantContext {
      * The mapping of the command and payload to behaviour is abstracted away by server and is outside
      * the scope of this api.
      *
-     * @param schemaId        the id of the schema.
+     * @param systemSchemaId        the id of the System Schema.
      * @param command         the command string. It uniquely identifies a call.
      * @param payload         the payload or parameters of the payload.
      * @param responseHandler the ResponseHandler invoked when a response is received.
      */
     public void exec(
-            final int schemaId,
+            final int systemSchemaId,
             @NonNull final String command,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
-        getRuntime().getConnector(schemaId).requestExec(command, payload, responseHandler);
+        getRuntime().getConnector(systemSchemaId).requestExec(command, payload, responseHandler);
     }
 
     /**
@@ -450,13 +451,13 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the underlying SchemaService.
+     * Return the underlying SystemSchemaService.
      *
-     * @return the underlying SchemaService.
+     * @return the underlying SystemSchemaService.
      */
     @NonNull
-    SchemaService getSchemaService() {
-        return _schemaService;
+    SystemSchemaService getSystemSchemaService() {
+        return _systemSchemaService;
     }
 
     /**

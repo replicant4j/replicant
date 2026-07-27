@@ -31,7 +31,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.ReplicantUtilTest",
     "replicant.RequestEntryTest",
     "replicant.RequestTest",
-    "replicant.SchemaServiceTest",
+    "replicant.SystemSchemaServiceTest",
     "replicant.SpyImplTest",
     "replicant.SubscriptionReconcilerTest",
     "replicant.SubscriptionChangeMessageTest",
@@ -136,7 +136,6 @@ java_library(
         "ReplicantUtilTest.java",
         "RequestEntryTest.java",
         "RequestTest.java",
-        "SchemaServiceTest.java",
         "SpyImplTest.java",
         "SubscriptionChangeMessageTest.java",
         "SubscriptionChangeTest.java",
@@ -144,6 +143,7 @@ java_library(
         "SubscriptionReconcilerTest.java",
         "SubscriptionServiceTest.java",
         "SubscriptionTest.java",
+        "SystemSchemaServiceTest.java",
         "SystemSchemaTest.java",
         "TransportContextImplTest.java",
         "ValidatorTest.java",
@@ -388,11 +388,11 @@ java_testng(
 )
 
 java_testng(
-    name = "SchemaServiceTest",
-    srcs = ["SchemaServiceTest.java"],
+    name = "SystemSchemaServiceTest",
+    srcs = ["SystemSchemaServiceTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.SchemaServiceTest",
+    test_class = "replicant.SystemSchemaServiceTest",
     deps = ["//client:client_test_support"],
 )
 

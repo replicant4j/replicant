@@ -11,15 +11,15 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Describes an isolated system containing Dataset and Entity Type definitions.
+ * The catalog of Dataset and Entity Type definitions belonging to one isolated replicated system.
  */
 public final class SystemSchema {
     /**
-     * A unique id of the system. Multiple systems with the same id can not be present in a single Context.
+     * The identifier that distinguishes the System Schema within a Replicant Context.
      */
     private final int _id;
     /**
-     * A human consumable name for the syste,. It should be non-null if {@link Replicant#areNamesEnabled()} returns
+     * A human consumable name for the System Schema. It should be non-null if {@link Replicant#areNamesEnabled()} returns
      * true and <tt>null</tt> otherwise.
      */
     @Nullable
@@ -28,12 +28,12 @@ public final class SystemSchema {
     @Nullable
     private final OnReplicaUpdateAction _onReplicaUpdateAction;
     /**
-     * The Datasets within the system.
+     * The Datasets in the System Schema.
      */
     @NonNull
     private final Dataset[] _datasets;
     /**
-     * The entity types within the system.
+     * The Entity Types in the System Schema.
      */
     @NonNull
     private final EntityType[] _entityTypes;
@@ -86,20 +86,20 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the id of the system.
+     * Return the System Schema identifier.
      *
-     * @return the id of the system.
+     * @return the System Schema identifier.
      */
     public int getId() {
         return _id;
     }
 
     /**
-     * Return the name of the SystemSchema.
+     * Return the name of the System Schema.
      * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
      * exception if invariant checking is enabled.
      *
-     * @return the name of the SystemSchema.
+     * @return the name of the System Schema.
      */
     @NonNull
     public String getName() {
@@ -117,9 +117,9 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the number of entity types in the system.
+     * Return the number of Entity Types in the System Schema.
      *
-     * @return the number of entity types in the system.
+     * @return the number of Entity Types in the System Schema.
      */
     public int getEntityTypeCount() {
         return _entityTypes.length;
@@ -143,16 +143,16 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the number of Datasets in the system.
+     * Return the number of Datasets in the System Schema.
      *
-     * @return the number of Datasets in the system.
+     * @return the number of Datasets in the System Schema.
      */
     public int getDatasetCount() {
         return _datasets.length;
     }
 
     /**
-     * Return true if the system contains a Dataset with the specified datasetId.
+     * Return true if the System Schema contains a Dataset with the specified datasetId.
      */
     public boolean hasDataset(final int datasetId) {
         return datasetId >= 0 && datasetId < _datasets.length && null != _datasets[datasetId];

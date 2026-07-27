@@ -11,13 +11,13 @@ public class OutOfSyncEventTest extends AbstractReplicantTest {
     public void basicOperation() {
         final OutOfSyncEvent event = new OutOfSyncEvent(23);
 
-        assertEquals(event.getSchemaId(), 23);
+        assertEquals(event.getSystemSchemaId(), 23);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.OutOfSync");
-        assertEquals(data.get("schema.id"), 23);
+        assertEquals(data.get("systemSchema.id"), 23);
         assertEquals(data.size(), 2);
     }
 }

@@ -9,100 +9,73 @@ import replicant.server.SubscriptionDependencyCandidate;
 
 public final class InvariantUtilTest {
     @Test
-    public void assertAddressMatchesDatasetMetadata_allowsConcreteKeyedAddress() {
-        final var unfiltered = new DatasetMetadata(
-                0,
-                "Source",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                true);
-        final var keyed = new DatasetMetadata(
+    public void assertAddressMatchesDataset_allowsConcreteKeyedAddress() {
+        final var unfiltered = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var keyed = new Dataset(
                 1,
                 "Target",
                 7,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.FIXED,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var schema = new SchemaMetaData("Test", unfiltered, keyed);
+        final var systemSchema = new SystemSchema("Test", unfiltered, keyed);
 
-        InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.of(1, 2, "fi"));
+        InvariantUtil.assertDatasetAddressMatchesDataset(systemSchema, DatasetAddress.of(1, 2, "fi"));
     }
 
     @Test
     public void assertAddress_rejectsConcreteKeyedDatasetAddressWithoutDatasetKey() {
-        final var keyed = new DatasetMetadata(
+        final var keyed = new Dataset(
                 0,
                 "Target",
                 7,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.FIXED,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var schema = new SchemaMetaData("Test", keyed);
+        final var systemSchema = new SystemSchema("Test", keyed);
 
         expectThrows(
                 AssertionError.class,
-                () -> InvariantUtil.assertDatasetAddressMatchesDatasetMetadata(schema, DatasetAddress.of(0, 2)));
+                () -> InvariantUtil.assertDatasetAddressMatchesDataset(systemSchema, DatasetAddress.of(0, 2)));
     }
 
     @Test
     public void assertSubscriptionDependencyCandidate_rejectsDatasetAddressTemplateForNonKeyedDataset() {
-        final var source = new DatasetMetadata(
-                0,
-                "Source",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                true);
-        final var target = new DatasetMetadata(
-                1,
-                "Target",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                true);
-        final var schema = new SchemaMetaData("Test", source, target);
+        final var source = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var target = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var systemSchema = new SystemSchema("Test", source, target);
 
         expectThrows(
                 AssertionError.class,
                 () -> InvariantUtil.assertSubscriptionDependencyCandidate(
-                        schema,
+                        systemSchema,
                         new SubscriptionDependencyCandidate(DatasetAddress.of(0), DatasetAddressTemplate.of(1))));
     }
 
     @Test
     public void assertSubscriptionDependencyCandidate_allowsTemplateWithMissingTargetFilterParameter() {
-        final var source = new DatasetMetadata(
-                0,
-                "Source",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                true);
-        final var target = new DatasetMetadata(
+        final var source = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var target = new Dataset(
                 1,
                 "Target",
                 1,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.FIXED,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var schema = new SchemaMetaData("Test", source, target);
+        final var systemSchema = new SystemSchema("Test", source, target);
 
         InvariantUtil.assertSubscriptionDependencyCandidate(
-                schema, new SubscriptionDependencyCandidate(DatasetAddress.of(0), DatasetAddressTemplate.of(1, 7)));
+                systemSchema,
+                new SubscriptionDependencyCandidate(DatasetAddress.of(0), DatasetAddressTemplate.of(1, 7)));
     }
 }

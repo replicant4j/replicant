@@ -11,20 +11,20 @@ public final class ExecRequestQueuedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
         final String command = ValueUtil.randomString();
-        final int schemaId = ValueUtil.randomInt();
-        final String schemaName = ValueUtil.randomString();
-        final ExecRequestQueuedEvent event = new ExecRequestQueuedEvent(schemaId, schemaName, command);
+        final int systemSchemaId = ValueUtil.randomInt();
+        final String systemSchemaName = ValueUtil.randomString();
+        final ExecRequestQueuedEvent event = new ExecRequestQueuedEvent(systemSchemaId, systemSchemaName, command);
 
-        assertEquals(event.getSchemaId(), schemaId);
-        assertEquals(event.getSchemaName(), schemaName);
+        assertEquals(event.getSystemSchemaId(), systemSchemaId);
+        assertEquals(event.getSystemSchemaName(), systemSchemaName);
         assertEquals(event.getCommand(), command);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.ExecRequestQueued");
-        assertEquals(data.get("schema.id"), schemaId);
-        assertEquals(data.get("schema.name"), schemaName);
+        assertEquals(data.get("systemSchema.id"), systemSchemaId);
+        assertEquals(data.get("systemSchema.name"), systemSchemaName);
         assertEquals(data.get("command"), command);
 
         assertEquals(data.size(), 4);

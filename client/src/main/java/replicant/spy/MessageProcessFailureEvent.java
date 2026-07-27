@@ -9,28 +9,28 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Connector generated an error processing a message from a DataSource.
  */
 public final class MessageProcessFailureEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
     @NonNull
-    private final String _schemaName;
+    private final String _systemSchemaName;
 
     @NonNull
     private final Throwable _error;
 
     public MessageProcessFailureEvent(
-            final int schemaId, @NonNull final String schemaName, @NonNull final Throwable error) {
-        _schemaId = schemaId;
-        _schemaName = Objects.requireNonNull(schemaName);
+            final int systemSchemaId, @NonNull final String systemSchemaName, @NonNull final Throwable error) {
+        _systemSchemaId = systemSchemaId;
+        _systemSchemaName = Objects.requireNonNull(systemSchemaName);
         _error = Objects.requireNonNull(error);
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @NonNull
-    public String getSchemaName() {
-        return _schemaName;
+    public String getSystemSchemaName() {
+        return _systemSchemaName;
     }
 
     @NonNull
@@ -41,8 +41,8 @@ public final class MessageProcessFailureEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.MessageProcessFailure");
-        map.put("schema.id", getSchemaId());
-        map.put("schema.name", getSchemaName());
+        map.put("systemSchema.id", getSystemSchemaId());
+        map.put("systemSchema.name", getSystemSchemaName());
         final Throwable throwable = getError();
         map.put("message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage());
     }

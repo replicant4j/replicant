@@ -121,7 +121,7 @@ abstract class Connection {
     }
 
     void enqueueResponse(@NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
-        _pendingResponses.add(new MessageResponse(_connector.getSchema().getId(), message, request));
+        _pendingResponses.add(new MessageResponse(_connector.getSystemSchema().getId(), message, request));
     }
 
     /**
@@ -190,8 +190,8 @@ abstract class Connection {
                     .getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new RequestStartedEvent(
-                            _connector.getSchema().getId(),
-                            _connector.getSchema().getName(),
+                            _connector.getSystemSchema().getId(),
+                            _connector.getSystemSchema().getName(),
                             request.getRequestId(),
                             request.getName()));
         }

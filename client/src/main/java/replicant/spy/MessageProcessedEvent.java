@@ -9,28 +9,30 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Connector processed a message from a DataSource.
  */
 public final class MessageProcessedEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
     @NonNull
-    private final String _schemaName;
+    private final String _systemSchemaName;
 
     @NonNull
     private final DataLoadStatus _dataLoadStatus;
 
     public MessageProcessedEvent(
-            final int schemaId, @NonNull final String schemaName, @NonNull final DataLoadStatus dataLoadStatus) {
-        _schemaId = schemaId;
-        _schemaName = Objects.requireNonNull(schemaName);
+            final int systemSchemaId,
+            @NonNull final String systemSchemaName,
+            @NonNull final DataLoadStatus dataLoadStatus) {
+        _systemSchemaId = systemSchemaId;
+        _systemSchemaName = Objects.requireNonNull(systemSchemaName);
         _dataLoadStatus = Objects.requireNonNull(dataLoadStatus);
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @NonNull
-    public String getSchemaName() {
-        return _schemaName;
+    public String getSystemSchemaName() {
+        return _systemSchemaName;
     }
 
     @NonNull
@@ -41,8 +43,8 @@ public final class MessageProcessedEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.MessageProcess");
-        map.put("schema.id", getSchemaId());
-        map.put("schema.name", getSchemaName());
+        map.put("systemSchema.id", getSystemSchemaId());
+        map.put("systemSchema.name", getSystemSchemaName());
         final DataLoadStatus status = getDataLoadStatus();
         map.put("requestId", status.getRequestId());
         map.put("subscriptionSubscribeCount", status.getSubscriptionSubscribeCount());

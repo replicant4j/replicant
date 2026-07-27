@@ -27,12 +27,12 @@
   {
     "code": 6,
     "type": "INVARIANT",
-    "messagePattern": "Invoked deregisterConnector for schema named '%s' but no Connector for specified schema exists."
+    "messagePattern": "Invoked deregisterConnector for System Schema named '%s' but no Connector for specified System Schema exists."
   },
   {
     "code": 7,
     "type": "INVARIANT",
-    "messagePattern": "Unable to locate Connector by schemaId %s"
+    "messagePattern": "Unable to locate Connector by System Schema identifier %s"
   },
   {
     "code": 8,
@@ -67,7 +67,7 @@
   {
     "code": 15,
     "type": "INVARIANT",
-    "messagePattern": "Invoked registerConnector for system schema named '%s' but a Connector for specified schema exists."
+    "messagePattern": "Invoked registerConnector for System Schema named '%s' but a Connector for specified System Schema exists."
   },
   {
     "code": 18,
@@ -252,7 +252,7 @@
   {
     "code": 59,
     "type": "INVARIANT",
-    "messagePattern": "Unable to locate SystemSchema with id %s"
+    "messagePattern": "Unable to locate System Schema with id %s"
   },
   {
     "code": 60,
@@ -302,7 +302,7 @@
   {
     "code": 70,
     "type": "INVARIANT",
-    "messagePattern": "Attempted to register schema with id %s when a schema with id already exists: %s"
+    "messagePattern": "Attempted to register System Schema with id %s when a System Schema with id already exists: %s"
   },
   {
     "code": 71,
@@ -357,7 +357,7 @@
   {
     "code": 85,
     "type": "INVARIANT",
-    "messagePattern": "Attempted to deregister schema with id %s but no such schema exists."
+    "messagePattern": "Attempted to deregister System Schema with id %s but no such System Schema exists."
   },
   {
     "code": 87,

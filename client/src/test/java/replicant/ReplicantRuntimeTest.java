@@ -92,27 +92,27 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
     public void duplicateRegister() {
         final ReplicantRuntime runtime1 = Replicant.context().getRuntime();
 
-        final SystemSchema schema = newSchema();
+        final SystemSchema systemSchema = newSystemSchema();
 
         // This connector will self-register to runtime1
-        final Connector connector1 = createConnector(schema);
+        final Connector connector1 = createConnector(systemSchema);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> runtime1.registerConnector(connector1));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0015: Invoked registerConnector for system schema named '" + schema.getName()
-                        + "' but a Connector for specified schema exists.");
+                "Replicant-0015: Invoked registerConnector for System Schema named '" + systemSchema.getName()
+                        + "' but a Connector for specified System Schema exists.");
     }
 
     @Test
     public void deregisterWhenNoRegistered() {
         final ReplicantRuntime runtime2 = Replicant.context().getRuntime();
 
-        final SystemSchema schema = newSchema();
+        final SystemSchema systemSchema = newSystemSchema();
         // This connector will self-register to runtime1
-        final Connector connector1 = createConnector(schema);
+        final Connector connector1 = createConnector(systemSchema);
 
         safeAction(() -> runtime2.deregisterConnector(connector1));
 
@@ -121,34 +121,34 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0006: Invoked deregisterConnector for schema named '" + schema.getName()
-                        + "' but no Connector for specified schema exists.");
+                "Replicant-0006: Invoked deregisterConnector for System Schema named '" + systemSchema.getName()
+                        + "' but no Connector for specified System Schema exists.");
     }
 
     @Test
     public void getConnector() {
-        final SystemSchema schema1 = newSchema();
-        final SystemSchema schema2 = newSchema();
-        final SystemSchema schema3 = newSchema();
+        final SystemSchema systemSchema1 = newSystemSchema();
+        final SystemSchema systemSchema2 = newSystemSchema();
+        final SystemSchema systemSchema3 = newSystemSchema();
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(schema1);
-        final Connector service2 = createConnector(schema2);
+        final Connector service1 = createConnector(systemSchema1);
+        final Connector service2 = createConnector(systemSchema2);
 
-        assertEquals(runtime.getConnector(service1.getSchema().getId()), service1);
-        assertEquals(runtime.getConnector(service2.getSchema().getId()), service2);
+        assertEquals(runtime.getConnector(service1.getSystemSchema().getId()), service1);
+        assertEquals(runtime.getConnector(service2.getSystemSchema().getId()), service2);
 
-        assertThrows(IllegalStateException.class, () -> runtime.getConnector(schema3.getId()));
+        assertThrows(IllegalStateException.class, () -> runtime.getConnector(systemSchema3.getId()));
     }
 
     @Test
     public void activate() {
-        final SystemSchema schema1 = newSchema();
+        final SystemSchema systemSchema1 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(schema1);
+        final Connector service1 = createConnector(systemSchema1);
 
-        final ConnectorEntry entry1 =
-                runtime.getConnectorEntryBySchemaId(service1.getSchema().getId());
+        final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
+                service1.getSystemSchema().getId());
 
         final Disposable schedulerLock1 = pauseScheduler();
         runtime.deactivate();
@@ -211,18 +211,18 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
     @Test
     public void activateMultiple() {
-        final SystemSchema schema1 = newSchema();
-        final SystemSchema schema3 = newSchema();
+        final SystemSchema systemSchema1 = newSystemSchema();
+        final SystemSchema systemSchema3 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-        final Connector service1 = createConnector(schema1);
-        final ConnectorEntry entry1 =
-                runtime.getConnectorEntryBySchemaId(service1.getSchema().getId());
+        final Connector service1 = createConnector(systemSchema1);
+        final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
+                service1.getSystemSchema().getId());
 
-        final Connector service3 = createConnector(schema3);
-        final ConnectorEntry entry3 =
-                runtime.getConnectorEntryBySchemaId(service3.getSchema().getId());
+        final Connector service3 = createConnector(systemSchema3);
+        final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemSchemaId(
+                service3.getSystemSchema().getId());
 
         reset(service1.getTransport());
         reset(service3.getTransport());
@@ -309,15 +309,15 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
     @Test
     public void deactivate() {
-        final SystemSchema schema1 = newSchema();
+        final SystemSchema systemSchema1 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(schema1);
+        final Connector service1 = createConnector(systemSchema1);
         newConnection(service1);
         safeAction(() -> service1.setState(ConnectorState.CONNECTED));
 
-        final ConnectorEntry entry1 =
-                runtime.getConnectorEntryBySchemaId(service1.getSchema().getId());
+        final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
+                service1.getSystemSchema().getId());
 
         runtime.activate();
 
@@ -378,22 +378,22 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
     @Test
     public void deactivateMultipleDataSources() {
-        final SystemSchema schema1 = newSchema();
-        final SystemSchema schema2 = newSchema();
+        final SystemSchema systemSchema1 = newSystemSchema();
+        final SystemSchema systemSchema2 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(schema1);
+        final Connector service1 = createConnector(systemSchema1);
         newConnection(service1);
         safeAction(() -> service1.setState(ConnectorState.CONNECTED));
 
-        final Connector service3 = createConnector(schema2);
+        final Connector service3 = createConnector(systemSchema2);
         newConnection(service3);
         safeAction(() -> service3.setState(ConnectorState.CONNECTED));
 
-        final ConnectorEntry entry1 =
-                runtime.getConnectorEntryBySchemaId(service1.getSchema().getId());
-        final ConnectorEntry entry3 =
-                runtime.getConnectorEntryBySchemaId(service3.getSchema().getId());
+        final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
+                service1.getSystemSchema().getId());
+        final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemSchemaId(
+                service3.getSystemSchema().getId());
         entry3.setRequired(false);
 
         runtime.activate();
@@ -514,7 +514,7 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
     @NonNull
     private Connector createConnectorInState(@NonNull final ConnectorState state) {
-        final Connector connector = createConnector(newSchema());
+        final Connector connector = createConnector(newSystemSchema());
         if (ConnectorState.CONNECTED == state) {
             newConnection(connector);
         }
@@ -553,7 +553,7 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
         final Connector connector3 = createConnectorInState(service3State);
 
-        runtime.setConnectorRequired(connector3.getSchema().getId(), false);
+        runtime.setConnectorRequired(connector3.getSystemSchema().getId(), false);
 
         assertEquals(runtime.getState(), expectedSystemState);
 

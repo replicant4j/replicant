@@ -172,7 +172,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                     () -> "Replicant-0020: Invoked reconcileAreaOfInterest() with disposed AreaOfInterest.");
         }
         final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
-        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.schemaId());
+        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.systemSchemaId());
         // Service can be disconnected if it is not required; reconciliation resumes when it reconnects.
         if (ConnectorState.CONNECTED == connector.getState()) {
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -211,9 +211,9 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
                 if (!FilterParameterUtil.filterParametersEqual(
                         filterParameter, existingSubscription.getFilterParameter())) {
-                    final SystemSchema schema =
-                            getReplicantContext().getSchemaService().getById(datasetAddress.schemaId());
-                    final Dataset dataset = schema.getDataset(datasetAddress.datasetId());
+                    final SystemSchema systemSchema =
+                            getReplicantContext().getSystemSchemaService().getById(datasetAddress.systemSchemaId());
+                    final Dataset dataset = systemSchema.getDataset(datasetAddress.datasetId());
                     if (null == groupTemplate && !dataset.hasUpdatableFilterParameter()) {
                         /*
                         If the subscription needs an update but the backend does not support updates
@@ -262,8 +262,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
         if (null != groupOperationType && null != operationType && !groupOperationType.equals(operationType)) {
             return false;
         } else {
-            final boolean sameDataset = groupTemplate.getDatasetAddress().schemaId()
-                            == areaOfInterest.getDatasetAddress().schemaId()
+            final boolean sameDataset = groupTemplate.getDatasetAddress().systemSchemaId()
+                            == areaOfInterest.getDatasetAddress().systemSchemaId()
                     && groupTemplate.getDatasetAddress().datasetId()
                             == areaOfInterest.getDatasetAddress().datasetId();
             final boolean sameDatasetKey = Objects.equals(
@@ -310,7 +310,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
                     Objects.requireNonNull(getReplicantContext().findSubscription(datasetAddress));
             getReplicantContext().getSpy().reportSpyEvent(new SubscriptionOrphanedEvent(subscription));
         }
-        getReplicantRuntime().getConnector(datasetAddress.schemaId()).requestUnsubscribe(datasetAddress);
+        getReplicantRuntime().getConnector(datasetAddress.systemSchemaId()).requestUnsubscribe(datasetAddress);
     }
 
     /**
@@ -319,7 +319,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
      * @return true if connector for Dataset Address has a remove pending for Dataset Address or the connector is not connected.
      */
     private boolean isRemovePending(@NonNull final DatasetAddress datasetAddress) {
-        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.schemaId());
+        final Connector connector = getReplicantRuntime().getConnector(datasetAddress.systemSchemaId());
         return ConnectorState.CONNECTED != connector.getState()
                 || connector.isSubscriptionOperationPending(
                         SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, null);

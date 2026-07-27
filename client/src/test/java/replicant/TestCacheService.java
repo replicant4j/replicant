@@ -12,27 +12,27 @@ public class TestCacheService implements CacheService {
     private final Map<Integer, Map<DatasetAddress, CacheEntry>> _data = new HashMap<>();
 
     @NonNull
-    private Map<DatasetAddress, CacheEntry> getSystemCache(final int schemaId) {
-        return _data.computeIfAbsent(schemaId, v -> new HashMap<>());
+    private Map<DatasetAddress, CacheEntry> getSystemCache(final int systemSchemaId) {
+        return _data.computeIfAbsent(systemSchemaId, v -> new HashMap<>());
     }
 
     @NonNull
     @Override
-    public Set<DatasetAddress> keySet(final int schemaId) {
-        return CollectionsUtil.wrap(getSystemCache(schemaId).keySet());
+    public Set<DatasetAddress> keySet(final int systemSchemaId) {
+        return CollectionsUtil.wrap(getSystemCache(systemSchemaId).keySet());
     }
 
     @Nullable
     @Override
     public String lookupDatasetCacheVersion(@NonNull final DatasetAddress datasetAddress) {
-        final CacheEntry entry = getSystemCache(datasetAddress.schemaId()).get(datasetAddress);
+        final CacheEntry entry = getSystemCache(datasetAddress.systemSchemaId()).get(datasetAddress);
         return null != entry ? entry.getDatasetCacheVersion() : null;
     }
 
     @Nullable
     @Override
     public CacheEntry lookup(@NonNull final DatasetAddress datasetAddress) {
-        return getSystemCache(datasetAddress.schemaId()).get(datasetAddress);
+        return getSystemCache(datasetAddress.systemSchemaId()).get(datasetAddress);
     }
 
     @Override
@@ -40,14 +40,14 @@ public class TestCacheService implements CacheService {
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
             @NonNull final ChangeSetMessage changeSet) {
-        getSystemCache(datasetAddress.schemaId())
+        getSystemCache(datasetAddress.systemSchemaId())
                 .put(datasetAddress, new CacheEntry(datasetAddress, datasetCacheVersion, String.valueOf(changeSet)));
         return true;
     }
 
     @Override
     public boolean invalidate(@NonNull final DatasetAddress datasetAddress) {
-        final Map<DatasetAddress, CacheEntry> systemCache = getSystemCache(datasetAddress.schemaId());
+        final Map<DatasetAddress, CacheEntry> systemCache = getSystemCache(datasetAddress.systemSchemaId());
         if (!systemCache.containsKey(datasetAddress)) {
             return false;
         } else {

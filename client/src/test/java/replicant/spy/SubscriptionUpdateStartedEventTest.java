@@ -16,17 +16,17 @@ public class SubscriptionUpdateStartedEventTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 2);
         final SubscriptionUpdateStartedEvent event = new SubscriptionUpdateStartedEvent(23, "Rose", datasetAddress);
 
-        assertEquals(event.getSchemaId(), 23);
-        assertEquals(event.getSchemaName(), "Rose");
+        assertEquals(event.getSystemSchemaId(), 23);
+        assertEquals(event.getSystemSchemaName(), "Rose");
         assertEquals(event.getDatasetAddress(), datasetAddress);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.SubscriptionUpdateStarted");
-        assertEquals(data.get("schema.id"), 23);
-        assertEquals(data.get("schema.name"), "Rose");
-        assertEquals(data.get("datasetAddress.schemaId"), 1);
+        assertEquals(data.get("systemSchema.id"), 23);
+        assertEquals(data.get("systemSchema.name"), "Rose");
+        assertEquals(data.get("datasetAddress.systemSchemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertEquals(data.get("datasetAddress.datasetRootId"), datasetAddress.datasetRootId());
         assertEquals(data.size(), 6);

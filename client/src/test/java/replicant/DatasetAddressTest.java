@@ -9,7 +9,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void construct() {
         final DatasetAddress datasetAddress = new DatasetAddress(2, 4, 1, "a");
 
-        assertEquals(datasetAddress.schemaId(), 2);
+        assertEquals(datasetAddress.systemSchemaId(), 2);
         assertEquals(datasetAddress.datasetId(), 4);
         assertEquals(datasetAddress.datasetRootId(), (Integer) 1);
         assertEquals(datasetAddress.datasetKey(), "a");
@@ -19,7 +19,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void constructTypeDatasetAddress() {
         final DatasetAddress datasetAddress = new DatasetAddress(2, 4);
 
-        assertEquals(datasetAddress.schemaId(), 2);
+        assertEquals(datasetAddress.systemSchemaId(), 2);
         assertEquals(datasetAddress.datasetId(), 4);
         assertNull(datasetAddress.datasetRootId());
         assertNull(datasetAddress.datasetKey());
@@ -29,7 +29,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void parseWithDatasetRootId() {
         final DatasetAddress datasetAddress = DatasetAddress.parse(2, "4.1");
 
-        assertEquals(datasetAddress.schemaId(), 2);
+        assertEquals(datasetAddress.systemSchemaId(), 2);
         assertEquals(datasetAddress.datasetId(), 4);
         assertEquals(datasetAddress.datasetRootId(), (Integer) 1);
     }
@@ -38,7 +38,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void parse() {
         final DatasetAddress datasetAddress = DatasetAddress.parse(4, "77");
 
-        assertEquals(datasetAddress.schemaId(), 4);
+        assertEquals(datasetAddress.systemSchemaId(), 4);
         assertEquals(datasetAddress.datasetId(), 77);
         assertNull(datasetAddress.datasetRootId());
     }
@@ -47,7 +47,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void parseWithDatasetKey() {
         final DatasetAddress datasetAddress = DatasetAddress.parse(4, "77#alpha");
 
-        assertEquals(datasetAddress.schemaId(), 4);
+        assertEquals(datasetAddress.systemSchemaId(), 4);
         assertEquals(datasetAddress.datasetId(), 77);
         assertNull(datasetAddress.datasetRootId());
         assertEquals(datasetAddress.datasetKey(), "alpha");
@@ -57,7 +57,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     void parseWithRootAndDatasetKey() {
         final DatasetAddress datasetAddress = DatasetAddress.parse(4, "77.5#alpha");
 
-        assertEquals(datasetAddress.schemaId(), 4);
+        assertEquals(datasetAddress.systemSchemaId(), 4);
         assertEquals(datasetAddress.datasetId(), 77);
         assertEquals(datasetAddress.datasetRootId(), (Integer) 5);
         assertEquals(datasetAddress.datasetKey(), "alpha");
@@ -139,7 +139,7 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress5 = new DatasetAddress(1, 2);
         final DatasetAddress datasetAddress6 = new DatasetAddress(1, 2, null, "a");
 
-        // Different schema
+        // Different systemSchema
         assertEquals(datasetAddress1.compareTo(datasetAddress4), -1);
         assertEquals(datasetAddress4.compareTo(datasetAddress1), 1);
 

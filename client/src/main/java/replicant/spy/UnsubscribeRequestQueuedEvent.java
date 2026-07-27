@@ -26,7 +26,7 @@ public final class UnsubscribeRequestQueuedEvent implements SerializableEvent {
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.UnsubscribeRequestQueued");
         final DatasetAddress datasetAddress = getDatasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
     }

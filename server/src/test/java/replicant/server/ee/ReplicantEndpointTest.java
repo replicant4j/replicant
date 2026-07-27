@@ -18,11 +18,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.server.DatasetAddress;
-import replicant.server.transport.DatasetMetadata;
+import replicant.server.transport.Dataset;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionAuthorization;
 import replicant.server.transport.ReplicantSessionManager;
-import replicant.server.transport.SchemaMetaData;
+import replicant.server.transport.SystemSchema;
 import replicant.shared.Messages;
 
 public final class ReplicantEndpointTest {
@@ -558,7 +558,7 @@ public final class ReplicantEndpointTest {
         when(handshakeAuthenticator.authenticate(session)).thenReturn(authorization);
         when(sessionManager.createSession(session, authorization)).thenReturn(replicantSession);
         when(sessionManager.getSession(sessionId)).thenReturn(replicantSession);
-        when(sessionManager.getSchemaMetaData()).thenReturn(newSchemaMetaData());
+        when(sessionManager.getSystemSchema()).thenReturn(newSystemSchema());
 
         return new EndpointFixture(
                 endpoint,
@@ -574,53 +574,39 @@ public final class ReplicantEndpointTest {
     }
 
     @NonNull
-    private SchemaMetaData newSchemaMetaData() {
-        final var typeDataset = new DatasetMetadata(
-                0,
-                "type",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                true);
-        final var updatableDataset = new DatasetMetadata(
+    private SystemSchema newSystemSchema() {
+        final var typeDataset =
+                new Dataset(0, "type", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var updatableDataset = new Dataset(
                 1,
                 "updatable",
                 1,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var keyedDataset = new DatasetMetadata(
+        final var keyedDataset = new Dataset(
                 2,
                 "keyed",
                 2,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.UPDATABLE,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
                 true,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var fixedKeyedDataset = new DatasetMetadata(
+        final var fixedKeyedDataset = new Dataset(
                 4,
                 "fixedKeyed",
                 4,
-                DatasetMetadata.FilterMode.PARAMETER_FILTERED,
-                DatasetMetadata.FilterParameterMode.FIXED,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
                 true,
-                DatasetMetadata.CacheType.NONE,
+                Dataset.CacheType.NONE,
                 true);
-        final var nonExternalDataset = new DatasetMetadata(
-                3,
-                "nonExternal",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.NONE,
-                false);
-        return new SchemaMetaData(
+        final var nonExternalDataset = new Dataset(
+                3, "nonExternal", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, false);
+        return new SystemSchema(
                 "Test", typeDataset, updatableDataset, keyedDataset, nonExternalDataset, fixedKeyedDataset);
     }
 

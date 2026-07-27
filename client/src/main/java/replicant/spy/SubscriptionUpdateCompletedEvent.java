@@ -10,28 +10,30 @@ import replicant.DatasetAddress;
  * Notification when a Connector completes an update of a Subscription's Filter Parameter.
  */
 public final class SubscriptionUpdateCompletedEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
     @NonNull
-    private final String _schemaName;
+    private final String _systemSchemaName;
 
     @NonNull
     private final DatasetAddress _datasetAddress;
 
     public SubscriptionUpdateCompletedEvent(
-            final int schemaId, @NonNull final String schemaName, @NonNull final DatasetAddress datasetAddress) {
-        _schemaId = schemaId;
-        _schemaName = Objects.requireNonNull(schemaName);
+            final int systemSchemaId,
+            @NonNull final String systemSchemaName,
+            @NonNull final DatasetAddress datasetAddress) {
+        _systemSchemaId = systemSchemaId;
+        _systemSchemaName = Objects.requireNonNull(systemSchemaName);
         _datasetAddress = Objects.requireNonNull(datasetAddress);
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @NonNull
-    public String getSchemaName() {
-        return _schemaName;
+    public String getSystemSchemaName() {
+        return _systemSchemaName;
     }
 
     @NonNull
@@ -42,10 +44,10 @@ public final class SubscriptionUpdateCompletedEvent implements SerializableEvent
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.SubscriptionUpdateCompleted");
-        map.put("schema.id", getSchemaId());
-        map.put("schema.name", getSchemaName());
+        map.put("systemSchema.id", getSystemSchemaId());
+        map.put("systemSchema.name", getSystemSchemaName());
         final DatasetAddress datasetAddress = getDatasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
     }

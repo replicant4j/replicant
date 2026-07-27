@@ -464,9 +464,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -502,9 +502,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         connector.pauseMessageScheduler();
@@ -591,9 +591,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -628,9 +628,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         connector.pauseMessageScheduler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -692,9 +692,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
@@ -780,9 +780,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         connector.pauseMessageScheduler();
@@ -866,9 +866,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
@@ -920,9 +920,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 true,
                 true,
                 Collections.emptyList());
-        final SystemSchema schema =
+        final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);
-        final Connector connector = createConnector(schema);
+        final Connector connector = createConnector(systemSchema);
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 

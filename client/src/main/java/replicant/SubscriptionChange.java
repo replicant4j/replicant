@@ -24,21 +24,25 @@ final class SubscriptionChange {
     private final Object _filterParameter;
 
     @NonNull
-    static SubscriptionChange from(final int schema, @NonNull final String subscriptionChange) {
-        return from(schema, subscriptionChange, null);
+    static SubscriptionChange from(final int systemSchemaId, @NonNull final String subscriptionChange) {
+        return from(systemSchemaId, subscriptionChange, null);
     }
 
     @NonNull
-    static SubscriptionChange from(final int schema, @NonNull final SubscriptionChangeMessage subscriptionChange) {
-        return from(schema, subscriptionChange.getSubscriptionChange(), subscriptionChange.getFilterParameter());
+    static SubscriptionChange from(
+            final int systemSchemaId, @NonNull final SubscriptionChangeMessage subscriptionChange) {
+        return from(
+                systemSchemaId, subscriptionChange.getSubscriptionChange(), subscriptionChange.getFilterParameter());
     }
 
     @NonNull
     private static SubscriptionChange from(
-            final int schema, @NonNull final String subscriptionChange, @Nullable final Object filterParameter) {
+            final int systemSchemaId,
+            @NonNull final String subscriptionChange,
+            @Nullable final Object filterParameter) {
         try {
             final String descriptor = subscriptionChange.substring(1);
-            final DatasetAddress datasetAddress = DatasetAddress.parse(schema, descriptor);
+            final DatasetAddress datasetAddress = DatasetAddress.parse(systemSchemaId, descriptor);
             return new SubscriptionChange(changeToType(subscriptionChange), datasetAddress, filterParameter);
         } catch (final Throwable t) {
             throw new IllegalStateException("Failed to parse Subscription Change '" + subscriptionChange + "'", t);

@@ -30,7 +30,7 @@ public class AreaOfInterestFilterParameterUpdatedEventTest extends AbstractRepli
         safeAction(() -> event.toMap(data));
 
         assertEquals(data.get("type"), "AreaOfInterest.Updated");
-        assertEquals(data.get("datasetAddress.schemaId"), 1);
+        assertEquals(data.get("datasetAddress.systemSchemaId"), 1);
         assertEquals(data.get("datasetAddress.datasetId"), 2);
         assertNull(data.get("datasetAddress.datasetRootId"));
         assertEquals(data.get("areaOfInterest.filterParameter"), filterParameter);

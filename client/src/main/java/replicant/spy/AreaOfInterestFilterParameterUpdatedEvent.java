@@ -28,7 +28,7 @@ public final class AreaOfInterestFilterParameterUpdatedEvent implements Serializ
         map.put("type", "AreaOfInterest.Updated");
         final AreaOfInterest areaOfInterest = getAreaOfInterest();
         final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
-        map.put("datasetAddress.schemaId", datasetAddress.schemaId());
+        map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());
         map.put("datasetAddress.datasetId", datasetAddress.datasetId());
         map.put("datasetAddress.datasetRootId", datasetAddress.datasetRootId());
         map.put("areaOfInterest.filterParameter", areaOfInterest.getFilterParameter());

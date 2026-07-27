@@ -11,13 +11,13 @@ public final class ExecStartedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
         final String command = ValueUtil.randomString();
-        final int schemaId = ValueUtil.randomInt();
-        final String schemaName = ValueUtil.randomString();
+        final int systemSchemaId = ValueUtil.randomInt();
+        final String systemSchemaName = ValueUtil.randomString();
         final int requestId = ValueUtil.randomInt();
-        final ExecStartedEvent event = new ExecStartedEvent(schemaId, schemaName, command, requestId);
+        final ExecStartedEvent event = new ExecStartedEvent(systemSchemaId, systemSchemaName, command, requestId);
 
-        assertEquals(event.getSchemaId(), schemaId);
-        assertEquals(event.getSchemaName(), schemaName);
+        assertEquals(event.getSystemSchemaId(), systemSchemaId);
+        assertEquals(event.getSystemSchemaName(), systemSchemaName);
         assertEquals(event.getCommand(), command);
         assertEquals(event.getRequestId(), requestId);
 
@@ -25,8 +25,8 @@ public final class ExecStartedEventTest extends AbstractReplicantTest {
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.ExecStarted");
-        assertEquals(data.get("schema.id"), schemaId);
-        assertEquals(data.get("schema.name"), schemaName);
+        assertEquals(data.get("systemSchema.id"), systemSchemaId);
+        assertEquals(data.get("systemSchema.name"), systemSchemaName);
         assertEquals(data.get("command"), command);
         assertEquals(data.get("requestId"), requestId);
 

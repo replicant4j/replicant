@@ -17,23 +17,22 @@ final class InvariantUtil {
     }
 
     static void assertConcreteDatasetAddress(
-            @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
+            @NonNull final SystemSchema systemSchema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesDatasetMetadata(schema, datasetAddress);
+            assertDatasetAddressMatchesDataset(systemSchema, datasetAddress);
         }
     }
 
     @VisibleForTesting
-    static void assertDatasetAddressMatchesDatasetMetadata(
-            @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
+    static void assertDatasetAddressMatchesDataset(
+            @NonNull final SystemSchema systemSchema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesDatasetMetadata(
-                    schema.getDatasetMetadata(datasetAddress.datasetId()), datasetAddress);
+            assertDatasetAddressMatchesDataset(systemSchema.getDataset(datasetAddress.datasetId()), datasetAddress);
         }
     }
 
-    private static void assertDatasetAddressMatchesDatasetMetadata(
-            @NonNull final DatasetMetadata dataset, @NonNull final DatasetAddressCandidate datasetAddressCandidate) {
+    private static void assertDatasetAddressMatchesDataset(
+            @NonNull final Dataset dataset, @NonNull final DatasetAddressCandidate datasetAddressCandidate) {
         if (dataset.isTypeDataset()) {
             assert null == datasetAddressCandidate.datasetRootId();
         } else {
@@ -51,17 +50,15 @@ final class InvariantUtil {
     }
 
     static void assertSubscriptionDependencyCandidate(
-            @NonNull final SchemaMetaData schema,
+            @NonNull final SystemSchema systemSchema,
             @NonNull final SubscriptionDependencyCandidate subscriptionDependencyCandidate) {
         if (isInvariantCheckingEnabled()) {
             final var sourceDatasetAddressCandidate = subscriptionDependencyCandidate.sourceDatasetAddressCandidate();
-            assertDatasetAddressMatchesDatasetMetadata(
-                    schema.getDatasetMetadata(sourceDatasetAddressCandidate.datasetId()),
-                    sourceDatasetAddressCandidate);
+            assertDatasetAddressMatchesDataset(
+                    systemSchema.getDataset(sourceDatasetAddressCandidate.datasetId()), sourceDatasetAddressCandidate);
             final var targetDatasetAddressCandidate = subscriptionDependencyCandidate.targetDatasetAddressCandidate();
-            assertDatasetAddressMatchesDatasetMetadata(
-                    schema.getDatasetMetadata(targetDatasetAddressCandidate.datasetId()),
-                    targetDatasetAddressCandidate);
+            assertDatasetAddressMatchesDataset(
+                    systemSchema.getDataset(targetDatasetAddressCandidate.datasetId()), targetDatasetAddressCandidate);
         }
     }
 }

@@ -106,7 +106,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onSyncRequest(@NonNull final SyncRequestEvent e) {
-        log("%cSync requested. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR);
+        log("%cSync requested. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**
@@ -115,7 +115,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onInSync(@NonNull final InSyncEvent e) {
-        log("%cSync completed. Backend synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR);
+        log("%cSync completed. Backend synchronized. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**
@@ -124,7 +124,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onOutOfSync(@NonNull final OutOfSyncEvent e) {
-        log("%cSync completed. Backend not synchronized. SchemaId: " + e.getSchemaId(), CONNECTOR_COLOR);
+        log("%cSync completed. Backend not synchronized. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**
@@ -134,7 +134,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onRequestStarted(@NonNull final RequestStartedEvent e) {
         log(
-                "%cRequest started. System: " + e.getName() + " Request: " + e.getName() + " RequestId: "
+                "%cRequest started. System Schema: " + e.getName() + " Request: " + e.getName() + " RequestId: "
                         + e.getRequestId(),
                 CONNECTOR_COLOR);
     }
@@ -150,8 +150,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
                 : e.haveResultsArrived() ? "Change set has already arrived." : "Change set has not arrived.";
 
         log(
-                "%cRequest completed. System: " + e.getSchemaName() + " Request: " + e.getName() + " RequestId: "
-                        + e.getRequestId() + " - " + changeSetDescription,
+                "%cRequest completed. System Schema: " + e.getSystemSchemaName() + " Request: " + e.getName()
+                        + " RequestId: " + e.getRequestId() + " - " + changeSetDescription,
                 CONNECTOR_COLOR);
     }
 
@@ -161,7 +161,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onConnected(@NonNull final ConnectedEvent e) {
-        log("%cConnector Connected. System: " + e.getSchemaName(), CONNECTOR_COLOR);
+        log("%cConnector Connected. System Schema: " + e.getSystemSchemaName(), CONNECTOR_COLOR);
     }
 
     /**
@@ -170,7 +170,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onConnectFailure(@NonNull final ConnectFailureEvent e) {
-        log("%cConnector Connect Failed. System: " + e.getSchemaName(), ERROR_COLOR);
+        log("%cConnector Connect Failed. System Schema: " + e.getSystemSchemaName(), ERROR_COLOR);
     }
 
     /**
@@ -179,7 +179,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onDisconnected(@NonNull final DisconnectedEvent e) {
-        log("%cConnector Disconnected. System: " + e.getSchemaName(), CONNECTOR_COLOR);
+        log("%cConnector Disconnected. System Schema: " + e.getSystemSchemaName(), CONNECTOR_COLOR);
     }
 
     /**
@@ -188,7 +188,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onDisconnectFailure(@NonNull final DisconnectFailureEvent e) {
-        log("%cConnector Disconnect Failed. System: " + e.getSchemaName(), ERROR_COLOR);
+        log("%cConnector Disconnect Failed. System Schema: " + e.getSystemSchemaName(), ERROR_COLOR);
     }
 
     /**
@@ -207,7 +207,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onMessageProcessFailure(@NonNull final MessageProcessFailureEvent e) {
         log(
-                "%cConnector Error Processing Message. System: " + e.getSchemaName() + " Error: " + e.getError(),
+                "%cConnector Error Processing Message. System Schema: " + e.getSystemSchemaName() + " Error: "
+                        + e.getError(),
                 ERROR_COLOR);
     }
 
@@ -217,7 +218,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onMessageReadFailure(@NonNull final MessageReadFailureEvent e) {
-        log("%cConnector Error Reading Message. System: " + e.getSchemaName(), ERROR_COLOR);
+        log("%cConnector Error Reading Message. System Schema: " + e.getSystemSchemaName(), ERROR_COLOR);
     }
 
     /**
@@ -226,7 +227,10 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onRestart(@NonNull final RestartEvent e) {
-        log("%cConnector attempting to disconnect and restart due to error. System: " + e.getSchemaName(), ERROR_COLOR);
+        log(
+                "%cConnector attempting to disconnect and restart due to error. System Schema: "
+                        + e.getSystemSchemaName(),
+                ERROR_COLOR);
     }
 
     /**
@@ -236,7 +240,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscribeCompleted(@NonNull final SubscribeCompletedEvent e) {
         log(
-                "%cConnector completed subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                "%cConnector completed subscribe. System Schema: " + e.getSystemSchemaName() + " Dataset Address: "
                         + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
@@ -248,7 +252,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscribeStarted(@NonNull final SubscribeStartedEvent e) {
         log(
-                "%cConnector started subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                "%cConnector started subscribe. System Schema: " + e.getSystemSchemaName() + " Dataset Address: "
                         + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
@@ -260,8 +264,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscriptionUpdateCompleted(@NonNull final SubscriptionUpdateCompletedEvent e) {
         log(
-                "%cConnector completed subscription update. System: " + e.getSchemaName() + " Dataset Address: "
-                        + e.getDatasetAddress(),
+                "%cConnector completed subscription update. System Schema: " + e.getSystemSchemaName()
+                        + " Dataset Address: " + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
 
@@ -272,7 +276,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onSubscriptionUpdateStarted(@NonNull final SubscriptionUpdateStartedEvent e) {
         log(
-                "%cConnector started subscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                "%cConnector started subscribe. System Schema: " + e.getSystemSchemaName() + " Dataset Address: "
                         + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
@@ -284,7 +288,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onUnsubscribeCompleted(@NonNull final UnsubscribeCompletedEvent e) {
         log(
-                "%cConnector completed unsubscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                "%cConnector completed unsubscribe. System Schema: " + e.getSystemSchemaName() + " Dataset Address: "
                         + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }
@@ -296,7 +300,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onUnsubscribeStarted(@NonNull final UnsubscribeStartedEvent e) {
         log(
-                "%cConnector started unsubscribe. System: " + e.getSchemaName() + " Dataset Address: "
+                "%cConnector started unsubscribe. System Schema: " + e.getSystemSchemaName() + " Dataset Address: "
                         + e.getDatasetAddress(),
                 CONNECTOR_COLOR);
     }

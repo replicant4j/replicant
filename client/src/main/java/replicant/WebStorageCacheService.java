@@ -59,16 +59,16 @@ public final class WebStorageCacheService implements CacheService {
 
     @NonNull
     @Override
-    public Set<DatasetAddress> keySet(final int schemaId) {
+    public Set<DatasetAddress> keySet(final int systemSchemaId) {
         final Set<DatasetAddress> datasetAddresses = new HashSet<>();
-        getIndex(schemaId).forEach(v -> datasetAddresses.add(DatasetAddress.parse(schemaId, v)));
+        getIndex(systemSchemaId).forEach(v -> datasetAddresses.add(DatasetAddress.parse(systemSchemaId, v)));
         return CollectionsUtil.wrap(datasetAddresses);
     }
 
     @Nullable
     @Override
     public String lookupDatasetCacheVersion(@NonNull final DatasetAddress datasetAddress) {
-        return getIndex(datasetAddress.schemaId())
+        return getIndex(datasetAddress.systemSchemaId())
                 .get(Objects.requireNonNull(datasetAddress).asDatasetAddressDescriptor());
     }
 
@@ -77,7 +77,7 @@ public final class WebStorageCacheService implements CacheService {
     public CacheEntry lookup(@NonNull final DatasetAddress datasetAddress) {
         Objects.requireNonNull(datasetAddress);
         final String datasetCacheVersion =
-                getIndex(datasetAddress.schemaId()).get(datasetAddress.asDatasetAddressDescriptor());
+                getIndex(datasetAddress.systemSchemaId()).get(datasetAddress.asDatasetAddressDescriptor());
         final String changeSet = _storage.getItem(datasetAddress.getCacheKey());
         if (null != datasetCacheVersion && null != changeSet) {
             return new CacheEntry(datasetAddress, datasetCacheVersion, changeSet);
@@ -95,10 +95,10 @@ public final class WebStorageCacheService implements CacheService {
         Objects.requireNonNull(datasetCacheVersion);
         assert null != changeSet;
         try {
-            final int schemaId = datasetAddress.schemaId();
-            final JsPropertyMap<String> index = getIndex(schemaId);
+            final int systemSchemaId = datasetAddress.systemSchemaId();
+            final JsPropertyMap<String> index = getIndex(systemSchemaId);
             index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
-            saveIndex(schemaId, index);
+            saveIndex(systemSchemaId, index);
             getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(changeSet));
             return true;
         } catch (final Throwable e) {
@@ -108,9 +108,9 @@ public final class WebStorageCacheService implements CacheService {
         }
     }
 
-    private void saveIndex(final int schemaId, @NonNull final JsPropertyMap<String> index) {
+    private void saveIndex(final int systemSchemaId, @NonNull final JsPropertyMap<String> index) {
         final Storage storage = getStorage();
-        final String key = indexKey(schemaId);
+        final String key = indexKey(systemSchemaId);
         if (0 == JsObject.keys(index).length) {
             storage.removeItem(key);
         } else {
@@ -121,14 +121,14 @@ public final class WebStorageCacheService implements CacheService {
     @Override
     public boolean invalidate(@NonNull final DatasetAddress datasetAddress) {
         Objects.requireNonNull(datasetAddress);
-        final int schemaId = datasetAddress.schemaId();
-        final JsPropertyMap<String> index = findIndex(schemaId);
+        final int systemSchemaId = datasetAddress.systemSchemaId();
+        final JsPropertyMap<String> index = findIndex(systemSchemaId);
         final String key = datasetAddress.asDatasetAddressDescriptor();
         if (null == index || null == index.get(key)) {
             return false;
         } else {
             index.delete(key);
-            saveIndex(schemaId, index);
+            saveIndex(systemSchemaId, index);
             getStorage().removeItem(datasetAddress.getCacheKey());
             return true;
         }
@@ -140,19 +140,19 @@ public final class WebStorageCacheService implements CacheService {
     }
 
     @NonNull
-    private JsPropertyMap<String> getIndex(final int schemaId) {
-        final JsPropertyMap<String> index = findIndex(schemaId);
+    private JsPropertyMap<String> getIndex(final int systemSchemaId) {
+        final JsPropertyMap<String> index = findIndex(systemSchemaId);
         return null == index ? Js.uncheckedCast(JsPropertyMap.of()) : index;
     }
 
     @Nullable
-    private JsPropertyMap<String> findIndex(final int schemaId) {
-        final String indexData = _storage.getItem(indexKey(schemaId));
+    private JsPropertyMap<String> findIndex(final int systemSchemaId) {
+        final String indexData = _storage.getItem(indexKey(systemSchemaId));
         return null == indexData ? null : Js.uncheckedCast(JSON.parse(indexData));
     }
 
     @NonNull
-    private String indexKey(final int schemaId) {
-        return DATASET_CACHE_VERSION_INDEX + '-' + schemaId;
+    private String indexKey(final int systemSchemaId) {
+        return DATASET_CACHE_VERSION_INDEX + '-' + systemSchemaId;
     }
 }

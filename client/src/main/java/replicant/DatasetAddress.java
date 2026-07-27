@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
  * Key when required.
  */
 public final class DatasetAddress implements Comparable<DatasetAddress> {
-    private final int _schemaId;
+    private final int _systemSchemaId;
     private final int _datasetId;
 
     @Nullable
@@ -20,27 +20,27 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
     @Nullable
     private final String _datasetKey;
 
-    public DatasetAddress(final int schemaId, final int datasetId) {
-        this(schemaId, datasetId, null, null);
+    public DatasetAddress(final int systemSchemaId, final int datasetId) {
+        this(systemSchemaId, datasetId, null, null);
     }
 
-    public DatasetAddress(final int schemaId, final int datasetId, @Nullable final Integer datasetRootId) {
-        this(schemaId, datasetId, datasetRootId, null);
+    public DatasetAddress(final int systemSchemaId, final int datasetId, @Nullable final Integer datasetRootId) {
+        this(systemSchemaId, datasetId, datasetRootId, null);
     }
 
     public DatasetAddress(
-            final int schemaId,
+            final int systemSchemaId,
             final int datasetId,
             @Nullable final Integer datasetRootId,
             @Nullable final String datasetKey) {
-        _schemaId = schemaId;
+        _systemSchemaId = systemSchemaId;
         _datasetId = datasetId;
         _datasetRootId = datasetRootId;
         _datasetKey = datasetKey;
     }
 
-    public int schemaId() {
-        return _schemaId;
+    public int systemSchemaId() {
+        return _systemSchemaId;
     }
 
     public int datasetId() {
@@ -64,7 +64,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
 
     @NonNull
     public String getName() {
-        return schemaId() + "." + asDatasetAddressDescriptor();
+        return systemSchemaId() + "." + asDatasetAddressDescriptor();
     }
 
     @NonNull
@@ -85,7 +85,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
     }
 
     @NonNull
-    public static DatasetAddress parse(final int schema, @NonNull final String datasetAddressDescriptor) {
+    public static DatasetAddress parse(final int systemSchemaId, @NonNull final String datasetAddressDescriptor) {
         final int datasetKeyOffset = datasetAddressDescriptor.indexOf('#');
         final String datasetAddressPart = -1 == datasetKeyOffset
                 ? datasetAddressDescriptor
@@ -96,7 +96,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
         final int datasetId =
                 Integer.parseInt(-1 == offset ? datasetAddressPart : datasetAddressPart.substring(0, offset));
         final Integer datasetRootId = -1 == offset ? null : Integer.parseInt(datasetAddressPart.substring(offset + 1));
-        return new DatasetAddress(schema, datasetId, datasetRootId, datasetKey);
+        return new DatasetAddress(systemSchemaId, datasetId, datasetRootId, datasetKey);
     }
 
     @Override
@@ -107,7 +107,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
             return false;
         } else {
             final DatasetAddress that = (DatasetAddress) o;
-            return Objects.equals(_schemaId, that._schemaId)
+            return Objects.equals(_systemSchemaId, that._systemSchemaId)
                     && Objects.equals(_datasetId, that._datasetId)
                     && Objects.equals(_datasetRootId, that._datasetRootId)
                     && Objects.equals(_datasetKey, that._datasetKey);
@@ -116,7 +116,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
 
     @Override
     public int hashCode() {
-        int result = _schemaId;
+        int result = _systemSchemaId;
         result = 17 * result + _datasetId;
         result = 31 * result + (_datasetRootId != null ? _datasetRootId.hashCode() : 0);
         result = 31 * result + (_datasetKey != null ? _datasetKey.hashCode() : 0);
@@ -125,9 +125,9 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
 
     @Override
     public int compareTo(@NonNull final DatasetAddress o) {
-        final int systemDiff = Integer.compare(schemaId(), o.schemaId());
-        if (0 != systemDiff) {
-            return systemDiff;
+        final int systemSchemaDiff = Integer.compare(systemSchemaId(), o.systemSchemaId());
+        if (0 != systemSchemaDiff) {
+            return systemSchemaDiff;
         } else {
             final int datasetDiff = Integer.compare(datasetId(), o.datasetId());
             if (0 != datasetDiff) {

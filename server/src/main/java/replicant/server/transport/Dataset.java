@@ -9,8 +9,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * A reusable definition of a replicable population and its filtering behaviour.
+ */
 @SuppressWarnings("WeakerAccess")
-public final class DatasetMetadata {
+public final class Dataset {
     public enum FilterMode {
         /**
          * No filtering
@@ -51,7 +54,7 @@ public final class DatasetMetadata {
         INTERNAL
     }
 
-    private final int _datasetId;
+    private final int _id;
 
     @NonNull
     private final String _name;
@@ -75,13 +78,13 @@ public final class DatasetMetadata {
     private final boolean _external;
 
     @NonNull
-    private final DatasetMetadata[] _requiredTypeDatasets;
+    private final Dataset[] _requiredTypeDatasets;
 
     @NonNull
-    private final Set<DatasetMetadata> _dependentDatasets = new HashSet<>();
+    private final Set<Dataset> _dependentDatasets = new HashSet<>();
 
-    public DatasetMetadata(
-            final int datasetId,
+    public Dataset(
+            final int id,
             @NonNull final String name,
             @Nullable final Integer datasetRootEntityTypeId,
             @NonNull final FilterMode filterMode,
@@ -89,8 +92,8 @@ public final class DatasetMetadata {
             final boolean keyed,
             @NonNull final CacheType cacheType,
             final boolean external,
-            @NonNull final DatasetMetadata... requiredTypeDatasets) {
-        _datasetId = datasetId;
+            @NonNull final Dataset... requiredTypeDatasets) {
+        _id = id;
         _name = Objects.requireNonNull(name);
         _datasetRootEntityTypeId = datasetRootEntityTypeId;
         _filterMode = Objects.requireNonNull(filterMode);
@@ -118,8 +121,8 @@ public final class DatasetMetadata {
         }
     }
 
-    public int getDatasetId() {
-        return _datasetId;
+    public int getId() {
+        return _id;
     }
 
     @NonNull
@@ -193,7 +196,7 @@ public final class DatasetMetadata {
      * @return the Required Type Datasets
      */
     @NonNull
-    public DatasetMetadata[] getRequiredTypeDatasets() {
+    public Dataset[] getRequiredTypeDatasets() {
         return _requiredTypeDatasets;
     }
 
@@ -204,7 +207,7 @@ public final class DatasetMetadata {
      */
     @Contract(pure = true)
     @NonNull
-    public @UnmodifiableView Set<DatasetMetadata> getDependentDatasets() {
+    public @UnmodifiableView Set<Dataset> getDependentDatasets() {
         return Collections.unmodifiableSet(_dependentDatasets);
     }
 }

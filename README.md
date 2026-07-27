@@ -71,6 +71,12 @@ Replicant assumes that each server-side Entity selected for replication has a cl
 not be identical to the Entity, but one Replica maps to one Entity and may omit attributes and relationships that the
 client does not need. Replicant manages the Replica's state and lifecycle.
 
+### System Schemas
+
+A System Schema catalogs every Entity Type and Dataset belonging to one isolated replicated system. Its identifier
+distinguishes that system within a Replicant Context. Connectors and Dataset Addresses use the identifier to keep
+multiple systems in the same context isolated.
+
 ### Datasets and Subscriptions
 
 When a client connects to the replicant system, they are typically interested in a subset of the
@@ -84,9 +90,10 @@ of the domain model, for example they may query:
 * All data pertaining to a particular roster over a particular date range
 * etc.
 
-Each query is represented by a reusable Dataset definition. A Subscription materializes that Dataset at a
-Dataset Address for one client. The client receives an initial message containing the matching state of the
-world, followed by subsequent matching changes until it unsubscribes or disconnects.
+Each query is represented by a reusable Dataset that selects Entities of one or more Entity Types and declares its
+filtering behavior. A Subscription materializes that Dataset at a Dataset Address for one client. The client receives
+an initial message containing the matching state of the world, followed by subsequent matching changes until it
+unsubscribes or disconnects.
 
 Datasets have several independent dimensions:
 
@@ -156,8 +163,8 @@ Keying is independent of whether the Filter Parameter is Fixed or Updatable.
 The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription should exist
 at a Dataset Address using the latest desired Filter Parameter. Its satisfaction status is exactly `PENDING`,
 `SATISFIED`, or `INVALIDATED`. Data availability is reported independently because complete data can remain usable
-while a changed Filter Parameter is pending. Invalidation is terminal for that Dataset Address within the client
-context, including across reconnects.
+while a changed Filter Parameter is pending. Invalidation is terminal for that Dataset Address within the Replicant
+Context, including across reconnects.
 
 The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. A Dataset Key is also part of
 the address and is embedded in its descriptor after a `#` suffix. The Filter Parameter remains outside the Dataset

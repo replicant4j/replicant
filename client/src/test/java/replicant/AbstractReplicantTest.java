@@ -102,16 +102,16 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
     }
 
     @NonNull
-    protected final SystemSchema newSchema() {
-        return newSchema(ValueUtil.randomInt());
+    protected final SystemSchema newSystemSchema() {
+        return newSystemSchema(ValueUtil.randomInt());
     }
 
     @NonNull
-    final SystemSchema newSchema(final int schemaId) {
+    final SystemSchema newSystemSchema(final int systemSchemaId) {
         final Dataset[] datasets = new Dataset[0];
         final EntityType[] entityTypes = new EntityType[0];
         return new SystemSchema(
-                schemaId,
+                systemSchemaId,
                 replicant.Replicant.areNamesEnabled() ? ValueUtil.randomString() : null,
                 datasets,
                 entityTypes);
@@ -119,12 +119,12 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
 
     @NonNull
     final Connector createConnector() {
-        return createConnector(newSchema(1));
+        return createConnector(newSystemSchema(1));
     }
 
     @NonNull
-    final Connector createConnector(@NonNull final SystemSchema schema) {
-        return (Connector) Replicant.context().registerConnector(schema, mock(Transport.class));
+    final Connector createConnector(@NonNull final SystemSchema systemSchema) {
+        return (Connector) Replicant.context().registerConnector(systemSchema, mock(Transport.class));
     }
 
     @NonNull

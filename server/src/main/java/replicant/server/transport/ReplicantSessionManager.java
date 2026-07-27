@@ -50,10 +50,10 @@ public interface ReplicantSessionManager {
             @NonNull Session webSocketSession, @NonNull ReplicantSessionAuthorization authorization);
 
     /**
-     * @return the metadata for replicant system.
+     * @return the System Schema for the replicated system.
      */
     @NonNull
-    SchemaMetaData getSchemaMetaData();
+    SystemSchema getSystemSchema();
 
     void setDatasetCacheVersions(
             @NonNull ReplicantSession session, @NonNull final Map<DatasetAddress, String> datasetCacheVersions);

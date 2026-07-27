@@ -5,11 +5,11 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * A schema rule declaring that encountering the configured Entity relationship in the source Dataset may require a
+ * A System Schema rule declaring that encountering the configured Entity relationship in the source Dataset may require a
  * Subscription to the target Dataset.
  *
  * <p>This rule is not interpreted directly at runtime. Domgen generates the runtime integration while this
- * representation supports schema metadata and validation.
+ * representation supports System Schema definition and validation.
  */
 public final class DatasetLink {
     /**

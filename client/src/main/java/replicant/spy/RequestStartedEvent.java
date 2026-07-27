@@ -9,10 +9,10 @@ import org.jspecify.annotations.NonNull;
  * Notification when a Request starts.
  */
 public final class RequestStartedEvent implements SerializableEvent {
-    private final int _schemaId;
+    private final int _systemSchemaId;
 
     @NonNull
-    private final String _schemaName;
+    private final String _systemSchemaName;
 
     private final int _requestId;
 
@@ -20,20 +20,23 @@ public final class RequestStartedEvent implements SerializableEvent {
     private final String _name;
 
     public RequestStartedEvent(
-            final int schemaId, @NonNull final String schemaName, final int requestId, @NonNull final String name) {
-        _schemaId = schemaId;
-        _schemaName = Objects.requireNonNull(schemaName);
+            final int systemSchemaId,
+            @NonNull final String systemSchemaName,
+            final int requestId,
+            @NonNull final String name) {
+        _systemSchemaId = systemSchemaId;
+        _systemSchemaName = Objects.requireNonNull(systemSchemaName);
         _requestId = requestId;
         _name = Objects.requireNonNull(name);
     }
 
-    public int getSchemaId() {
-        return _schemaId;
+    public int getSystemSchemaId() {
+        return _systemSchemaId;
     }
 
     @NonNull
-    public String getSchemaName() {
-        return _schemaName;
+    public String getSystemSchemaName() {
+        return _systemSchemaName;
     }
 
     public int getRequestId() {
@@ -48,8 +51,8 @@ public final class RequestStartedEvent implements SerializableEvent {
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
         map.put("type", "Connector.RequestStarted");
-        map.put("schema.id", getSchemaId());
-        map.put("schema.name", getSchemaName());
+        map.put("systemSchema.id", getSystemSchemaId());
+        map.put("systemSchema.name", getSystemSchemaName());
         map.put("requestId", getRequestId());
         map.put("name", getName());
     }
