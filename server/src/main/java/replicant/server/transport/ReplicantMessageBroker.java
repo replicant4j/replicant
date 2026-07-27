@@ -23,6 +23,6 @@ public interface ReplicantMessageBroker {
             @Nullable Integer requestId,
             @Nullable JsonValue response,
             @Nullable String datasetCacheVersion,
-            @NonNull Collection<EntityChangeCandidate> messages,
+            @NonNull Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull ChangeSet changeSet);
 }

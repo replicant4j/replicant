@@ -12,8 +12,8 @@ import replicant.server.runtime.ReplicantContextHolder;
 import replicant.server.transport.ReplicantSessionManager;
 
 /**
- * A base class for an interceptor that should be applied to all services that need to send out EntityChange messages
- * on completion.
+ * A base class for an interceptor that should be applied to services that capture Entity Change Candidates for
+ * routing on completion.
  */
 @Interceptor
 @Priority(Interceptor.Priority.LIBRARY_BEFORE + 100)

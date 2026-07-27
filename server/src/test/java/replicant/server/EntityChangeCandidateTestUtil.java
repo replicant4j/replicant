@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * A set of utility methods for testing EntityChangeCandidate infrastructure.
  */
-public final class MessageTestUtil {
+public final class EntityChangeCandidateTestUtil {
     @NonNull
     static final String ROUTING_KEY1 = "ROUTING_KEY1";
 
@@ -25,10 +25,10 @@ public final class MessageTestUtil {
     @NonNull
     public static final String ATTR_KEY2 = "ATTR_KEY2";
 
-    private MessageTestUtil() {}
+    private EntityChangeCandidateTestUtil() {}
 
     @NonNull
-    public static EntityChangeCandidate createMessage(
+    public static EntityChangeCandidate createEntityChangeCandidate(
             final int id,
             final int typeID,
             final long timestamp,
@@ -36,11 +36,11 @@ public final class MessageTestUtil {
             @Nullable final String r2,
             @Nullable final String a1,
             @Nullable final String a2) {
-        return createMessage(id, typeID, timestamp, null, r1, r2, a1, a2);
+        return createEntityChangeCandidate(id, typeID, timestamp, null, r1, r2, a1, a2);
     }
 
     @NonNull
-    static EntityChangeCandidate createMessage(
+    static EntityChangeCandidate createEntityChangeCandidate(
             final int id,
             final int typeID,
             final long timestamp,
@@ -78,14 +78,14 @@ public final class MessageTestUtil {
     }
 
     static void assertAttributeValue(
-            @NonNull final EntityChangeCandidate message, @NonNull final String key, @Nullable final String value) {
-        final var values = message.getAttributeValues();
+            @NonNull final EntityChangeCandidate candidate, @NonNull final String key, @Nullable final String value) {
+        final var values = candidate.getAttributeValues();
         assertNotNull(values);
         assertEquals(Objects.requireNonNull(values).get(key), value);
     }
 
-    static void assertRouteValue(
-            @NonNull final EntityChangeCandidate message, @NonNull final String key, @Nullable final String value) {
-        assertEquals(message.getRoutingKeys().get(key), value);
+    static void assertRoutingKeyValue(
+            @NonNull final EntityChangeCandidate candidate, @NonNull final String key, @Nullable final String value) {
+        assertEquals(candidate.getRoutingKeys().get(key), value);
     }
 }

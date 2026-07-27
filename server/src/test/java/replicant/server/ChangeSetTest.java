@@ -14,13 +14,15 @@ public class ChangeSetTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
-        final var message3 = MessageTestUtil.createMessage(18, 42, 0, "X", "X", "X", "X");
+        final var candidate1 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var candidate2 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r3", "aZ", "a2");
+        final var candidate3 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(18, 42, 0, "X", "X", "X", "X");
 
-        final var change1 = new EntityChange(message1);
-        final var change2 = new EntityChange(message2);
-        final var change3 = new EntityChange(message3);
+        final var change1 = new EntityChange(candidate1);
+        final var change2 = new EntityChange(candidate2);
+        final var change3 = new EntityChange(candidate3);
 
         change1.getDatasetAddresses().add(DatasetAddress.of(1, 1));
         change2.getDatasetAddresses().add(DatasetAddress.of(2, 3));
@@ -95,8 +97,9 @@ public class ChangeSetTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var change1 = new EntityChange(message1);
+        final var candidate1 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change1 = new EntityChange(candidate1);
 
         final var changeSet = new ChangeSet();
 
@@ -118,8 +121,9 @@ public class ChangeSetTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var change1 = new EntityChange(message1);
+        final var candidate1 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var change1 = new EntityChange(candidate1);
         changeSet.merge(change1);
 
         final var filterParameter =
@@ -153,12 +157,13 @@ public class ChangeSetTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var messageSet = new EntityChangeCandidateSet();
-        messageSet.merge(message1);
+        final var candidate1 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var candidateSet = new EntityChangeCandidateSet();
+        candidateSet.merge(candidate1);
 
         final var datasetAddress = DatasetAddress.of(1);
-        changeSet.merge(List.of(new EntityChange(message1, datasetAddress)));
+        changeSet.merge(List.of(new EntityChange(candidate1, datasetAddress)));
 
         final var changes = changeSet.getEntityChanges();
         assertEquals(changes.size(), 1);

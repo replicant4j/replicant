@@ -58,6 +58,41 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void sendChangeSet_filterRemovalProducesReplicaRemovalEntityChange() {
+        final var dataset = new Dataset(0, "Filtered", null, Dataset.FilterMode.IMPLICIT, null, false, false, true);
+        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+
+        final var webSocketSession = mock(Session.class);
+        final var remote = mock(RemoteEndpoint.Basic.class);
+        when(webSocketSession.getId()).thenReturn("session-1");
+        when(webSocketSession.isOpen()).thenReturn(true);
+        when(webSocketSession.getBasicRemote()).thenReturn(remote);
+        final var session = new ReplicantSession(webSocketSession);
+
+        final var datasetAddress = DatasetAddress.of(0);
+        final var entityChangeCandidate =
+                new EntityChangeCandidate(101, 2, 0L, typeRouting("Filtered"), attributes(101), null);
+        final var changeSet = new ChangeSet();
+        final var packet = new Packet(false, null, null, null, List.of(entityChangeCandidate), changeSet);
+
+        session.getLock().lock();
+        try {
+            session.createSubscriptionEntry(datasetAddress, SubscriptionMode.EXPLICIT);
+            context.removeFilterEntityChangeCandidateAtDatasetAddress(datasetAddress);
+
+            assertTrue(manager.sendChangeSet(session, packet));
+        } finally {
+            session.getLock().unlock();
+        }
+
+        assertEquals(1, changeSet.getEntityChanges().size());
+        final var entityChange = changeSet.getEntityChanges().iterator().next();
+        assertEquals(Set.of(datasetAddress), entityChange.getDatasetAddresses());
+        assertTrue(entityChange.getEntityChangeCandidate().isDelete());
+    }
+
+    @Test
     public void sendChangeSet_datasetCacheEntryReferenceRequiresCurrentSubscription() throws Exception {
         final var dataset = new Dataset(0, "Cacheable", null, Dataset.FilterMode.UNFILTERED, null, false, true, true);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
@@ -128,11 +163,11 @@ public class ReplicantSessionManagerImplTest {
         routingKeys.put("Source", "present");
         final var attributes = new HashMap<String, Serializable>();
         attributes.put("ID", 1);
-        final var message =
+        final var entityChangeCandidate =
                 new EntityChangeCandidate(1, 1, 0L, routingKeys, attributes, Set.of(subscriptionDependency));
 
         final var newFilterParameter = Json.createObjectBuilder().add("k", "v").build();
-        final var packet = new Packet(false, null, null, null, List.of(message), new ChangeSet());
+        final var packet = new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet());
 
         session.getLock().lock();
         try {
@@ -226,7 +261,7 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
-    public void sendChangeSet_sameTargetReplacementFromPacketMessage_preservesWithoutTargetReload() {
+    public void sendChangeSet_sameTargetReplacementFromEntityChangeCandidate_preservesWithoutTargetReload() {
         final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
         final var targetDataset =
                 new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
@@ -437,7 +472,7 @@ public class ReplicantSessionManagerImplTest {
         final var owner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
                 new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityChangeCandidate(
+        final var entityChangeCandidate = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         final SubscriptionEntry originalTargetEntry;
@@ -449,7 +484,8 @@ public class ReplicantSessionManagerImplTest {
             originalTargetEntry.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
-            manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+            manager.sendChangeSet(
+                    session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
             assertSame(session.getSubscriptionEntry(targetDatasetAddress), originalTargetEntry);
             assertEquals(originalTargetEntry.getFilterParameter(), newFilterParameter);
@@ -487,7 +523,7 @@ public class ReplicantSessionManagerImplTest {
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var subscriptionDependency =
                 new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityChangeCandidate(
+        final var entityChangeCandidate = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         session.getLock().lock();
@@ -499,7 +535,8 @@ public class ReplicantSessionManagerImplTest {
             originalTargetEntry.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
-            manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+            manager.sendChangeSet(
+                    session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
             final var replacementTargetEntry = session.getSubscriptionEntry(targetDatasetAddress);
             assertNotSame(replacementTargetEntry, originalTargetEntry);
@@ -542,7 +579,7 @@ public class ReplicantSessionManagerImplTest {
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var subscriptionDependency =
                 new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityChangeCandidate(
+        final var entityChangeCandidate = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         session.getLock().lock();
@@ -554,7 +591,8 @@ public class ReplicantSessionManagerImplTest {
             targetEntry.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
-            manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(message), new ChangeSet()));
+            manager.sendChangeSet(
+                    session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
             assertSame(session.getSubscriptionEntry(targetDatasetAddress), targetEntry);
             assertEquals(targetEntry.getFilterParameter(), originalFilterParameter);
@@ -640,7 +678,8 @@ public class ReplicantSessionManagerImplTest {
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0, 10);
         context.excludeFilterEntityChangeCandidateDatasetAddress(datasetAddress);
-        final var message = new EntityChangeCandidate(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
+        final var entityChangeCandidate =
+                new EntityChangeCandidate(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
         final var changeSet = new ChangeSet();
 
         session.getLock().lock();
@@ -648,7 +687,8 @@ public class ReplicantSessionManagerImplTest {
             final var entry = session.createSubscriptionEntry(datasetAddress, SubscriptionMode.IMPLICIT);
             entry.setMode(SubscriptionMode.EXPLICIT);
 
-            manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(message), changeSet));
+            manager.sendChangeSet(
+                    session, new Packet(false, null, null, null, List.of(entityChangeCandidate), changeSet));
         } finally {
             session.getLock().unlock();
         }
@@ -1071,9 +1111,9 @@ public class ReplicantSessionManagerImplTest {
 
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", new ArrayList<>(List.of(10)));
-        final var deleteMessage = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
+        final var deletionCandidate = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
         final var changeSet = new ChangeSet();
-        final var packet = new Packet(false, null, null, null, List.of(deleteMessage), changeSet);
+        final var packet = new Packet(false, null, null, null, List.of(deletionCandidate), changeSet);
 
         session.getLock().lock();
         try {
@@ -1100,7 +1140,8 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
-    public void sendChangeSet_deleteWithKeyedSubscriptions_unsubscribesConcreteTargetsWithoutMessageLinks() {
+    public void
+            sendChangeSet_deleteWithKeyedSubscriptions_unsubscribesConcreteTargetsWithoutSubscriptionDependencyCandidates() {
         final var sourceDataset = new Dataset(
                 0,
                 "Source",
@@ -1136,9 +1177,9 @@ public class ReplicantSessionManagerImplTest {
         final var targetDatasetAddressB = DatasetAddress.of(1, null, "fi-b");
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", new ArrayList<>(List.of(10)));
-        final var deleteMessage = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
+        final var deletionCandidate = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
         final var changeSet = new ChangeSet();
-        final var packet = new Packet(false, null, null, null, List.of(deleteMessage), changeSet);
+        final var packet = new Packet(false, null, null, null, List.of(deletionCandidate), changeSet);
 
         session.getLock().lock();
         try {
@@ -1254,6 +1295,12 @@ public class ReplicantSessionManagerImplTest {
         return routingKeys;
     }
 
+    private HashMap<String, Serializable> typeRouting(@NonNull final String routingKey) {
+        final var routingKeys = new HashMap<String, Serializable>();
+        routingKeys.put(routingKey, true);
+        return routingKeys;
+    }
+
     @NonNull
     private HashMap<String, Serializable> attributes(final int id) {
         final var attributes = new HashMap<String, Serializable>();
@@ -1276,6 +1323,9 @@ public class ReplicantSessionManagerImplTest {
 
         @NonNull
         private final Set<DatasetAddress> _excludedFilterEntityChangeCandidateAddresses = new HashSet<>();
+
+        @NonNull
+        private final Set<DatasetAddress> _removeFilterEntityChangeCandidateAddresses = new HashSet<>();
 
         private boolean _shouldFollowDatasetLink = true;
 
@@ -1384,11 +1434,13 @@ public class ReplicantSessionManagerImplTest {
         public EntityChangeCandidate filterEntityChangeCandidate(
                 @NonNull final ReplicantSession session,
                 @NonNull final DatasetAddress datasetAddress,
-                @NonNull final EntityChangeCandidate message) {
+                @NonNull final EntityChangeCandidate entityChangeCandidate) {
             if (_excludedFilterEntityChangeCandidateAddresses.contains(datasetAddress)) {
                 return null;
+            } else if (_removeFilterEntityChangeCandidateAddresses.contains(datasetAddress)) {
+                return entityChangeCandidate.toReplicaRemoval();
             }
-            return message;
+            return entityChangeCandidate;
         }
 
         @Override
@@ -1417,6 +1469,10 @@ public class ReplicantSessionManagerImplTest {
 
         void excludeFilterEntityChangeCandidateDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
             _excludedFilterEntityChangeCandidateAddresses.add(datasetAddress);
+        }
+
+        void removeFilterEntityChangeCandidateAtDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
+            _removeFilterEntityChangeCandidateAddresses.add(datasetAddress);
         }
 
         void setShouldFollowDatasetLink(final boolean shouldFollowDatasetLink) {

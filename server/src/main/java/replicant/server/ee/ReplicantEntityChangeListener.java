@@ -41,7 +41,7 @@ public class ReplicantEntityChangeListener {
     }
 
     /**
-     * Collect messages before they are committed to the database with the
+     * Collect Entity Change Candidates before they are committed to the database with the
      * assumption that the remove will not fail. This allows us to traverse
      * the object graph before it is deleted. Note: This is a different strategy
      * from postUpdate() but PostUpdate may be changed in the future to match

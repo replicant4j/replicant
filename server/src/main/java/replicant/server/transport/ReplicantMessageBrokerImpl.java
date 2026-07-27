@@ -107,10 +107,10 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @Nullable final String datasetCacheVersion,
-            @NonNull final Collection<EntityChangeCandidate> messages,
+            @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull final ChangeSet changeSet) {
-        final var packet =
-                new Packet(fromSubscriptionRequest, requestId, response, datasetCacheVersion, messages, changeSet);
+        final var packet = new Packet(
+                fromSubscriptionRequest, requestId, response, datasetCacheVersion, entityChangeCandidates, changeSet);
         queuePacket(session, packet);
         return packet;
     }
@@ -123,8 +123,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             LOG.log(
                     Level.FINE,
                     "event=broker.packet.queue sessionId=" + session.getId() + " requestId="
-                            + packet.requestId() + " messageCount="
-                            + packet.messages().size() + " changeCount="
+                            + packet.requestId() + " entityChangeCandidateCount="
+                            + packet.entityChangeCandidates().size() + " entityChangeCount="
                             + packet.changeSet().getEntityChanges().size() + " subscriptionChangeCount="
                             + packet.changeSet().getSubscriptionChanges().size() + " fromSubscriptionRequest="
                             + packet.fromSubscriptionRequest() + " newlyQueued="
@@ -459,8 +459,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         if (null == packet) {
             return "packetPresent=false";
         }
-        return "packetPresent=true requestId=" + packet.requestId() + " messageCount="
-                + packet.messages().size() + " changeCount="
+        return "packetPresent=true requestId=" + packet.requestId() + " entityChangeCandidateCount="
+                + packet.entityChangeCandidates().size() + " entityChangeCount="
                 + packet.changeSet().getEntityChanges().size() + " subscriptionChangeCount="
                 + packet.changeSet().getSubscriptionChanges().size() + " fromSubscriptionRequest="
                 + packet.fromSubscriptionRequest();

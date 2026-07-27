@@ -92,20 +92,20 @@ public final class EntityChangeCandidate {
 
     @NonNull
     public EntityChangeCandidate duplicate() {
-        final var message =
+        final var candidate =
                 new EntityChangeCandidate(getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
-        message.merge(this);
-        return message;
+        candidate.merge(this);
+        return candidate;
     }
 
     @NonNull
     public EntityChangeCandidate toReplicaRemoval() {
-        final var message = duplicate();
-        message.merge(this);
-        message._attributeValues = null;
-        message._subscriptionDependencyCandidates = null;
-        message.assertInvariants();
-        return message;
+        final var candidate = duplicate();
+        candidate.merge(this);
+        candidate._attributeValues = null;
+        candidate._subscriptionDependencyCandidates = null;
+        candidate.assertInvariants();
+        return candidate;
     }
 
     @NonNull

@@ -20,7 +20,7 @@ import replicant.server.SubscriptionChange;
 import replicant.shared.Messages;
 
 /**
- * Utility class used when encoding EntityChangeCandidate into JSON payload.
+ * Utility class used when encoding Replicant protocol messages and Change Sets into JSON payloads.
  */
 public final class JsonEncoder {
     // Use constant to avoid slow filesystem access when serializing a message.

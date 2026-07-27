@@ -16,30 +16,31 @@ public class PacketTest {
         final var requestId = ValueUtil.randomInt();
         final var response = Json.createArrayBuilder().build();
         final var datasetCacheVersion = ValueUtil.randomString();
-        final var messages = new ArrayList<EntityChangeCandidate>();
+        final var entityChangeCandidates = new ArrayList<EntityChangeCandidate>();
         final var changeSet = new ChangeSet();
 
-        final var packet = new Packet(true, requestId, response, datasetCacheVersion, messages, changeSet);
+        final var packet =
+                new Packet(true, requestId, response, datasetCacheVersion, entityChangeCandidates, changeSet);
 
         assertTrue(packet.fromSubscriptionRequest());
         assertEquals(packet.requestId(), (Integer) requestId);
         assertEquals(packet.response(), response);
         assertEquals(packet.datasetCacheVersion(), datasetCacheVersion);
-        assertSame(packet.messages(), messages);
+        assertSame(packet.entityChangeCandidates(), entityChangeCandidates);
         assertSame(packet.changeSet(), changeSet);
     }
 
     @Test
     public void packetNotFromInitiator() {
-        final var messages = new ArrayList<EntityChangeCandidate>();
+        final var entityChangeCandidates = new ArrayList<EntityChangeCandidate>();
         final var changeSet = new ChangeSet();
 
-        final var packet = new Packet(false, null, null, null, messages, changeSet);
+        final var packet = new Packet(false, null, null, null, entityChangeCandidates, changeSet);
 
         assertFalse(packet.fromSubscriptionRequest());
         assertNull(packet.requestId());
         assertNull(packet.datasetCacheVersion());
-        assertSame(packet.messages(), messages);
+        assertSame(packet.entityChangeCandidates(), entityChangeCandidates);
         assertSame(packet.changeSet(), changeSet);
     }
 
@@ -55,7 +56,7 @@ public class PacketTest {
         assertEquals(packet.requestId(), (Integer) requestId);
         assertEquals(packet.datasetCacheVersion(), datasetCacheVersion);
         assertEquals(packet.datasetCacheEntryAddress(), datasetAddress);
-        assertTrue(packet.messages().isEmpty());
+        assertTrue(packet.entityChangeCandidates().isEmpty());
         assertFalse(packet.changeSet().hasContent());
     }
 }

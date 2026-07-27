@@ -224,7 +224,7 @@ public final class ReplicantSession implements Serializable, Closeable {
          * We prioritize subscription packets ahead of other packets.
          * As the subscription data on the session object has already been
          * updated, we need to tell the client that these subscription changes
-         * have occurred before we try and route other messages to the client.
+         * have occurred before we send other packets to the client.
          *
          * Only after the client has been updated with all subscription changing
          * packets do we send other packets.

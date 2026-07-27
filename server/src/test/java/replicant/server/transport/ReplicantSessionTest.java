@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
 import replicant.server.EntityChange;
-import replicant.server.MessageTestUtil;
+import replicant.server.EntityChangeCandidateTestUtil;
 import replicant.server.SubscriptionChange;
 import replicant.server.ValueUtil;
 import replicant.shared.Messages;
@@ -176,8 +176,9 @@ public class ReplicantSessionTest {
         final var session = new ReplicantSession(webSocketSession);
         session.getLock().lock();
         try {
-            final var message = MessageTestUtil.createMessage(1, 2, 0, "r1", "r2", "a1", "a2");
-            final var change = new EntityChange(message, DatasetAddress.of(5, null));
+            final var entityChangeCandidate =
+                    EntityChangeCandidateTestUtil.createEntityChangeCandidate(1, 2, 0, "r1", "r2", "a1", "a2");
+            final var change = new EntityChange(entityChangeCandidate, DatasetAddress.of(5, null));
             final var changeSet = new ChangeSet();
             changeSet.merge(change);
 

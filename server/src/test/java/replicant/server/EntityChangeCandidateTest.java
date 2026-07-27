@@ -16,15 +16,15 @@ public final class EntityChangeCandidateTest {
         final var attributes = new HashMap<String, Serializable>();
         attributes.put("A", "x");
 
-        final var message = new EntityChangeCandidate(11, 22, 33L, routingKeys, attributes);
+        final var candidate = new EntityChangeCandidate(11, 22, 33L, routingKeys, attributes);
 
-        assertEquals(message.getId(), 11);
-        assertEquals(message.getTypeId(), 22);
-        assertEquals(message.getTimestamp(), 33L);
-        assertEquals(message.getRoutingKeys(), routingKeys);
-        assertEquals(message.getAttributeValues(), attributes);
-        assertNull(message.getSubscriptionDependencyCandidates());
-        assertTrue(message.isUpdate());
+        assertEquals(candidate.getId(), 11);
+        assertEquals(candidate.getTypeId(), 22);
+        assertEquals(candidate.getTimestamp(), 33L);
+        assertEquals(candidate.getRoutingKeys(), routingKeys);
+        assertEquals(candidate.getAttributeValues(), attributes);
+        assertNull(candidate.getSubscriptionDependencyCandidates());
+        assertTrue(candidate.isUpdate());
     }
 
     @Test
@@ -43,18 +43,21 @@ public final class EntityChangeCandidateTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var candidate =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
 
-        assertEquals(message.getId(), id);
-        assertEquals(message.getTypeId(), typeID);
-        assertEquals(message.getTimestamp(), 0);
-        assertNull(message.getSubscriptionDependencyCandidates());
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY1, "a1");
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY2, "a2");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY1, "r1");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY2, "r2");
+        assertEquals(candidate.getId(), id);
+        assertEquals(candidate.getTypeId(), typeID);
+        assertEquals(candidate.getTimestamp(), 0);
+        assertNull(candidate.getSubscriptionDependencyCandidates());
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY1, "a1");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY2, "a2");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY1, "r1");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY2, "r2");
 
-        final var message2 = MessageTestUtil.createMessage(
+        final var candidate2 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
                 id,
                 typeID,
                 2,
@@ -64,35 +67,40 @@ public final class EntityChangeCandidateTest {
                 "a3",
                 null);
 
-        message.merge(message2);
+        candidate.merge(candidate2);
 
-        assertEquals(message.getId(), id);
-        assertEquals(message.getTypeId(), typeID);
-        assertEquals(message.getTimestamp(), 2);
-        assertNotNull(message.getSubscriptionDependencyCandidates());
+        assertEquals(candidate.getId(), id);
+        assertEquals(candidate.getTypeId(), typeID);
+        assertEquals(candidate.getTimestamp(), 2);
+        assertNotNull(candidate.getSubscriptionDependencyCandidates());
         final var subscriptionDependencyCandidates =
-                Objects.requireNonNull(message.getSubscriptionDependencyCandidates());
+                Objects.requireNonNull(candidate.getSubscriptionDependencyCandidates());
         assertEquals(subscriptionDependencyCandidates.size(), 1);
         final var subscriptionDependency =
                 subscriptionDependencyCandidates.iterator().next();
         assertEquals(subscriptionDependency.sourceDatasetAddressCandidate().datasetId(), 1);
         assertEquals(subscriptionDependency.sourceDatasetAddressCandidate().datasetRootId(), (Integer) 2);
         assertEquals(subscriptionDependency.targetDatasetAddressCandidate().datasetId(), 47);
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY1, "a3");
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY2, "a2");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY1, "r3");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY2, "r2");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY1, "a3");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY2, "a2");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY1, "r3");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY2, "r2");
 
-        final var message3 = MessageTestUtil.createMessage(id, typeID, 1, null, null, null, "a4");
+        final var candidate3 =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 1, null, null, null, "a4");
 
-        message.merge(message3);
-        assertEquals(message.getId(), id);
-        assertEquals(message.getTypeId(), typeID);
-        assertEquals(message.getTimestamp(), 2, "Timestamp merge rule is to take the latest value");
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY1, "a3");
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY2, "a4");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY1, "r3");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY2, "r2");
+        candidate.merge(candidate3);
+        assertEquals(candidate.getId(), id);
+        assertEquals(candidate.getTypeId(), typeID);
+        assertEquals(candidate.getTimestamp(), 2, "Timestamp merge rule is to take the latest value");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY1, "a3");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY2, "a4");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY1, "r3");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY2, "r2");
     }
 
     @Test
@@ -100,7 +108,7 @@ public final class EntityChangeCandidateTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message = MessageTestUtil.createMessage(
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
                 id,
                 typeID,
                 0,
@@ -110,15 +118,16 @@ public final class EntityChangeCandidateTest {
                 "a1",
                 "a2");
 
-        assertTrue(message.isUpdate());
-        assertFalse(message.isDelete());
-        assertNotNull(message.getSubscriptionDependencyCandidates());
+        assertTrue(candidate.isUpdate());
+        assertFalse(candidate.isDelete());
+        assertNotNull(candidate.getSubscriptionDependencyCandidates());
 
-        message.merge(MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", null, null));
+        candidate.merge(
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", null, null));
 
-        assertFalse(message.isUpdate());
-        assertTrue(message.isDelete());
-        assertNull(message.getSubscriptionDependencyCandidates());
+        assertFalse(candidate.isUpdate());
+        assertTrue(candidate.isDelete());
+        assertNull(candidate.getSubscriptionDependencyCandidates());
     }
 
     @Test
@@ -126,29 +135,33 @@ public final class EntityChangeCandidateTest {
         final var id = 17;
         final var typeID = 42;
 
-        final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", null, null);
+        final var candidate =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", null, null);
 
-        assertFalse(message.isUpdate());
-        assertTrue(message.isDelete());
+        assertFalse(candidate.isUpdate());
+        assertTrue(candidate.isDelete());
 
-        message.merge(MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2"));
+        candidate.merge(
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2"));
 
-        assertTrue(message.isUpdate());
-        assertFalse(message.isDelete());
+        assertTrue(candidate.isUpdate());
+        assertFalse(candidate.isDelete());
     }
 
     @Test
     public void toStringIncludesDataWhenDataPresent() {
-        final var message = MessageTestUtil.createMessage(17, 42, 0, "r1", "r2", "a1", "a2");
-        assertTrue(message.toString().matches(".*Data=.*"));
+        final var candidate =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(17, 42, 0, "r1", "r2", "a1", "a2");
+        assertTrue(candidate.toString().matches(".*Data=.*"));
     }
 
     @Test
     public void toIsDeleteFlagIsCorrect() {
-        final var deleteMessage = MessageTestUtil.createMessage(17, 42, 0, "r1", "r2", null, null);
-        assertFalse(deleteMessage.toString().matches(".*Data=.*"));
-        assertFalse(deleteMessage.isUpdate());
-        assertTrue(deleteMessage.isDelete());
+        final var deletionCandidate =
+                EntityChangeCandidateTestUtil.createEntityChangeCandidate(17, 42, 0, "r1", "r2", null, null);
+        assertFalse(deletionCandidate.toString().matches(".*Data=.*"));
+        assertFalse(deletionCandidate.isUpdate());
+        assertTrue(deletionCandidate.isDelete());
     }
 
     @Test
@@ -156,7 +169,7 @@ public final class EntityChangeCandidateTest {
         final var id = ValueUtil.randomInt();
         final var typeId = ValueUtil.randomInt();
         final var timestamp = ValueUtil.randomInt();
-        final var message = MessageTestUtil.createMessage(
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
                 id,
                 typeId,
                 timestamp,
@@ -166,27 +179,31 @@ public final class EntityChangeCandidateTest {
                 "a1",
                 "a2");
 
-        assertEquals(message.getId(), id);
-        assertEquals(message.getTypeId(), typeId);
-        assertEquals(message.getTimestamp(), timestamp);
-        assertNotNull(message.getSubscriptionDependencyCandidates());
-        assertTrue(message.isUpdate());
-        assertFalse(message.isDelete());
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY1, "a1");
-        MessageTestUtil.assertAttributeValue(message, MessageTestUtil.ATTR_KEY2, "a2");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY1, "r1");
-        MessageTestUtil.assertRouteValue(message, MessageTestUtil.ROUTING_KEY2, "r2");
+        assertEquals(candidate.getId(), id);
+        assertEquals(candidate.getTypeId(), typeId);
+        assertEquals(candidate.getTimestamp(), timestamp);
+        assertNotNull(candidate.getSubscriptionDependencyCandidates());
+        assertTrue(candidate.isUpdate());
+        assertFalse(candidate.isDelete());
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY1, "a1");
+        EntityChangeCandidateTestUtil.assertAttributeValue(candidate, EntityChangeCandidateTestUtil.ATTR_KEY2, "a2");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY1, "r1");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate, EntityChangeCandidateTestUtil.ROUTING_KEY2, "r2");
 
-        final var message2 = message.toReplicaRemoval();
+        final var candidate2 = candidate.toReplicaRemoval();
 
-        assertEquals(message2.getId(), id);
-        assertEquals(message2.getTypeId(), typeId);
-        assertEquals(message2.getTimestamp(), timestamp);
-        assertNull(message2.getSubscriptionDependencyCandidates());
-        assertNull(message2.getAttributeValues());
-        assertFalse(message2.isUpdate());
-        assertTrue(message2.isDelete());
-        MessageTestUtil.assertRouteValue(message2, MessageTestUtil.ROUTING_KEY1, "r1");
-        MessageTestUtil.assertRouteValue(message2, MessageTestUtil.ROUTING_KEY2, "r2");
+        assertEquals(candidate2.getId(), id);
+        assertEquals(candidate2.getTypeId(), typeId);
+        assertEquals(candidate2.getTimestamp(), timestamp);
+        assertNull(candidate2.getSubscriptionDependencyCandidates());
+        assertNull(candidate2.getAttributeValues());
+        assertFalse(candidate2.isUpdate());
+        assertTrue(candidate2.isDelete());
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate2, EntityChangeCandidateTestUtil.ROUTING_KEY1, "r1");
+        EntityChangeCandidateTestUtil.assertRoutingKeyValue(
+                candidate2, EntityChangeCandidateTestUtil.ROUTING_KEY2, "r2");
     }
 }

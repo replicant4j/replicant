@@ -77,110 +77,110 @@ public class EntityChangeCandidateSorterTest {
 
     @Test
     public void deletionsShouldOrderBeforeChanges() {
-        final var messages =
-                new EntityChangeCandidate[] {createDeletionMessage(1), createUpdateMessage(1), createDeletionMessage(1)
-                };
+        final var candidates = new EntityChangeCandidate[] {
+            createDeletionCandidate(1), createUpdateCandidate(1), createDeletionCandidate(1)
+        };
 
-        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
+        final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertDeletion(sortedMessages.get(0));
-        assertDeletion(sortedMessages.get(1));
-        assertUpdate(sortedMessages.get(2));
+        assertDeletion(sortedCandidates.get(0));
+        assertDeletion(sortedCandidates.get(1));
+        assertUpdate(sortedCandidates.get(2));
     }
 
     @Test
     public void typesShouldOrderDescendingWithinDeletions() {
-        final var messages = new EntityChangeCandidate[] {
-            createUpdateMessage(1),
-            createDeletionMessage(1),
-            createDeletionMessage(3),
-            createDeletionMessage(2),
-            createDeletionMessage(4)
+        final var candidates = new EntityChangeCandidate[] {
+            createUpdateCandidate(1),
+            createDeletionCandidate(1),
+            createDeletionCandidate(3),
+            createDeletionCandidate(2),
+            createDeletionCandidate(4)
         };
 
-        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
+        final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertEquals(sortedMessages.get(0).getTypeId(), 4);
-        assertEquals(sortedMessages.get(1).getTypeId(), 3);
-        assertEquals(sortedMessages.get(2).getTypeId(), 2);
-        assertEquals(sortedMessages.get(3).getTypeId(), 1);
-        assertUpdate(sortedMessages.get(4));
+        assertEquals(sortedCandidates.get(0).getTypeId(), 4);
+        assertEquals(sortedCandidates.get(1).getTypeId(), 3);
+        assertEquals(sortedCandidates.get(2).getTypeId(), 2);
+        assertEquals(sortedCandidates.get(3).getTypeId(), 1);
+        assertUpdate(sortedCandidates.get(4));
     }
 
     @Test
     public void typesShouldOrderAscendingWithinUpdates() {
-        final var messages = new EntityChangeCandidate[] {
-            createUpdateMessage(1),
-            createUpdateMessage(3),
-            createUpdateMessage(2),
-            createUpdateMessage(4),
-            createDeletionMessage(2)
+        final var candidates = new EntityChangeCandidate[] {
+            createUpdateCandidate(1),
+            createUpdateCandidate(3),
+            createUpdateCandidate(2),
+            createUpdateCandidate(4),
+            createDeletionCandidate(2)
         };
 
-        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
+        final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertDeletion(sortedMessages.get(0));
-        assertEquals(sortedMessages.get(1).getTypeId(), 1);
-        assertEquals(sortedMessages.get(2).getTypeId(), 2);
-        assertEquals(sortedMessages.get(3).getTypeId(), 3);
-        assertEquals(sortedMessages.get(4).getTypeId(), 4);
+        assertDeletion(sortedCandidates.get(0));
+        assertEquals(sortedCandidates.get(1).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(2).getTypeId(), 2);
+        assertEquals(sortedCandidates.get(3).getTypeId(), 3);
+        assertEquals(sortedCandidates.get(4).getTypeId(), 4);
     }
 
     @Test
     public void deletionForSameTypeShouldOrderByReverseTime() {
-        final var messages = new EntityChangeCandidate[] {
-            createDeletionMessage(2, 10),
-            createDeletionMessage(1, 15),
-            createDeletionMessage(2, 20),
-            createDeletionMessage(2, 15)
+        final var candidates = new EntityChangeCandidate[] {
+            createDeletionCandidate(2, 10),
+            createDeletionCandidate(1, 15),
+            createDeletionCandidate(2, 20),
+            createDeletionCandidate(2, 15)
         };
 
-        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
+        final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertEquals(sortedMessages.get(0).getTimestamp(), 20);
-        assertEquals(sortedMessages.get(1).getTimestamp(), 15);
-        assertEquals(sortedMessages.get(2).getTimestamp(), 10);
-        assertEquals(sortedMessages.get(3).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(0).getTimestamp(), 20);
+        assertEquals(sortedCandidates.get(1).getTimestamp(), 15);
+        assertEquals(sortedCandidates.get(2).getTimestamp(), 10);
+        assertEquals(sortedCandidates.get(3).getTypeId(), 1);
     }
 
     @Test
     public void updateForSameTypeShouldOrderByTime() {
-        final var messages = new EntityChangeCandidate[] {
-            createUpdateMessage(2, 10),
-            createUpdateMessage(1, 15),
-            createUpdateMessage(2, 20),
-            createUpdateMessage(2, 15)
+        final var candidates = new EntityChangeCandidate[] {
+            createUpdateCandidate(2, 10),
+            createUpdateCandidate(1, 15),
+            createUpdateCandidate(2, 20),
+            createUpdateCandidate(2, 15)
         };
 
-        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
+        final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertEquals(sortedMessages.get(0).getTypeId(), 1);
-        assertEquals(sortedMessages.get(1).getTimestamp(), 10);
-        assertEquals(sortedMessages.get(2).getTimestamp(), 15);
-        assertEquals(sortedMessages.get(3).getTimestamp(), 20);
+        assertEquals(sortedCandidates.get(0).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(1).getTimestamp(), 10);
+        assertEquals(sortedCandidates.get(2).getTimestamp(), 15);
+        assertEquals(sortedCandidates.get(3).getTimestamp(), 20);
     }
 
-    private EntityChangeCandidate createUpdateMessage(final int typeID) {
-        return createUpdateMessage(typeID, 0);
+    private EntityChangeCandidate createUpdateCandidate(final int typeID) {
+        return createUpdateCandidate(typeID, 0);
     }
 
-    private EntityChangeCandidate createUpdateMessage(final int typeID, final long time) {
+    private EntityChangeCandidate createUpdateCandidate(final int typeID, final long time) {
         return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null);
     }
 
-    private EntityChangeCandidate createDeletionMessage(final int typeID) {
-        return createDeletionMessage(typeID, 0);
+    private EntityChangeCandidate createDeletionCandidate(final int typeID) {
+        return createDeletionCandidate(typeID, 0);
     }
 
-    private EntityChangeCandidate createDeletionMessage(final int typeID, final long time) {
+    private EntityChangeCandidate createDeletionCandidate(final int typeID, final long time) {
         return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), null, null);
     }
 
-    private void assertDeletion(final EntityChangeCandidate message) {
-        assertTrue(message.isDelete(), "Expected " + message + " to be a deletion");
+    private void assertDeletion(final EntityChangeCandidate candidate) {
+        assertTrue(candidate.isDelete(), "Expected " + candidate + " to be a deletion");
     }
 
-    private void assertUpdate(final EntityChangeCandidate message) {
-        assertTrue(message.isUpdate(), "Expected " + message + " to be an update");
+    private void assertUpdate(final EntityChangeCandidate candidate) {
+        assertTrue(candidate.isUpdate(), "Expected " + candidate + " to be an update");
     }
 }

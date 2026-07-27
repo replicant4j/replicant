@@ -18,7 +18,7 @@ import replicant.server.EntityChangeCandidate;
  * @param requestId               the request that resulted in this change when the packet is sent to the initiator.
  * @param response                the response when the packet is sent to the request initiator.
  * @param datasetCacheVersion     the opaque Dataset Cache Version for a complete Cacheable Dataset Change Set, if any.
- * @param messages                the Entity Change candidates collected during the transaction.
+ * @param entityChangeCandidates  the Entity Change Candidates collected during the transaction.
  * @param changeSet               the complete Change Set carried by this packet.
  * @param datasetCacheEntryAddress the Dataset Address of the client Dataset Cache Entry to reuse, or null for a
  *                                 Change Set packet.
@@ -28,7 +28,7 @@ public record Packet(
         @Nullable Integer requestId,
         @Nullable JsonValue response,
         @Nullable String datasetCacheVersion,
-        @NonNull Collection<EntityChangeCandidate> messages,
+        @NonNull Collection<EntityChangeCandidate> entityChangeCandidates,
         @NonNull ChangeSet changeSet,
         @Nullable DatasetAddress datasetCacheEntryAddress) {
     public Packet(
@@ -36,9 +36,16 @@ public record Packet(
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @Nullable final String datasetCacheVersion,
-            @NonNull final Collection<EntityChangeCandidate> messages,
+            @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull final ChangeSet changeSet) {
-        this(fromSubscriptionRequest, requestId, response, datasetCacheVersion, messages, changeSet, null);
+        this(
+                fromSubscriptionRequest,
+                requestId,
+                response,
+                datasetCacheVersion,
+                entityChangeCandidates,
+                changeSet,
+                null);
     }
 
     @NonNull

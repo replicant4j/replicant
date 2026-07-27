@@ -2,6 +2,17 @@
 
 ### Unreleased
 
+* Adopt Entity Change Candidate terminology for potential server-side Entity changes captured before routing and
+  per-Subscription filtering:
+  * Replace candidate `message` names across transaction collection, packet queueing, Routing Key derivation, Filter
+    application, Subscription fan-out, Domgen-integrated Rose filters, diagnostics, and tests.
+  * Rename `Packet.messages()` to `Packet.entityChangeCandidates()` and replace the candidate test utilities with
+    `EntityChangeCandidateTestUtil` and `createEntityChangeCandidate(...)`.
+  * Preserve Entity Change and generic protocol-message terminology for the later client-visible and transport stages.
+  * Ensure a `FilterDecision.REMOVE` produces a Replica-removal Entity Change for the affected Subscription rather
+    than forwarding the original update candidate.
+  This is a hard-cut server API migration; no compatibility aliases are provided. The client wire protocol is
+  unchanged.
 * Adopt Dataset caching terminology across client persistence, server reuse, the wire protocol, Domgen, and generated
   integrations:
   * Replace client `CacheService`, `CacheEntry`, and `WebStorageCacheService` with `DatasetCacheService`,
@@ -124,7 +135,7 @@
     generated System Schema metadata, and generated tests.
   * Rename server `ChannelLink` to `SubscriptionDependency`, `ChannelLinkEntry` to
     `SubscriptionDependencyEntry`, and runtime `LinkOwner` to `SubscriptionDependencyOwner`.
-  * Migrate Entity Message dependency data, Dataset- and Entity-scoped dependency recording, ownership, reference
+  * Migrate Entity Change Candidate dependency data, Dataset- and Entity-scoped dependency recording, ownership, reference
     counts, inward/outward retention, reconciliation, filter propagation, cleanup, diagnostics, and generated
     integration code to Subscription Dependency terminology.
   This hard-cut API migration preserves Dataset Link direction and derivation, Subscription Dependency ownership and

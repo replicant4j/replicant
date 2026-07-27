@@ -176,9 +176,12 @@ Address.
 Within the replicant system, it is expected that changes to entities occur on the server-side and
 are integrated with the replicant engine. The replicant client then has to make service calls to the
 server-side to initiate changes. At the completion of the service call, the server component collects
-all changes that were made to the server-side entities during the service call and passes them to the
-replicant engine. The replicant engine is then responsible for replicating changes out to the interested
-clients.
+all Entity Change Candidates captured for server-side entities during the service call and passes them to the
+Replicant engine. Each Entity Change Candidate exists before routing and per-Subscription filtering. Replicant derives
+Routing Keys to find Dataset Addresses that may contain the Entity, applies the Dataset Filter for each Subscription,
+and records the resulting Filter Decision. One candidate may therefore produce Entity Changes for zero or more
+Subscriptions, including Entity Changes that remove a Replica. Those client-visible Entity Changes are packaged into
+Change Sets.
 
 The service infrastructure within replicant is such that it is possible to treat services as either;
 
@@ -192,7 +195,7 @@ The service infrastructure within replicant is such that it is possible to treat
 
 ### Change Notifications
 
-Changes are replicated out to the clients in Change Sets. Each Change Set typically represents a unit
+Entity Changes are replicated out to the clients in Change Sets. Each Change Set typically represents a unit
 of work, transaction or a single service call on the server-side. So all changes that occur within
 a single transaction are routed and packaged as a single Change Set when sent to the client. The Change
 Set is then applied atomically to the client-side replication. This is an attempt to provide some consistency

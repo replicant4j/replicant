@@ -25,12 +25,12 @@ public final class EntityChangeCandidateCacheUtil {
     @NonNull
     public static EntityChangeCandidateSet getEntityChangeCandidateSet(
             @NonNull final TransactionSynchronizationRegistry r) {
-        var messageSet = EntityChangeCandidateCacheUtil.<EntityChangeCandidateSet>lookup(r, KEY);
-        if (null == messageSet) {
-            messageSet = new EntityChangeCandidateSet();
-            r.putResource(KEY, messageSet);
+        var entityChangeCandidateSet = EntityChangeCandidateCacheUtil.<EntityChangeCandidateSet>lookup(r, KEY);
+        if (null == entityChangeCandidateSet) {
+            entityChangeCandidateSet = new EntityChangeCandidateSet();
+            r.putResource(KEY, entityChangeCandidateSet);
         }
-        return messageSet;
+        return entityChangeCandidateSet;
     }
 
     @Nullable
@@ -85,11 +85,11 @@ public final class EntityChangeCandidateCacheUtil {
     }
 
     private static <T> T remove(@NonNull final TransactionSynchronizationRegistry r, @NonNull final String key) {
-        final var messageSet = EntityChangeCandidateCacheUtil.<T>lookup(r, key);
-        if (null != messageSet) {
+        final var resource = EntityChangeCandidateCacheUtil.<T>lookup(r, key);
+        if (null != resource) {
             r.putResource(key, null);
         }
-        return messageSet;
+        return resource;
     }
 
     @SuppressWarnings("unchecked")

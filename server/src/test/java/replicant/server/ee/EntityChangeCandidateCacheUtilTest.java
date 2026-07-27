@@ -25,18 +25,18 @@ public class EntityChangeCandidateCacheUtilTest {
         assertNull(EntityChangeCandidateCacheUtil.lookupEntityChangeCandidateSet());
 
         // Now we force the creation of EntityChangeCandidateSet
-        final var messageSet = EntityChangeCandidateCacheUtil.getEntityChangeCandidateSet(
+        final var entityChangeCandidateSet = EntityChangeCandidateCacheUtil.getEntityChangeCandidateSet(
                 TransactionSynchronizationRegistryUtil.lookup());
 
-        assertNotNull(messageSet);
-        assertEquals(messageSet, EntityChangeCandidateCacheUtil.lookupEntityChangeCandidateSet());
+        assertNotNull(entityChangeCandidateSet);
+        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.lookupEntityChangeCandidateSet());
         assertEquals(
-                messageSet,
+                entityChangeCandidateSet,
                 EntityChangeCandidateCacheUtil.getEntityChangeCandidateSet(
                         TransactionSynchronizationRegistryUtil.lookup()));
 
         // Now we remove EntityChangeCandidateSet
-        assertEquals(messageSet, EntityChangeCandidateCacheUtil.removeEntityChangeCandidateSet());
+        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.removeEntityChangeCandidateSet());
         assertNull(EntityChangeCandidateCacheUtil.lookupEntityChangeCandidateSet());
 
         // Duplicate remove returns null
@@ -48,14 +48,14 @@ public class EntityChangeCandidateCacheUtilTest {
         assertNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
 
         // Now we force the creation of EntityChangeCandidateSet
-        final var messageSet = EntityChangeCandidateCacheUtil.getSessionChanges();
+        final var entityChangeCandidateSet = EntityChangeCandidateCacheUtil.getSessionChanges();
 
-        assertNotNull(messageSet);
-        assertEquals(messageSet, EntityChangeCandidateCacheUtil.lookupSessionChanges());
-        assertEquals(messageSet, EntityChangeCandidateCacheUtil.getSessionChanges());
+        assertNotNull(entityChangeCandidateSet);
+        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.lookupSessionChanges());
+        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.getSessionChanges());
 
         // Now we remove EntityChangeCandidateSet
-        assertEquals(messageSet, EntityChangeCandidateCacheUtil.removeSessionChanges());
+        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.removeSessionChanges());
         assertNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
 
         // Duplicate remove returns null
