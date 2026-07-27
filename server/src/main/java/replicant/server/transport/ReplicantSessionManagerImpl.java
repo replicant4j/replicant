@@ -794,6 +794,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 subscriptionDependency.targetFilterParameter());
         InvariantUtil.assertConcreteDatasetAddress(getSystemSchema(), targetDatasetAddress);
         final var dataset = getSystemSchema().getDataset(targetDatasetAddress);
+        if (!dataset.getVisibility().permitsDatasetLinkOrRequiredTypeDatasetOrigin()) {
+            throw new IllegalStateException("Dataset Link targets "
+                    + dataset.getName()
+                    + " with "
+                    + dataset.getVisibility()
+                    + " Dataset Visibility, which does not permit a Dataset Link origin");
+        }
         if (dataset.isParameterFiltered()) {
             final var filterParameter = subscriptionDependency.hasTargetFilterParameter()
                     ? subscriptionDependency.targetFilterParameter()

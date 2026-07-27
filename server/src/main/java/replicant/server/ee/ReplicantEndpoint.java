@@ -207,8 +207,10 @@ public class ReplicantEndpoint {
             @NonNull final Dataset dataset,
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
-        if (!dataset.isExternal()) {
-            sendErrorAndClose(replicantSession, "Attempted to subscribe to an internal-only Dataset");
+        if (!dataset.getVisibility().permitsAreaOfInterestOrigin()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to subscribe directly from an Area of Interest to a Dataset with internal visibility");
             return false;
         } else if (datasetAddress.hasDatasetRootId() && dataset.isTypeDataset()) {
             sendErrorAndClose(
@@ -306,8 +308,10 @@ public class ReplicantEndpoint {
             @NonNull final Dataset dataset,
             @NonNull final DatasetAddress datasetAddress)
             throws IOException {
-        if (!dataset.isExternal()) {
-            sendErrorAndClose(replicantSession, "Attempted to unsubscribe from an internal-only Dataset");
+        if (!dataset.getVisibility().permitsAreaOfInterestOrigin()) {
+            sendErrorAndClose(
+                    replicantSession,
+                    "Attempted to unsubscribe directly from an Area of Interest to a Dataset with internal visibility");
             return false;
         } else if (datasetAddress.hasDatasetRootId() && dataset.isTypeDataset()) {
             sendErrorAndClose(

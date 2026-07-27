@@ -248,7 +248,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                false,
+                Dataset.Visibility.INTERNAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
 
@@ -275,7 +275,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                false,
+                Dataset.Visibility.INTERNAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
 

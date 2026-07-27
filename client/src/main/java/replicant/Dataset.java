@@ -14,6 +14,36 @@ import org.jspecify.annotations.Nullable;
  */
 public final class Dataset {
     /**
+     * The permitted origins of Subscriptions to the Dataset.
+     */
+    public enum Visibility {
+        /// An Area of Interest may request the Dataset directly.
+        EXTERNAL,
+        /// The Dataset may be reached through a Dataset Link or Required Type Dataset.
+        INTERNAL,
+        /// Both Area of Interest and Dataset Link or Required Type Dataset origins are permitted.
+        UNIVERSAL;
+
+        /**
+         * Return whether an Area of Interest may request the Dataset directly.
+         *
+         * @return true when an Area of Interest origin is permitted.
+         */
+        public boolean permitsAreaOfInterestOrigin() {
+            return INTERNAL != this;
+        }
+
+        /**
+         * Return whether the Dataset may be reached through a Dataset Link or Required Type Dataset.
+         *
+         * @return true when a Dataset Link or Required Type Dataset origin is permitted.
+         */
+        public boolean permitsDatasetLinkOrRequiredTypeDatasetOrigin() {
+            return EXTERNAL != this;
+        }
+    }
+
+    /**
      * The type of filtering applied to the Dataset.
      */
     public enum FilterMode {
@@ -74,9 +104,10 @@ public final class Dataset {
      */
     private final boolean _cacheable;
     /**
-     * Flag indicating whether the Dataset can be backed by an externally supplied Area of Interest.
+     * The permitted origins of Subscriptions to the Dataset.
      */
-    private final boolean _external;
+    @NonNull
+    private final Visibility _visibility;
     /**
      * The Entity Types included within the Dataset.
      */
@@ -91,7 +122,7 @@ public final class Dataset {
             final boolean keyed,
             @Nullable final FilterParameterUpdateReplicaMatcher<?> filterParameterUpdateReplicaMatcher,
             final boolean cacheable,
-            final boolean external,
+            @NonNull final Visibility visibility,
             @NonNull final List<EntityType> entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
@@ -128,7 +159,7 @@ public final class Dataset {
         _keyed = keyed;
         _filterParameterUpdateReplicaMatcher = filterParameterUpdateReplicaMatcher;
         _cacheable = cacheable;
-        _external = external;
+        _visibility = Objects.requireNonNull(visibility);
         _entityTypes = entityTypes;
     }
 
@@ -250,12 +281,13 @@ public final class Dataset {
     }
 
     /**
-     * Return the flag indicating whether the Dataset should able to be subscribed to externally.
+     * Return the Dataset Visibility that controls how Subscriptions may originate.
      *
-     * @return the flag indicating whether the Dataset should able to be subscribed to externally.
+     * @return the Dataset Visibility.
      */
-    public boolean isExternal() {
-        return _external;
+    @NonNull
+    public Visibility getVisibility() {
+        return _visibility;
     }
 
     /**

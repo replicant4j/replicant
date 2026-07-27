@@ -14,6 +14,42 @@ import org.jspecify.annotations.Nullable;
  */
 @SuppressWarnings("WeakerAccess")
 public final class Dataset {
+    /**
+     * The permitted origins of Subscriptions to the Dataset.
+     */
+    public enum Visibility {
+        /**
+         * An Area of Interest may request the Dataset directly.
+         */
+        EXTERNAL,
+        /**
+         * The Dataset may be reached through a Dataset Link or Required Type Dataset.
+         */
+        INTERNAL,
+        /**
+         * Both Area of Interest and Dataset Link or Required Type Dataset origins are permitted.
+         */
+        UNIVERSAL;
+
+        /**
+         * Return whether an Area of Interest may request the Dataset directly.
+         *
+         * @return true when an Area of Interest origin is permitted.
+         */
+        public boolean permitsAreaOfInterestOrigin() {
+            return INTERNAL != this;
+        }
+
+        /**
+         * Return whether the Dataset may be reached through a Dataset Link or Required Type Dataset.
+         *
+         * @return true when a Dataset Link or Required Type Dataset origin is permitted.
+         */
+        public boolean permitsDatasetLinkOrRequiredTypeDatasetOrigin() {
+            return EXTERNAL != this;
+        }
+    }
+
     public enum FilterMode {
         /**
          * No filtering
@@ -64,9 +100,10 @@ public final class Dataset {
      */
     private final boolean _cacheable;
     /**
-     * Flag indicating whether the Dataset can be backed by an externally supplied Area of Interest.
+     * The permitted origins of Subscriptions to the Dataset.
      */
-    private final boolean _external;
+    @NonNull
+    private final Visibility _visibility;
 
     @NonNull
     private final Dataset[] _requiredTypeDatasets;
@@ -82,7 +119,7 @@ public final class Dataset {
             @Nullable final FilterParameterMode filterParameterMode,
             final boolean keyed,
             final boolean cacheable,
-            final boolean external,
+            @NonNull final Visibility visibility,
             @NonNull final Dataset... requiredTypeDatasets) {
         _id = id;
         _name = Objects.requireNonNull(name);
@@ -101,12 +138,19 @@ public final class Dataset {
         }
         _keyed = keyed;
         _cacheable = cacheable;
-        _external = external;
+        _visibility = Objects.requireNonNull(visibility);
         _requiredTypeDatasets = Objects.requireNonNull(requiredTypeDatasets);
         for (final var requiredTypeDataset : _requiredTypeDatasets) {
             if (requiredTypeDataset.isInstanceDataset()) {
                 throw new IllegalArgumentException(
                         "Specified Required Type Dataset " + requiredTypeDataset.getName() + " is not a Type Dataset");
+            }
+            if (!requiredTypeDataset.getVisibility().permitsDatasetLinkOrRequiredTypeDatasetOrigin()) {
+                throw new IllegalArgumentException("Specified Required Type Dataset "
+                        + requiredTypeDataset.getName()
+                        + " has "
+                        + requiredTypeDataset.getVisibility()
+                        + " Dataset Visibility, which does not permit a Required Type Dataset origin");
             }
             requiredTypeDataset._dependentDatasets.add(this);
         }
@@ -172,8 +216,14 @@ public final class Dataset {
         return _cacheable;
     }
 
-    public boolean isExternal() {
-        return _external;
+    /**
+     * Return the Dataset Visibility that controls how Subscriptions may originate.
+     *
+     * @return the Dataset Visibility.
+     */
+    @NonNull
+    public Visibility getVisibility() {
+        return _visibility;
     }
 
     /**

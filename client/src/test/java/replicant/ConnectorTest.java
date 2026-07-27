@@ -1192,7 +1192,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1220,7 +1220,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1248,7 +1248,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1276,7 +1276,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1306,7 +1306,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1336,7 +1336,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1370,7 +1370,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1399,7 +1399,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1431,7 +1431,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1459,7 +1459,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1516,7 +1516,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 filterParameter,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1592,7 +1592,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -1628,7 +1628,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
@@ -1716,7 +1716,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
@@ -1763,7 +1763,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
@@ -1808,7 +1808,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType entityType = new EntityType(
                 0, ValueUtil.randomString(), MyEntity.class, (i, d) -> new MyEntity(), null, new DatasetLink[0]);
@@ -1984,7 +1984,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2034,7 +2034,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2072,7 +2072,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 (filterParameter, replicaEntry) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2363,7 +2363,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 filterParameter,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType entityType =
                 new EntityType(0, ValueUtil.randomString(), String.class, (i, d) -> "", null, new DatasetLink[0]);
@@ -2419,7 +2419,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 true,
                 filterParameter,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2466,7 +2466,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2872,7 +2872,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -2975,7 +2975,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final EntityType.Creator<Linkable> creator = mock(EntityType.Creator.class);
         final EntityType.Updater<Linkable> updater = mock(EntityType.Updater.class);
@@ -3074,7 +3074,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3130,7 +3130,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3186,7 +3186,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3250,7 +3250,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3330,7 +3330,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3371,7 +3371,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3428,7 +3428,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3508,7 +3508,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3549,7 +3549,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3605,7 +3605,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3684,7 +3684,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3724,7 +3724,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3756,7 +3756,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3797,7 +3797,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3837,7 +3837,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});
@@ -3879,7 +3879,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[] {});

@@ -275,8 +275,9 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_subscribe_nonExternalDataset() throws Exception {
-        assertInvalidSubscribe("3", "Attempted to subscribe to an internal-only Dataset");
+    public void command_subscribe_internalVisibilityDataset() throws Exception {
+        assertInvalidSubscribe(
+                "3", "Attempted to subscribe directly from an Area of Interest to a Dataset with internal visibility");
     }
 
     @Test
@@ -575,7 +576,8 @@ public final class ReplicantEndpointTest {
 
     @NonNull
     private SystemSchema newSystemSchema() {
-        final var typeDataset = new Dataset(0, "type", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var typeDataset = new Dataset(
+                0, "type", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var updatableDataset = new Dataset(
                 1,
                 "updatable",
@@ -584,7 +586,7 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var keyedDataset = new Dataset(
                 2,
                 "keyed",
@@ -593,7 +595,7 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var fixedKeyedDataset = new Dataset(
                 4,
                 "fixedKeyed",
@@ -602,11 +604,18 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
-        final var nonExternalDataset =
-                new Dataset(3, "nonExternal", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+                Dataset.Visibility.UNIVERSAL);
+        final var internalVisibilityDataset = new Dataset(
+                3,
+                "internalVisibility",
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
         return new SystemSchema(
-                "Test", typeDataset, updatableDataset, keyedDataset, nonExternalDataset, fixedKeyedDataset);
+                "Test", typeDataset, updatableDataset, keyedDataset, internalVisibilityDataset, fixedKeyedDataset);
     }
 
     private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {

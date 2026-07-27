@@ -59,7 +59,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_filterRemovalProducesReplicaRemovalEntityChange() {
-        final var dataset = new Dataset(0, "Filtered", null, Dataset.FilterMode.IMPLICIT, null, false, false, true);
+        final var dataset = new Dataset(
+                0, "Filtered", null, Dataset.FilterMode.IMPLICIT, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -94,7 +95,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_datasetCacheEntryReferenceRequiresCurrentSubscription() throws Exception {
-        final var dataset = new Dataset(0, "Cacheable", null, Dataset.FilterMode.UNFILTERED, null, false, true, true);
+        final var dataset = new Dataset(
+                0, "Cacheable", null, Dataset.FilterMode.UNFILTERED, null, false, true, Dataset.Visibility.UNIVERSAL);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
         final var manager = new ReplicantSessionManagerImpl();
         setField(manager, "_context", context);
@@ -127,8 +129,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_fixedKeyedLinkFollow_usesTargetDatasetKey() {
-        final var sourceDataset =
-                new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -137,7 +139,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
 
         final var context = new TestSessionContext(systemSchema);
@@ -196,10 +198,39 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void sendChangeSet_datasetLinkTargetMustPermitDatasetLinkOrigin() throws Exception {
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", 2, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.EXTERNAL);
+        final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
+        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var sourceDatasetAddress = DatasetAddress.of(0, 1);
+        final var targetDatasetAddress = DatasetAddress.of(1, 2);
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
+        final var entityChangeCandidate = new EntityChangeCandidate(
+                1, 1, 0L, instanceRouting("Source", 1), attributes(1), Set.of(subscriptionDependency));
+
+        session.getLock().lock();
+        try {
+            session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.EXPLICIT);
+            manager.sendChangeSet(
+                    session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
+            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
+            verify(session.getWebSocketSession()).close(any(javax.websocket.CloseReason.class));
+        } finally {
+            session.getLock().unlock();
+        }
+    }
+
+    @Test
     public void sendChangeSet_deleteRemovesOnlyDeletedEntityOwnershipForSharedTarget() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -262,9 +293,10 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_sameTargetReplacementFromEntityChangeCandidate_preservesWithoutTargetReload() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -306,9 +338,10 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_sameTargetReplacementFromChangeSet_preservesWithoutTargetReload() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -350,8 +383,10 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_newTargetReplacement_isCollectedByNormalExpansion() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset = new Dataset(1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -395,7 +430,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_filterMismatchReplacement_isCollectedWithNewFilterByNormalExpansion() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -404,7 +440,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -450,7 +486,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_existingLinkedUpdatableFilterParameterRetainsTargetSubscription() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -459,7 +496,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -502,7 +539,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_existingLinkedFixedFilterParameterReplacesSubscription() throws Exception {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -511,7 +549,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -558,7 +596,8 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void sendChangeSet_existingLinkedFixedFilterParameterRejectsReplacementWhenTargetIsRetained()
             throws Exception {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -567,7 +606,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -614,9 +653,9 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+                Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -672,7 +711,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_implicitlyFilteredDatasetAppliesMembershipFilter() {
-        final var dataset = new Dataset(0, "Source", 1, Dataset.FilterMode.IMPLICIT, null, false, false, true);
+        final var dataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.IMPLICIT, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var context = createManagerContext(new SystemSchema("Test", dataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -698,7 +738,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_shouldFollowDatasetLinkFalse_isNotPreserved() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -707,7 +748,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         context.setShouldFollowDatasetLink(false);
@@ -749,9 +790,10 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_sourceRootDeleteWinsOverPreservation() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -795,8 +837,9 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
-        final var targetDataset = new Dataset(1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+                Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = createManagerContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -836,10 +879,25 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void subscribe_requiredTypeDatasetPrecedesRequiringDatasetAndCleansUpWithDependency() {
-        final var requiredTypeDataset =
-                new Dataset(0, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+        final var requiredTypeDataset = new Dataset(
+                0,
+                "ReferenceData",
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
         final var requiringDataset = new Dataset(
-                1, "Event", 7, Dataset.FilterMode.UNFILTERED, null, false, false, true, requiredTypeDataset);
+                1,
+                "Event",
+                7,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                requiredTypeDataset);
         final var systemSchema = new SystemSchema("Test", requiredTypeDataset, requiringDataset);
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -885,7 +943,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -935,7 +993,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -973,7 +1031,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var context = new TestSessionContext(new SystemSchema("Test", dataset));
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
@@ -1012,7 +1070,16 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void invalidateSession_removesAndClosesExistingSession() throws Exception {
         final var systemSchema = new SystemSchema(
-                "Test", new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true));
+                "Test",
+                new Dataset(
+                        0,
+                        "Source",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        false,
+                        Dataset.Visibility.UNIVERSAL));
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -1032,7 +1099,16 @@ public class ReplicantSessionManagerImplTest {
     @Test
     public void invalidateSession_ignoresUnknownSession() throws Exception {
         final var systemSchema = new SystemSchema(
-                "Test", new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true));
+                "Test",
+                new Dataset(
+                        0,
+                        "Source",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        false,
+                        Dataset.Visibility.UNIVERSAL));
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
 
@@ -1047,7 +1123,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void unsubscribe_removesSubscriptionsViaSessionLogic() {
-        final var dataset = new Dataset(0, "Dataset", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var dataset = new Dataset(
+                0, "Dataset", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", dataset);
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -1092,9 +1169,10 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void sendChangeSet_deleteRootUnsubscribesRootAndDownstream() {
-        final var sourceDataset = new Dataset(0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var targetDataset =
-                new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var sourceDataset = new Dataset(
+                0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var targetDataset = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -1150,7 +1228,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1,
                 "Target",
@@ -1159,7 +1237,7 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
         final var context = new TestSessionContext(systemSchema);
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
@@ -1205,7 +1283,8 @@ public class ReplicantSessionManagerImplTest {
 
     @Test
     public void tryGetDatasetCacheEntry_rejectsImplicitlyFilteredDataset() throws Exception {
-        final var dataset = new Dataset(0, "Source", null, Dataset.FilterMode.IMPLICIT, null, false, true, true);
+        final var dataset = new Dataset(
+                0, "Source", null, Dataset.FilterMode.IMPLICIT, null, false, true, Dataset.Visibility.UNIVERSAL);
         final var manager = createManager(
                 new TestSessionContext(new SystemSchema("Test", dataset)), mock(ReplicantMessageBroker.class));
         final var method =
@@ -1250,7 +1329,15 @@ public class ReplicantSessionManagerImplTest {
     private Dataset cacheableDataset(
             final int datasetId, @NonNull final String name, @NonNull final Dataset... requiredTypeDatasets) {
         return new Dataset(
-                datasetId, name, null, Dataset.FilterMode.UNFILTERED, null, false, true, true, requiredTypeDatasets);
+                datasetId,
+                name,
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                true,
+                Dataset.Visibility.UNIVERSAL,
+                requiredTypeDatasets);
     }
 
     @NonNull

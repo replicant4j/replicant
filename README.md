@@ -100,8 +100,14 @@ Datasets have several independent dimensions:
 * Selection shape: Type Dataset or Instance Dataset.
 * Filter source, represented by `FilterMode`: `UNFILTERED`, `IMPLICIT`, or `PARAMETER_FILTERED`.
 * Keying: unkeyed or keyed. Keying is valid only for a Parameter-Filtered Dataset.
+* Dataset Visibility: `EXTERNAL`, `INTERNAL`, or `UNIVERSAL`.
 
 A Parameter-Filtered Dataset also has a `FilterParameterMode`: `FIXED` or `UPDATABLE`.
+
+Dataset Visibility controls how a Subscription may originate. External visibility permits an Area of Interest to
+request the Dataset directly. Internal visibility permits the Dataset to be reached through a Dataset Link or Required
+Type Dataset. Universal visibility permits both origins. Dataset Visibility does not authorize a particular
+subscriber; authorization is evaluated separately for every direct Subscription request.
 
 **Type Datasets**: A Type Dataset starts with the populations of one or more configured Entity Types. Applications
 commonly use Type Datasets for reference data so that the complete configured populations arrive in one selection.

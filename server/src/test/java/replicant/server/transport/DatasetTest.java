@@ -6,11 +6,28 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 public class DatasetTest {
+    @Test
+    public void visibilityOrigins() {
+        assertTrue(Dataset.Visibility.EXTERNAL.permitsAreaOfInterestOrigin());
+        assertFalse(Dataset.Visibility.EXTERNAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+        assertFalse(Dataset.Visibility.INTERNAL.permitsAreaOfInterestOrigin());
+        assertTrue(Dataset.Visibility.INTERNAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+        assertTrue(Dataset.Visibility.UNIVERSAL.permitsAreaOfInterestOrigin());
+        assertTrue(Dataset.Visibility.UNIVERSAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void typeDataset() {
-        final var dataset =
-                new Dataset(1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+        final var dataset = new Dataset(
+                1,
+                "ReferenceData",
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
 
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "ReferenceData");
@@ -24,13 +41,14 @@ public class DatasetTest {
         assertFalse(dataset.hasUpdatableFilterParameter());
         assertFalse(dataset.isKeyed());
         assertFalse(dataset.isCacheable());
-        assertFalse(dataset.isExternal());
+        assertEquals(dataset.getVisibility(), Dataset.Visibility.INTERNAL);
         assertThrows(dataset::getDatasetRootEntityTypeId);
     }
 
     @Test
     public void instanceDataset() {
-        final var dataset = new Dataset(1, "ReferenceData", 23, Dataset.FilterMode.IMPLICIT, null, false, false, true);
+        final var dataset = new Dataset(
+                1, "ReferenceData", 23, Dataset.FilterMode.IMPLICIT, null, false, false, Dataset.Visibility.UNIVERSAL);
 
         assertFalse(dataset.isTypeDataset());
         assertTrue(dataset.isInstanceDataset());
@@ -40,7 +58,7 @@ public class DatasetTest {
         assertFalse(dataset.isParameterFiltered());
         assertNull(dataset.getFilterParameterMode());
         assertFalse(dataset.isKeyed());
-        assertTrue(dataset.isExternal());
+        assertEquals(dataset.getVisibility(), Dataset.Visibility.UNIVERSAL);
     }
 
     @Test
@@ -53,7 +71,7 @@ public class DatasetTest {
                 Dataset.FilterParameterMode.FIXED,
                 false,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
 
         assertTrue(dataset.isParameterFiltered());
         assertEquals(dataset.getFilterParameterMode(), Dataset.FilterParameterMode.FIXED);
@@ -72,7 +90,7 @@ public class DatasetTest {
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
 
         assertTrue(dataset.isParameterFiltered());
         assertEquals(dataset.getFilterParameterMode(), Dataset.FilterParameterMode.UPDATABLE);
@@ -93,7 +111,7 @@ public class DatasetTest {
                         filterParameterMode,
                         keyed,
                         false,
-                        true);
+                        Dataset.Visibility.UNIVERSAL);
 
                 assertEquals(dataset.getFilterParameterMode(), filterParameterMode);
                 assertEquals(dataset.isKeyed(), keyed);
@@ -106,7 +124,14 @@ public class DatasetTest {
         final var error = expectThrows(
                 IllegalArgumentException.class,
                 () -> new Dataset(
-                        1, "ReferenceData", null, Dataset.FilterMode.PARAMETER_FILTERED, null, false, false, true));
+                        1,
+                        "ReferenceData",
+                        null,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        null,
+                        false,
+                        false,
+                        Dataset.Visibility.UNIVERSAL));
 
         assertEquals(error.getMessage(), "Parameter-Filtered Dataset requires a Filter Parameter Mode");
     }
@@ -133,10 +158,25 @@ public class DatasetTest {
 
     @Test
     public void requiredTypeDatasetsTrackDependencyDirection() {
-        final var requiredTypeDataset =
-                new Dataset(1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+        final var requiredTypeDataset = new Dataset(
+                1,
+                "ReferenceData",
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
         final var requiringDataset = new Dataset(
-                2, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, false, true, requiredTypeDataset);
+                2,
+                "Event",
+                22,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                requiredTypeDataset);
 
         assertEquals(requiringDataset.getRequiredTypeDatasets(), new Dataset[] {requiredTypeDataset});
         assertEquals(requiredTypeDataset.getDependentDatasets(), Set.of(requiringDataset));
@@ -146,8 +186,8 @@ public class DatasetTest {
 
     @Test
     public void requiredTypeDatasetMustBeTypeDataset() {
-        final var instanceDataset =
-                new Dataset(1, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var instanceDataset = new Dataset(
+                1, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
 
         final var error = expectThrows(
                 IllegalArgumentException.class,
@@ -159,16 +199,54 @@ public class DatasetTest {
                         null,
                         false,
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         instanceDataset));
         assertEquals(error.getMessage(), "Specified Required Type Dataset Event is not a Type Dataset");
+    }
+
+    @Test
+    public void requiredTypeDatasetMustPermitRequiredTypeDatasetOrigin() {
+        final var externalDataset = new Dataset(
+                1,
+                "ReferenceData",
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.EXTERNAL);
+
+        final var error = expectThrows(
+                IllegalArgumentException.class,
+                () -> new Dataset(
+                        2,
+                        "Requiring",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        false,
+                        Dataset.Visibility.UNIVERSAL,
+                        externalDataset));
+        assertEquals(
+                error.getMessage(),
+                "Specified Required Type Dataset ReferenceData has EXTERNAL Dataset Visibility, which does not permit"
+                        + " a Required Type Dataset origin");
     }
 
     private void assertFilterParameterModeRejected(final Dataset.FilterMode filterMode) {
         for (final var filterParameterMode : Dataset.FilterParameterMode.values()) {
             final var error = expectThrows(
                     IllegalArgumentException.class,
-                    () -> new Dataset(1, "ReferenceData", null, filterMode, filterParameterMode, false, false, true));
+                    () -> new Dataset(
+                            1,
+                            "ReferenceData",
+                            null,
+                            filterMode,
+                            filterParameterMode,
+                            false,
+                            false,
+                            Dataset.Visibility.UNIVERSAL));
 
             assertEquals(error.getMessage(), "Filter Parameter Mode is only valid for a Parameter-Filtered Dataset");
         }
@@ -177,7 +255,8 @@ public class DatasetTest {
     private void assertKeyedRejected(final Dataset.FilterMode filterMode) {
         final var error = expectThrows(
                 IllegalArgumentException.class,
-                () -> new Dataset(1, "ReferenceData", null, filterMode, null, true, false, true));
+                () -> new Dataset(
+                        1, "ReferenceData", null, filterMode, null, true, false, Dataset.Visibility.UNIVERSAL));
 
         assertEquals(error.getMessage(), "Only a Parameter-Filtered Dataset can be keyed");
     }

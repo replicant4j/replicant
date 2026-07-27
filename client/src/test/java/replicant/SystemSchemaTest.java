@@ -24,7 +24,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final Dataset[] datasets = {null, dataset1};
         final SystemSchema systemSchema = new SystemSchema(id, name, datasets, entityTypes);
@@ -95,7 +95,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,

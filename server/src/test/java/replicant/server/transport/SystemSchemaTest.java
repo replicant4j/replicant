@@ -8,12 +8,33 @@ import replicant.server.ValueUtil;
 public class SystemSchemaTest {
     @Test
     public void basicOperation() {
-        final var dataset0 =
-                new Dataset(0, ValueUtil.randomString(), 2, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+        final var dataset0 = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                2,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
         final var dataset1 = new Dataset(
-                1, ValueUtil.randomString(), null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
-        final var dataset2 =
-                new Dataset(2, ValueUtil.randomString(), 54, Dataset.FilterMode.UNFILTERED, null, false, false, false);
+                1,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
+        final var dataset2 = new Dataset(
+                2,
+                ValueUtil.randomString(),
+                54,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                false,
+                Dataset.Visibility.INTERNAL);
         final var name = ValueUtil.randomString();
 
         final var systemSchema = new SystemSchema(name, dataset0, dataset1, dataset2);

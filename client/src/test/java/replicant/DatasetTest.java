@@ -8,6 +8,16 @@ import org.testng.annotations.Test;
 
 public class DatasetTest extends AbstractReplicantTest {
     @Test
+    public void visibilityOrigins() {
+        assertTrue(Dataset.Visibility.EXTERNAL.permitsAreaOfInterestOrigin());
+        assertFalse(Dataset.Visibility.EXTERNAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+        assertFalse(Dataset.Visibility.INTERNAL.permitsAreaOfInterestOrigin());
+        assertTrue(Dataset.Visibility.INTERNAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+        assertTrue(Dataset.Visibility.UNIVERSAL.permitsAreaOfInterestOrigin());
+        assertTrue(Dataset.Visibility.UNIVERSAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
+    }
+
+    @Test
     public void findEntityTypeById() {
         final EntityType entityType =
                 new EntityType(1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new DatasetLink[0]);
@@ -20,7 +30,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                false,
+                Dataset.Visibility.INTERNAL,
                 Collections.singletonList(entityType));
         assertEquals(dataset.getEntityTypes().size(), 1);
         assertEquals(dataset.getEntityTypes().size(), 1);
@@ -41,7 +51,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                false,
+                Dataset.Visibility.INTERNAL,
                 Collections.singletonList(entityType));
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "MetaData");
@@ -59,7 +69,7 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isKeyed());
         assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertFalse(dataset.isCacheable());
-        assertFalse(dataset.isExternal());
+        assertEquals(dataset.getVisibility(), Dataset.Visibility.INTERNAL);
         assertEquals(dataset.getEntityTypes().size(), 1);
         assertTrue(dataset.getEntityTypes().contains(entityType));
     }
@@ -75,7 +85,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "MetaData");
@@ -93,7 +103,7 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isKeyed());
         assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertFalse(dataset.isCacheable());
-        assertTrue(dataset.isExternal());
+        assertEquals(dataset.getVisibility(), Dataset.Visibility.UNIVERSAL);
     }
 
     @Test
@@ -102,7 +112,7 @@ public class DatasetTest extends AbstractReplicantTest {
         final String name = ValueUtil.randomString();
         final boolean typeDataset = false;
         final boolean cacheable = false;
-        final boolean external = true;
+        final Dataset.Visibility visibility = Dataset.Visibility.EXTERNAL;
         final Dataset dataset = new Dataset(
                 id,
                 name,
@@ -112,7 +122,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 cacheable,
-                external,
+                visibility,
                 Collections.emptyList());
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
@@ -130,7 +140,7 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isKeyed());
         assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertEquals(dataset.isCacheable(), cacheable);
-        assertEquals(dataset.isExternal(), external);
+        assertEquals(dataset.getVisibility(), visibility);
     }
 
     @Test
@@ -138,7 +148,7 @@ public class DatasetTest extends AbstractReplicantTest {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
-        final boolean external = true;
+        final Dataset.Visibility visibility = Dataset.Visibility.INTERNAL;
         final Dataset dataset = new Dataset(
                 id,
                 name,
@@ -148,7 +158,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 true,
                 null,
                 cacheable,
-                external,
+                visibility,
                 Collections.emptyList());
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
@@ -164,7 +174,7 @@ public class DatasetTest extends AbstractReplicantTest {
         assertTrue(dataset.isKeyed());
         assertNull(dataset.getFilterParameterUpdateReplicaMatcher());
         assertEquals(dataset.isCacheable(), cacheable);
-        assertEquals(dataset.isExternal(), external);
+        assertEquals(dataset.getVisibility(), visibility);
     }
 
     @Test
@@ -172,7 +182,7 @@ public class DatasetTest extends AbstractReplicantTest {
         final int id = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
         final boolean cacheable = false;
-        final boolean external = true;
+        final Dataset.Visibility visibility = Dataset.Visibility.UNIVERSAL;
         final FilterParameterUpdateReplicaMatcher<?> matcher = mock(FilterParameterUpdateReplicaMatcher.class);
         final Dataset dataset = new Dataset(
                 id,
@@ -183,7 +193,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 matcher,
                 cacheable,
-                external,
+                visibility,
                 Collections.emptyList());
         assertEquals(dataset.getId(), id);
         assertEquals(dataset.getName(), name);
@@ -201,7 +211,7 @@ public class DatasetTest extends AbstractReplicantTest {
         assertFalse(dataset.isKeyed());
         assertEquals(dataset.getFilterParameterUpdateReplicaMatcher(), matcher);
         assertEquals(dataset.isCacheable(), cacheable);
-        assertEquals(dataset.isExternal(), external);
+        assertEquals(dataset.getVisibility(), visibility);
     }
 
     @Test
@@ -216,7 +226,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 ValueUtil.randomBoolean(),
-                ValueUtil.randomBoolean(),
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final IllegalStateException exception = expectThrows(IllegalStateException.class, dataset::getName);
         assertEquals(
@@ -239,7 +249,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         null,
                         ValueUtil.randomBoolean(),
-                        ValueUtil.randomBoolean(),
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -259,7 +269,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         null,
                         ValueUtil.randomBoolean(),
-                        ValueUtil.randomBoolean(),
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -280,7 +290,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
-                        ValueUtil.randomBoolean(),
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -301,7 +311,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         true,
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
-                        ValueUtil.randomBoolean(),
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -320,7 +330,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         assertEquals(dataset.getFilterMode(), Dataset.FilterMode.IMPLICIT);
         assertFalse(dataset.isUnfiltered());
@@ -345,7 +355,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 true,
                 matcher,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         assertTrue(dataset.isParameterFiltered());
         assertTrue(dataset.hasUpdatableFilterParameter());
@@ -366,7 +376,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         null,
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -386,7 +396,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -406,7 +416,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         false,
                         null,
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(
                 exception.getMessage(),
@@ -426,7 +436,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         true,
                         null,
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(exception.getMessage(), "Replicant-0102: Dataset 222 is keyed but is not parameter-filtered.");
     }
@@ -444,7 +454,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         true,
                         null,
                         false,
-                        true,
+                        Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
         assertEquals(exception.getMessage(), "Replicant-0102: Dataset 222 is keyed but is not parameter-filtered.");
     }

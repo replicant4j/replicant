@@ -10,7 +10,8 @@ import replicant.server.SubscriptionDependencyCandidate;
 public final class InvariantUtilTest {
     @Test
     public void assertAddressMatchesDataset_allowsConcreteKeyedAddress() {
-        final var unfiltered = new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var unfiltered = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var keyed = new Dataset(
                 1,
                 "Target",
@@ -19,7 +20,7 @@ public final class InvariantUtilTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", unfiltered, keyed);
 
         InvariantUtil.assertDatasetAddressMatchesDataset(systemSchema, DatasetAddress.of(1, 2, "fi"));
@@ -35,7 +36,7 @@ public final class InvariantUtilTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", keyed);
 
         expectThrows(
@@ -45,8 +46,10 @@ public final class InvariantUtilTest {
 
     @Test
     public void assertSubscriptionDependencyCandidate_rejectsDatasetAddressTemplateForNonKeyedDataset() {
-        final var source = new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
-        final var target = new Dataset(1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var source = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
+        final var target = new Dataset(
+                1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", source, target);
 
         expectThrows(
@@ -58,7 +61,8 @@ public final class InvariantUtilTest {
 
     @Test
     public void assertSubscriptionDependencyCandidate_allowsTemplateWithMissingTargetFilterParameter() {
-        final var source = new Dataset(0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
+        final var source = new Dataset(
+                0, "Source", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var target = new Dataset(
                 1,
                 "Target",
@@ -67,7 +71,7 @@ public final class InvariantUtilTest {
                 Dataset.FilterParameterMode.FIXED,
                 true,
                 false,
-                true);
+                Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", source, target);
 
         InvariantUtil.assertSubscriptionDependencyCandidate(

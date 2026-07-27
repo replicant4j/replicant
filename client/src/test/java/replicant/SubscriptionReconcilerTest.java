@@ -462,7 +462,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -500,7 +500,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -589,7 +589,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
@@ -626,7 +626,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 null,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
@@ -690,7 +690,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0}, new EntityType[0]);
@@ -778,7 +778,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
@@ -853,7 +853,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final Dataset dataset1 = new Dataset(
                 1,
@@ -864,7 +864,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);
@@ -907,7 +907,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final Dataset dataset1 = new Dataset(
                 1,
@@ -918,7 +918,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                 false,
                 (f, e) -> true,
                 true,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         final SystemSchema systemSchema =
                 new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset0, dataset1}, new EntityType[0]);

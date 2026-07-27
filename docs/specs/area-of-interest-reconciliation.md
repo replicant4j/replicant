@@ -59,3 +59,7 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
     reconnection.
 25. Disconnection and reconnection must not change an `INVALIDATED` Area of Interest or cause its Dataset Address to be
     retried.
+26. An Area of Interest may request only a [Dataset](../glossary/README.md#dataset) whose
+    [Dataset Visibility](../glossary/README.md#dataset-visibility) permits a direct Area of Interest origin.
+27. Dataset Visibility must not replace authorization of a particular subscriber; authorization must still be
+    evaluated separately for each Subscription request.

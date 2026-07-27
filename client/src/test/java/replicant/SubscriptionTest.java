@@ -208,7 +208,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
@@ -229,7 +229,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
@@ -258,7 +258,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 33);
@@ -284,7 +284,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
@@ -310,7 +310,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 false,
                 null,
                 false,
-                true,
+                Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
         createConnector(new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]));
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 44);

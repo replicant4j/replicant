@@ -2,6 +2,15 @@
 
 ### Unreleased
 
+* Adopt Dataset Visibility terminology for the Dataset declaration that controls how Subscriptions may originate:
+  * Replace client and server `external` booleans and `isExternal()` APIs with explicit `Dataset.Visibility` values
+    `EXTERNAL`, `INTERNAL`, and `UNIVERSAL`, preserving the Domgen DSL's universal default.
+  * Preserve generated Area of Interest APIs and server direct-subscription handling for external and universal
+    visibility while retaining Dataset Link and Required Type Dataset origins for internal and universal visibility.
+  * Generate the complete visibility value in client and server System Schema metadata and assert it in generated
+    schema tests instead of collapsing external and universal visibility into one boolean.
+  Dataset Visibility controls origin rules and remains independent of authorization for a particular subscriber. This
+  is a hard-cut public API and generated-source migration; no compatibility aliases are provided.
 * Adopt Data Availability terminology for complete data at a Dataset Address that is currently usable in a Replicant
   Context:
   * Add `ReplicantContext.isDataAvailable(...)`, generate `isDataAvailable(...)` utilities for every Dataset
