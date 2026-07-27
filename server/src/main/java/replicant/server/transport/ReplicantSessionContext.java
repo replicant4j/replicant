@@ -81,7 +81,7 @@ public interface ReplicantSessionContext {
      * Add changes to the ChangeSet as a result of subscribing at one or more Dataset Addresses.
      * If the session is not null, then the implementation is expected to update the actual Subscription state.
      *
-     * @param session             the session. May be null if data is being collected for caching.
+     * @param session             the session. May be null while collecting a Dataset Cache Entry Change Set.
      * @param datasetAddresses the Dataset Addresses to collect data for; every address must have the same Dataset ID
      * @param filterParameter  the Filter Parameter. May be null if the Dataset has no Filter Parameter.
      * @param changeSet           the changeSet to add the collected data to.

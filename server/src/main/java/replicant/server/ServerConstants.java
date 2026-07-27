@@ -30,10 +30,10 @@ public final class ServerConstants {
      */
     public static final String REQUEST_RESPONSE_KEY = "RequestResponse";
     /**
-     * Key used to flag that a cached result has been sent or that we send a use-cached-dataset message.
-     * This means that there should be ZERO changes in session changeset and it should be marked as not required.
+     * Key used to flag that a Cacheable Dataset Change Set or use-dataset-cache-entry message has been queued.
+     * This means there should be no other changes in the session Change Set and it should be marked as not required.
      */
-    public static final String CACHED_RESULT_HANDLED_KEY = "CachedResultSent";
+    public static final String DATASET_CACHE_ENTRY_HANDLED_KEY = "DatasetCacheEntryHandled";
     /**
      * Key used to flag that an action is subscription.
      * This means there are ZERO changes in session changeset.

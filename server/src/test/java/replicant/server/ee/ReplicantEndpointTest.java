@@ -575,8 +575,7 @@ public final class ReplicantEndpointTest {
 
     @NonNull
     private SystemSchema newSystemSchema() {
-        final var typeDataset =
-                new Dataset(0, "type", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+        final var typeDataset = new Dataset(0, "type", null, Dataset.FilterMode.UNFILTERED, null, false, false, true);
         final var updatableDataset = new Dataset(
                 1,
                 "updatable",
@@ -584,7 +583,7 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
-                Dataset.CacheType.NONE,
+                false,
                 true);
         final var keyedDataset = new Dataset(
                 2,
@@ -593,7 +592,7 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
-                Dataset.CacheType.NONE,
+                false,
                 true);
         final var fixedKeyedDataset = new Dataset(
                 4,
@@ -602,10 +601,10 @@ public final class ReplicantEndpointTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 true,
-                Dataset.CacheType.NONE,
+                false,
                 true);
-        final var nonExternalDataset = new Dataset(
-                3, "nonExternal", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, false);
+        final var nonExternalDataset =
+                new Dataset(3, "nonExternal", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
         return new SystemSchema(
                 "Test", typeDataset, updatableDataset, keyedDataset, nonExternalDataset, fixedKeyedDataset);
     }

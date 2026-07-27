@@ -10,7 +10,7 @@ import replicant.server.EntityChangeCandidate;
 
 public interface ReplicantMessageBroker {
     @NonNull
-    Packet queueCachedDatasetReference(
+    Packet queueDatasetCacheEntryReference(
             @NonNull ReplicantSession session,
             @Nullable Integer requestId,
             @NonNull DatasetAddress datasetAddress,

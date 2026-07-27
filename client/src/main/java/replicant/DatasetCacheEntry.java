@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
  * <p>The Dataset Cache Version is opaque and must only be compared for equality with the server's current version for
  * the same Dataset Address.
  */
-public final class CacheEntry {
+public final class DatasetCacheEntry {
     @NonNull
     private final DatasetAddress _datasetAddress;
 
@@ -20,13 +20,13 @@ public final class CacheEntry {
     private final String _changeSet;
 
     /**
-     * Create a cache entry.
+     * Create a Dataset Cache Entry.
      *
      * @param datasetAddress      the concrete Dataset Address that owns the representation.
      * @param datasetCacheVersion the opaque Dataset Cache Version supplied by the server.
      * @param changeSet           the serialized Change Set.
      */
-    public CacheEntry(
+    public DatasetCacheEntry(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
             @NonNull final String changeSet) {

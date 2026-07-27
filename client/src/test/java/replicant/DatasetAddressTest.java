@@ -64,9 +64,9 @@ public final class DatasetAddressTest extends AbstractReplicantTest {
     }
 
     @Test
-    void getCacheKey() {
+    void getDatasetCacheEntryStorageKey() {
         final DatasetAddress datasetAddress = new DatasetAddress(2, 4, 1, "a");
-        assertEquals(datasetAddress.getCacheKey(), "RC-2.4.1#a");
+        assertEquals(datasetAddress.getDatasetCacheEntryStorageKey(), "RC-2.4.1#a");
     }
 
     @SuppressWarnings({"EqualsWithItself", "SimplifiableAssertion", "ConstantValue"})

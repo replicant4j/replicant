@@ -80,7 +80,7 @@ public final class DatasetAddress implements Comparable<DatasetAddress> {
     }
 
     @NonNull
-    public String getCacheKey() {
+    public String getDatasetCacheEntryStorageKey() {
         return "RC-" + getName();
     }
 

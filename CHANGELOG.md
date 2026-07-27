@@ -2,6 +2,18 @@
 
 ### Unreleased
 
+* Adopt Dataset caching terminology across client persistence, server reuse, the wire protocol, Domgen, and generated
+  integrations:
+  * Replace client `CacheService`, `CacheEntry`, and `WebStorageCacheService` with `DatasetCacheService`,
+    `DatasetCacheEntry`, and `WebStorageDatasetCacheService`, including explicit Dataset Cache Entry lookup, storage,
+    invalidation, and Dataset Address ownership APIs.
+  * Replace the use-cached-dataset message and ambiguous cached-result references with
+    `UseDatasetCacheEntryMessage`, the `use-dataset-cache-entry` wire type, and Dataset Cache Entry packet, broker,
+    validation, invalidation, and diagnostic terminology.
+  * Replace the server `Dataset.CacheType` enum with the direct Cacheable Dataset flag and update Domgen generation
+    and Rose wiring.
+  This hard-cut public API and protocol migration is intentionally wire-incompatible; clients and servers must be
+  upgraded together.
 * Adopt System Schema and Dataset definition terminology across Replicant, Domgen, and generated integrations:
   * Rename client schema identifiers, names, registries, lookups, diagnostics, and spy-event fields to System Schema
     terminology.
@@ -16,8 +28,8 @@
   * Rename the `update` wire type to `change-set`, rename its `changes` field to `entityChanges`, and replace
     `UpdateMessage` with `ChangeSetMessage`.
   * Rename server queueing and session-send APIs to `queueChangeSet(...)` and `sendChangeSet(...)`.
-  * Expose the serialized Change Set directly from `CacheEntry` and require `CacheService.store(...)` to accept a
-    `ChangeSetMessage`.
+  * Expose the serialized Change Set directly from `DatasetCacheEntry` and require
+    `DatasetCacheService.storeDatasetCacheEntry(...)` to accept a `ChangeSetMessage`.
   This hard-cut API and protocol migration is intentionally wire-incompatible; clients and servers must be upgraded
   together.
 * Rename the Domgen `subscription_constants` artifact to `dataset_constants`, generate
@@ -29,13 +41,13 @@
     data availability independently, and preserve desired state and invalidation across reconnects.
   * Generate nullable satisfaction lookups and independent `isDataAvailable(...)` utilities, then migrate Rose
     consumers away from the removed status-history helpers.
-  * Replace ETag and cache-key terminology for cached representations with Cacheable Dataset, Dataset Cache Version,
-    and use-cached-dataset APIs and protocol fields. Dataset Cache Versions are server-generated opaque UUID values.
-  * Treat absent, unreadable, corrupt, mismatched, or unstorable client entries as recoverable cache outcomes and stop
-    advertising rejected entries until a fresh replacement is stored.
-  * Authorize each Subscription before cache reuse, serialize Required Type Dataset and dependent cached results in
-    session order, recheck the current Subscription before sending a cached reference, and invalidate dependent cache
-    entries transitively.
+  * Replace ETag and cache-key terminology for stored representations with Cacheable Dataset, Dataset Cache Version,
+    and Dataset Cache Entry APIs and protocol fields. Dataset Cache Versions are server-generated opaque UUID values.
+  * Treat absent, unreadable, corrupt, mismatched, or unstorable Dataset Cache Entries as recoverable cache outcomes
+    and stop advertising rejected entries until a fresh replacement is stored.
+  * Authorize each Subscription before Dataset Cache Entry reuse, serialize Required Type Dataset Change Sets and
+    dependent Dataset Cache Entries in session order, recheck the current Subscription before sending an entry
+    reference, and invalidate dependent entries transitively.
   This hard-cut API and protocol migration is intentionally wire-incompatible; clients, servers, and generated
   integrations must be upgraded together.
 * Align Replicant, Domgen, and generated integrations with the canonical Entity Change, Subscription Operation,

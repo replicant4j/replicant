@@ -58,7 +58,7 @@ public class ChangeSetMessage extends ServerToClientMessage {
     }
 
     /**
-     * @return the version under which this can be cached.
+     * @return the Dataset Cache Version for this Change Set, if present.
      */
     @Nullable
     @JsOverlay

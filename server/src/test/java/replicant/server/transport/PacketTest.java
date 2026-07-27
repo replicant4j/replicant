@@ -44,17 +44,17 @@ public class PacketTest {
     }
 
     @Test
-    public void cachedDatasetReference() {
+    public void datasetCacheEntryReference() {
         final var requestId = ValueUtil.randomInt();
         final var datasetAddress = DatasetAddress.of(1);
         final var datasetCacheVersion = ValueUtil.randomString();
 
-        final var packet = Packet.cachedDatasetReference(requestId, datasetAddress, datasetCacheVersion);
+        final var packet = Packet.datasetCacheEntryReference(requestId, datasetAddress, datasetCacheVersion);
 
         assertTrue(packet.fromSubscriptionRequest());
         assertEquals(packet.requestId(), (Integer) requestId);
         assertEquals(packet.datasetCacheVersion(), datasetCacheVersion);
-        assertEquals(packet.cachedDatasetAddress(), datasetAddress);
+        assertEquals(packet.datasetCacheEntryAddress(), datasetAddress);
         assertTrue(packet.messages().isEmpty());
         assertFalse(packet.changeSet().hasContent());
     }

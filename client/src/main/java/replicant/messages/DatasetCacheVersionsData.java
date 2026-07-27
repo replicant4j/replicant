@@ -38,8 +38,8 @@ public interface DatasetCacheVersionsData {
 
     @NonNull
     @JsOverlay
-    default String getDatasetCacheVersion(@NonNull final String key) {
-        final Any any = Js.asPropertyMap(this).getAsAny(key);
+    default String getDatasetCacheVersion(@NonNull final String datasetAddress) {
+        final Any any = Js.asPropertyMap(this).getAsAny(datasetAddress);
         assert null != any;
         return any.asString();
     }

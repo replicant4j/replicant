@@ -17,10 +17,11 @@ import replicant.server.EntityChangeCandidate;
  * @param fromSubscriptionRequest true if the packet resulted from a Subscription request.
  * @param requestId               the request that resulted in this change when the packet is sent to the initiator.
  * @param response                the response when the packet is sent to the request initiator.
- * @param datasetCacheVersion     the opaque Dataset Cache Version for a complete Cacheable Dataset result, if any.
+ * @param datasetCacheVersion     the opaque Dataset Cache Version for a complete Cacheable Dataset Change Set, if any.
  * @param messages                the Entity Change candidates collected during the transaction.
  * @param changeSet               the complete Change Set carried by this packet.
- * @param cachedDatasetAddress    the Dataset Address to reuse from the client cache, or null for a Change Set packet.
+ * @param datasetCacheEntryAddress the Dataset Address of the client Dataset Cache Entry to reuse, or null for a
+ *                                 Change Set packet.
  */
 public record Packet(
         boolean fromSubscriptionRequest,
@@ -29,7 +30,7 @@ public record Packet(
         @Nullable String datasetCacheVersion,
         @NonNull Collection<EntityChangeCandidate> messages,
         @NonNull ChangeSet changeSet,
-        @Nullable DatasetAddress cachedDatasetAddress) {
+        @Nullable DatasetAddress datasetCacheEntryAddress) {
     public Packet(
             final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
@@ -41,7 +42,7 @@ public record Packet(
     }
 
     @NonNull
-    static Packet cachedDatasetReference(
+    static Packet datasetCacheEntryReference(
             @Nullable final Integer requestId,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion) {

@@ -12,7 +12,7 @@ import replicant.messages.ChangeSetMessage;
  * compare Dataset Cache Versions only for equality and treat absent, unreadable, corrupt, or mismatched entries as
  * recoverable cache misses.
  */
-public interface CacheService {
+public interface DatasetCacheService {
     /**
      * Return the Dataset Addresses with locally stored entries for the System Schema.
      *
@@ -20,7 +20,7 @@ public interface CacheService {
      * @return the Dataset Addresses with stored entries.
      */
     @NonNull
-    Set<DatasetAddress> keySet(int systemSchemaId);
+    Set<DatasetAddress> getDatasetAddresses(int systemSchemaId);
 
     /**
      * Return the Dataset Cache Version for the specified Dataset Address.
@@ -32,13 +32,13 @@ public interface CacheService {
     String lookupDatasetCacheVersion(@NonNull DatasetAddress datasetAddress);
 
     /**
-     * Return the complete cached representation for the specified Dataset Address.
+     * Return the Dataset Cache Entry for the specified Dataset Address.
      *
      * @param datasetAddress the Dataset Address.
-     * @return the cache entry, or null if no readable entry is stored.
+     * @return the Dataset Cache Entry, or null if no readable entry is stored.
      */
     @Nullable
-    CacheEntry lookup(@NonNull DatasetAddress datasetAddress);
+    DatasetCacheEntry lookupDatasetCacheEntry(@NonNull DatasetAddress datasetAddress);
 
     /**
      * Store a Change Set as a Dataset Cache Entry.
@@ -48,16 +48,16 @@ public interface CacheService {
      * @param changeSet           the Change Set to store.
      * @return true if the Change Set was stored, false otherwise.
      */
-    boolean store(
+    boolean storeDatasetCacheEntry(
             @NonNull DatasetAddress datasetAddress,
             @NonNull String datasetCacheVersion,
             @NonNull ChangeSetMessage changeSet);
 
     /**
-     * Remove the cached representation for the specified Dataset Address.
+     * Invalidate the Dataset Cache Entry for the specified Dataset Address.
      *
      * @param datasetAddress the Dataset Address.
      * @return true if an entry was removed, false if no entry was stored.
      */
-    boolean invalidate(@NonNull DatasetAddress datasetAddress);
+    boolean invalidateDatasetCacheEntry(@NonNull DatasetAddress datasetAddress);
 }

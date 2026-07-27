@@ -34,7 +34,7 @@ import replicant.messages.EntityChangeData;
 import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
-import replicant.messages.UseCachedDatasetMessage;
+import replicant.messages.UseDatasetCacheEntryMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -123,10 +123,11 @@ abstract class Connector extends ReplicantService {
     private TransportContextImpl _context;
 
     /**
-     * Dataset Addresses whose cached representation must not be advertised until replaced by a successful fresh store.
+     * Dataset Addresses whose rejected Dataset Cache Entry must not be advertised until replaced by a successful
+     * fresh store.
      */
     @NonNull
-    private final Set<DatasetAddress> _rejectedCachedDatasetAddresses = new HashSet<>();
+    private final Set<DatasetAddress> _rejectedDatasetCacheEntryAddresses = new HashSet<>();
 
     @NonNull
     static Connector create(
@@ -247,31 +248,34 @@ abstract class Connector extends ReplicantService {
     }
 
     private void sendDatasetCacheVersionsIfAny() {
-        final CacheService cacheService = getReplicantContext().getCacheService();
-        if (null != cacheService) {
+        final DatasetCacheService datasetCacheService = getReplicantContext().getDatasetCacheService();
+        if (null != datasetCacheService) {
             final List<DatasetAddress> datasetAddresses;
             try {
-                datasetAddresses =
-                        new ArrayList<>(cacheService.keySet(getSystemSchema().getId()));
+                datasetAddresses = new ArrayList<>(datasetCacheService.getDatasetAddresses(
+                        getSystemSchema().getId()));
             } catch (final Throwable t) {
                 ReplicantLogger.log(
-                        "Failed to enumerate cached Datasets for "
+                        "Failed to enumerate Dataset Cache Entries for "
                                 + getSystemSchema().getName() + ".",
                         t);
                 return;
             }
             final HashMap<String, String> datasetCacheVersions = new HashMap<>();
             for (final DatasetAddress datasetAddress : datasetAddresses) {
-                if (!_rejectedCachedDatasetAddresses.contains(datasetAddress)) {
+                if (!_rejectedDatasetCacheEntryAddresses.contains(datasetAddress)) {
                     try {
-                        final String datasetCacheVersion = cacheService.lookupDatasetCacheVersion(datasetAddress);
+                        final String datasetCacheVersion =
+                                datasetCacheService.lookupDatasetCacheVersion(datasetAddress);
                         if (null == datasetCacheVersion) {
-                            rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version is absent.", null);
+                            rejectDatasetCacheEntry(
+                                    datasetCacheService, datasetAddress, "Dataset Cache Version is absent.", null);
                         } else {
                             datasetCacheVersions.put(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
                         }
                     } catch (final Throwable t) {
-                        rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version is unreadable.", t);
+                        rejectDatasetCacheEntry(
+                                datasetCacheService, datasetAddress, "Dataset Cache Version is unreadable.", t);
                     }
                 }
             }
@@ -813,7 +817,7 @@ abstract class Connector extends ReplicantService {
             maybeRequestSync();
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             if (null != changeSet.getDatasetCacheVersion()) {
-                cacheChangeSetIfPossible(response, changeSet);
+                storeDatasetCacheEntryIfPossible(response, changeSet);
             }
         } else if (ErrorMessage.TYPE.equals(message.getType())) {
             final ErrorMessage errorMessage = (ErrorMessage) message;
@@ -936,13 +940,13 @@ abstract class Connector extends ReplicantService {
         });
     }
 
-    private void cacheChangeSetIfPossible(
+    private void storeDatasetCacheEntryIfPossible(
             @NonNull final MessageResponse response, @NonNull final ChangeSetMessage changeSet) {
         final String datasetCacheVersion = changeSet.getDatasetCacheVersion();
-        final CacheService cacheService = getReplicantContext().getCacheService();
+        final DatasetCacheService datasetCacheService = getReplicantContext().getDatasetCacheService();
 
         boolean candidate = false;
-        if (null != cacheService
+        if (null != datasetCacheService
                 && null != datasetCacheVersion
                 && (changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges())) {
             final List<SubscriptionChange> subscriptionChanges = response.getSubscriptionChanges();
@@ -958,11 +962,11 @@ abstract class Connector extends ReplicantService {
                             .isCacheable()) {
                 final DatasetAddress datasetAddress = subscriptionChanges.get(0).getDatasetAddress();
                 try {
-                    if (cacheService.store(datasetAddress, datasetCacheVersion, changeSet)) {
-                        _rejectedCachedDatasetAddresses.remove(datasetAddress);
+                    if (datasetCacheService.storeDatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet)) {
+                        _rejectedDatasetCacheEntryAddresses.remove(datasetAddress);
                     }
                 } catch (final Throwable t) {
-                    ReplicantLogger.log("Failed to store cached Dataset at " + datasetAddress + ".", t);
+                    ReplicantLogger.log("Failed to store Dataset Cache Entry at " + datasetAddress + ".", t);
                 }
                 candidate = true;
             }
@@ -970,9 +974,9 @@ abstract class Connector extends ReplicantService {
         if (Replicant.shouldCheckApiInvariants()) {
             final boolean c = candidate;
             apiInvariant(
-                    () -> null == datasetCacheVersion || null == cacheService || c,
-                    () -> "Replicant-0072: datasetCacheVersion in reply for ChangeSet but ChangeSet is not a"
-                            + " candidate for caching.");
+                    () -> null == datasetCacheVersion || null == datasetCacheService || c,
+                    () -> "Replicant-0072: datasetCacheVersion in reply for ChangeSet but ChangeSet does not"
+                            + " represent a Cacheable Dataset.");
         }
     }
 
@@ -1300,9 +1304,9 @@ abstract class Connector extends ReplicantService {
         final RequestEntry request = null != requestId ? connection.getRequest(requestId) : null;
 
         final ServerToClientMessage messageToQueue;
-        if (UseCachedDatasetMessage.TYPE.equals(message.getType())) {
-            final UseCachedDatasetMessage useCachedDatasetMessage = (UseCachedDatasetMessage) message;
-            final String datasetAddressDescriptor = useCachedDatasetMessage.getDatasetAddress();
+        if (UseDatasetCacheEntryMessage.TYPE.equals(message.getType())) {
+            final UseDatasetCacheEntryMessage useDatasetCacheEntryMessage = (UseDatasetCacheEntryMessage) message;
+            final String datasetAddressDescriptor = useDatasetCacheEntryMessage.getDatasetAddress();
             final DatasetAddress datasetAddress;
             try {
                 datasetAddress = DatasetAddress.parse(getSystemSchema().getId(), datasetAddressDescriptor);
@@ -1310,34 +1314,36 @@ abstract class Connector extends ReplicantService {
                 onMessageProcessFailure(t);
                 return;
             }
-            final String datasetCacheVersion = useCachedDatasetMessage.getDatasetCacheVersion();
+            final String datasetCacheVersion = useDatasetCacheEntryMessage.getDatasetCacheVersion();
 
-            final CacheService cacheService = getReplicantContext().getCacheService();
-            if (null == cacheService) {
+            final DatasetCacheService datasetCacheService =
+                    getReplicantContext().getDatasetCacheService();
+            if (null == datasetCacheService) {
                 ReplicantLogger.log(
-                        "Received a use-cached-dataset message for Dataset Address " + datasetAddress
-                                + " but no cache service configured.",
+                        "Received a use-dataset-cache-entry message for Dataset Address " + datasetAddress
+                                + " but no Dataset Cache Service is configured.",
                         null);
-                _rejectedCachedDatasetAddresses.add(datasetAddress);
+                _rejectedDatasetCacheEntryAddresses.add(datasetAddress);
                 onMessageReadFailure();
                 return;
             }
 
-            final CacheEntry entry;
+            final DatasetCacheEntry entry;
             try {
-                entry = cacheService.lookup(datasetAddress);
+                entry = datasetCacheService.lookupDatasetCacheEntry(datasetAddress);
             } catch (final Throwable t) {
-                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is unreadable.", t);
+                rejectDatasetCacheEntry(datasetCacheService, datasetAddress, "Dataset Cache Entry is unreadable.", t);
                 onMessageReadFailure();
                 return;
             }
             if (null == entry) {
-                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is absent.", null);
+                rejectDatasetCacheEntry(datasetCacheService, datasetAddress, "Dataset Cache Entry is absent.", null);
                 onMessageReadFailure();
                 return;
             }
             if (!Objects.equals(entry.getDatasetCacheVersion(), datasetCacheVersion)) {
-                rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version does not match.", null);
+                rejectDatasetCacheEntry(
+                        datasetCacheService, datasetAddress, "Dataset Cache Version does not match.", null);
                 onMessageReadFailure();
                 return;
             }
@@ -1345,7 +1351,7 @@ abstract class Connector extends ReplicantService {
                 messageToQueue =
                         Objects.requireNonNull(JSON.parse(entry.getChangeSet())).cast();
             } catch (final Throwable t) {
-                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is corrupt.", t);
+                rejectDatasetCacheEntry(datasetCacheService, datasetAddress, "Dataset Cache Entry is corrupt.", t);
                 onMessageReadFailure();
                 return;
             }
@@ -1358,17 +1364,17 @@ abstract class Connector extends ReplicantService {
         triggerMessageScheduler();
     }
 
-    private void rejectCachedDataset(
-            @NonNull final CacheService cacheService,
+    private void rejectDatasetCacheEntry(
+            @NonNull final DatasetCacheService datasetCacheService,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String reason,
             @Nullable final Throwable error) {
-        _rejectedCachedDatasetAddresses.add(datasetAddress);
-        ReplicantLogger.log("Rejected cached Dataset at " + datasetAddress + ". " + reason, error);
+        _rejectedDatasetCacheEntryAddresses.add(datasetAddress);
+        ReplicantLogger.log("Rejected Dataset Cache Entry at " + datasetAddress + ". " + reason, error);
         try {
-            cacheService.invalidate(datasetAddress);
+            datasetCacheService.invalidateDatasetCacheEntry(datasetAddress);
         } catch (final Throwable t) {
-            ReplicantLogger.log("Failed to invalidate cached Dataset at " + datasetAddress + ".", t);
+            ReplicantLogger.log("Failed to invalidate Dataset Cache Entry at " + datasetAddress + ".", t);
         }
     }
 

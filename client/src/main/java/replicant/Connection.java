@@ -341,11 +341,14 @@ abstract class Connection {
      */
     boolean canGroupSubscriptionOperations(
             @NonNull final SubscriptionOperation template, @NonNull final SubscriptionOperation match) {
-        final CacheService cacheService = _connector.getReplicantContext().getCacheService();
+        final DatasetCacheService datasetCacheService =
+                _connector.getReplicantContext().getDatasetCacheService();
         return null != template.getDatasetAddress().datasetRootId()
                 && null != match.getDatasetAddress().datasetRootId()
-                && (null == cacheService || null == cacheService.lookup(template.getDatasetAddress()))
-                && (null == cacheService || null == cacheService.lookup(match.getDatasetAddress()))
+                && (null == datasetCacheService
+                        || null == datasetCacheService.lookupDatasetCacheEntry(template.getDatasetAddress()))
+                && (null == datasetCacheService
+                        || null == datasetCacheService.lookupDatasetCacheEntry(match.getDatasetAddress()))
                 && template.getType().equals(match.getType())
                 && template.getDatasetAddress().datasetId()
                         == match.getDatasetAddress().datasetId()

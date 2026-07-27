@@ -67,10 +67,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private final Map<String, ReplicantSession> _sessions = new HashMap<>();
 
     @NonNull
-    private final ReadWriteLock _cacheLock = new ReentrantReadWriteLock();
+    private final ReadWriteLock _datasetCacheEntriesLock = new ReentrantReadWriteLock();
 
     @NonNull
-    private final Map<DatasetAddress, DatasetCacheEntry> _cache = new HashMap<>();
+    private final Map<DatasetAddress, DatasetCacheEntry> _datasetCacheEntries = new HashMap<>();
 
     @SuppressWarnings("CdiInjectionPointsInspection")
     @Inject
@@ -241,7 +241,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, null);
-            _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, null);
+            _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, null);
             _registry.putResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY, null);
 
             final var isComplete = !(null != complete && !"1".equals(complete)) && requestComplete;
@@ -395,22 +395,22 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Queue a complete fresh result for a Cacheable Dataset Subscription request.
+     * Queue a complete fresh Change Set for a Cacheable Dataset Subscription request.
      * The requesting service must NOT have made any other changes that will be sent to the
-     * client, otherwise this message will be discarded.
+     * client, otherwise this Change Set will be discarded.
      * This can also be sent when the Dataset Address was invalidated, in which case the Dataset Cache Version is null.
      *
      * @param session             the session.
      * @param datasetCacheVersion the opaque Dataset Cache Version, or null for invalidation.
      * @param changeSet           the complete Change Set to send.
      */
-    private void queueCachedChangeSet(
+    private void queueCacheableDatasetChangeSet(
             @NonNull final ReplicantSession session,
             @Nullable final String datasetCacheVersion,
             @NonNull final ChangeSet changeSet) {
         final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
         _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, "0");
-        _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
+        _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, "1");
         _broker.queueChangeSet(session, true, requestId, null, datasetCacheVersion, Collections.emptyList(), changeSet);
     }
 
@@ -422,9 +422,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @Nullable final ChangeSet sessionChanges) {
         var impactsInitiator = false;
 
-        // Make sure if the message relates to an existing cache message then the cache is busted
+        // Invalidate Dataset Cache Entries affected by each Entity Change Candidate.
         for (final var message : messages) {
-            processCachePurge(message);
+            invalidateAffectedDatasetCacheEntries(message);
         }
 
         // TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
@@ -451,8 +451,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                      * empty. This is acceptable in the short term as we expect to remove external rpc at a later stage
                      * and move all rpc onto the Replicant transport.
                      */
-                    if (null == _registry.getResource(ServerConstants.CACHED_RESULT_HANDLED_KEY)) {
-                        // We skip scenario when we have already sent a cached result
+                    if (null == _registry.getResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY)) {
+                        // Skip the scenario where a Cacheable Dataset Change Set has already been queued.
                         changeSet.setRequired(true);
                     }
                 }
@@ -520,15 +520,15 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             }
             return false;
         }
-        final var cachedDatasetAddress = packet.cachedDatasetAddress();
-        if (null != cachedDatasetAddress) {
-            if (!session.isSubscriptionEntryPresent(cachedDatasetAddress)) {
+        final var datasetCacheEntryAddress = packet.datasetCacheEntryAddress();
+        if (null != datasetCacheEntryAddress) {
+            if (!session.isSubscriptionEntryPresent(datasetCacheEntryAddress)) {
                 return false;
             }
             return WebSocketUtil.sendText(
                     session.getWebSocketSession(),
-                    JsonEncoder.encodeUseCachedDatasetMessage(
-                            cachedDatasetAddress, Objects.requireNonNull(datasetCacheVersion), requestId));
+                    JsonEncoder.encodeUseDatasetCacheEntryMessage(
+                            datasetCacheEntryAddress, Objects.requireNonNull(datasetCacheVersion), requestId));
         }
         final var hasDeletes = messages.stream().anyMatch(EntityChangeCandidate::isDelete);
         final var datasetRootDeletedDatasetAddresses =
@@ -539,9 +539,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
         processEntityChangeCandidates(messages, session, changeSet);
 
-        // ChangeSets that occur during a subscription that result in a use-cached-dataset message
-        // being sent to the client will still come through here. The hasContent() should
-        // return false as there are no changes for in ChangeSet and the _required flag is unset.
+        // Change Sets from a Subscription that queue a use-dataset-cache-entry message still come through here.
+        // hasContent() returns false because there are no changes in the Change Set and the required flag is unset.
         if (changeSet.hasContent()) {
             final var start = System.nanoTime();
 
@@ -1047,41 +1046,42 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         if (!newDatasetAddresses.isEmpty()) {
             if (dataset.isCacheable()) {
-                // Only Type Datasets are cached at present; caching Instance Datasets requires additional plumbing.
+                // Only Type Datasets can be Cacheable Datasets at present; Instance Datasets require more plumbing.
                 assert dataset.isTypeDataset();
-                // Only Unfiltered Datasets are currently supported as cache targets.
+                // Only Unfiltered Datasets can currently be Cacheable Datasets.
                 assert dataset.isUnfiltered();
                 for (var newDatasetAddress : newDatasetAddresses) {
-                    _cacheLock.writeLock().lock();
+                    _datasetCacheEntriesLock.writeLock().lock();
                     try {
-                        final var cacheEntry = tryGetCacheEntry(newDatasetAddress);
-                        if (null != cacheEntry) {
-                            final var datasetCacheVersion = cacheEntry.getDatasetCacheVersion();
+                        final var datasetCacheEntry = tryGetDatasetCacheEntry(newDatasetAddress);
+                        if (null != datasetCacheEntry) {
+                            final var datasetCacheVersion = datasetCacheEntry.getDatasetCacheVersion();
                             if (datasetCacheVersion.equals(session.getDatasetCacheVersion(newDatasetAddress))) {
                                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
-                                _broker.queueCachedDatasetReference(
+                                _broker.queueDatasetCacheEntryReference(
                                         session, requestId, newDatasetAddress, datasetCacheVersion);
                                 changeSet.setRequired(false);
-                                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
+                                _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, "1");
                             } else {
                                 session.setDatasetCacheVersion(newDatasetAddress, null);
-                                final var cacheChangeSet = new ChangeSet();
-                                cacheChangeSet.merge(cacheEntry.getChangeSet());
-                                queueCachedChangeSet(session, datasetCacheVersion, cacheChangeSet);
+                                final var datasetCacheEntryChangeSet = new ChangeSet();
+                                datasetCacheEntryChangeSet.merge(datasetCacheEntry.getChangeSet());
+                                queueCacheableDatasetChangeSet(
+                                        session, datasetCacheVersion, datasetCacheEntryChangeSet);
                                 changeSet.setRequired(false);
                             }
 
                             final var entry = session.createSubscriptionEntry(newDatasetAddress, mode);
                             entry.setFilterParameter(filterParameter);
                         } else {
-                            final var cacheChangeSet = new ChangeSet();
-                            cacheChangeSet.mergeSubscriptionChange(
+                            final var datasetCacheEntryChangeSet = new ChangeSet();
+                            datasetCacheEntryChangeSet.mergeSubscriptionChange(
                                     newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
-                            queueCachedChangeSet(session, null, cacheChangeSet);
+                            queueCacheableDatasetChangeSet(session, null, datasetCacheEntryChangeSet);
                             changeSet.setRequired(false);
                         }
                     } finally {
-                        _cacheLock.writeLock().unlock();
+                        _datasetCacheEntriesLock.writeLock().unlock();
                     }
                 }
             } else {
@@ -1173,32 +1173,32 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
                 final var requestComplete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
                 final var requestResponse = (String) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
-                final var requestCachedResultHandled =
-                        (String) _registry.getResource(ServerConstants.CACHED_RESULT_HANDLED_KEY);
+                final var requestDatasetCacheEntryHandled =
+                        (String) _registry.getResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY);
 
                 _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
                 _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, null);
                 _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, null);
-                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, null);
+                _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, null);
 
                 final var changeSet = new ChangeSet();
                 subscribe(session, datasetAddress, SubscriptionMode.IMPLICIT, null, changeSet);
                 if (changeSet.hasContent()) {
-                    // In this scenario we have a non-cached changeset, so we send it along
+                    // This is a regular Change Set, so queue it for delivery.
                     _broker.queueChangeSet(session, true, null, null, null, Collections.emptyList(), changeSet);
                 }
 
                 _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);
                 _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, requestComplete);
                 _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, requestResponse);
-                _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, requestCachedResultHandled);
+                _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, requestDatasetCacheEntryHandled);
             }
         }
     }
 
-    private void deleteCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    private void invalidateDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSystemSchema(), datasetAddress);
-        _cacheLock.writeLock().lock();
+        _datasetCacheEntriesLock.writeLock().lock();
         try {
             final var invalidatedDatasetIds = new HashSet<Integer>();
             final var pendingDatasetIds = new ArrayDeque<Integer>();
@@ -1212,37 +1212,33 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     }
                 }
             }
-            _cache.keySet().removeIf(address -> invalidatedDatasetIds.contains(address.datasetId()));
+            _datasetCacheEntries.keySet().removeIf(address -> invalidatedDatasetIds.contains(address.datasetId()));
         } finally {
-            _cacheLock.writeLock().unlock();
+            _datasetCacheEntriesLock.writeLock().unlock();
         }
     }
 
     /**
-     * Return a CacheEntry for a specific dataset. When this method returns the cache
-     * data will have already been loaded. The cache data is loaded using a separate lock for
-     * each dataset cached.
+     * Return the Dataset Cache Entry for a Dataset Address. The entry's Change Set has been collected before this
+     * method returns. Each Dataset Cache Entry uses a separate lock while its Change Set is collected.
      */
     @Nullable
-    private DatasetCacheEntry tryGetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    private DatasetCacheEntry tryGetDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSystemSchema(), datasetAddress);
         final var dataset = getSystemSchema().getDataset(datasetAddress);
         assert dataset.isCacheable();
-        // We have not implemented the ability to cache filtered Datasets. When it has been implemented, we can remove
-        // this assertion.
+        // Filtered Datasets cannot currently be Cacheable Datasets.
         assert dataset.isUnfiltered();
-        // We have not implemented the ability to cache Instance Datasets. When it has been implemented we can remove
-        // this
-        // assertion.
+        // Instance Datasets cannot currently be Cacheable Datasets.
         assert dataset.isTypeDataset();
         while (true) {
-            _cacheLock.readLock().lock();
+            _datasetCacheEntriesLock.readLock().lock();
             try {
-                final var entry = _cache.get(datasetAddress);
-                if (null != entry) {
-                    entry.getLock().writeLock().lock();
+                final var datasetCacheEntry = _datasetCacheEntries.get(datasetAddress);
+                if (null != datasetCacheEntry) {
+                    datasetCacheEntry.getLock().writeLock().lock();
                     try {
-                        if (!entry.isInitialized()) {
+                        if (!datasetCacheEntry.isInitialized()) {
                             final var changeSet = new ChangeSet();
                             _context.collectSubscriptionData(
                                     null,
@@ -1260,36 +1256,36 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 return null;
                             }
                             assert SubscriptionChange.Type.SUBSCRIBE == action;
-                            entry.init(changeSet);
+                            datasetCacheEntry.init(changeSet);
                         }
-                        return entry;
+                        return datasetCacheEntry;
                     } finally {
-                        entry.getLock().writeLock().unlock();
+                        datasetCacheEntry.getLock().writeLock().unlock();
                     }
                 }
             } finally {
-                _cacheLock.readLock().unlock();
+                _datasetCacheEntriesLock.readLock().unlock();
             }
 
-            _cacheLock.writeLock().lock();
+            _datasetCacheEntriesLock.writeLock().lock();
             try {
-                _cache.computeIfAbsent(datasetAddress, DatasetCacheEntry::new);
+                _datasetCacheEntries.computeIfAbsent(datasetAddress, DatasetCacheEntry::new);
             } finally {
-                _cacheLock.writeLock().unlock();
+                _datasetCacheEntriesLock.writeLock().unlock();
             }
         }
     }
 
     /**
-     * Clear entire cache
+     * Clear every Dataset Cache Entry.
      */
     @Override
-    public void clearCache() {
-        _cacheLock.writeLock().lock();
+    public void clearDatasetCacheEntries() {
+        _datasetCacheEntriesLock.writeLock().lock();
         try {
-            _cache.clear();
+            _datasetCacheEntries.clear();
         } finally {
-            _cacheLock.writeLock().unlock();
+            _datasetCacheEntriesLock.writeLock().unlock();
         }
     }
 
@@ -1314,17 +1310,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         });
     }
 
-    private void processCachePurge(@NonNull final EntityChangeCandidate message) {
+    private void invalidateAffectedDatasetCacheEntries(@NonNull final EntityChangeCandidate message) {
         final var systemSchema = getSystemSchema();
         final var datasetCount = systemSchema.getDatasetCount();
         for (var i = 0; i < datasetCount; i++) {
             if (systemSchema.hasDataset(i)) {
                 final var dataset = systemSchema.getDataset(i);
-                if (Dataset.CacheType.INTERNAL == dataset.getCacheType()) {
+                if (dataset.isCacheable()) {
                     final var datasetAddresses = extractDatasetAddressesFromMessage(dataset, message);
                     if (null != datasetAddresses) {
                         for (final var datasetAddress : datasetAddresses) {
-                            deleteCacheEntry(datasetAddress);
+                            invalidateDatasetCacheEntry(datasetAddress);
                         }
                     }
                 }

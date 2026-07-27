@@ -243,7 +243,8 @@ public final class ReplicantSession implements Serializable, Closeable {
      * @param requestId the request id that caused these changes if this session requested the changes.
      * @param response  the response message if the packet is the result of a request that has a response,
      *                  and the request was initiated by the session.
-     * @param datasetCacheVersion the opaque Dataset Cache Version, or null for a non-cacheable result.
+     * @param datasetCacheVersion the opaque Dataset Cache Version, or null when the Change Set does not represent a
+     *                            Cacheable Dataset.
      * @param changeSet the Change Set to send.
      */
     public void sendChangeSet(

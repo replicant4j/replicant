@@ -13,7 +13,7 @@ public final class Messages {
         public static final String CHANGE_SET = "change-set";
 
         @NonNull
-        public static final String USE_CACHED_DATASET = "use-cached-dataset";
+        public static final String USE_DATASET_CACHE_ENTRY = "use-dataset-cache-entry";
 
         @NonNull
         public static final String SESSION_CREATED = "session-created";

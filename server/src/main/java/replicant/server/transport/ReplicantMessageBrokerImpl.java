@@ -89,12 +89,12 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
 
     @NonNull
     @Override
-    public Packet queueCachedDatasetReference(
+    public Packet queueDatasetCacheEntryReference(
             @NonNull final ReplicantSession session,
             @Nullable final Integer requestId,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion) {
-        final var packet = Packet.cachedDatasetReference(requestId, datasetAddress, datasetCacheVersion);
+        final var packet = Packet.datasetCacheEntryReference(requestId, datasetAddress, datasetCacheVersion);
         queuePacket(session, packet);
         return packet;
     }

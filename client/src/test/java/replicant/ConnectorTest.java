@@ -23,7 +23,7 @@ import replicant.messages.EntityChangeDataImpl;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.messages.UseCachedDatasetMessage;
+import replicant.messages.UseDatasetCacheEntryMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -417,40 +417,42 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void onMessageReceived_missingCacheEntryIsRecoverable() {
+    public void onMessageReceived_missingDatasetCacheEntryIsRecoverable() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         pauseScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
 
-        connector.onMessageReceived(UseCachedDatasetMessage.create(
+        connector.onMessageReceived(UseDatasetCacheEntryMessage.create(
                 null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
 
-        verify(cacheService).invalidate(datasetAddress);
+        verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
     }
 
     @Test
-    public void onMessageReceived_cacheLookupFailureIsRecoverable() {
+    public void onMessageReceived_datasetCacheEntryLookupFailureIsRecoverable() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         pauseScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.lookup(datasetAddress)).thenThrow(new IllegalStateException("Unavailable"));
-        when(cacheService.invalidate(datasetAddress)).thenThrow(new IllegalStateException("Unavailable"));
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.lookupDatasetCacheEntry(datasetAddress))
+                .thenThrow(new IllegalStateException("Unavailable"));
+        when(datasetCacheService.invalidateDatasetCacheEntry(datasetAddress))
+                .thenThrow(new IllegalStateException("Unavailable"));
 
-        connector.onMessageReceived(UseCachedDatasetMessage.create(
+        connector.onMessageReceived(UseDatasetCacheEntryMessage.create(
                 null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
 
-        verify(cacheService).invalidate(datasetAddress);
+        verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
     }
 
@@ -462,20 +464,21 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        final CacheEntry entry = new CacheEntry(datasetAddress, ValueUtil.randomString(), ValueUtil.randomString());
-        when(cacheService.lookup(datasetAddress)).thenReturn(entry);
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        final DatasetCacheEntry entry =
+                new DatasetCacheEntry(datasetAddress, ValueUtil.randomString(), ValueUtil.randomString());
+        when(datasetCacheService.lookupDatasetCacheEntry(datasetAddress)).thenReturn(entry);
 
-        connector.onMessageReceived(UseCachedDatasetMessage.create(
+        connector.onMessageReceived(UseDatasetCacheEntryMessage.create(
                 null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
 
-        verify(cacheService).invalidate(datasetAddress);
+        verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
     }
 
     @Test
-    public void onMessageReceived_corruptCacheEntryIsRecoverable() {
+    public void onMessageReceived_corruptDatasetCacheEntryIsRecoverable() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -483,15 +486,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String datasetCacheVersion = ValueUtil.randomString();
-        final CacheService cacheService = mock(CacheService.class);
-        final CacheEntry entry = new CacheEntry(datasetAddress, datasetCacheVersion, "{");
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.lookup(datasetAddress)).thenReturn(entry);
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        final DatasetCacheEntry entry = new DatasetCacheEntry(datasetAddress, datasetCacheVersion, "{");
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.lookupDatasetCacheEntry(datasetAddress)).thenReturn(entry);
 
-        connector.onMessageReceived(
-                UseCachedDatasetMessage.create(null, datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion));
+        connector.onMessageReceived(UseDatasetCacheEntryMessage.create(
+                null, datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion));
 
-        verify(cacheService).invalidate(datasetAddress);
+        verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
     }
 
@@ -501,9 +504,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
         pauseScheduler();
 
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(connector.getSystemSchema().getId()))
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.getDatasetAddresses(connector.getSystemSchema().getId()))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
         connector.onConnection(ValueUtil.randomString());
@@ -520,33 +523,35 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress =
                 new DatasetAddress(connector.getSystemSchema().getId(), 0);
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(datasetAddress.systemSchemaId())).thenReturn(Collections.singleton(datasetAddress));
-        when(cacheService.lookupDatasetCacheVersion(datasetAddress))
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.getDatasetAddresses(datasetAddress.systemSchemaId()))
+                .thenReturn(Collections.singleton(datasetAddress));
+        when(datasetCacheService.lookupDatasetCacheVersion(datasetAddress))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
         connector.onConnection(ValueUtil.randomString());
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
-        verify(cacheService).invalidate(datasetAddress);
+        verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
         verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
     }
 
     @Test
-    public void onMessageReceived_rejectedCacheEntryIsNotAdvertisedOnReconnect() {
+    public void onMessageReceived_rejectedDatasetCacheEntryIsNotAdvertisedOnReconnect() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
         pauseScheduler();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.keySet(datasetAddress.systemSchemaId())).thenReturn(Collections.singleton(datasetAddress));
-        when(cacheService.lookupDatasetCacheVersion(datasetAddress)).thenReturn(ValueUtil.randomString());
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.getDatasetAddresses(datasetAddress.systemSchemaId()))
+                .thenReturn(Collections.singleton(datasetAddress));
+        when(datasetCacheService.lookupDatasetCacheVersion(datasetAddress)).thenReturn(ValueUtil.randomString());
 
-        connector.onMessageReceived(UseCachedDatasetMessage.create(
+        connector.onMessageReceived(UseDatasetCacheEntryMessage.create(
                 null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
 
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
@@ -2857,7 +2862,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeMessageResponse_cacheStoreFailureDoesNotRemoveSubscription() {
+    public void completeMessageResponse_datasetCacheEntryStoreFailureDoesNotRemoveSubscription() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -2881,9 +2886,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final MessageResponse response = setCurrentMessageResponse(connection, changeSet);
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(systemSchema.getId(), subscriptionChanges[0])));
-        final CacheService cacheService = mock(CacheService.class);
-        Replicant.context().setCacheService(cacheService);
-        when(cacheService.store(datasetAddress, datasetCacheVersion, changeSet))
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
+        Replicant.context().setDatasetCacheService(datasetCacheService);
+        when(datasetCacheService.storeDatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
         connector.processSubscriptionChanges();
@@ -2893,7 +2898,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.completeMessageResponse();
 
         assertSame(Replicant.context().findSubscription(datasetAddress), subscription);
-        verify(cacheService).store(datasetAddress, datasetCacheVersion, changeSet);
+        verify(datasetCacheService).storeDatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet);
     }
 
     @Test
@@ -3115,7 +3120,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequest_onSuccess_CachedValueNotInLocalCache() {
+    public void progressAreaOfInterestAddRequest_onSuccess_DatasetCacheEntryNotStoredLocally() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3142,7 +3147,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connection.injectCurrentSubscriptionOperation(request);
 
-        Replicant.context().setCacheService(new TestCacheService());
+        Replicant.context().setDatasetCacheService(new TestDatasetCacheService());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3171,7 +3176,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequest_onSuccess_CachedValueInLocalCache() {
+    public void progressAreaOfInterestAddRequest_onSuccess_DatasetCacheEntryStoredLocally() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3199,13 +3204,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connection.injectCurrentSubscriptionOperation(request);
 
-        final TestCacheService cacheService = new TestCacheService();
-        Replicant.context().setCacheService(cacheService);
+        final TestDatasetCacheService datasetCacheService = new TestDatasetCacheService();
+        Replicant.context().setDatasetCacheService(datasetCacheService);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final String datasetCacheVersion = "";
-        cacheService.store(
+        datasetCacheService.storeDatasetCacheEntry(
                 datasetAddress, datasetCacheVersion, ChangeSetMessage.create(null, null, null, null, null, null));
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {

@@ -40,20 +40,6 @@ public final class Dataset {
         UPDATABLE
     }
 
-    public enum CacheType {
-        /**
-         * No caching
-         */
-        NONE,
-        /**
-         * Replicant may cache and reuse a complete Dataset result. The Dataset declaration asserts that one shared
-         * result is equal for every authorized subscriber able to reuse it and that subscriber-specific result inputs
-         * participate in cache identity and validation. Relevant Entity Changes invalidate the entry and its
-         * dependent cached Datasets before further reuse.
-         */
-        INTERNAL
-    }
-
     private final int _id;
 
     @NonNull
@@ -70,8 +56,13 @@ public final class Dataset {
 
     private final boolean _keyed;
 
-    @NonNull
-    private final CacheType _cacheType;
+    /**
+     * True if this is a Cacheable Dataset. The Dataset declaration asserts that one shared Change Set is equal for
+     * every authorized subscriber able to reuse it and that subscriber-specific inputs participate in Dataset Cache
+     * Entry identity and validation. Relevant Entity Changes invalidate the entry and its dependent entries before
+     * further reuse.
+     */
+    private final boolean _cacheable;
     /**
      * Flag indicating whether the Dataset can be backed by an externally supplied Area of Interest.
      */
@@ -90,7 +81,7 @@ public final class Dataset {
             @NonNull final FilterMode filterMode,
             @Nullable final FilterParameterMode filterParameterMode,
             final boolean keyed,
-            @NonNull final CacheType cacheType,
+            final boolean cacheable,
             final boolean external,
             @NonNull final Dataset... requiredTypeDatasets) {
         _id = id;
@@ -109,7 +100,7 @@ public final class Dataset {
             throw new IllegalArgumentException("Only a Parameter-Filtered Dataset can be keyed");
         }
         _keyed = keyed;
-        _cacheType = Objects.requireNonNull(cacheType);
+        _cacheable = cacheable;
         _external = external;
         _requiredTypeDatasets = Objects.requireNonNull(requiredTypeDatasets);
         for (final var requiredTypeDataset : _requiredTypeDatasets) {
@@ -178,12 +169,7 @@ public final class Dataset {
     }
 
     public boolean isCacheable() {
-        return CacheType.NONE != _cacheType;
-    }
-
-    @NonNull
-    public CacheType getCacheType() {
-        return _cacheType;
+        return _cacheable;
     }
 
     public boolean isExternal() {

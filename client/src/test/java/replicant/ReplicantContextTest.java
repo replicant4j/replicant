@@ -304,21 +304,21 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
     @SuppressWarnings("ConstantValue")
     @Test
-    public void setCacheService() {
+    public void setDatasetCacheService() {
         createConnector();
 
         final ReplicantContext context = Replicant.context();
-        final CacheService cacheService = mock(CacheService.class);
+        final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
 
-        assertNull(context.getCacheService());
+        assertNull(context.getDatasetCacheService());
 
-        context.setCacheService(cacheService);
+        context.setDatasetCacheService(datasetCacheService);
 
-        assertEquals(context.getCacheService(), cacheService);
+        assertEquals(context.getDatasetCacheService(), datasetCacheService);
 
-        context.setCacheService(null);
+        context.setDatasetCacheService(null);
 
-        assertNull(context.getCacheService());
+        assertNull(context.getDatasetCacheService());
     }
 
     @Test

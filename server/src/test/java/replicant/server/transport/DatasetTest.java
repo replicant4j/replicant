@@ -9,8 +9,8 @@ public class DatasetTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void typeDataset() {
-        final var dataset = new Dataset(
-                1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, false);
+        final var dataset =
+                new Dataset(1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
 
         assertEquals(dataset.getId(), 1);
         assertEquals(dataset.getName(), "ReferenceData");
@@ -30,8 +30,7 @@ public class DatasetTest {
 
     @Test
     public void instanceDataset() {
-        final var dataset = new Dataset(
-                1, "ReferenceData", 23, Dataset.FilterMode.IMPLICIT, null, false, Dataset.CacheType.NONE, true);
+        final var dataset = new Dataset(1, "ReferenceData", 23, Dataset.FilterMode.IMPLICIT, null, false, false, true);
 
         assertFalse(dataset.isTypeDataset());
         assertTrue(dataset.isInstanceDataset());
@@ -53,7 +52,7 @@ public class DatasetTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
-                Dataset.CacheType.NONE,
+                false,
                 true);
 
         assertTrue(dataset.isParameterFiltered());
@@ -72,7 +71,7 @@ public class DatasetTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
-                Dataset.CacheType.NONE,
+                false,
                 true);
 
         assertTrue(dataset.isParameterFiltered());
@@ -93,7 +92,7 @@ public class DatasetTest {
                         Dataset.FilterMode.PARAMETER_FILTERED,
                         filterParameterMode,
                         keyed,
-                        Dataset.CacheType.NONE,
+                        false,
                         true);
 
                 assertEquals(dataset.getFilterParameterMode(), filterParameterMode);
@@ -107,14 +106,7 @@ public class DatasetTest {
         final var error = expectThrows(
                 IllegalArgumentException.class,
                 () -> new Dataset(
-                        1,
-                        "ReferenceData",
-                        null,
-                        Dataset.FilterMode.PARAMETER_FILTERED,
-                        null,
-                        false,
-                        Dataset.CacheType.NONE,
-                        true));
+                        1, "ReferenceData", null, Dataset.FilterMode.PARAMETER_FILTERED, null, false, false, true));
 
         assertEquals(error.getMessage(), "Parameter-Filtered Dataset requires a Filter Parameter Mode");
     }
@@ -141,18 +133,10 @@ public class DatasetTest {
 
     @Test
     public void requiredTypeDatasetsTrackDependencyDirection() {
-        final var requiredTypeDataset = new Dataset(
-                1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, false);
+        final var requiredTypeDataset =
+                new Dataset(1, "ReferenceData", null, Dataset.FilterMode.UNFILTERED, null, false, false, false);
         final var requiringDataset = new Dataset(
-                2,
-                "Event",
-                22,
-                Dataset.FilterMode.UNFILTERED,
-                null,
-                false,
-                Dataset.CacheType.NONE,
-                true,
-                requiredTypeDataset);
+                2, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, false, true, requiredTypeDataset);
 
         assertEquals(requiringDataset.getRequiredTypeDatasets(), new Dataset[] {requiredTypeDataset});
         assertEquals(requiredTypeDataset.getDependentDatasets(), Set.of(requiringDataset));
@@ -163,7 +147,7 @@ public class DatasetTest {
     @Test
     public void requiredTypeDatasetMustBeTypeDataset() {
         final var instanceDataset =
-                new Dataset(1, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true);
+                new Dataset(1, "Event", 22, Dataset.FilterMode.UNFILTERED, null, false, false, true);
 
         final var error = expectThrows(
                 IllegalArgumentException.class,
@@ -174,7 +158,7 @@ public class DatasetTest {
                         Dataset.FilterMode.UNFILTERED,
                         null,
                         false,
-                        Dataset.CacheType.NONE,
+                        false,
                         true,
                         instanceDataset));
         assertEquals(error.getMessage(), "Specified Required Type Dataset Event is not a Type Dataset");
@@ -184,15 +168,7 @@ public class DatasetTest {
         for (final var filterParameterMode : Dataset.FilterParameterMode.values()) {
             final var error = expectThrows(
                     IllegalArgumentException.class,
-                    () -> new Dataset(
-                            1,
-                            "ReferenceData",
-                            null,
-                            filterMode,
-                            filterParameterMode,
-                            false,
-                            Dataset.CacheType.NONE,
-                            true));
+                    () -> new Dataset(1, "ReferenceData", null, filterMode, filterParameterMode, false, false, true));
 
             assertEquals(error.getMessage(), "Filter Parameter Mode is only valid for a Parameter-Filtered Dataset");
         }
@@ -201,7 +177,7 @@ public class DatasetTest {
     private void assertKeyedRejected(final Dataset.FilterMode filterMode) {
         final var error = expectThrows(
                 IllegalArgumentException.class,
-                () -> new Dataset(1, "ReferenceData", null, filterMode, null, true, Dataset.CacheType.NONE, true));
+                () -> new Dataset(1, "ReferenceData", null, filterMode, null, true, false, true));
 
         assertEquals(error.getMessage(), "Only a Parameter-Filtered Dataset can be keyed");
     }

@@ -14,7 +14,7 @@ final class DatasetCacheEntry {
     private final ReadWriteLock _lock = new ReentrantReadWriteLock();
 
     @NonNull
-    private final DatasetAddress _descriptor;
+    private final DatasetAddress _datasetAddress;
 
     @Nullable
     private String _datasetCacheVersion;
@@ -23,7 +23,7 @@ final class DatasetCacheEntry {
     private ChangeSet _changeSet;
 
     DatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
-        _descriptor = Objects.requireNonNull(datasetAddress);
+        _datasetAddress = Objects.requireNonNull(datasetAddress);
     }
 
     @NonNull
@@ -32,8 +32,8 @@ final class DatasetCacheEntry {
     }
 
     @NonNull
-    DatasetAddress getDescriptor() {
-        return _descriptor;
+    DatasetAddress getDatasetAddress() {
+        return _datasetAddress;
     }
 
     void init(@NonNull final ChangeSet changeSet) {

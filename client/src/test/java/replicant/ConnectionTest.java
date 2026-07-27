@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
-import replicant.messages.UseCachedDatasetMessage;
+import replicant.messages.UseDatasetCacheEntryMessage;
 import replicant.spy.RequestStartedEvent;
 
 public class ConnectionTest extends AbstractReplicantTest {
@@ -46,7 +46,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     public void selectNextMessageResponse() {
         final Connection connection = createConnection();
 
-        connection.enqueueResponse(UseCachedDatasetMessage.create(null, "0", ValueUtil.randomString()), null);
+        connection.enqueueResponse(UseDatasetCacheEntryMessage.create(null, "0", ValueUtil.randomString()), null);
 
         assertNull(connection.getCurrentMessageResponse());
         assertEquals(connection.getPendingResponses().size(), 1);
@@ -425,10 +425,10 @@ public class ConnectionTest extends AbstractReplicantTest {
         assertTrue(connection.canGroupSubscriptionOperations(requestA, requestB));
         assertTrue(connection.canGroupSubscriptionOperations(requestB, requestA));
 
-        final TestCacheService cacheService = new TestCacheService();
-        Replicant.context().setCacheService(cacheService);
+        final TestDatasetCacheService datasetCacheService = new TestDatasetCacheService();
+        Replicant.context().setDatasetCacheService(datasetCacheService);
 
-        cacheService.store(
+        datasetCacheService.storeDatasetCacheEntry(
                 datasetAddressA,
                 ValueUtil.randomString(),
                 replicant.messages.ChangeSetMessage.create(null, null, null, null, null, null));

@@ -36,7 +36,7 @@ public final class JsonEncoder {
      *                           originating session.
      * @param response           the response message if the packet is the result of a request with a response and the
      *                           request was initiated by the session.
-     * @param datasetCacheVersion the opaque Dataset Cache Version for a complete Cacheable Dataset result.
+     * @param datasetCacheVersion the opaque Dataset Cache Version for a complete Cacheable Dataset Change Set.
      * @param changeSet          the Change Set being encoded.
      * @return the encoded Change Set.
      */
@@ -162,12 +162,12 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String encodeUseCachedDatasetMessage(
+    public static String encodeUseDatasetCacheEntryMessage(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
             @Nullable final Integer requestId) {
         final var response = Json.createObjectBuilder()
-                .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHED_DATASET)
+                .add(Messages.Common.TYPE, Messages.S2C_Type.USE_DATASET_CACHE_ENTRY)
                 .add(Messages.Common.DATASET_ADDRESS, datasetAddress.toString())
                 .add(Messages.S2C_Common.DATASET_CACHE_VERSION, datasetCacheVersion);
         if (null != requestId) {

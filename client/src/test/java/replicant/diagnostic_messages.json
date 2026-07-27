@@ -312,7 +312,7 @@
   {
     "code": 72,
     "type": "API_INVARIANT",
-    "messagePattern": "datasetCacheVersion in reply for ChangeSet but ChangeSet is not a candidate for caching."
+    "messagePattern": "datasetCacheVersion in reply for ChangeSet but ChangeSet does not represent a Cacheable Dataset."
   },
   {
     "code": 76,

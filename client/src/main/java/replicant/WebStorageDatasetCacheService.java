@@ -14,11 +14,11 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.ChangeSetMessage;
 
 /**
- * An implementation of the CacheService that uses LocalStorage or SessionStorage.
+ * An implementation of the Dataset Cache Service that uses LocalStorage or SessionStorage.
  * The implementation will preferentially use local storage and then session storage.
  */
 @SuppressWarnings({"unused", "ClassCanBeRecord"})
-public final class WebStorageCacheService implements CacheService {
+public final class WebStorageDatasetCacheService implements DatasetCacheService {
     @NonNull
     static final String DATASET_CACHE_VERSION_INDEX = "REPLICANT_DATASET_CACHE_VERSION_INDEX";
 
@@ -26,7 +26,8 @@ public final class WebStorageCacheService implements CacheService {
     private final Storage _storage;
 
     /**
-     * Install CacheService into the default context where persistence occurs in storage attached to root window.
+     * Install the Dataset Cache Service into the default context where persistence occurs in storage attached to the
+     * root window.
      * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
      */
     public static void install() {
@@ -34,7 +35,8 @@ public final class WebStorageCacheService implements CacheService {
     }
 
     /**
-     * Install CacheService into specified context where persistence occurs in storage attached to root window.
+     * Install the Dataset Cache Service into the specified context where persistence occurs in storage attached to the
+     * root window.
      * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
      *
      * @param context the replicant context.
@@ -44,22 +46,22 @@ public final class WebStorageCacheService implements CacheService {
     }
 
     /**
-     * Install CacheService into specified context where persistence occurs in specified storage.
+     * Install the Dataset Cache Service into the specified context where persistence occurs in the specified storage.
      *
      * @param context the replicant context.
-     * @param storage the store used to cache data.
+     * @param storage the storage used for Dataset Cache Entries.
      */
     public static void install(@NonNull final ReplicantContext context, @NonNull final Storage storage) {
-        Objects.requireNonNull(context).setCacheService(new WebStorageCacheService(storage));
+        Objects.requireNonNull(context).setDatasetCacheService(new WebStorageDatasetCacheService(storage));
     }
 
-    WebStorageCacheService(@NonNull final Storage storage) {
+    WebStorageDatasetCacheService(@NonNull final Storage storage) {
         _storage = Objects.requireNonNull(storage);
     }
 
     @NonNull
     @Override
-    public Set<DatasetAddress> keySet(final int systemSchemaId) {
+    public Set<DatasetAddress> getDatasetAddresses(final int systemSchemaId) {
         final Set<DatasetAddress> datasetAddresses = new HashSet<>();
         getIndex(systemSchemaId).forEach(v -> datasetAddresses.add(DatasetAddress.parse(systemSchemaId, v)));
         return CollectionsUtil.wrap(datasetAddresses);
@@ -74,20 +76,20 @@ public final class WebStorageCacheService implements CacheService {
 
     @Nullable
     @Override
-    public CacheEntry lookup(@NonNull final DatasetAddress datasetAddress) {
+    public DatasetCacheEntry lookupDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         Objects.requireNonNull(datasetAddress);
         final String datasetCacheVersion =
                 getIndex(datasetAddress.systemSchemaId()).get(datasetAddress.asDatasetAddressDescriptor());
-        final String changeSet = _storage.getItem(datasetAddress.getCacheKey());
+        final String changeSet = _storage.getItem(datasetAddress.getDatasetCacheEntryStorageKey());
         if (null != datasetCacheVersion && null != changeSet) {
-            return new CacheEntry(datasetAddress, datasetCacheVersion, changeSet);
+            return new DatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet);
         } else {
             return null;
         }
     }
 
     @Override
-    public boolean store(
+    public boolean storeDatasetCacheEntry(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
             @NonNull final ChangeSetMessage changeSet) {
@@ -99,11 +101,11 @@ public final class WebStorageCacheService implements CacheService {
             final JsPropertyMap<String> index = getIndex(systemSchemaId);
             index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
             saveIndex(systemSchemaId, index);
-            getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(changeSet));
+            getStorage().setItem(datasetAddress.getDatasetCacheEntryStorageKey(), JSON.stringify(changeSet));
             return true;
         } catch (final Throwable e) {
             // This exception can occur when storage is full
-            invalidate(datasetAddress);
+            invalidateDatasetCacheEntry(datasetAddress);
             return false;
         }
     }
@@ -119,7 +121,7 @@ public final class WebStorageCacheService implements CacheService {
     }
 
     @Override
-    public boolean invalidate(@NonNull final DatasetAddress datasetAddress) {
+    public boolean invalidateDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         Objects.requireNonNull(datasetAddress);
         final int systemSchemaId = datasetAddress.systemSchemaId();
         final JsPropertyMap<String> index = findIndex(systemSchemaId);
@@ -129,7 +131,7 @@ public final class WebStorageCacheService implements CacheService {
         } else {
             index.delete(key);
             saveIndex(systemSchemaId, index);
-            getStorage().removeItem(datasetAddress.getCacheKey());
+            getStorage().removeItem(datasetAddress.getDatasetCacheEntryStorageKey());
             return true;
         }
     }

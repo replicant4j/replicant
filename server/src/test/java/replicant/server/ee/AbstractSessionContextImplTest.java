@@ -317,10 +317,9 @@ public class AbstractSessionContextImplTest {
         @NonNull
         private final SystemSchema _systemSchema = new SystemSchema(
                 "Test",
-                new Dataset(0, "Type0", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true),
-                new Dataset(1, "Type1", null, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true),
-                new Dataset(
-                        2, "Instance2", 1, Dataset.FilterMode.UNFILTERED, null, false, Dataset.CacheType.NONE, true));
+                new Dataset(0, "Type0", null, Dataset.FilterMode.UNFILTERED, null, false, false, true),
+                new Dataset(1, "Type1", null, Dataset.FilterMode.UNFILTERED, null, false, false, true),
+                new Dataset(2, "Instance2", 1, Dataset.FilterMode.UNFILTERED, null, false, false, true));
 
         @NonNull
         private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();

@@ -70,7 +70,7 @@ public final class Dataset {
     @Nullable
     private final FilterParameterUpdateReplicaMatcher<?> _filterParameterUpdateReplicaMatcher;
     /**
-     * A flag indicating whether the results of the Dataset can be cached.
+     * A flag indicating whether this is a Cacheable Dataset.
      */
     private final boolean _cacheable;
     /**
@@ -241,9 +241,9 @@ public final class Dataset {
     }
 
     /**
-     * Return a flag indicating whether the results of the Dataset can be cached.
+     * Return true if this is a Cacheable Dataset.
      *
-     * @return a flag indicating whether the results of the Dataset can be cached.
+     * @return true if this is a Cacheable Dataset.
      */
     public boolean isCacheable() {
         return _cacheable;

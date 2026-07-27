@@ -42,10 +42,10 @@ public final class ReplicantContext {
     @Nullable
     private final SpyImpl _spy;
     /**
-     * Service responsible for caching data to avoid hitting the network during requests.
+     * Optional service responsible for storing and retrieving Dataset Cache Entries.
      */
     @Nullable
-    private CacheService _cacheService;
+    private DatasetCacheService _datasetCacheService;
 
     ReplicantContext() {
         assert Arez.context().isSchedulerPaused();
@@ -382,22 +382,22 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the CacheService associated with context if any.
+     * Return the Dataset Cache Service associated with the context, if any.
      *
-     * @return the CacheService associated with context if any.
+     * @return the Dataset Cache Service associated with the context, if any.
      */
     @Nullable
-    public CacheService getCacheService() {
-        return _cacheService;
+    public DatasetCacheService getDatasetCacheService() {
+        return _datasetCacheService;
     }
 
     /**
-     * Specify the CacheService used by context if any.
+     * Specify the Dataset Cache Service used by the context, if any.
      *
-     * @param cacheService the CacheService.
+     * @param datasetCacheService the Dataset Cache Service.
      */
-    public void setCacheService(@Nullable final CacheService cacheService) {
-        _cacheService = cacheService;
+    public void setDatasetCacheService(@Nullable final DatasetCacheService datasetCacheService) {
+        _datasetCacheService = datasetCacheService;
     }
 
     /**

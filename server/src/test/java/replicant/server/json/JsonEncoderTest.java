@@ -303,22 +303,22 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void encodeUseCachedDatasetMessage() {
+    public void encodeUseDatasetCacheEntryMessage() {
         final var datasetAddress = DatasetAddress.of(1, 2, "inst");
-        final var message = toJsonObject(JsonEncoder.encodeUseCachedDatasetMessage(datasetAddress, "e1", 7));
+        final var message = toJsonObject(JsonEncoder.encodeUseDatasetCacheEntryMessage(datasetAddress, "e1", 7));
 
-        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHED_DATASET);
+        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_DATASET_CACHE_ENTRY);
         assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2#inst");
         assertEquals(message.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), "e1");
         assertEquals(message.getInt(Messages.Common.REQUEST_ID), 7);
     }
 
     @Test
-    public void encodeUseCachedDatasetMessage_withoutRequestId() {
+    public void encodeUseDatasetCacheEntryMessage_withoutRequestId() {
         final var datasetAddress = DatasetAddress.of(1, 2);
-        final var message = toJsonObject(JsonEncoder.encodeUseCachedDatasetMessage(datasetAddress, "e1", null));
+        final var message = toJsonObject(JsonEncoder.encodeUseDatasetCacheEntryMessage(datasetAddress, "e1", null));
 
-        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHED_DATASET);
+        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_DATASET_CACHE_ENTRY);
         assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2");
         assertEquals(message.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), "e1");
         assertFalse(message.containsKey(Messages.Common.REQUEST_ID));

@@ -8,13 +8,13 @@ import org.jspecify.annotations.Nullable;
 import replicant.shared.Messages;
 
 /**
- * A server instruction to apply the complete cached representation for a Dataset Address.
+ * A server instruction to apply the Dataset Cache Entry for a Dataset Address.
  */
 @SuppressWarnings({"NotNullFieldNotInitialized", "NullAway.Init"})
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-public class UseCachedDatasetMessage extends ServerToClientMessage {
+public class UseDatasetCacheEntryMessage extends ServerToClientMessage {
     @JsOverlay
-    public static final String TYPE = Messages.S2C_Type.USE_CACHED_DATASET;
+    public static final String TYPE = Messages.S2C_Type.USE_DATASET_CACHE_ENTRY;
 
     @NonNull
     private String datasetAddress;
@@ -24,11 +24,11 @@ public class UseCachedDatasetMessage extends ServerToClientMessage {
 
     @JsOverlay
     @NonNull
-    public static UseCachedDatasetMessage create(
+    public static UseDatasetCacheEntryMessage create(
             @Nullable final Integer requestId,
             @NonNull final String datasetAddress,
             @NonNull final String datasetCacheVersion) {
-        final UseCachedDatasetMessage message = new UseCachedDatasetMessage();
+        final UseDatasetCacheEntryMessage message = new UseDatasetCacheEntryMessage();
         assert null != datasetAddress;
         assert null != datasetCacheVersion;
         message.type = TYPE;

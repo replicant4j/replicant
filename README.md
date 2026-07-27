@@ -129,16 +129,17 @@ Filter Parameter is never part of the Dataset Address.
 
 Datasets also support optional client caching. A Cacheable Dataset permits, but does not require, a complete
 Subscription result's Change Set to be stored for one concrete Dataset Address with an opaque Dataset Cache Version.
-On a later request the client advertises that version, and the server either authorizes reuse of the equal current
-result or sends a fresh result. Missing, unreadable, corrupt, or mismatched client entries are recoverable cache
-misses; failure to store an entry does not prevent the Subscription from being established.
+Together, that Dataset Address, Dataset Cache Version, and serialized Change Set form a Dataset Cache Entry. On a
+later request the client advertises the version, and the server either authorizes reuse of the equal current Dataset
+Cache Entry or sends a fresh Change Set. Missing, unreadable, corrupt, or mismatched Dataset Cache Entries are
+recoverable cache misses; failure to store an entry does not prevent the Subscription from being established.
 
 Declaring a Dataset cacheable asserts that every authorized subscriber able to reuse one shared Dataset Cache Version
 would receive an equal result. Subscriber-specific context that affects collection must participate in cache identity
 and validation, or the Dataset must not be cacheable. Authorization is still evaluated for every Subscription request,
-Required Type Datasets become available before dependent cached results, and each cached result is applied atomically.
-The current server implementation rejects filtered and Instance Datasets as cache targets; this is an implementation
-capability limit rather than a domain definition of Cacheable Dataset.
+Required Type Datasets become available before dependent Dataset Cache Entries, and each stored Change Set is applied
+atomically. The current server implementation does not support filtered or Instance Datasets as Cacheable Datasets;
+this is an implementation capability limit rather than a domain definition.
 
 It is possible and expected that one client may have Subscriptions to more than one Dataset, and the
 materialized selections may overlap. Often applications link one Dataset to another and automatically

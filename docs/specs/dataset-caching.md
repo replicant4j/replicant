@@ -42,7 +42,7 @@ This specification defines the observable guarantees for storing and reusing the
 18. Replicant may invalidate a Dataset Cache Entry whose Change Set has not changed, but must never reuse an entry
     whose Change Set differs from the current Dataset state.
 19. Every [Required Type Dataset](../glossary/README.md#required-type-dataset) must be available before a dependent
-    cached Dataset becomes available.
+    Cacheable Dataset becomes available.
 20. Applying a dependent Dataset Cache Entry must not expose references to unavailable Required Type Dataset Replicas.
 21. Change Sets from Dataset Cache Entries and fresh collection may be combined only when Required Type Dataset
     ordering and consistent Change Set visibility are preserved.
