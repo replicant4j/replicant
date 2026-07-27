@@ -34,8 +34,8 @@ the test passes.
 - Keep shared transport path fragments, constants, and message keys in `shared/`.
 - Code shared by `server.transport` and `server.ee` belongs in `server.runtime`; transport code must not depend on
   `server.ee`.
-- Guard session mutation with `ReplicantSession.getLock()` and follow the locking patterns in
-  `ReplicantSessionManagerImpl` and `ReplicantMessageBrokerImpl`.
+- Guard subscription and eTag state and packet sending with `ReplicantSession.getLock()`; follow the locking patterns
+  in `ReplicantSessionManagerImpl` and `ReplicantMessageBrokerImpl`.
 - Keep client and server transport routes, validation, and message formats synchronized through shared constants and
   message keys. Use JSON-P builders and generators for server-side JSON encoding.
 
