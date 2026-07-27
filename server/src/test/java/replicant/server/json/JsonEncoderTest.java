@@ -10,18 +10,17 @@ import java.util.Objects;
 import javax.json.Json;
 import javax.json.JsonObject;
 import org.testng.annotations.Test;
-import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.EntityChange;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.MessageTestUtil;
-import replicant.server.SubscriptionAction;
-import replicant.server.SubscriptionAction.Action;
+import replicant.server.SubscriptionChange;
 import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
 /**
- * Utility class used when encoding EntityMessage into JSON payload.
+ * Utility class used when encoding EntityChangeCandidate into JSON payload.
  */
 public final class JsonEncoderTest {
     @Test
@@ -54,13 +53,14 @@ public final class JsonEncoderTest {
                 .add("a", "b")
                 .build();
 
-        final var change = new Change(message);
+        final var change = new EntityChange(message);
         change.getDatasetAddresses().add(DatasetAddress.of(1, null));
         change.getDatasetAddresses().add(DatasetAddress.of(2, 42));
         change.getDatasetAddresses().add(DatasetAddress.of(3, 73));
         final var cs = new ChangeSet();
         cs.merge(change);
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, 77), Action.UPDATE, filterParameter));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(45, 77), SubscriptionChange.Type.UPDATE, filterParameter));
         final var encoded = JsonEncoder.encodeChangeSet(requestId, response, etag, cs);
         final var changeSet = toJsonObject(encoded);
 
@@ -76,7 +76,7 @@ public final class JsonEncoderTest {
         final var action = changeSet
                 .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
-        assertEquals(action.getString(Messages.Update.SUBSCRIPTION_ACTION), "=45.77");
+        assertEquals(action.getString(Messages.Update.SUBSCRIPTION_CHANGE), "=45.77");
         assertEquals(action.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
 
         final var object = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
@@ -105,14 +105,14 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void encodeChangeSetFromEntityMessages_deleteMessage() {
+    public void encodeChangeSetFromEntityChangeCandidates_deleteMessage() {
         final var id = 17;
         final var typeID = 42;
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", null, null);
 
         final var cs = new ChangeSet();
-        cs.merge(new Change(message));
+        cs.merge(new EntityChange(message));
         final var encoded = JsonEncoder.encodeChangeSet(null, null, null, cs);
         final var changeSet = toJsonObject(encoded);
 
@@ -147,7 +147,8 @@ public final class JsonEncoderTest {
     @Test
     public void action_WithNoFilter() {
         final var cs = new ChangeSet();
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, null), Action.SUBSCRIBE));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(45, null), SubscriptionChange.Type.SUBSCRIBE));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
@@ -156,9 +157,10 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void subscriptionAction_DELETE() {
+    public void subscriptionChange_DELETE() {
         final var cs = new ChangeSet();
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(45, null), Action.DELETE));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(45, null), SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS));
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
@@ -167,14 +169,17 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void mixedSubscriptionActions() {
+    public void mixedSubscriptionChanges() {
         final var cs = new ChangeSet();
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(1, null), Action.SUBSCRIBE));
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(2, 5), Action.UNSUBSCRIBE));
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(3, 7, "inst"), Action.UPDATE));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(1, null), SubscriptionChange.Type.SUBSCRIBE));
+        cs.mergeSubscriptionChange(SubscriptionChange.of(DatasetAddress.of(2, 5), SubscriptionChange.Type.UNSUBSCRIBE));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(3, 7, "inst"), SubscriptionChange.Type.UPDATE));
 
         final var filterParameter = Json.createObjectBuilder().add("a", "b").build();
-        cs.mergeSubscriptionAction(SubscriptionAction.of(DatasetAddress.of(4, 9), Action.SUBSCRIBE, filterParameter));
+        cs.mergeSubscriptionChange(
+                SubscriptionChange.of(DatasetAddress.of(4, 9), SubscriptionChange.Type.SUBSCRIBE, filterParameter));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
@@ -188,7 +193,7 @@ public final class JsonEncoderTest {
         final var filteredAction = changeSet
                 .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
-        assertEquals(filteredAction.getString(Messages.Update.SUBSCRIPTION_ACTION), "+4.9");
+        assertEquals(filteredAction.getString(Messages.Update.SUBSCRIPTION_CHANGE), "+4.9");
         assertEquals(
                 filteredAction.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
     }
@@ -215,9 +220,9 @@ public final class JsonEncoderTest {
         attributeData.put("d", date);
         attributeData.put("n", null);
 
-        final var message = new EntityMessage(1, 2, 0, routingKeys, attributeData, null);
+        final var message = new EntityChangeCandidate(1, 2, 0, routingKeys, attributeData, null);
         final var cs = new ChangeSet();
-        cs.merge(new Change(message));
+        cs.merge(new EntityChange(message));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         final var change = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
@@ -237,8 +242,8 @@ public final class JsonEncoderTest {
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("x", "y");
-        final var message = new EntityMessage(1, 2, 0, routingKeys, attributeData, null);
-        final var change = new Change(message);
+        final var message = new EntityChangeCandidate(1, 2, 0, routingKeys, attributeData, null);
+        final var change = new EntityChange(message);
         change.getDatasetAddresses().add(DatasetAddress.of(7, null, "fi"));
         change.getDatasetAddresses().add(DatasetAddress.of(8, 3, "fi-2"));
         final var cs = new ChangeSet();
@@ -260,9 +265,9 @@ public final class JsonEncoderTest {
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("bad", (byte) 1);
-        final var message = new EntityMessage(1, 2, 0, routingKeys, attributeData, null);
+        final var message = new EntityChangeCandidate(1, 2, 0, routingKeys, attributeData, null);
         final var cs = new ChangeSet();
-        cs.merge(new Change(message));
+        cs.merge(new EntityChange(message));
 
         final var exception =
                 expectThrows(IllegalStateException.class, () -> JsonEncoder.encodeChangeSet(null, null, null, cs));
@@ -276,9 +281,9 @@ public final class JsonEncoderTest {
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("X", 1392061102056L);
-        final var message = new EntityMessage(id, typeID, 0, routingKeys, attributeData, null);
+        final var message = new EntityChangeCandidate(id, typeID, 0, routingKeys, attributeData, null);
         final var cs = new ChangeSet();
-        cs.merge(new Change(message));
+        cs.merge(new EntityChange(message));
 
         final var encoded = JsonEncoder.encodeChangeSet(null, null, null, cs);
 
@@ -311,23 +316,6 @@ public final class JsonEncoderTest {
         assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2");
         assertEquals(message.getString(Messages.S2C_Common.ETAG), "e1");
         assertFalse(message.containsKey(Messages.Common.REQUEST_ID));
-    }
-
-    @Test
-    public void encodeUseCacheMessage_rejectsPartialAddress() {
-        expectThrows(
-                AssertionError.class, () -> JsonEncoder.encodeUseCacheMessage(DatasetAddress.partial(1, 2), "e1", 7));
-    }
-
-    @Test
-    public void encodeChangeSet_rejectsPartialDatasetAddressDescriptor() {
-        final var message = new EntityMessage(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
-        final var change = new Change(message);
-        change.getDatasetAddresses().add(DatasetAddress.partial(7, 3));
-        final var changeSet = new ChangeSet();
-        changeSet.merge(change);
-
-        expectThrows(AssertionError.class, () -> JsonEncoder.encodeChangeSet(null, null, null, changeSet));
     }
 
     @Test

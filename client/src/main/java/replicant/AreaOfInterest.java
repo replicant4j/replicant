@@ -12,7 +12,7 @@ import arez.annotations.PreDispose;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.react4j.ReplicantSubscription;
+import replicant.react4j.AreaOfInterestView;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import zemeckis.Zemeckis;
@@ -62,9 +62,9 @@ public abstract class AreaOfInterest extends ReplicantService {
         UNLOADED,
         /**
          * The server has unsubscribed from a subscription without being requested.
-         * This is usually in response to the Dataset Root of an Instance Dataset being deleted.
+         * This is usually in response to removal of an Instance Dataset's Dataset Root.
          */
-        DELETED;
+        DATASET_ADDRESS_INVALIDATED;
 
         /**
          * Return true if data for the subscription should be present in this state.
@@ -79,8 +79,8 @@ public abstract class AreaOfInterest extends ReplicantService {
             return this == LOAD_FAILED || this == UPDATE_FAILED;
         }
 
-        public boolean isDeleted() {
-            return this == DELETED;
+        public boolean isDatasetAddressInvalidated() {
+            return this == DATASET_ADDRESS_INVALIDATED;
         }
 
         /**
@@ -111,7 +111,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     @NonNull
     private Status _status = Status.NOT_ASKED;
     /**
-     * The {@link ReplicantSubscription} class uses reference counting to determine whether an AreaOfInterest
+     * The {@link AreaOfInterestView} class uses reference counting to determine whether an AreaOfInterest
      * is still of interest. The assumption is that after the refCount reaches 0 then it is likely that there
      * is no longer any interest and it can be disposed.
      */

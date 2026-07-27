@@ -181,22 +181,22 @@ public class UpdateMessage extends ServerToClientMessage {
             }
             final HashSet<String> existingDatasetAddresses = new HashSet<>();
             if (null != subscriptionChanges) {
-                for (final String subscriptionAction : subscriptionChanges) {
-                    final String key = subscriptionAction.substring(1);
+                for (final String subscriptionChange : subscriptionChanges) {
+                    final String key = subscriptionChange.substring(1);
                     apiInvariant(
                             () -> existingDatasetAddresses.add(key),
                             () -> "Replicant-0022: UpdateMessage contains multiple Subscription changes "
-                                    + "for Dataset Address " + subscriptionAction.substring(1) + ".");
+                                    + "for Dataset Address " + subscriptionChange.substring(1) + ".");
                 }
             }
             if (null != filterParameterSubscriptionChanges) {
                 for (final SubscriptionChangeMessage subscriptionChange : filterParameterSubscriptionChanges) {
-                    final String subscriptionAction = subscriptionChange.getSubscriptionAction();
-                    final String key = subscriptionAction.substring(1);
+                    final String descriptor = subscriptionChange.getSubscriptionChange();
+                    final String key = descriptor.substring(1);
                     apiInvariant(
                             () -> existingDatasetAddresses.add(key),
                             () -> "Replicant-0028: UpdateMessage contains multiple Subscription changes "
-                                    + "for Dataset Address " + subscriptionAction.substring(1) + ".");
+                                    + "for Dataset Address " + descriptor.substring(1) + ".");
                 }
             }
         }

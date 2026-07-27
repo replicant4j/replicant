@@ -3,7 +3,9 @@ package replicant.server.transport;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import replicant.server.DatasetAddress;
-import replicant.server.SubscriptionDependency;
+import replicant.server.DatasetAddressCandidate;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.SubscriptionDependencyCandidate;
 
 final class InvariantUtil {
     private static final boolean ASSERTIONS_ENABLED = InvariantUtil.class.desiredAssertionStatus();
@@ -14,14 +16,9 @@ final class InvariantUtil {
         return ASSERTIONS_ENABLED;
     }
 
-    static void assertConcreteDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
-        assert datasetAddress.concrete();
-    }
-
     static void assertConcreteDatasetAddress(
             @NonNull final SchemaMetaData schema, @NonNull final DatasetAddress datasetAddress) {
         if (isInvariantCheckingEnabled()) {
-            assertConcreteDatasetAddress(datasetAddress);
             assertDatasetAddressMatchesDatasetMetadata(schema, datasetAddress);
         }
     }
@@ -36,41 +33,35 @@ final class InvariantUtil {
     }
 
     private static void assertDatasetAddressMatchesDatasetMetadata(
-            @NonNull final DatasetMetadata dataset, @NonNull final DatasetAddress datasetAddress) {
+            @NonNull final DatasetMetadata dataset, @NonNull final DatasetAddressCandidate datasetAddressCandidate) {
         if (dataset.isTypeDataset()) {
-            assert !datasetAddress.hasDatasetRootId();
+            assert null == datasetAddressCandidate.datasetRootId();
         } else {
-            assert datasetAddress.hasDatasetRootId();
+            assert null != datasetAddressCandidate.datasetRootId();
         }
 
-        if (datasetAddress.partial()) {
+        if (datasetAddressCandidate instanceof DatasetAddressTemplate) {
             assert dataset.isKeyed();
-            assert null == datasetAddress.datasetKey();
+            assert null == datasetAddressCandidate.datasetKey();
         } else if (dataset.isKeyed()) {
-            assert null != datasetAddress.datasetKey();
+            assert null != datasetAddressCandidate.datasetKey();
         } else {
-            assert null == datasetAddress.datasetKey();
+            assert null == datasetAddressCandidate.datasetKey();
         }
     }
 
-    static void assertSubscriptionDependency(
-            @NonNull final SchemaMetaData schema, @NonNull final SubscriptionDependency subscriptionDependency) {
+    static void assertSubscriptionDependencyCandidate(
+            @NonNull final SchemaMetaData schema,
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependencyCandidate) {
         if (isInvariantCheckingEnabled()) {
-            assertDatasetAddressMatchesDatasetMetadata(schema, subscriptionDependency.sourceDatasetAddress());
-            final var targetDataset = schema.getDatasetMetadata(
-                    subscriptionDependency.targetDatasetAddress().datasetId());
-            assertDatasetAddressMatchesDatasetMetadata(targetDataset, subscriptionDependency.targetDatasetAddress());
-
-            if (subscriptionDependency.partial()) {
-                assert subscriptionDependency.sourceDatasetAddress().partial()
-                        || subscriptionDependency.targetDatasetAddress().partial()
-                        || (targetDataset.isParameterFiltered()
-                                && null == subscriptionDependency.targetFilterParameter());
-            } else {
-                assert subscriptionDependency.sourceDatasetAddress().concrete();
-                assert subscriptionDependency.targetDatasetAddress().concrete();
-                assert !targetDataset.isParameterFiltered() || null != subscriptionDependency.targetFilterParameter();
-            }
+            final var sourceDatasetAddressCandidate = subscriptionDependencyCandidate.sourceDatasetAddressCandidate();
+            assertDatasetAddressMatchesDatasetMetadata(
+                    schema.getDatasetMetadata(sourceDatasetAddressCandidate.datasetId()),
+                    sourceDatasetAddressCandidate);
+            final var targetDatasetAddressCandidate = subscriptionDependencyCandidate.targetDatasetAddressCandidate();
+            assertDatasetAddressMatchesDatasetMetadata(
+                    schema.getDatasetMetadata(targetDatasetAddressCandidate.datasetId()),
+                    targetDatasetAddressCandidate);
         }
     }
 }

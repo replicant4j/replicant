@@ -38,7 +38,7 @@ abstract class Connection {
     /**
      * Pending actions that will change the area of interest.
      */
-    private final LinkedList<AreaOfInterestRequest> _pendingAreaOfInterestRequests = new LinkedList<>();
+    private final LinkedList<SubscriptionOperation> _pendingSubscriptionOperations = new LinkedList<>();
     /**
      * Pending exec actions.
      */
@@ -57,7 +57,7 @@ abstract class Connection {
      * are candidates for bulk actions.
      */
     @NonNull
-    private final List<AreaOfInterestRequest> _currentAreaOfInterestRequests = new ArrayList<>();
+    private final List<SubscriptionOperation> _currentSubscriptionOperations = new ArrayList<>();
     /**
      * The exec requests that have been sent to server and we are waiting for a return.
      */
@@ -101,23 +101,23 @@ abstract class Connection {
     }
 
     void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
-        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, filterParameter);
+        enqueueSubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
     }
 
     void requestSubscriptionUpdate(
             @NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
-        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.UPDATE, filterParameter);
+        enqueueSubscriptionOperation(datasetAddress, SubscriptionOperation.Type.UPDATE, filterParameter);
     }
 
     void requestUnsubscribe(@NonNull final DatasetAddress datasetAddress) {
-        enqueueAreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.REMOVE, null);
+        enqueueSubscriptionOperation(datasetAddress, SubscriptionOperation.Type.UNSUBSCRIBE, null);
     }
 
-    private void enqueueAreaOfInterestRequest(
+    private void enqueueSubscriptionOperation(
             @NonNull final DatasetAddress datasetAddress,
-            final AreaOfInterestRequest.@NonNull Type action,
+            final SubscriptionOperation.@NonNull Type type,
             @Nullable final Object filterParameter) {
-        _pendingAreaOfInterestRequests.add(new AreaOfInterestRequest(datasetAddress, action, filterParameter));
+        _pendingSubscriptionOperations.add(new SubscriptionOperation(datasetAddress, type, filterParameter));
     }
 
     void enqueueResponse(@NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
@@ -125,52 +125,52 @@ abstract class Connection {
     }
 
     /**
-     * Return true if an area of interest request with specified parameters is pending or being processed.
-     * When the action parameter is DELETE the Filter Parameter is ignored.
+     * Return true if a matching Subscription Operation is pending or being processed.
+     * The Filter Parameter is ignored for an Unsubscribe Operation.
      */
-    boolean isAreaOfInterestRequestPending(
-            final AreaOfInterestRequest.@NonNull Type action,
+    boolean isSubscriptionOperationPending(
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filterParameter,
-                    () -> "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE "
-                            + "request for Dataset Address '" + datasetAddress
+                    () -> type != SubscriptionOperation.Type.UNSUBSCRIBE || null == filterParameter,
+                    () -> "Replicant-0025: Connection.isSubscriptionOperationPending passed an UNSUBSCRIBE "
+                            + "operation for Dataset Address '" + datasetAddress
                             + "' with a non-null Filter Parameter '" + filterParameter
                             + "'.");
         }
-        return _currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filterParameter))
-                || _pendingAreaOfInterestRequests.stream()
-                        .anyMatch(a -> a.match(action, datasetAddress, filterParameter));
+        return _currentSubscriptionOperations.stream().anyMatch(a -> a.match(type, datasetAddress, filterParameter))
+                || _pendingSubscriptionOperations.stream()
+                        .anyMatch(a -> a.match(type, datasetAddress, filterParameter));
     }
 
     /**
-     * Return the index of last matching Type in pending aoi request list.
+     * Return the index of the last matching Type in the pending Subscription Operation list.
      */
-    int lastIndexOfPendingAreaOfInterestRequest(
-            final AreaOfInterestRequest.@NonNull Type action,
+    int lastIndexOfPendingSubscriptionOperation(
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> action != AreaOfInterestRequest.Type.REMOVE || null == filterParameter,
-                    () -> "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE "
-                            + "request for Dataset Address '" + datasetAddress
+                    () -> type != SubscriptionOperation.Type.UNSUBSCRIBE || null == filterParameter,
+                    () -> "Replicant-0024: Connection.lastIndexOfPendingSubscriptionOperation passed an UNSUBSCRIBE "
+                            + "operation for Dataset Address '" + datasetAddress
                             + "' with a non-null Filter Parameter '" + filterParameter
                             + "'.");
         }
-        int index = _pendingAreaOfInterestRequests.size();
+        int index = _pendingSubscriptionOperations.size();
 
-        final Iterator<AreaOfInterestRequest> iterator = _pendingAreaOfInterestRequests.descendingIterator();
+        final Iterator<SubscriptionOperation> iterator = _pendingSubscriptionOperations.descendingIterator();
         while (iterator.hasNext()) {
-            final AreaOfInterestRequest request = iterator.next();
-            if (request.match(action, datasetAddress, filterParameter)) {
+            final SubscriptionOperation operation = iterator.next();
+            if (operation.match(type, datasetAddress, filterParameter)) {
                 return index;
             }
             index -= 1;
         }
-        if (_currentAreaOfInterestRequests.stream().anyMatch(a -> a.match(action, datasetAddress, filterParameter))) {
+        if (_currentSubscriptionOperations.stream().anyMatch(a -> a.match(type, datasetAddress, filterParameter))) {
             return 0;
         } else {
             return -1;
@@ -284,26 +284,25 @@ abstract class Connection {
     }
 
     @NonNull
-    List<AreaOfInterestRequest> getActiveAreaOfInterestRequests() {
-        return CollectionsUtil.wrap(_currentAreaOfInterestRequests);
+    List<SubscriptionOperation> getActiveSubscriptionOperations() {
+        return CollectionsUtil.wrap(_currentSubscriptionOperations);
     }
 
     /**
-     * Return the list of AreaOfInterest requests currently being processed. If there is none
-     * currently being processed and there are pending requests then derive the next batch of
-     * requests and set them as current.
+     * Return the Subscription Operations currently being processed. If there are none and operations are pending,
+     * derive the next batch and set them as current.
      */
     @NonNull
-    List<AreaOfInterestRequest> getCurrentAreaOfInterestRequests() {
-        if (_currentAreaOfInterestRequests.isEmpty() && !_pendingAreaOfInterestRequests.isEmpty()) {
-            final AreaOfInterestRequest first = _pendingAreaOfInterestRequests.removeFirst();
-            _currentAreaOfInterestRequests.add(first);
-            while (!_pendingAreaOfInterestRequests.isEmpty()
-                    && canGroupRequests(first, _pendingAreaOfInterestRequests.get(0))) {
-                _currentAreaOfInterestRequests.add(_pendingAreaOfInterestRequests.removeFirst());
+    List<SubscriptionOperation> getCurrentSubscriptionOperations() {
+        if (_currentSubscriptionOperations.isEmpty() && !_pendingSubscriptionOperations.isEmpty()) {
+            final SubscriptionOperation first = _pendingSubscriptionOperations.removeFirst();
+            _currentSubscriptionOperations.add(first);
+            while (!_pendingSubscriptionOperations.isEmpty()
+                    && canGroupSubscriptionOperations(first, _pendingSubscriptionOperations.get(0))) {
+                _currentSubscriptionOperations.add(_pendingSubscriptionOperations.removeFirst());
             }
         }
-        return CollectionsUtil.wrap(_currentAreaOfInterestRequests);
+        return CollectionsUtil.wrap(_currentSubscriptionOperations);
     }
 
     @Nullable
@@ -338,11 +337,10 @@ abstract class Connection {
     }
 
     /**
-     * Return true if the match request can be grouped with the template request and sent to the backend using a
-     * single network message.
+     * Return true if the matching operation can be grouped with the template operation in one network message.
      */
-    boolean canGroupRequests(
-            @NonNull final AreaOfInterestRequest template, @NonNull final AreaOfInterestRequest match) {
+    boolean canGroupSubscriptionOperations(
+            @NonNull final SubscriptionOperation template, @NonNull final SubscriptionOperation match) {
         final CacheService cacheService = _connector.getReplicantContext().getCacheService();
         return null != template.getDatasetAddress().datasetRootId()
                 && null != match.getDatasetAddress().datasetRootId()
@@ -351,34 +349,34 @@ abstract class Connection {
                 && template.getType().equals(match.getType())
                 && template.getDatasetAddress().datasetId()
                         == match.getDatasetAddress().datasetId()
-                && (AreaOfInterestRequest.Type.REMOVE == match.getType()
+                && (SubscriptionOperation.Type.UNSUBSCRIBE == match.getType()
                         || FilterParameterUtil.filterParametersEqual(
                                 match.getFilterParameter(), template.getFilterParameter()));
     }
 
     /**
-     * Mark all the current AreaOfInterest requests as complete and clear out the current requests list
+     * Mark all current Subscription Operations as complete and clear the current list.
      */
-    void completeAreaOfInterestRequest() {
+    void completeSubscriptionOperation() {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> !_currentAreaOfInterestRequests.isEmpty(),
-                    () -> "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no"
-                            + " current AreaOfInterest requests.");
+                    () -> !_currentSubscriptionOperations.isEmpty(),
+                    () -> "Replicant-0023: Connection.completeSubscriptionOperation() invoked when there are no"
+                            + " current Subscription Operations.");
         }
-        _currentAreaOfInterestRequests.forEach(AreaOfInterestRequest::markAsComplete);
-        _currentAreaOfInterestRequests.clear();
+        _currentSubscriptionOperations.forEach(SubscriptionOperation::markAsComplete);
+        _currentSubscriptionOperations.clear();
     }
 
-    void injectCurrentAreaOfInterestRequest(@NonNull final AreaOfInterestRequest request) {
-        _currentAreaOfInterestRequests.add(request);
+    void injectCurrentSubscriptionOperation(@NonNull final SubscriptionOperation operation) {
+        _currentSubscriptionOperations.add(operation);
     }
 
     List<MessageResponse> getPendingResponses() {
         return CollectionsUtil.wrap(_pendingResponses);
     }
 
-    List<AreaOfInterestRequest> getPendingAreaOfInterestRequests() {
-        return CollectionsUtil.wrap(_pendingAreaOfInterestRequests);
+    List<SubscriptionOperation> getPendingSubscriptionOperations() {
+        return CollectionsUtil.wrap(_pendingSubscriptionOperations);
     }
 }

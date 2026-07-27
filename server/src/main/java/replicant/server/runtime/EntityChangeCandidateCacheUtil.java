@@ -4,46 +4,48 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.EntityMessageSet;
+import replicant.server.EntityChangeCandidateSet;
 import replicant.server.ServerConstants;
 
 /**
- * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityMessageSet.
+ * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityChangeCandidateSet.
  */
-public final class EntityMessageCacheUtil {
+public final class EntityChangeCandidateCacheUtil {
     /**
      * Key used to reference the set of changes in the TransactionSynchronizationRegistry.
      */
-    private static final String KEY = EntityMessageSet.class.getName();
+    private static final String KEY = EntityChangeCandidateSet.class.getName();
     /**
      * Key used to lookup client specific changes. Should not be routed.
      */
     private static final String SESSION_KEY = KEY + "/Session";
 
-    private EntityMessageCacheUtil() {}
+    private EntityChangeCandidateCacheUtil() {}
 
     @NonNull
-    public static EntityMessageSet getEntityMessageSet(@NonNull final TransactionSynchronizationRegistry r) {
-        var messageSet = EntityMessageCacheUtil.<EntityMessageSet>lookup(r, KEY);
+    public static EntityChangeCandidateSet getEntityChangeCandidateSet(
+            @NonNull final TransactionSynchronizationRegistry r) {
+        var messageSet = EntityChangeCandidateCacheUtil.<EntityChangeCandidateSet>lookup(r, KEY);
         if (null == messageSet) {
-            messageSet = new EntityMessageSet();
+            messageSet = new EntityChangeCandidateSet();
             r.putResource(KEY, messageSet);
         }
         return messageSet;
     }
 
     @Nullable
-    public static EntityMessageSet lookupEntityMessageSet() {
+    public static EntityChangeCandidateSet lookupEntityChangeCandidateSet() {
         return lookup(TransactionSynchronizationRegistryUtil.lookup(), KEY);
     }
 
     @Nullable
-    public static EntityMessageSet removeEntityMessageSet() {
-        return removeEntityMessageSet(TransactionSynchronizationRegistryUtil.lookup());
+    public static EntityChangeCandidateSet removeEntityChangeCandidateSet() {
+        return removeEntityChangeCandidateSet(TransactionSynchronizationRegistryUtil.lookup());
     }
 
     @Nullable
-    public static EntityMessageSet removeEntityMessageSet(@NonNull final TransactionSynchronizationRegistry r) {
+    public static EntityChangeCandidateSet removeEntityChangeCandidateSet(
+            @NonNull final TransactionSynchronizationRegistry r) {
         return remove(r, KEY);
     }
 
@@ -54,7 +56,7 @@ public final class EntityMessageCacheUtil {
 
     @NonNull
     public static ChangeSet getSessionChanges(@NonNull final TransactionSynchronizationRegistry r) {
-        var changes = EntityMessageCacheUtil.<ChangeSet>lookup(r, SESSION_KEY);
+        var changes = EntityChangeCandidateCacheUtil.<ChangeSet>lookup(r, SESSION_KEY);
         if (null == changes) {
             changes = new ChangeSet();
             r.putResource(SESSION_KEY, changes);
@@ -83,7 +85,7 @@ public final class EntityMessageCacheUtil {
     }
 
     private static <T> T remove(@NonNull final TransactionSynchronizationRegistry r, @NonNull final String key) {
-        final var messageSet = EntityMessageCacheUtil.<T>lookup(r, key);
+        final var messageSet = EntityChangeCandidateCacheUtil.<T>lookup(r, key);
         if (null != messageSet) {
             r.putResource(key, null);
         }

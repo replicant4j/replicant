@@ -2,6 +2,13 @@
 
 ### Unreleased
 
+* Align Replicant, Domgen, and generated integrations with the canonical Entity Change, Subscription Operation,
+  Subscription Change, Dataset Address Template, Dataset Address Invalidation, Filter Decision, and Dataset Traversal
+  terminology. This hard cut distinguishes concrete Dataset Addresses from pre-resolution templates and candidates,
+  reserves Subscription Dependency for recorded runtime relationships, renames React4j Subscription views for the
+  Areas of Interest they retain, and replaces ambiguous filtering and deletion language with precise outcomes. The
+  API, generated-source, and protocol migration is intentionally wire-incompatible; clients and servers must be
+  upgraded together.
 * Adopt Subscription Mode as the explicit model for why a Subscription is retained:
   * Add client and server `SubscriptionMode` values `EXPLICIT` and `IMPLICIT`, replace client
     `explicitSubscription` observable state with `Subscription.getMode()` and `setMode(...)`, and replace server

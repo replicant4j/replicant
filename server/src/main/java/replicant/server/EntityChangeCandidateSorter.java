@@ -7,7 +7,7 @@ import java.util.List;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Provides ordering of EntityMessages so as to ensure their correct processing when retrieved from the database
+ * Provides ordering of Entity Change Candidates so as to ensure their correct processing when retrieved from the database
  * Order changes as they should be processed, so a to make subsequent retrieval and application easier.
  * Ordering is:
  * - Deletions, then updates
@@ -15,20 +15,20 @@ import org.jspecify.annotations.NonNull;
  * - Within updates, order by type, so as to create in the order from the architecture.rb.
  * - Within identical types, order by change time, desc on delete, asc on update.
  */
-public final class EntityMessageSorter implements Comparator<EntityMessage> {
-    private EntityMessageSorter() {}
+public final class EntityChangeCandidateSorter implements Comparator<EntityChangeCandidate> {
+    private EntityChangeCandidateSorter() {}
 
     @NonNull
-    public static List<EntityMessage> sort(@NonNull final Collection<EntityMessage> messages) {
-        final var sortedMessages = new ArrayList<>(messages);
-        sortedMessages.sort(COMPARATOR);
-        return sortedMessages;
+    public static List<EntityChangeCandidate> sort(@NonNull final Collection<EntityChangeCandidate> candidates) {
+        final var sortedCandidates = new ArrayList<>(candidates);
+        sortedCandidates.sort(COMPARATOR);
+        return sortedCandidates;
     }
 
-    public static final EntityMessageSorter COMPARATOR = new EntityMessageSorter();
+    public static final EntityChangeCandidateSorter COMPARATOR = new EntityChangeCandidateSorter();
 
     @Override
-    public int compare(@NonNull final EntityMessage o1, @NonNull final EntityMessage o2) {
+    public int compare(@NonNull final EntityChangeCandidate o1, @NonNull final EntityChangeCandidate o2) {
         if (o1.isDelete()) {
             if (o2.isUpdate()) {
                 return -1;

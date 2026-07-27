@@ -114,66 +114,93 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
                     Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null);
 
             assertTrue(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE));
             assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.UPDATE));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest,
+                    SubscriptionOperation.Type.UPDATE));
             assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest, AreaOfInterestRequest.Type.REMOVE));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest,
+                    SubscriptionOperation.Type.UNSUBSCRIBE));
             assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.UPDATE, areaOfInterest, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.UPDATE,
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE));
             assertTrue(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.UPDATE,
+                    SubscriptionOperation.Type.UPDATE,
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.UPDATE));
+                    SubscriptionOperation.Type.UPDATE));
             assertFalse(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.UPDATE,
+                    SubscriptionOperation.Type.UPDATE,
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.REMOVE));
-            assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.REMOVE, areaOfInterest, AreaOfInterestRequest.Type.ADD));
+                    SubscriptionOperation.Type.UNSUBSCRIBE));
             assertFalse(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.REMOVE,
+                    SubscriptionOperation.Type.UNSUBSCRIBE,
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.UPDATE));
+                    SubscriptionOperation.Type.SUBSCRIBE));
+            assertFalse(c.canGroup(
+                    areaOfInterest,
+                    SubscriptionOperation.Type.UNSUBSCRIBE,
+                    areaOfInterest,
+                    SubscriptionOperation.Type.UPDATE));
             assertTrue(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.REMOVE,
+                    SubscriptionOperation.Type.UNSUBSCRIBE,
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.REMOVE));
+                    SubscriptionOperation.Type.UNSUBSCRIBE));
 
             final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
             final AreaOfInterest areaOfInterest2 =
                     Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null);
             assertTrue(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest2, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest2,
+                    SubscriptionOperation.Type.SUBSCRIBE));
 
             final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 1);
             final AreaOfInterest areaOfInterest3 =
                     Replicant.context().createOrUpdateAreaOfInterest(datasetAddress3, null);
             assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest3, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest3,
+                    SubscriptionOperation.Type.SUBSCRIBE));
             assertFalse(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.ADD,
+                    SubscriptionOperation.Type.SUBSCRIBE,
                     areaOfInterest3,
-                    AreaOfInterestRequest.Type.UPDATE));
+                    SubscriptionOperation.Type.UPDATE));
             assertFalse(c.canGroup(
                     areaOfInterest,
-                    AreaOfInterestRequest.Type.ADD,
+                    SubscriptionOperation.Type.SUBSCRIBE,
                     areaOfInterest3,
-                    AreaOfInterestRequest.Type.REMOVE));
+                    SubscriptionOperation.Type.UNSUBSCRIBE));
 
             final DatasetAddress datasetAddress4 = new DatasetAddress(1, 0, 1);
             final AreaOfInterest areaOfInterest4 =
                     Replicant.context().createOrUpdateAreaOfInterest(datasetAddress4, "Filter");
             assertFalse(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest4,
+                    SubscriptionOperation.Type.SUBSCRIBE));
             areaOfInterest.setFilterParameter("Filter");
             assertTrue(c.canGroup(
-                    areaOfInterest, AreaOfInterestRequest.Type.ADD, areaOfInterest4, AreaOfInterestRequest.Type.ADD));
+                    areaOfInterest,
+                    SubscriptionOperation.Type.SUBSCRIBE,
+                    areaOfInterest4,
+                    SubscriptionOperation.Type.SUBSCRIBE));
         });
     }
 
@@ -196,11 +223,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
-            final List<AreaOfInterestRequest> requests =
-                    connector.ensureConnection().getPendingAreaOfInterestRequests();
+            final List<SubscriptionOperation> requests =
+                    connector.ensureConnection().getPendingSubscriptionOperations();
             assertEquals(requests.size(), 1);
-            final AreaOfInterestRequest request = requests.get(0);
-            assertEquals(request.getType(), AreaOfInterestRequest.Type.REMOVE);
+            final SubscriptionOperation request = requests.get(0);
+            assertEquals(request.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
             assertEquals(request.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
@@ -237,11 +264,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
-            final List<AreaOfInterestRequest> requests =
-                    connector.ensureConnection().getPendingAreaOfInterestRequests();
+            final List<SubscriptionOperation> requests =
+                    connector.ensureConnection().getPendingSubscriptionOperations();
             assertEquals(requests.size(), 1);
-            final AreaOfInterestRequest request = requests.get(0);
-            assertEquals(request.getType(), AreaOfInterestRequest.Type.REMOVE);
+            final SubscriptionOperation request = requests.get(0);
+            assertEquals(request.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
             assertEquals(request.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
@@ -323,7 +350,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
-        // Enqueue remove request
+        // Enqueue an unsubscribe operation
         connector.requestUnsubscribe(datasetAddress);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
@@ -347,10 +374,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Outcome.SUBSCRIBE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -370,10 +397,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
 
@@ -392,14 +419,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(datasetAddress, AreaOfInterestRequest.Type.ADD, null));
+        connection.injectCurrentSubscriptionOperation(
+                new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, null));
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Outcome.OPERATION_IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
@@ -419,10 +446,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Outcome.OPERATION_IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
@@ -457,10 +484,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.IN_PROGRESS);
+        assertEquals(result, SubscriptionReconciler.Outcome.OPERATION_IN_PROGRESS);
 
         handler.assertEventCount(0);
     }
@@ -493,10 +520,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_UPDATE);
+        assertEquals(result, SubscriptionReconciler.Outcome.UPDATE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateRequestQueuedEvent.class, e -> {
@@ -544,10 +571,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Outcome.SUBSCRIBE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -581,10 +608,10 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result =
+        final SubscriptionReconciler.Outcome result =
                 Replicant.context().getSubscriptionReconciler().reconcileAreaOfInterest(areaOfInterest, null, null);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_REMOVE);
+        assertEquals(result, SubscriptionReconciler.Outcome.UNSUBSCRIBE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -644,11 +671,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.SUBSCRIBE);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_ADD);
+        assertEquals(result, SubscriptionReconciler.Outcome.SUBSCRIBE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -686,11 +713,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.SUBSCRIBE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }
@@ -710,11 +737,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.SUBSCRIBE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }
@@ -734,11 +761,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.ADD);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.SUBSCRIBE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }
@@ -778,11 +805,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.UPDATE);
 
-        assertEquals(result, SubscriptionReconciler.Action.SUBMITTED_UPDATE);
+        assertEquals(result, SubscriptionReconciler.Outcome.UPDATE_OPERATION_ISSUED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
@@ -809,11 +836,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.UPDATE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }
@@ -863,11 +890,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.UPDATE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }
@@ -916,11 +943,11 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final SubscriptionReconciler.Action result = Replicant.context()
+        final SubscriptionReconciler.Outcome result = Replicant.context()
                 .getSubscriptionReconciler()
-                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, AreaOfInterestRequest.Type.UPDATE);
+                .reconcileAreaOfInterest(areaOfInterest2, areaOfInterest1, SubscriptionOperation.Type.UPDATE);
 
-        assertEquals(result, SubscriptionReconciler.Action.NO_ACTION);
+        assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
         handler.assertEventCount(0);
     }

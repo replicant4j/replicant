@@ -11,7 +11,7 @@ import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public final class EntityMessage {
+public final class EntityChangeCandidate {
     private final int _id;
     private final int _typeId;
     /**
@@ -23,14 +23,14 @@ public final class EntityMessage {
     private final Map<String, Serializable> _routingKeys;
 
     @Nullable
-    private Set<SubscriptionDependency> _subscriptionDependencies;
+    private Set<SubscriptionDependencyCandidate> _subscriptionDependencyCandidates;
 
     @Nullable
     private Map<String, Serializable> _attributeValues;
 
     private long _timestamp;
 
-    public EntityMessage(
+    public EntityChangeCandidate(
             final int id,
             final int typeId,
             final long timestamp,
@@ -39,19 +39,19 @@ public final class EntityMessage {
         this(id, typeId, timestamp, routingKeys, attributeValues, null);
     }
 
-    public EntityMessage(
+    public EntityChangeCandidate(
             final int id,
             final int typeId,
             final long timestamp,
             @NonNull final Map<String, Serializable> routingKeys,
             @Nullable final Map<String, Serializable> attributeValues,
-            @Nullable final Set<SubscriptionDependency> subscriptionDependencies) {
+            @Nullable final Set<SubscriptionDependencyCandidate> subscriptionDependencyCandidates) {
         _id = id;
         _typeId = typeId;
         _timestamp = timestamp;
         _routingKeys = Objects.requireNonNull(routingKeys);
         _attributeValues = attributeValues;
-        _subscriptionDependencies = subscriptionDependencies;
+        _subscriptionDependencyCandidates = subscriptionDependencyCandidates;
         assertInvariants();
     }
 
@@ -86,23 +86,24 @@ public final class EntityMessage {
     }
 
     @Nullable
-    public Set<SubscriptionDependency> getSubscriptionDependencies() {
-        return _subscriptionDependencies;
+    public Set<SubscriptionDependencyCandidate> getSubscriptionDependencyCandidates() {
+        return _subscriptionDependencyCandidates;
     }
 
     @NonNull
-    public EntityMessage duplicate() {
-        final var message = new EntityMessage(getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
+    public EntityChangeCandidate duplicate() {
+        final var message =
+                new EntityChangeCandidate(getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
         message.merge(this);
         return message;
     }
 
     @NonNull
-    public EntityMessage toDelete() {
+    public EntityChangeCandidate toReplicaRemoval() {
         final var message = duplicate();
         message.merge(this);
         message._attributeValues = null;
-        message._subscriptionDependencies = null;
+        message._subscriptionDependencyCandidates = null;
         message.assertInvariants();
         return message;
     }
@@ -114,31 +115,31 @@ public final class EntityMessage {
                 + getTypeId() + ",ID="
                 + getId() + ",RoutingKeys="
                 + getRoutingKeys() + (!isDelete() ? ",Data=" + getAttributeValues() : "")
-                + ",Subscription Dependencies="
-                + getSubscriptionDependencies() + ")";
+                + ",Subscription Dependency Candidates="
+                + getSubscriptionDependencyCandidates() + ")";
     }
 
-    public void merge(@NonNull final EntityMessage message) {
-        mergeTimestamp(message);
-        mergeRoutingKeys(message);
-        mergeAttributeValues(message);
-        if (message.isDelete()) {
-            _subscriptionDependencies = null;
+    public void merge(@NonNull final EntityChangeCandidate other) {
+        mergeTimestamp(other);
+        mergeRoutingKeys(other);
+        mergeAttributeValues(other);
+        if (other.isDelete()) {
+            _subscriptionDependencyCandidates = null;
         } else {
-            mergeSubscriptionDependencies(message);
+            mergeSubscriptionDependencyCandidates(other);
         }
         assertInvariants();
     }
 
-    private void mergeTimestamp(@NonNull final EntityMessage message) {
-        if (message.getTimestamp() > getTimestamp()) {
-            _timestamp = message.getTimestamp();
+    private void mergeTimestamp(@NonNull final EntityChangeCandidate other) {
+        if (other.getTimestamp() > getTimestamp()) {
+            _timestamp = other.getTimestamp();
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void mergeRoutingKeys(@NonNull final EntityMessage message) {
-        final var routingKeys = message.getRoutingKeys();
+    private void mergeRoutingKeys(@NonNull final EntityChangeCandidate other) {
+        final var routingKeys = other.getRoutingKeys();
         for (final var entry : routingKeys.entrySet()) {
             final var value = entry.getValue();
             if (value instanceof List) {
@@ -156,8 +157,8 @@ public final class EntityMessage {
         }
     }
 
-    private void mergeAttributeValues(@NonNull final EntityMessage message) {
-        final var attributeValues = message.getAttributeValues();
+    private void mergeAttributeValues(@NonNull final EntityChangeCandidate other) {
+        final var attributeValues = other.getAttributeValues();
         if (null == attributeValues) {
             _attributeValues = null;
         } else {
@@ -168,18 +169,18 @@ public final class EntityMessage {
         }
     }
 
-    private void mergeSubscriptionDependencies(@NonNull final EntityMessage message) {
-        final var subscriptionDependencies = message.getSubscriptionDependencies();
-        if (null != subscriptionDependencies) {
-            if (null == _subscriptionDependencies) {
-                _subscriptionDependencies = new HashSet<>();
+    private void mergeSubscriptionDependencyCandidates(@NonNull final EntityChangeCandidate other) {
+        final var subscriptionDependencyCandidates = other.getSubscriptionDependencyCandidates();
+        if (null != subscriptionDependencyCandidates) {
+            if (null == _subscriptionDependencyCandidates) {
+                _subscriptionDependencyCandidates = new HashSet<>();
             }
-            _subscriptionDependencies.addAll(subscriptionDependencies);
+            _subscriptionDependencyCandidates.addAll(subscriptionDependencyCandidates);
         }
     }
 
     private void assertInvariants() {
-        assert null != _attributeValues || null == _subscriptionDependencies
-                : "Delete EntityMessage must not contain Subscription Dependencies";
+        assert null != _attributeValues || null == _subscriptionDependencyCandidates
+                : "Delete EntityChangeCandidate must not contain Subscription Dependency Candidates";
     }
 }

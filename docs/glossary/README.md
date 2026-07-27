@@ -19,6 +19,13 @@ A schema definition for a kind of server-side [Entity](#entity), including how i
 One identifiable server-side domain object eligible for replication. Its identity consists of an
 [Entity Type](#entity-type) and entity identifier.
 
+### Entity Change
+
+A [Change Set](#change-set) member directing the client to update an [Entity](#entity)'s [Replica](#replica) or remove
+it from specified [Subscription](#subscription) instances.
+
+_Avoid_: Entity message
+
 ### Replica
 
 The client-side representation of one [Entity](#entity). A Replica is shared when it belongs to more than one
@@ -43,8 +50,8 @@ _Avoid_: Type graph, types dataset
 
 ### Instance Dataset
 
-A [Dataset](#dataset) whose candidates are selected by a configured traversal beginning at a
-[Dataset Root](#dataset-root). The traversal may be shaped and pruned and need not produce a mathematical graph.
+A [Dataset](#dataset) whose candidates are selected by a configured [Dataset Traversal](#dataset-traversal) beginning
+at a [Dataset Root](#dataset-root). The traversal may be shaped and pruned and need not produce a mathematical graph.
 
 _Avoid_: Instance graph, rooted dataset
 
@@ -55,6 +62,13 @@ definition specifies its [Entity Type](#entity-type), while the [Dataset Address
 identifier.
 
 _Avoid_: Instance root
+
+### Dataset Traversal
+
+The schema-defined traversal from a [Dataset Root](#dataset-root) across configured [Entity](#entity) relationships
+that determines the initial candidates of an [Instance Dataset](#instance-dataset).
+
+_Avoid_: Replication path, replication edge
 
 ### Unfiltered Type Dataset
 
@@ -118,6 +132,13 @@ _Avoid_: Instanced instance graph
 A membership rule specific to a [Dataset](#dataset) that further restricts which otherwise eligible
 [Entity](#entity) instances belong to a [Subscription](#subscription).
 
+### Filter Decision
+
+The effect of applying a [Filter](#filter) to an [Entity Change](#entity-change) for a
+[Subscription](#subscription): forward the change, replace it with a [Replica](#replica) removal, or ignore it.
+
+_Avoid_: Filter result, interesting
+
 ### Filter Parameter
 
 A value supplied for a [Dataset](#dataset) selection and consumed by its [Filter](#filter) to determine membership. It
@@ -155,6 +176,22 @@ Dataset identities with a [Dataset Root](#dataset-root) identifier and [Dataset 
 
 _Avoid_: Channel address, graph address, subscription address
 
+### Dataset Address Template
+
+A partially specified [Dataset](#dataset) selection used while evaluating a [Dataset Link](#dataset-link). It is
+matched against or resolved to a [Dataset Address](#dataset-address) before a
+[Subscription Dependency](#subscription-dependency) is recorded.
+
+_Avoid_: Partial Dataset Address
+
+### Dataset Address Invalidation
+
+A notification that a [Dataset Address](#dataset-address) is no longer subscribable, normally because its
+[Dataset Root](#dataset-root) has been deleted. It removes the [Subscription](#subscription) at that address and
+marks any [Area of Interest](#area-of-interest) as unable to be satisfied.
+
+_Avoid_: Delete Subscription
+
 ### Area of Interest
 
 A client declaration that a [Subscription](#subscription) should exist at a [Dataset Address](#dataset-address), using
@@ -165,6 +202,20 @@ toward that state.
 
 The actual replication state at a [Dataset Address](#dataset-address), including its current
 [Filter Parameter](#filter-parameter) and the [Replica](#replica) instances belonging to it.
+
+### Subscription Operation
+
+A subscribe, update, or unsubscribe request issued by [Subscription Reconciliation](#subscription-reconciliation) to
+move actual [Subscription](#subscription) state toward an [Area of Interest](#area-of-interest).
+
+_Avoid_: Area of Interest request
+
+### Subscription Change
+
+A server-reported transition in actual [Subscription](#subscription) state, delivered in a
+[Change Set](#change-set).
+
+_Avoid_: Subscription action
 
 ### Subscription Mode
 
@@ -206,18 +257,19 @@ remains in [Implicit Subscription Mode](#implicit-subscription-mode) unless an
 
 ### Routing Key
 
-A named value derived from an [Entity](#entity) change and used to determine which
-[Dataset Address](#dataset-address) values might contain that Entity. A [Filter](#filter) then determines whether the
-change belongs to each [Subscription](#subscription); a Routing Key does not identify the Subscription.
+A named value derived from an [Entity Change](#entity-change) and used to determine which
+[Dataset Address](#dataset-address) values might contain the [Entity](#entity). A [Filter](#filter) then determines
+whether the change belongs to each [Subscription](#subscription); a Routing Key does not identify the Subscription.
 
 ### Change Set
 
-A batch of [Subscription](#subscription) and [Entity](#entity) changes delivered and applied to the client as one
-consistent unit before observers are notified.
+A batch of [Subscription Change](#subscription-change) and [Entity Change](#entity-change) instances delivered and
+applied to the client as one consistent unit before observers are notified.
 
 ### Subscription Reconciliation
 
 The process of comparing each desired [Area of Interest](#area-of-interest) with the actual
-[Subscription](#subscription) state and issuing subscribe, update, or unsubscribe operations until they agree.
+[Subscription](#subscription) state and issuing [Subscription Operation](#subscription-operation) instances until
+they agree.
 
 _Avoid_: Convergence

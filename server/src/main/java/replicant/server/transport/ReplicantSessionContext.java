@@ -6,7 +6,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.DatasetAddressCandidate;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.EntityChangeCandidate;
 
 public interface ReplicantSessionContext {
     @NonNull
@@ -32,35 +34,37 @@ public interface ReplicantSessionContext {
      * Derive a Filter Parameter for the target Dataset Address based on the source Dataset Address and Filter
      * Parameter.
      *
-     * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
+     * @param entityChangeCandidate the Entity Change Candidate in the context of which the Dataset Link is being
+     *                              evaluated.
      * @param sourceDatasetAddress the source Dataset Address.
      * @param sourceFilterParameter the Filter Parameter for the source Dataset Address.
-     * @param targetDatasetAddress the target Dataset Address.
+     * @param targetDatasetAddressCandidate the target Dataset Address Candidate.
      * @return the Filter Parameter for the target Dataset Address.
      */
     @NonNull
     JsonObject deriveTargetFilterParameter(
-            @NonNull EntityMessage entityMessage,
+            @NonNull EntityChangeCandidate entityChangeCandidate,
             @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilterParameter,
-            @NonNull DatasetAddress targetDatasetAddress);
+            @NonNull DatasetAddressCandidate targetDatasetAddressCandidate);
 
     /**
-     * Derive the target Dataset Key for a partially specified target Dataset Address.
+     * Derive the target Dataset Key for a target Dataset Address Template.
      *
-     * @param entityMessage the Entity Message in the context of which the Dataset Link is being evaluated.
+     * @param entityChangeCandidate the Entity Change Candidate in the context of which the Dataset Link is being
+     *                              evaluated.
      * @param sourceDatasetAddress the concrete source Dataset Address.
      * @param sourceFilterParameter the Filter Parameter for the source Dataset Address.
-     * @param targetDatasetAddress the target Dataset Address template with a missing Dataset Key.
+     * @param targetDatasetAddressTemplate the target Dataset Address Template with a missing Dataset Key.
      * @param targetFilterParameter the target Filter Parameter if already known, null otherwise.
      * @return the Dataset Key for the target Dataset Address.
      */
     @NonNull
     String deriveTargetDatasetKey(
-            @NonNull EntityMessage entityMessage,
+            @NonNull EntityChangeCandidate entityChangeCandidate,
             @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilterParameter,
-            @NonNull DatasetAddress targetDatasetAddress,
+            @NonNull DatasetAddressTemplate targetDatasetAddressTemplate,
             @Nullable JsonObject targetFilterParameter);
 
     /**
@@ -109,8 +113,10 @@ public interface ReplicantSessionContext {
             @NonNull ChangeSet changeSet);
 
     @Nullable
-    EntityMessage filterEntityMessage(
-            @NonNull ReplicantSession session, @NonNull DatasetAddress datasetAddress, @NonNull EntityMessage message);
+    EntityChangeCandidate filterEntityChangeCandidate(
+            @NonNull ReplicantSession session,
+            @NonNull DatasetAddress datasetAddress,
+            @NonNull EntityChangeCandidate entityChangeCandidate);
 
     boolean shouldFollowDatasetLink(
             @NonNull DatasetAddress sourceDatasetAddress,

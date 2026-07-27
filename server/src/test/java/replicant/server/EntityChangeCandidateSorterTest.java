@@ -8,7 +8,7 @@ import java.util.List;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class EntityMessageSorterTest {
+public class EntityChangeCandidateSorterTest {
     private int _nextID;
 
     @BeforeMethod
@@ -18,15 +18,15 @@ public class EntityMessageSorterTest {
 
     @Test
     public void sort() {
-        final var m1 = newEntityMessage(1, 1, 10L, false);
-        final var m2 = newEntityMessage(2, 2, 100L, false);
-        final var m3 = newEntityMessage(3, 2, 10L, false);
-        final var m4 = newEntityMessage(4, 3, 10L, true);
-        final var m5 = newEntityMessage(5, 3, 100L, true);
+        final var m1 = newEntityChangeCandidate(1, 1, 10L, false);
+        final var m2 = newEntityChangeCandidate(2, 2, 100L, false);
+        final var m3 = newEntityChangeCandidate(3, 2, 10L, false);
+        final var m4 = newEntityChangeCandidate(4, 3, 10L, true);
+        final var m5 = newEntityChangeCandidate(5, 3, 100L, true);
 
         {
             final var l1 = Arrays.asList(m1, m2, m3, m4, m5);
-            final var r1 = EntityMessageSorter.sort(l1);
+            final var r1 = EntityChangeCandidateSorter.sort(l1);
             assertIndex(r1, 0, 5);
             assertIndex(r1, 1, 4);
             assertIndex(r1, 2, 1);
@@ -36,7 +36,7 @@ public class EntityMessageSorterTest {
 
         {
             final var l2 = Arrays.asList(m5, m4, m3, m2, m1);
-            final var r2 = EntityMessageSorter.sort(l2);
+            final var r2 = EntityChangeCandidateSorter.sort(l2);
             assertIndex(r2, 0, 5);
             assertIndex(r2, 1, 4);
             assertIndex(r2, 2, 1);
@@ -46,7 +46,7 @@ public class EntityMessageSorterTest {
 
         {
             final var l2 = Arrays.asList(m1, m1, m2, m2, m1);
-            final var r2 = EntityMessageSorter.sort(l2);
+            final var r2 = EntityChangeCandidateSorter.sort(l2);
             assertIndex(r2, 0, 1);
             assertIndex(r2, 1, 1);
             assertIndex(r2, 2, 1);
@@ -56,7 +56,7 @@ public class EntityMessageSorterTest {
 
         {
             final var l2 = Arrays.asList(m4, m4, m5, m5, m4);
-            final var r2 = EntityMessageSorter.sort(l2);
+            final var r2 = EntityChangeCandidateSorter.sort(l2);
             assertIndex(r2, 0, 5);
             assertIndex(r2, 1, 5);
             assertIndex(r2, 2, 4);
@@ -65,21 +65,23 @@ public class EntityMessageSorterTest {
         }
     }
 
-    private void assertIndex(final List<EntityMessage> l1, final int index, final int value) {
+    private void assertIndex(final List<EntityChangeCandidate> l1, final int index, final int value) {
         assertEquals(l1.get(index).getId(), value);
     }
 
-    private EntityMessage newEntityMessage(
+    private EntityChangeCandidate newEntityChangeCandidate(
             final int id, final int typeID, final long timestamp, final boolean isDelete) {
-        return new EntityMessage(id, typeID, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null);
+        return new EntityChangeCandidate(
+                id, typeID, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null);
     }
 
     @Test
     public void deletionsShouldOrderBeforeChanges() {
         final var messages =
-                new EntityMessage[] {createDeletionMessage(1), createUpdateMessage(1), createDeletionMessage(1)};
+                new EntityChangeCandidate[] {createDeletionMessage(1), createUpdateMessage(1), createDeletionMessage(1)
+                };
 
-        final var sortedMessages = EntityMessageSorter.sort(Arrays.asList(messages));
+        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
 
         assertDeletion(sortedMessages.get(0));
         assertDeletion(sortedMessages.get(1));
@@ -88,7 +90,7 @@ public class EntityMessageSorterTest {
 
     @Test
     public void typesShouldOrderDescendingWithinDeletions() {
-        final var messages = new EntityMessage[] {
+        final var messages = new EntityChangeCandidate[] {
             createUpdateMessage(1),
             createDeletionMessage(1),
             createDeletionMessage(3),
@@ -96,7 +98,7 @@ public class EntityMessageSorterTest {
             createDeletionMessage(4)
         };
 
-        final var sortedMessages = EntityMessageSorter.sort(Arrays.asList(messages));
+        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
 
         assertEquals(sortedMessages.get(0).getTypeId(), 4);
         assertEquals(sortedMessages.get(1).getTypeId(), 3);
@@ -107,7 +109,7 @@ public class EntityMessageSorterTest {
 
     @Test
     public void typesShouldOrderAscendingWithinUpdates() {
-        final var messages = new EntityMessage[] {
+        final var messages = new EntityChangeCandidate[] {
             createUpdateMessage(1),
             createUpdateMessage(3),
             createUpdateMessage(2),
@@ -115,7 +117,7 @@ public class EntityMessageSorterTest {
             createDeletionMessage(2)
         };
 
-        final var sortedMessages = EntityMessageSorter.sort(Arrays.asList(messages));
+        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
 
         assertDeletion(sortedMessages.get(0));
         assertEquals(sortedMessages.get(1).getTypeId(), 1);
@@ -126,14 +128,14 @@ public class EntityMessageSorterTest {
 
     @Test
     public void deletionForSameTypeShouldOrderByReverseTime() {
-        final var messages = new EntityMessage[] {
+        final var messages = new EntityChangeCandidate[] {
             createDeletionMessage(2, 10),
             createDeletionMessage(1, 15),
             createDeletionMessage(2, 20),
             createDeletionMessage(2, 15)
         };
 
-        final var sortedMessages = EntityMessageSorter.sort(Arrays.asList(messages));
+        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
 
         assertEquals(sortedMessages.get(0).getTimestamp(), 20);
         assertEquals(sortedMessages.get(1).getTimestamp(), 15);
@@ -143,14 +145,14 @@ public class EntityMessageSorterTest {
 
     @Test
     public void updateForSameTypeShouldOrderByTime() {
-        final var messages = new EntityMessage[] {
+        final var messages = new EntityChangeCandidate[] {
             createUpdateMessage(2, 10),
             createUpdateMessage(1, 15),
             createUpdateMessage(2, 20),
             createUpdateMessage(2, 15)
         };
 
-        final var sortedMessages = EntityMessageSorter.sort(Arrays.asList(messages));
+        final var sortedMessages = EntityChangeCandidateSorter.sort(Arrays.asList(messages));
 
         assertEquals(sortedMessages.get(0).getTypeId(), 1);
         assertEquals(sortedMessages.get(1).getTimestamp(), 10);
@@ -158,27 +160,27 @@ public class EntityMessageSorterTest {
         assertEquals(sortedMessages.get(3).getTimestamp(), 20);
     }
 
-    private EntityMessage createUpdateMessage(final int typeID) {
+    private EntityChangeCandidate createUpdateMessage(final int typeID) {
         return createUpdateMessage(typeID, 0);
     }
 
-    private EntityMessage createUpdateMessage(final int typeID, final long time) {
-        return new EntityMessage(_nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null);
+    private EntityChangeCandidate createUpdateMessage(final int typeID, final long time) {
+        return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null);
     }
 
-    private EntityMessage createDeletionMessage(final int typeID) {
+    private EntityChangeCandidate createDeletionMessage(final int typeID) {
         return createDeletionMessage(typeID, 0);
     }
 
-    private EntityMessage createDeletionMessage(final int typeID, final long time) {
-        return new EntityMessage(_nextID++, typeID, time, new HashMap<>(), null, null);
+    private EntityChangeCandidate createDeletionMessage(final int typeID, final long time) {
+        return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), null, null);
     }
 
-    private void assertDeletion(final EntityMessage message) {
+    private void assertDeletion(final EntityChangeCandidate message) {
         assertTrue(message.isDelete(), "Expected " + message + " to be a deletion");
     }
 
-    private void assertUpdate(final EntityMessage message) {
+    private void assertUpdate(final EntityChangeCandidate message) {
         assertTrue(message.isUpdate(), "Expected " + message + " to be an update");
     }
 }

@@ -5,40 +5,44 @@ import static org.testng.Assert.*;
 import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 
-public final class SubscriptionDependencyTest {
+public final class SubscriptionDependencyCandidateTest {
     @Test
     public void basicOperation() {
-        final var subscriptionDependency =
-                new SubscriptionDependency(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
-        assertEquals(subscriptionDependency.sourceDatasetAddress().datasetId(), 22);
-        assertEquals(subscriptionDependency.sourceDatasetAddress().datasetRootId(), (Integer) 44);
-        assertEquals(subscriptionDependency.targetDatasetAddress().datasetId(), 1);
-        assertEquals(subscriptionDependency.targetDatasetAddress().datasetRootId(), (Integer) 2);
-        assertFalse(subscriptionDependency.partial());
-        assertEquals(subscriptionDependency.toString(), "[22.44=>1.2]");
+        final var subscriptionDependencyCandidate =
+                new SubscriptionDependencyCandidate(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
+        assertEquals(
+                subscriptionDependencyCandidate.sourceDatasetAddressCandidate().datasetId(), 22);
+        assertEquals(
+                subscriptionDependencyCandidate.sourceDatasetAddressCandidate().datasetRootId(), (Integer) 44);
+        assertEquals(
+                subscriptionDependencyCandidate.targetDatasetAddressCandidate().datasetId(), 1);
+        assertEquals(
+                subscriptionDependencyCandidate.targetDatasetAddressCandidate().datasetRootId(), (Integer) 2);
+        assertEquals(subscriptionDependencyCandidate.toString(), "[22.44=>1.2]");
     }
 
     @Test
-    public void partialOperation() {
-        final var subscriptionDependency =
-                new SubscriptionDependency(DatasetAddress.partial(22, 44), DatasetAddress.of(1, 2), null, true);
+    public void candidateWithDatasetAddressTemplate() {
+        final var subscriptionDependencyCandidate =
+                new SubscriptionDependencyCandidate(DatasetAddressTemplate.of(22, 44), DatasetAddress.of(1, 2), null);
 
-        assertTrue(subscriptionDependency.partial());
-        assertEquals(subscriptionDependency.toString(), "[22.44?=>1.2?]");
+        assertEquals(subscriptionDependencyCandidate.toString(), "[22.44?=>1.2]");
     }
 
     @Test
     public void hashcodeAndEquals() {
         final var subscriptionDependency1 =
-                new SubscriptionDependency(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
+                new SubscriptionDependencyCandidate(DatasetAddress.of(22, 44), DatasetAddress.of(1, 2));
         final var subscriptionDependency2 =
-                new SubscriptionDependency(DatasetAddress.of(22, 44), DatasetAddress.of(1, 3));
+                new SubscriptionDependencyCandidate(DatasetAddress.of(22, 44), DatasetAddress.of(1, 3));
         final var subscriptionDependency3 =
-                new SubscriptionDependency(DatasetAddress.of(22, 77), DatasetAddress.of(1, 2));
-        final var subscriptionDependency4 = new SubscriptionDependency(DatasetAddress.of(27), DatasetAddress.of(1, 2));
-        final var subscriptionDependency5 = new SubscriptionDependency(DatasetAddress.of(27), DatasetAddress.of(1, 3));
+                new SubscriptionDependencyCandidate(DatasetAddress.of(22, 77), DatasetAddress.of(1, 2));
+        final var subscriptionDependency4 =
+                new SubscriptionDependencyCandidate(DatasetAddress.of(27), DatasetAddress.of(1, 2));
+        final var subscriptionDependency5 =
+                new SubscriptionDependencyCandidate(DatasetAddress.of(27), DatasetAddress.of(1, 3));
         final var subscriptionDependency6 =
-                new SubscriptionDependency(DatasetAddress.partial(22, 44), DatasetAddress.of(1, 2), null, true);
+                new SubscriptionDependencyCandidate(DatasetAddressTemplate.of(22, 44), DatasetAddress.of(1, 2));
 
         assertSubscriptionDependencyEqual(subscriptionDependency1, subscriptionDependency1);
         assertSubscriptionDependencyEqual(subscriptionDependency2, subscriptionDependency2);
@@ -69,15 +73,15 @@ public final class SubscriptionDependencyTest {
     }
 
     private void assertSubscriptionDependencyEqual(
-            @NonNull final SubscriptionDependency subscriptionDependency1,
-            @NonNull final SubscriptionDependency subscriptionDependency2) {
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependency1,
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependency2) {
         assertEquals(subscriptionDependency1, subscriptionDependency2);
         assertEquals(subscriptionDependency1.hashCode(), subscriptionDependency2.hashCode());
     }
 
     private void assertSubscriptionDependencyNotEqual(
-            @NonNull final SubscriptionDependency subscriptionDependency1,
-            @NonNull final SubscriptionDependency subscriptionDependency2) {
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependency1,
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependency2) {
         assertNotEquals(subscriptionDependency1, subscriptionDependency2);
         assertNotEquals(subscriptionDependency1.hashCode(), subscriptionDependency2.hashCode());
     }

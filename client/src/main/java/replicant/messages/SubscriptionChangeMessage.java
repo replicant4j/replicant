@@ -7,12 +7,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A message fragment defining a Subscription lifecycle operation.
+ * A message fragment defining a reported Subscription Change.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 @SuppressWarnings("NullAway.Init")
 public class SubscriptionChangeMessage {
-    private String subscriptionAction;
+    private String subscriptionChange;
 
     @Nullable
     private Object filterParameter;
@@ -24,9 +24,9 @@ public class SubscriptionChangeMessage {
      */
     @JsOverlay
     public static SubscriptionChangeMessage create(
-            @NonNull final String subscriptionAction, @Nullable final Object filterParameter) {
+            @NonNull final String subscriptionChange, @Nullable final Object filterParameter) {
         final SubscriptionChangeMessage message = new SubscriptionChangeMessage();
-        message.subscriptionAction = subscriptionAction;
+        message.subscriptionChange = subscriptionChange;
         message.filterParameter = filterParameter;
         return message;
     }
@@ -34,18 +34,18 @@ public class SubscriptionChangeMessage {
     private SubscriptionChangeMessage() {}
 
     /**
-     * Return the Subscription action descriptor.
+     * Return the Subscription Change descriptor.
      *
-     * @return the Subscription action descriptor.
+     * @return the Subscription Change descriptor.
      */
     @JsOverlay
     @NonNull
-    public final String getSubscriptionAction() {
-        return subscriptionAction;
+    public final String getSubscriptionChange() {
+        return subscriptionChange;
     }
 
     /**
-     * @return the Filter Parameter associated with the Subscription action.
+     * @return the Filter Parameter associated with the Subscription Change.
      */
     @Nullable
     @JsOverlay

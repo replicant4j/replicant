@@ -8,7 +8,7 @@ CLIENT_TEST_JVM_FLAGS = [
 CLIENT_TEST_DATA = ["//client/src/test/java/replicant:diagnostic_messages.json"]
 
 CLIENT_TEST_CLASSES = [
-    "replicant.AreaOfInterestRequestTest",
+    "replicant.SubscriptionOperationTest",
     "replicant.AreaOfInterestServiceTest",
     "replicant.AreaOfInterestTest",
     "replicant.CacheEntryTest",
@@ -115,7 +115,6 @@ java_library(
 java_library(
     name = "client_tests_lib",
     srcs = [
-        "AreaOfInterestRequestTest.java",
         "AreaOfInterestServiceTest.java",
         "AreaOfInterestTest.java",
         "CacheEntryTest.java",
@@ -142,6 +141,7 @@ java_library(
         "SpyImplTest.java",
         "SubscriptionChangeMessageTest.java",
         "SubscriptionChangeTest.java",
+        "SubscriptionOperationTest.java",
         "SubscriptionReconcilerTest.java",
         "SubscriptionServiceTest.java",
         "SubscriptionTest.java",
@@ -179,11 +179,11 @@ java_testng(
 )
 
 java_testng(
-    name = "AreaOfInterestRequestTest",
-    srcs = ["AreaOfInterestRequestTest.java"],
+    name = "SubscriptionOperationTest",
+    srcs = ["SubscriptionOperationTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.AreaOfInterestRequestTest",
+    test_class = "replicant.SubscriptionOperationTest",
     deps = ["//client:client_test_support"],
 )
 

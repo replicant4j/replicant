@@ -5,17 +5,17 @@ import static org.testng.Assert.*;
 import java.util.Objects;
 import org.testng.annotations.Test;
 
-public class ChangeTest {
+public class EntityChangeTest {
     @Test
     public void basicOperation() {
         final var id = 17;
         final var typeID = 42;
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var change = new Change(message);
+        final var change = new EntityChange(message);
 
         assertEquals(change.getKey(), "42#17");
-        assertEquals(change.getEntityMessage(), message);
+        assertEquals(change.getEntityChangeCandidate(), message);
         assertEquals(change.getDatasetAddresses().size(), 0);
     }
 
@@ -25,15 +25,16 @@ public class ChangeTest {
         final var typeID = 42;
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var change = new Change(message);
+        final var change = new EntityChange(message);
         change.getDatasetAddresses().add(DatasetAddress.of(1, 1));
         change.getDatasetAddresses().add(DatasetAddress.of(2, 3));
 
         final var duplicate = change.duplicate();
         assertEquals(duplicate.getKey(), change.getKey());
         assertEquals(
-                duplicate.getEntityMessage().getId(), change.getEntityMessage().getId());
-        assertNotSame(duplicate.getEntityMessage(), change.getEntityMessage());
+                duplicate.getEntityChangeCandidate().getId(),
+                change.getEntityChangeCandidate().getId());
+        assertNotSame(duplicate.getEntityChangeCandidate(), change.getEntityChangeCandidate());
         assertEquals(duplicate.getDatasetAddresses(), change.getDatasetAddresses());
         //noinspection SimplifiableAssertion
         assertFalse(duplicate.getDatasetAddresses() == change.getDatasetAddresses());
@@ -48,8 +49,8 @@ public class ChangeTest {
         final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
         final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
 
-        final var change1 = new Change(message1);
-        final var change2 = new Change(message2);
+        final var change1 = new EntityChange(message1);
+        final var change2 = new EntityChange(message2);
 
         change1.getDatasetAddresses().add(DatasetAddress.of(1, 1));
         change2.getDatasetAddresses().add(DatasetAddress.of(2, 3));
@@ -57,20 +58,20 @@ public class ChangeTest {
         assertEquals(change1.getDatasetAddresses().size(), 1);
         assertFalse(change1.getDatasetAddresses().contains(DatasetAddress.of(2, 3)));
         assertEquals(
-                Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
+                Objects.requireNonNull(change1.getEntityChangeCandidate().getAttributeValues())
                         .get(MessageTestUtil.ATTR_KEY1),
                 "a1");
-        assertEquals(change1.getEntityMessage().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r2");
+        assertEquals(change1.getEntityChangeCandidate().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r2");
 
         change1.merge(change2);
 
         assertEquals(change1.getDatasetAddresses().size(), 2);
         assertTrue(change1.getDatasetAddresses().contains(DatasetAddress.of(2, 3)));
         assertEquals(
-                Objects.requireNonNull(change1.getEntityMessage().getAttributeValues())
+                Objects.requireNonNull(change1.getEntityChangeCandidate().getAttributeValues())
                         .get(MessageTestUtil.ATTR_KEY1),
                 "aZ");
-        assertEquals(change1.getEntityMessage().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r3");
+        assertEquals(change1.getEntityChangeCandidate().getRoutingKeys().get(MessageTestUtil.ROUTING_KEY2), "r3");
     }
 
     @Test
@@ -80,7 +81,7 @@ public class ChangeTest {
 
         final var message = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
         final var datasetAddress = DatasetAddress.of(7, 12, "instance-a");
-        final var change = new Change(message, datasetAddress);
+        final var change = new EntityChange(message, datasetAddress);
 
         assertEquals(change.getDatasetAddresses().size(), 1);
         assertTrue(change.getDatasetAddresses().contains(datasetAddress));
@@ -94,8 +95,8 @@ public class ChangeTest {
         final var message1 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r2", "a1", "a2");
         final var message2 = MessageTestUtil.createMessage(id, typeID, 0, "r1", "r3", "aZ", "a2");
 
-        final var change1 = new Change(message1);
-        final var change2 = new Change(message2);
+        final var change1 = new EntityChange(message1);
+        final var change2 = new EntityChange(message2);
 
         final var datasetAddressA = DatasetAddress.of(5, 11, "inst-1");
         final var datasetAddressADuplicate = DatasetAddress.of(5, 11, "inst-1");

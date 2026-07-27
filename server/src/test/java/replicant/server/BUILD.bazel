@@ -22,13 +22,6 @@ java_testng(
 )
 
 java_testng(
-    name = "ChangeTest",
-    srcs = ["ChangeTest.java"],
-    test_class = "replicant.server.ChangeTest",
-    deps = ["//server:server_test_support"],
-)
-
-java_testng(
     name = "DatasetAddressTest",
     srcs = ["DatasetAddressTest.java"],
     test_class = "replicant.server.DatasetAddressTest",
@@ -36,23 +29,30 @@ java_testng(
 )
 
 java_testng(
-    name = "EntityMessageSetTest",
-    srcs = ["EntityMessageSetTest.java"],
-    test_class = "replicant.server.EntityMessageSetTest",
+    name = "EntityChangeTest",
+    srcs = ["EntityChangeTest.java"],
+    test_class = "replicant.server.EntityChangeTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "EntityMessageSorterTest",
-    srcs = ["EntityMessageSorterTest.java"],
-    test_class = "replicant.server.EntityMessageSorterTest",
+    name = "EntityChangeCandidateSetTest",
+    srcs = ["EntityChangeCandidateSetTest.java"],
+    test_class = "replicant.server.EntityChangeCandidateSetTest",
     deps = ["//server:server_test_support"],
 )
 
 java_testng(
-    name = "EntityMessageTest",
-    srcs = ["EntityMessageTest.java"],
-    test_class = "replicant.server.EntityMessageTest",
+    name = "EntityChangeCandidateSorterTest",
+    srcs = ["EntityChangeCandidateSorterTest.java"],
+    test_class = "replicant.server.EntityChangeCandidateSorterTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
+    name = "EntityChangeCandidateTest",
+    srcs = ["EntityChangeCandidateTest.java"],
+    test_class = "replicant.server.EntityChangeCandidateTest",
     deps = ["//server:server_test_support"],
 )
 
@@ -64,8 +64,8 @@ java_testng(
 )
 
 java_testng(
-    name = "SubscriptionDependencyTest",
-    srcs = ["SubscriptionDependencyTest.java"],
-    test_class = "replicant.server.SubscriptionDependencyTest",
+    name = "SubscriptionDependencyCandidateTest",
+    srcs = ["SubscriptionDependencyCandidateTest.java"],
+    test_class = "replicant.server.SubscriptionDependencyCandidateTest",
     deps = ["//server:server_test_support"],
 )

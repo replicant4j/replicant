@@ -19,7 +19,9 @@ import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.DatasetAddressCandidate;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.transport.Packet;
 import replicant.server.transport.ReplicantChangeRecorder;
 import replicant.server.transport.ReplicantSession;
@@ -34,35 +36,35 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     @NonNull
     @Override
     public JsonObject deriveTargetFilterParameter(
-            @NonNull final EntityMessage entityMessage,
+            @NonNull final EntityChangeCandidate entityChangeCandidate,
             @NonNull final DatasetAddress sourceDatasetAddress,
             @Nullable final JsonObject sourceFilterParameter,
-            @NonNull final DatasetAddress targetDatasetAddress) {
+            @NonNull final DatasetAddressCandidate targetDatasetAddressCandidate) {
         throw new IllegalStateException("deriveTargetFilterParameter called for Dataset Link from "
                 + sourceDatasetAddress
                 + " to "
-                + targetDatasetAddress
+                + targetDatasetAddressCandidate
                 + (null == sourceFilterParameter ? "" : " with source Filter Parameter " + sourceFilterParameter)
-                + " in the context of the entity message "
-                + entityMessage
+                + " in the context of the Entity Change Candidate "
+                + entityChangeCandidate
                 + " but no such Dataset Link exists or the target Dataset has no Filter Parameter");
     }
 
     @NonNull
     @Override
     public String deriveTargetDatasetKey(
-            @NonNull final EntityMessage entityMessage,
+            @NonNull final EntityChangeCandidate entityChangeCandidate,
             @NonNull final DatasetAddress sourceDatasetAddress,
             @Nullable final JsonObject sourceFilterParameter,
-            @NonNull final DatasetAddress targetDatasetAddress,
+            @NonNull final DatasetAddressTemplate targetDatasetAddressTemplate,
             @Nullable final JsonObject targetFilterParameter) {
         throw new IllegalStateException("deriveTargetDatasetKey called for Dataset Link from " + sourceDatasetAddress
                 + " to "
-                + targetDatasetAddress
+                + targetDatasetAddressTemplate
                 + (null == sourceFilterParameter ? "" : " with source Filter Parameter " + sourceFilterParameter)
                 + (null == targetFilterParameter ? "" : " with target Filter Parameter " + targetFilterParameter)
-                + " in the context of the entity message "
-                + entityMessage
+                + " in the context of the Entity Change Candidate "
+                + entityChangeCandidate
                 + " but no such Dataset Link exists or the target Dataset does not require a dataset key");
     }
 
@@ -124,23 +126,23 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     /**
-     * Converts the given object into an appropriate {@link EntityMessage}.
+     * Converts the given object into an appropriate {@link EntityChangeCandidate}.
      * This method may be used for initial data load or for entity updates.
      * Implementations of this abstract method define the specific conversion logic.
      *
      * @param object        the source object to be converted; must not be null
      * @param isUpdate      a boolean indicating if the conversion is for an update
      * @param isInitialLoad a boolean indicating if the conversion is for an initial data load
-     * @return the converted {@link EntityMessage}, or null if the conversion cannot be performed
+     * @return the converted {@link EntityChangeCandidate}, or null if the conversion cannot be performed
      */
     @Nullable
-    protected abstract EntityMessage convertToEntityMessage(
+    protected abstract EntityChangeCandidate convertToEntityChangeCandidate(
             @NonNull final Object object, final boolean isUpdate, final boolean isInitialLoad);
 
     @Nullable
     @Override
-    public EntityMessage convertToEntityMessage(@NonNull final Object object, final boolean isUpdate) {
-        return convertToEntityMessage(object, isUpdate, false);
+    public EntityChangeCandidate convertToEntityChangeCandidate(@NonNull final Object object, final boolean isUpdate) {
+        return convertToEntityChangeCandidate(object, isUpdate, false);
     }
 
     @SuppressWarnings("unchecked")

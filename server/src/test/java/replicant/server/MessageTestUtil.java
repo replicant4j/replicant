@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A set of utility methods for testing EntityMessage infrastructure.
+ * A set of utility methods for testing EntityChangeCandidate infrastructure.
  */
 public final class MessageTestUtil {
     @NonNull
@@ -28,7 +28,7 @@ public final class MessageTestUtil {
     private MessageTestUtil() {}
 
     @NonNull
-    public static EntityMessage createMessage(
+    public static EntityChangeCandidate createMessage(
             final int id,
             final int typeID,
             final long timestamp,
@@ -40,11 +40,11 @@ public final class MessageTestUtil {
     }
 
     @NonNull
-    static EntityMessage createMessage(
+    static EntityChangeCandidate createMessage(
             final int id,
             final int typeID,
             final long timestamp,
-            @Nullable final SubscriptionDependency subscriptionDependency,
+            @Nullable final SubscriptionDependencyCandidate subscriptionDependency,
             @Nullable final String r1,
             @Nullable final String r2,
             @Nullable final String a1,
@@ -65,26 +65,27 @@ public final class MessageTestUtil {
             Objects.requireNonNull(attributeValues).put(ATTR_KEY2, a2);
         }
 
-        final HashSet<SubscriptionDependency> subscriptionDependencies;
+        final HashSet<SubscriptionDependencyCandidate> subscriptionDependencyCandidates;
         if (null != subscriptionDependency) {
-            subscriptionDependencies = new HashSet<>();
-            subscriptionDependencies.add(subscriptionDependency);
+            subscriptionDependencyCandidates = new HashSet<>();
+            subscriptionDependencyCandidates.add(subscriptionDependency);
         } else {
-            subscriptionDependencies = null;
+            subscriptionDependencyCandidates = null;
         }
 
-        return new EntityMessage(id, typeID, timestamp, routingKeys, attributeValues, subscriptionDependencies);
+        return new EntityChangeCandidate(
+                id, typeID, timestamp, routingKeys, attributeValues, subscriptionDependencyCandidates);
     }
 
     static void assertAttributeValue(
-            @NonNull final EntityMessage message, @NonNull final String key, @Nullable final String value) {
+            @NonNull final EntityChangeCandidate message, @NonNull final String key, @Nullable final String value) {
         final var values = message.getAttributeValues();
         assertNotNull(values);
         assertEquals(Objects.requireNonNull(values).get(key), value);
     }
 
     static void assertRouteValue(
-            @NonNull final EntityMessage message, @NonNull final String key, @Nullable final String value) {
+            @NonNull final EntityChangeCandidate message, @NonNull final String key, @Nullable final String value) {
         assertEquals(message.getRoutingKeys().get(key), value);
     }
 }

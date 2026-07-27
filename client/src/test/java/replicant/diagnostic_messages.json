@@ -107,22 +107,22 @@
   {
     "code": 23,
     "type": "INVARIANT",
-    "messagePattern": "Connection.completeAreaOfInterestRequest() invoked when there is no current AreaOfInterest requests."
+    "messagePattern": "Connection.completeSubscriptionOperation() invoked when there are no current Subscription Operations."
   },
   {
     "code": 24,
     "type": "INVARIANT",
-    "messagePattern": "Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
+    "messagePattern": "Connection.lastIndexOfPendingSubscriptionOperation passed an UNSUBSCRIBE operation for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 25,
     "type": "INVARIANT",
-    "messagePattern": "Connection.isAreaOfInterestRequestPending passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
+    "messagePattern": "Connection.isSubscriptionOperationPending passed an UNSUBSCRIBE operation for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 27,
     "type": "INVARIANT",
-    "messagePattern": "AreaOfInterestRequest constructor passed a REMOVE request for Dataset Address '%s' with a non-null Filter Parameter '%s'."
+    "messagePattern": "SubscriptionOperation constructor passed an UNSUBSCRIBE operation for Dataset Address '%s' with a non-null Filter Parameter '%s'."
   },
   {
     "code": 28,
@@ -157,7 +157,7 @@
   {
     "code": 34,
     "type": "INVARIANT",
-    "messagePattern": "Connector.transitionSubscriptionsToImplicitMode() invoked with request with type that is not REMOVE. Request: AreaOfInterestRequest[Type=%s Address=%s]"
+    "messagePattern": "Connector.transitionSubscriptionsToImplicitMode() invoked with Subscription Operation with type that is not UNSUBSCRIBE. Operation: SubscriptionOperation[Type=%s Address=%s]"
   },
   {
     "code": 36,

@@ -22,7 +22,6 @@ final class DatasetCacheEntry {
     private ChangeSet _changeSet;
 
     DatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
-        assert datasetAddress.concrete();
         _descriptor = Objects.requireNonNull(datasetAddress);
     }
 

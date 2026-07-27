@@ -23,7 +23,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.EntityMessage;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.runtime.ReplicantSystem;
 
 @ApplicationScoped
@@ -94,7 +94,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @Nullable final String etag,
-            @NonNull final Collection<EntityMessage> messages,
+            @NonNull final Collection<EntityChangeCandidate> messages,
             @NonNull final ChangeSet changeSet) {
         final var packet = new Packet(fromSubscriptionRequest, requestId, response, etag, messages, changeSet);
         session.queuePacket(packet);
@@ -106,8 +106,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
                     "event=broker.packet.queue sessionId=" + session.getId() + " requestId="
                             + requestId + " messageCount="
                             + messages.size() + " changeCount="
-                            + changeSet.getChanges().size() + " subscriptionActionCount="
-                            + changeSet.getSubscriptionActions().size() + " fromSubscriptionRequest="
+                            + changeSet.getEntityChanges().size() + " subscriptionChangeCount="
+                            + changeSet.getSubscriptionChanges().size() + " fromSubscriptionRequest="
                             + fromSubscriptionRequest + " newlyQueued="
                             + newlyQueued + " queueSize="
                             + _queue.size() + " workStateCount="
@@ -443,8 +443,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         }
         return "packetPresent=true requestId=" + packet.requestId() + " messageCount="
                 + packet.messages().size() + " changeCount="
-                + packet.changeSet().getChanges().size() + " subscriptionActionCount="
-                + packet.changeSet().getSubscriptionActions().size() + " fromSubscriptionRequest="
+                + packet.changeSet().getEntityChanges().size() + " subscriptionChangeCount="
+                + packet.changeSet().getSubscriptionChanges().size() + " fromSubscriptionRequest="
                 + packet.fromSubscriptionRequest();
     }
 

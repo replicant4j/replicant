@@ -16,12 +16,11 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.SubscriptionAction;
-import replicant.server.SubscriptionAction.Action;
+import replicant.server.SubscriptionChange;
 import replicant.shared.Messages;
 
 /**
- * Utility class used when encoding EntityMessage into JSON payload.
+ * Utility class used when encoding EntityChangeCandidate into JSON payload.
  */
 public final class JsonEncoder {
     // Use constant to avoid slow filesystem access when serializing a message.
@@ -31,7 +30,7 @@ public final class JsonEncoder {
     private JsonEncoder() {}
 
     /**
-     * Encode the change set with the EntityMessages.
+     * Encode the change set with the EntityChangeCandidates.
      *
      * @param requestId the requestId that initiated the change. Only set if packet is destined for originating session.
      * @param response  the response message if the packet is the result of a request that has a response,
@@ -62,52 +61,53 @@ public final class JsonEncoder {
             generator.write(Messages.S2C_Common.ETAG, etag);
         }
 
-        final var actions = changeSet.getSubscriptionActions().stream()
+        final var subscriptionChanges = changeSet.getSubscriptionChanges().stream()
                 .filter(c -> null == c.filterParameter())
                 .toList();
-        if (!actions.isEmpty()) {
+        if (!subscriptionChanges.isEmpty()) {
             generator.writeStartArray(Messages.Update.SUBSCRIPTION_CHANGES);
-            actions.stream().map(JsonEncoder::toDescriptor).forEach(generator::write);
+            subscriptionChanges.stream().map(JsonEncoder::toDescriptor).forEach(generator::write);
             generator.writeEnd();
         }
 
-        final var filterParameterActions = changeSet.getSubscriptionActions().stream()
+        final var filterParameterSubscriptionChanges = changeSet.getSubscriptionChanges().stream()
                 .filter(c -> null != c.filterParameter())
                 .toList();
-        if (!filterParameterActions.isEmpty()) {
+        if (!filterParameterSubscriptionChanges.isEmpty()) {
             generator.writeStartArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES);
-            filterParameterActions.forEach(a -> {
+            filterParameterSubscriptionChanges.forEach(change -> {
                 generator.writeStartObject();
-                generator.write(Messages.Update.SUBSCRIPTION_ACTION, toDescriptor(a));
-                generator.write(Messages.Update.FILTER_PARAMETER, a.filterParameter());
+                generator.write(Messages.Update.SUBSCRIPTION_CHANGE, toDescriptor(change));
+                generator.write(Messages.Update.FILTER_PARAMETER, change.filterParameter());
                 generator.writeEnd();
             });
             generator.writeEnd();
         }
 
-        final var changes = changeSet.getChanges();
+        final var changes = changeSet.getEntityChanges();
         if (!changes.isEmpty()) {
             generator.writeStartArray(Messages.Update.CHANGES);
 
             for (final var change : changes) {
-                final var entityMessage = change.getEntityMessage();
+                final var entityChangeCandidate = change.getEntityChangeCandidate();
 
                 generator.writeStartObject();
-                generator.write(Messages.Update.ENTITY_ID, entityMessage.getTypeId() + "." + entityMessage.getId());
+                generator.write(
+                        Messages.Update.ENTITY_ID,
+                        entityChangeCandidate.getTypeId() + "." + entityChangeCandidate.getId());
 
                 final var datasetAddresses = change.getDatasetAddresses();
                 if (!datasetAddresses.isEmpty()) {
                     generator.writeStartArray(Messages.Update.DATASET_ADDRESSES);
                     for (final var datasetAddress : datasetAddresses) {
-                        assert datasetAddress.concrete();
                         generator.write(datasetAddress.toString());
                     }
                     generator.writeEnd();
                 }
 
-                if (entityMessage.isUpdate()) {
+                if (entityChangeCandidate.isUpdate()) {
                     generator.writeStartObject(Messages.Update.DATA);
-                    final var values = Objects.requireNonNull(entityMessage.getAttributeValues());
+                    final var values = Objects.requireNonNull(entityChangeCandidate.getAttributeValues());
                     for (final var entry : values.entrySet()) {
                         writeField(generator, entry.getKey(), entry.getValue(), dateFormat);
                     }
@@ -123,17 +123,16 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String toDescriptor(@NonNull final SubscriptionAction subscriptionAction) {
-        assert subscriptionAction.datasetAddress().concrete();
-        final var action = subscriptionAction.action();
-        final var actionValue = Action.SUBSCRIBE == action
-                ? Messages.Update.SUBSCRIPTION_ACTION_SUBSCRIBE
-                : Action.UNSUBSCRIBE == action
-                        ? Messages.Update.SUBSCRIPTION_ACTION_UNSUBSCRIBE
-                        : Action.UPDATE == action
-                                ? Messages.Update.SUBSCRIPTION_ACTION_UPDATE
-                                : Messages.Update.SUBSCRIPTION_ACTION_DELETE;
-        return String.valueOf(actionValue) + subscriptionAction.datasetAddress();
+    public static String toDescriptor(@NonNull final SubscriptionChange subscriptionChange) {
+        final var type = subscriptionChange.type();
+        final var descriptorCode = SubscriptionChange.Type.SUBSCRIBE == type
+                ? Messages.Update.SUBSCRIPTION_CHANGE_SUBSCRIBE
+                : SubscriptionChange.Type.UNSUBSCRIBE == type
+                        ? Messages.Update.SUBSCRIPTION_CHANGE_UNSUBSCRIBE
+                        : SubscriptionChange.Type.UPDATE == type
+                                ? Messages.Update.SUBSCRIPTION_CHANGE_UPDATE
+                                : Messages.Update.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS;
+        return String.valueOf(descriptorCode) + subscriptionChange.datasetAddress();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -166,7 +165,6 @@ public final class JsonEncoder {
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String eTag,
             @Nullable final Integer requestId) {
-        assert datasetAddress.concrete();
         final var response = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE)
                 .add(Messages.Common.DATASET_ADDRESS, datasetAddress.toString())

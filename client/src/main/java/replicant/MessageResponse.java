@@ -46,7 +46,7 @@ final class MessageResponse {
     private List<SubscriptionChange> _parsedSubscriptionChanges;
 
     private boolean _worldValidated;
-    private boolean _subscriptionActionsProcessed;
+    private boolean _subscriptionChangesProcessed;
     private boolean _orphanSubscriptionRemoved;
     private int _subscriptionSubscribeCount;
     private int _subscriptionUpdateCount;
@@ -147,7 +147,7 @@ final class MessageResponse {
     boolean needsSubscriptionChangesProcessed() {
         if (UpdateMessage.TYPE.equals(_message.getType())) {
             final UpdateMessage message = (UpdateMessage) _message;
-            return !_subscriptionActionsProcessed
+            return !_subscriptionChangesProcessed
                     && (message.hasSubscriptionChanges() && 0 != message.getSubscriptionChanges().length
                             || message.hasFilterParameterSubscriptionChanges()
                                     && 0 != message.getFilterParameterSubscriptionChanges().length);
@@ -171,8 +171,8 @@ final class MessageResponse {
         return Objects.requireNonNull(_parsedSubscriptionChanges);
     }
 
-    void markSubscriptionActionsProcessed() {
-        _subscriptionActionsProcessed = true;
+    void markSubscriptionChangesProcessed() {
+        _subscriptionChangesProcessed = true;
     }
 
     @Nullable

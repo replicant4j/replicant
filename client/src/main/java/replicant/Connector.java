@@ -298,27 +298,26 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Return true if an area of interest action with specified parameters is pending or being processed.
-     * When the action parameter is DELETE the Filter Parameter is ignored.
+     * Return true if a Subscription Operation with the specified parameters is pending or being processed.
+     * For an UNSUBSCRIBE operation, the Filter Parameter is ignored.
      */
-    boolean isAreaOfInterestRequestPending(
-            final AreaOfInterestRequest.@NonNull Type action,
+    boolean isSubscriptionOperationPending(
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter) {
-        return null != _connection
-                && _connection.isAreaOfInterestRequestPending(action, datasetAddress, filterParameter);
+        return null != _connection && _connection.isSubscriptionOperationPending(type, datasetAddress, filterParameter);
     }
 
     /**
-     * Return the index of last matching Type in pending aoi actions list.
+     * Return the index of the last matching Type in the pending Subscription Operation list.
      */
-    int lastIndexOfPendingAreaOfInterestRequest(
-            final AreaOfInterestRequest.@NonNull Type action,
+    int lastIndexOfPendingSubscriptionOperation(
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter) {
         return null == _connection
                 ? -1
-                : _connection.lastIndexOfPendingAreaOfInterestRequest(action, datasetAddress, filterParameter);
+                : _connection.lastIndexOfPendingSubscriptionOperation(type, datasetAddress, filterParameter);
     }
 
     void requestSync() {
@@ -462,7 +461,7 @@ abstract class Connector extends ReplicantService {
         }
         try {
             if (null != _connection && ConnectorState.DISCONNECTING != _state) {
-                final boolean step1 = progressAreaOfInterestRequestProcessing();
+                final boolean step1 = progressSubscriptionOperationProcessing();
                 final boolean step2 = progressExecRequestProcessing();
                 final boolean step3 = progressResponseProcessing();
                 _schedulerActive = step1 || step2 || step3;
@@ -591,9 +590,9 @@ abstract class Connector extends ReplicantService {
         for (final SubscriptionChange subscriptionChange : response.getSubscriptionChanges()) {
             final DatasetAddress datasetAddress = subscriptionChange.getDatasetAddress();
             final Object filterParameter = subscriptionChange.getFilterParameter();
-            final SubscriptionChange.Type actionType = subscriptionChange.getType();
+            final SubscriptionChange.Type changeType = subscriptionChange.getType();
 
-            if (SubscriptionChange.Type.SUBSCRIBE == actionType) {
+            if (SubscriptionChange.Type.SUBSCRIBE == changeType) {
                 response.incSubscriptionSubscribeCount();
                 final Subscription existingSubscription = getReplicantContext().findSubscription(datasetAddress);
                 if (null != existingSubscription) {
@@ -611,15 +610,13 @@ abstract class Connector extends ReplicantService {
                 getReplicantContext()
                         .getSubscriptionService()
                         .createSubscription(datasetAddress, filterParameter, mode);
-            } else if (SubscriptionChange.Type.UNSUBSCRIBE == actionType
-                    || SubscriptionChange.Type.DELETE == actionType) {
+            } else if (SubscriptionChange.Type.UNSUBSCRIBE == changeType
+                    || SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 /*
-                 * It is possible for a subscription to no longer be present and still receive a remove action
-                 * for the subscription. This can occur due to interleaving of messages - i.e. The application
-                 * initiates an action that deletes the Dataset Root of an Instance Dataset and then removes
-                 * the Subscription. Depending on the order in which the operations complete
-                 * could result in an unsubscribe operation when not needed.
+                 * A Subscription may already be absent when an unsubscribe or Dataset Address Invalidation arrives.
+                 * This can occur when an application deletes an Instance Dataset's Dataset Root and removes its Area
+                 * of Interest concurrently.
                  */
                 if (null != subscription) {
                     Disposable.dispose(subscription);
@@ -628,10 +625,10 @@ abstract class Connector extends ReplicantService {
                 final AreaOfInterest areaOfInterest =
                         getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
                 if (null != areaOfInterest) {
-                    if (SubscriptionChange.Type.DELETE == actionType) {
-                        areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.DELETED, null);
+                    if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
+                        areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED, null);
                     } else {
-                        // This means it has been deleted on the server side
+                        // This means the Subscription was removed on the server side
                         // We dispose it locally and assume that whatever component create AreaOfInterest can respond
                         // appropriately
                         Disposable.dispose(areaOfInterest);
@@ -639,7 +636,7 @@ abstract class Connector extends ReplicantService {
                 }
                 response.incSubscriptionUnsubscribeCount();
             } else {
-                assert SubscriptionChange.Type.UPDATE == actionType;
+                assert SubscriptionChange.Type.UPDATE == changeType;
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
                 if (Replicant.shouldCheckInvariants()) {
                     invariant(
@@ -665,7 +662,7 @@ abstract class Connector extends ReplicantService {
                 response.incSubscriptionUpdateCount();
             }
         }
-        response.markSubscriptionActionsProcessed();
+        response.markSubscriptionChangesProcessed();
     }
 
     @Action(verifyRequired = false)
@@ -776,10 +773,10 @@ abstract class Connector extends ReplicantService {
         callPostMessageResponseActionIfPresent();
 
         if (null != request) {
-            final List<AreaOfInterestRequest> requests = connection.getActiveAreaOfInterestRequests();
+            final List<SubscriptionOperation> requests = connection.getActiveSubscriptionOperations();
             if (!requests.isEmpty()) {
                 if (requests.get(0).getRequestId() == request.getRequestId()) {
-                    completeAreaOfInterestRequests(requests);
+                    completeSubscriptionOperations(requests);
                 }
             }
         }
@@ -816,24 +813,24 @@ abstract class Connector extends ReplicantService {
         setState(ConnectorState.FATAL_ERROR);
     }
 
-    // This is in an action so that completeAreaOfInterestRequest() is called observers can react to status changes in
+    // This is in an action so that completeSubscriptionOperation() is called observers can react to status changes in
     // AreaOfInterest
     @Action(reportParameters = false)
-    void completeAreaOfInterestRequests(@NonNull final List<AreaOfInterestRequest> requests) {
-        requests.forEach(areaOfInterestRequest -> {
-            final DatasetAddress datasetAddress = areaOfInterestRequest.getDatasetAddress();
-            final AreaOfInterestRequest.Type type = areaOfInterestRequest.getType();
-            if (AreaOfInterestRequest.Type.ADD == type) {
+    void completeSubscriptionOperations(@NonNull final List<SubscriptionOperation> subscriptionOperations) {
+        subscriptionOperations.forEach(subscriptionOperation -> {
+            final DatasetAddress datasetAddress = subscriptionOperation.getDatasetAddress();
+            final SubscriptionOperation.Type type = subscriptionOperation.getType();
+            if (SubscriptionOperation.Type.SUBSCRIBE == type) {
                 onSubscribeCompleted(datasetAddress);
-            } else if (AreaOfInterestRequest.Type.REMOVE == type) {
-                transitionSubscriptionsToImplicitMode(Collections.singletonList(areaOfInterestRequest));
+            } else if (SubscriptionOperation.Type.UNSUBSCRIBE == type) {
+                transitionSubscriptionsToImplicitMode(Collections.singletonList(subscriptionOperation));
                 onUnsubscribeCompleted(datasetAddress);
             } else {
-                assert AreaOfInterestRequest.Type.UPDATE == type;
+                assert SubscriptionOperation.Type.UPDATE == type;
                 onSubscriptionUpdateCompleted(datasetAddress);
             }
         });
-        completeAreaOfInterestRequest();
+        completeSubscriptionOperation();
     }
 
     void maybeRequestSync() {
@@ -850,15 +847,17 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action
-    void transitionSubscriptionsToImplicitMode(@NonNull final List<AreaOfInterestRequest> requests) {
-        requests.forEach(request -> {
+    void transitionSubscriptionsToImplicitMode(@NonNull final List<SubscriptionOperation> subscriptionOperations) {
+        subscriptionOperations.forEach(subscriptionOperation -> {
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
-                        () -> AreaOfInterestRequest.Type.REMOVE == request.getType(),
-                        () -> "Replicant-0034: Connector.transitionSubscriptionsToImplicitMode() invoked with request "
-                                + "with type that is not REMOVE. Request: " + request);
+                        () -> SubscriptionOperation.Type.UNSUBSCRIBE == subscriptionOperation.getType(),
+                        () -> "Replicant-0034: Connector.transitionSubscriptionsToImplicitMode() invoked with "
+                                + "Subscription Operation with type that is not UNSUBSCRIBE. Operation: "
+                                + subscriptionOperation);
             }
-            final Subscription subscription = getReplicantContext().findSubscription(request.getDatasetAddress());
+            final Subscription subscription =
+                    getReplicantContext().findSubscription(subscriptionOperation.getDatasetAddress());
             if (null != subscription) {
                 subscription.setMode(SubscriptionMode.IMPLICIT);
             }
@@ -866,7 +865,7 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action(verifyRequired = false)
-    void removeUnneededUpdateRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void removeUnneededUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
         requests.removeIf(a -> {
             final DatasetAddress datasetAddress = a.getDatasetAddress();
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -890,7 +889,7 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action(verifyRequired = false)
-    void removeUnneededRemoveRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void removeUnneededRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
         requests.removeIf(request -> {
             final DatasetAddress datasetAddress = request.getDatasetAddress();
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -909,9 +908,9 @@ abstract class Connector extends ReplicantService {
             // been left in until we can verify it is no longer an issue. The above invariants will trigger
             // in development mode to help us track down these scenarios
             if (null == subscription || SubscriptionMode.EXPLICIT != subscription.getMode()) {
-                // We were getting here if a deleted Dataset Root sent DELETED to the client, which
-                // explicitly unsubscribes which gets sent back a successful unsubscribe, even though it had already
-                // been orphaned/deleted on client
+                // We were getting here if a Dataset Address Invalidation was reported after removal of its Dataset
+                // Root was delivered to the client. That delivery explicitly unsubscribes, which gets sent back a
+                // successful unsubscribe even though the Subscription had already been orphaned or invalidated.
                 request.markAsComplete();
                 return true;
             } else {
@@ -1056,18 +1055,18 @@ abstract class Connector extends ReplicantService {
     /**
      * Perform a single step in sending one (or a batch) or requests to the server.
      */
-    boolean progressAreaOfInterestRequestProcessing() {
-        final List<AreaOfInterestRequest> requests =
-                new ArrayList<>(ensureConnection().getCurrentAreaOfInterestRequests());
+    boolean progressSubscriptionOperationProcessing() {
+        final List<SubscriptionOperation> requests =
+                new ArrayList<>(ensureConnection().getCurrentSubscriptionOperations());
         if (requests.isEmpty()) {
             return false;
         } else if (requests.get(0).isInProgress()) {
             return false;
         } else {
-            final AreaOfInterestRequest.Type type = requests.get(0).getType();
-            if (AreaOfInterestRequest.Type.ADD == type) {
+            final SubscriptionOperation.Type type = requests.get(0).getType();
+            if (SubscriptionOperation.Type.SUBSCRIBE == type) {
                 progressAreaOfInterestAddRequests(requests);
-            } else if (AreaOfInterestRequest.Type.REMOVE == type) {
+            } else if (SubscriptionOperation.Type.UNSUBSCRIBE == type) {
                 progressAreaOfInterestRemoveRequests(requests);
             } else {
                 progressAreaOfInterestUpdateRequests(requests);
@@ -1092,14 +1091,14 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void progressAreaOfInterestAddRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressAreaOfInterestAddRequests(@NonNull final List<SubscriptionOperation> requests) {
         // We very deliberately do not strip out requests even if there is a local subscription.
         // If the local subscription matched exactly the request would not make it to here and
         // If an Area of Interest is moving a Subscription from Implicit to Explicit Subscription Mode, let the
         // to let it flow through to backend so that the backend knows that the subscription has
         // server observe the mode transition.
         if (requests.isEmpty()) {
-            completeAreaOfInterestRequest();
+            completeSubscriptionOperation();
         } else if (1 == requests.size()) {
             progressAreaOfInterestAddRequest(requests.get(0));
         } else {
@@ -1107,7 +1106,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void progressAreaOfInterestAddRequest(@NonNull final AreaOfInterestRequest request) {
+    void progressAreaOfInterestAddRequest(@NonNull final SubscriptionOperation request) {
         final DatasetAddress datasetAddress = request.getDatasetAddress();
         onSubscribeStarted(datasetAddress);
 
@@ -1115,9 +1114,9 @@ abstract class Connector extends ReplicantService {
         request.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
-    void progressBulkAreaOfInterestAddRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressBulkAreaOfInterestAddRequests(@NonNull final List<SubscriptionOperation> requests) {
         final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscribeStarted);
 
         _transport.requestBulkSubscribe(datasetAddresses, requests.get(0).getFilterParameter());
@@ -1125,11 +1124,11 @@ abstract class Connector extends ReplicantService {
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
 
-    void progressAreaOfInterestUpdateRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressAreaOfInterestUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
         removeUnneededUpdateRequests(requests);
 
         if (requests.isEmpty()) {
-            completeAreaOfInterestRequest();
+            completeSubscriptionOperation();
         } else if (requests.size() > 1) {
             progressBulkAreaOfInterestUpdateRequests(requests);
         } else {
@@ -1137,7 +1136,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void progressAreaOfInterestUpdateRequest(@NonNull final AreaOfInterestRequest request) {
+    void progressAreaOfInterestUpdateRequest(@NonNull final SubscriptionOperation request) {
         final DatasetAddress datasetAddress = request.getDatasetAddress();
         onSubscriptionUpdateStarted(datasetAddress);
 
@@ -1148,9 +1147,9 @@ abstract class Connector extends ReplicantService {
         request.markAsInProgress(requestId);
     }
 
-    void progressBulkAreaOfInterestUpdateRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressBulkAreaOfInterestUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
         final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscriptionUpdateStarted);
 
         // All Filter Parameters will be the same if they are grouped
@@ -1161,11 +1160,11 @@ abstract class Connector extends ReplicantService {
         requests.forEach(r -> r.markAsInProgress(requestId));
     }
 
-    void progressAreaOfInterestRemoveRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressAreaOfInterestRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
         removeUnneededRemoveRequests(requests);
 
         if (requests.isEmpty()) {
-            completeAreaOfInterestRequest();
+            completeSubscriptionOperation();
         } else if (requests.size() > 1) {
             progressBulkAreaOfInterestRemoveRequests(requests);
         } else {
@@ -1173,7 +1172,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void progressAreaOfInterestRemoveRequest(@NonNull final AreaOfInterestRequest request) {
+    void progressAreaOfInterestRemoveRequest(@NonNull final SubscriptionOperation request) {
         final DatasetAddress datasetAddress = request.getDatasetAddress();
         onUnsubscribeStarted(datasetAddress);
 
@@ -1181,9 +1180,9 @@ abstract class Connector extends ReplicantService {
         request.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
-    void progressBulkAreaOfInterestRemoveRequests(@NonNull final List<AreaOfInterestRequest> requests) {
+    void progressBulkAreaOfInterestRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
         final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(AreaOfInterestRequest::getDatasetAddress).collect(Collectors.toList());
+                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
         datasetAddresses.forEach(this::onUnsubscribeStarted);
 
         _transport.requestBulkUnsubscribe(datasetAddresses);
@@ -1192,17 +1191,17 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * The AreaOfInterestRequest currently being processed can be completed and
+     * The SubscriptionOperation currently being processed can be completed and
      * trigger scheduler to start next step.
      */
-    void completeAreaOfInterestRequest() {
+    void completeSubscriptionOperation() {
         /*
-         * Sometimes an AreaOfInterestRequest completes during a disconnection or network failure.
+         * Sometimes an SubscriptionOperation completes during a disconnection or network failure.
          * i.e. This could be called in response to an error as a result of network failure or it could
          * overlap a disconnect request.
          */
         if (null != _connection) {
-            _connection.completeAreaOfInterestRequest();
+            _connection.completeSubscriptionOperation();
         }
         triggerMessageScheduler();
     }
@@ -1450,7 +1449,7 @@ abstract class Connector extends ReplicantService {
             subscription.setMode(SubscriptionMode.EXPLICIT);
         }
         final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
-        if (null != areaOfInterest && AreaOfInterest.Status.DELETED != areaOfInterest.getStatus()) {
+        if (null != areaOfInterest && AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED != areaOfInterest.getStatus()) {
             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
         }
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {

@@ -16,11 +16,11 @@ import replicant.Replicant;
 import replicant.ReplicantContext;
 
 /**
- * An abstract React4j component that manages Subscriptions to Datasets.
+ * An abstract React4j view that acquires and retains an Area of Interest.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 @ArezComponentLike
-public abstract class ReplicantSubscription {
+public abstract class AreaOfInterestView {
     // The warning is suppressed as reference is managed on method.
     // We can not convert this field into abstract observable because of some surgery do to work between
     // React/Arez component models.

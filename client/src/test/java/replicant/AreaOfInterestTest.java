@@ -22,7 +22,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertTrue(AreaOfInterest.Status.UPDATED.shouldDataBePresent());
         assertTrue(AreaOfInterest.Status.UNLOADING.shouldDataBePresent());
         assertFalse(AreaOfInterest.Status.UNLOADED.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.DELETED.shouldDataBePresent());
+        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.shouldDataBePresent());
     }
 
     @Test
@@ -36,21 +36,21 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertFalse(AreaOfInterest.Status.UPDATED.isErrorState());
         assertFalse(AreaOfInterest.Status.UNLOADING.isErrorState());
         assertFalse(AreaOfInterest.Status.UNLOADED.isErrorState());
-        assertFalse(AreaOfInterest.Status.DELETED.isErrorState());
+        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isErrorState());
     }
 
     @Test
-    public void isDeleted() {
-        assertFalse(AreaOfInterest.Status.NOT_ASKED.isDeleted());
-        assertFalse(AreaOfInterest.Status.LOADING.isDeleted());
-        assertFalse(AreaOfInterest.Status.LOAD_FAILED.isDeleted());
-        assertFalse(AreaOfInterest.Status.LOADED.isDeleted());
-        assertFalse(AreaOfInterest.Status.UPDATING.isDeleted());
-        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.isDeleted());
-        assertFalse(AreaOfInterest.Status.UPDATED.isDeleted());
-        assertFalse(AreaOfInterest.Status.UNLOADING.isDeleted());
-        assertFalse(AreaOfInterest.Status.UNLOADED.isDeleted());
-        assertTrue(AreaOfInterest.Status.DELETED.isDeleted());
+    public void isDatasetAddressInvalidated() {
+        assertFalse(AreaOfInterest.Status.NOT_ASKED.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.LOADING.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.LOAD_FAILED.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.LOADED.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.UPDATING.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.UPDATED.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.UNLOADING.isDatasetAddressInvalidated());
+        assertFalse(AreaOfInterest.Status.UNLOADED.isDatasetAddressInvalidated());
+        assertTrue(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isDatasetAddressInvalidated());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertFalse(AreaOfInterest.Status.UPDATED.isInProgress());
         assertFalse(AreaOfInterest.Status.UNLOADING.isInProgress());
         assertTrue(AreaOfInterest.Status.UNLOADED.isInProgress());
-        assertFalse(AreaOfInterest.Status.DELETED.isInProgress());
+        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isInProgress());
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertFalse(AreaOfInterest.Status.UPDATED.isLoading());
         assertFalse(AreaOfInterest.Status.UNLOADING.isLoading());
         assertFalse(AreaOfInterest.Status.UNLOADED.isLoading());
-        assertFalse(AreaOfInterest.Status.DELETED.isLoading());
+        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isLoading());
     }
 
     @Test

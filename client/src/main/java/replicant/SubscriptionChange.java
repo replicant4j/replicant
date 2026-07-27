@@ -11,7 +11,7 @@ final class SubscriptionChange {
         SUBSCRIBE,
         UNSUBSCRIBE,
         UPDATE,
-        DELETE
+        INVALIDATE_DATASET_ADDRESS
     }
 
     @NonNull
@@ -24,40 +24,42 @@ final class SubscriptionChange {
     private final Object _filterParameter;
 
     @NonNull
-    static SubscriptionChange from(final int schema, @NonNull final String subscriptionAction) {
-        return from(schema, subscriptionAction, null);
+    static SubscriptionChange from(final int schema, @NonNull final String subscriptionChange) {
+        return from(schema, subscriptionChange, null);
     }
 
     @NonNull
     static SubscriptionChange from(final int schema, @NonNull final SubscriptionChangeMessage subscriptionChange) {
-        return from(schema, subscriptionChange.getSubscriptionAction(), subscriptionChange.getFilterParameter());
+        return from(schema, subscriptionChange.getSubscriptionChange(), subscriptionChange.getFilterParameter());
     }
 
     @NonNull
     private static SubscriptionChange from(
-            final int schema, @NonNull final String subscriptionAction, @Nullable final Object filterParameter) {
+            final int schema, @NonNull final String subscriptionChange, @Nullable final Object filterParameter) {
         try {
-            final String descriptor = subscriptionAction.substring(1);
+            final String descriptor = subscriptionChange.substring(1);
             final DatasetAddress datasetAddress = DatasetAddress.parse(schema, descriptor);
-            return new SubscriptionChange(actionToType(subscriptionAction), datasetAddress, filterParameter);
+            return new SubscriptionChange(changeToType(subscriptionChange), datasetAddress, filterParameter);
         } catch (final Throwable t) {
-            throw new IllegalStateException("Failed to parse Subscription action '" + subscriptionAction + "'", t);
+            throw new IllegalStateException("Failed to parse Subscription Change '" + subscriptionChange + "'", t);
         }
     }
 
     @NonNull
-    private static Type actionToType(@NonNull final String subscriptionAction) {
-        assert !subscriptionAction.isEmpty();
-        final char commandCode = subscriptionAction.charAt(0);
-        final Type type = Messages.Update.SUBSCRIPTION_ACTION_SUBSCRIBE == commandCode
+    private static Type changeToType(@NonNull final String subscriptionChange) {
+        assert !subscriptionChange.isEmpty();
+        final char commandCode = subscriptionChange.charAt(0);
+        final Type type = Messages.Update.SUBSCRIPTION_CHANGE_SUBSCRIBE == commandCode
                 ? Type.SUBSCRIBE
-                : Messages.Update.SUBSCRIPTION_ACTION_UNSUBSCRIBE == commandCode
+                : Messages.Update.SUBSCRIPTION_CHANGE_UNSUBSCRIBE == commandCode
                         ? Type.UNSUBSCRIBE
-                        : Messages.Update.SUBSCRIPTION_ACTION_UPDATE == commandCode
+                        : Messages.Update.SUBSCRIPTION_CHANGE_UPDATE == commandCode
                                 ? Type.UPDATE
-                                : Messages.Update.SUBSCRIPTION_ACTION_DELETE == commandCode ? Type.DELETE : null;
+                                : Messages.Update.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS == commandCode
+                                        ? Type.INVALIDATE_DATASET_ADDRESS
+                                        : null;
         if (null == type) {
-            throw new IllegalArgumentException("Unknown Subscription action '" + subscriptionAction + "'");
+            throw new IllegalArgumentException("Unknown Subscription Change '" + subscriptionChange + "'");
         }
         return type;
     }

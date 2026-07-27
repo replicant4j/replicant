@@ -5,13 +5,13 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A record of a Subscription lifecycle operation.
+ * A server-reported transition in actual Subscription state.
  */
-public record SubscriptionAction(
+public record SubscriptionChange(
         @NonNull DatasetAddress datasetAddress,
-        @NonNull Action action,
+        @NonNull Type type,
         @Nullable JsonObject filterParameter) {
-    public enum Action {
+    public enum Type {
         // The Subscription has been created.
         SUBSCRIBE,
         // The Subscription has been removed.
@@ -19,23 +19,23 @@ public record SubscriptionAction(
         // The Filter Parameter associated with the Subscription has been updated.
         UPDATE,
         // The Dataset Root has been deleted and its Dataset Address can no longer be subscribed to.
-        DELETE
+        INVALIDATE_DATASET_ADDRESS
     }
 
     @NonNull
-    public static SubscriptionAction of(@NonNull final DatasetAddress datasetAddress, @NonNull final Action action) {
-        return of(datasetAddress, action, null);
+    public static SubscriptionChange of(@NonNull final DatasetAddress datasetAddress, @NonNull final Type type) {
+        return of(datasetAddress, type, null);
     }
 
     @NonNull
-    public static SubscriptionAction of(
+    public static SubscriptionChange of(
             @NonNull final DatasetAddress datasetAddress,
-            @NonNull final Action action,
+            @NonNull final Type type,
             @Nullable final JsonObject filterParameter) {
-        return new SubscriptionAction(datasetAddress, action, filterParameter);
+        return new SubscriptionChange(datasetAddress, type, filterParameter);
     }
 
-    public SubscriptionAction {
-        assert (Action.SUBSCRIBE == action || Action.UPDATE == action) || null == filterParameter;
+    public SubscriptionChange {
+        assert (Type.SUBSCRIBE == type || Type.UPDATE == type) || null == filterParameter;
     }
 }

@@ -25,7 +25,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.transport.DatasetMetadata;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.SchemaMetaData;
@@ -48,7 +49,7 @@ public class AbstractSessionContextImplTest {
         final var context = newContext(mock(EntityManager.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(3, 4);
-        final var message = new EntityMessage(1, 2, 0, new HashMap<>(), null, null);
+        final var message = new EntityChangeCandidate(1, 2, 0, new HashMap<>(), null, null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
@@ -62,7 +63,7 @@ public class AbstractSessionContextImplTest {
                 exception.getMessage(),
                 "deriveTargetFilterParameter called for Dataset Link from " + sourceDatasetAddress + " to "
                         + targetDatasetAddress
-                        + " with source Filter Parameter {} in the context of the entity message "
+                        + " with source Filter Parameter {} in the context of the Entity Change Candidate "
                         + message + " but no such Dataset Link exists or the target Dataset has no Filter Parameter");
     }
 
@@ -70,8 +71,8 @@ public class AbstractSessionContextImplTest {
     public void deriveTargetDatasetKey_throwsWhenNotOverridden() {
         final var context = newContext(mock(EntityManager.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2, "fi");
-        final var targetDatasetAddress = DatasetAddress.partial(3, 4);
-        final var message = new EntityMessage(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
+        final var targetDatasetAddress = DatasetAddressTemplate.of(3, 4);
+        final var message = new EntityChangeCandidate(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
@@ -88,7 +89,7 @@ public class AbstractSessionContextImplTest {
                         + targetDatasetAddress
                         + " with source Filter Parameter {\"src\":true} with target Filter Parameter "
                         + "{\"target\":true} in the context "
-                        + "of the entity message "
+                        + "of the Entity Change Candidate "
                         + message + " but no such Dataset Link exists or the target Dataset "
                         + "does not require a dataset key");
     }
@@ -115,13 +116,13 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void convertToEntityMessage_delegatesWithInitialLoadFalse() {
+    public void convertToEntityChangeCandidate_delegatesWithInitialLoadFalse() {
         final var context = newContext(mock(EntityManager.class));
         final var entity = new Object();
-        final var message = new EntityMessage(11, 7, 0, new HashMap<>(), Map.of("k", "v"));
+        final var message = new EntityChangeCandidate(11, 7, 0, new HashMap<>(), Map.of("k", "v"));
         context.registerMessageForObject(entity, message);
 
-        assertEquals(context.convertToEntityMessage(entity, true), message);
+        assertEquals(context.convertToEntityChangeCandidate(entity, true), message);
         assertEquals(context.getConvertCalls().size(), 1);
 
         final var call = context.getConvertCalls().get(0);
@@ -348,7 +349,7 @@ public class AbstractSessionContextImplTest {
         private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
 
         @NonNull
-        private final Map<Object, EntityMessage> _messages = new HashMap<>();
+        private final Map<Object, EntityChangeCandidate> _messages = new HashMap<>();
 
         @NonNull
         private final List<ConvertCall> _convertCalls = new ArrayList<>();
@@ -404,7 +405,7 @@ public class AbstractSessionContextImplTest {
 
         @Nullable
         @Override
-        protected EntityMessage convertToEntityMessage(
+        protected EntityChangeCandidate convertToEntityChangeCandidate(
                 @NonNull final Object object, final boolean isUpdate, final boolean isInitialLoad) {
             _convertCalls.add(new ConvertCall(object, isUpdate, isInitialLoad));
             return _messages.get(object);
@@ -420,10 +421,10 @@ public class AbstractSessionContextImplTest {
 
         @Nullable
         @Override
-        public EntityMessage filterEntityMessage(
+        public EntityChangeCandidate filterEntityChangeCandidate(
                 @NonNull final ReplicantSession session,
                 @NonNull final DatasetAddress datasetAddress,
-                @NonNull final EntityMessage message) {
+                @NonNull final EntityChangeCandidate message) {
             return null;
         }
 
@@ -441,7 +442,7 @@ public class AbstractSessionContextImplTest {
             return _bulkCollectCalls;
         }
 
-        void registerMessageForObject(@NonNull final Object object, @NonNull final EntityMessage message) {
+        void registerMessageForObject(@NonNull final Object object, @NonNull final EntityChangeCandidate message) {
             _messages.put(object, message);
         }
 

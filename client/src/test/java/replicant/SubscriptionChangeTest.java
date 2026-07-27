@@ -47,7 +47,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void subscribeFilteredTypeDataset() {
+    void subscribeParameterFilteredTypeDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -59,7 +59,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void subscribeFilteredInstanceDataset() {
+    void subscribeParameterFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -71,7 +71,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeFilteredTypeDataset() {
+    void unsubscribeParameterFilteredTypeDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -83,7 +83,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void unsubscribeFilteredInstanceDataset() {
+    void unsubscribeParameterFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -95,7 +95,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void updateFilteredTypeDataset() {
+    void updateParameterFilteredTypeDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -107,7 +107,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void updateFilteredInstanceDataset() {
+    void updateParameterFilteredInstanceDataset() {
         final int schemaId = 0;
         final String filterParameter = ValueUtil.randomString();
         final SubscriptionChange change =
@@ -119,26 +119,26 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     }
 
     @Test
-    void deleteInstanceDataset() {
+    void invalidateDatasetAddress() {
         final int schemaId = 0;
         final SubscriptionChange change = SubscriptionChange.from(schemaId, "!23.2");
         assertEquals(change.getDatasetAddress().schemaId(), schemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
-        assertEquals(change.getType(), SubscriptionChange.Type.DELETE);
+        assertEquals(change.getType(), SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
         assertNull(change.getFilterParameter());
     }
 
     @Test
-    void badAction() {
+    void badChange() {
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(0, "*1"));
-        assertEquals(exception.getMessage(), "Failed to parse Subscription action '*1'");
+        assertEquals(exception.getMessage(), "Failed to parse Subscription Change '*1'");
     }
 
     @Test
     void invalidDatasetAddress() {
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(0, "+X"));
-        assertEquals(exception.getMessage(), "Failed to parse Subscription action '+X'");
+        assertEquals(exception.getMessage(), "Failed to parse Subscription Change '+X'");
     }
 }

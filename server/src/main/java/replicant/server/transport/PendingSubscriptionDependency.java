@@ -5,13 +5,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.DatasetAddress;
 
-record SubscriptionDependencyEntry(
+record PendingSubscriptionDependency(
         @NonNull SubscriptionDependencyOwner owner,
         @NonNull DatasetAddress sourceDatasetAddress,
         @NonNull DatasetAddress targetDatasetAddress,
         @Nullable JsonObject filterParameter) {
-    SubscriptionDependencyEntry {
-        assert sourceDatasetAddress.concrete();
-        assert targetDatasetAddress.concrete();
-    }
+    PendingSubscriptionDependency {}
 }

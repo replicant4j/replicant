@@ -14,36 +14,36 @@ import java.util.Objects;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.AreaOfInterestRequest.Type;
+import replicant.SubscriptionOperation.Type;
 import replicant.spy.SubscriptionOrphanedEvent;
 
 @SuppressWarnings("BadImport")
 @ArezComponent(disposeNotifier = Feature.DISABLE, requireId = Feature.DISABLE)
 abstract class SubscriptionReconciler extends ReplicantService {
     /**
-     * Enum describing an action during a reconciliation step.
+     * Outcome of reconciling one Area of Interest.
      */
-    enum Action {
+    enum Outcome {
         /**
-         * The request has resulted in a subscribe request added to the AOI queue.
+         * A Subscribe Operation was added to the pending queue.
          */
-        SUBMITTED_ADD,
+        SUBSCRIBE_OPERATION_ISSUED,
         /**
-         * The request has resulted in a subscription update request added to the AOI queue.
+         * An Update Operation was added to the pending queue.
          */
-        SUBMITTED_UPDATE,
+        UPDATE_OPERATION_ISSUED,
         /**
-         * Updating a fixed Filter Parameter submitted a remove request to replace the Subscription.
+         * Updating a Fixed Filter Parameter issued an Unsubscribe Operation to replace the Subscription.
          */
-        SUBMITTED_REMOVE,
+        UNSUBSCRIBE_OPERATION_ISSUED,
         /**
-         * The request is already in progress, still waiting for a response.
+         * A matching Subscription Operation is in progress.
          */
-        IN_PROGRESS,
+        OPERATION_IN_PROGRESS,
         /**
-         * Nothing was done, fully reconciled.
+         * The Area of Interest and Subscription are reconciled.
          */
-        NO_ACTION
+        RECONCILED
     }
 
     @NonNull
@@ -122,7 +122,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void reconcileStep() {
         AreaOfInterest groupTemplate = null;
-        AreaOfInterestRequest.Type groupAction = null;
+        SubscriptionOperation.Type groupOperationType = null;
         for (final AreaOfInterest areaOfInterest : getReplicantContext().getAreasOfInterest()) {
             // Make sure we observe the Filter Parameter so that changes trigger another reconciliation
             areaOfInterest.getFilterParameter();
@@ -133,27 +133,28 @@ abstract class SubscriptionReconciler extends ReplicantService {
             // into first AreaOfInterest. If this is not here then the SubscriptionReconciler will not rerun.
             areaOfInterest.getStatus();
 
-            if (AreaOfInterest.Status.DELETED != areaOfInterest.getStatus()) {
-                final Action action = reconcileAreaOfInterest(areaOfInterest, groupTemplate, groupAction);
-                switch (action) {
-                    case SUBMITTED_ADD:
-                        groupAction = AreaOfInterestRequest.Type.ADD;
+            if (AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED != areaOfInterest.getStatus()) {
+                final Outcome outcome = reconcileAreaOfInterest(areaOfInterest, groupTemplate, groupOperationType);
+                switch (outcome) {
+                    case SUBSCRIBE_OPERATION_ISSUED:
+                        groupOperationType = SubscriptionOperation.Type.SUBSCRIBE;
                         groupTemplate = areaOfInterest;
                         break;
-                    case SUBMITTED_UPDATE:
-                        groupAction = AreaOfInterestRequest.Type.UPDATE;
+                    case UPDATE_OPERATION_ISSUED:
+                        groupOperationType = SubscriptionOperation.Type.UPDATE;
                         groupTemplate = areaOfInterest;
                         break;
-                    case SUBMITTED_REMOVE:
-                        // Updating a fixed Filter Parameter submitted a remove request to replace the Subscription.
+                    case UNSUBSCRIBE_OPERATION_ISSUED:
+                        // Updating a Fixed Filter Parameter issued an Unsubscribe Operation to replace the
+                        // Subscription.
                         return;
-                    case IN_PROGRESS:
+                    case OPERATION_IN_PROGRESS:
                         if (null == groupTemplate) {
                             // First thing in the subscription queue is in flight, so terminate
                             return;
                         }
                         break;
-                    case NO_ACTION:
+                    case RECONCILED:
                         break;
                 }
             }
@@ -167,10 +168,10 @@ abstract class SubscriptionReconciler extends ReplicantService {
 
     @arez.annotations.Action(requireNewTransaction = true, verifyRequired = false)
     @NonNull
-    Action reconcileAreaOfInterest(
+    Outcome reconcileAreaOfInterest(
             @NonNull final AreaOfInterest areaOfInterest,
             @Nullable final AreaOfInterest groupTemplate,
-            @Nullable final Type groupAction) {
+            @Nullable final Type groupOperationType) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> Disposable.isNotDisposed(areaOfInterest),
@@ -184,29 +185,33 @@ abstract class SubscriptionReconciler extends ReplicantService {
             final boolean subscribed = null != subscription;
             final Object filterParameter = areaOfInterest.getFilterParameter();
 
-            final int addIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter);
-            final int removeIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.REMOVE, datasetAddress, null);
-            final int updateIndex = connector.lastIndexOfPendingAreaOfInterestRequest(
-                    AreaOfInterestRequest.Type.UPDATE, datasetAddress, filterParameter);
+            final int addIndex = connector.lastIndexOfPendingSubscriptionOperation(
+                    SubscriptionOperation.Type.SUBSCRIBE, datasetAddress, filterParameter);
+            final int removeIndex = connector.lastIndexOfPendingSubscriptionOperation(
+                    SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, null);
+            final int updateIndex = connector.lastIndexOfPendingSubscriptionOperation(
+                    SubscriptionOperation.Type.UPDATE, datasetAddress, filterParameter);
 
             if ((!subscribed && addIndex < 0) || removeIndex > addIndex) {
                 if (null == groupTemplate
-                        || canGroup(groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.ADD)) {
+                        || canGroup(
+                                groupTemplate,
+                                groupOperationType,
+                                areaOfInterest,
+                                SubscriptionOperation.Type.SUBSCRIBE)) {
                     connector.requestSubscribe(datasetAddress, filterParameter);
-                    return Action.SUBMITTED_ADD;
+                    return Outcome.SUBSCRIBE_OPERATION_ISSUED;
                 } else {
-                    return Action.NO_ACTION;
+                    return Outcome.RECONCILED;
                 }
             } else if (addIndex >= 0) {
                 // Must have add in pipeline so pause until it completed
-                return Action.IN_PROGRESS;
+                return Outcome.OPERATION_IN_PROGRESS;
             } else {
                 // Must be subscribed...
                 if (updateIndex >= 0) {
                     // Update in progress so wait till it completes
-                    return Action.IN_PROGRESS;
+                    return Outcome.OPERATION_IN_PROGRESS;
                 }
 
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
@@ -230,14 +235,17 @@ abstract class SubscriptionReconciler extends ReplicantService {
                                             + " been placed in Explicit Subscription Mode.");
                         }
                         connector.requestUnsubscribe(datasetAddress);
-                        return Action.SUBMITTED_REMOVE;
+                        return Outcome.UNSUBSCRIBE_OPERATION_ISSUED;
                     } else if (null == groupTemplate
                             || canGroup(
-                                    groupTemplate, groupAction, areaOfInterest, AreaOfInterestRequest.Type.UPDATE)) {
+                                    groupTemplate,
+                                    groupOperationType,
+                                    areaOfInterest,
+                                    SubscriptionOperation.Type.UPDATE)) {
                         connector.requestSubscriptionUpdate(datasetAddress, filterParameter);
-                        return Action.SUBMITTED_UPDATE;
+                        return Outcome.UPDATE_OPERATION_ISSUED;
                     } else {
-                        return Action.NO_ACTION;
+                        return Outcome.RECONCILED;
                     }
                 } else {
                     /*
@@ -251,21 +259,21 @@ abstract class SubscriptionReconciler extends ReplicantService {
                             areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
                         } else {
                             connector.requestSubscribe(datasetAddress, filterParameter);
-                            return Action.SUBMITTED_ADD;
+                            return Outcome.SUBSCRIBE_OPERATION_ISSUED;
                         }
                     }
                 }
             }
         }
-        return Action.NO_ACTION;
+        return Outcome.RECONCILED;
     }
 
     boolean canGroup(
             @NonNull final AreaOfInterest groupTemplate,
-            @Nullable final Type groupAction,
+            @Nullable final Type groupOperationType,
             @NonNull final AreaOfInterest areaOfInterest,
-            @Nullable final Type action) {
-        if (null != groupAction && null != action && !groupAction.equals(action)) {
+            @Nullable final Type operationType) {
+        if (null != groupOperationType && null != operationType && !groupOperationType.equals(operationType)) {
             return false;
         } else {
             final boolean sameDataset = groupTemplate.getDatasetAddress().schemaId()
@@ -278,7 +286,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
 
             return sameDataset
                     && sameDatasetKey
-                    && (AreaOfInterestRequest.Type.REMOVE == action
+                    && (SubscriptionOperation.Type.UNSUBSCRIBE == operationType
                             || FilterParameterUtil.filterParametersEqual(
                                     groupTemplate.getFilterParameter(), areaOfInterest.getFilterParameter()));
         }
@@ -327,7 +335,8 @@ abstract class SubscriptionReconciler extends ReplicantService {
     private boolean isRemovePending(@NonNull final DatasetAddress datasetAddress) {
         final Connector connector = getReplicantRuntime().getConnector(datasetAddress.schemaId());
         return ConnectorState.CONNECTED != connector.getState()
-                || connector.isAreaOfInterestRequestPending(AreaOfInterestRequest.Type.REMOVE, datasetAddress, null);
+                || connector.isSubscriptionOperationPending(
+                        SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, null);
     }
 
     @NonNull

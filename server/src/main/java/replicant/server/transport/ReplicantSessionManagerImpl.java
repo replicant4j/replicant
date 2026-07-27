@@ -36,16 +36,18 @@ import javax.websocket.CloseReason;
 import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.DatasetAddressCandidate;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.EntityChange;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.FilterParameterUtil;
 import replicant.server.ServerConstants;
-import replicant.server.SubscriptionAction;
-import replicant.server.SubscriptionDependency;
+import replicant.server.SubscriptionChange;
+import replicant.server.SubscriptionDependencyCandidate;
 import replicant.server.json.JsonEncoder;
-import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.EntityChangeCandidateCacheUtil;
 import replicant.server.runtime.ReplicantContextHolder;
 import replicant.server.runtime.ReplicantSystem;
 
@@ -221,13 +223,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
             final var response = (JsonValue) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
             var requestComplete = true;
-            final var messageSet = EntityMessageCacheUtil.removeEntityMessageSet(_registry);
-            final var changeSet = EntityMessageCacheUtil.removeSessionChanges(_registry);
+            final var messageSet = EntityChangeCandidateCacheUtil.removeEntityChangeCandidateSet(_registry);
+            final var changeSet = EntityChangeCandidateCacheUtil.removeSessionChanges(_registry);
             if (null != messageSet || null != changeSet || null != requestId) {
-                final var messages =
-                        null == messageSet ? Collections.<EntityMessage>emptySet() : messageSet.getEntityMessages();
+                final var messages = null == messageSet
+                        ? Collections.<EntityChangeCandidate>emptySet()
+                        : messageSet.getEntityChangeCandidates();
                 if (null != changeSet || !messages.isEmpty() || null != requestId) {
-                    requestComplete = !saveEntityMessages(sessionId, requestId, response, messages, changeSet);
+                    requestComplete = !saveEntityChangeCandidates(sessionId, requestId, response, messages, changeSet);
                 }
             }
             final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
@@ -407,11 +410,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 session, true, requestId, null, changeSet.getETag(), Collections.emptyList(), changeSet);
     }
 
-    private boolean saveEntityMessages(
+    private boolean saveEntityChangeCandidates(
             @Nullable final String sessionId,
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
-            @NonNull final Collection<EntityMessage> messages,
+            @NonNull final Collection<EntityChangeCandidate> messages,
             @Nullable final ChangeSet sessionChanges) {
         var impactsInitiator = false;
 
@@ -433,8 +436,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 if (isInitiator) {
                     if (null != sessionChanges) {
                         changeSet.setRequired(sessionChanges.isRequired());
-                        changeSet.merge(sessionChanges.getChanges());
-                        changeSet.mergeSubscriptionActions(sessionChanges.getSubscriptionActions());
+                        changeSet.merge(sessionChanges.getEntityChanges());
+                        changeSet.mergeSubscriptionChanges(sessionChanges.getSubscriptionChanges());
                     }
 
                     /*
@@ -478,15 +481,15 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     private boolean sendAuthorizedChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
         final var incomingEntityCount =
-                packet.messages().size() + packet.changeSet().getChanges().size();
+                packet.messages().size() + packet.changeSet().getEntityChanges().size();
         final var incomingSubscriptionDependencies = packet.messages().stream()
-                        .map(EntityMessage::getSubscriptionDependencies)
+                        .map(EntityChangeCandidate::getSubscriptionDependencyCandidates)
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .distinct()
                         .count()
-                + packet.changeSet().getChanges().stream()
-                        .map(change -> change.getEntityMessage().getSubscriptionDependencies())
+                + packet.changeSet().getEntityChanges().stream()
+                        .map(change -> change.getEntityChangeCandidate().getSubscriptionDependencyCandidates())
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .distinct()
@@ -513,14 +516,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             }
             return false;
         }
-        final var hasDeletes = messages.stream().anyMatch(EntityMessage::isDelete);
+        final var hasDeletes = messages.stream().anyMatch(EntityChangeCandidate::isDelete);
         final var datasetRootDeletedDatasetAddresses =
                 hasDeletes ? collectRootDeletedEntries(messages, session) : Collections.<DatasetAddress>emptySet();
         if (hasDeletes) {
             preserveOwnedSubscriptionDependenciesBeforeDelete(
                     messages, session, changeSet, datasetRootDeletedDatasetAddresses);
         }
-        processMessages(messages, session, changeSet);
+        processEntityChangeCandidates(messages, session, changeSet);
 
         // ChangeSets that occur during a subscription that result in a use-cache message
         // being sent to the client will still come through here. The hasContent() should
@@ -537,14 +540,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             // issues.
             final var level = expansionDuration > 1000 ? Level.SEVERE : Level.INFO;
             if (LOG.isLoggable(level)) {
-                final var outgoingEntityCount = changeSet.getChanges().size();
-                final var outgoingSubscriptionDependencies = changeSet.getChanges().stream()
-                        .map(change -> change.getEntityMessage().getSubscriptionDependencies())
+                final var outgoingEntityCount = changeSet.getEntityChanges().size();
+                final var outgoingSubscriptionDependencies = changeSet.getEntityChanges().stream()
+                        .map(change -> change.getEntityChangeCandidate().getSubscriptionDependencyCandidates())
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .distinct()
                         .count();
-                final var actions = changeSet.getSubscriptionActions().stream()
+                final var actions = changeSet.getSubscriptionChanges().stream()
                         .map(JsonEncoder::toDescriptor)
                         .toList();
                 LOG.log(
@@ -558,7 +561,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + outgoingEntityCount + " outgoingSubscriptionDependencyCount="
                                 + outgoingSubscriptionDependencies + " expandCycleCount="
                                 + expandCycleCount + " expandTimeMs="
-                                + expansionDuration + " subscriptionActions="
+                                + expansionDuration + " subscriptionChanges="
                                 + actions);
             }
             session.sendPacket(requestId, response, etag, changeSet);
@@ -574,8 +577,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " messageCount="
                                 + messages.size() + " changeCount="
-                                + changeSet.getChanges().size() + " subscriptionActionCount="
-                                + changeSet.getSubscriptionActions().size());
+                                + changeSet.getEntityChanges().size() + " subscriptionChangeCount="
+                                + changeSet.getSubscriptionChanges().size());
             }
             return false;
         }
@@ -587,7 +590,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         var expandCycleCount = 0;
         try {
-            final var pending = new HashSet<SubscriptionDependencyEntry>();
+            final var pending = new HashSet<PendingSubscriptionDependency>();
 
             while (true) {
                 if (LOG.isLoggable(Level.FINE)) {
@@ -597,9 +600,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     + " cycle="
                                     + expandCycleCount
                                     + " changes="
-                                    + changeSet.getChanges().size()
-                                    + " subscriptionActions="
-                                    + changeSet.getSubscriptionActions().stream()
+                                    + changeSet.getEntityChanges().size()
+                                    + " subscriptionChanges="
+                                    + changeSet.getSubscriptionChanges().stream()
                                             .map(JsonEncoder::toDescriptor)
                                             .toList()
                                     + " pending="
@@ -614,7 +617,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     break;
                 }
                 final var entry = pending.stream()
-                        .min(Comparator.comparing(SubscriptionDependencyEntry::targetDatasetAddress))
+                        .min(Comparator.comparing(PendingSubscriptionDependency::targetDatasetAddress))
                         .orElseThrow();
                 final var targetDatasetAddress = entry.targetDatasetAddress();
                 final var toSubscribe = targetDatasetAddress.hasDatasetRootId()
@@ -624,7 +627,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 .toList()
                         : Collections.singletonList(entry);
                 final var datasetAddresses = toSubscribe.stream()
-                        .map(SubscriptionDependencyEntry::targetDatasetAddress)
+                        .map(PendingSubscriptionDependency::targetDatasetAddress)
                         .toList();
                 doSubscribe(session, datasetAddresses, entry.filterParameter(), changeSet, SubscriptionMode.IMPLICIT);
                 toSubscribe.forEach(pending::remove);
@@ -653,17 +656,18 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private void collectSubscriptionDependenciesToFollow(
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
-            @NonNull final Set<SubscriptionDependencyEntry> targets,
+            @NonNull final Set<PendingSubscriptionDependency> targets,
             @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
-        for (final var change : changeSet.getChanges()) {
-            final var entityMessage = change.getEntityMessage();
-            if (entityMessage.isUpdate()) {
-                final var owner = SubscriptionDependencyOwner.entity(entityMessage.getTypeId(), entityMessage.getId());
+        for (final var change : changeSet.getEntityChanges()) {
+            final var entityChangeCandidate = change.getEntityChangeCandidate();
+            if (entityChangeCandidate.isUpdate()) {
+                final var owner = SubscriptionDependencyOwner.entity(
+                        entityChangeCandidate.getTypeId(), entityChangeCandidate.getId());
                 for (final var sourceDatasetAddress : change.getDatasetAddresses()) {
                     final var sourceEntry = session.findSubscriptionEntry(sourceDatasetAddress);
                     if (null != sourceEntry) {
                         final var desiredTargets =
-                                resolveDesiredSubscriptionDependencyTargets(entityMessage, sourceEntry);
+                                resolveDesiredSubscriptionDependencyTargets(entityChangeCandidate, sourceEntry);
                         desiredTargets.keySet().removeAll(datasetRootDeletedDatasetAddresses);
                         reconcileOwnedSubscriptionDependencies(
                                 session, sourceEntry, owner, desiredTargets, changeSet, targets);
@@ -674,55 +678,56 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private boolean matchesSourceDatasetAddress(
-            @NonNull final DatasetAddress template, @NonNull final DatasetAddress datasetAddress) {
-        if (template.partial()) {
-            return template.datasetId() == datasetAddress.datasetId()
-                    && Objects.equals(template.datasetRootId(), datasetAddress.datasetRootId());
+            @NonNull final DatasetAddressCandidate candidate, @NonNull final DatasetAddress datasetAddress) {
+        if (candidate instanceof DatasetAddressTemplate template) {
+            return template.matches(datasetAddress);
         } else {
-            return template.equals(datasetAddress);
+            return candidate.equals(datasetAddress);
         }
     }
 
     @NonNull
     private DatasetAddress resolveTargetDatasetAddress(
-            @NonNull final EntityMessage entityMessage,
+            @NonNull final EntityChangeCandidate entityChangeCandidate,
             @NonNull final DatasetAddress sourceDatasetAddress,
             @Nullable final JsonObject sourceFilterParameter,
-            @NonNull final DatasetAddress targetDatasetAddress,
+            @NonNull final DatasetAddressCandidate targetDatasetAddressCandidate,
             @Nullable final JsonObject targetFilterParameter) {
-        if (targetDatasetAddress.partial()) {
-            assert entityMessage.isUpdate();
+        if (targetDatasetAddressCandidate instanceof DatasetAddressTemplate targetDatasetAddressTemplate) {
+            assert entityChangeCandidate.isUpdate();
             final var datasetKey = _context.deriveTargetDatasetKey(
-                    entityMessage,
+                    entityChangeCandidate,
                     sourceDatasetAddress,
                     sourceFilterParameter,
-                    targetDatasetAddress,
+                    targetDatasetAddressTemplate,
                     targetFilterParameter);
             final var concreteTargetDatasetAddress = DatasetAddress.of(
-                    targetDatasetAddress.datasetId(), targetDatasetAddress.datasetRootId(), datasetKey);
+                    targetDatasetAddressTemplate.datasetId(), targetDatasetAddressTemplate.datasetRootId(), datasetKey);
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), concreteTargetDatasetAddress);
             return concreteTargetDatasetAddress;
         } else {
+            final var targetDatasetAddress = (DatasetAddress) targetDatasetAddressCandidate;
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), targetDatasetAddress);
             return targetDatasetAddress;
         }
     }
 
     /**
-     * Resolve the desired downstream targets for the source entry from the entity-owned Subscription Dependencies in the message.
+     * Resolve the desired downstream targets for the source entry from the entity-owned Subscription Dependency
+     * Candidates in the Entity Change Candidate.
      */
     @NonNull
     private Map<DatasetAddress, JsonObject> resolveDesiredSubscriptionDependencyTargets(
-            @NonNull final EntityMessage entityMessage, @NonNull final SubscriptionEntry sourceEntry) {
+            @NonNull final EntityChangeCandidate entityChangeCandidate, @NonNull final SubscriptionEntry sourceEntry) {
         final var desiredTargets = new LinkedHashMap<DatasetAddress, JsonObject>();
-        final var subscriptionDependencies = entityMessage.getSubscriptionDependencies();
+        final var subscriptionDependencies = entityChangeCandidate.getSubscriptionDependencyCandidates();
         if (null != subscriptionDependencies) {
             for (final var subscriptionDependency : subscriptionDependencies) {
-                InvariantUtil.assertSubscriptionDependency(getSchemaMetaData(), subscriptionDependency);
+                InvariantUtil.assertSubscriptionDependencyCandidate(getSchemaMetaData(), subscriptionDependency);
                 if (matchesSourceDatasetAddress(
-                        subscriptionDependency.sourceDatasetAddress(), sourceEntry.datasetAddress())) {
-                    final var resolved =
-                            resolveSubscriptionDependencyIfRequired(entityMessage, sourceEntry, subscriptionDependency);
+                        subscriptionDependency.sourceDatasetAddressCandidate(), sourceEntry.datasetAddress())) {
+                    final var resolved = resolveSubscriptionDependencyIfRequired(
+                            entityChangeCandidate, sourceEntry, subscriptionDependency);
                     if (null != resolved) {
                         final var existing =
                                 desiredTargets.putIfAbsent(resolved.targetDatasetAddress(), resolved.filterParameter());
@@ -740,7 +745,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final Map<DatasetAddress, JsonObject> desiredTargets,
             @NonNull final ChangeSet changeSet,
-            @NonNull final Set<SubscriptionDependencyEntry> targets) {
+            @NonNull final Set<PendingSubscriptionDependency> targets) {
         final var existingTargets = new HashSet<>(sourceEntry.getOwnedOutwardSubscriptionDependencies(owner));
         for (final var existingTarget : existingTargets) {
             if (!desiredTargets.containsKey(existingTarget)) {
@@ -749,7 +754,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
 
         for (final var entry : desiredTargets.entrySet()) {
-            final var pending = createOrUpdateSubscriptionDependencyEntry(
+            final var pending = createOrUpdatePendingSubscriptionDependency(
                     session, owner, sourceEntry, entry.getKey(), entry.getValue(), changeSet);
             if (null != pending) {
                 targets.add(pending);
@@ -759,17 +764,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @Nullable
     private ResolvedSubscriptionDependency resolveSubscriptionDependencyIfRequired(
-            @NonNull final EntityMessage entityMessage,
+            @NonNull final EntityChangeCandidate entityChangeCandidate,
             @NonNull final SubscriptionEntry sourceEntry,
-            @NonNull final SubscriptionDependency subscriptionDependency) {
+            @NonNull final SubscriptionDependencyCandidate subscriptionDependency) {
         final var sourceDatasetAddress = sourceEntry.datasetAddress();
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), sourceDatasetAddress);
         final var sourceFilterParameter = sourceEntry.getFilterParameter();
         final var targetDatasetAddress = resolveTargetDatasetAddress(
-                entityMessage,
+                entityChangeCandidate,
                 sourceDatasetAddress,
                 sourceFilterParameter,
-                subscriptionDependency.targetDatasetAddress(),
+                subscriptionDependency.targetDatasetAddressCandidate(),
                 subscriptionDependency.targetFilterParameter());
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), targetDatasetAddress);
         final var dataset = getSchemaMetaData().getDatasetMetadata(targetDatasetAddress);
@@ -777,7 +782,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             final var filterParameter = subscriptionDependency.hasTargetFilterParameter()
                     ? subscriptionDependency.targetFilterParameter()
                     : _context.deriveTargetFilterParameter(
-                            entityMessage, sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress);
+                            entityChangeCandidate, sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress);
             return _context.shouldFollowDatasetLink(
                             sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress, filterParameter)
                     ? new ResolvedSubscriptionDependency(targetDatasetAddress, filterParameter)
@@ -788,7 +793,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     @Nullable
-    private SubscriptionDependencyEntry createOrUpdateSubscriptionDependencyEntry(
+    private PendingSubscriptionDependency createOrUpdatePendingSubscriptionDependency(
             @NonNull final ReplicantSession session,
             @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final SubscriptionEntry sourceEntry,
@@ -797,7 +802,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final ChangeSet changeSet) {
         final var targetEntry = session.findSubscriptionEntry(targetDatasetAddress);
         if (null == targetEntry) {
-            return new SubscriptionDependencyEntry(
+            return new PendingSubscriptionDependency(
                     owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
         } else {
             InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), sourceEntry.datasetAddress());
@@ -808,7 +813,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             } else if (getSchemaMetaData()
                     .getDatasetMetadata(targetDatasetAddress)
                     .hasUpdatableFilterParameter()) {
-                return new SubscriptionDependencyEntry(
+                return new PendingSubscriptionDependency(
                         owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
             } else {
                 session.removeDownstreamSubscriptionDependency(sourceEntry, owner, targetDatasetAddress, changeSet);
@@ -819,14 +824,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             targetEntry.getFilterParameter(),
                             filterParameter);
                 }
-                return new SubscriptionDependencyEntry(
+                return new PendingSubscriptionDependency(
                         owner, sourceEntry.datasetAddress(), targetDatasetAddress, filterParameter);
             }
         }
     }
 
-    private void processMessages(
-            @NonNull final Collection<EntityMessage> messages,
+    private void processEntityChangeCandidates(
+            @NonNull final Collection<EntityChangeCandidate> messages,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet) {
         for (final var message : messages) {
@@ -839,7 +844,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private void preserveOwnedSubscriptionDependenciesBeforeDelete(
-            @NonNull final Collection<EntityMessage> messages,
+            @NonNull final Collection<EntityChangeCandidate> messages,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
             @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
@@ -849,8 +854,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         message, session, datasetRootDeletedDatasetAddresses);
             }
         }
-        for (final var change : changeSet.getChanges()) {
-            final var message = change.getEntityMessage();
+        for (final var change : changeSet.getEntityChanges()) {
+            final var message = change.getEntityChangeCandidate();
             if (message.isUpdate()) {
                 final var owner = SubscriptionDependencyOwner.entity(message.getTypeId(), message.getId());
                 for (final var sourceDatasetAddress : change.getDatasetAddresses()) {
@@ -866,7 +871,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @NonNull
     private Set<DatasetAddress> collectRootDeletedEntries(
-            @NonNull final Collection<EntityMessage> messages, @NonNull final ReplicantSession session) {
+            @NonNull final Collection<EntityChangeCandidate> messages, @NonNull final ReplicantSession session) {
         final var datasetRootDeletedDatasetAddresses = new HashSet<DatasetAddress>();
         final var schema = getSchemaMetaData();
         final var instanceDatasetCount = schema.getInstanceDatasetCount();
@@ -885,10 +890,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                                 final var entryDatasetAddress = entry.datasetAddress();
                                 final var m = hasFilter
-                                        ? _context.filterEntityMessage(session, entryDatasetAddress, message)
+                                        ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, message)
                                         : message;
                                 if (null != m && m.isDelete()) {
-                                    if (isEntityMessageDatasetRoot(entry, datasetAddress, m)) {
+                                    if (isEntityChangeCandidateDatasetRoot(entry, datasetAddress, m)) {
                                         datasetRootDeletedDatasetAddresses.add(entryDatasetAddress);
                                     }
                                 }
@@ -902,7 +907,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private void preserveOwnedSubscriptionDependenciesFromPacketMessage(
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         final var schema = getSchemaMetaData();
@@ -919,7 +924,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                             final var entryDatasetAddress = entry.datasetAddress();
                             final var m = hasFilter
-                                    ? _context.filterEntityMessage(session, entryDatasetAddress, message)
+                                    ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, message)
                                     : message;
                             if (null != m) {
                                 preserveOwnedSubscriptionDependenciesForSourceEntry(
@@ -933,7 +938,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private void preserveOwnedSubscriptionDependenciesForSourceEntry(
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionDependencyOwner owner,
@@ -943,9 +948,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             for (final var entry : desiredTargets.entrySet()) {
                 final var targetEntry = session.findSubscriptionEntry(entry.getKey());
                 if (null != targetEntry) {
-                    // An update can point at a Dataset whose Dataset Root is deleted by the same packet; DELETE
-                    // semantics must
-                    // win.
+                    // An update can point at a Dataset whose Dataset Address is invalidated by the same packet;
+                    // Dataset Address Invalidation semantics must win.
                     if (!datasetRootDeletedDatasetAddresses.contains(targetEntry.datasetAddress())
                             && FilterParameterUtil.filterParametersEqual(
                                     entry.getValue(), targetEntry.getFilterParameter())) {
@@ -973,7 +977,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         : datasetAddresses.get(0).datasetId()) + ")";
         sessionUpdateRequest(key, session, requestId, () -> {
             if (session.isOpen()) {
-                final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+                final var sessionChanges = EntityChangeCandidateCacheUtil.getSessionChanges();
                 sessionChanges.setRequired(true);
                 datasetAddresses.forEach(
                         datasetAddress -> _context.preSubscribe(session, datasetAddress, filterParameter));
@@ -1056,8 +1060,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             session.setETag(newDatasetAddress, null);
                             final var cacheChangeSet = new ChangeSet();
                             cacheChangeSet.merge(cacheEntry.getChangeSet());
-                            // cacheChangeSet.mergeSubscriptionAction(
-                            //     newDatasetAddress, SubscriptionAction.Action.SUBSCRIBE, filterParameter );
+                            // cacheChangeSet.mergeSubscriptionChange(
+                            //     newDatasetAddress, SubscriptionChange.Type.SUBSCRIBE, filterParameter );
                             queueCachedChangeSet(session, cacheChangeSet);
                             changeSet.setRequired(false);
                         }
@@ -1069,7 +1073,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         // whose Dataset Root has been removed
                         assert newDatasetAddress.hasDatasetRootId();
                         final var cacheChangeSet = new ChangeSet();
-                        cacheChangeSet.mergeSubscriptionAction(newDatasetAddress, SubscriptionAction.Action.DELETE);
+                        cacheChangeSet.mergeSubscriptionChange(
+                                newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
                         queueCachedChangeSet(session, cacheChangeSet);
                         changeSet.setRequired(false);
                     }
@@ -1242,20 +1247,20 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             _context.collectSubscriptionData(
                     null, Collections.singletonList(datasetAddress), null, changeSet, SubscriptionMode.IMPLICIT);
             final var cacheKey = changeSet.getETag();
-            final var subscriptionAction = changeSet.getSubscriptionActions().stream()
+            final var subscriptionChange = changeSet.getSubscriptionChanges().stream()
                     .filter(a -> a.datasetAddress().equals(datasetAddress))
                     .findFirst()
                     .orElse(null);
-            final var action = Objects.requireNonNull(subscriptionAction).action();
+            final var action = Objects.requireNonNull(subscriptionChange).type();
             // Delete indicates the Dataset Root has been deleted and the Instance Dataset's Dataset Address will never
             // be valid to subscribe to again.
-            if (SubscriptionAction.Action.DELETE == action) {
+            if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == action) {
                 assert null == cacheKey;
                 return null;
             } else {
                 // The action can only be a subscribe as we supplied no Filter Parameter and are not attempting to
                 // unsubscribe.
-                assert SubscriptionAction.Action.SUBSCRIBE == action;
+                assert SubscriptionChange.Type.SUBSCRIBE == action;
                 entry.init(Objects.requireNonNull(cacheKey), changeSet);
                 return entry;
             }
@@ -1322,14 +1327,14 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 : "BulkUnsubscribe(" + datasetAddresses.get(0).datasetId() + ")";
         sessionUpdateRequest(invocationKey, session, requestId, () -> {
             if (session.isOpen()) {
-                final var sessionChanges = EntityMessageCacheUtil.getSessionChanges();
+                final var sessionChanges = EntityChangeCandidateCacheUtil.getSessionChanges();
                 sessionChanges.setRequired(true);
                 session.bulkUnsubscribe(datasetAddresses, sessionChanges);
             }
         });
     }
 
-    private void processCachePurge(@NonNull final EntityMessage message) {
+    private void processCachePurge(@NonNull final EntityChangeCandidate message) {
         final var schema = getSchemaMetaData();
         final var datasetCount = schema.getDatasetCount();
         for (var i = 0; i < datasetCount; i++) {
@@ -1348,7 +1353,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private void processUpdateMessages(
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet) {
         final var schema = getSchemaMetaData();
@@ -1369,7 +1374,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @Nullable
     private List<DatasetAddress> extractDatasetAddressesFromMessage(
-            @NonNull final DatasetMetadata dataset, @NonNull final EntityMessage message) {
+            @NonNull final DatasetMetadata dataset, @NonNull final EntityChangeCandidate message) {
         if (dataset.isInstanceDataset()) {
             @SuppressWarnings("unchecked")
             final var datasetRootIds = (List<Integer>) message.getRoutingKeys().get(dataset.getName());
@@ -1391,24 +1396,25 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     private void processUpdateMessage(
             @NonNull final DatasetAddress datasetAddress,
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
             final boolean hasFilter) {
         final var entries = session.findSubscriptionEntries(datasetAddress.datasetId(), datasetAddress.datasetRootId());
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
-            final var m = hasFilter ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
+            final var m =
+                    hasFilter ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, message) : message;
 
             // Process any messages that are in scope for session
             if (null != m) {
-                changeSet.merge(new Change(message, entryDatasetAddress));
+                changeSet.merge(new EntityChange(message, entryDatasetAddress));
             }
         }
     }
 
     private void processDeleteMessages(
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet) {
         final var schema = getSchemaMetaData();
@@ -1438,21 +1444,22 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
      */
     private void processDeleteMessage(
             @NonNull final DatasetAddress datasetAddress,
-            @NonNull final EntityMessage message,
+            @NonNull final EntityChangeCandidate message,
             @NonNull final ReplicantSession session,
             @NonNull final ChangeSet changeSet,
             final boolean hasFilter) {
         final var entries = session.findSubscriptionEntries(datasetAddress.datasetId(), datasetAddress.datasetRootId());
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
-            final var m = hasFilter ? _context.filterEntityMessage(session, entryDatasetAddress, message) : message;
+            final var m =
+                    hasFilter ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, message) : message;
 
             // Process any deleted messages that are in scope for session
             if (null != m && m.isDelete()) {
                 var datasetRootDeleted = false;
 
                 // If the deletion message is for the Dataset Root, unsubscribe from the Instance Dataset.
-                if (isEntityMessageDatasetRoot(entry, datasetAddress, m)) {
+                if (isEntityChangeCandidateDatasetRoot(entry, datasetAddress, m)) {
                     session.performUnsubscribe(entry, true, true, changeSet);
                     datasetRootDeleted = null == session.findSubscriptionEntry(entryDatasetAddress);
                 }
@@ -1464,10 +1471,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
     }
 
-    private boolean isEntityMessageDatasetRoot(
+    private boolean isEntityChangeCandidateDatasetRoot(
             @NonNull final SubscriptionEntry entry,
             @NonNull final DatasetAddress datasetAddress,
-            @NonNull final EntityMessage message) {
+            @NonNull final EntityChangeCandidate message) {
         final var dataset = getSchemaMetaData().getDatasetMetadata(entry.datasetAddress());
         return dataset.isInstanceDataset()
                 && dataset.getDatasetRootEntityTypeId() == message.getTypeId()

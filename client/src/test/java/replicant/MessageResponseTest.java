@@ -231,7 +231,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertFalse(action.hasWorldBeenValidated());
 
         // processed as single block in caller
-        action.markSubscriptionActionsProcessed();
+        action.markSubscriptionChangesProcessed();
 
         assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());

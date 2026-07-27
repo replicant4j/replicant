@@ -10,7 +10,7 @@ public class SubscriptionChangeMessageTest extends AbstractReplicantTest {
     public void construct() {
         final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("+1.2", null);
 
-        assertEquals(action.getSubscriptionAction(), "+1.2");
+        assertEquals(action.getSubscriptionChange(), "+1.2");
         assertNull(action.getFilterParameter());
     }
 
@@ -19,7 +19,7 @@ public class SubscriptionChangeMessageTest extends AbstractReplicantTest {
         final Object filterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("-1", filterParameter);
 
-        assertEquals(action.getSubscriptionAction(), "-1");
+        assertEquals(action.getSubscriptionChange(), "-1");
         assertEquals(action.getFilterParameter(), filterParameter);
     }
 }

@@ -9,7 +9,7 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PreRemove;
 import javax.transaction.TransactionSynchronizationRegistry;
 import org.jspecify.annotations.NonNull;
-import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.EntityChangeCandidateCacheUtil;
 import replicant.server.runtime.ReplicantSystem;
 import replicant.server.transport.ReplicantChangeRecorder;
 
@@ -32,9 +32,10 @@ public class ReplicantEntityChangeListener {
     public void postUpdate(final Object object) {
         final var registry = getRegistry();
         if (!registry.getRollbackOnly()) {
-            final var entityMessage = getRecorder().convertToEntityMessage(object, true);
-            if (null != entityMessage) {
-                EntityMessageCacheUtil.getEntityMessageSet(registry).merge(entityMessage);
+            final var entityChangeCandidate = getRecorder().convertToEntityChangeCandidate(object, true);
+            if (null != entityChangeCandidate) {
+                EntityChangeCandidateCacheUtil.getEntityChangeCandidateSet(registry)
+                        .merge(entityChangeCandidate);
             }
         }
     }
@@ -52,9 +53,10 @@ public class ReplicantEntityChangeListener {
     public void preRemove(final Object object) {
         final var registry = getRegistry();
         if (!registry.getRollbackOnly()) {
-            final var entityMessage = getRecorder().convertToEntityMessage(object, false);
-            if (null != entityMessage) {
-                EntityMessageCacheUtil.getEntityMessageSet(registry).merge(entityMessage);
+            final var entityChangeCandidate = getRecorder().convertToEntityChangeCandidate(object, false);
+            if (null != entityChangeCandidate) {
+                EntityChangeCandidateCacheUtil.getEntityChangeCandidateSet(registry)
+                        .merge(entityChangeCandidate);
             }
         }
     }

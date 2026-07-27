@@ -64,7 +64,7 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void validate_duplicateSubscriptionActions_typeDataset() {
+    public void validate_duplicateSubscriptionChanges_typeDataset() {
         final String[] subscriptionChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+1"};
 
         final UpdateMessage updateMessage = UpdateMessage.create(null, null, subscriptionChanges, null, null, null);
@@ -76,7 +76,7 @@ public class UpdateMessageTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void validate_duplicateSubscriptionActions_instanceDataset() {
+    public void validate_duplicateSubscriptionChanges_instanceDataset() {
         final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
             SubscriptionChangeMessage.create("+2.50", "XX"), SubscriptionChangeMessage.create("=2.50", "XY")
         };

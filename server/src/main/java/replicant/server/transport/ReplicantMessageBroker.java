@@ -5,7 +5,7 @@ import javax.json.JsonValue;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.EntityMessage;
+import replicant.server.EntityChangeCandidate;
 
 public interface ReplicantMessageBroker {
     @NonNull
@@ -15,6 +15,6 @@ public interface ReplicantMessageBroker {
             @Nullable Integer requestId,
             @Nullable JsonValue response,
             @Nullable String etag,
-            @NonNull Collection<EntityMessage> messages,
+            @NonNull Collection<EntityChangeCandidate> messages,
             @NonNull ChangeSet changeSet);
 }

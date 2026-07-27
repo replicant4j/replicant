@@ -19,11 +19,11 @@ import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
-import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
+import replicant.server.EntityChange;
 import replicant.server.MessageTestUtil;
-import replicant.server.SubscriptionAction;
+import replicant.server.SubscriptionChange;
 import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
@@ -177,7 +177,7 @@ public class ReplicantSessionTest {
         session.getLock().lock();
         try {
             final var message = MessageTestUtil.createMessage(1, 2, 0, "r1", "r2", "a1", "a2");
-            final var change = new Change(message, DatasetAddress.of(5, null));
+            final var change = new EntityChange(message, DatasetAddress.of(5, null));
             final var changeSet = new ChangeSet();
             changeSet.merge(change);
 
@@ -292,10 +292,10 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        final var action = changeSet.getSubscriptionActions().get(0);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        final var action = changeSet.getSubscriptionChanges().get(0);
         assertEquals(action.datasetAddress(), datasetAddress);
-        assertEquals(action.action(), SubscriptionAction.Action.SUBSCRIBE);
+        assertEquals(action.type(), SubscriptionChange.Type.SUBSCRIBE);
         assertNotNull(action.filterParameter());
         assertEquals(Objects.requireNonNull(action.filterParameter()).getString("k"), "v");
     }
@@ -323,8 +323,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UPDATE);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UPDATE);
     }
 
     @Test
@@ -343,25 +343,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 2);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.SUBSCRIBE);
-        assertEquals(changeSet.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.SUBSCRIBE);
-    }
-
-    @Test
-    public void recordSubscription_rejectsPartialAddress() {
-        final var session = new ReplicantSession(mock(Session.class));
-        final var changeSet = new ChangeSet();
-
-        session.getLock().lock();
-        try {
-            expectThrows(
-                    AssertionError.class,
-                    () -> session.recordSubscription(
-                            changeSet, DatasetAddress.partial(1, 2), null, SubscriptionMode.IMPLICIT));
-        } finally {
-            session.getLock().unlock();
-        }
+        assertEquals(changeSet.getSubscriptionChanges().size(), 2);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.SUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionChanges().get(1).type(), SubscriptionChange.Type.SUBSCRIBE);
     }
 
     @Test
@@ -383,24 +367,6 @@ public class ReplicantSessionTest {
             assertTrue(session.getSubscriptionEntry(targetDatasetAddress)
                     .getInwardSubscriptionDependencies()
                     .contains(sourceDatasetAddress));
-        } finally {
-            session.getLock().unlock();
-        }
-    }
-
-    @Test
-    public void recordDatasetScopedSubscriptionDependency_rejectsPartialAddress() {
-        final var session = new ReplicantSession(mock(Session.class));
-
-        session.getLock().lock();
-        try {
-            session.createSubscriptionEntry(DatasetAddress.of(1, 2, "fi"), SubscriptionMode.IMPLICIT);
-            session.createSubscriptionEntry(DatasetAddress.of(2), SubscriptionMode.IMPLICIT);
-
-            expectThrows(
-                    AssertionError.class,
-                    () -> session.recordDatasetScopedSubscriptionDependency(
-                            DatasetAddress.partial(1, 2), DatasetAddress.of(2)));
         } finally {
             session.getLock().unlock();
         }
@@ -479,24 +445,6 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void recordEntityScopedSubscriptionDependency_rejectsPartialAddress() {
-        final var session = new ReplicantSession(mock(Session.class));
-
-        session.getLock().lock();
-        try {
-            session.createSubscriptionEntry(DatasetAddress.of(1, 2, "fi"), SubscriptionMode.IMPLICIT);
-            session.createSubscriptionEntry(DatasetAddress.of(2), SubscriptionMode.IMPLICIT);
-
-            expectThrows(
-                    AssertionError.class,
-                    () -> session.recordEntityScopedSubscriptionDependency(
-                            DatasetAddress.partial(1, 2), DatasetAddress.of(2), 7, 11));
-        } finally {
-            session.getLock().unlock();
-        }
-    }
-
-    @Test
     public void entityOwnedSubscriptionDependencies_requireLastOwnerBeforeDependencyRemoval() {
         final var session = new ReplicantSession(mock(Session.class));
         final var changeSet = new ChangeSet();
@@ -537,7 +485,7 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertTrue(changeSet.getSubscriptionActions().isEmpty());
+        assertTrue(changeSet.getSubscriptionChanges().isEmpty());
     }
 
     @Test
@@ -579,8 +527,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -605,24 +553,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 2);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
-        assertEquals(changeSet.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.UNSUBSCRIBE);
-    }
-
-    @Test
-    public void bulkUnsubscribe_rejectsPartialAddress() {
-        final var session = new ReplicantSession(mock(Session.class));
-        final var changeSet = new ChangeSet();
-
-        session.getLock().lock();
-        try {
-            expectThrows(
-                    AssertionError.class,
-                    () -> session.bulkUnsubscribe(Collections.singletonList(DatasetAddress.partial(1, 2)), changeSet));
-        } finally {
-            session.getLock().unlock();
-        }
+        assertEquals(changeSet.getSubscriptionChanges().size(), 2);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionChanges().get(1).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -645,8 +578,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -671,7 +604,7 @@ public class ReplicantSessionTest {
             assertEquals(targetEntry.getMode(), SubscriptionMode.IMPLICIT);
             assertEquals(targetEntry.getFilterParameter(), filterParameter);
             assertEquals(targetEntry.getInwardSubscriptionDependencies(), Set.of(sourceDatasetAddress));
-            assertTrue(changeSet.getSubscriptionActions().isEmpty());
+            assertTrue(changeSet.getSubscriptionChanges().isEmpty());
 
             session.removeDownstreamSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, changeSet);
 
@@ -680,10 +613,10 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        final var action = changeSet.getSubscriptionActions().get(0);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        final var action = changeSet.getSubscriptionChanges().get(0);
         assertEquals(action.datasetAddress(), targetDatasetAddress);
-        assertEquals(action.action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(action.type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -704,8 +637,8 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertEquals(changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -725,8 +658,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 1);
-        assertEquals(changeSet.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.DELETE);
+        assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertEquals(
+                changeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
     }
 
     @Test
@@ -754,9 +688,9 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 3);
-        final var actions = changeSet.getSubscriptionActions().stream()
-                .map(SubscriptionAction::datasetAddress)
+        assertEquals(changeSet.getSubscriptionChanges().size(), 3);
+        final var actions = changeSet.getSubscriptionChanges().stream()
+                .map(SubscriptionChange::datasetAddress)
                 .collect(java.util.stream.Collectors.toSet());
         assertEquals(actions, Set.of(a, b, c));
     }
@@ -788,26 +722,7 @@ public class ReplicantSessionTest {
             session.getLock().unlock();
         }
 
-        assertTrue(changeSet.getSubscriptionActions().isEmpty());
-    }
-
-    @Test
-    public void removeDownstreamSubscriptionDependency_rejectsPartialAddress() {
-        final var session = new ReplicantSession(mock(Session.class));
-        final var changeSet = new ChangeSet();
-
-        session.getLock().lock();
-        try {
-            session.createSubscriptionEntry(DatasetAddress.of(1, 1, "fi"), SubscriptionMode.IMPLICIT);
-            session.createSubscriptionEntry(DatasetAddress.of(1, 2), SubscriptionMode.IMPLICIT);
-
-            expectThrows(
-                    AssertionError.class,
-                    () -> session.removeDownstreamSubscriptionDependency(
-                            DatasetAddress.partial(1, 1), DatasetAddress.of(1, 2), changeSet));
-        } finally {
-            session.getLock().unlock();
-        }
+        assertTrue(changeSet.getSubscriptionChanges().isEmpty());
     }
 
     @SuppressWarnings("DataFlowIssue")

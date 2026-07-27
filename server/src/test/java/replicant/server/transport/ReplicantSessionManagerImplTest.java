@@ -20,15 +20,17 @@ import org.jspecify.annotations.Nullable;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import replicant.server.Change;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.EntityMessage;
+import replicant.server.DatasetAddressCandidate;
+import replicant.server.DatasetAddressTemplate;
+import replicant.server.EntityChange;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.ServerConstants;
-import replicant.server.SubscriptionAction;
-import replicant.server.SubscriptionDependency;
+import replicant.server.SubscriptionChange;
+import replicant.server.SubscriptionDependencyCandidate;
 import replicant.server.ee.RegistryUtil;
-import replicant.server.runtime.EntityMessageCacheUtil;
+import replicant.server.runtime.EntityChangeCandidateCacheUtil;
 import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
 
 public class ReplicantSessionManagerImplTest {
@@ -94,13 +96,14 @@ public class ReplicantSessionManagerImplTest {
         final var sourceDatasetAddress = DatasetAddress.of(0);
         final var targetDatasetAddress = DatasetAddress.of(1, 7, "fi-7");
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, null, true);
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
 
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", "present");
         final var attributes = new HashMap<String, Serializable>();
         attributes.put("ID", 1);
-        final var message = new EntityMessage(1, 1, 0L, routingKeys, attributes, Set.of(subscriptionDependency));
+        final var message =
+                new EntityChangeCandidate(1, 1, 0L, routingKeys, attributes, Set.of(subscriptionDependency));
 
         final var newFilterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var packet = new Packet(false, null, null, null, List.of(message), new ChangeSet());
@@ -164,7 +167,8 @@ public class ReplicantSessionManagerImplTest {
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", new ArrayList<>(List.of(10)));
         final var attributesA = new HashMap<String, Serializable>();
@@ -172,9 +176,11 @@ public class ReplicantSessionManagerImplTest {
         attributesA.put("ID", 100);
         attributesB.put("ID", 101);
 
-        final var updateA = new EntityMessage(100, 2, 0L, routingKeys, attributesA, Set.of(subscriptionDependency));
-        final var updateB = new EntityMessage(101, 2, 0L, routingKeys, attributesB, Set.of(subscriptionDependency));
-        final var deleteA = new EntityMessage(100, 2, 1L, routingKeys, null, null);
+        final var updateA =
+                new EntityChangeCandidate(100, 2, 0L, routingKeys, attributesA, Set.of(subscriptionDependency));
+        final var updateB =
+                new EntityChangeCandidate(101, 2, 0L, routingKeys, attributesB, Set.of(subscriptionDependency));
+        final var deleteA = new EntityChangeCandidate(100, 2, 1L, routingKeys, null, null);
 
         session.getLock().lock();
         try {
@@ -237,10 +243,11 @@ public class ReplicantSessionManagerImplTest {
         final var targetDatasetAddress = DatasetAddress.of(1);
         final var oldOwner = SubscriptionDependencyOwner.entity(2, 100);
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
-        final var updateNew = new EntityMessage(
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
 
         session.getLock().lock();
         try {
@@ -295,12 +302,13 @@ public class ReplicantSessionManagerImplTest {
         final var targetDatasetAddress = DatasetAddress.of(1);
         final var oldOwner = SubscriptionDependencyOwner.entity(2, 100);
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
-        final var updateNew = new EntityMessage(
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
         final var changeSet = new ChangeSet();
-        changeSet.merge(new Change(updateNew, sourceDatasetAddress));
+        changeSet.merge(new EntityChange(updateNew, sourceDatasetAddress));
 
         session.getLock().lock();
         try {
@@ -353,10 +361,11 @@ public class ReplicantSessionManagerImplTest {
         final var oldTargetDatasetAddress = DatasetAddress.of(1, 20);
         final var newTargetDatasetAddress = DatasetAddress.of(1, 21);
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, newTargetDatasetAddress);
-        final var updateNew = new EntityMessage(
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, newTargetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
 
         session.getLock().lock();
         try {
@@ -417,10 +426,10 @@ public class ReplicantSessionManagerImplTest {
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var updateNew = new EntityMessage(
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
 
         session.getLock().lock();
         try {
@@ -478,8 +487,8 @@ public class ReplicantSessionManagerImplTest {
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var owner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityMessage(
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         final SubscriptionEntry originalTargetEntry;
@@ -536,8 +545,8 @@ public class ReplicantSessionManagerImplTest {
         final var newFilterParameter =
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityMessage(
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         session.getLock().lock();
@@ -599,8 +608,8 @@ public class ReplicantSessionManagerImplTest {
         final var newFilterParameter =
                 Json.createObjectBuilder().add("parameter", "new").build();
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
-        final var message = new EntityMessage(
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, newFilterParameter);
+        final var message = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
         session.getLock().lock();
@@ -655,11 +664,11 @@ public class ReplicantSessionManagerImplTest {
         final var oldOwner = SubscriptionDependencyOwner.entity(2, 100);
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(DatasetAddress.partial(0, 10), targetDatasetAddress, null, true);
-        final var updateNew = new EntityMessage(
+                new SubscriptionDependencyCandidate(DatasetAddressTemplate.of(0, 10), targetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
-        context.excludeFilterEntityMessageDatasetAddress(excludedSourceDatasetAddress);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        context.excludeFilterEntityChangeCandidateDatasetAddress(excludedSourceDatasetAddress);
 
         session.getLock().lock();
         try {
@@ -705,8 +714,8 @@ public class ReplicantSessionManagerImplTest {
         final var manager = createManager(context, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0, 10);
-        context.excludeFilterEntityMessageDatasetAddress(datasetAddress);
-        final var message = new EntityMessage(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
+        context.excludeFilterEntityChangeCandidateDatasetAddress(datasetAddress);
+        final var message = new EntityChangeCandidate(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
         final var changeSet = new ChangeSet();
 
         session.getLock().lock();
@@ -719,7 +728,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(changeSet.getChanges().isEmpty());
+        assertTrue(changeSet.getEntityChanges().isEmpty());
     }
 
     @Test
@@ -754,10 +763,10 @@ public class ReplicantSessionManagerImplTest {
                 Json.createObjectBuilder().add("parameter", "current").build();
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
         final var subscriptionDependency =
-                new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, targetFilterParameter);
-        final var updateNew = new EntityMessage(
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress, targetFilterParameter);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
 
         session.getLock().lock();
         try {
@@ -808,10 +817,11 @@ public class ReplicantSessionManagerImplTest {
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
-        final var updateNew = new EntityMessage(
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteSourceRoot = new EntityMessage(10, 1, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteSourceRoot = new EntityChangeCandidate(10, 1, 1L, instanceRouting("Source", 10), null, null);
 
         session.getLock().lock();
         try {
@@ -861,11 +871,12 @@ public class ReplicantSessionManagerImplTest {
         final var sourceDatasetAddress = DatasetAddress.of(0, 10, "fi-source");
         final var targetDatasetAddress = DatasetAddress.of(1, 20);
         final var newOwner = SubscriptionDependencyOwner.entity(2, 101);
-        final var subscriptionDependency = new SubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
-        final var updateNew = new EntityMessage(
+        final var subscriptionDependency =
+                new SubscriptionDependencyCandidate(sourceDatasetAddress, targetDatasetAddress);
+        final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
-        final var deleteOld = new EntityMessage(100, 2, 1L, instanceRouting("Source", 10), null, null);
-        final var deleteTargetRoot = new EntityMessage(20, 3, 1L, instanceRouting("Target", 20), null, null);
+        final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
+        final var deleteTargetRoot = new EntityChangeCandidate(20, 3, 1L, instanceRouting("Target", 20), null, null);
         session.getLock().lock();
         try {
             final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
@@ -1180,10 +1191,10 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var sessionChanges = Objects.requireNonNull(EntityMessageCacheUtil.lookupSessionChanges());
-        assertEquals(sessionChanges.getSubscriptionActions().size(), 2);
-        assertEquals(sessionChanges.getSubscriptionActions().get(0).action(), SubscriptionAction.Action.UNSUBSCRIBE);
-        assertEquals(sessionChanges.getSubscriptionActions().get(1).action(), SubscriptionAction.Action.UNSUBSCRIBE);
+        final var sessionChanges = Objects.requireNonNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
+        assertEquals(sessionChanges.getSubscriptionChanges().size(), 2);
+        assertEquals(sessionChanges.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
+        assertEquals(sessionChanges.getSubscriptionChanges().get(1).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -1222,7 +1233,7 @@ public class ReplicantSessionManagerImplTest {
 
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", new ArrayList<>(List.of(10)));
-        final var deleteMessage = new EntityMessage(10, 1, 0, routingKeys, null, null);
+        final var deleteMessage = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
         final var changeSet = new ChangeSet();
         final var packet = new Packet(false, null, null, null, List.of(deleteMessage), changeSet);
 
@@ -1241,12 +1252,13 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertEquals(changeSet.getSubscriptionActions().size(), 2);
-        final var actionByDatasetAddress = changeSet.getSubscriptionActions().stream()
+        assertEquals(changeSet.getSubscriptionChanges().size(), 2);
+        final var actionByDatasetAddress = changeSet.getSubscriptionChanges().stream()
                 .collect(java.util.stream.Collectors.toMap(
-                        SubscriptionAction::datasetAddress, SubscriptionAction::action));
-        assertEquals(actionByDatasetAddress.get(sourceDatasetAddress), SubscriptionAction.Action.DELETE);
-        assertEquals(actionByDatasetAddress.get(targetDatasetAddress), SubscriptionAction.Action.UNSUBSCRIBE);
+                        SubscriptionChange::datasetAddress, SubscriptionChange::type));
+        assertEquals(
+                actionByDatasetAddress.get(sourceDatasetAddress), SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
+        assertEquals(actionByDatasetAddress.get(targetDatasetAddress), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -1286,7 +1298,7 @@ public class ReplicantSessionManagerImplTest {
         final var targetDatasetAddressB = DatasetAddress.of(1, null, "fi-b");
         final var routingKeys = new HashMap<String, Serializable>();
         routingKeys.put("Source", new ArrayList<>(List.of(10)));
-        final var deleteMessage = new EntityMessage(10, 1, 0, routingKeys, null, null);
+        final var deleteMessage = new EntityChangeCandidate(10, 1, 0, routingKeys, null, null);
         final var changeSet = new ChangeSet();
         final var packet = new Packet(false, null, null, null, List.of(deleteMessage), changeSet);
 
@@ -1310,30 +1322,6 @@ public class ReplicantSessionManagerImplTest {
         } finally {
             session.getLock().unlock();
         }
-    }
-
-    @Test
-    public void tryGetCacheEntry_rejectsPartialAddresses() throws Exception {
-        final var dataset = new DatasetMetadata(
-                0,
-                "Source",
-                null,
-                DatasetMetadata.FilterMode.UNFILTERED,
-                null,
-                false,
-                DatasetMetadata.CacheType.INTERNAL,
-                true);
-        final var schema = new SchemaMetaData("Test", dataset);
-        final var context = new TestSessionContext(schema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
-
-        final var method =
-                ReplicantSessionManagerImpl.class.getDeclaredMethod("tryGetCacheEntry", DatasetAddress.class);
-        method.setAccessible(true);
-
-        final var exception =
-                expectThrows(InvocationTargetException.class, () -> method.invoke(manager, DatasetAddress.partial(0)));
-        assertTrue(exception.getCause() instanceof AssertionError);
     }
 
     @Test
@@ -1422,7 +1410,7 @@ public class ReplicantSessionManagerImplTest {
         private final List<Packet> _preSendChangeMessages = new ArrayList<>();
 
         @NonNull
-        private final Set<DatasetAddress> _excludedFilterEntityMessageAddresses = new HashSet<>();
+        private final Set<DatasetAddress> _excludedFilterEntityChangeCandidateAddresses = new HashSet<>();
 
         private boolean _shouldFollowDatasetLink = true;
 
@@ -1455,20 +1443,20 @@ public class ReplicantSessionManagerImplTest {
         @NonNull
         @Override
         public JsonObject deriveTargetFilterParameter(
-                @NonNull final EntityMessage entityMessage,
+                @NonNull final EntityChangeCandidate entityChangeCandidate,
                 @NonNull final DatasetAddress sourceDatasetAddress,
                 @Nullable final JsonObject sourceFilterParameter,
-                @NonNull final DatasetAddress targetDatasetAddress) {
+                @NonNull final DatasetAddressCandidate targetDatasetAddressCandidate) {
             return Json.createObjectBuilder().add("k", "v").build();
         }
 
         @NonNull
         @Override
         public String deriveTargetDatasetKey(
-                @NonNull final EntityMessage entityMessage,
+                @NonNull final EntityChangeCandidate entityChangeCandidate,
                 @NonNull final DatasetAddress sourceDatasetAddress,
                 @Nullable final JsonObject sourceFilterParameter,
-                @NonNull final DatasetAddress targetDatasetAddress,
+                @NonNull final DatasetAddressTemplate targetDatasetAddressTemplate,
                 @Nullable final JsonObject targetFilterParameter) {
             final var sourceDatasetKey = sourceDatasetAddress.datasetKey();
             return null == sourceDatasetKey ? "fi-7" : sourceDatasetKey;
@@ -1503,9 +1491,9 @@ public class ReplicantSessionManagerImplTest {
                     if (SubscriptionMode.EXPLICIT == mode) {
                         entry.setMode(SubscriptionMode.EXPLICIT);
                     }
-                    changeSet.mergeSubscriptionAction(
+                    changeSet.mergeSubscriptionChange(
                             datasetAddress,
-                            null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
+                            null == existing ? SubscriptionChange.Type.SUBSCRIBE : SubscriptionChange.Type.UPDATE,
                             filterParameter);
                 }
             }
@@ -1522,17 +1510,17 @@ public class ReplicantSessionManagerImplTest {
                     new FilterParameterChangeCall(datasetAddresses, originalFilterParameter, newFilterParameter));
             for (final var datasetAddress : datasetAddresses) {
                 session.setFilterParameter(datasetAddress, newFilterParameter);
-                changeSet.mergeSubscriptionAction(datasetAddress, SubscriptionAction.Action.UPDATE, newFilterParameter);
+                changeSet.mergeSubscriptionChange(datasetAddress, SubscriptionChange.Type.UPDATE, newFilterParameter);
             }
         }
 
         @Nullable
         @Override
-        public EntityMessage filterEntityMessage(
+        public EntityChangeCandidate filterEntityChangeCandidate(
                 @NonNull final ReplicantSession session,
                 @NonNull final DatasetAddress datasetAddress,
-                @NonNull final EntityMessage message) {
-            if (_excludedFilterEntityMessageAddresses.contains(datasetAddress)) {
+                @NonNull final EntityChangeCandidate message) {
+            if (_excludedFilterEntityChangeCandidateAddresses.contains(datasetAddress)) {
                 return null;
             }
             return message;
@@ -1562,8 +1550,8 @@ public class ReplicantSessionManagerImplTest {
             return _preSendChangeMessages;
         }
 
-        void excludeFilterEntityMessageDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
-            _excludedFilterEntityMessageAddresses.add(datasetAddress);
+        void excludeFilterEntityChangeCandidateDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
+            _excludedFilterEntityChangeCandidateAddresses.add(datasetAddress);
         }
 
         void setShouldFollowDatasetLink(final boolean shouldFollowDatasetLink) {
@@ -1582,7 +1570,7 @@ public class ReplicantSessionManagerImplTest {
             @NonNull JsonObject newFilterParameter) {}
 
     private record DeriveTargetDatasetKeyCall(
-            @NonNull EntityMessage entityMessage,
+            @NonNull EntityChangeCandidate entityChangeCandidate,
             @NonNull DatasetAddress sourceDatasetAddress,
             @Nullable JsonObject sourceFilterParameter,
             @NonNull DatasetAddress targetDatasetAddress,

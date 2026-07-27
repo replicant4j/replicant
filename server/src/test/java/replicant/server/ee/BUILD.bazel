@@ -25,9 +25,9 @@ java_testng(
 )
 
 java_testng(
-    name = "EntityMessageCacheUtilTest",
-    srcs = ["EntityMessageCacheUtilTest.java"],
-    test_class = "replicant.server.ee.EntityMessageCacheUtilTest",
+    name = "EntityChangeCandidateCacheUtilTest",
+    srcs = ["EntityChangeCandidateCacheUtilTest.java"],
+    test_class = "replicant.server.ee.EntityChangeCandidateCacheUtilTest",
     deps = ["//server:server_test_support"],
 )
 

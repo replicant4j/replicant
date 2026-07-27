@@ -5,7 +5,7 @@ import javax.json.JsonValue;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
-import replicant.server.EntityMessage;
+import replicant.server.EntityChangeCandidate;
 
 /**
  * Packet contains the data generated from the transaction that needs to be sent to a specific client.
@@ -26,5 +26,5 @@ public record Packet(
         @Nullable Integer requestId,
         @Nullable JsonValue response,
         @Nullable String etag,
-        @NonNull Collection<EntityMessage> messages,
+        @NonNull Collection<EntityChangeCandidate> messages,
         @NonNull ChangeSet changeSet) {}

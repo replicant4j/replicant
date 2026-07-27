@@ -12,10 +12,10 @@ import org.jspecify.annotations.Nullable;
 
 public final class ChangeSet {
     @NonNull
-    private final List<SubscriptionAction> _subscriptionActions = new LinkedList<>();
+    private final List<SubscriptionChange> _subscriptionChanges = new LinkedList<>();
 
     @NonNull
-    private final Map<String, Change> _changes = new LinkedHashMap<>();
+    private final Map<String, EntityChange> _entityChanges = new LinkedHashMap<>();
 
     private boolean _required;
 
@@ -23,7 +23,7 @@ public final class ChangeSet {
     private String _eTag;
 
     public boolean hasContent() {
-        return _required || !_subscriptionActions.isEmpty() || !_changes.isEmpty();
+        return _required || !_subscriptionChanges.isEmpty() || !_entityChanges.isEmpty();
     }
 
     public boolean isRequired() {
@@ -44,30 +44,30 @@ public final class ChangeSet {
         _eTag = Objects.requireNonNull(eTag);
     }
 
-    public void mergeSubscriptionActions(@NonNull final Collection<SubscriptionAction> actions) {
-        for (final var action : actions) {
-            mergeSubscriptionAction(action);
+    public void mergeSubscriptionChanges(@NonNull final Collection<SubscriptionChange> changes) {
+        for (final var change : changes) {
+            mergeSubscriptionChange(change);
         }
     }
 
-    public void mergeSubscriptionAction(
-            @NonNull final DatasetAddress datasetAddress, final SubscriptionAction.@NonNull Action action) {
-        mergeSubscriptionAction(datasetAddress, action, null);
+    public void mergeSubscriptionChange(
+            @NonNull final DatasetAddress datasetAddress, final SubscriptionChange.@NonNull Type type) {
+        mergeSubscriptionChange(datasetAddress, type, null);
     }
 
-    public void mergeSubscriptionAction(
+    public void mergeSubscriptionChange(
             @NonNull final DatasetAddress datasetAddress,
-            final SubscriptionAction.@NonNull Action action,
+            final SubscriptionChange.@NonNull Type type,
             @Nullable final JsonObject filterParameter) {
         //noinspection ConstantValue
-        assert SubscriptionAction.Action.DELETE != action
-                || SubscriptionAction.Action.UNSUBSCRIBE != action
+        assert SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS != type
+                || SubscriptionChange.Type.UNSUBSCRIBE != type
                 || null == filterParameter;
-        mergeSubscriptionAction(SubscriptionAction.of(datasetAddress, action, filterParameter));
+        mergeSubscriptionChange(SubscriptionChange.of(datasetAddress, type, filterParameter));
     }
 
-    public void mergeSubscriptionAction(@NonNull final SubscriptionAction action) {
-        final var actionType = action.action();
+    public void mergeSubscriptionChange(@NonNull final SubscriptionChange change) {
+        final var changeType = change.type();
         /*
          * If we have a matching inverse action in actions list then we can remove
          * that action and avoid adding this action. This avoids scenario where there
@@ -75,30 +75,29 @@ public final class ChangeSet {
          * A parameterized SUBSCRIBE after an UNSUBSCRIBE is retained as a single SUBSCRIBE so a
          * Fixed Filter Parameter replacement reaches the client.
          */
-        if (SubscriptionAction.Action.SUBSCRIBE == actionType) {
+        if (SubscriptionChange.Type.SUBSCRIBE == changeType) {
             final var removedUnsubscribe =
-                    _subscriptionActions.removeIf(a -> SubscriptionAction.Action.UNSUBSCRIBE == a.action()
-                            && a.datasetAddress().equals(action.datasetAddress())
+                    _subscriptionChanges.removeIf(a -> SubscriptionChange.Type.UNSUBSCRIBE == a.type()
+                            && a.datasetAddress().equals(change.datasetAddress())
                             && null == a.filterParameter());
-            _subscriptionActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
-            if (removedUnsubscribe && null == action.filterParameter()) {
+            _subscriptionChanges.removeIf(a -> a.datasetAddress().equals(change.datasetAddress()));
+            if (removedUnsubscribe && null == change.filterParameter()) {
                 return;
             }
-        } else if (SubscriptionAction.Action.UPDATE == actionType) {
+        } else if (SubscriptionChange.Type.UPDATE == changeType) {
             // We have got an update for one we are subscribing to so ignore the update and maybe update the existing
             // action
-            final var newFilterParameter = action.filterParameter();
+            final var newFilterParameter = change.filterParameter();
             var flags = new boolean[1];
-            _subscriptionActions.replaceAll(a -> {
+            _subscriptionChanges.replaceAll(a -> {
                 final var datasetAddress = a.datasetAddress();
-                if (SubscriptionAction.Action.SUBSCRIBE == a.action()
-                        && datasetAddress.equals(action.datasetAddress())) {
+                if (SubscriptionChange.Type.SUBSCRIBE == a.type() && datasetAddress.equals(change.datasetAddress())) {
                     flags[0] = true;
                     if (FilterParameterUtil.filterParametersEqual(a.filterParameter(), newFilterParameter)) {
                         return a;
                     } else {
-                        return SubscriptionAction.of(
-                                datasetAddress, SubscriptionAction.Action.SUBSCRIBE, newFilterParameter);
+                        return SubscriptionChange.of(
+                                datasetAddress, SubscriptionChange.Type.SUBSCRIBE, newFilterParameter);
                     }
                 } else {
                     return a;
@@ -108,56 +107,56 @@ public final class ChangeSet {
             if (flags[0]) {
                 return;
             }
-        } else if (SubscriptionAction.Action.UNSUBSCRIBE == actionType
-                || SubscriptionAction.Action.DELETE == actionType) {
+        } else if (SubscriptionChange.Type.UNSUBSCRIBE == changeType
+                || SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
             final var removedSubscribe =
-                    _subscriptionActions.removeIf(a -> SubscriptionAction.Action.SUBSCRIBE == a.action()
-                            && a.datasetAddress().equals(action.datasetAddress()));
-            _subscriptionActions.removeIf(a -> a.datasetAddress().equals(action.datasetAddress()));
+                    _subscriptionChanges.removeIf(a -> SubscriptionChange.Type.SUBSCRIBE == a.type()
+                            && a.datasetAddress().equals(change.datasetAddress()));
+            _subscriptionChanges.removeIf(a -> a.datasetAddress().equals(change.datasetAddress()));
             if (removedSubscribe) {
                 return;
             }
         }
 
-        _subscriptionActions.add(action);
+        _subscriptionChanges.add(change);
     }
 
     @NonNull
-    public List<SubscriptionAction> getSubscriptionActions() {
-        return _subscriptionActions;
+    public List<SubscriptionChange> getSubscriptionChanges() {
+        return _subscriptionChanges;
     }
 
-    public void merge(@NonNull final Collection<Change> changes) {
+    public void merge(@NonNull final Collection<EntityChange> changes) {
         merge(changes, false);
     }
 
-    private void merge(@NonNull final Collection<Change> changes, final boolean copyOnMerge) {
+    private void merge(@NonNull final Collection<EntityChange> changes, final boolean copyOnMerge) {
         for (final var change : changes) {
             merge(change, copyOnMerge);
         }
     }
 
-    public void merge(@NonNull final Change change) {
+    public void merge(@NonNull final EntityChange change) {
         merge(change, false);
     }
 
-    void merge(@NonNull final Change change, final boolean copyOnMerge) {
-        final var existing = _changes.get(change.getKey());
+    void merge(@NonNull final EntityChange change, final boolean copyOnMerge) {
+        final var existing = _entityChanges.get(change.getKey());
         if (null != existing) {
             existing.merge(change);
         } else {
-            _changes.put(change.getKey(), copyOnMerge ? change.duplicate() : change);
+            _entityChanges.put(change.getKey(), copyOnMerge ? change.duplicate() : change);
         }
     }
 
     public void merge(@NonNull final ChangeSet changeSet) {
         _eTag = changeSet.getETag();
-        merge(changeSet.getChanges(), true);
-        mergeSubscriptionActions(changeSet.getSubscriptionActions());
+        merge(changeSet.getEntityChanges(), true);
+        mergeSubscriptionChanges(changeSet.getSubscriptionChanges());
     }
 
     @NonNull
-    public Collection<Change> getChanges() {
-        return _changes.values();
+    public Collection<EntityChange> getEntityChanges() {
+        return _entityChanges.values();
     }
 }

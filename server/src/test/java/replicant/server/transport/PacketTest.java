@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import javax.json.Json;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
-import replicant.server.EntityMessage;
+import replicant.server.EntityChangeCandidate;
 import replicant.server.ValueUtil;
 
 public class PacketTest {
@@ -15,7 +15,7 @@ public class PacketTest {
         final var requestId = ValueUtil.randomInt();
         final var response = Json.createArrayBuilder().build();
         final var etag = ValueUtil.randomString();
-        final var messages = new ArrayList<EntityMessage>();
+        final var messages = new ArrayList<EntityChangeCandidate>();
         final var changeSet = new ChangeSet();
 
         final var packet = new Packet(true, requestId, response, etag, messages, changeSet);
@@ -30,7 +30,7 @@ public class PacketTest {
 
     @Test
     public void packetNotFromInitiator() {
-        final var messages = new ArrayList<EntityMessage>();
+        final var messages = new ArrayList<EntityChangeCandidate>();
         final var changeSet = new ChangeSet();
 
         final var packet = new Packet(false, null, null, null, messages, changeSet);

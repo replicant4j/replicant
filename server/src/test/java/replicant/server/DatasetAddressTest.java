@@ -21,8 +21,6 @@ public class DatasetAddressTest {
 
         assertEquals(datasetAddress1.datasetId(), 1);
         assertEquals(datasetAddress1.datasetRootId(), (Integer) 22);
-        assertFalse(datasetAddress1.partial());
-        assertTrue(datasetAddress1.concrete());
         assertTrue(datasetAddress1.hasDatasetRootId());
         assertEquals(datasetAddress1.toString(), "1.22#a");
         assertEquals(datasetAddress1, datasetAddress1);
@@ -33,8 +31,6 @@ public class DatasetAddressTest {
 
         assertEquals(datasetAddress4.datasetId(), 2);
         assertNull(datasetAddress4.datasetRootId());
-        assertFalse(datasetAddress4.partial());
-        assertTrue(datasetAddress4.concrete());
         assertFalse(datasetAddress4.hasDatasetRootId());
         assertEquals(datasetAddress4.toString(), "2");
         assertEquals(datasetAddress4, datasetAddress4);
@@ -73,14 +69,10 @@ public class DatasetAddressTest {
         assertEquals(datasetAddress1.datasetId(), 1);
         assertEquals(datasetAddress1.datasetRootId(), (Integer) 22);
         assertNull(datasetAddress1.datasetKey());
-        assertFalse(datasetAddress1.partial());
-        assertTrue(datasetAddress1.concrete());
         final var datasetAddress2 = DatasetAddress.parse("0");
         assertEquals(datasetAddress2.datasetId(), 0);
         assertNull(datasetAddress2.datasetRootId());
         assertNull(datasetAddress2.datasetKey());
-        assertFalse(datasetAddress2.partial());
-        assertTrue(datasetAddress2.concrete());
     }
 
     @Test
@@ -89,31 +81,22 @@ public class DatasetAddressTest {
         assertEquals(datasetAddress1.datasetId(), 1);
         assertEquals(datasetAddress1.datasetRootId(), (Integer) 22);
         assertEquals(datasetAddress1.datasetKey(), "alpha");
-        assertFalse(datasetAddress1.partial());
         final var datasetAddress2 = DatasetAddress.parse("0#alpha");
         assertEquals(datasetAddress2.datasetId(), 0);
         assertNull(datasetAddress2.datasetRootId());
         assertEquals(datasetAddress2.datasetKey(), "alpha");
-        assertFalse(datasetAddress2.partial());
     }
 
     @Test
-    public void partialDatasetAddress() {
-        final var datasetAddress = DatasetAddress.partial(1, 22);
+    public void datasetAddressTemplate() {
+        final var datasetAddressTemplate = DatasetAddressTemplate.of(1, 22);
+        final var matchingDatasetAddress = DatasetAddress.of(1, 22, "alpha");
 
-        assertEquals(datasetAddress.datasetId(), 1);
-        assertEquals(datasetAddress.datasetRootId(), (Integer) 22);
-        assertNull(datasetAddress.datasetKey());
-        assertTrue(datasetAddress.partial());
-        assertEquals(datasetAddress.toString(), "1.22?");
-    }
-
-    @Test
-    public void compareTo_distinguishesPartialFromConcrete() {
-        final var concrete = DatasetAddress.of(1, 22);
-        final var partial = DatasetAddress.partial(1, 22);
-
-        assertTrue(concrete.compareTo(partial) < 0);
-        assertTrue(partial.compareTo(concrete) > 0);
+        assertEquals(datasetAddressTemplate.datasetId(), 1);
+        assertEquals(datasetAddressTemplate.datasetRootId(), (Integer) 22);
+        assertNull(datasetAddressTemplate.datasetKey());
+        assertTrue(datasetAddressTemplate.matches(matchingDatasetAddress));
+        assertFalse(datasetAddressTemplate.matches(DatasetAddress.of(1, 23, "alpha")));
+        assertEquals(datasetAddressTemplate.toString(), "1.22?");
     }
 }

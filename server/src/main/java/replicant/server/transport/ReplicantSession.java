@@ -25,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
-import replicant.server.SubscriptionAction;
+import replicant.server.SubscriptionChange;
 import replicant.server.json.JsonEncoder;
 
 public final class ReplicantSession implements Serializable, Closeable {
@@ -270,7 +270,6 @@ public final class ReplicantSession implements Serializable, Closeable {
 
     @Nullable
     String getETag(@NonNull final DatasetAddress datasetAddress) {
-        assert datasetAddress.concrete();
         return _eTags.get(datasetAddress);
     }
 
@@ -284,7 +283,6 @@ public final class ReplicantSession implements Serializable, Closeable {
 
     void setETag(@NonNull final DatasetAddress datasetAddress, @Nullable final String eTag) {
         ensureLockedByCurrentThread();
-        assert datasetAddress.concrete();
         if (null == eTag) {
             _eTags.remove(datasetAddress);
         } else {
@@ -299,7 +297,6 @@ public final class ReplicantSession implements Serializable, Closeable {
     @NonNull
     SubscriptionEntry getSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
         ensureLockedByCurrentThread();
-        assert datasetAddress.concrete();
         final var entry = findSubscriptionEntry(datasetAddress);
         if (null == entry) {
             throw new IllegalStateException(
@@ -344,8 +341,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final DatasetAddress sourceDatasetAddress,
             @NonNull final DatasetAddress targetDatasetAddress,
             @NonNull final SubscriptionDependencyOwner owner) {
-        InvariantUtil.assertConcreteDatasetAddress(sourceDatasetAddress);
-        InvariantUtil.assertConcreteDatasetAddress(targetDatasetAddress);
         final var sourceEntry = getSubscriptionEntry(sourceDatasetAddress);
         final var targetEntry = getSubscriptionEntry(targetDatasetAddress);
         recordSubscriptionDependency(sourceEntry, targetEntry, owner);
@@ -355,8 +350,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionEntry targetEntry,
             @NonNull final SubscriptionDependencyOwner owner) {
-        InvariantUtil.assertConcreteDatasetAddress(sourceEntry.datasetAddress());
-        InvariantUtil.assertConcreteDatasetAddress(targetEntry.datasetAddress());
         assert !owner.isDatasetScoped() || !targetEntry.datasetAddress().hasDatasetRootId();
         final var added = sourceEntry.registerOutwardSubscriptionDependencies(owner, targetEntry.datasetAddress());
         if (0 != added.length) {
@@ -379,28 +372,25 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final JsonObject filterParameter,
             @NonNull final SubscriptionMode mode) {
-        assert datasetAddress.concrete();
         final var existing = findSubscriptionEntry(datasetAddress);
         final var entry = null == existing ? createSubscriptionEntry(datasetAddress, mode) : existing;
         if (SubscriptionMode.EXPLICIT == mode) {
             entry.setMode(SubscriptionMode.EXPLICIT);
         }
         entry.setFilterParameter(filterParameter);
-        changeSet.mergeSubscriptionAction(
+        changeSet.mergeSubscriptionChange(
                 datasetAddress,
-                null == existing ? SubscriptionAction.Action.SUBSCRIBE : SubscriptionAction.Action.UPDATE,
+                null == existing ? SubscriptionChange.Type.SUBSCRIBE : SubscriptionChange.Type.UPDATE,
                 filterParameter);
     }
 
     @Nullable
     public JsonObject getFilterParameter(@NonNull final DatasetAddress datasetAddress) {
-        assert datasetAddress.concrete();
         return getSubscriptionEntry(datasetAddress).getFilterParameter();
     }
 
     public void setFilterParameter(
             @NonNull final DatasetAddress datasetAddress, @Nullable final JsonObject filterParameter) {
-        assert datasetAddress.concrete();
         getSubscriptionEntry(datasetAddress).setFilterParameter(filterParameter);
     }
 
@@ -412,7 +402,6 @@ public final class ReplicantSession implements Serializable, Closeable {
     @NonNull
     SubscriptionEntry createSubscriptionEntry(
             @NonNull final DatasetAddress datasetAddress, @NonNull final SubscriptionMode mode) {
-        assert datasetAddress.concrete();
         if (!_subscriptions.containsKey(datasetAddress)) {
             LOG.log(
                     Level.FINE,
@@ -438,7 +427,6 @@ public final class ReplicantSession implements Serializable, Closeable {
     @Nullable
     SubscriptionEntry findSubscriptionEntry(@NonNull final DatasetAddress datasetAddress) {
         ensureLockedByCurrentThread();
-        assert datasetAddress.concrete();
         return _subscriptions.get(datasetAddress);
     }
 
@@ -460,7 +448,6 @@ public final class ReplicantSession implements Serializable, Closeable {
     void bulkUnsubscribe(
             @NonNull final List<DatasetAddress> datasetAddresses, @NonNull final ChangeSet sessionChanges) {
         for (final var datasetAddress : datasetAddresses) {
-            assert datasetAddress.concrete();
             unsubscribe(datasetAddress, sessionChanges);
         }
     }
@@ -475,16 +462,17 @@ public final class ReplicantSession implements Serializable, Closeable {
     void performUnsubscribe(
             @NonNull final SubscriptionEntry entry,
             final boolean areaOfInterestRemoved,
-            final boolean delete,
+            final boolean invalidateDatasetAddress,
             @NonNull final ChangeSet changeSet) {
-        assert entry.datasetAddress().concrete();
         if (areaOfInterestRemoved) {
             entry.setMode(SubscriptionMode.IMPLICIT);
         }
         if (entry.canUnsubscribe()) {
-            changeSet.mergeSubscriptionAction(
+            changeSet.mergeSubscriptionChange(
                     entry.datasetAddress(),
-                    delete ? SubscriptionAction.Action.DELETE : SubscriptionAction.Action.UNSUBSCRIBE);
+                    invalidateDatasetAddress
+                            ? SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS
+                            : SubscriptionChange.Type.UNSUBSCRIBE);
             for (final var downstream : new ArrayList<>(entry.getOutwardSubscriptionDependencies())) {
                 removeAllDownstreamSubscriptionDependencies(entry, downstream, changeSet);
             }
@@ -496,8 +484,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final DatasetAddress upstream,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
-        assert upstream.concrete();
-        assert downstream.concrete();
         removeDownstreamSubscriptionDependency(
                 getSubscriptionEntry(upstream), SubscriptionDependencyOwner.dataset(), downstream, changeSet);
     }
@@ -507,8 +493,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.datasetAddress().concrete();
-        assert downstream.concrete();
         final var removed = sourceEntry.deregisterOutwardSubscriptionDependencies(owner, downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);
@@ -523,7 +507,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final SubscriptionDependencyOwner owner,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.datasetAddress().concrete();
         for (final var downstream : new ArrayList<>(sourceEntry.getOwnedOutwardSubscriptionDependencies(owner))) {
             removeDownstreamSubscriptionDependency(sourceEntry, owner, downstream, changeSet);
         }
@@ -533,8 +516,6 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final SubscriptionEntry sourceEntry,
             @NonNull final DatasetAddress downstream,
             @NonNull final ChangeSet changeSet) {
-        assert sourceEntry.datasetAddress().concrete();
-        assert downstream.concrete();
         final var removed = sourceEntry.deregisterAllOutwardSubscriptionDependencies(downstream);
         if (0 != removed.length) {
             final var downstreamEntry = findSubscriptionEntry(downstream);

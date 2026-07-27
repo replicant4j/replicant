@@ -94,11 +94,10 @@ public final class Messages {
     }
 
     public static final class Update {
-        public static final char SUBSCRIPTION_ACTION_SUBSCRIBE = '+';
-        public static final char SUBSCRIPTION_ACTION_UNSUBSCRIBE = '-';
-        public static final char SUBSCRIPTION_ACTION_UPDATE = '=';
-        // Delete indicates the Dataset Root has been deleted and the Dataset Address can no longer be subscribed to.
-        public static final char SUBSCRIPTION_ACTION_DELETE = '!';
+        public static final char SUBSCRIPTION_CHANGE_SUBSCRIBE = '+';
+        public static final char SUBSCRIPTION_CHANGE_UNSUBSCRIBE = '-';
+        public static final char SUBSCRIPTION_CHANGE_UPDATE = '=';
+        public static final char SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS = '!';
 
         @NonNull
         public static final String CHANGES = "changes";
@@ -122,7 +121,7 @@ public final class Messages {
         public static final String DATASET_ADDRESSES = "datasetAddresses";
 
         @NonNull
-        public static final String SUBSCRIPTION_ACTION = "subscriptionAction";
+        public static final String SUBSCRIPTION_CHANGE = "subscriptionChange";
 
         @NonNull
         public static final String FILTER_PARAMETER = "filterParameter";

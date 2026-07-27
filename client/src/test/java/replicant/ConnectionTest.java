@@ -80,7 +80,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     public void requestSubscribe() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 23);
@@ -89,31 +89,31 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         connection.requestSubscribe(datasetAddress1, filterParameter1);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 1);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 1);
 
         connection.requestSubscribe(datasetAddress2, filterParameter2);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final AreaOfInterestRequest request1 =
-                connection.getPendingAreaOfInterestRequests().get(0);
-        final AreaOfInterestRequest request2 =
-                connection.getPendingAreaOfInterestRequests().get(1);
+        final SubscriptionOperation request1 =
+                connection.getPendingSubscriptionOperations().get(0);
+        final SubscriptionOperation request2 =
+                connection.getPendingSubscriptionOperations().get(1);
 
         assertEquals(request1.getDatasetAddress(), datasetAddress1);
         assertEquals(request1.getFilterParameter(), filterParameter1);
-        assertEquals(request1.getType(), AreaOfInterestRequest.Type.ADD);
+        assertEquals(request1.getType(), SubscriptionOperation.Type.SUBSCRIBE);
 
         assertEquals(request2.getDatasetAddress(), datasetAddress2);
         assertEquals(request2.getFilterParameter(), filterParameter2);
-        assertEquals(request2.getType(), AreaOfInterestRequest.Type.ADD);
+        assertEquals(request2.getType(), SubscriptionOperation.Type.SUBSCRIBE);
     }
 
     @Test
     public void requestSubscriptionUpdate() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 23);
@@ -122,62 +122,62 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         connection.requestSubscriptionUpdate(datasetAddress1, filterParameter1);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 1);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 1);
 
         connection.requestSubscriptionUpdate(datasetAddress2, filterParameter2);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final AreaOfInterestRequest request1 =
-                connection.getPendingAreaOfInterestRequests().get(0);
-        final AreaOfInterestRequest request2 =
-                connection.getPendingAreaOfInterestRequests().get(1);
+        final SubscriptionOperation request1 =
+                connection.getPendingSubscriptionOperations().get(0);
+        final SubscriptionOperation request2 =
+                connection.getPendingSubscriptionOperations().get(1);
 
         assertEquals(request1.getDatasetAddress(), datasetAddress1);
         assertEquals(request1.getFilterParameter(), filterParameter1);
-        assertEquals(request1.getType(), AreaOfInterestRequest.Type.UPDATE);
+        assertEquals(request1.getType(), SubscriptionOperation.Type.UPDATE);
 
         assertEquals(request2.getDatasetAddress(), datasetAddress2);
         assertEquals(request2.getFilterParameter(), filterParameter2);
-        assertEquals(request2.getType(), AreaOfInterestRequest.Type.UPDATE);
+        assertEquals(request2.getType(), SubscriptionOperation.Type.UPDATE);
     }
 
     @Test
     public void requestUnsubscribe() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 23);
 
         connection.requestUnsubscribe(datasetAddress1);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 1);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 1);
 
         connection.requestUnsubscribe(datasetAddress2);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final AreaOfInterestRequest request1 =
-                connection.getPendingAreaOfInterestRequests().get(0);
-        final AreaOfInterestRequest request2 =
-                connection.getPendingAreaOfInterestRequests().get(1);
+        final SubscriptionOperation request1 =
+                connection.getPendingSubscriptionOperations().get(0);
+        final SubscriptionOperation request2 =
+                connection.getPendingSubscriptionOperations().get(1);
 
         assertEquals(request1.getDatasetAddress(), datasetAddress1);
         assertNull(request1.getFilterParameter());
-        assertEquals(request1.getType(), AreaOfInterestRequest.Type.REMOVE);
+        assertEquals(request1.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
 
         assertEquals(request2.getDatasetAddress(), datasetAddress2);
         assertNull(request2.getFilterParameter());
-        assertEquals(request2.getType(), AreaOfInterestRequest.Type.REMOVE);
+        assertEquals(request2.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
     }
 
     @Test
     public void enqueueResponse() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
 
         final ServerToClientMessage data1 = OkMessage.create(1);
         final ServerToClientMessage data2 = OkMessage.create(1);
@@ -298,7 +298,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeAreaOfInterestRequest() {
+    public void completeSubscriptionOperation() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -307,41 +307,41 @@ public class ConnectionTest extends AbstractReplicantTest {
         final Object filterParameter1 = null;
         final Object filterParameter2 = null;
 
-        final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter1);
-        final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.ADD, filterParameter2);
-        connection.injectCurrentAreaOfInterestRequest(request1);
-        connection.injectCurrentAreaOfInterestRequest(request2);
+        final SubscriptionOperation request1 =
+                new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter1);
+        final SubscriptionOperation request2 =
+                new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.SUBSCRIBE, filterParameter2);
+        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(request2);
 
         request1.markAsInProgress(1);
         request2.markAsInProgress(2);
 
         assertTrue(request1.isInProgress());
         assertTrue(request2.isInProgress());
-        assertEquals(connection.getCurrentAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getCurrentSubscriptionOperations().size(), 2);
 
-        connection.completeAreaOfInterestRequest();
+        connection.completeSubscriptionOperation();
 
         assertFalse(request1.isInProgress());
         assertFalse(request2.isInProgress());
-        assertEquals(connection.getCurrentAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getCurrentSubscriptionOperations().size(), 0);
     }
 
     @Test
-    public void completeAreaOfInterestRequest_whenNoRequests() {
+    public void completeSubscriptionOperation_whenNoRequests() {
         final Connection connection = createConnection();
 
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, connection::completeAreaOfInterestRequest);
+                expectThrows(IllegalStateException.class, connection::completeSubscriptionOperation);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0023: Connection.completeAreaOfInterestRequest() invoked when there is no current"
-                        + " AreaOfInterest requests.");
+                "Replicant-0023: Connection.completeSubscriptionOperation() invoked when there are no current"
+                        + " Subscription Operations.");
     }
 
     @Test
-    public void canGroupRequests() {
+    public void canGroupSubscriptionOperations() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddressA = new DatasetAddress(1, 0);
@@ -354,37 +354,37 @@ public class ConnectionTest extends AbstractReplicantTest {
         final String filterParameterQ = "F1";
         final String filterParameterR = "F2";
 
-        final AreaOfInterestRequest request1 =
-                new AreaOfInterestRequest(datasetAddressA, AreaOfInterestRequest.Type.ADD, filterParameterP);
-        final AreaOfInterestRequest request2 =
-                new AreaOfInterestRequest(datasetAddressA, AreaOfInterestRequest.Type.REMOVE, filterParameterP);
-        final AreaOfInterestRequest request3 =
-                new AreaOfInterestRequest(datasetAddressA, AreaOfInterestRequest.Type.UPDATE, filterParameterP);
-        final AreaOfInterestRequest request4 =
-                new AreaOfInterestRequest(datasetAddressA, AreaOfInterestRequest.Type.ADD, filterParameterP);
+        final SubscriptionOperation request1 =
+                new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
+        final SubscriptionOperation request2 =
+                new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.UNSUBSCRIBE, filterParameterP);
+        final SubscriptionOperation request3 =
+                new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.UPDATE, filterParameterP);
+        final SubscriptionOperation request4 =
+                new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
 
-        final AreaOfInterestRequest request10 =
-                new AreaOfInterestRequest(datasetAddressB, AreaOfInterestRequest.Type.ADD, filterParameterQ);
-        final AreaOfInterestRequest request11 =
-                new AreaOfInterestRequest(datasetAddressC, AreaOfInterestRequest.Type.ADD, filterParameterQ);
-        final AreaOfInterestRequest request12 =
-                new AreaOfInterestRequest(datasetAddressD, AreaOfInterestRequest.Type.REMOVE, null);
-        final AreaOfInterestRequest request13 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.REMOVE, null);
-        final AreaOfInterestRequest request14 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.UPDATE, filterParameterQ);
-        final AreaOfInterestRequest request15 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.ADD, filterParameterP);
-        final AreaOfInterestRequest request16 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.UPDATE, filterParameterP);
-        final AreaOfInterestRequest request17 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.REMOVE, null);
-        final AreaOfInterestRequest request18 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.UPDATE, filterParameterP);
-        final AreaOfInterestRequest request19 =
-                new AreaOfInterestRequest(datasetAddressE, AreaOfInterestRequest.Type.UPDATE, filterParameterR);
+        final SubscriptionOperation request10 =
+                new SubscriptionOperation(datasetAddressB, SubscriptionOperation.Type.SUBSCRIBE, filterParameterQ);
+        final SubscriptionOperation request11 =
+                new SubscriptionOperation(datasetAddressC, SubscriptionOperation.Type.SUBSCRIBE, filterParameterQ);
+        final SubscriptionOperation request12 =
+                new SubscriptionOperation(datasetAddressD, SubscriptionOperation.Type.UNSUBSCRIBE, null);
+        final SubscriptionOperation request13 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UNSUBSCRIBE, null);
+        final SubscriptionOperation request14 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterQ);
+        final SubscriptionOperation request15 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
+        final SubscriptionOperation request16 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterP);
+        final SubscriptionOperation request17 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UNSUBSCRIBE, null);
+        final SubscriptionOperation request18 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterP);
+        final SubscriptionOperation request19 =
+                new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterR);
 
-        final List<AreaOfInterestRequest> requests = Arrays.asList(
+        final List<SubscriptionOperation> requests = Arrays.asList(
                 request1, request2, request3, request4, request10, request11, request12, request13, request14,
                 request15, request16, request17, request18, request19);
 
@@ -396,73 +396,76 @@ public class ConnectionTest extends AbstractReplicantTest {
         groupingPairs.put(request13.toString(), request17.toString());
         groupingPairs.put(request16.toString(), request18.toString());
 
-        for (final AreaOfInterestRequest r1 : requests) {
-            for (final AreaOfInterestRequest r2 : requests) {
+        for (final SubscriptionOperation r1 : requests) {
+            for (final SubscriptionOperation r2 : requests) {
                 final boolean expected =
                         (r1 == r2 && null != r1.getDatasetAddress().datasetRootId())
                                 || Objects.equals(String.valueOf(groupingPairs.get(r1.toString())), r2.toString())
                                 || Objects.equals(String.valueOf(groupingPairs.get(r2.toString())), r1.toString());
-                assertEquals(connection.canGroupRequests(r1, r2), expected, "Comparing " + r1 + " versus " + r2);
+                assertEquals(
+                        connection.canGroupSubscriptionOperations(r1, r2),
+                        expected,
+                        "Comparing " + r1 + " versus " + r2);
             }
         }
     }
 
     @Test
-    public void canGroupRequests_presentInCache() {
+    public void canGroupSubscriptionOperations_presentInCache() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddressA = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddressB = new DatasetAddress(1, 1, 2);
 
-        final AreaOfInterestRequest requestA =
-                new AreaOfInterestRequest(datasetAddressA, AreaOfInterestRequest.Type.ADD, null);
-        final AreaOfInterestRequest requestB =
-                new AreaOfInterestRequest(datasetAddressB, AreaOfInterestRequest.Type.ADD, null);
+        final SubscriptionOperation requestA =
+                new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, null);
+        final SubscriptionOperation requestB =
+                new SubscriptionOperation(datasetAddressB, SubscriptionOperation.Type.SUBSCRIBE, null);
 
-        assertTrue(connection.canGroupRequests(requestA, requestB));
-        assertTrue(connection.canGroupRequests(requestB, requestA));
+        assertTrue(connection.canGroupSubscriptionOperations(requestA, requestB));
+        assertTrue(connection.canGroupSubscriptionOperations(requestB, requestA));
 
         final TestCacheService cacheService = new TestCacheService();
         Replicant.context().setCacheService(cacheService);
 
         cacheService.store(datasetAddressA, ValueUtil.randomString(), ValueUtil.randomString());
 
-        assertFalse(connection.canGroupRequests(requestA, requestB));
-        assertFalse(connection.canGroupRequests(requestB, requestA));
+        assertFalse(connection.canGroupSubscriptionOperations(requestA, requestB));
+        assertFalse(connection.canGroupSubscriptionOperations(requestB, requestA));
     }
 
     @Test
-    public void getCurrentAreaOfInterestRequests() {
+    public void getCurrentSubscriptionOperations() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddressA = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddressB = new DatasetAddress(1, 1, 2);
         final DatasetAddress datasetAddressC = new DatasetAddress(1, 1, 3);
 
-        assertEquals(connection.getCurrentAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getCurrentSubscriptionOperations().size(), 0);
 
         connection.requestSubscribe(datasetAddressA, null);
         connection.requestSubscribe(datasetAddressB, null);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
         // This should transfer the above two and group them
-        assertEquals(connection.getCurrentAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getCurrentSubscriptionOperations().size(), 2);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 0);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
 
         // These should all go to pending queue
         connection.requestSubscribe(datasetAddressA, null);
         connection.requestSubscribe(datasetAddressB, null);
         connection.requestSubscribe(datasetAddressC, null);
 
-        assertEquals(connection.getCurrentAreaOfInterestRequests().size(), 2);
+        assertEquals(connection.getCurrentSubscriptionOperations().size(), 2);
 
-        assertEquals(connection.getPendingAreaOfInterestRequests().size(), 3);
+        assertEquals(connection.getPendingSubscriptionOperations().size(), 3);
     }
 
     @Test
-    public void lastIndexOfPendingAreaOfInterestRequest_passingNonnullFilterParameterForDelete() {
+    public void lastIndexOfPendingSubscriptionOperation_passingNonnullFilterParameterForUnsubscribe() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -470,16 +473,16 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> connection.lastIndexOfPendingAreaOfInterestRequest(
-                        AreaOfInterestRequest.Type.REMOVE, datasetAddress, filterParameter));
+                () -> connection.lastIndexOfPendingSubscriptionOperation(
+                        SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, filterParameter));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0024: Connection.lastIndexOfPendingAreaOfInterestRequest passed a REMOVE request for"
-                        + " Dataset Address '1.0' with a non-null Filter Parameter 'MyFilter'.");
+                "Replicant-0024: Connection.lastIndexOfPendingSubscriptionOperation passed an UNSUBSCRIBE operation"
+                        + " for Dataset Address '1.0' with a non-null Filter Parameter 'MyFilter'.");
     }
 
     @Test
-    public void isAreaOfInterestRequestPending_passingNonnullFilterParameterForDelete() {
+    public void isSubscriptionOperationPending_passingNonnullFilterParameterForUnsubscribe() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -487,30 +490,30 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> connection.isAreaOfInterestRequestPending(
-                        AreaOfInterestRequest.Type.REMOVE, datasetAddress, filterParameter));
+                () -> connection.isSubscriptionOperationPending(
+                        SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, filterParameter));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0025: Connection.isAreaOfInterestRequestPending passed a REMOVE request for Dataset Address"
-                        + " '1.0' with a non-null Filter Parameter 'MyFilter'.");
+                "Replicant-0025: Connection.isSubscriptionOperationPending passed an UNSUBSCRIBE operation for Dataset"
+                        + " Address '1.0' with a non-null Filter Parameter 'MyFilter'.");
     }
 
     @Test
-    public void pendingAreaOfInterestRequestQueries_noRequestsInConnection() {
+    public void pendingSubscriptionOperationQueries_noRequestsInConnection() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
 
-        assertRequestPending(connection, AreaOfInterestRequest.Type.ADD, datasetAddress1, null, false);
-        assertRequestPending(connection, AreaOfInterestRequest.Type.REMOVE, datasetAddress1, null, false);
-        assertRequestPending(connection, AreaOfInterestRequest.Type.UPDATE, datasetAddress1, null, false);
-        assertRequestPendingIndex(connection, AreaOfInterestRequest.Type.ADD, datasetAddress1, null, -1);
-        assertRequestPendingIndex(connection, AreaOfInterestRequest.Type.REMOVE, datasetAddress1, null, -1);
-        assertRequestPendingIndex(connection, AreaOfInterestRequest.Type.UPDATE, datasetAddress1, null, -1);
+        assertRequestPending(connection, SubscriptionOperation.Type.SUBSCRIBE, datasetAddress1, null, false);
+        assertRequestPending(connection, SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress1, null, false);
+        assertRequestPending(connection, SubscriptionOperation.Type.UPDATE, datasetAddress1, null, false);
+        assertRequestPendingIndex(connection, SubscriptionOperation.Type.SUBSCRIBE, datasetAddress1, null, -1);
+        assertRequestPendingIndex(connection, SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress1, null, -1);
+        assertRequestPendingIndex(connection, SubscriptionOperation.Type.UPDATE, datasetAddress1, null, -1);
     }
 
     @Test
-    public void pendingAreaOfInterestRequestQueries_requestPending() {
+    public void pendingSubscriptionOperationQueries_requestPending() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -545,7 +548,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void pendingAreaOfInterestRequestQueries_currentPending() {
+    public void pendingSubscriptionOperationQueries_currentPending() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -560,15 +563,15 @@ public class ConnectionTest extends AbstractReplicantTest {
         assertRequestPendingState(connection, datasetAddress2, filterParameter2, false, false, false, -1, -1, -1);
         assertRequestPendingState(connection, datasetAddress3, filterParameter3, false, false, false, -1, -1, -1);
 
-        connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter1));
+        connection.injectCurrentSubscriptionOperation(
+                new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter1));
 
         assertRequestPendingState(connection, datasetAddress1, filterParameter1, true, false, false, 0, -1, -1);
         assertRequestPendingState(connection, datasetAddress2, filterParameter2, false, false, false, -1, -1, -1);
         assertRequestPendingState(connection, datasetAddress3, filterParameter3, false, false, false, -1, -1, -1);
 
-        connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(datasetAddress2, AreaOfInterestRequest.Type.ADD, filterParameter2));
+        connection.injectCurrentSubscriptionOperation(
+                new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.SUBSCRIBE, filterParameter2));
 
         assertRequestPendingState(connection, datasetAddress1, filterParameter1, true, false, false, 0, -1, -1);
         assertRequestPendingState(connection, datasetAddress2, filterParameter2, true, false, false, 0, -1, -1);
@@ -576,7 +579,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void pendingAreaOfInterestRequestQueries_jumbledAggregate() {
+    public void pendingSubscriptionOperationQueries_jumbledAggregate() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
@@ -614,10 +617,10 @@ public class ConnectionTest extends AbstractReplicantTest {
         // Back to the first Dataset Address
         connection.requestSubscribe(datasetAddress1, filterParameter1);
 
-        connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(datasetAddress1, AreaOfInterestRequest.Type.ADD, filterParameter1));
-        connection.injectCurrentAreaOfInterestRequest(
-                new AreaOfInterestRequest(datasetAddress4, AreaOfInterestRequest.Type.ADD, filterParameter4));
+        connection.injectCurrentSubscriptionOperation(
+                new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter1));
+        connection.injectCurrentSubscriptionOperation(
+                new SubscriptionOperation(datasetAddress4, SubscriptionOperation.Type.SUBSCRIBE, filterParameter4));
 
         assertRequestPendingState(connection, datasetAddress1, filterParameter1, true, true, true, 10, 3, 1);
         assertRequestPendingState(connection, datasetAddress2, filterParameter2, false, true, false, -1, 5, -1);
@@ -635,32 +638,33 @@ public class ConnectionTest extends AbstractReplicantTest {
             final int addIndex,
             final int updateIndex,
             final int removeIndex) {
-        assertRequestPending(connection, AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter, hasAdd);
-        assertRequestPending(connection, AreaOfInterestRequest.Type.UPDATE, datasetAddress, filterParameter, hasUpdate);
-        assertRequestPending(connection, AreaOfInterestRequest.Type.REMOVE, datasetAddress, null, hasRemove);
+        assertRequestPending(connection, SubscriptionOperation.Type.SUBSCRIBE, datasetAddress, filterParameter, hasAdd);
+        assertRequestPending(connection, SubscriptionOperation.Type.UPDATE, datasetAddress, filterParameter, hasUpdate);
+        assertRequestPending(connection, SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, null, hasRemove);
         assertRequestPendingIndex(
-                connection, AreaOfInterestRequest.Type.ADD, datasetAddress, filterParameter, addIndex);
+                connection, SubscriptionOperation.Type.SUBSCRIBE, datasetAddress, filterParameter, addIndex);
         assertRequestPendingIndex(
-                connection, AreaOfInterestRequest.Type.UPDATE, datasetAddress, filterParameter, updateIndex);
-        assertRequestPendingIndex(connection, AreaOfInterestRequest.Type.REMOVE, datasetAddress, null, removeIndex);
+                connection, SubscriptionOperation.Type.UPDATE, datasetAddress, filterParameter, updateIndex);
+        assertRequestPendingIndex(
+                connection, SubscriptionOperation.Type.UNSUBSCRIBE, datasetAddress, null, removeIndex);
     }
 
     private void assertRequestPendingIndex(
             @NonNull final Connection connection,
-            final AreaOfInterestRequest.@NonNull Type action,
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter,
             final int expected) {
         assertEquals(
-                connection.lastIndexOfPendingAreaOfInterestRequest(action, datasetAddress, filterParameter), expected);
+                connection.lastIndexOfPendingSubscriptionOperation(type, datasetAddress, filterParameter), expected);
     }
 
     private void assertRequestPending(
             @NonNull final Connection connection,
-            final AreaOfInterestRequest.@NonNull Type action,
+            final SubscriptionOperation.@NonNull Type type,
             @NonNull final DatasetAddress datasetAddress,
             @Nullable final Object filterParameter,
             final boolean expected) {
-        assertEquals(connection.isAreaOfInterestRequestPending(action, datasetAddress, filterParameter), expected);
+        assertEquals(connection.isSubscriptionOperationPending(type, datasetAddress, filterParameter), expected);
     }
 }
