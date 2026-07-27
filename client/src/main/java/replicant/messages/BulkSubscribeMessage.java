@@ -1,6 +1,5 @@
 package replicant.messages;
 
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -25,9 +24,10 @@ public final class BulkSubscribeMessage extends ClientToServerMessage {
     public static BulkSubscribeMessage create(
             final int req, @NonNull final String[] datasetAddresses, @Nullable final Object filterParameter) {
         final BulkSubscribeMessage message = new BulkSubscribeMessage();
+        assert null != datasetAddresses;
         message.type = TYPE;
         message.requestId = req;
-        message.datasetAddresses = Objects.requireNonNull(datasetAddresses);
+        message.datasetAddresses = datasetAddresses;
         message.filterParameter = filterParameter;
         return message;
     }

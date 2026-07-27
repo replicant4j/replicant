@@ -15,9 +15,9 @@ public final class DataLoadStatus {
     private final int _subscriptionUpdateCount;
     /// The number of unsubscriptions or Dataset Address Invalidations applied as a result of the Message
     private final int _subscriptionUnsubscribeCount;
-    // The number of entities created or updated as part of change message
+    // The number of entities created or updated as part of a Change Set
     private final int _entityUpdateCount;
-    // The number of entities removed as part of change message
+    // The number of entities removed as part of a Change Set
     private final int _entityRemoveCount;
     // The number of entities where link() was invoked
     private final int _entityLinkCount;

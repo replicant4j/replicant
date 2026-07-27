@@ -30,7 +30,7 @@ public final class JsonEncoder {
     private JsonEncoder() {}
 
     /**
-     * Encode the change set with the EntityChangeCandidates.
+     * Encode the Change Set with the Entity Change Candidates.
      *
      * @param requestId          the requestId that initiated the change. Only set if the packet is destined for the
      *                           originating session.
@@ -38,7 +38,7 @@ public final class JsonEncoder {
      *                           request was initiated by the session.
      * @param datasetCacheVersion the opaque Dataset Cache Version for a complete Cacheable Dataset result.
      * @param changeSet          the Change Set being encoded.
-     * @return the encoded change set.
+     * @return the encoded Change Set.
      */
     @NonNull
     public static String encodeChangeSet(
@@ -51,12 +51,12 @@ public final class JsonEncoder {
         final var dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.ROOT);
 
         generator.writeStartObject();
-        generator.write(Messages.Common.TYPE, Messages.S2C_Type.UPDATE);
+        generator.write(Messages.Common.TYPE, Messages.S2C_Type.CHANGE_SET);
         if (null != requestId) {
             generator.write(Messages.Common.REQUEST_ID, requestId);
         }
         if (null != response) {
-            generator.write(Messages.Update.RESPONSE, response);
+            generator.write(Messages.ChangeSet.RESPONSE, response);
         }
         if (null != datasetCacheVersion) {
             generator.write(Messages.S2C_Common.DATASET_CACHE_VERSION, datasetCacheVersion);
@@ -66,7 +66,7 @@ public final class JsonEncoder {
                 .filter(c -> null == c.filterParameter())
                 .toList();
         if (!subscriptionChanges.isEmpty()) {
-            generator.writeStartArray(Messages.Update.SUBSCRIPTION_CHANGES);
+            generator.writeStartArray(Messages.ChangeSet.SUBSCRIPTION_CHANGES);
             subscriptionChanges.stream().map(JsonEncoder::toDescriptor).forEach(generator::write);
             generator.writeEnd();
         }
@@ -75,11 +75,11 @@ public final class JsonEncoder {
                 .filter(c -> null != c.filterParameter())
                 .toList();
         if (!filterParameterSubscriptionChanges.isEmpty()) {
-            generator.writeStartArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES);
+            generator.writeStartArray(Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES);
             filterParameterSubscriptionChanges.forEach(change -> {
                 generator.writeStartObject();
-                generator.write(Messages.Update.SUBSCRIPTION_CHANGE, toDescriptor(change));
-                generator.write(Messages.Update.FILTER_PARAMETER, change.filterParameter());
+                generator.write(Messages.ChangeSet.SUBSCRIPTION_CHANGE, toDescriptor(change));
+                generator.write(Messages.Common.FILTER_PARAMETER, change.filterParameter());
                 generator.writeEnd();
             });
             generator.writeEnd();
@@ -87,19 +87,19 @@ public final class JsonEncoder {
 
         final var changes = changeSet.getEntityChanges();
         if (!changes.isEmpty()) {
-            generator.writeStartArray(Messages.Update.CHANGES);
+            generator.writeStartArray(Messages.ChangeSet.ENTITY_CHANGES);
 
             for (final var change : changes) {
                 final var entityChangeCandidate = change.getEntityChangeCandidate();
 
                 generator.writeStartObject();
                 generator.write(
-                        Messages.Update.ENTITY_ID,
+                        Messages.ChangeSet.ENTITY_ID,
                         entityChangeCandidate.getTypeId() + "." + entityChangeCandidate.getId());
 
                 final var datasetAddresses = change.getDatasetAddresses();
                 if (!datasetAddresses.isEmpty()) {
-                    generator.writeStartArray(Messages.Update.DATASET_ADDRESSES);
+                    generator.writeStartArray(Messages.Common.DATASET_ADDRESSES);
                     for (final var datasetAddress : datasetAddresses) {
                         generator.write(datasetAddress.toString());
                     }
@@ -107,7 +107,7 @@ public final class JsonEncoder {
                 }
 
                 if (entityChangeCandidate.isUpdate()) {
-                    generator.writeStartObject(Messages.Update.DATA);
+                    generator.writeStartObject(Messages.ChangeSet.DATA);
                     final var values = Objects.requireNonNull(entityChangeCandidate.getAttributeValues());
                     for (final var entry : values.entrySet()) {
                         writeField(generator, entry.getKey(), entry.getValue(), dateFormat);
@@ -127,12 +127,12 @@ public final class JsonEncoder {
     public static String toDescriptor(@NonNull final SubscriptionChange subscriptionChange) {
         final var type = subscriptionChange.type();
         final var descriptorCode = SubscriptionChange.Type.SUBSCRIBE == type
-                ? Messages.Update.SUBSCRIPTION_CHANGE_SUBSCRIBE
+                ? Messages.ChangeSet.SUBSCRIPTION_CHANGE_SUBSCRIBE
                 : SubscriptionChange.Type.UNSUBSCRIBE == type
-                        ? Messages.Update.SUBSCRIPTION_CHANGE_UNSUBSCRIBE
+                        ? Messages.ChangeSet.SUBSCRIPTION_CHANGE_UNSUBSCRIBE
                         : SubscriptionChange.Type.UPDATE == type
-                                ? Messages.Update.SUBSCRIPTION_CHANGE_UPDATE
-                                : Messages.Update.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS;
+                                ? Messages.ChangeSet.SUBSCRIPTION_CHANGE_UPDATE
+                                : Messages.ChangeSet.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS;
         return String.valueOf(descriptorCode) + subscriptionChange.datasetAddress();
     }
 

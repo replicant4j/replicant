@@ -5,17 +5,17 @@ import static org.testng.Assert.*;
 
 import arez.component.Linkable;
 import org.testng.annotations.Test;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeDataImpl;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 
 public class MessageResponseTest extends AbstractReplicantTest {
     @Test
     public void construct() {
         final MessageResponse action =
-                new MessageResponse(1, UpdateMessage.create(null, null, null, null, null, null), null);
+                new MessageResponse(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
 
         assertFalse(action.areReplicaLinksPending());
         assertFalse(action.areEntityChangesPending());
@@ -31,8 +31,8 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
     @Test
     public void toStatus() {
-        final UpdateMessage changeSet =
-                UpdateMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
+        final ChangeSetMessage changeSet =
+                ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
 
         final MessageResponse action = new MessageResponse(1, changeSet, null);
 
@@ -62,7 +62,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
     public void incIgnoredUnlessSpyEnabled() {
         ReplicantTestUtil.disableSpies();
 
-        final MessageResponse action = new MessageResponse(1, new UpdateMessage(), null);
+        final MessageResponse action = new MessageResponse(1, new ChangeSetMessage(), null);
 
         assertEquals(action.getSubscriptionSubscribeCount(), 0);
         assertEquals(action.getSubscriptionUpdateCount(), 0);
@@ -89,17 +89,19 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
     @Test
     public void testToString() {
-        final UpdateMessage changeSet =
-                UpdateMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
+        final ChangeSetMessage changeSet =
+                ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
         final MessageResponse action = new MessageResponse(1, changeSet, null);
         assertEquals(
-                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
+                action.toString(),
+                "MessageResponse[Type=change-set,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
 
         // Null out Entities
         action.nextReplicaToLink();
 
         assertEquals(
-                action.toString(), "MessageResponse[Type=update,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
+                action.toString(),
+                "MessageResponse[Type=change-set,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
 
         ReplicantTestUtil.disableNames();
 
@@ -130,8 +132,8 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         final Object[] entities = new Object[] {mock(Linkable.class), new Object(), new Object()};
 
-        final UpdateMessage changeSet =
-                UpdateMessage.create(requestId, null, null, subscriptionChanges, entityChanges, null);
+        final ChangeSetMessage changeSet =
+                ChangeSetMessage.create(requestId, null, null, subscriptionChanges, entityChanges, null);
 
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
@@ -215,8 +217,8 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         final EntityChange[] entityChanges = new EntityChange[0];
 
-        final UpdateMessage changeSet =
-                UpdateMessage.create(requestId, null, new String[] {"-43.2"}, subscriptionChanges, entityChanges, null);
+        final ChangeSetMessage changeSet = ChangeSetMessage.create(
+                requestId, null, new String[] {"-43.2"}, subscriptionChanges, entityChanges, null);
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
 
@@ -248,7 +250,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
     @Test
     public void setChangeSet_mismatchedRequestId() {
-        final UpdateMessage changeSet = UpdateMessage.create(1234, null, null, null, null, null);
+        final ChangeSetMessage changeSet = ChangeSetMessage.create(1234, null, null, null, null, null);
         final RequestEntry request = new RequestEntry(5678, ValueUtil.randomString(), false, null);
 
         final IllegalStateException exception =

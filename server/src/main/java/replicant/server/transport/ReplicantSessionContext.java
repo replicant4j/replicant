@@ -22,13 +22,13 @@ public interface ReplicantSessionContext {
             @Nullable JsonObject filterParameter);
 
     /**
-     * Hook invoked before sending a change message to the given session.
-     * Used to optimise expansion of change messages prior to performing the normal expand cycle.
+     * Hook invoked before sending a Change Set to the given session.
+     * Used to optimise expansion of the Change Set prior to performing the normal expand cycle.
      *
-     * @param session the session in which the change message is being sent. Must not be null.
-     * @param packet  the packet representing the change message to be sent. Must not be null.
+     * @param session the session to which the Change Set is being sent. Must not be null.
+     * @param packet  the packet containing the Change Set to be sent. Must not be null.
      */
-    void preSendChangeMessage(@NonNull ReplicantSession session, @NonNull Packet packet);
+    void preSendChangeSet(@NonNull ReplicantSession session, @NonNull Packet packet);
 
     /**
      * Derive a Filter Parameter for the target Dataset Address based on the source Dataset Address and Filter

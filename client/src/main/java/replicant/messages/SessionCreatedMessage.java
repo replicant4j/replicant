@@ -1,6 +1,5 @@
 package replicant.messages;
 
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -22,11 +21,12 @@ public class SessionCreatedMessage extends ServerToClientMessage {
     @JsOverlay
     @NonNull
     public static SessionCreatedMessage create(@NonNull final String sessionId) {
-        final SessionCreatedMessage changeSet = new SessionCreatedMessage();
-        changeSet.type = TYPE;
-        changeSet.requestId = null;
-        changeSet.sessionId = Objects.requireNonNull(sessionId);
-        return changeSet;
+        final SessionCreatedMessage message = new SessionCreatedMessage();
+        assert null != sessionId;
+        message.type = TYPE;
+        message.requestId = null;
+        message.sessionId = sessionId;
+        return message;
     }
 
     @JsOverlay

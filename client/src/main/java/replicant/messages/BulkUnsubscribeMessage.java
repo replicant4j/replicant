@@ -1,6 +1,5 @@
 package replicant.messages;
 
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -20,9 +19,10 @@ public final class BulkUnsubscribeMessage extends ClientToServerMessage {
     @NonNull
     public static BulkUnsubscribeMessage create(final int req, @NonNull final String[] datasetAddresses) {
         final BulkUnsubscribeMessage message = new BulkUnsubscribeMessage();
+        assert null != datasetAddresses;
         message.type = TYPE;
         message.requestId = req;
-        message.datasetAddresses = Objects.requireNonNull(datasetAddresses);
+        message.datasetAddresses = datasetAddresses;
         return message;
     }
 }

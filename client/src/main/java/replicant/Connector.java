@@ -28,12 +28,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
-import replicant.messages.UpdateMessage;
 import replicant.messages.UseCachedDatasetMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -108,7 +108,7 @@ abstract class Connector extends ReplicantService {
      */
     private int _linksToProcessPerTick = DEFAULT_LINKS_TO_PROCESS_PER_TICK;
     /**
-     * Maximum number of EntityChange messages processed in a single tick of the scheduler. After this many changes have
+     * Maximum number of Entity Changes processed in a single tick of the scheduler. After this many changes have
      * been processed then return and any remaining change can be processed in a later tick.
      */
     private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
@@ -558,7 +558,7 @@ abstract class Connector extends ReplicantService {
             completeSubscriptionOperations(response);
             if (!response.hasWorldBeenValidated()) {
                 releaseSchedulerLock();
-                // Validate the world after the change set has been applied (if feature is enabled)
+                // Validate the world after the current server message has been applied (if feature is enabled)
                 validateWorld();
             } else {
                 // We have to also release scheduler lock here in scenario where system not configured to validate world
@@ -771,12 +771,12 @@ abstract class Connector extends ReplicantService {
         final Integer requestId = message.getRequestId();
 
         final ExecRequest execRequest = null != requestId ? ensureConnection().getActiveExecRequest(requestId) : null;
-        if (null != execRequest && null != request && message instanceof UpdateMessage) {
+        if (null != execRequest && null != request && message instanceof ChangeSetMessage) {
             @SuppressWarnings("PatternVariableCanBeUsed")
-            final UpdateMessage updateMessage = (UpdateMessage) message;
+            final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             final ResponseHandler responseHandler = request.getResponseHandler();
             if (null != responseHandler) {
-                responseHandler.onResponse(Objects.requireNonNull(updateMessage.getResponse()));
+                responseHandler.onResponse(Objects.requireNonNull(changeSet.getResponse()));
             }
         }
 
@@ -805,12 +805,12 @@ abstract class Connector extends ReplicantService {
                 }
                 triggerMessageScheduler();
             }
-        } else if (UpdateMessage.TYPE.equals(message.getType())) {
+        } else if (ChangeSetMessage.TYPE.equals(message.getType())) {
             // If message is not a ping response then try to perform sync
             maybeRequestSync();
-            final UpdateMessage updateMessage = (UpdateMessage) message;
-            if (null != updateMessage.getDatasetCacheVersion()) {
-                cacheMessageIfPossible(response, updateMessage);
+            final ChangeSetMessage changeSet = (ChangeSetMessage) message;
+            if (null != changeSet.getDatasetCacheVersion()) {
+                cacheChangeSetIfPossible(response, changeSet);
             }
         } else if (ErrorMessage.TYPE.equals(message.getType())) {
             final ErrorMessage errorMessage = (ErrorMessage) message;
@@ -933,8 +933,8 @@ abstract class Connector extends ReplicantService {
         });
     }
 
-    private void cacheMessageIfPossible(
-            @NonNull final MessageResponse response, @NonNull final UpdateMessage changeSet) {
+    private void cacheChangeSetIfPossible(
+            @NonNull final MessageResponse response, @NonNull final ChangeSetMessage changeSet) {
         final String datasetCacheVersion = changeSet.getDatasetCacheVersion();
         final CacheService cacheService = getReplicantContext().getCacheService();
 
@@ -1035,7 +1035,7 @@ abstract class Connector extends ReplicantService {
                         if (Replicant.shouldCheckInvariants()) {
                             invariant(
                                     () -> null != subscription,
-                                    () -> "Replicant-0069: UpdateMessage contained an EntityChange message"
+                                    () -> "Replicant-0069: ChangeSetMessage contained an Entity Change"
                                             + " referencing Dataset Address "
                                             + datasetAddress + " but no such subscription exists locally.");
                         }
@@ -1339,7 +1339,7 @@ abstract class Connector extends ReplicantService {
             }
             try {
                 messageToQueue =
-                        Objects.requireNonNull(JSON.parse(entry.getContent())).cast();
+                        Objects.requireNonNull(JSON.parse(entry.getChangeSet())).cast();
             } catch (final Throwable t) {
                 rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is corrupt.", t);
                 onMessageReadFailure();
@@ -1369,7 +1369,7 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Invoked when a change set has been completely processed.
+     * Invoked when a server-to-client transport message has been completely processed.
      *
      * @param response the message response.
      */

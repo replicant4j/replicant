@@ -181,16 +181,16 @@ public class ReplicantSessionTest {
             final var changeSet = new ChangeSet();
             changeSet.merge(change);
 
-            session.sendPacket(7, null, null, changeSet);
+            session.sendChangeSet(7, null, null, changeSet);
 
             final var captor = org.mockito.ArgumentCaptor.forClass(String.class);
             verify(remote).sendText(captor.capture());
 
             final var payload =
                     Json.createReader(new StringReader(captor.getValue())).readObject();
-            assertEquals(payload.getString(Messages.Common.TYPE), Messages.S2C_Type.UPDATE);
+            assertEquals(payload.getString(Messages.Common.TYPE), Messages.S2C_Type.CHANGE_SET);
             assertEquals(payload.getInt(Messages.Common.REQUEST_ID), 7);
-            assertEquals(payload.getJsonArray(Messages.Update.CHANGES).size(), 1);
+            assertEquals(payload.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).size(), 1);
         } finally {
             session.getLock().unlock();
         }
@@ -202,7 +202,7 @@ public class ReplicantSessionTest {
         final var changeSet = new ChangeSet();
 
         final var exception =
-                expectThrows(IllegalStateException.class, () -> session.sendPacket(null, null, null, changeSet));
+                expectThrows(IllegalStateException.class, () -> session.sendChangeSet(null, null, null, changeSet));
         assertEquals(exception.getMessage(), "Expected session to be locked by the current thread");
     }
 

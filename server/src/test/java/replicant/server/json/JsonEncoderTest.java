@@ -66,30 +66,34 @@ public final class JsonEncoderTest {
 
         assertNotNull(changeSet);
 
+        assertEquals(changeSet.getString("type"), "change-set");
+        assertTrue(changeSet.containsKey("entityChanges"));
+        assertFalse(changeSet.containsKey("changes"));
         assertEquals(changeSet.getInt(Messages.Common.REQUEST_ID), requestId);
-        final var jsonResponse = changeSet.getJsonArray(Messages.Update.RESPONSE);
+        final var jsonResponse = changeSet.getJsonArray(Messages.ChangeSet.RESPONSE);
         assertEquals(jsonResponse.size(), 2);
         assertEquals(jsonResponse.getInt(0), 17);
         assertEquals(jsonResponse.getInt(1), 42);
         assertEquals(changeSet.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), datasetCacheVersion);
 
         final var action = changeSet
-                .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
+                .getJsonArray(Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
-        assertEquals(action.getString(Messages.Update.SUBSCRIPTION_CHANGE), "=45.77");
-        assertEquals(action.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
+        assertEquals(action.getString(Messages.ChangeSet.SUBSCRIPTION_CHANGE), "=45.77");
+        assertEquals(action.getJsonObject(Messages.Common.FILTER_PARAMETER).toString(), filterParameter.toString());
 
-        final var object = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
+        final var object =
+                changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
 
-        assertEquals(object.getString(Messages.Update.ENTITY_ID), "42.17");
+        assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
 
-        final var data = object.getJsonObject(Messages.Update.DATA);
+        final var data = object.getJsonObject(Messages.ChangeSet.DATA);
         assertNotNull(data);
         assertEquals(data.getString(MessageTestUtil.ATTR_KEY1), "a1");
         assertEquals(data.getString(MessageTestUtil.ATTR_KEY2), "a2");
         assertTrue(data.getString("key3").startsWith("2001-07-05T05:08:56.000"));
 
-        final var datasetAddresses = object.getJsonArray(Messages.Update.DATASET_ADDRESSES);
+        final var datasetAddresses = object.getJsonArray(Messages.Common.DATASET_ADDRESSES);
         assertNotNull(datasetAddresses);
         assertEquals(datasetAddresses.size(), 3);
         final var datasetAddress1 = datasetAddresses.getString(0);
@@ -118,11 +122,12 @@ public final class JsonEncoderTest {
 
         assertNotNull(changeSet);
 
-        final var object = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
+        final var object =
+                changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
 
-        assertEquals(object.getString(Messages.Update.ENTITY_ID), "42.17");
+        assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
 
-        assertFalse(object.containsKey(Messages.Update.DATA));
+        assertFalse(object.containsKey(Messages.ChangeSet.DATA));
     }
 
     @Test
@@ -131,13 +136,13 @@ public final class JsonEncoderTest {
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
 
         assertNotNull(changeSet);
-        assertEquals(changeSet.getString(Messages.Common.TYPE), Messages.S2C_Type.UPDATE);
+        assertEquals(changeSet.getString(Messages.Common.TYPE), Messages.S2C_Type.CHANGE_SET);
         assertFalse(changeSet.containsKey(Messages.Common.REQUEST_ID));
-        assertFalse(changeSet.containsKey(Messages.Update.RESPONSE));
+        assertFalse(changeSet.containsKey(Messages.ChangeSet.RESPONSE));
         assertFalse(changeSet.containsKey(Messages.S2C_Common.DATASET_CACHE_VERSION));
-        assertFalse(changeSet.containsKey(Messages.Update.SUBSCRIPTION_CHANGES));
-        assertFalse(changeSet.containsKey(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES));
-        assertFalse(changeSet.containsKey(Messages.Update.CHANGES));
+        assertFalse(changeSet.containsKey(Messages.ChangeSet.SUBSCRIPTION_CHANGES));
+        assertFalse(changeSet.containsKey(Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES));
+        assertFalse(changeSet.containsKey(Messages.ChangeSet.ENTITY_CHANGES));
     }
 
     private JsonObject toJsonObject(final String encoded) {
@@ -153,7 +158,7 @@ public final class JsonEncoderTest {
         assertNotNull(changeSet);
 
         assertEquals(
-                changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES).getString(0), "+45");
+                changeSet.getJsonArray(Messages.ChangeSet.SUBSCRIPTION_CHANGES).getString(0), "+45");
     }
 
     @Test
@@ -165,7 +170,7 @@ public final class JsonEncoderTest {
         assertNotNull(changeSet);
 
         assertEquals(
-                changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES).getString(0), "!45");
+                changeSet.getJsonArray(Messages.ChangeSet.SUBSCRIPTION_CHANGES).getString(0), "!45");
     }
 
     @Test
@@ -184,18 +189,18 @@ public final class JsonEncoderTest {
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         assertNotNull(changeSet);
 
-        final var actions = changeSet.getJsonArray(Messages.Update.SUBSCRIPTION_CHANGES);
+        final var actions = changeSet.getJsonArray(Messages.ChangeSet.SUBSCRIPTION_CHANGES);
         assertEquals(actions.size(), 3);
         assertEquals(actions.getString(0), "+1");
         assertEquals(actions.getString(1), "-2.5");
         assertEquals(actions.getString(2), "=3.7#inst");
 
         final var filteredAction = changeSet
-                .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
+                .getJsonArray(Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
                 .getJsonObject(0);
-        assertEquals(filteredAction.getString(Messages.Update.SUBSCRIPTION_CHANGE), "+4.9");
+        assertEquals(filteredAction.getString(Messages.ChangeSet.SUBSCRIPTION_CHANGE), "+4.9");
         assertEquals(
-                filteredAction.getJsonObject(Messages.Update.FILTER_PARAMETER).toString(), filterParameter.toString());
+                filteredAction.getJsonObject(Messages.Common.FILTER_PARAMETER).toString(), filterParameter.toString());
     }
 
     @Test
@@ -225,8 +230,9 @@ public final class JsonEncoderTest {
         cs.merge(new EntityChange(message));
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
-        final var change = changeSet.getJsonArray(Messages.Update.CHANGES).getJsonObject(0);
-        final var data = change.getJsonObject(Messages.Update.DATA);
+        final var change =
+                changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
+        final var data = change.getJsonObject(Messages.ChangeSet.DATA);
 
         assertEquals(data.getString("s"), "text");
         assertEquals(data.getInt("i"), 12);
@@ -234,7 +240,7 @@ public final class JsonEncoderTest {
         assertTrue(data.getBoolean("b"));
         assertTrue(data.getString("d").startsWith("2001-07-05T05:08:56.000"));
         assertFalse(data.containsKey("n"));
-        assertFalse(change.containsKey(Messages.Update.DATASET_ADDRESSES));
+        assertFalse(change.containsKey(Messages.Common.DATASET_ADDRESSES));
     }
 
     @Test
@@ -251,9 +257,9 @@ public final class JsonEncoderTest {
 
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         final var datasetAddresses = changeSet
-                .getJsonArray(Messages.Update.CHANGES)
+                .getJsonArray(Messages.ChangeSet.ENTITY_CHANGES)
                 .getJsonObject(0)
-                .getJsonArray(Messages.Update.DATASET_ADDRESSES);
+                .getJsonArray(Messages.Common.DATASET_ADDRESSES);
 
         assertEquals(datasetAddresses.size(), 2);
         assertEquals(datasetAddresses.getString(0), "7#fi");
@@ -288,9 +294,9 @@ public final class JsonEncoderTest {
         final var encoded = JsonEncoder.encodeChangeSet(null, null, null, cs);
 
         final var value = toJsonObject(encoded)
-                .getJsonArray(Messages.Update.CHANGES)
+                .getJsonArray(Messages.ChangeSet.ENTITY_CHANGES)
                 .getJsonObject(0)
-                .getJsonObject(Messages.Update.DATA)
+                .getJsonObject(Messages.ChangeSet.DATA)
                 .getString("X");
         assertNotNull(value);
         assertEquals(value, "1392061102056");

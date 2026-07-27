@@ -49,13 +49,13 @@ final class SubscriptionChange {
     private static Type changeToType(@NonNull final String subscriptionChange) {
         assert !subscriptionChange.isEmpty();
         final char commandCode = subscriptionChange.charAt(0);
-        final Type type = Messages.Update.SUBSCRIPTION_CHANGE_SUBSCRIBE == commandCode
+        final Type type = Messages.ChangeSet.SUBSCRIPTION_CHANGE_SUBSCRIBE == commandCode
                 ? Type.SUBSCRIBE
-                : Messages.Update.SUBSCRIPTION_CHANGE_UNSUBSCRIBE == commandCode
+                : Messages.ChangeSet.SUBSCRIPTION_CHANGE_UNSUBSCRIBE == commandCode
                         ? Type.UNSUBSCRIBE
-                        : Messages.Update.SUBSCRIPTION_CHANGE_UPDATE == commandCode
+                        : Messages.ChangeSet.SUBSCRIPTION_CHANGE_UPDATE == commandCode
                                 ? Type.UPDATE
-                                : Messages.Update.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS == commandCode
+                                : Messages.ChangeSet.SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS == commandCode
                                         ? Type.INVALIDATE_DATASET_ADDRESS
                                         : null;
         if (null == type) {

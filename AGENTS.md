@@ -23,6 +23,9 @@ the test passes.
 - Every maintained Java package must have a `package-info.java` marked with JSpecify `@NullMarked`. Use JSpecify
   nullness annotations unless an adjacent comment documents a processor compatibility workaround.
 - Prefer `final` when bindings are not reassigned. Never use `var` in client/shared production or tests.
+- Values whose declared type is in `replicant.messages` are JavaScript-native interop objects. Never pass these values
+  to `Objects.requireNonNull`; use a Java `assert` before directly assigning, returning, or otherwise using the value.
+  Keep `Objects.requireNonNull` out of the `replicant.messages` package entirely.
 - JVM-only client code must use the package-local `replicant.GwtIncompatible` annotation, or
   `replicant.messages.GwtIncompatible` inside the messages package.
 - Limit `javax.annotation` in maintained source to Java EE annotations and documented processor compatibility

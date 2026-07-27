@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.messages.ChangeSetMessage;
 
 public class TestCacheService implements CacheService {
     @NonNull
@@ -38,9 +39,9 @@ public class TestCacheService implements CacheService {
     public boolean store(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
-            @NonNull final Object content) {
+            @NonNull final ChangeSetMessage changeSet) {
         getSystemCache(datasetAddress.schemaId())
-                .put(datasetAddress, new CacheEntry(datasetAddress, datasetCacheVersion, String.valueOf(content)));
+                .put(datasetAddress, new CacheEntry(datasetAddress, datasetCacheVersion, String.valueOf(changeSet)));
         return true;
     }
 

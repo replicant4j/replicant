@@ -23,6 +23,19 @@ fi
 tools/java_format.sh check
 tools/check_null_marked_packages.sh
 
+message_require_non_null_matches=""
+message_require_non_null_status=0
+message_require_non_null_matches="$(
+  rg -n 'Objects\.requireNonNull\(' client/src/main/java/replicant/messages --glob '*.java'
+)" || message_require_non_null_status=$?
+if [[ "${message_require_non_null_status}" -eq 0 ]]; then
+  echo "JavaScript-native replicant.messages sources must use Java assertions instead of Objects.requireNonNull:" >&2
+  echo "${message_require_non_null_matches}" >&2
+  exit 1
+elif [[ "${message_require_non_null_status}" -ne 1 ]]; then
+  exit "${message_require_non_null_status}"
+fi
+
 var_matches=""
 var_status=0
 var_matches="$(rg -n '(^|[;({])[[:space:]]*(final[[:space:]]+)?var[[:space:]]+[A-Za-z_$]' \

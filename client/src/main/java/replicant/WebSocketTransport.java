@@ -59,7 +59,7 @@ public final class WebSocketTransport extends AbstractTransport {
     }
 
     private static boolean isKnownMessageType(@NonNull final String type) {
-        return Messages.S2C_Type.UPDATE.equals(type)
+        return Messages.S2C_Type.CHANGE_SET.equals(type)
                 || Messages.S2C_Type.USE_CACHED_DATASET.equals(type)
                 || Messages.S2C_Type.SESSION_CREATED.equals(type)
                 || Messages.S2C_Type.OK.equals(type)

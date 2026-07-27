@@ -428,7 +428,10 @@ public class ConnectionTest extends AbstractReplicantTest {
         final TestCacheService cacheService = new TestCacheService();
         Replicant.context().setCacheService(cacheService);
 
-        cacheService.store(datasetAddressA, ValueUtil.randomString(), ValueUtil.randomString());
+        cacheService.store(
+                datasetAddressA,
+                ValueUtil.randomString(),
+                replicant.messages.ChangeSetMessage.create(null, null, null, null, null, null));
 
         assertFalse(connection.canGroupSubscriptionOperations(requestA, requestB));
         assertFalse(connection.canGroupSubscriptionOperations(requestB, requestA));

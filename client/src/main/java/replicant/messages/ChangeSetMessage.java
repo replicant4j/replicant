@@ -13,13 +13,13 @@ import replicant.Replicant;
 import replicant.shared.Messages;
 
 /**
- * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
+ * The server-to-client wire message carrying one Change Set.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-@SuppressWarnings( { "NullAway.Init", "ConstantValue", "NotNullFieldNotInitialized" } )
-public class UpdateMessage extends ServerToClientMessage {
+@SuppressWarnings({"NullAway.Init", "ConstantValue", "NotNullFieldNotInitialized"})
+public class ChangeSetMessage extends ServerToClientMessage {
     @JsOverlay
-    public static final String TYPE = Messages.S2C_Type.UPDATE;
+    public static final String TYPE = Messages.S2C_Type.CHANGE_SET;
 
     @Nullable
     private String datasetCacheVersion;
@@ -31,7 +31,7 @@ public class UpdateMessage extends ServerToClientMessage {
     private SubscriptionChangeMessage[] filterParameterSubscriptionChanges;
 
     @Nullable
-    private EntityChange[] changes;
+    private EntityChange[] entityChanges;
 
     @Nullable
     private Object response;
@@ -39,22 +39,22 @@ public class UpdateMessage extends ServerToClientMessage {
     @JsOverlay
     @NonNull
     @NullUnmarked
-    public static UpdateMessage create(
+    public static ChangeSetMessage create(
             @Nullable final Integer requestId,
             @Nullable final String datasetCacheVersion,
             @Nullable final String[] subscriptionChanges,
             @Nullable final SubscriptionChangeMessage[] filterParameterSubscriptionChanges,
             @Nullable final EntityChange[] entityChanges,
             @Nullable final Object response) {
-        final UpdateMessage updateMessage = new UpdateMessage();
-        updateMessage.type = TYPE;
-        updateMessage.requestId = null == requestId ? null : requestId.doubleValue();
-        updateMessage.datasetCacheVersion = datasetCacheVersion;
-        updateMessage.subscriptionChanges = subscriptionChanges;
-        updateMessage.filterParameterSubscriptionChanges = filterParameterSubscriptionChanges;
-        updateMessage.changes = entityChanges;
-        updateMessage.response = response;
-        return updateMessage;
+        final ChangeSetMessage changeSet = new ChangeSetMessage();
+        changeSet.type = TYPE;
+        changeSet.requestId = null == requestId ? null : requestId.doubleValue();
+        changeSet.datasetCacheVersion = datasetCacheVersion;
+        changeSet.subscriptionChanges = subscriptionChanges;
+        changeSet.filterParameterSubscriptionChanges = filterParameterSubscriptionChanges;
+        changeSet.entityChanges = entityChanges;
+        changeSet.response = response;
+        return changeSet;
     }
 
     /**
@@ -67,7 +67,7 @@ public class UpdateMessage extends ServerToClientMessage {
     }
 
     /**
-     * @return the exec response associated with the message, if any
+     * @return the exec response associated with the Change Set, if any.
      */
     @Nullable
     @JsOverlay
@@ -76,10 +76,10 @@ public class UpdateMessage extends ServerToClientMessage {
     }
 
     /**
-     * Return the compact Subscription changes that are part of the message.
+     * Return the compact Subscription Changes that are part of the Change Set.
      * This should only be invoked if {@link #hasSubscriptionChanges()} returns true.
      *
-     * @return the compact Subscription changes.
+     * @return the compact Subscription Changes.
      */
     @NonNull
     @JsOverlay
@@ -87,17 +87,17 @@ public class UpdateMessage extends ServerToClientMessage {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> null != subscriptionChanges,
-                    () -> "Replicant-0013: UpdateMessage.getSubscriptionChanges() invoked when no changes are"
-                            + " present. Should guard call with UpdateMessage.hasSubscriptionChanges().");
+                    () -> "Replicant-0013: ChangeSetMessage.getSubscriptionChanges() invoked when no changes are"
+                            + " present. Should guard call with ChangeSetMessage.hasSubscriptionChanges().");
         }
         assert null != subscriptionChanges;
         return subscriptionChanges;
     }
 
     /**
-     * Return true if this UpdateMessage contains compact Subscription changes.
+     * Return true if this Change Set contains compact Subscription Changes.
      *
-     * @return true if this UpdateMessage contains compact Subscription changes.
+     * @return true if this Change Set contains compact Subscription Changes.
      */
     @JsOverlay
     public final boolean hasSubscriptionChanges() {
@@ -105,10 +105,10 @@ public class UpdateMessage extends ServerToClientMessage {
     }
 
     /**
-     * Return the Subscription changes with Filter Parameters that are part of the message.
+     * Return the Subscription Changes with Filter Parameters that are part of the Change Set.
      * This should only be invoked if {@link #hasFilterParameterSubscriptionChanges()} returns true.
      *
-     * @return the Subscription changes with Filter Parameters.
+     * @return the Subscription Changes with Filter Parameters.
      */
     @NonNull
     @JsOverlay
@@ -116,18 +116,18 @@ public class UpdateMessage extends ServerToClientMessage {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> null != filterParameterSubscriptionChanges,
-                    () -> "Replicant-0030: UpdateMessage.getFilterParameterSubscriptionChanges() invoked when no"
+                    () -> "Replicant-0030: ChangeSetMessage.getFilterParameterSubscriptionChanges() invoked when no"
                             + " changes are present. Should guard call with"
-                            + " UpdateMessage.hasFilterParameterSubscriptionChanges().");
+                            + " ChangeSetMessage.hasFilterParameterSubscriptionChanges().");
         }
         assert null != filterParameterSubscriptionChanges;
         return filterParameterSubscriptionChanges;
     }
 
     /**
-     * Return true if this UpdateMessage contains Subscription changes with Filter Parameters.
+     * Return true if this Change Set contains Subscription Changes with Filter Parameters.
      *
-     * @return true if this UpdateMessage contains Subscription changes with Filter Parameters.
+     * @return true if this Change Set contains Subscription Changes with Filter Parameters.
      */
     @JsOverlay
     public final boolean hasFilterParameterSubscriptionChanges() {
@@ -135,51 +135,51 @@ public class UpdateMessage extends ServerToClientMessage {
     }
 
     /**
-     * Return the entity changes that are part of the message.
+     * Return the Entity Changes that are part of the Change Set.
      * This should only be invoked if {@link #hasEntityChanges()} return true.
      *
-     * @return the entity changes.
+     * @return the Entity Changes.
      */
     @NonNull
     @JsOverlay
     public final EntityChange[] getEntityChanges() {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> null != changes,
-                    () -> "Replicant-0012: UpdateMessage.getEntityChanges() invoked when no changes are present."
-                            + " Should guard call with UpdateMessage.hasEntityChanges().");
+                    () -> null != entityChanges,
+                    () -> "Replicant-0012: ChangeSetMessage.getEntityChanges() invoked when no changes are present."
+                            + " Should guard call with ChangeSetMessage.hasEntityChanges().");
         }
-        assert null != changes;
-        return changes;
+        assert null != entityChanges;
+        return entityChanges;
     }
 
     /**
-     * Return true if this UpdateMessage contains EntityChanges.
+     * Return true if this Change Set contains Entity Changes.
      *
-     * @return true if this UpdateMessage contains EntityChanges
+     * @return true if this Change Set contains Entity Changes.
      */
     @JsOverlay
     public final boolean hasEntityChanges() {
-        return null != changes;
+        return null != entityChanges;
     }
 
     /**
-     * This method will validate the UpdateMessage to make sure it is internally consistent if invariants are enabled.
-     * The validation will ensure that there is not multiple EntityChange messages for the same entity and that
-     * there are not multiple SubscriptionChangeMessage instances for the same Dataset Address.
+     * Validate the Change Set when invariants are enabled.
+     * The validation ensures there are not multiple Entity Changes for the same Entity and that there are not multiple
+     * Subscription Changes for the same Dataset Address.
      */
     @JsOverlay
     public final void validate() {
         if (Replicant.shouldCheckApiInvariants()) {
-            if (null != changes) {
+            if (null != entityChanges) {
                 final HashSet<String> existing = new HashSet<>();
-                for (final EntityChange change : changes) {
+                for (final EntityChange change : entityChanges) {
                     assert null != change;
                     final String id = change.getId();
                     apiInvariant(
                             () -> existing.add(id),
-                            () -> "Replicant-0014: UpdateMessage contains multiple EntityChange messages "
-                                    + "with the id '" + id + "'.");
+                            () -> "Replicant-0014: ChangeSetMessage contains multiple Entity Changes " + "with the id '"
+                                    + id + "'.");
                 }
             }
             final HashSet<String> existingDatasetAddresses = new HashSet<>();
@@ -189,7 +189,7 @@ public class UpdateMessage extends ServerToClientMessage {
                     final String key = subscriptionChange.substring(1);
                     apiInvariant(
                             () -> existingDatasetAddresses.add(key),
-                            () -> "Replicant-0022: UpdateMessage contains multiple Subscription changes "
+                            () -> "Replicant-0022: ChangeSetMessage contains multiple Subscription Changes "
                                     + "for Dataset Address " + subscriptionChange.substring(1) + ".");
                 }
             }
@@ -200,7 +200,7 @@ public class UpdateMessage extends ServerToClientMessage {
                     final String key = descriptor.substring(1);
                     apiInvariant(
                             () -> existingDatasetAddresses.add(key),
-                            () -> "Replicant-0028: UpdateMessage contains multiple Subscription changes "
+                            () -> "Replicant-0028: ChangeSetMessage contains multiple Subscription Changes "
                                     + "for Dataset Address " + descriptor.substring(1) + ".");
                 }
             }

@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.messages.UpdateMessage;
 import replicant.spy.DataLoadStatus;
 
 /**
- * A simple class encapsulating the process of loading data from a json change set.
+ * Encapsulates incremental processing state for one server-to-client transport message.
  */
 final class MessageResponse {
     private final int _schemaId;
@@ -64,8 +64,9 @@ final class MessageResponse {
                             + "' but request specified requestId '"
                             + Objects.requireNonNull(request).getRequestId() + "'.");
         }
+        assert null != message;
         _schemaId = schemaId;
-        _message = Objects.requireNonNull(message);
+        _message = message;
         _request = request;
         _entityChangeIndex = 0;
     }
@@ -136,21 +137,21 @@ final class MessageResponse {
     }
 
     boolean areEntityChangesPending() {
-        if (UpdateMessage.TYPE.equals(_message.getType())) {
-            final UpdateMessage message = (UpdateMessage) _message;
-            return message.hasEntityChanges() && _entityChangeIndex < message.getEntityChanges().length;
+        if (ChangeSetMessage.TYPE.equals(_message.getType())) {
+            final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
+            return changeSet.hasEntityChanges() && _entityChangeIndex < changeSet.getEntityChanges().length;
         } else {
             return false;
         }
     }
 
     boolean needsSubscriptionChangesProcessed() {
-        if (UpdateMessage.TYPE.equals(_message.getType())) {
-            final UpdateMessage message = (UpdateMessage) _message;
+        if (ChangeSetMessage.TYPE.equals(_message.getType())) {
+            final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
             return !_subscriptionChangesProcessed
-                    && (message.hasSubscriptionChanges() && 0 != message.getSubscriptionChanges().length
-                            || message.hasFilterParameterSubscriptionChanges()
-                                    && 0 != message.getFilterParameterSubscriptionChanges().length);
+                    && (changeSet.hasSubscriptionChanges() && 0 != changeSet.getSubscriptionChanges().length
+                            || changeSet.hasFilterParameterSubscriptionChanges()
+                                    && 0 != changeSet.getFilterParameterSubscriptionChanges().length);
         } else {
             return false;
         }
@@ -162,8 +163,8 @@ final class MessageResponse {
 
     @NonNull
     List<SubscriptionChange> getSubscriptionChanges() {
-        assert UpdateMessage.TYPE.equals(_message.getType());
-        final UpdateMessage changeSet = (UpdateMessage) _message;
+        assert ChangeSetMessage.TYPE.equals(_message.getType());
+        final ChangeSetMessage changeSet = (ChangeSetMessage) _message;
         assert changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges();
         if (null == _parsedSubscriptionChanges) {
             _parsedSubscriptionChanges = toSubscriptionChanges(changeSet);
@@ -178,7 +179,7 @@ final class MessageResponse {
     @Nullable
     EntityChange nextEntityChange() {
         if (areEntityChangesPending()) {
-            final EntityChange change = ((UpdateMessage) _message).getEntityChanges()[_entityChangeIndex];
+            final EntityChange change = ((ChangeSetMessage) _message).getEntityChanges()[_entityChangeIndex];
             _entityChangeIndex++;
             return change;
         } else {
@@ -266,7 +267,7 @@ final class MessageResponse {
     }
 
     @NonNull
-    private List<SubscriptionChange> toSubscriptionChanges(@NonNull final UpdateMessage changeSet) {
+    private List<SubscriptionChange> toSubscriptionChanges(@NonNull final ChangeSetMessage changeSet) {
         final List<SubscriptionChange> changes = new ArrayList<>();
 
         if (changeSet.hasSubscriptionChanges()) {

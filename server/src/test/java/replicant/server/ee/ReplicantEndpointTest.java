@@ -330,9 +330,9 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
                 .add(
-                        Messages.Update.DATASET_ADDRESSES,
+                        Messages.Common.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("2.8#fi2"))
-                .add(Messages.Update.FILTER_PARAMETER, filterParameter)
+                .add(Messages.Common.FILTER_PARAMETER, filterParameter)
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -348,7 +348,7 @@ public final class ReplicantEndpointTest {
         final var command = Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
-                .add(Messages.Update.DATASET_ADDRESSES, Json.createArrayBuilder())
+                .add(Messages.Common.DATASET_ADDRESSES, Json.createArrayBuilder())
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -364,7 +364,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_SUB)
                 .add(Messages.Common.REQUEST_ID, 4)
                 .add(
-                        Messages.Update.DATASET_ADDRESSES,
+                        Messages.Common.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
@@ -422,7 +422,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
                 .add(Messages.Common.REQUEST_ID, 8)
                 .add(
-                        Messages.Update.DATASET_ADDRESSES,
+                        Messages.Common.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("1.1").add("1.2"))
                 .build();
 
@@ -440,7 +440,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.TYPE, Messages.C2S_Type.BULK_UNSUB)
                 .add(Messages.Common.REQUEST_ID, 8)
                 .add(
-                        Messages.Update.DATASET_ADDRESSES,
+                        Messages.Common.DATASET_ADDRESSES,
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
@@ -512,7 +512,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.REQUEST_ID, requestId)
                 .add(Messages.Common.DATASET_ADDRESS, datasetAddressDescriptor);
         if (null != filterParameter) {
-            builder.add(Messages.Update.FILTER_PARAMETER, filterParameter);
+            builder.add(Messages.Common.FILTER_PARAMETER, filterParameter);
         }
         return builder.build();
     }

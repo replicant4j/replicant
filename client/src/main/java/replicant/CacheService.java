@@ -3,9 +3,10 @@ package replicant;
 import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.messages.ChangeSetMessage;
 
 /**
- * Optional client service for storing complete Cacheable Dataset representations by Dataset Address.
+ * Optional client service for storing Dataset Cache Entries by Dataset Address.
  *
  * <p>Each stored representation is identified by an opaque Dataset Cache Version supplied by the server. Callers
  * compare Dataset Cache Versions only for equality and treat absent, unreadable, corrupt, or mismatched entries as
@@ -40,14 +41,17 @@ public interface CacheService {
     CacheEntry lookup(@NonNull DatasetAddress datasetAddress);
 
     /**
-     * Store a complete Dataset representation.
+     * Store a Change Set as a Dataset Cache Entry.
      *
      * @param datasetAddress      the concrete Dataset Address owning the representation.
      * @param datasetCacheVersion the opaque Dataset Cache Version supplied by the server.
-     * @param content             the complete representation.
-     * @return true if the representation was stored, false otherwise.
+     * @param changeSet           the Change Set to store.
+     * @return true if the Change Set was stored, false otherwise.
      */
-    boolean store(@NonNull DatasetAddress datasetAddress, @NonNull String datasetCacheVersion, @NonNull Object content);
+    boolean store(
+            @NonNull DatasetAddress datasetAddress,
+            @NonNull String datasetCacheVersion,
+            @NonNull ChangeSetMessage changeSet);
 
     /**
      * Remove the cached representation for the specified Dataset Address.

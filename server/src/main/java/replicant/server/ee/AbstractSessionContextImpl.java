@@ -69,7 +69,7 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
     }
 
     @Override
-    public void preSendChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {}
+    public void preSendChangeSet(@NonNull final ReplicantSession session, @NonNull final Packet packet) {}
 
     @NonNull
     protected abstract EntityManager em();

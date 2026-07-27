@@ -2,6 +2,14 @@
 
 ### Unreleased
 
+* Adopt Change Set terminology for the ordered server-to-client atomic unit:
+  * Rename the `update` wire type to `change-set`, rename its `changes` field to `entityChanges`, and replace
+    `UpdateMessage` with `ChangeSetMessage`.
+  * Rename server queueing and session-send APIs to `queueChangeSet(...)` and `sendChangeSet(...)`.
+  * Expose the serialized Change Set directly from `CacheEntry` and require `CacheService.store(...)` to accept a
+    `ChangeSetMessage`.
+  This hard-cut API and protocol migration is intentionally wire-incompatible; clients and servers must be upgraded
+  together.
 * Rename the Domgen `subscription_constants` artifact to `dataset_constants`, generate
   `<Repository>DatasetConstants`, and describe its name values as Dataset names. This hard-cut generated API migration
   removes the obsolete Subscription constants terminology.

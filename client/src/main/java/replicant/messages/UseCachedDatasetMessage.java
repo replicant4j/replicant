@@ -1,6 +1,5 @@
 package replicant.messages;
 
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -29,12 +28,14 @@ public class UseCachedDatasetMessage extends ServerToClientMessage {
             @Nullable final Integer requestId,
             @NonNull final String datasetAddress,
             @NonNull final String datasetCacheVersion) {
-        final UseCachedDatasetMessage changeSet = new UseCachedDatasetMessage();
-        changeSet.type = TYPE;
-        changeSet.requestId = null == requestId ? null : requestId.doubleValue();
-        changeSet.datasetAddress = Objects.requireNonNull(datasetAddress);
-        changeSet.datasetCacheVersion = Objects.requireNonNull(datasetCacheVersion);
-        return changeSet;
+        final UseCachedDatasetMessage message = new UseCachedDatasetMessage();
+        assert null != datasetAddress;
+        assert null != datasetCacheVersion;
+        message.type = TYPE;
+        message.requestId = null == requestId ? null : requestId.doubleValue();
+        message.datasetAddress = datasetAddress;
+        message.datasetCacheVersion = datasetCacheVersion;
+        return message;
     }
 
     @JsOverlay

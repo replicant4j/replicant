@@ -11,6 +11,7 @@ import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.messages.ChangeSetMessage;
 
 /**
  * An implementation of the CacheService that uses LocalStorage or SessionStorage.
@@ -77,9 +78,9 @@ public final class WebStorageCacheService implements CacheService {
         Objects.requireNonNull(datasetAddress);
         final String datasetCacheVersion =
                 getIndex(datasetAddress.schemaId()).get(datasetAddress.asDatasetAddressDescriptor());
-        final String content = _storage.getItem(datasetAddress.getCacheKey());
-        if (null != datasetCacheVersion && null != content) {
-            return new CacheEntry(datasetAddress, datasetCacheVersion, content);
+        final String changeSet = _storage.getItem(datasetAddress.getCacheKey());
+        if (null != datasetCacheVersion && null != changeSet) {
+            return new CacheEntry(datasetAddress, datasetCacheVersion, changeSet);
         } else {
             return null;
         }
@@ -89,16 +90,16 @@ public final class WebStorageCacheService implements CacheService {
     public boolean store(
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final String datasetCacheVersion,
-            @NonNull final Object content) {
+            @NonNull final ChangeSetMessage changeSet) {
         Objects.requireNonNull(datasetAddress);
         Objects.requireNonNull(datasetCacheVersion);
-        Objects.requireNonNull(content);
+        assert null != changeSet;
         try {
             final int schemaId = datasetAddress.schemaId();
             final JsPropertyMap<String> index = getIndex(schemaId);
             index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
             saveIndex(schemaId, index);
-            getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(content));
+            getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(changeSet));
             return true;
         } catch (final Throwable e) {
             // This exception can occur when storage is full

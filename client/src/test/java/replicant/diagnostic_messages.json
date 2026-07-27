@@ -52,17 +52,17 @@
   {
     "code": 12,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getEntityChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasEntityChanges()."
+    "messagePattern": "ChangeSetMessage.getEntityChanges() invoked when no changes are present. Should guard call with ChangeSetMessage.hasEntityChanges()."
   },
   {
     "code": 13,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasSubscriptionChanges()."
+    "messagePattern": "ChangeSetMessage.getSubscriptionChanges() invoked when no changes are present. Should guard call with ChangeSetMessage.hasSubscriptionChanges()."
   },
   {
     "code": 14,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage contains multiple EntityChange messages with the id '%s'."
+    "messagePattern": "ChangeSetMessage contains multiple Entity Changes with the id '%s'."
   },
   {
     "code": 15,
@@ -87,7 +87,7 @@
   {
     "code": 22,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage contains multiple Subscription changes for Dataset Address %s."
+    "messagePattern": "ChangeSetMessage contains multiple Subscription Changes for Dataset Address %s."
   },
   {
     "code": 23,
@@ -112,7 +112,7 @@
   {
     "code": 28,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage contains multiple Subscription changes for Dataset Address %s."
+    "messagePattern": "ChangeSetMessage contains multiple Subscription Changes for Dataset Address %s."
   },
   {
     "code": 29,
@@ -122,7 +122,7 @@
   {
     "code": 30,
     "type": "API_INVARIANT",
-    "messagePattern": "UpdateMessage.getFilterParameterSubscriptionChanges() invoked when no changes are present. Should guard call with UpdateMessage.hasFilterParameterSubscriptionChanges()."
+    "messagePattern": "ChangeSetMessage.getFilterParameterSubscriptionChanges() invoked when no changes are present. Should guard call with ChangeSetMessage.hasFilterParameterSubscriptionChanges()."
   },
   {
     "code": 31,
@@ -297,7 +297,7 @@
   {
     "code": 69,
     "type": "INVARIANT",
-    "messagePattern": "UpdateMessage contained an EntityChange message referencing Dataset Address %s but no such subscription exists locally."
+    "messagePattern": "ChangeSetMessage contained an Entity Change referencing Dataset Address %s but no such subscription exists locally."
   },
   {
     "code": 70,

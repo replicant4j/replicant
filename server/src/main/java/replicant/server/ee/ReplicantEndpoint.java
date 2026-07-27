@@ -251,7 +251,7 @@ public class ReplicantEndpoint {
 
     @NonNull
     private DatasetAddress[] extractDatasetAddresses(@NonNull final JsonObject command) {
-        final var datasetAddressDescriptors = command.getJsonArray(Messages.Update.DATASET_ADDRESSES);
+        final var datasetAddressDescriptors = command.getJsonArray(Messages.Common.DATASET_ADDRESSES);
         final var datasetAddressCount = datasetAddressDescriptors.size();
         final var datasetAddresses = new DatasetAddress[datasetAddressCount];
         for (var i = 0; i < datasetAddressCount; i++) {
@@ -264,9 +264,9 @@ public class ReplicantEndpoint {
     private JsonObject extractFilterParameter(
             @NonNull final DatasetMetadata datasetMetadata, @NonNull final JsonObject command) {
         return datasetMetadata.isParameterFiltered()
-                        && command.containsKey(Messages.Update.FILTER_PARAMETER)
-                        && !command.isNull(Messages.Update.FILTER_PARAMETER)
-                ? command.getJsonObject(Messages.Update.FILTER_PARAMETER)
+                        && command.containsKey(Messages.Common.FILTER_PARAMETER)
+                        && !command.isNull(Messages.Common.FILTER_PARAMETER)
+                ? command.getJsonObject(Messages.Common.FILTER_PARAMETER)
                 : null;
     }
 

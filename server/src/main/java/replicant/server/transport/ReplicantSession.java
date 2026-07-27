@@ -238,27 +238,30 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     /**
-     * Send a packet to the client.
+     * Send a Change Set to the client.
      *
      * @param requestId the request id that caused these changes if this session requested the changes.
      * @param response  the response message if the packet is the result of a request that has a response,
      *                  and the request was initiated by the session.
      * @param datasetCacheVersion the opaque Dataset Cache Version, or null for a non-cacheable result.
-     * @param changeSet the changeSet to create packet from.
+     * @param changeSet the Change Set to send.
      */
-    public void sendPacket(
+    public void sendChangeSet(
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @Nullable final String datasetCacheVersion,
             @NonNull final ChangeSet changeSet) {
         assert null == response || null != requestId;
         ensureLockedByCurrentThread();
-        final var message = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, changeSet);
-        LOG.log(Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message);
-        if (!WebSocketUtil.sendText(getWebSocketSession(), message)) {
+        final var encodedChangeSet = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, changeSet);
+        LOG.log(
+                Level.FINE,
+                () -> "Sending Change Set for Replicant Session " + getId() + " with payload " + encodedChangeSet);
+        if (!WebSocketUtil.sendText(getWebSocketSession(), encodedChangeSet)) {
             LOG.log(
                     Level.FINE,
-                    () -> "Failed to send text message for replicant session " + getId() + " with payload " + message);
+                    () -> "Failed to send Change Set for Replicant Session " + getId() + " with payload "
+                            + encodedChangeSet);
         }
     }
 

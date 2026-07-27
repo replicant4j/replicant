@@ -67,16 +67,16 @@ public interface ReplicantSessionManager {
     void unsubscribe(@NonNull ReplicantSession session, int requestId, @NonNull List<DatasetAddress> datasetAddresses);
 
     /**
-     * Send the "EntityChange" message to the client.
-     * This change is (most likely) the result of a request.
+     * Send the Change Set in the packet to the client.
+     * The Change Set is most likely the result of a request.
      * If the session that initiated the request is the specified session,
      * then the requestId and response parameters will be present.
      *
      * @param session the session
-     * @param packet  the packet  associated with the change.
-     * @return true if the message was sent, false if the session is closed or packet did not need to be sent.
+     * @param packet  the packet containing the Change Set.
+     * @return true if the Change Set was sent, false if the session is closed or packet did not need to be sent.
      */
-    boolean sendChangeMessage(@NonNull ReplicantSession session, @NonNull Packet packet);
+    boolean sendChangeSet(@NonNull ReplicantSession session, @NonNull Packet packet);
 
     /**
      * Clears any cached data associated with the system.

@@ -10,11 +10,11 @@ public class CacheEntryTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress =
                 new DatasetAddress(ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt());
         final String datasetCacheVersion = ValueUtil.randomString();
-        final String content = ValueUtil.randomString();
-        final CacheEntry entry = new CacheEntry(datasetAddress, datasetCacheVersion, content);
+        final String changeSet = ValueUtil.randomString();
+        final CacheEntry entry = new CacheEntry(datasetAddress, datasetCacheVersion, changeSet);
 
         assertEquals(entry.getDatasetAddress(), datasetAddress);
         assertEquals(entry.getDatasetCacheVersion(), datasetCacheVersion);
-        assertEquals(entry.getContent(), content);
+        assertEquals(entry.getChangeSet(), changeSet);
     }
 }

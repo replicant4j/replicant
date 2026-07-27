@@ -10,7 +10,7 @@ public final class Messages {
      */
     public static final class S2C_Type {
         @NonNull
-        public static final String UPDATE = "update";
+        public static final String CHANGE_SET = "change-set";
 
         @NonNull
         public static final String USE_CACHED_DATASET = "use-cached-dataset";
@@ -75,6 +75,12 @@ public final class Messages {
         public static final String DATASET_ADDRESS = "datasetAddress";
 
         @NonNull
+        public static final String DATASET_ADDRESSES = "datasetAddresses";
+
+        @NonNull
+        public static final String FILTER_PARAMETER = "filterParameter";
+
+        @NonNull
         public static final String COMMAND = "command";
 
         private Common() {}
@@ -93,14 +99,14 @@ public final class Messages {
         private S2C_Common() {}
     }
 
-    public static final class Update {
+    public static final class ChangeSet {
         public static final char SUBSCRIPTION_CHANGE_SUBSCRIBE = '+';
         public static final char SUBSCRIPTION_CHANGE_UNSUBSCRIBE = '-';
         public static final char SUBSCRIPTION_CHANGE_UPDATE = '=';
         public static final char SUBSCRIPTION_CHANGE_INVALIDATE_DATASET_ADDRESS = '!';
 
         @NonNull
-        public static final String CHANGES = "changes";
+        public static final String ENTITY_CHANGES = "entityChanges";
 
         @NonNull
         public static final String ENTITY_ID = "id";
@@ -118,15 +124,9 @@ public final class Messages {
         public static final String RESPONSE = "response";
 
         @NonNull
-        public static final String DATASET_ADDRESSES = "datasetAddresses";
-
-        @NonNull
         public static final String SUBSCRIPTION_CHANGE = "subscriptionChange";
 
-        @NonNull
-        public static final String FILTER_PARAMETER = "filterParameter";
-
-        private Update() {}
+        private ChangeSet() {}
     }
 
     public static final class DatasetCacheVersions {

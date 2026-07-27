@@ -411,8 +411,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
         _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, "0");
         _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
-        _broker.queueChangeMessage(
-                session, true, requestId, null, datasetCacheVersion, Collections.emptyList(), changeSet);
+        _broker.queueChangeSet(session, true, requestId, null, datasetCacheVersion, Collections.emptyList(), changeSet);
     }
 
     private boolean saveEntityChangeCandidates(
@@ -448,9 +447,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     /*
                      * We mark this as required and as impacting the initiator because we no longer know whether the
                      * action did result in a message that needs to be sent to the client as routing occurs in a separate
-                     * thread. This change here now means every rpc will be paired with a replicant message even if it
-                     * is an empty ok message. This is acceptable in the short term as we expect to remove external rpc
-                     * at a later stage and move all rpc onto replicant channel.
+                     * thread. This change here now means every rpc will be paired with a Change Set even if it is
+                     * empty. This is acceptable in the short term as we expect to remove external rpc at a later stage
+                     * and move all rpc onto the Replicant transport.
                      */
                     if (null == _registry.getResource(ServerConstants.CACHED_RESULT_HANDLED_KEY)) {
                         // We skip scenario when we have already sent a cached result
@@ -459,7 +458,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 }
                 final var fromSubscriptionRequest =
                         null != _registry.getResource(ServerConstants.SUBSCRIPTION_REQUEST_KEY);
-                _broker.queueChangeMessage(
+                _broker.queueChangeSet(
                         session,
                         fromSubscriptionRequest,
                         isInitiator ? requestId : null,
@@ -474,17 +473,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     @Override
-    public boolean sendChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
+    public boolean sendChangeSet(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
         final var sent = new AtomicBoolean();
         try {
-            return session.runIfValid(() -> sent.set(sendAuthorizedChangeMessage(session, packet))) && sent.get();
+            return session.runIfValid(() -> sent.set(sendAuthorizedChangeSet(session, packet))) && sent.get();
         } catch (final java.io.IOException e) {
             session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Authorization gate failed"));
             return false;
         }
     }
 
-    private boolean sendAuthorizedChangeMessage(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
+    private boolean sendAuthorizedChangeSet(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
         final var incomingEntityCount =
                 packet.messages().size() + packet.changeSet().getEntityChanges().size();
         final var incomingSubscriptionDependencies = packet.messages().stream()
@@ -500,7 +499,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         .distinct()
                         .count();
 
-        _context.preSendChangeMessage(session, packet);
+        _context.preSendChangeSet(session, packet);
 
         final var requestId = packet.requestId();
         final var response = packet.response();
@@ -579,7 +578,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + expansionDuration + " subscriptionChanges="
                                 + actions);
             }
-            session.sendPacket(requestId, response, datasetCacheVersion, changeSet);
+            session.sendChangeSet(requestId, response, datasetCacheVersion, changeSet);
             return true;
         } else {
             if (LOG.isLoggable(Level.FINE)) {
@@ -666,7 +665,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Collect a list of Subscription Dependencies in change set that may need to be followed.
+     * Collect a list of Subscription Dependencies in the Change Set that may need to be followed.
      */
     private void collectSubscriptionDependenciesToFollow(
             @NonNull final ReplicantSession session,
@@ -1188,7 +1187,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 subscribe(session, datasetAddress, SubscriptionMode.IMPLICIT, null, changeSet);
                 if (changeSet.hasContent()) {
                     // In this scenario we have a non-cached changeset, so we send it along
-                    _broker.queueChangeMessage(session, true, null, null, null, Collections.emptyList(), changeSet);
+                    _broker.queueChangeSet(session, true, null, null, null, Collections.emptyList(), changeSet);
                 }
 
                 _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);

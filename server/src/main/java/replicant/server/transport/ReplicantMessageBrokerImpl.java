@@ -101,7 +101,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
 
     @NonNull
     @Override
-    public Packet queueChangeMessage(
+    public Packet queueChangeSet(
             @NonNull final ReplicantSession session,
             final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
@@ -335,7 +335,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
                     break;
                 } else {
                     processedPacket = true;
-                    if (_sessionManager.sendChangeMessage(session, packet)) {
+                    if (_sessionManager.sendChangeSet(session, packet)) {
                         packetsProcessed++;
                     } else {
                         emptyPacketsSkipped++;

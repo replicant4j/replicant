@@ -17,7 +17,7 @@ public interface ReplicantMessageBroker {
             @NonNull String datasetCacheVersion);
 
     @NonNull
-    Packet queueChangeMessage(
+    Packet queueChangeSet(
             @NonNull ReplicantSession session,
             boolean fromSubscriptionRequest,
             @Nullable Integer requestId,

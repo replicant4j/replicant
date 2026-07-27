@@ -16,13 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
+import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangeData;
 import replicant.messages.EntityChangeDataImpl;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.messages.UpdateMessage;
 import replicant.messages.UseCachedDatasetMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
@@ -116,7 +116,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, null, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final DatasetAddress datasetAddress =
                 new DatasetAddress(connector.getSchema().getId(), 0);
@@ -396,7 +396,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(connection.getPendingResponses().size(), 0);
         assertFalse(connector.isSchedulerActive());
 
-        final UpdateMessage message = UpdateMessage.create(null, null, null, null, null, null);
+        final ChangeSetMessage message = ChangeSetMessage.create(null, null, null, null, null, null);
         connector.onMessageReceived(message);
 
         assertEquals(connection.getPendingResponses().size(), 1);
@@ -552,7 +552,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final MessageResponse response =
-                new MessageResponse(1, UpdateMessage.create(null, null, null, null, null, null), null);
+                new MessageResponse(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
         connector.onMessageProcessed(response);
 
         handler.assertEventCount(1);
@@ -976,7 +976,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"+0"};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -984,7 +984,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.resumeMessageScheduler();
 
-        // response needs processing of Subscription changes
+        // response needs processing of Subscription Changes
 
         final boolean result0 = connector.progressMessages();
 
@@ -1050,7 +1050,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String subscriptionChange = "+" + firstDatasetAddress.datasetId();
         final MessageResponse response = setCurrentMessageResponse(
                 connection,
-                UpdateMessage.create(request.getRequestId(), null, new String[] {subscriptionChange}, null, null, null),
+                ChangeSetMessage.create(
+                        request.getRequestId(), null, new String[] {subscriptionChange}, null, null, null),
                 request);
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
@@ -1077,7 +1078,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"+0"};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -1646,7 +1647,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             EntityChange.create(0, 3, new String[] {"1"})
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
+                connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, data1)).thenReturn(replica1);
 
@@ -1718,7 +1719,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityChange[] entityChanges = {
             EntityChange.create(0, 1, new String[] {"0." + datasetRootId + "#fi"}, data)
         };
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, data)).thenReturn(mock(Linkable.class));
 
@@ -1760,7 +1761,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final EntityChangeData data1 = mock(EntityChangeData.class);
         final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"1"}, data1)};
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, data1)).thenReturn(replica1);
 
@@ -1768,7 +1769,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, connector::processEntityChanges);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0069: UpdateMessage contained an EntityChange message referencing Dataset Address 1.1 but"
+                "Replicant-0069: ChangeSetMessage contained an Entity Change referencing Dataset Address 1.1 but"
                         + " no such"
                         + " subscription exists locally.");
     }
@@ -1804,7 +1805,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             EntityChange.create(0, 3, new String[] {"1"})
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, null, entityChanges, null));
+                connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         connector.setChangesToProcessPerTick(1);
 
@@ -1820,7 +1821,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Connection connection = newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, new String[0], null, new EntityChange[0], null));
+                connection, ChangeSetMessage.create(null, null, new String[0], null, new EntityChange[0], null));
 
         final Linkable replica1 = mock(Linkable.class);
         final Linkable replica2 = mock(Linkable.class);
@@ -1886,7 +1887,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0." + datasetRootId};
 
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -1924,7 +1925,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             SubscriptionChangeMessage.create("+0." + datasetRootId, filterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, filterParameterSubscriptionChanges, null, null));
+                connection, ChangeSetMessage.create(null, null, null, filterParameterSubscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, filterParameterSubscriptionChanges[0])));
 
@@ -1981,7 +1982,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", newFilterParameter);
         final MessageResponse response = setCurrentMessageResponse(
                 connection,
-                UpdateMessage.create(
+                ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
@@ -2024,7 +2025,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", filterParameter);
         final MessageResponse response = setCurrentMessageResponse(
                 connection,
-                UpdateMessage.create(
+                ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
@@ -2062,7 +2063,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 SubscriptionChangeMessage.create("+0", ValueUtil.randomString());
         final MessageResponse response = setCurrentMessageResponse(
                 connection,
-                UpdateMessage.create(
+                ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
@@ -2090,7 +2091,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"+0." + datasetRootId};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -2128,7 +2129,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"+0." + datasetAddress.datasetRootId()};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -2171,7 +2172,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -2212,7 +2213,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         final Subscription initialSubscription =
@@ -2249,7 +2250,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"-0.72"};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         assertTrue(response.needsSubscriptionChangesProcessed());
@@ -2277,7 +2278,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         assertTrue(response.needsSubscriptionChangesProcessed());
@@ -2309,7 +2310,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final String[] subscriptionChanges = {"!0." + datasetAddress.datasetRootId()};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, subscriptionChanges, null, null, null));
+                connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         assertTrue(response.needsSubscriptionChangesProcessed());
@@ -2360,7 +2361,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             SubscriptionChangeMessage.create("=0." + datasetAddress.datasetRootId(), newFilterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+                connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -2415,7 +2416,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             SubscriptionChangeMessage.create("=0." + datasetRootId + "#fi", newFilterParameter)
         };
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+                connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
@@ -2455,7 +2456,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] subscriptionChanges =
                 new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilterParameter)};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+                connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         createSubscription(new DatasetAddress(1, 0, 2223), oldFilterParameter, SubscriptionMode.EXPLICIT);
@@ -2478,7 +2479,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] subscriptionChanges =
                 new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilterParameter)};
         final MessageResponse response = setCurrentMessageResponse(
-                connection, UpdateMessage.create(null, null, null, subscriptionChanges, null, null));
+                connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         assertTrue(response.needsSubscriptionChangesProcessed());
@@ -2712,7 +2713,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
-                connector.ensureConnection(), UpdateMessage.create(null, null, null, null, null, null));
+                connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
         assertFalse(response.hasWorldBeenValidated());
 
@@ -2737,7 +2738,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
-                connector.ensureConnection(), UpdateMessage.create(null, null, null, null, null, null));
+                connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
         assertTrue(response.hasWorldBeenValidated());
 
@@ -2757,7 +2758,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
-                connector.ensureConnection(), UpdateMessage.create(null, null, null, null, null, null));
+                connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
         assertFalse(response.hasWorldBeenValidated());
 
@@ -2794,7 +2795,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, null, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -2816,8 +2817,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
         final RequestEntry request = newRequest(connection);
-        final UpdateMessage changeSet =
-                UpdateMessage.create(request.getRequestId(), null, new String[] {"+1"}, null, null, null);
+        final ChangeSetMessage changeSet =
+                ChangeSetMessage.create(request.getRequestId(), null, new String[] {"+1"}, null, null, null);
 
         setCurrentMessageResponse(connection, changeSet, request);
 
@@ -2857,8 +2858,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(schema.getId(), dataset.getId());
         final String datasetCacheVersion = ValueUtil.randomString();
         final String[] subscriptionChanges = {"+0"};
-        final UpdateMessage changeSet =
-                UpdateMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
+        final ChangeSetMessage changeSet =
+                ChangeSetMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
         final MessageResponse response = setCurrentMessageResponse(connection, changeSet);
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(schema.getId(), subscriptionChanges[0])));
@@ -2882,9 +2883,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, null, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
-        connection.enqueueResponse(UpdateMessage.create(null, null, null, null, null, null), null);
+        connection.enqueueResponse(ChangeSetMessage.create(null, null, null, null, null, null), null);
 
         connector.completeMessageResponse();
 
@@ -2896,7 +2897,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, UpdateMessage.create(null, null, null, null, null, null));
+        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final AtomicInteger postActionCallCount = new AtomicInteger();
         connector.setPostMessageResponseAction(postActionCallCount::incrementAndGet);
@@ -2963,7 +2964,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connector connector = createConnector(schema);
         final Connection connection = newConnection(connector);
 
-        final UpdateMessage message = UpdateMessage.create(
+        final ChangeSetMessage message = ChangeSetMessage.create(
                 null,
                 null,
                 new String[] {"+0"},
@@ -2985,7 +2986,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         {
             assertTrue(response.needsSubscriptionChangesProcessed());
 
-            // Process Subscription changes in response
+            // Process Subscription Changes in response
             assertTrue(connector.progressResponseProcessing());
 
             assertFalse(response.needsSubscriptionChangesProcessed());
@@ -3186,7 +3187,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final String datasetCacheVersion = "";
-        cacheService.store(datasetAddress, datasetCacheVersion, ValueUtil.randomString());
+        cacheService.store(
+                datasetAddress, datasetCacheVersion, ChangeSetMessage.create(null, null, null, null, null, null));
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();
@@ -3993,7 +3995,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             connection.removeRequest(newRequest(connection).getRequestId());
-            connection.enqueueResponse(UpdateMessage.create(null, null, null, null, null, null), null);
+            connection.enqueueResponse(ChangeSetMessage.create(null, null, null, null, null, null), null);
             assertFalse(connector.shouldRequestSync());
         });
     }

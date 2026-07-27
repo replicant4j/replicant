@@ -89,7 +89,7 @@ public class ReplicantMessageBrokerImplTest {
                     return true;
                 })
                 .when(broker._sessionManager)
-                .sendChangeMessage(eq(session1), eq(packet1));
+                .sendChangeSet(eq(session1), eq(packet1));
 
         final var worker = broker.startNextDrainTaskInNewThread();
 
@@ -162,7 +162,7 @@ public class ReplicantMessageBrokerImplTest {
         broker.runNextDrainTask();
 
         verifySendOnce(broker, session, packet1);
-        verify(broker._sessionManager, never()).sendChangeMessage(eq(session), eq(packet2));
+        verify(broker._sessionManager, never()).sendChangeSet(eq(session), eq(packet2));
         assertEquals(broker.getDrainTaskCount(), 1);
 
         broker.runNextDrainTask();
@@ -187,7 +187,7 @@ public class ReplicantMessageBrokerImplTest {
         broker.runNextDrainTask();
 
         verifySendOnce(broker, session1, packet1);
-        verify(broker._sessionManager, never()).sendChangeMessage(eq(session2), eq(packet2));
+        verify(broker._sessionManager, never()).sendChangeSet(eq(session2), eq(packet2));
         assertEquals(broker.getDrainTaskCount(), 1);
 
         broker.runNextDrainTask();
@@ -217,7 +217,7 @@ public class ReplicantMessageBrokerImplTest {
         broker.runNextRetryTask();
         broker.runNextDrainTask();
 
-        verify(broker._sessionManager, times(1)).sendChangeMessage(eq(session), any());
+        verify(broker._sessionManager, times(1)).sendChangeSet(eq(session), any());
         assertEquals(broker.getWorkStateCount(), 0);
     }
 
@@ -302,12 +302,12 @@ public class ReplicantMessageBrokerImplTest {
                     return true;
                 })
                 .when(broker._sessionManager)
-                .sendChangeMessage(eq(session), eq(packet1));
+                .sendChangeSet(eq(session), eq(packet1));
 
         broker.runNextDrainTask();
 
         verifySendOnce(broker, session, packet1);
-        verify(broker._sessionManager, never()).sendChangeMessage(eq(session), eq(packet2));
+        verify(broker._sessionManager, never()).sendChangeSet(eq(session), eq(packet2));
         assertEquals(broker.getWorkStateCount(), 0);
         assertEquals(broker.getQueuedSessionCount(), 0);
     }
@@ -321,7 +321,7 @@ public class ReplicantMessageBrokerImplTest {
         final var packet2 = queuePacket(broker, session2);
         doThrow(new IllegalStateException("boom"))
                 .when(broker._sessionManager)
-                .sendChangeMessage(eq(session1), eq(packet1));
+                .sendChangeSet(eq(session1), eq(packet1));
 
         broker.runNextDrainTask();
         broker.runNextDrainTask();
@@ -342,7 +342,7 @@ public class ReplicantMessageBrokerImplTest {
         final var packet2 = queuePacket(broker, session2);
         doThrow(new IllegalStateException("boom"))
                 .when(broker._sessionManager)
-                .sendChangeMessage(eq(session1), eq(packet1));
+                .sendChangeSet(eq(session1), eq(packet1));
 
         broker.runNextDrainTask();
 
@@ -369,7 +369,7 @@ public class ReplicantMessageBrokerImplTest {
         broker.runNextRetryTask();
         broker.runNextDrainTask();
 
-        verify(broker._sessionManager, times(1)).sendChangeMessage(eq(session), any());
+        verify(broker._sessionManager, times(1)).sendChangeSet(eq(session), any());
     }
 
     @Test
@@ -422,17 +422,17 @@ public class ReplicantMessageBrokerImplTest {
             @NonNull final ReplicantSession session,
             @NonNull final Packet packet) {
         verify(((TestReplicantMessageBrokerImpl) broker)._sessionManager, times(1))
-                .sendChangeMessage(eq(session), eq(packet));
+                .sendChangeSet(eq(session), eq(packet));
     }
 
     private void verifyNoSend(@NonNull final ReplicantMessageBroker broker) {
         verify(((TestReplicantMessageBrokerImpl) broker)._sessionManager, never())
-                .sendChangeMessage(any(), any());
+                .sendChangeSet(any(), any());
     }
 
     @NonNull
     private Packet queuePacket(@NonNull final ReplicantMessageBroker broker, @NonNull final ReplicantSession session) {
-        return broker.queueChangeMessage(
+        return broker.queueChangeSet(
                 session,
                 false,
                 ValueUtil.randomInt(),
@@ -488,7 +488,7 @@ public class ReplicantMessageBrokerImplTest {
 
         public TestReplicantMessageBrokerImpl() {
             _sessionManager = mock(ReplicantSessionManager.class);
-            when(_sessionManager.sendChangeMessage(any(), any())).thenReturn(true);
+            when(_sessionManager.sendChangeSet(any(), any())).thenReturn(true);
             setMaxConcurrentDrainTasks(Math.max(2, Runtime.getRuntime().availableProcessors()));
             setMaxPacketsPerRun(64);
             setMaxSessionsPerDrainTask(64);

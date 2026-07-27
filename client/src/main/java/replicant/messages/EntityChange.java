@@ -1,6 +1,5 @@
 package replicant.messages;
 
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -20,7 +19,7 @@ public class EntityChange {
     private EntityChangeData data;
 
     /**
-     * Create a "remove" EntityChange message.
+     * Create a "remove" Entity Change.
      *
      * @return the new EntityChange.
      */
@@ -34,7 +33,7 @@ public class EntityChange {
     }
 
     /**
-     * Create an "update" EntityChange message.
+     * Create an "update" Entity Change.
      *
      * @return the new EntityChange.
      */
@@ -94,6 +93,9 @@ public class EntityChange {
     @NonNull
     @JsOverlay
     public final EntityChangeData getData() {
-        return Objects.requireNonNull(data);
+        if (null == data) {
+            throw new AssertionError("Entity Change has no data");
+        }
+        return data;
     }
 }

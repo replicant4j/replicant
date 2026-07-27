@@ -121,10 +121,10 @@ Subscription. An Updatable Filter Parameter may change while retaining the same 
 Filter Parameter is never part of the Dataset Address.
 
 Datasets also support optional client caching. A Cacheable Dataset permits, but does not require, a complete
-Subscription result to be stored for one concrete Dataset Address with an opaque Dataset Cache Version. On a later
-request the client advertises that version, and the server either authorizes reuse of the equal current result or
-sends a fresh result. Missing, unreadable, corrupt, or mismatched client entries are recoverable cache misses; failure
-to store an entry does not prevent the Subscription from being established.
+Subscription result's Change Set to be stored for one concrete Dataset Address with an opaque Dataset Cache Version.
+On a later request the client advertises that version, and the server either authorizes reuse of the equal current
+result or sends a fresh result. Missing, unreadable, corrupt, or mismatched client entries are recoverable cache
+misses; failure to store an entry does not prevent the Subscription from being established.
 
 Declaring a Dataset cacheable asserts that every authorized subscriber able to reuse one shared Dataset Cache Version
 would receive an equal result. Subscriber-specific context that affects collection must participate in cache identity
@@ -184,18 +184,18 @@ The service infrastructure within replicant is such that it is possible to treat
 
 ### Change Notifications
 
-Changes are replicated out to the clients in Change Sets. Each change set typically represents a unit
+Changes are replicated out to the clients in Change Sets. Each Change Set typically represents a unit
 of work, transaction or a single service call on the server-side. So all changes that occur within
-a single transaction are routed and packaged as a single change set when sent to the client. The change
-set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
+a single transaction are routed and packaged as a single Change Set when sent to the client. The Change
+Set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
 guarantees around the client-side representation.
 
-After a change set is applied a `DataLoadComplete` message is fired on the client-side. To get fine-grain
+After a Change Set is applied a `DataLoadComplete` message is fired on the client-side. To get fine-grain
 notification of changes, the developer can register listeners on the client-side broker and receive
-notification when an entity is added, removed or updated. This is only possible when the change set is
+notification when an entity is added, removed or updated. This is only possible when the Change Set is
 marked as an _incremental load_ rather than as a _bulk load_. The vast majority of service calls result
-in _incremental load_ change sets, but sometimes for the sake of performance subscribe service calls and
-other calls that result in mass change may result in _bulk load_ change sets.
+in _incremental load_ Change Sets, but sometimes for the sake of performance subscribe service calls and
+other calls that result in mass change may result in _bulk load_ Change Sets.
 
 ### Server-Side Broker Scheduling
 
