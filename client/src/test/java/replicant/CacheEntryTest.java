@@ -9,12 +9,12 @@ public class CacheEntryTest extends AbstractReplicantTest {
     public void basicOperation() {
         final DatasetAddress datasetAddress =
                 new DatasetAddress(ValueUtil.randomInt(), ValueUtil.randomInt(), ValueUtil.randomInt());
-        final String eTag = ValueUtil.randomString();
+        final String datasetCacheVersion = ValueUtil.randomString();
         final String content = ValueUtil.randomString();
-        final CacheEntry entry = new CacheEntry(datasetAddress, eTag, content);
+        final CacheEntry entry = new CacheEntry(datasetAddress, datasetCacheVersion, content);
 
         assertEquals(entry.getDatasetAddress(), datasetAddress);
-        assertEquals(entry.getETag(), eTag);
+        assertEquals(entry.getDatasetCacheVersion(), datasetCacheVersion);
         assertEquals(entry.getContent(), content);
     }
 }

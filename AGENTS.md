@@ -34,16 +34,17 @@ the test passes.
 - Keep shared transport path fragments, constants, and message keys in `shared/`.
 - Code shared by `server.transport` and `server.ee` belongs in `server.runtime`; transport code must not depend on
   `server.ee`.
-- Guard subscription and eTag state and packet sending with `ReplicantSession.getLock()`; follow the locking patterns
-  in `ReplicantSessionManagerImpl` and `ReplicantMessageBrokerImpl`.
+- Guard Subscription and Dataset Cache Version state and packet sending with `ReplicantSession.getLock()`; follow the
+  locking patterns in `ReplicantSessionManagerImpl` and `ReplicantMessageBrokerImpl`.
 - Keep client and server transport routes, validation, and message formats synchronized through shared constants and
   message keys. Use JSON-P builders and generators for server-side JSON encoding.
 
 ## Context Pointers
 
-- Before changing Replicant domain language or semantics, read `docs/glossary/README.md` and the Core Concepts section
-  of `README.md`. The glossary is canonical for terminology, the README explains concepts, and code and tests define
-  operational behavior.
+- Before changing Replicant domain language or semantics, read `docs/glossary/README.md`, the applicable documents in
+  `docs/specs/`, and the Core Concepts section of `README.md`. The glossary is canonical for terminology, the
+  specifications define required behavior, the README explains concepts, and code and tests define operational
+  behavior.
 - For build targets, dependency regeneration, compiler gates, IntelliJ integration, or publication artifacts, follow
   the Build section of `README.md` and the scripts it names.
 - For client diagnostic-message fixtures, inspect `MessageCollector`,

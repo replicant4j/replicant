@@ -1,5 +1,6 @@
 package replicant.server.transport;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -394,20 +395,24 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Send message to the specified session in response to a cacheable Dataset Subscription request.
+     * Queue a complete fresh result for a Cacheable Dataset Subscription request.
      * The requesting service must NOT have made any other changes that will be sent to the
      * client, otherwise this message will be discarded.
-     * This can also be sent if the cache request resulted in deleted dataset in which case the eTag will be null.
+     * This can also be sent when the Dataset Address was invalidated, in which case the Dataset Cache Version is null.
      *
-     * @param session   the session.
-     * @param changeSet the messages to be sent along to the client.
+     * @param session             the session.
+     * @param datasetCacheVersion the opaque Dataset Cache Version, or null for invalidation.
+     * @param changeSet           the complete Change Set to send.
      */
-    private void queueCachedChangeSet(@NonNull final ReplicantSession session, @NonNull final ChangeSet changeSet) {
+    private void queueCachedChangeSet(
+            @NonNull final ReplicantSession session,
+            @Nullable final String datasetCacheVersion,
+            @NonNull final ChangeSet changeSet) {
         final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
         _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, "0");
         _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
         _broker.queueChangeMessage(
-                session, true, requestId, null, changeSet.getETag(), Collections.emptyList(), changeSet);
+                session, true, requestId, null, datasetCacheVersion, Collections.emptyList(), changeSet);
     }
 
     private boolean saveEntityChangeCandidates(
@@ -499,7 +504,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         final var requestId = packet.requestId();
         final var response = packet.response();
-        final var etag = packet.etag();
+        final var datasetCacheVersion = packet.datasetCacheVersion();
         final var messages = packet.messages();
         final var changeSet = packet.changeSet();
 
@@ -516,6 +521,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             }
             return false;
         }
+        final var cachedDatasetAddress = packet.cachedDatasetAddress();
+        if (null != cachedDatasetAddress) {
+            if (!session.isSubscriptionEntryPresent(cachedDatasetAddress)) {
+                return false;
+            }
+            return WebSocketUtil.sendText(
+                    session.getWebSocketSession(),
+                    JsonEncoder.encodeUseCachedDatasetMessage(
+                            cachedDatasetAddress, Objects.requireNonNull(datasetCacheVersion), requestId));
+        }
         final var hasDeletes = messages.stream().anyMatch(EntityChangeCandidate::isDelete);
         final var datasetRootDeletedDatasetAddresses =
                 hasDeletes ? collectRootDeletedEntries(messages, session) : Collections.<DatasetAddress>emptySet();
@@ -525,7 +540,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
         processEntityChangeCandidates(messages, session, changeSet);
 
-        // ChangeSets that occur during a subscription that result in a use-cache message
+        // ChangeSets that occur during a subscription that result in a use-cached-dataset message
         // being sent to the client will still come through here. The hasContent() should
         // return false as there are no changes for in ChangeSet and the _required flag is unset.
         if (changeSet.hasContent()) {
@@ -553,8 +568,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 LOG.log(
                         level,
                         "event=session.change.send sessionId=" + session.getId() + " requestId="
-                                + requestId + " etag="
-                                + etag + " fromSubscriptionRequest="
+                                + requestId + " datasetCacheVersion="
+                                + datasetCacheVersion + " fromSubscriptionRequest="
                                 + packet.fromSubscriptionRequest() + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " outgoingEntityCount="
@@ -564,15 +579,15 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 + expansionDuration + " subscriptionChanges="
                                 + actions);
             }
-            session.sendPacket(requestId, response, etag, changeSet);
+            session.sendPacket(requestId, response, datasetCacheVersion, changeSet);
             return true;
         } else {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(
                         Level.FINE,
                         "event=session.change.skip reason=noContent sessionId=" + session.getId() + " requestId="
-                                + requestId + " etag="
-                                + etag + " fromSubscriptionRequest="
+                                + requestId + " datasetCacheVersion="
+                                + datasetCacheVersion + " fromSubscriptionRequest="
                                 + packet.fromSubscriptionRequest() + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " messageCount="
@@ -1040,43 +1055,36 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 // Only Unfiltered Datasets are currently supported as cache targets.
                 assert dataset.isUnfiltered();
                 for (var newDatasetAddress : newDatasetAddresses) {
-                    final var cacheEntry = tryGetCacheEntry(newDatasetAddress);
-                    if (null != cacheEntry) {
-                        final var eTag = cacheEntry.getCacheKey();
-                        if (eTag.equals(session.getETag(newDatasetAddress))) {
-                            if (session.getWebSocketSession().isOpen()) {
+                    _cacheLock.writeLock().lock();
+                    try {
+                        final var cacheEntry = tryGetCacheEntry(newDatasetAddress);
+                        if (null != cacheEntry) {
+                            final var datasetCacheVersion = cacheEntry.getDatasetCacheVersion();
+                            if (datasetCacheVersion.equals(session.getDatasetCacheVersion(newDatasetAddress))) {
                                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
-                                WebSocketUtil.sendText(
-                                        session.getWebSocketSession(),
-                                        JsonEncoder.encodeUseCacheMessage(newDatasetAddress, eTag, requestId));
+                                _broker.queueCachedDatasetReference(
+                                        session, requestId, newDatasetAddress, datasetCacheVersion);
                                 changeSet.setRequired(false);
-                                // We need to mark this as handled otherwise the wrapper will attempt to send
-                                // another ok message with same requestId
-                                // TODO: We really need to be able to handle multiple cached results for a single
-                                // request
                                 _registry.putResource(ServerConstants.CACHED_RESULT_HANDLED_KEY, "1");
+                            } else {
+                                session.setDatasetCacheVersion(newDatasetAddress, null);
+                                final var cacheChangeSet = new ChangeSet();
+                                cacheChangeSet.merge(cacheEntry.getChangeSet());
+                                queueCachedChangeSet(session, datasetCacheVersion, cacheChangeSet);
+                                changeSet.setRequired(false);
                             }
+
+                            final var entry = session.createSubscriptionEntry(newDatasetAddress, mode);
+                            entry.setFilterParameter(filterParameter);
                         } else {
-                            session.setETag(newDatasetAddress, null);
                             final var cacheChangeSet = new ChangeSet();
-                            cacheChangeSet.merge(cacheEntry.getChangeSet());
-                            // cacheChangeSet.mergeSubscriptionChange(
-                            //     newDatasetAddress, SubscriptionChange.Type.SUBSCRIBE, filterParameter );
-                            queueCachedChangeSet(session, cacheChangeSet);
+                            cacheChangeSet.mergeSubscriptionChange(
+                                    newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
+                            queueCachedChangeSet(session, null, cacheChangeSet);
                             changeSet.setRequired(false);
                         }
-
-                        final var entry = session.createSubscriptionEntry(newDatasetAddress, mode);
-                        entry.setFilterParameter(filterParameter);
-                    } else {
-                        // If we get here then we have requested a cacheable Instance Dataset
-                        // whose Dataset Root has been removed
-                        assert newDatasetAddress.hasDatasetRootId();
-                        final var cacheChangeSet = new ChangeSet();
-                        cacheChangeSet.mergeSubscriptionChange(
-                                newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
-                        queueCachedChangeSet(session, cacheChangeSet);
-                        changeSet.setRequired(false);
+                    } finally {
+                        _cacheLock.writeLock().unlock();
                     }
                 }
             } else {
@@ -1105,8 +1113,13 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     @Override
-    public void setETags(@NonNull final ReplicantSession session, @NonNull final Map<DatasetAddress, String> eTags) {
-        sessionLockingRequest("setEtags()", session, null, () -> session.setETags(eTags));
+    public void setDatasetCacheVersions(
+            @NonNull final ReplicantSession session, @NonNull final Map<DatasetAddress, String> datasetCacheVersions) {
+        sessionLockingRequest(
+                "setDatasetCacheVersions()",
+                session,
+                null,
+                () -> session.setDatasetCacheVersions(datasetCacheVersions));
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -1190,22 +1203,19 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
         _cacheLock.writeLock().lock();
         try {
-            final var metaData = getSchemaMetaData().getDatasetMetadata(datasetAddress);
-            if (null != _cache.remove(datasetAddress)) {
-                // If we expire the cache then any dependent Datasets must also be expired. This is
-                // required as when a cache is on a client then we send back a "use-cache" message immediately
-                // whereas if a message for a cached has to be loaded and sent back then we queue it on
-                // ReplicantSession._pendingSubscriptionPackets and will be sent back. Unfortunately as we chain
-                // up Required Type Datasets when sending cached results this may cause the later "use-cached" to arrive
-                // before cache response and thus causing a failure on client. The "fix" is to queue the use-cache
-                // on _pendingSubscriptionPackets but until that is implemented when we invalidate a cache we
-                // invalidate all dependent cached Datasets to avoid this scenario.
-                for (final var dataset : metaData.getDependentDatasets()) {
-                    if (dataset.isTypeDataset() && dataset.isCacheable()) {
-                        _cache.remove(DatasetAddress.of(dataset.getDatasetId()));
+            final var invalidatedDatasetIds = new HashSet<Integer>();
+            final var pendingDatasetIds = new ArrayDeque<Integer>();
+            pendingDatasetIds.add(datasetAddress.datasetId());
+            while (!pendingDatasetIds.isEmpty()) {
+                final var datasetId = pendingDatasetIds.removeFirst();
+                if (invalidatedDatasetIds.add(datasetId)) {
+                    for (final var dependent :
+                            getSchemaMetaData().getDatasetMetadata(datasetId).getDependentDatasets()) {
+                        pendingDatasetIds.add(dependent.getDatasetId());
                     }
                 }
             }
+            _cache.keySet().removeIf(address -> invalidatedDatasetIds.contains(address.datasetId()));
         } finally {
             _cacheLock.writeLock().unlock();
         }
@@ -1228,44 +1238,48 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         // this
         // assertion.
         assert metaData.isTypeDataset();
-        final var entry = getCacheEntry(datasetAddress);
-        entry.getLock().readLock().lock();
-        try {
-            if (entry.isInitialized()) {
-                return entry;
+        while (true) {
+            _cacheLock.readLock().lock();
+            try {
+                final var entry = _cache.get(datasetAddress);
+                if (null != entry) {
+                    entry.getLock().writeLock().lock();
+                    try {
+                        if (!entry.isInitialized()) {
+                            final var changeSet = new ChangeSet();
+                            _context.collectSubscriptionData(
+                                    null,
+                                    Collections.singletonList(datasetAddress),
+                                    null,
+                                    changeSet,
+                                    SubscriptionMode.IMPLICIT);
+                            final var subscriptionChange = changeSet.getSubscriptionChanges().stream()
+                                    .filter(a -> a.datasetAddress().equals(datasetAddress))
+                                    .findFirst()
+                                    .orElse(null);
+                            final var action =
+                                    Objects.requireNonNull(subscriptionChange).type();
+                            if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == action) {
+                                return null;
+                            }
+                            assert SubscriptionChange.Type.SUBSCRIBE == action;
+                            entry.init(changeSet);
+                        }
+                        return entry;
+                    } finally {
+                        entry.getLock().writeLock().unlock();
+                    }
+                }
+            } finally {
+                _cacheLock.readLock().unlock();
             }
-        } finally {
-            entry.getLock().readLock().unlock();
-        }
-        entry.getLock().writeLock().lock();
-        try {
-            // Make sure check again once we re-acquire the lock
-            if (entry.isInitialized()) {
-                return entry;
+
+            _cacheLock.writeLock().lock();
+            try {
+                _cache.computeIfAbsent(datasetAddress, DatasetCacheEntry::new);
+            } finally {
+                _cacheLock.writeLock().unlock();
             }
-            final var changeSet = new ChangeSet();
-            _context.collectSubscriptionData(
-                    null, Collections.singletonList(datasetAddress), null, changeSet, SubscriptionMode.IMPLICIT);
-            final var cacheKey = changeSet.getETag();
-            final var subscriptionChange = changeSet.getSubscriptionChanges().stream()
-                    .filter(a -> a.datasetAddress().equals(datasetAddress))
-                    .findFirst()
-                    .orElse(null);
-            final var action = Objects.requireNonNull(subscriptionChange).type();
-            // Delete indicates the Dataset Root has been deleted and the Instance Dataset's Dataset Address will never
-            // be valid to subscribe to again.
-            if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == action) {
-                assert null == cacheKey;
-                return null;
-            } else {
-                // The action can only be a subscribe as we supplied no Filter Parameter and are not attempting to
-                // unsubscribe.
-                assert SubscriptionChange.Type.SUBSCRIBE == action;
-                entry.init(Objects.requireNonNull(cacheKey), changeSet);
-                return entry;
-            }
-        } finally {
-            entry.getLock().writeLock().unlock();
         }
     }
 
@@ -1277,37 +1291,6 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         _cacheLock.writeLock().lock();
         try {
             _cache.clear();
-        } finally {
-            _cacheLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Get the CacheEntry for specified dataset. Note that the cache is not necessarily
-     * loaded at this stage. This is done to avoid using a global lock while loading data for a
-     * particular cache entry.
-     */
-    private DatasetCacheEntry getCacheEntry(@NonNull final DatasetAddress datasetAddress) {
-        InvariantUtil.assertConcreteDatasetAddress(getSchemaMetaData(), datasetAddress);
-        _cacheLock.readLock().lock();
-        try {
-            final var entry = _cache.get(datasetAddress);
-            if (null != entry) {
-                return entry;
-            }
-        } finally {
-            _cacheLock.readLock().unlock();
-        }
-        _cacheLock.writeLock().lock();
-        try {
-            // Try again in case it has since been created
-            var entry = _cache.get(datasetAddress);
-            if (null != entry) {
-                return entry;
-            }
-            entry = new DatasetCacheEntry(datasetAddress);
-            _cache.put(datasetAddress, entry);
-            return entry;
         } finally {
             _cacheLock.writeLock().unlock();
         }

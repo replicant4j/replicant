@@ -127,13 +127,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
             // Make sure we observe the Filter Parameter so that changes trigger another reconciliation
             areaOfInterest.getFilterParameter();
 
-            // Make sure we observe the status so that the SubscriptionReconciler reruns when status updates.
-            // This is usually not needed
-            // except when multiple areaOfInterest are queued up simultaneously and the later can not be grouped
-            // into first AreaOfInterest. If this is not here then the SubscriptionReconciler will not rerun.
-            areaOfInterest.getStatus();
-
-            if (AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED != areaOfInterest.getStatus()) {
+            if (AreaOfInterest.Status.INVALIDATED != areaOfInterest.getStatus()) {
                 final Outcome outcome = reconcileAreaOfInterest(areaOfInterest, groupTemplate, groupOperationType);
                 switch (outcome) {
                     case SUBSCRIBE_OPERATION_ISSUED:
@@ -248,19 +242,11 @@ abstract class SubscriptionReconciler extends ReplicantService {
                         return Outcome.RECONCILED;
                     }
                 } else {
-                    /*
-                     * The AreaOfInterest was added but an existing subscription matched it exactly.
-                     * If the Subscription is in Explicit Subscription Mode then just update the status of the
-                     * Area of Interest, otherwise request subscription so that the server is aware of the mode
-                     * transition.
-                     */
-                    if (AreaOfInterest.Status.NOT_ASKED == areaOfInterest.getStatus()) {
-                        if (SubscriptionMode.EXPLICIT == existingSubscription.getMode()) {
-                            areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
-                        } else {
-                            connector.requestSubscribe(datasetAddress, filterParameter);
-                            return Outcome.SUBSCRIBE_OPERATION_ISSUED;
-                        }
+                    // An Implicit Subscription must be promoted to Explicit so the server knows the Area of Interest
+                    // is satisfied independently of any dependent Subscription.
+                    if (SubscriptionMode.IMPLICIT == existingSubscription.getMode()) {
+                        connector.requestSubscribe(datasetAddress, filterParameter);
+                        return Outcome.SUBSCRIBE_OPERATION_ISSUED;
                     }
                 }
             }

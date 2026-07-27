@@ -170,4 +170,26 @@ public class AreaOfInterestServiceTest extends AbstractReplicantTest {
             assertEquals(service.getAreasOfInterest().size(), 1);
         });
     }
+
+    @Test
+    public void invalidationIsTerminalAcrossRedeclaration() {
+        final AreaOfInterestService service = AreaOfInterestService.create(null);
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+
+        final AreaOfInterest areaOfInterest =
+                safeAction(() -> service.createOrUpdateAreaOfInterest(datasetAddress, null));
+
+        safeAction(() -> service.invalidateDatasetAddress(datasetAddress));
+
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.INVALIDATED);
+
+        Disposable.dispose(areaOfInterest);
+
+        final AreaOfInterest redeclared =
+                safeAction(() -> service.createOrUpdateAreaOfInterest(datasetAddress, "Latest"));
+
+        assertNotSame(redeclared, areaOfInterest);
+        assertEquals(redeclared.getStatus(), AreaOfInterest.Status.INVALIDATED);
+        safeAction(() -> assertEquals(redeclared.getFilterParameter(), "Latest"));
+    }
 }

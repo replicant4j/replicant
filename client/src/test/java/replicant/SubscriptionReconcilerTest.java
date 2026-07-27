@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
 import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
@@ -402,11 +401,9 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         assertEquals(result, SubscriptionReconciler.Outcome.RECONCILED);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
 
-        handler.assertEventCount(1);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(0);
     }
 
     @Test

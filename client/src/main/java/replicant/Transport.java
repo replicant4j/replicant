@@ -37,7 +37,7 @@ public interface Transport {
 
     void updateAuthToken(@Nullable String authToken);
 
-    void updateEtagsSync(@NonNull Map<String, String> datasetAddressToEtagMap);
+    void updateDatasetCacheVersionsSync(@NonNull Map<String, String> datasetAddressToDatasetCacheVersionMap);
 
     void requestExec(@NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
 

@@ -130,8 +130,8 @@ public class ReplicantEndpoint {
                         command.containsKey(Messages.Exec.PAYLOAD)
                                 ? command.getJsonObject(Messages.Exec.PAYLOAD)
                                 : null);
-            } else if (Messages.C2S_Type.ETAGS.equals(type)) {
-                onETags(replicantSession, command);
+            } else if (Messages.C2S_Type.DATASET_CACHE_VERSIONS.equals(type)) {
+                onDatasetCacheVersions(replicantSession, command);
             } else if (Messages.C2S_Type.PING.equals(type)) {
                 sendOk(replicantSession.getWebSocketSession(), requestId);
             } else if (Messages.C2S_Type.SUB.equals(type)) {
@@ -169,14 +169,15 @@ public class ReplicantEndpoint {
         }
     }
 
-    private void onETags(@NonNull final ReplicantSession session, @NonNull final JsonObject command) {
-        final var eTags = new HashMap<DatasetAddress, String>();
-        for (final var entry : command.getJsonObject(Messages.Etags.ETAGS).entrySet()) {
+    private void onDatasetCacheVersions(@NonNull final ReplicantSession session, @NonNull final JsonObject command) {
+        final var datasetCacheVersions = new HashMap<DatasetAddress, String>();
+        for (final var entry : command.getJsonObject(Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS)
+                .entrySet()) {
             final var datasetAddress = DatasetAddress.parse(entry.getKey());
-            final var eTag = ((JsonString) entry.getValue()).getString();
-            eTags.put(datasetAddress, eTag);
+            final var datasetCacheVersion = ((JsonString) entry.getValue()).getString();
+            datasetCacheVersions.put(datasetAddress, datasetCacheVersion);
         }
-        _sessionManager.setETags(session, eTags);
+        _sessionManager.setDatasetCacheVersions(session, datasetCacheVersions);
 
         sendOk(session.getWebSocketSession(), command.getInt(Messages.Common.REQUEST_ID));
     }

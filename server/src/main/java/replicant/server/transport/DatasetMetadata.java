@@ -43,8 +43,10 @@ public final class DatasetMetadata {
          */
         NONE,
         /**
-         * Caching is managed internally by Replicant. If a change arrives for an Entity in the Dataset then the
-         * cache is expired.
+         * Replicant may cache and reuse a complete Dataset result. The Dataset declaration asserts that one shared
+         * result is equal for every authorized subscriber able to reuse it and that subscriber-specific result inputs
+         * participate in cache identity and validation. Relevant Entity Changes invalidate the entry and its
+         * dependent cached Datasets before further reuse.
          */
         INTERNAL
     }

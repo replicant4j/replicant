@@ -47,7 +47,7 @@ public final class JsonEncoderTest {
         final var requestId = 1;
         final var response = Json.createArrayBuilder().add(17).add(42).build();
 
-        final var etag = "#1";
+        final var datasetCacheVersion = "#1";
         final var filterParameter = Json.createBuilderFactory(null)
                 .createObjectBuilder()
                 .add("a", "b")
@@ -61,7 +61,7 @@ public final class JsonEncoderTest {
         cs.merge(change);
         cs.mergeSubscriptionChange(
                 SubscriptionChange.of(DatasetAddress.of(45, 77), SubscriptionChange.Type.UPDATE, filterParameter));
-        final var encoded = JsonEncoder.encodeChangeSet(requestId, response, etag, cs);
+        final var encoded = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, cs);
         final var changeSet = toJsonObject(encoded);
 
         assertNotNull(changeSet);
@@ -71,7 +71,7 @@ public final class JsonEncoderTest {
         assertEquals(jsonResponse.size(), 2);
         assertEquals(jsonResponse.getInt(0), 17);
         assertEquals(jsonResponse.getInt(1), 42);
-        assertEquals(changeSet.getString(Messages.S2C_Common.ETAG), etag);
+        assertEquals(changeSet.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), datasetCacheVersion);
 
         final var action = changeSet
                 .getJsonArray(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
@@ -134,7 +134,7 @@ public final class JsonEncoderTest {
         assertEquals(changeSet.getString(Messages.Common.TYPE), Messages.S2C_Type.UPDATE);
         assertFalse(changeSet.containsKey(Messages.Common.REQUEST_ID));
         assertFalse(changeSet.containsKey(Messages.Update.RESPONSE));
-        assertFalse(changeSet.containsKey(Messages.S2C_Common.ETAG));
+        assertFalse(changeSet.containsKey(Messages.S2C_Common.DATASET_CACHE_VERSION));
         assertFalse(changeSet.containsKey(Messages.Update.SUBSCRIPTION_CHANGES));
         assertFalse(changeSet.containsKey(Messages.Update.FILTER_PARAMETER_SUBSCRIPTION_CHANGES));
         assertFalse(changeSet.containsKey(Messages.Update.CHANGES));
@@ -297,24 +297,24 @@ public final class JsonEncoderTest {
     }
 
     @Test
-    public void encodeUseCacheMessage() {
+    public void encodeUseCachedDatasetMessage() {
         final var datasetAddress = DatasetAddress.of(1, 2, "inst");
-        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", 7));
+        final var message = toJsonObject(JsonEncoder.encodeUseCachedDatasetMessage(datasetAddress, "e1", 7));
 
-        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
+        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHED_DATASET);
         assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2#inst");
-        assertEquals(message.getString(Messages.S2C_Common.ETAG), "e1");
+        assertEquals(message.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), "e1");
         assertEquals(message.getInt(Messages.Common.REQUEST_ID), 7);
     }
 
     @Test
-    public void encodeUseCacheMessage_withoutRequestId() {
+    public void encodeUseCachedDatasetMessage_withoutRequestId() {
         final var datasetAddress = DatasetAddress.of(1, 2);
-        final var message = toJsonObject(JsonEncoder.encodeUseCacheMessage(datasetAddress, "e1", null));
+        final var message = toJsonObject(JsonEncoder.encodeUseCachedDatasetMessage(datasetAddress, "e1", null));
 
-        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHE);
+        assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.USE_CACHED_DATASET);
         assertEquals(message.getString(Messages.Common.DATASET_ADDRESS), "1.2");
-        assertEquals(message.getString(Messages.S2C_Common.ETAG), "e1");
+        assertEquals(message.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), "e1");
         assertFalse(message.containsKey(Messages.Common.REQUEST_ID));
     }
 

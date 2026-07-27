@@ -30,7 +30,7 @@ public final class ServerConstants {
      */
     public static final String REQUEST_RESPONSE_KEY = "RequestResponse";
     /**
-     * Key used to flag that a cached result has been sent or that we send a use-cache message.
+     * Key used to flag that a cached result has been sent or that we send a use-cached-dataset message.
      * This means that there should be ZERO changes in session changeset and it should be marked as not required.
      */
     public static final String CACHED_RESULT_HANDLED_KEY = "CachedResultSent";

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -33,7 +34,7 @@ import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UpdateMessage;
-import replicant.messages.UseCacheMessage;
+import replicant.messages.UseCachedDatasetMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -120,6 +121,12 @@ abstract class Connector extends ReplicantService {
 
     @Nullable
     private TransportContextImpl _context;
+
+    /**
+     * Dataset Addresses whose cached representation must not be advertised until replaced by a successful fresh store.
+     */
+    @NonNull
+    private final Set<DatasetAddress> _rejectedCachedDatasetAddresses = new HashSet<>();
 
     @NonNull
     static Connector create(
@@ -230,7 +237,7 @@ abstract class Connector extends ReplicantService {
         // Avoid emitting an event if disconnect resulted in an error
         if (ConnectorState.ERROR != getState() && ConnectorState.FATAL_ERROR != getState()) {
             if (null != _connection) {
-                sendEtagsIfAny();
+                sendDatasetCacheVersionsIfAny();
                 onConnected();
             } else {
                 onDisconnected();
@@ -239,19 +246,35 @@ abstract class Connector extends ReplicantService {
         schedulerLock.dispose();
     }
 
-    private void sendEtagsIfAny() {
+    private void sendDatasetCacheVersionsIfAny() {
         final CacheService cacheService = getReplicantContext().getCacheService();
         if (null != cacheService) {
-            final HashMap<String, String> etags = new HashMap<>();
-            final Set<DatasetAddress> datasetAddresses =
-                    cacheService.keySet(getSchema().getId());
-            for (final DatasetAddress datasetAddress : datasetAddresses) {
-                final String eTag = cacheService.lookupEtag(datasetAddress);
-                assert null != eTag;
-                etags.put(datasetAddress.asDatasetAddressDescriptor(), eTag);
+            final List<DatasetAddress> datasetAddresses;
+            try {
+                datasetAddresses =
+                        new ArrayList<>(cacheService.keySet(getSchema().getId()));
+            } catch (final Throwable t) {
+                ReplicantLogger.log(
+                        "Failed to enumerate cached Datasets for " + getSchema().getName() + ".", t);
+                return;
             }
-            if (!etags.isEmpty()) {
-                _transport.updateEtagsSync(etags);
+            final HashMap<String, String> datasetCacheVersions = new HashMap<>();
+            for (final DatasetAddress datasetAddress : datasetAddresses) {
+                if (!_rejectedCachedDatasetAddresses.contains(datasetAddress)) {
+                    try {
+                        final String datasetCacheVersion = cacheService.lookupDatasetCacheVersion(datasetAddress);
+                        if (null == datasetCacheVersion) {
+                            rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version is absent.", null);
+                        } else {
+                            datasetCacheVersions.put(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
+                        }
+                    } catch (final Throwable t) {
+                        rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version is unreadable.", t);
+                    }
+                }
+            }
+            if (!datasetCacheVersions.isEmpty()) {
+                _transport.updateDatasetCacheVersionsSync(datasetCacheVersions);
             }
         }
     }
@@ -282,11 +305,6 @@ abstract class Connector extends ReplicantService {
                 // Purge in reverse order. First Instance Dataset subscriptions then Type Dataset subscriptions
                 .sorted(Comparator.reverseOrder())
                 .forEachOrdered(Disposable::dispose);
-
-        // Purge AreaOfInterest for current system
-        getReplicantContext().getAreaOfInterestService().getAreasOfInterest().stream()
-                .filter(s -> s.getDatasetAddress().schemaId() == getSchema().getId())
-                .forEachOrdered(aoi -> updateAreaOfInterest(aoi.getDatasetAddress(), AreaOfInterest.Status.NOT_ASKED));
     }
 
     void setLinksToProcessPerTick(final int linksToProcessPerTick) {
@@ -583,7 +601,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
+    @Action(verifyRequired = false)
     void processSubscriptionChanges() {
         final MessageResponse response = ensureCurrentMessageResponse();
 
@@ -622,17 +640,8 @@ abstract class Connector extends ReplicantService {
                     Disposable.dispose(subscription);
                 }
 
-                final AreaOfInterest areaOfInterest =
-                        getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
-                if (null != areaOfInterest) {
-                    if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
-                        areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED, null);
-                    } else {
-                        // This means the Subscription was removed on the server side
-                        // We dispose it locally and assume that whatever component create AreaOfInterest can respond
-                        // appropriately
-                        Disposable.dispose(areaOfInterest);
-                    }
+                if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
+                    getReplicantContext().getAreaOfInterestService().invalidateDatasetAddress(datasetAddress);
                 }
                 response.incSubscriptionUnsubscribeCount();
             } else {
@@ -795,7 +804,7 @@ abstract class Connector extends ReplicantService {
             // If message is not a ping response then try to perform sync
             maybeRequestSync();
             final UpdateMessage updateMessage = (UpdateMessage) message;
-            if (null != updateMessage.getETag()) {
+            if (null != updateMessage.getDatasetCacheVersion()) {
                 cacheMessageIfPossible(response, updateMessage);
             }
         } else if (ErrorMessage.TYPE.equals(message.getType())) {
@@ -921,12 +930,12 @@ abstract class Connector extends ReplicantService {
 
     private void cacheMessageIfPossible(
             @NonNull final MessageResponse response, @NonNull final UpdateMessage changeSet) {
-        final String eTag = changeSet.getETag();
+        final String datasetCacheVersion = changeSet.getDatasetCacheVersion();
         final CacheService cacheService = getReplicantContext().getCacheService();
 
         boolean candidate = false;
         if (null != cacheService
-                && null != eTag
+                && null != datasetCacheVersion
                 && (changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges())) {
             final List<SubscriptionChange> subscriptionChanges = response.getSubscriptionChanges();
 
@@ -940,15 +949,22 @@ abstract class Connector extends ReplicantService {
                                     .datasetId())
                             .isCacheable()) {
                 final DatasetAddress datasetAddress = subscriptionChanges.get(0).getDatasetAddress();
-                cacheService.store(datasetAddress, eTag, changeSet);
+                try {
+                    if (cacheService.store(datasetAddress, datasetCacheVersion, changeSet)) {
+                        _rejectedCachedDatasetAddresses.remove(datasetAddress);
+                    }
+                } catch (final Throwable t) {
+                    ReplicantLogger.log("Failed to store cached Dataset at " + datasetAddress + ".", t);
+                }
                 candidate = true;
             }
         }
         if (Replicant.shouldCheckApiInvariants()) {
             final boolean c = candidate;
             apiInvariant(
-                    () -> null == eTag || null == cacheService || c,
-                    () -> "Replicant-0072: eTag in reply for ChangeSet but ChangeSet is not a candidate for caching.");
+                    () -> null == datasetCacheVersion || null == cacheService || c,
+                    () -> "Replicant-0072: datasetCacheVersion in reply for ChangeSet but ChangeSet is not a"
+                            + " candidate for caching.");
         }
     }
 
@@ -1275,9 +1291,9 @@ abstract class Connector extends ReplicantService {
         final RequestEntry request = null != requestId ? connection.getRequest(requestId) : null;
 
         final ServerToClientMessage messageToQueue;
-        if (UseCacheMessage.TYPE.equals(message.getType())) {
-            final UseCacheMessage useCacheMessage = (UseCacheMessage) message;
-            final String datasetAddressDescriptor = useCacheMessage.getDatasetAddress();
+        if (UseCachedDatasetMessage.TYPE.equals(message.getType())) {
+            final UseCachedDatasetMessage useCachedDatasetMessage = (UseCachedDatasetMessage) message;
+            final String datasetAddressDescriptor = useCachedDatasetMessage.getDatasetAddress();
             final DatasetAddress datasetAddress;
             try {
                 datasetAddress = DatasetAddress.parse(getSchema().getId(), datasetAddressDescriptor);
@@ -1285,33 +1301,34 @@ abstract class Connector extends ReplicantService {
                 onMessageProcessFailure(t);
                 return;
             }
-            final String etag = useCacheMessage.getEtag();
+            final String datasetCacheVersion = useCachedDatasetMessage.getDatasetCacheVersion();
 
             final CacheService cacheService = getReplicantContext().getCacheService();
             if (null == cacheService) {
                 ReplicantLogger.log(
-                        "Received a use-cache message for Dataset Address " + datasetAddress
+                        "Received a use-cached-dataset message for Dataset Address " + datasetAddress
                                 + " but no cache service configured.",
                         null);
+                _rejectedCachedDatasetAddresses.add(datasetAddress);
                 onMessageReadFailure();
                 return;
             }
 
-            final CacheEntry entry = cacheService.lookup(datasetAddress);
-            if (null == entry) {
-                ReplicantLogger.log(
-                        "Received a use-cache message for Dataset Address " + datasetAddressDescriptor
-                                + " but no cache entry is present.",
-                        null);
+            final CacheEntry entry;
+            try {
+                entry = cacheService.lookup(datasetAddress);
+            } catch (final Throwable t) {
+                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is unreadable.", t);
                 onMessageReadFailure();
                 return;
             }
-            if (!Objects.equals(entry.getETag(), etag)) {
-                ReplicantLogger.log(
-                        "Received a use-cache message for Dataset Address " + datasetAddressDescriptor + " with etag '"
-                                + etag
-                                + "' but cache entry has etag '" + entry.getETag() + "'.",
-                        null);
+            if (null == entry) {
+                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is absent.", null);
+                onMessageReadFailure();
+                return;
+            }
+            if (!Objects.equals(entry.getDatasetCacheVersion(), datasetCacheVersion)) {
+                rejectCachedDataset(cacheService, datasetAddress, "Dataset Cache Version does not match.", null);
                 onMessageReadFailure();
                 return;
             }
@@ -1319,7 +1336,8 @@ abstract class Connector extends ReplicantService {
                 messageToQueue =
                         Objects.requireNonNull(JSON.parse(entry.getContent())).cast();
             } catch (final Throwable t) {
-                onMessageProcessFailure(t);
+                rejectCachedDataset(cacheService, datasetAddress, "Cached Dataset is corrupt.", t);
+                onMessageReadFailure();
                 return;
             }
             messageToQueue.setRequestId(requestId);
@@ -1329,6 +1347,20 @@ abstract class Connector extends ReplicantService {
 
         connection.enqueueResponse(messageToQueue, request);
         triggerMessageScheduler();
+    }
+
+    private void rejectCachedDataset(
+            @NonNull final CacheService cacheService,
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String reason,
+            @Nullable final Throwable error) {
+        _rejectedCachedDatasetAddresses.add(datasetAddress);
+        ReplicantLogger.log("Rejected cached Dataset at " + datasetAddress + ". " + reason, error);
+        try {
+            cacheService.invalidate(datasetAddress);
+        } catch (final Throwable t) {
+            ReplicantLogger.log("Failed to invalidate cached Dataset at " + datasetAddress + ".", t);
+        }
     }
 
     /**
@@ -1431,9 +1463,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
     void onSubscribeStarted(@NonNull final DatasetAddress datasetAddress) {
-        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.LOADING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
@@ -1448,10 +1478,6 @@ abstract class Connector extends ReplicantService {
         if (null != subscription) {
             subscription.setMode(SubscriptionMode.EXPLICIT);
         }
-        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
-        if (null != areaOfInterest && AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED != areaOfInterest.getStatus()) {
-            areaOfInterest.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
-        }
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
@@ -1460,9 +1486,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
     void onUnsubscribeStarted(@NonNull final DatasetAddress datasetAddress) {
-        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UNLOADING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
@@ -1471,9 +1495,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
     void onUnsubscribeCompleted(@NonNull final DatasetAddress datasetAddress) {
-        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UNLOADED);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
@@ -1482,9 +1504,7 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
     void onSubscriptionUpdateStarted(@NonNull final DatasetAddress datasetAddress) {
-        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UPDATING);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
@@ -1493,22 +1513,12 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    @Action
     void onSubscriptionUpdateCompleted(@NonNull final DatasetAddress datasetAddress) {
-        updateAreaOfInterest(datasetAddress, AreaOfInterest.Status.UPDATED);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new SubscriptionUpdateCompletedEvent(
                             getSchema().getId(), getSchema().getName(), datasetAddress));
-        }
-    }
-
-    private void updateAreaOfInterest(
-            @NonNull final DatasetAddress datasetAddress, final AreaOfInterest.@NonNull Status status) {
-        final AreaOfInterest areaOfInterest = getReplicantContext().findAreaOfInterestByDatasetAddress(datasetAddress);
-        if (null != areaOfInterest) {
-            areaOfInterest.updateAreaOfInterest(status, null);
         }
     }
 

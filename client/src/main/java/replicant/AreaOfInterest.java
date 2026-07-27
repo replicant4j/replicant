@@ -1,9 +1,6 @@
 package replicant;
 
-import static org.realityforge.braincheck.Guards.*;
-
 import arez.Disposable;
-import arez.annotations.Action;
 import arez.annotations.ArezComponent;
 import arez.annotations.Feature;
 import arez.annotations.Memoize;
@@ -14,92 +11,30 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.react4j.AreaOfInterestView;
 import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import zemeckis.Zemeckis;
 
 /**
- * An Area of Interest declares a desired Subscription at a Dataset Address and also
- * includes data on the current status of the subscription.
+ * An Area of Interest declares the latest desired Subscription at a Dataset Address.
+ *
+ * <p>The satisfaction status describes whether the desired Subscription is established. Data availability is
+ * reported independently by {@link #isDataAvailable()} because data can remain locally available while a replacement
+ * Subscription is pending.
  */
 @ArezComponent(observable = Feature.ENABLE, requireId = Feature.ENABLE)
 public abstract class AreaOfInterest extends ReplicantService {
     public enum Status {
         /**
-         * No request has been made to the server to subscribe to the AreaOfInterest.
+         * The desired Subscription is not currently established.
          */
-        NOT_ASKED,
+        PENDING,
         /**
-         * The process of asking the server to subscribe to the AreaOfInterest has started.
+         * An explicit Subscription with the latest desired Filter Parameter is established.
          */
-        LOADING,
+        SATISFIED,
         /**
-         * The server has subscribed to the AreaOfInterest for the client and the data is present.
+         * The Dataset Address was invalidated by the server and can never be satisfied in this Replicant Context.
          */
-        LOADED,
-        /**
-         * The process of asking the server to subscribe to the AreaOfInterest has failed.
-         */
-        LOAD_FAILED,
-        /**
-         * The process of asking the server to update the Filter Parameter for an existing Subscription has started.
-         */
-        UPDATING,
-        /**
-         * The server has updated the Filter Parameter for an existing Subscription and the data is present.
-         */
-        UPDATED,
-        /**
-         * The process of asking the server to update the Filter Parameter for an existing Subscription has failed.
-         */
-        UPDATE_FAILED,
-        /**
-         * The process of asking the server to unsubscribe from the AreaOfInterest has started.
-         */
-        UNLOADING,
-        /**
-         * The server has unsubscribed from a subscription.
-         */
-        UNLOADED,
-        /**
-         * The server has unsubscribed from a subscription without being requested.
-         * This is usually in response to removal of an Instance Dataset's Dataset Root.
-         */
-        DATASET_ADDRESS_INVALIDATED;
-
-        /**
-         * Return true if data for the subscription should be present in this state.
-         *
-         * @return true if data for the subscription should be present in this state, false otherwise.
-         */
-        public boolean shouldDataBePresent() {
-            return this == LOADED || this == UPDATING || this == UPDATED || this == UNLOADING;
-        }
-
-        public boolean isErrorState() {
-            return this == LOAD_FAILED || this == UPDATE_FAILED;
-        }
-
-        public boolean isDatasetAddressInvalidated() {
-            return this == DATASET_ADDRESS_INVALIDATED;
-        }
-
-        /**
-         * Return true if the subscription is loading or the server has yet to be requested.
-         *
-         * @return true if the subscription is loading or the server has yet to be requested.
-         */
-        public boolean isLoading() {
-            return this == NOT_ASKED || this == LOADING;
-        }
-
-        /**
-         * Return true if the subscription has not reached a terminal state and data is not present.
-         *
-         * @return true if the subscription has not reached a terminal state and data is not present.
-         */
-        public boolean isInProgress() {
-            return this == NOT_ASKED || this == LOADING || this == UNLOADED;
-        }
+        INVALIDATED
     }
 
     @NonNull
@@ -108,8 +43,7 @@ public abstract class AreaOfInterest extends ReplicantService {
     @Nullable
     private Object _filterParameter;
 
-    @NonNull
-    private Status _status = Status.NOT_ASKED;
+    private boolean _invalidated;
     /**
      * The {@link AreaOfInterestView} class uses reference counting to determine whether an AreaOfInterest
      * is still of interest. The assumption is that after the refCount reaches 0 then it is likely that there
@@ -121,17 +55,20 @@ public abstract class AreaOfInterest extends ReplicantService {
     static AreaOfInterest create(
             @Nullable final ReplicantContext context,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filterParameter) {
-        return new Arez_AreaOfInterest(context, datasetAddress, filterParameter);
+            @Nullable final Object filterParameter,
+            final boolean invalidated) {
+        return new Arez_AreaOfInterest(context, datasetAddress, filterParameter, invalidated);
     }
 
     AreaOfInterest(
             @Nullable final ReplicantContext context,
             @NonNull final DatasetAddress datasetAddress,
-            @Nullable final Object filterParameter) {
+            @Nullable final Object filterParameter,
+            final boolean invalidated) {
         super(context);
         _datasetAddress = Objects.requireNonNull(datasetAddress);
         _filterParameter = filterParameter;
+        _invalidated = invalidated;
     }
 
     public void incRefCount() {
@@ -178,83 +115,48 @@ public abstract class AreaOfInterest extends ReplicantService {
         _filterParameter = filterParameter;
     }
 
-    @Observable(readOutsideTransaction = Feature.ENABLE)
+    @Memoize(readOutsideTransaction = Feature.ENABLE)
     @NonNull
     public Status getStatus() {
-        return _status;
-    }
-
-    void setStatus(@NonNull final Status status) {
-        _status = Objects.requireNonNull(status);
+        if (isInvalidated()) {
+            return Status.INVALIDATED;
+        }
+        final Subscription subscription = getSubscription();
+        return null != subscription
+                        && SubscriptionMode.EXPLICIT == subscription.getMode()
+                        && FilterParameterUtil.filterParametersEqual(
+                                getFilterParameter(), subscription.getFilterParameter())
+                ? Status.SATISFIED
+                : Status.PENDING;
     }
 
     @Observable
-    @Nullable
-    public abstract Throwable getError();
+    boolean isInvalidated() {
+        return _invalidated;
+    }
 
-    abstract void setError(@Nullable Throwable error);
+    void setInvalidated(final boolean invalidated) {
+        _invalidated = invalidated;
+    }
 
     @Memoize
     @Nullable
     public Subscription getSubscription() {
-        final boolean expectSubscription = shouldExpectSubscription(getStatus());
-        return expectSubscription ? getReplicantContext().findSubscription(getDatasetAddress()) : null;
+        return getReplicantContext().findSubscription(getDatasetAddress());
     }
 
     /**
-     * Update the status of the AreaOfInterest.
+     * Return whether complete data for the Dataset Address is currently available locally.
+     *
+     * <p>This property is independent of {@link #getStatus()}. It can be {@code true} while the Area of Interest is
+     * {@link Status#PENDING}, such as while replacing an established Subscription with one using a newer Filter
+     * Parameter. Changes become observable only after the complete server Change Set has been applied atomically.
+     *
+     * @return true if complete data for the Dataset Address is available locally.
      */
-    @Action
-    void updateAreaOfInterest(@NonNull final Status status, @Nullable final Throwable error) {
-        if (Replicant.shouldCheckApiInvariants()) {
-            final boolean expectError = status.isErrorState();
-
-            final DatasetAddress datasetAddress = getDatasetAddress();
-            apiInvariant(
-                    () -> !expectError || null != error,
-                    () -> "Replicant-0016: Invoked updateAreaOfInterest for Dataset Address "
-                            + datasetAddress + " with status " + status + " but failed to supply "
-                            + "the expected error.");
-            apiInvariant(
-                    () -> expectError || null == error,
-                    () -> "Replicant-0017: Invoked updateAreaOfInterest for Dataset Address " + datasetAddress
-                            + " with status " + status + " and supplied an unexpected error.");
-            // It is fine to get here where status == LOADING or NOT_ASKED but a Subscription is already present,
-            // as this is part of notifying the server of a transition from Implicit to Explicit Subscription Mode.
-            apiInvariant(
-                    () -> !shouldExpectNoSubscription(status)
-                            || null == getReplicantContext().findSubscription(getDatasetAddress()),
-                    () -> "Replicant-0019: Invoked updateAreaOfInterest for Dataset Address "
-                            + datasetAddress + " with status " + status
-                            + " and found unexpected subscription in the context.");
-        }
-
-        setStatus(status);
-        setError(error);
-        if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
-            getReplicantContext().getSpy().reportSpyEvent(new AreaOfInterestStatusUpdatedEvent(this));
-        }
-    }
-
-    /**
-     * @see #shouldExpectNoSubscription(Status)
-     */
-    private boolean shouldExpectSubscription(@NonNull final Status status) {
-        return Status.LOADED == status
-                || Status.UPDATING == status
-                || Status.UPDATED == status
-                || Status.UPDATE_FAILED == status
-                || Status.UNLOADING == status;
-    }
-
-    /**
-     * Return true when status indicates that there should defiantly not be a subscription present.
-     * Note that {@link #shouldExpectSubscription(Status)} combined with this method does not cover all
-     * statuses. In particular NOT_ASKED and LOADING can potentially have a Subscription while notifying the server
-     * of a transition from Implicit to Explicit Subscription Mode.
-     */
-    private boolean shouldExpectNoSubscription(@NonNull final Status status) {
-        return Status.UNLOADED == status;
+    @Memoize(readOutsideTransaction = Feature.ENABLE)
+    public boolean isDataAvailable() {
+        return null != getSubscription();
     }
 
     @Override
@@ -265,7 +167,7 @@ public abstract class AreaOfInterest extends ReplicantService {
                             ? ""
                             : " Filter Parameter: " + FilterParameterUtil.filterParameterToString(_filterParameter))
                     + " Status: "
-                    + _status + "]";
+                    + getStatus() + "]";
         } else {
             return super.toString();
         }

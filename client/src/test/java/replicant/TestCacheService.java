@@ -23,9 +23,9 @@ public class TestCacheService implements CacheService {
 
     @Nullable
     @Override
-    public String lookupEtag(@NonNull final DatasetAddress datasetAddress) {
+    public String lookupDatasetCacheVersion(@NonNull final DatasetAddress datasetAddress) {
         final CacheEntry entry = getSystemCache(datasetAddress.schemaId()).get(datasetAddress);
-        return null != entry ? entry.getETag() : null;
+        return null != entry ? entry.getDatasetCacheVersion() : null;
     }
 
     @Nullable
@@ -36,9 +36,11 @@ public class TestCacheService implements CacheService {
 
     @Override
     public boolean store(
-            @NonNull final DatasetAddress datasetAddress, @NonNull final String eTag, @NonNull final Object content) {
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String datasetCacheVersion,
+            @NonNull final Object content) {
         getSystemCache(datasetAddress.schemaId())
-                .put(datasetAddress, new CacheEntry(datasetAddress, eTag, String.valueOf(content)));
+                .put(datasetAddress, new CacheEntry(datasetAddress, datasetCacheVersion, String.valueOf(content)));
         return true;
     }
 

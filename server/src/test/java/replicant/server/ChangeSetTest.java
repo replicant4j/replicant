@@ -147,18 +147,6 @@ public class ChangeSetTest {
     }
 
     @Test
-    public void merge_copiesETag() {
-        final var eTag = "etag-1";
-        final var source = new ChangeSet();
-        source.setETag(eTag);
-
-        final var copyTarget = new ChangeSet();
-        assertNull(copyTarget.getETag());
-        copyTarget.merge(source);
-        assertEquals(copyTarget.getETag(), eTag);
-    }
-
-    @Test
     public void mergeEntityChangeCandidateSet() {
         final var changeSet = new ChangeSet();
 

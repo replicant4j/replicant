@@ -1,10 +1,12 @@
 package replicant.server.transport;
 
 import java.util.Collection;
+import java.util.Collections;
 import javax.json.JsonValue;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityChangeCandidate;
 
 /**
@@ -12,19 +14,38 @@ import replicant.server.EntityChangeCandidate;
  * This packet has not been fully resolved and is just used to pass the data to another thread that will perform
  * Subscription Dependency expansion operation.
  *
- * @param fromSubscriptionRequest True if the packet resulted from a Subscription request.
- * @param requestId               The request that resulted in this change when the packet is being sent back to the initiator.
- * @param response                The response to the request that resulted in this change when the packet is being sent back to the initiator.
- * @param etag                    If the request was a subscription and this subscription is a single cacheable Dataset then this
- *                                etag will contain the cache constant.
- * @param messages                The change messages that were collected during the transaction.
- * @param changeSet               Empty ChangeSet unless packet is directed at the request initiator in which case it was
- *                                whatever was part of the session changes.
+ * @param fromSubscriptionRequest true if the packet resulted from a Subscription request.
+ * @param requestId               the request that resulted in this change when the packet is sent to the initiator.
+ * @param response                the response when the packet is sent to the request initiator.
+ * @param datasetCacheVersion     the opaque Dataset Cache Version for a complete Cacheable Dataset result, if any.
+ * @param messages                the Entity Change candidates collected during the transaction.
+ * @param changeSet               the complete Change Set carried by this packet.
+ * @param cachedDatasetAddress    the Dataset Address to reuse from the client cache, or null for a Change Set packet.
  */
 public record Packet(
         boolean fromSubscriptionRequest,
         @Nullable Integer requestId,
         @Nullable JsonValue response,
-        @Nullable String etag,
+        @Nullable String datasetCacheVersion,
         @NonNull Collection<EntityChangeCandidate> messages,
-        @NonNull ChangeSet changeSet) {}
+        @NonNull ChangeSet changeSet,
+        @Nullable DatasetAddress cachedDatasetAddress) {
+    public Packet(
+            final boolean fromSubscriptionRequest,
+            @Nullable final Integer requestId,
+            @Nullable final JsonValue response,
+            @Nullable final String datasetCacheVersion,
+            @NonNull final Collection<EntityChangeCandidate> messages,
+            @NonNull final ChangeSet changeSet) {
+        this(fromSubscriptionRequest, requestId, response, datasetCacheVersion, messages, changeSet, null);
+    }
+
+    @NonNull
+    static Packet cachedDatasetReference(
+            @Nullable final Integer requestId,
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String datasetCacheVersion) {
+        return new Packet(
+                true, requestId, null, datasetCacheVersion, Collections.emptyList(), new ChangeSet(), datasetAddress);
+    }
+}

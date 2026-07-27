@@ -23,6 +23,7 @@ import org.jetbrains.annotations.VisibleForTesting;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.server.ChangeSet;
+import replicant.server.DatasetAddress;
 import replicant.server.EntityChangeCandidate;
 import replicant.server.runtime.ReplicantSystem;
 
@@ -88,15 +89,33 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
 
     @NonNull
     @Override
+    public Packet queueCachedDatasetReference(
+            @NonNull final ReplicantSession session,
+            @Nullable final Integer requestId,
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String datasetCacheVersion) {
+        final var packet = Packet.cachedDatasetReference(requestId, datasetAddress, datasetCacheVersion);
+        queuePacket(session, packet);
+        return packet;
+    }
+
+    @NonNull
+    @Override
     public Packet queueChangeMessage(
             @NonNull final ReplicantSession session,
             final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
-            @Nullable final String etag,
+            @Nullable final String datasetCacheVersion,
             @NonNull final Collection<EntityChangeCandidate> messages,
             @NonNull final ChangeSet changeSet) {
-        final var packet = new Packet(fromSubscriptionRequest, requestId, response, etag, messages, changeSet);
+        final var packet =
+                new Packet(fromSubscriptionRequest, requestId, response, datasetCacheVersion, messages, changeSet);
+        queuePacket(session, packet);
+        return packet;
+    }
+
+    private void queuePacket(@NonNull final ReplicantSession session, @NonNull final Packet packet) {
         session.queuePacket(packet);
         final var newlyQueued = enqueueSessionIfRequired(session);
         scheduleDrainTasks();
@@ -104,17 +123,16 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             LOG.log(
                     Level.FINE,
                     "event=broker.packet.queue sessionId=" + session.getId() + " requestId="
-                            + requestId + " messageCount="
-                            + messages.size() + " changeCount="
-                            + changeSet.getEntityChanges().size() + " subscriptionChangeCount="
-                            + changeSet.getSubscriptionChanges().size() + " fromSubscriptionRequest="
-                            + fromSubscriptionRequest + " newlyQueued="
+                            + packet.requestId() + " messageCount="
+                            + packet.messages().size() + " changeCount="
+                            + packet.changeSet().getEntityChanges().size() + " subscriptionChangeCount="
+                            + packet.changeSet().getSubscriptionChanges().size() + " fromSubscriptionRequest="
+                            + packet.fromSubscriptionRequest() + " newlyQueued="
                             + newlyQueued + " queueSize="
                             + _queue.size() + " workStateCount="
                             + _workStates.size() + " activeDrainTasks="
                             + _activeDrainTasks.get());
         }
-        return packet;
     }
 
     private boolean enqueueSessionIfRequired(@NonNull final ReplicantSession session) {

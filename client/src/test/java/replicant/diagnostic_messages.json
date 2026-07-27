@@ -70,24 +70,9 @@
     "messagePattern": "Invoked registerConnector for system schema named '%s' but a Connector for specified schema exists."
   },
   {
-    "code": 16,
-    "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s but failed to supply the expected error."
-  },
-  {
-    "code": 17,
-    "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and supplied an unexpected error."
-  },
-  {
     "code": 18,
     "type": "INVARIANT",
     "messagePattern": "ReplicaEntry.delinkFromSubscriptionAfterMembershipChange invoked on Replica Entry %s passing subscription %s but the Subscription's Dataset is unfiltered."
-  },
-  {
-    "code": 19,
-    "type": "API_INVARIANT",
-    "messagePattern": "Invoked updateAreaOfInterest for Dataset Address %s with status %s and found unexpected subscription in the context."
   },
   {
     "code": 20,
@@ -323,6 +308,11 @@
     "code": 71,
     "type": "API_INVARIANT",
     "messagePattern": "ReplicaEntry.getReplica() invoked when no replica present"
+  },
+  {
+    "code": 72,
+    "type": "API_INVARIANT",
+    "messagePattern": "datasetCacheVersion in reply for ChangeSet but ChangeSet is not a candidate for caching."
   },
   {
     "code": 76,

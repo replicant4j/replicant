@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.AuthTokenMessage;
 import replicant.messages.BulkSubscribeMessage;
 import replicant.messages.BulkUnsubscribeMessage;
-import replicant.messages.EtagsMessage;
+import replicant.messages.DatasetCacheVersionsMessage;
 import replicant.messages.ExecMessage;
 import replicant.messages.PingMessage;
 import replicant.messages.ServerToClientMessage;
@@ -42,11 +42,12 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void updateEtagsSync(@NonNull final Map<String, String> datasetAddressToEtagMap) {
+    public final void updateDatasetCacheVersionsSync(
+            @NonNull final Map<String, String> datasetAddressToDatasetCacheVersionMap) {
         final JsPropertyMap<Object> map = JsPropertyMap.of();
-        datasetAddressToEtagMap.forEach(map::set);
+        datasetAddressToDatasetCacheVersionMap.forEach(map::set);
         final int requestId = newRequestId("Sync", true, null);
-        sendRemoteMessage(EtagsMessage.create(requestId, Js.uncheckedCast(map)));
+        sendRemoteMessage(DatasetCacheVersionsMessage.create(requestId, Js.uncheckedCast(map)));
     }
 
     @Override

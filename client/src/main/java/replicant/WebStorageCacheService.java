@@ -19,7 +19,7 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings({"unused", "ClassCanBeRecord"})
 public final class WebStorageCacheService implements CacheService {
     @NonNull
-    static final String ETAG_INDEX = "REPLICANT_ETAG_INDEX";
+    static final String DATASET_CACHE_VERSION_INDEX = "REPLICANT_DATASET_CACHE_VERSION_INDEX";
 
     @NonNull
     private final Storage _storage;
@@ -66,7 +66,7 @@ public final class WebStorageCacheService implements CacheService {
 
     @Nullable
     @Override
-    public String lookupEtag(@NonNull final DatasetAddress datasetAddress) {
+    public String lookupDatasetCacheVersion(@NonNull final DatasetAddress datasetAddress) {
         return getIndex(datasetAddress.schemaId())
                 .get(Objects.requireNonNull(datasetAddress).asDatasetAddressDescriptor());
     }
@@ -75,10 +75,11 @@ public final class WebStorageCacheService implements CacheService {
     @Override
     public CacheEntry lookup(@NonNull final DatasetAddress datasetAddress) {
         Objects.requireNonNull(datasetAddress);
-        final String eTag = getIndex(datasetAddress.schemaId()).get(datasetAddress.asDatasetAddressDescriptor());
+        final String datasetCacheVersion =
+                getIndex(datasetAddress.schemaId()).get(datasetAddress.asDatasetAddressDescriptor());
         final String content = _storage.getItem(datasetAddress.getCacheKey());
-        if (null != eTag && null != content) {
-            return new CacheEntry(datasetAddress, eTag, content);
+        if (null != datasetCacheVersion && null != content) {
+            return new CacheEntry(datasetAddress, datasetCacheVersion, content);
         } else {
             return null;
         }
@@ -86,14 +87,16 @@ public final class WebStorageCacheService implements CacheService {
 
     @Override
     public boolean store(
-            @NonNull final DatasetAddress datasetAddress, @NonNull final String eTag, @NonNull final Object content) {
+            @NonNull final DatasetAddress datasetAddress,
+            @NonNull final String datasetCacheVersion,
+            @NonNull final Object content) {
         Objects.requireNonNull(datasetAddress);
-        Objects.requireNonNull(eTag);
+        Objects.requireNonNull(datasetCacheVersion);
         Objects.requireNonNull(content);
         try {
             final int schemaId = datasetAddress.schemaId();
             final JsPropertyMap<String> index = getIndex(schemaId);
-            index.set(datasetAddress.asDatasetAddressDescriptor(), eTag);
+            index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
             saveIndex(schemaId, index);
             getStorage().setItem(datasetAddress.getCacheKey(), JSON.stringify(content));
             return true;
@@ -149,6 +152,6 @@ public final class WebStorageCacheService implements CacheService {
 
     @NonNull
     private String indexKey(final int schemaId) {
-        return ETAG_INDEX + '-' + schemaId;
+        return DATASET_CACHE_VERSION_INDEX + '-' + schemaId;
     }
 }

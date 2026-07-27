@@ -55,7 +55,8 @@ public interface ReplicantSessionManager {
     @NonNull
     SchemaMetaData getSchemaMetaData();
 
-    void setETags(@NonNull ReplicantSession session, @NonNull final Map<DatasetAddress, String> eTags);
+    void setDatasetCacheVersions(
+            @NonNull ReplicantSession session, @NonNull final Map<DatasetAddress, String> datasetCacheVersions);
 
     void subscribe(
             @NonNull ReplicantSession session,

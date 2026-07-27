@@ -2,6 +2,21 @@
 
 ### Unreleased
 
+* Align Area of Interest reconciliation and Dataset caching with the canonical specifications:
+  * Replace operation-history and failure statuses with satisfaction states `PENDING`, `SATISFIED`, and terminal
+    `INVALIDATED`; derive satisfaction from the latest shared Filter Parameter and Explicit Subscription Mode, report
+    data availability independently, and preserve desired state and invalidation across reconnects.
+  * Generate nullable satisfaction lookups and independent `isDataAvailable(...)` utilities, then migrate Rose
+    consumers away from the removed status-history helpers.
+  * Replace ETag and cache-key terminology for cached representations with Cacheable Dataset, Dataset Cache Version,
+    and use-cached-dataset APIs and protocol fields. Dataset Cache Versions are server-generated opaque UUID values.
+  * Treat absent, unreadable, corrupt, mismatched, or unstorable client entries as recoverable cache outcomes and stop
+    advertising rejected entries until a fresh replacement is stored.
+  * Authorize each Subscription before cache reuse, serialize Required Type Dataset and dependent cached results in
+    session order, recheck the current Subscription before sending a cached reference, and invalidate dependent cache
+    entries transitively.
+  This hard-cut API and protocol migration is intentionally wire-incompatible; clients, servers, and generated
+  integrations must be upgraded together.
 * Align Replicant, Domgen, and generated integrations with the canonical Entity Change, Subscription Operation,
   Subscription Change, Dataset Address Template, Dataset Address Invalidation, Filter Decision, and Dataset Traversal
   terminology. This hard cut distinguishes concrete Dataset Addresses from pre-resolution templates and candidates,

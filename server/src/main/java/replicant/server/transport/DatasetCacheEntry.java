@@ -1,6 +1,7 @@
 package replicant.server.transport;
 
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jspecify.annotations.NonNull;
@@ -16,7 +17,7 @@ final class DatasetCacheEntry {
     private final DatasetAddress _descriptor;
 
     @Nullable
-    private String _cacheKey;
+    private String _datasetCacheVersion;
 
     @Nullable
     private ChangeSet _changeSet;
@@ -35,18 +36,18 @@ final class DatasetCacheEntry {
         return _descriptor;
     }
 
-    void init(@NonNull final String cacheKey, @NonNull final ChangeSet changeSet) {
-        _cacheKey = Objects.requireNonNull(cacheKey);
+    void init(@NonNull final ChangeSet changeSet) {
+        _datasetCacheVersion = UUID.randomUUID().toString();
         _changeSet = Objects.requireNonNull(changeSet);
     }
 
     boolean isInitialized() {
-        return null != _cacheKey;
+        return null != _datasetCacheVersion;
     }
 
     @NonNull
-    String getCacheKey() {
-        return Objects.requireNonNull(_cacheKey);
+    String getDatasetCacheVersion() {
+        return Objects.requireNonNull(_datasetCacheVersion);
     }
 
     @NonNull

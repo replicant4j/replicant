@@ -13,7 +13,7 @@ public final class Messages {
         public static final String UPDATE = "update";
 
         @NonNull
-        public static final String USE_CACHE = "use-cache";
+        public static final String USE_CACHED_DATASET = "use-cached-dataset";
 
         @NonNull
         public static final String SESSION_CREATED = "session-created";
@@ -41,7 +41,7 @@ public final class Messages {
         public static final String AUTH = "auth";
 
         @NonNull
-        public static final String ETAGS = "etags";
+        public static final String DATASET_CACHE_VERSIONS = "dataset-cache-versions";
 
         @NonNull
         public static final String PING = "ping";
@@ -85,7 +85,7 @@ public final class Messages {
         public static final String SESSION_ID = "sessionId";
 
         @NonNull
-        public static final String ETAG = "etag";
+        public static final String DATASET_CACHE_VERSION = "datasetCacheVersion";
 
         @NonNull
         public static final String MESSAGE = "message";
@@ -129,11 +129,11 @@ public final class Messages {
         private Update() {}
     }
 
-    public static final class Etags {
+    public static final class DatasetCacheVersions {
         @NonNull
-        public static final String ETAGS = "etags";
+        public static final String DATASET_CACHE_VERSIONS = "datasetCacheVersions";
 
-        private Etags() {}
+        private DatasetCacheVersions() {}
     }
 
     public static final class Auth {

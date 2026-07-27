@@ -58,6 +58,47 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void sendChangeMessage_cachedDatasetReferenceRequiresCurrentSubscription() throws Exception {
+        final var dataset = new DatasetMetadata(
+                0,
+                "Cached",
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.INTERNAL,
+                true);
+        final var context = new TestSessionContext(new SchemaMetaData("Test", dataset));
+        final var manager = new ReplicantSessionManagerImpl();
+        setField(manager, "_context", context);
+
+        final var webSocketSession = mock(Session.class);
+        final var remote = mock(RemoteEndpoint.Basic.class);
+        when(webSocketSession.getId()).thenReturn("session-1");
+        when(webSocketSession.isOpen()).thenReturn(true);
+        when(webSocketSession.getBasicRemote()).thenReturn(remote);
+
+        final var session = new ReplicantSession(webSocketSession);
+        final var datasetAddress = DatasetAddress.of(0);
+        final var packet = Packet.cachedDatasetReference(7, datasetAddress, "version-1");
+
+        session.getLock().lock();
+        try {
+            assertFalse(manager.sendChangeMessage(session, packet));
+            verify(remote, never()).sendText(anyString());
+
+            session.createSubscriptionEntry(datasetAddress, SubscriptionMode.EXPLICIT);
+
+            assertTrue(manager.sendChangeMessage(session, packet));
+        } finally {
+            session.getLock().unlock();
+        }
+
+        verify(remote).sendText(contains("\"type\":\"use-cached-dataset\""));
+        assertEquals(context.getPreSendChangeMessages(), List.of(packet, packet));
+    }
+
+    @Test
     public void sendChangeMessage_fixedKeyedLinkFollow_usesTargetDatasetKey() {
         final var sourceDataset = new DatasetMetadata(
                 0,
@@ -1345,6 +1386,49 @@ public class ReplicantSessionManagerImplTest {
                 expectThrows(InvocationTargetException.class, () -> method.invoke(manager, DatasetAddress.of(0)));
 
         assertTrue(exception.getCause() instanceof AssertionError);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void deleteCacheEntry_invalidatesTransitiveDependentDatasets() throws Exception {
+        final var source = cacheableDataset(0, "Source");
+        final var directDependent = cacheableDataset(1, "DirectDependent", source);
+        final var transitiveDependent = cacheableDataset(2, "TransitiveDependent", directDependent);
+        final var unrelated = cacheableDataset(3, "Unrelated");
+        final var manager = createManager(
+                new TestSessionContext(
+                        new SchemaMetaData("Test", source, directDependent, transitiveDependent, unrelated)),
+                mock(ReplicantMessageBroker.class));
+
+        final var field = ReplicantSessionManagerImpl.class.getDeclaredField("_cache");
+        field.setAccessible(true);
+        final var cache = (HashMap<DatasetAddress, DatasetCacheEntry>) field.get(manager);
+        cache.put(DatasetAddress.of(0), new DatasetCacheEntry(DatasetAddress.of(0)));
+        cache.put(DatasetAddress.of(1), new DatasetCacheEntry(DatasetAddress.of(1)));
+        cache.put(DatasetAddress.of(2), new DatasetCacheEntry(DatasetAddress.of(2)));
+        cache.put(DatasetAddress.of(3), new DatasetCacheEntry(DatasetAddress.of(3)));
+
+        final var method =
+                ReplicantSessionManagerImpl.class.getDeclaredMethod("deleteCacheEntry", DatasetAddress.class);
+        method.setAccessible(true);
+        method.invoke(manager, DatasetAddress.of(0));
+
+        assertEquals(cache.keySet(), Set.of(DatasetAddress.of(3)));
+    }
+
+    @NonNull
+    private DatasetMetadata cacheableDataset(
+            final int datasetId, @NonNull final String name, @NonNull final DatasetMetadata... requiredTypeDatasets) {
+        return new DatasetMetadata(
+                datasetId,
+                name,
+                null,
+                DatasetMetadata.FilterMode.UNFILTERED,
+                null,
+                false,
+                DatasetMetadata.CacheType.INTERNAL,
+                true,
+                requiredTypeDatasets);
     }
 
     @NonNull

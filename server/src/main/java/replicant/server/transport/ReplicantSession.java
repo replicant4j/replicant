@@ -39,7 +39,7 @@ public final class ReplicantSession implements Serializable, Closeable {
     private final ReplicantSessionAuthorization _authorization;
 
     @NonNull
-    private final Map<DatasetAddress, String> _eTags = new HashMap<>();
+    private final Map<DatasetAddress, String> _datasetCacheVersions = new HashMap<>();
 
     @NonNull
     private final Map<DatasetAddress, SubscriptionEntry> _subscriptions = new HashMap<>();
@@ -243,17 +243,17 @@ public final class ReplicantSession implements Serializable, Closeable {
      * @param requestId the request id that caused these changes if this session requested the changes.
      * @param response  the response message if the packet is the result of a request that has a response,
      *                  and the request was initiated by the session.
-     * @param etag      the opaque identifier identifying the version. May be null if packet is not cache-able
+     * @param datasetCacheVersion the opaque Dataset Cache Version, or null for a non-cacheable result.
      * @param changeSet the changeSet to create packet from.
      */
     public void sendPacket(
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
-            @Nullable final String etag,
+            @Nullable final String datasetCacheVersion,
             @NonNull final ChangeSet changeSet) {
         assert null == response || null != requestId;
         ensureLockedByCurrentThread();
-        final var message = JsonEncoder.encodeChangeSet(requestId, response, etag, changeSet);
+        final var message = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, changeSet);
         LOG.log(Level.FINE, () -> "Sending text message for replicant session " + getId() + " with payload " + message);
         if (!WebSocketUtil.sendText(getWebSocketSession(), message)) {
             LOG.log(
@@ -269,24 +269,25 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     @Nullable
-    String getETag(@NonNull final DatasetAddress datasetAddress) {
-        return _eTags.get(datasetAddress);
+    String getDatasetCacheVersion(@NonNull final DatasetAddress datasetAddress) {
+        return _datasetCacheVersions.get(datasetAddress);
     }
 
-    public void setETags(@NonNull final Map<DatasetAddress, String> etags) {
+    public void setDatasetCacheVersions(@NonNull final Map<DatasetAddress, String> datasetCacheVersions) {
         ensureLockedByCurrentThread();
-        _eTags.clear();
-        for (final var etag : etags.entrySet()) {
-            setETag(etag.getKey(), etag.getValue());
+        _datasetCacheVersions.clear();
+        for (final var datasetCacheVersion : datasetCacheVersions.entrySet()) {
+            setDatasetCacheVersion(datasetCacheVersion.getKey(), datasetCacheVersion.getValue());
         }
     }
 
-    void setETag(@NonNull final DatasetAddress datasetAddress, @Nullable final String eTag) {
+    void setDatasetCacheVersion(
+            @NonNull final DatasetAddress datasetAddress, @Nullable final String datasetCacheVersion) {
         ensureLockedByCurrentThread();
-        if (null == eTag) {
-            _eTags.remove(datasetAddress);
+        if (null == datasetCacheVersion) {
+            _datasetCacheVersions.remove(datasetAddress);
         } else {
-            _eTags.put(datasetAddress, eTag);
+            _datasetCacheVersions.put(datasetAddress, datasetCacheVersion);
         }
     }
 

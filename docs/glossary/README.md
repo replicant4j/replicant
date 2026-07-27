@@ -41,6 +41,13 @@ filtering behaviour. A [Subscription](#subscription) materializes that definitio
 
 _Avoid_: Graph, channel, replication graph
 
+### Cacheable Dataset
+
+A [Dataset](#dataset) whose [Subscription](#subscription) result is permitted to be stored and reused while its
+[Dataset Cache Version](#dataset-cache-version) and consistency requirements remain satisfied.
+
+_Avoid_: Cached Dataset
+
 ### Type Dataset
 
 A [Dataset](#dataset) whose initial candidates are the populations of one or more configured
@@ -175,6 +182,13 @@ The identity of a subscribable [Dataset](#dataset) selection. It combines the [S
 Dataset identities with a [Dataset Root](#dataset-root) identifier and [Dataset Key](#dataset-key) when required.
 
 _Avoid_: Channel address, graph address, subscription address
+
+### Dataset Cache Version
+
+An opaque value identifying the cached representation of a [Dataset](#dataset) at a
+[Dataset Address](#dataset-address). Cached data may be reused only when the client and server hold equal values.
+
+_Avoid_: ETag, cache key
 
 ### Dataset Address Template
 

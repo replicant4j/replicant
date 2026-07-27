@@ -10,15 +10,15 @@ import jsinterop.base.Js;
 import org.jspecify.annotations.NonNull;
 
 /**
- * A simple abstraction for key-value etag pairs.
+ * A mapping from Dataset Address descriptors to opaque Dataset Cache Versions.
  */
 @JsType(isNative = true, name = "Object", namespace = JsPackage.GLOBAL)
-public interface EtagsData {
+public interface DatasetCacheVersionsData {
     /**
-     * Return true if an ETag for the Dataset Address is present.
+     * Return true if a Dataset Cache Version for the Dataset Address is present.
      *
      * @param datasetAddress the Dataset Address descriptor.
-     * @return true if the etag is present.
+     * @return true if the Dataset Cache Version is present.
      */
     @JsOverlay
     default boolean containsDatasetAddress(@NonNull final String datasetAddress) {
@@ -38,7 +38,7 @@ public interface EtagsData {
 
     @NonNull
     @JsOverlay
-    default String getEtag(@NonNull final String key) {
+    default String getDatasetCacheVersion(@NonNull final String key) {
         final Any any = Js.asPropertyMap(this).getAsAny(key);
         assert null != any;
         return any.asString();

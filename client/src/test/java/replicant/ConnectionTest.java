@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
-import replicant.messages.UseCacheMessage;
+import replicant.messages.UseCachedDatasetMessage;
 import replicant.spy.RequestStartedEvent;
 
 public class ConnectionTest extends AbstractReplicantTest {
@@ -46,7 +46,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     public void selectNextMessageResponse() {
         final Connection connection = createConnection();
 
-        connection.enqueueResponse(UseCacheMessage.create(null, "0", ValueUtil.randomString()), null);
+        connection.enqueueResponse(UseCachedDatasetMessage.create(null, "0", ValueUtil.randomString()), null);
 
         assertNull(connection.getCurrentMessageResponse());
         assertEquals(connection.getPendingResponses().size(), 1);

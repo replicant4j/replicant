@@ -32,18 +32,19 @@ public final class JsonEncoder {
     /**
      * Encode the change set with the EntityChangeCandidates.
      *
-     * @param requestId the requestId that initiated the change. Only set if packet is destined for originating session.
-     * @param response  the response message if the packet is the result of a request that has a response,
-     *                  and the request was initiated by the session.
-     * @param etag      the associated etag.
-     * @param changeSet the changeSet being encoded.
+     * @param requestId          the requestId that initiated the change. Only set if the packet is destined for the
+     *                           originating session.
+     * @param response           the response message if the packet is the result of a request with a response and the
+     *                           request was initiated by the session.
+     * @param datasetCacheVersion the opaque Dataset Cache Version for a complete Cacheable Dataset result.
+     * @param changeSet          the Change Set being encoded.
      * @return the encoded change set.
      */
     @NonNull
     public static String encodeChangeSet(
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
-            @Nullable final String etag,
+            @Nullable final String datasetCacheVersion,
             @NonNull final ChangeSet changeSet) {
         final var writer = new StringWriter();
         final var generator = FACTORY.createGenerator(writer);
@@ -57,8 +58,8 @@ public final class JsonEncoder {
         if (null != response) {
             generator.write(Messages.Update.RESPONSE, response);
         }
-        if (null != etag) {
-            generator.write(Messages.S2C_Common.ETAG, etag);
+        if (null != datasetCacheVersion) {
+            generator.write(Messages.S2C_Common.DATASET_CACHE_VERSION, datasetCacheVersion);
         }
 
         final var subscriptionChanges = changeSet.getSubscriptionChanges().stream()
@@ -161,14 +162,14 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String encodeUseCacheMessage(
+    public static String encodeUseCachedDatasetMessage(
             @NonNull final DatasetAddress datasetAddress,
-            @NonNull final String eTag,
+            @NonNull final String datasetCacheVersion,
             @Nullable final Integer requestId) {
         final var response = Json.createObjectBuilder()
-                .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHE)
+                .add(Messages.Common.TYPE, Messages.S2C_Type.USE_CACHED_DATASET)
                 .add(Messages.Common.DATASET_ADDRESS, datasetAddress.toString())
-                .add(Messages.S2C_Common.ETAG, eTag);
+                .add(Messages.S2C_Common.DATASET_CACHE_VERSION, datasetCacheVersion);
         if (null != requestId) {
             response.add(Messages.Common.REQUEST_ID, requestId);
         }

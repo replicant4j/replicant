@@ -35,6 +35,12 @@ abstract class AreaOfInterestService extends ReplicantService {
     @NonNull
     private final Set<AreaOfInterest> _areasOfInterest = new HashSet<>();
 
+    /**
+     * Dataset Addresses invalidated during this Replicant Context lifetime.
+     */
+    @NonNull
+    private final Set<DatasetAddress> _invalidatedDatasetAddresses = new HashSet<>();
+
     AreaOfInterestService(@Nullable final ReplicantContext context) {
         super(context);
     }
@@ -98,12 +104,28 @@ abstract class AreaOfInterestService extends ReplicantService {
             return areaOfInterest;
         } else {
             final AreaOfInterest newAreaOfInterest = AreaOfInterest.create(
-                    Replicant.areZonesEnabled() ? getReplicantContext() : null, datasetAddress, filterParameter);
+                    Replicant.areZonesEnabled() ? getReplicantContext() : null,
+                    datasetAddress,
+                    filterParameter,
+                    _invalidatedDatasetAddresses.contains(datasetAddress));
             attach(newAreaOfInterest);
             if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
                 getReplicantContext().getSpy().reportSpyEvent(new AreaOfInterestCreatedEvent(newAreaOfInterest));
             }
             return newAreaOfInterest;
+        }
+    }
+
+    /**
+     * Permanently invalidate a Dataset Address for this Replicant Context.
+     *
+     * @param datasetAddress the invalidated Dataset Address.
+     */
+    void invalidateDatasetAddress(@NonNull final DatasetAddress datasetAddress) {
+        _invalidatedDatasetAddresses.add(datasetAddress);
+        final AreaOfInterest areaOfInterest = findAreaOfInterestByDatasetAddress(datasetAddress);
+        if (null != areaOfInterest) {
+            areaOfInterest.setInvalidated(true);
         }
     }
 

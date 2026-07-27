@@ -14,13 +14,18 @@ public class UpdateMessageTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] filterParameterSubscriptionChanges = new SubscriptionChangeMessage[0];
 
         final int requestId = ValueUtil.randomInt();
-        final String eTag = ValueUtil.randomString();
+        final String datasetCacheVersion = ValueUtil.randomString();
 
         final UpdateMessage updateMessage = UpdateMessage.create(
-                requestId, eTag, subscriptionChanges, filterParameterSubscriptionChanges, entityChanges, null);
+                requestId,
+                datasetCacheVersion,
+                subscriptionChanges,
+                filterParameterSubscriptionChanges,
+                entityChanges,
+                null);
 
         assertEquals(updateMessage.getRequestId(), (Integer) requestId);
-        assertEquals(updateMessage.getETag(), eTag);
+        assertEquals(updateMessage.getDatasetCacheVersion(), datasetCacheVersion);
         assertEquals(updateMessage.getEntityChanges(), entityChanges);
         assertTrue(updateMessage.hasEntityChanges());
         assertTrue(updateMessage.hasSubscriptionChanges());
@@ -36,7 +41,7 @@ public class UpdateMessageTest extends AbstractReplicantTest {
         final UpdateMessage updateMessage = UpdateMessage.create(null, null, null, null, null, null);
 
         assertNull(updateMessage.getRequestId());
-        assertNull(updateMessage.getETag());
+        assertNull(updateMessage.getDatasetCacheVersion());
         assertFalse(updateMessage.hasEntityChanges());
         assertFalse(updateMessage.hasSubscriptionChanges());
         assertFalse(updateMessage.hasFilterParameterSubscriptionChanges());

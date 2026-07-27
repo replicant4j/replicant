@@ -7,78 +7,40 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import zemeckis.ZemeckisTestUtil;
 
 public class AreaOfInterestTest extends AbstractReplicantTest {
     @Test
-    public void shouldDataBePresent() {
-        assertFalse(AreaOfInterest.Status.NOT_ASKED.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.LOADING.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.LOAD_FAILED.shouldDataBePresent());
-        assertTrue(AreaOfInterest.Status.LOADED.shouldDataBePresent());
-        assertTrue(AreaOfInterest.Status.UPDATING.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.shouldDataBePresent());
-        assertTrue(AreaOfInterest.Status.UPDATED.shouldDataBePresent());
-        assertTrue(AreaOfInterest.Status.UNLOADING.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.UNLOADED.shouldDataBePresent());
-        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.shouldDataBePresent());
+    public void statusValues() {
+        assertEquals(AreaOfInterest.Status.values(), new AreaOfInterest.Status[] {
+            AreaOfInterest.Status.PENDING, AreaOfInterest.Status.SATISFIED, AreaOfInterest.Status.INVALIDATED
+        });
     }
 
     @Test
-    public void isErrorState() {
-        assertFalse(AreaOfInterest.Status.NOT_ASKED.isErrorState());
-        assertFalse(AreaOfInterest.Status.LOADING.isErrorState());
-        assertTrue(AreaOfInterest.Status.LOAD_FAILED.isErrorState());
-        assertFalse(AreaOfInterest.Status.LOADED.isErrorState());
-        assertFalse(AreaOfInterest.Status.UPDATING.isErrorState());
-        assertTrue(AreaOfInterest.Status.UPDATE_FAILED.isErrorState());
-        assertFalse(AreaOfInterest.Status.UPDATED.isErrorState());
-        assertFalse(AreaOfInterest.Status.UNLOADING.isErrorState());
-        assertFalse(AreaOfInterest.Status.UNLOADED.isErrorState());
-        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isErrorState());
-    }
+    public void statusAndDataAvailabilityAreIndependent() {
+        final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
-    @Test
-    public void isDatasetAddressInvalidated() {
-        assertFalse(AreaOfInterest.Status.NOT_ASKED.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.LOADING.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.LOAD_FAILED.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.LOADED.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.UPDATING.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.UPDATED.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.UNLOADING.isDatasetAddressInvalidated());
-        assertFalse(AreaOfInterest.Status.UNLOADED.isDatasetAddressInvalidated());
-        assertTrue(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isDatasetAddressInvalidated());
-    }
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
-    @Test
-    public void isInProgress() {
-        assertTrue(AreaOfInterest.Status.NOT_ASKED.isInProgress());
-        assertTrue(AreaOfInterest.Status.LOADING.isInProgress());
-        assertFalse(AreaOfInterest.Status.LOAD_FAILED.isInProgress());
-        assertFalse(AreaOfInterest.Status.LOADED.isInProgress());
-        assertFalse(AreaOfInterest.Status.UPDATING.isInProgress());
-        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.isInProgress());
-        assertFalse(AreaOfInterest.Status.UPDATED.isInProgress());
-        assertFalse(AreaOfInterest.Status.UNLOADING.isInProgress());
-        assertTrue(AreaOfInterest.Status.UNLOADED.isInProgress());
-        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isInProgress());
-    }
+        final Subscription implicit =
+                createSubscription(areaOfInterest.getDatasetAddress(), null, SubscriptionMode.IMPLICIT);
 
-    @Test
-    public void isLoading() {
-        assertTrue(AreaOfInterest.Status.NOT_ASKED.isLoading());
-        assertTrue(AreaOfInterest.Status.LOADING.isLoading());
-        assertFalse(AreaOfInterest.Status.LOAD_FAILED.isLoading());
-        assertFalse(AreaOfInterest.Status.LOADED.isLoading());
-        assertFalse(AreaOfInterest.Status.UPDATING.isLoading());
-        assertFalse(AreaOfInterest.Status.UPDATE_FAILED.isLoading());
-        assertFalse(AreaOfInterest.Status.UPDATED.isLoading());
-        assertFalse(AreaOfInterest.Status.UNLOADING.isLoading());
-        assertFalse(AreaOfInterest.Status.UNLOADED.isLoading());
-        assertFalse(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED.isLoading());
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertTrue(areaOfInterest.isDataAvailable());
+
+        Disposable.dispose(implicit);
+        final Subscription explicit =
+                createSubscription(areaOfInterest.getDatasetAddress(), "Other", SubscriptionMode.EXPLICIT);
+
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertTrue(areaOfInterest.isDataAvailable());
+
+        safeAction(() -> explicit.setFilterParameter(null));
+
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
+        assertTrue(areaOfInterest.isDataAvailable());
     }
 
     @Test
@@ -86,11 +48,11 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
 
         safeAction(() -> {
-            assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
+            assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
             assertEquals(areaOfInterest.getDatasetAddress(), new DatasetAddress(1, 0));
             assertNull(areaOfInterest.getFilterParameter());
             assertNull(areaOfInterest.getSubscription());
-            assertNull(areaOfInterest.getError());
+            assertFalse(areaOfInterest.isDataAvailable());
         });
     }
 
@@ -107,7 +69,6 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertEquals(event.getAreaOfInterest(), areaOfInterest);
     }
 
-    @SuppressWarnings({"ThrowableNotThrown", "ResultOfMethodCallIgnored"})
     @Test
     public void notifications() {
         createConnector();
@@ -116,80 +77,49 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         final AtomicInteger getStatusCallCount = new AtomicInteger();
         observer(() -> {
             if (Disposable.isNotDisposed(areaOfInterest)) {
-                // Observe state
                 areaOfInterest.getStatus();
             }
             getStatusCallCount.incrementAndGet();
         });
 
-        final AtomicInteger getErrorCallCount = new AtomicInteger();
+        final AtomicInteger isDataAvailableCallCount = new AtomicInteger();
         observer(() -> {
             if (Disposable.isNotDisposed(areaOfInterest)) {
-                // Observe state
-                areaOfInterest.getError();
+                areaOfInterest.isDataAvailable();
             }
-            getErrorCallCount.incrementAndGet();
-        });
-
-        final AtomicInteger getSubscriptionCallCount = new AtomicInteger();
-        observer(() -> {
-            if (Disposable.isNotDisposed(areaOfInterest)) {
-                // Observe state
-                areaOfInterest.getSubscription();
-            }
-            getSubscriptionCallCount.incrementAndGet();
+            isDataAvailableCallCount.incrementAndGet();
         });
 
         assertEquals(getStatusCallCount.get(), 1);
-        assertEquals(getErrorCallCount.get(), 1);
-        assertEquals(getSubscriptionCallCount.get(), 1);
+        assertEquals(isDataAvailableCallCount.get(), 1);
 
-        safeAction(() -> areaOfInterest.setStatus(AreaOfInterest.Status.LOADED));
-
-        assertEquals(getStatusCallCount.get(), 2);
-        assertEquals(getErrorCallCount.get(), 1);
-        assertEquals(getSubscriptionCallCount.get(), 1);
-
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
-        safeAction(() -> assertNull(areaOfInterest.getError()));
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-
-        safeAction(() -> areaOfInterest.setError(new Throwable()));
+        final Subscription subscription =
+                createSubscription(areaOfInterest.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
 
         assertEquals(getStatusCallCount.get(), 2);
-        assertEquals(getErrorCallCount.get(), 2);
-        assertEquals(getSubscriptionCallCount.get(), 1);
+        assertEquals(isDataAvailableCallCount.get(), 2);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
-        safeAction(() -> assertNotNull(areaOfInterest.getError()));
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
+        safeAction(() -> subscription.setFilterParameter("Other"));
 
-        safeAction(() -> Replicant.context()
-                .getSubscriptionService()
-                .createSubscription(
-                        areaOfInterest.getDatasetAddress(),
-                        areaOfInterest.getFilterParameter(),
-                        SubscriptionMode.EXPLICIT));
+        assertEquals(getStatusCallCount.get(), 3);
+        assertEquals(isDataAvailableCallCount.get(), 2);
 
-        assertEquals(getStatusCallCount.get(), 2);
-        assertEquals(getErrorCallCount.get(), 2);
-        assertEquals(getSubscriptionCallCount.get(), 2);
+        Disposable.dispose(subscription);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
-        safeAction(() -> assertNotNull(areaOfInterest.getError()));
-        safeAction(() -> assertNotNull(areaOfInterest.getSubscription()));
+        assertEquals(getStatusCallCount.get(), 3);
+        assertEquals(isDataAvailableCallCount.get(), 3);
     }
 
     @Test
     public void testToString() {
         final AreaOfInterest areaOfInterest = createAreaOfInterest(new DatasetAddress(1, 0));
-        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Status: NOT_ASKED]");
+        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Status: PENDING]");
     }
 
     @Test
     public void testToStringWithFilterParameter() {
-        final AreaOfInterest areaOfInterest = AreaOfInterest.create(null, new DatasetAddress(1, 0), "MyFilter");
-        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Filter Parameter: MyFilter Status: NOT_ASKED]");
+        final AreaOfInterest areaOfInterest = AreaOfInterest.create(null, new DatasetAddress(1, 0), "MyFilter", false);
+        assertEquals(areaOfInterest.toString(), "AreaOfInterest[1.0 Filter Parameter: MyFilter Status: PENDING]");
     }
 
     @Test
@@ -201,131 +131,6 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
         assertEquals(
                 areaOfInterest.toString(),
                 "replicant.Arez_AreaOfInterest@" + Integer.toHexString(areaOfInterest.hashCode()));
-    }
-
-    @Test
-    public void updateAreaOfInterest() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-        final Throwable error = new Throwable();
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.NOT_ASKED, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(aoi.getSubscription()));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.LOADING, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.LOADING);
-        safeAction(() -> assertNull(aoi.getSubscription()));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.LOAD_FAILED, error);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.LOAD_FAILED);
-        safeAction(() -> assertNull(aoi.getSubscription()));
-        safeAction(() -> assertEquals(aoi.getError(), error));
-
-        final Subscription subscription = createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.LOADED, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.LOADED);
-        safeAction(() -> assertEquals(aoi.getSubscription(), subscription));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.UPDATING, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.UPDATING);
-        safeAction(() -> assertEquals(aoi.getSubscription(), subscription));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.UPDATED, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.UPDATED);
-        safeAction(() -> assertEquals(aoi.getSubscription(), subscription));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.UPDATE_FAILED, error);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.UPDATE_FAILED);
-        safeAction(() -> assertEquals(aoi.getSubscription(), subscription));
-        safeAction(() -> assertEquals(aoi.getError(), error));
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADING, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.UNLOADING);
-        safeAction(() -> assertEquals(aoi.getSubscription(), subscription));
-        safeAction(() -> assertNull(aoi.getError()));
-
-        Disposable.dispose(subscription);
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.UNLOADED);
-        safeAction(() -> assertNull(aoi.getSubscription()));
-        safeAction(() -> assertNull(aoi.getError()));
-    }
-
-    @Test
-    public void updateAreaOfInterest_generatesSpyEvent() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-
-        final TestSpyEventHandler handler = registerTestSpyEventHandler();
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.LOADING, null);
-
-        handler.assertEventCount(1);
-        final AreaOfInterestStatusUpdatedEvent event = handler.assertNextEvent(AreaOfInterestStatusUpdatedEvent.class);
-        assertEquals(event.getAreaOfInterest(), aoi);
-    }
-
-    @Test
-    public void updateAreaOfInterest_missingErrorWhenExpected() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-
-        final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.LOAD_FAILED, null));
-        assertEquals(
-                exception.getMessage(),
-                "Replicant-0016: Invoked updateAreaOfInterest for Dataset Address 1.0 with status"
-                        + " LOAD_FAILED but failed to supply the expected error.");
-    }
-
-    @Test
-    public void updateAreaOfInterest_errorWhenUnexpected() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-        final Throwable error = new Throwable();
-
-        final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, error));
-        assertEquals(
-                exception.getMessage(),
-                "Replicant-0017: Invoked updateAreaOfInterest for Dataset Address 1.0 with status UNLOADED"
-                        + " and supplied an unexpected error.");
-    }
-
-    @Test
-    public void updateAreaOfInterest_subscription_when_NOT_ASKED() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-
-        createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
-
-        aoi.updateAreaOfInterest(AreaOfInterest.Status.NOT_ASKED, null);
-        assertEquals(aoi.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(aoi.getSubscription()));
-        safeAction(() -> assertNull(aoi.getError()));
-    }
-
-    @Test
-    public void updateAreaOfInterest_subscriptionWhenUnexpected() {
-        pauseScheduler();
-        final AreaOfInterest aoi = createAreaOfInterest(new DatasetAddress(1, 0));
-
-        createSubscription(aoi.getDatasetAddress(), null, SubscriptionMode.EXPLICIT);
-
-        final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> aoi.updateAreaOfInterest(AreaOfInterest.Status.UNLOADED, null));
-        assertEquals(
-                exception.getMessage(),
-                "Replicant-0019: Invoked updateAreaOfInterest for Dataset Address 1.0 with status UNLOADED"
-                        + " and found unexpected subscription in the context.");
     }
 
     @Test
@@ -364,6 +169,7 @@ public class AreaOfInterestTest extends AbstractReplicantTest {
 
     @NonNull
     private AreaOfInterest createAreaOfInterest(@NonNull final DatasetAddress datasetAddress) {
-        return AreaOfInterest.create(Replicant.areZonesEnabled() ? Replicant.context() : null, datasetAddress, null);
+        return AreaOfInterest.create(
+                Replicant.areZonesEnabled() ? Replicant.context() : null, datasetAddress, null, false);
     }
 }

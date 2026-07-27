@@ -195,14 +195,14 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_etags() throws Exception {
+    public void command_datasetCacheVersions() throws Exception {
         final var fixture = newFixture();
-        final var etags =
+        final var datasetCacheVersions =
                 Json.createObjectBuilder().add("1", "e1").add("2.3#fi", "e2").build();
         final var command = Json.createObjectBuilder()
-                .add(Messages.Common.TYPE, Messages.C2S_Type.ETAGS)
+                .add(Messages.Common.TYPE, Messages.C2S_Type.DATASET_CACHE_VERSIONS)
                 .add(Messages.Common.REQUEST_ID, 9)
-                .add(Messages.Etags.ETAGS, etags)
+                .add(Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS, datasetCacheVersions)
                 .build();
 
         fixture.endpoint.command(fixture.session, command.toString());
@@ -210,7 +210,7 @@ public final class ReplicantEndpointTest {
         @SuppressWarnings("unchecked")
         final var captor = (org.mockito.ArgumentCaptor<Map<DatasetAddress, String>>)
                 (Object) org.mockito.ArgumentCaptor.forClass(Map.class);
-        verify(fixture.sessionManager).setETags(eq(fixture.replicantSession), captor.capture());
+        verify(fixture.sessionManager).setDatasetCacheVersions(eq(fixture.replicantSession), captor.capture());
         final var captured = captor.getValue();
         assertEquals(captured.get(DatasetAddress.of(1)), "e1");
         assertEquals(captured.get(DatasetAddress.of(2, 3, "fi")), "e2");

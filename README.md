@@ -120,15 +120,18 @@ A Fixed Filter Parameter cannot change while the Subscription at a Dataset Addre
 Subscription. An Updatable Filter Parameter may change while retaining the same Subscription and Dataset Address. A
 Filter Parameter is never part of the Dataset Address.
 
-Datasets also support operational features such as caching. Cacheable Datasets are unfiltered Type Datasets whose data
-changes relatively infrequently, is relatively large, or is relatively expensive to load.
+Datasets also support optional client caching. A Cacheable Dataset permits, but does not require, a complete
+Subscription result to be stored for one concrete Dataset Address with an opaque Dataset Cache Version. On a later
+request the client advertises that version, and the server either authorizes reuse of the equal current result or
+sends a fresh result. Missing, unreadable, corrupt, or mismatched client entries are recoverable cache misses; failure
+to store an entry does not prevent the Subscription from being established.
 
-A cacheable Dataset is used when the data within the Dataset has a relatively low frequency of change,
-the volume of data is relatively large or the time to load the data from the database is relatively
-long. If a Dataset is cacheable, then the client will store the materialized selection in a client-side cache
-along with a cache-key supplied by the server. When the client re-requests that Dataset, it
-supplies the cache-key and the server can either indicate that the client should use the cached version
-or send a new version of the selected data.
+Declaring a Dataset cacheable asserts that every authorized subscriber able to reuse one shared Dataset Cache Version
+would receive an equal result. Subscriber-specific context that affects collection must participate in cache identity
+and validation, or the Dataset must not be cacheable. Authorization is still evaluated for every Subscription request,
+Required Type Datasets become available before dependent cached results, and each cached result is applied atomically.
+The current server implementation rejects filtered and Instance Datasets as cache targets; this is an implementation
+capability limit rather than a domain definition of Cacheable Dataset.
 
 It is possible and expected that one client may have Subscriptions to more than one Dataset, and the
 materialized selections may overlap. Often applications link one Dataset to another and automatically
@@ -150,8 +153,11 @@ A Keyed Dataset is a Parameter-Filtered Dataset that allows a client to subscrib
 addressable selections of the same Dataset. The Dataset Key distinguishes and routes each selection independently.
 Keying is independent of whether the Filter Parameter is Fixed or Updatable.
 
-The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription
-should exist at a Dataset Address and records progress toward that desired state.
+The codebase often refers to the "Area of Interest" or AOI of a client. This declares that a Subscription should exist
+at a Dataset Address using the latest desired Filter Parameter. Its satisfaction status is exactly `PENDING`,
+`SATISFIED`, or `INVALIDATED`. Data availability is reported independently because complete data can remain usable
+while a changed Filter Parameter is pending. Invalidation is terminal for that Dataset Address within the client
+context, including across reconnects.
 
 The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. A Dataset Key is also part of
 the address and is embedded in its descriptor after a `#` suffix. The Filter Parameter remains outside the Dataset

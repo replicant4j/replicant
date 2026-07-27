@@ -23,8 +23,7 @@ import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
 import replicant.messages.UpdateMessage;
-import replicant.spy.AreaOfInterestDisposedEvent;
-import replicant.spy.AreaOfInterestStatusUpdatedEvent;
+import replicant.messages.UseCachedDatasetMessage;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -405,6 +404,146 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
+    public void onMessageReceived_missingCacheEntryIsRecoverable() {
+        final Connector connector = createConnector();
+        newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+
+        connector.onMessageReceived(UseCachedDatasetMessage.create(
+                null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
+
+        verify(cacheService).invalidate(datasetAddress);
+        assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
+    }
+
+    @Test
+    public void onMessageReceived_cacheLookupFailureIsRecoverable() {
+        final Connector connector = createConnector();
+        newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.lookup(datasetAddress)).thenThrow(new IllegalStateException("Unavailable"));
+        when(cacheService.invalidate(datasetAddress)).thenThrow(new IllegalStateException("Unavailable"));
+
+        connector.onMessageReceived(UseCachedDatasetMessage.create(
+                null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
+
+        verify(cacheService).invalidate(datasetAddress);
+        assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
+    }
+
+    @Test
+    public void onMessageReceived_cacheVersionMismatchIsRecoverable() {
+        final Connector connector = createConnector();
+        newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        final CacheEntry entry = new CacheEntry(datasetAddress, ValueUtil.randomString(), ValueUtil.randomString());
+        when(cacheService.lookup(datasetAddress)).thenReturn(entry);
+
+        connector.onMessageReceived(UseCachedDatasetMessage.create(
+                null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
+
+        verify(cacheService).invalidate(datasetAddress);
+        assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
+    }
+
+    @Test
+    public void onMessageReceived_corruptCacheEntryIsRecoverable() {
+        final Connector connector = createConnector();
+        newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final String datasetCacheVersion = ValueUtil.randomString();
+        final CacheService cacheService = mock(CacheService.class);
+        final CacheEntry entry = new CacheEntry(datasetAddress, datasetCacheVersion, "{");
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.lookup(datasetAddress)).thenReturn(entry);
+
+        connector.onMessageReceived(
+                UseCachedDatasetMessage.create(null, datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion));
+
+        verify(cacheService).invalidate(datasetAddress);
+        assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
+    }
+
+    @Test
+    public void onConnection_cacheEnumerationFailureIsIgnored() {
+        final Connector connector = createConnector();
+        safeAction(() -> connector.setState(ConnectorState.CONNECTING));
+        pauseScheduler();
+
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.keySet(connector.getSchema().getId())).thenThrow(new IllegalStateException("Unavailable"));
+
+        connector.onConnection(ValueUtil.randomString());
+
+        assertEquals(connector.getState(), ConnectorState.CONNECTED);
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+    }
+
+    @Test
+    public void onConnection_unreadableCacheVersionIsInvalidatedAndIgnored() {
+        final Connector connector = createConnector();
+        safeAction(() -> connector.setState(ConnectorState.CONNECTING));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress =
+                new DatasetAddress(connector.getSchema().getId(), 0);
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.keySet(datasetAddress.schemaId())).thenReturn(Collections.singleton(datasetAddress));
+        when(cacheService.lookupDatasetCacheVersion(datasetAddress))
+                .thenThrow(new IllegalStateException("Unavailable"));
+
+        connector.onConnection(ValueUtil.randomString());
+
+        assertEquals(connector.getState(), ConnectorState.CONNECTED);
+        verify(cacheService).invalidate(datasetAddress);
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+    }
+
+    @Test
+    public void onMessageReceived_rejectedCacheEntryIsNotAdvertisedOnReconnect() {
+        final Connector connector = createConnector();
+        newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+        pauseScheduler();
+
+        final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.keySet(datasetAddress.schemaId())).thenReturn(Collections.singleton(datasetAddress));
+        when(cacheService.lookupDatasetCacheVersion(datasetAddress)).thenReturn(ValueUtil.randomString());
+
+        connector.onMessageReceived(UseCachedDatasetMessage.create(
+                null, datasetAddress.asDatasetAddressDescriptor(), ValueUtil.randomString()));
+
+        assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
+        reset(connector.getTransport());
+        safeAction(() -> connector.setState(ConnectorState.CONNECTING));
+        connector.onConnection(ValueUtil.randomString());
+
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+    }
+
+    @Test
     public void onMessageProcessed() {
         final Connector connector = createConnector();
 
@@ -542,21 +681,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.onSubscribeStarted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADING);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -572,9 +707,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, filterParameter));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final Subscription subscription =
                 createSubscription(datasetAddress, filterParameter, SubscriptionMode.IMPLICIT);
@@ -585,19 +719,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.onSubscribeCompleted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.LOADED);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
+        assertTrue(areaOfInterest.isDataAvailable());
         safeAction(() -> {
             assertSame(areaOfInterest.getSubscription(), subscription);
             assertSame(Replicant.context().findSubscription(datasetAddress), subscription);
             assertEquals(subscription.getMode(), SubscriptionMode.EXPLICIT);
             assertEquals(subscription.getFilterParameter(), filterParameter);
             assertSame(subscription.findReplicaEntryByTypeAndId(String.class, replicaEntry.getId()), replicaEntry);
-            assertNull(areaOfInterest.getError());
         });
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -612,7 +744,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        safeAction(() -> areaOfInterest.setStatus(AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED));
+        safeAction(() -> Replicant.context().getAreaOfInterestService().invalidateDatasetAddress(datasetAddress));
 
         createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
@@ -620,7 +752,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.onSubscribeCompleted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.INVALIDATED);
 
         handler.assertEventCount(1);
         handler.assertNextEvent(SubscribeCompletedEvent.class, e -> {
@@ -637,9 +769,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
@@ -647,13 +778,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.onUnsubscribeStarted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADING);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
+        assertTrue(areaOfInterest.isDataAvailable());
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -668,21 +797,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.onUnsubscribeCompleted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UNLOADED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(UnsubscribeCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -697,9 +822,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
@@ -707,13 +831,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.onSubscriptionUpdateStarted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATING);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
+        assertTrue(areaOfInterest.isDataAvailable());
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateStartedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -728,9 +850,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final AreaOfInterest areaOfInterest =
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.NOT_ASKED);
-        safeAction(() -> assertNull(areaOfInterest.getSubscription()));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
@@ -738,13 +859,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.onSubscriptionUpdateCompleted(datasetAddress);
 
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.UPDATED);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.SATISFIED);
+        assertTrue(areaOfInterest.isDataAvailable());
         safeAction(() -> assertEquals(areaOfInterest.getSubscription(), subscription));
-        safeAction(() -> assertNull(areaOfInterest.getError()));
 
-        handler.assertEventCount(2);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class, e -> assertEquals(e.getAreaOfInterest(), areaOfInterest));
+        handler.assertEventCount(1);
         handler.assertNextEvent(SubscriptionUpdateCompletedEvent.class, e -> {
             assertEquals(e.getSchemaId(), connector.getSchema().getId());
             assertEquals(e.getDatasetAddress(), datasetAddress);
@@ -819,9 +938,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void purgeSubscriptions() {
         final Connector connector1 = createConnector(newSchema(1));
         createConnector(newSchema(2));
+        final DatasetAddress invalidatedDatasetAddress = new DatasetAddress(1, 0);
+        final AreaOfInterest areaOfInterest =
+                safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(invalidatedDatasetAddress, null));
+        safeAction(() ->
+                Replicant.context().getAreaOfInterestService().invalidateDatasetAddress(invalidatedDatasetAddress));
 
         final Subscription subscription1 =
-                createSubscription(new DatasetAddress(1, 0), null, SubscriptionMode.EXPLICIT);
+                createSubscription(invalidatedDatasetAddress, null, SubscriptionMode.EXPLICIT);
         final Subscription subscription2 =
                 createSubscription(new DatasetAddress(1, 1, 2), null, SubscriptionMode.EXPLICIT);
         // The next two are from a different Connector
@@ -841,6 +965,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertTrue(Disposable.isDisposed(subscription2));
         assertFalse(Disposable.isDisposed(subscription3));
         assertFalse(Disposable.isDisposed(subscription4));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.INVALIDATED);
+        assertFalse(areaOfInterest.isDataAvailable());
     }
 
     @Test
@@ -2048,15 +2174,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertNull(subscription);
         assertTrue(Disposable.isDisposed(initialSubscription));
 
-        assertTrue(Disposable.isDisposed(areaOfInterest));
+        assertFalse(Disposable.isDisposed(areaOfInterest));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
-        handler.assertEventCount(2);
+        handler.assertEventCount(1);
         handler.assertNextEvent(
                 SubscriptionDisposedEvent.class,
                 e -> assertEquals(e.getSubscription().datasetAddress(), datasetAddress));
-        handler.assertNextEvent(
-                AreaOfInterestDisposedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
     }
 
     @Test
@@ -2107,12 +2232,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertFalse(response.needsSubscriptionChangesProcessed());
         assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
-        assertTrue(Disposable.isDisposed(areaOfInterest));
+        assertFalse(Disposable.isDisposed(areaOfInterest));
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
+        assertFalse(areaOfInterest.isDataAvailable());
 
-        handler.assertEventCount(1);
-        handler.assertNextEvent(
-                AreaOfInterestDisposedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
+        handler.assertEventCount(0);
     }
 
     @Test
@@ -2141,12 +2265,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
 
         assertFalse(Disposable.isDisposed(areaOfInterest));
-        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.DATASET_ADDRESS_INVALIDATED);
+        assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.INVALIDATED);
 
-        handler.assertEventCount(1);
-        handler.assertNextEvent(
-                AreaOfInterestStatusUpdatedEvent.class,
-                e -> assertEquals(e.getAreaOfInterest().getDatasetAddress(), datasetAddress));
+        handler.assertEventCount(0);
     }
 
     @Test
@@ -2659,6 +2780,46 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
+    public void completeMessageResponse_cacheStoreFailureDoesNotRemoveSubscription() {
+        final Dataset dataset = new Dataset(
+                0,
+                ValueUtil.randomString(),
+                null,
+                Dataset.FilterMode.UNFILTERED,
+                null,
+                false,
+                null,
+                true,
+                true,
+                Collections.emptyList());
+        final SystemSchema schema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[] {dataset}, new EntityType[0]);
+        final Connector connector = createConnector(schema);
+        final Connection connection = newConnection(connector);
+        final DatasetAddress datasetAddress = new DatasetAddress(schema.getId(), dataset.getId());
+        final String datasetCacheVersion = ValueUtil.randomString();
+        final String[] subscriptionChanges = {"+0"};
+        final UpdateMessage changeSet =
+                UpdateMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
+        final MessageResponse response = setCurrentMessageResponse(connection, changeSet);
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(schema.getId(), subscriptionChanges[0])));
+        final CacheService cacheService = mock(CacheService.class);
+        Replicant.context().setCacheService(cacheService);
+        when(cacheService.store(datasetAddress, datasetCacheVersion, changeSet))
+                .thenThrow(new IllegalStateException("Unavailable"));
+
+        connector.processSubscriptionChanges();
+        final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
+        assertNotNull(subscription);
+
+        connector.completeMessageResponse();
+
+        assertSame(Replicant.context().findSubscription(datasetAddress), subscription);
+        verify(cacheService).store(datasetAddress, datasetCacheVersion, changeSet);
+    }
+
+    @Test
     public void completeMessageResponse_stillMessagesPending() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
@@ -2966,8 +3127,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final String eTag = "";
-        cacheService.store(datasetAddress, eTag, ValueUtil.randomString());
+        final String datasetCacheVersion = "";
+        cacheService.store(datasetAddress, datasetCacheVersion, ValueUtil.randomString());
         final AtomicInteger callCount = new AtomicInteger();
         doAnswer(i -> {
                     callCount.incrementAndGet();

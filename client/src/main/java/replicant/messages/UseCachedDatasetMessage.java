@@ -9,29 +9,31 @@ import org.jspecify.annotations.Nullable;
 import replicant.shared.Messages;
 
 /**
- * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
+ * A server instruction to apply the complete cached representation for a Dataset Address.
  */
 @SuppressWarnings({"NotNullFieldNotInitialized", "NullAway.Init"})
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-public class UseCacheMessage extends ServerToClientMessage {
+public class UseCachedDatasetMessage extends ServerToClientMessage {
     @JsOverlay
-    public static final String TYPE = Messages.S2C_Type.USE_CACHE;
+    public static final String TYPE = Messages.S2C_Type.USE_CACHED_DATASET;
 
     @NonNull
     private String datasetAddress;
 
     @NonNull
-    private String etag;
+    private String datasetCacheVersion;
 
     @JsOverlay
     @NonNull
-    public static UseCacheMessage create(
-            @Nullable final Integer requestId, @NonNull final String datasetAddress, @NonNull final String eTag) {
-        final UseCacheMessage changeSet = new UseCacheMessage();
+    public static UseCachedDatasetMessage create(
+            @Nullable final Integer requestId,
+            @NonNull final String datasetAddress,
+            @NonNull final String datasetCacheVersion) {
+        final UseCachedDatasetMessage changeSet = new UseCachedDatasetMessage();
         changeSet.type = TYPE;
         changeSet.requestId = null == requestId ? null : requestId.doubleValue();
         changeSet.datasetAddress = Objects.requireNonNull(datasetAddress);
-        changeSet.etag = Objects.requireNonNull(eTag);
+        changeSet.datasetCacheVersion = Objects.requireNonNull(datasetCacheVersion);
         return changeSet;
     }
 
@@ -43,7 +45,7 @@ public class UseCacheMessage extends ServerToClientMessage {
 
     @JsOverlay
     @NonNull
-    public final String getEtag() {
-        return etag;
+    public final String getDatasetCacheVersion() {
+        return datasetCacheVersion;
     }
 }

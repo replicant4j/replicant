@@ -23,7 +23,7 @@ public class UpdateMessage extends ServerToClientMessage {
     public static final String TYPE = Messages.S2C_Type.UPDATE;
 
     @Nullable
-    private String etag;
+    private String datasetCacheVersion;
 
     @Nullable
     private String[] subscriptionChanges;
@@ -42,7 +42,7 @@ public class UpdateMessage extends ServerToClientMessage {
     @NullUnmarked
     public static UpdateMessage create(
             @Nullable final Integer requestId,
-            @Nullable final String eTag,
+            @Nullable final String datasetCacheVersion,
             @Nullable final String[] subscriptionChanges,
             @Nullable final SubscriptionChangeMessage[] filterParameterSubscriptionChanges,
             @Nullable final EntityChange[] entityChanges,
@@ -50,7 +50,7 @@ public class UpdateMessage extends ServerToClientMessage {
         final UpdateMessage updateMessage = new UpdateMessage();
         updateMessage.type = TYPE;
         updateMessage.requestId = null == requestId ? null : requestId.doubleValue();
-        updateMessage.etag = eTag;
+        updateMessage.datasetCacheVersion = datasetCacheVersion;
         updateMessage.subscriptionChanges = subscriptionChanges;
         updateMessage.filterParameterSubscriptionChanges = filterParameterSubscriptionChanges;
         updateMessage.changes = entityChanges;
@@ -63,8 +63,8 @@ public class UpdateMessage extends ServerToClientMessage {
      */
     @Nullable
     @JsOverlay
-    public final String getETag() {
-        return etag;
+    public final String getDatasetCacheVersion() {
+        return datasetCacheVersion;
     }
 
     /**

@@ -127,23 +127,23 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void setETags_resetsAndRemovesNulls() {
+    public void setDatasetCacheVersions_resetsAndRemovesNulls() {
         final var session = new ReplicantSession(mock(Session.class));
         session.getLock().lock();
         try {
             final var datasetAddress1 = DatasetAddress.of(1, null);
             final var datasetAddress2 = DatasetAddress.of(2, 5);
 
-            session.setETag(datasetAddress1, "v1");
-            assertEquals(session.getETag(datasetAddress1), "v1");
+            session.setDatasetCacheVersion(datasetAddress1, "v1");
+            assertEquals(session.getDatasetCacheVersion(datasetAddress1), "v1");
 
-            final var eTags = new HashMap<DatasetAddress, String>();
-            eTags.put(datasetAddress1, null);
-            eTags.put(datasetAddress2, "v2");
-            session.setETags(eTags);
+            final var datasetCacheVersions = new HashMap<DatasetAddress, String>();
+            datasetCacheVersions.put(datasetAddress1, null);
+            datasetCacheVersions.put(datasetAddress2, "v2");
+            session.setDatasetCacheVersions(datasetCacheVersions);
 
-            assertNull(session.getETag(datasetAddress1));
-            assertEquals(session.getETag(datasetAddress2), "v2");
+            assertNull(session.getDatasetCacheVersion(datasetAddress1));
+            assertEquals(session.getDatasetCacheVersion(datasetAddress2), "v2");
         } finally {
             session.getLock().unlock();
         }
@@ -257,17 +257,17 @@ public class ReplicantSessionTest {
     }
 
     @Test
-    public void cacheKeys() {
+    public void datasetCacheVersions() {
         final var session = new ReplicantSession(mock(Session.class));
         session.getLock().lock();
         try {
             final var cd1 = DatasetAddress.of(1, null);
 
-            assertNull(session.getETag(cd1));
+            assertNull(session.getDatasetCacheVersion(cd1));
 
-            session.setETag(cd1, "X");
+            session.setDatasetCacheVersion(cd1, "X");
 
-            assertEquals(session.getETag(cd1), "X");
+            assertEquals(session.getDatasetCacheVersion(cd1), "X");
         } finally {
             session.getLock().unlock();
         }

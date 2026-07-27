@@ -8,7 +8,6 @@ import replicant.Subscription;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestFilterParameterUpdatedEvent;
-import replicant.spy.AreaOfInterestStatusUpdatedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
@@ -65,7 +64,6 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     public ConsoleSpyEventProcessor() {
         on(AreaOfInterestCreatedEvent.class, this::onAreaOfInterestCreated);
         on(AreaOfInterestFilterParameterUpdatedEvent.class, this::onAreaOfInterestFilterParameterUpdated);
-        on(AreaOfInterestStatusUpdatedEvent.class, this::onAreaOfInterestStatusUpdated);
         on(AreaOfInterestDisposedEvent.class, this::onAreaOfInterestDisposed);
 
         on(SubscriptionCreatedEvent.class, this::onSubscriptionCreated);
@@ -330,22 +328,6 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         log(
                 "%cAreaOfInterest Filter Parameter Updated " + areaOfInterest.getDatasetAddress() + " - "
                         + filterParameterString,
-                AREA_OF_INTEREST_COLOR);
-    }
-
-    /**
-     * Handle the AreaOfInterestStatusUpdatedEvent.
-     *
-     * @param e the event.
-     */
-    protected void onAreaOfInterestStatusUpdated(@NonNull final AreaOfInterestStatusUpdatedEvent e) {
-        final AreaOfInterest areaOfInterest = e.getAreaOfInterest();
-        final Object filterParameter = areaOfInterest.getFilterParameter();
-        final String filterParameterString =
-                null == filterParameter ? "" : " - " + FilterParameterUtil.filterParameterToString(filterParameter);
-        log(
-                "%cAreaOfInterest Status Updated " + areaOfInterest.getDatasetAddress() + filterParameterString + " :: "
-                        + areaOfInterest.getStatus(),
                 AREA_OF_INTEREST_COLOR);
     }
 
