@@ -1,0 +1,9 @@
+diff -urN orig/transpiler/java/com/google/j2cl/common/bazel/jvm_flags.bzl new/transpiler/java/com/google/j2cl/common/bazel/jvm_flags.bzl
+--- orig/transpiler/java/com/google/j2cl/common/bazel/jvm_flags.bzl	2026-07-24 10:00:00
++++ new/transpiler/java/com/google/j2cl/common/bazel/jvm_flags.bzl	2026-07-27 10:00:00
+@@ -3,4 +3,5 @@
+ JVM_FLAGS = [
++    "--sun-misc-unsafe-memory-access=allow",
+     "-XX:+TieredCompilation",
+     # This should match the javac constant since we compile the same files.
+     "-Xss7M",

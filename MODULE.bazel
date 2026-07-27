@@ -14,7 +14,10 @@ archive_override(
     module_name = "j2cl",
     integrity = "sha256-Mcs52BCBI02NyZL/NHaaRlWP4F2Uw3IQNw/q/v0wKZ8=",
     patch_strip = 1,
-    patches = ["//third_party/bazel/patches:j2cl_fix_escapevelocity_coordinate.patch"],
+    patches = [
+        "//third_party/bazel/patches:j2cl_fix_escapevelocity_coordinate.patch",
+        "//third_party/bazel/patches:j2cl_suppress_unsafe_warning.patch",
+    ],
     strip_prefix = "j2cl-f5ccde0f35473a240052e028376e5139da48e6ce",
     urls = ["https://github.com/google/j2cl/archive/f5ccde0f35473a240052e028376e5139da48e6ce.tar.gz"],
 )
@@ -32,7 +35,10 @@ single_version_override(
 single_version_override(
     module_name = "rules_closure",
     patch_strip = 1,
-    patches = ["//third_party/bazel/patches:rules_closure_use_protobuf_java_proto_library.patch"],
+    patches = [
+        "//third_party/bazel/patches:rules_closure_use_protobuf_java_proto_library.patch",
+        "//third_party/bazel/patches:rules_closure_suppress_unsafe_warning.patch",
+    ],
     version = "0.16.0",
 )
 

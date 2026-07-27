@@ -1,0 +1,11 @@
+diff -urN orig/java/io/bazel/rules/closure/BUILD new/java/io/bazel/rules/closure/BUILD
+--- orig/java/io/bazel/rules/closure/BUILD	2026-03-30 20:43:53
++++ new/java/io/bazel/rules/closure/BUILD	2026-07-27 10:00:00
+@@ -22,6 +22,7 @@
+     name = "ClosureWorker",
+     srcs = ["ClosureWorker.java"],
+     jvm_flags = [
++        "--sun-misc-unsafe-memory-access=allow",
+         "-Xss20m",  # JSCompiler needs big stacks for recursive parsing
+         "-XX:+UseParallelGC",  # Best GC when app isn't latency sensitive
+     ],
