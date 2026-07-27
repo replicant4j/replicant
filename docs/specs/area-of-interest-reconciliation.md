@@ -9,7 +9,8 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
 
 ## Requirements
 
-1. Within one Replicant client context, no more than one Area of Interest may exist for a Dataset Address.
+1. Within one [Replicant Context](../glossary/README.md#replicant-context), no more than one Area of Interest may exist
+   for a Dataset Address.
 2. Re-declaring interest at an existing Dataset Address must reuse the same Area of Interest.
 3. Applying a different [Filter Parameter](../glossary/README.md#filter-parameter) at an existing Dataset Address must
    update the shared desired value, with the most recently applied update becoming authoritative for every consumer of
@@ -41,19 +42,19 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
 16. Withdrawing an Area of Interest must remove its Subscription when no Subscription Dependency continues to require
     it.
 17. Transitioning a Subscription from Explicit Subscription Mode to Implicit Subscription Mode must not by itself
-    replace the Subscription or make its data unavailable.
-18. Data availability must be reported independently of Area of Interest status and must indicate whether a complete,
+    replace the Subscription or change its [Data Availability](../glossary/README.md#data-availability).
+18. Data Availability must be reported independently of Area of Interest status and must indicate whether a complete,
     locally usable [Dataset](../glossary/README.md#dataset) representation currently exists.
-19. A `SATISFIED` Area of Interest must have data available, an `INVALIDATED` Area of Interest must not have data
-    available, and a `PENDING` Area of Interest may be in either condition.
-20. Data for the previous Filter Parameter must remain available while an existing Subscription changes to Explicit
-    Subscription Mode or applies an Updatable Filter Parameter.
-21. Data may become unavailable while a Subscription is replaced to apply a Fixed Filter Parameter.
-22. Satisfaction and data-availability changes caused by a
+19. A `SATISFIED` Area of Interest must have Data Availability, an `INVALIDATED` Area of Interest must not have Data
+    Availability, and a `PENDING` Area of Interest may be in either condition.
+20. Data Availability for the previous Filter Parameter must remain true while an existing Subscription changes to
+    Explicit Subscription Mode or applies an Updatable Filter Parameter.
+21. Data Availability may become false while a Subscription is replaced to apply a Fixed Filter Parameter.
+22. Satisfaction and Data Availability changes caused by a
     [Change Set](../glossary/README.md#change-set) must become observable only after the complete Change Set has been
     applied as one consistent unit.
 23. Disconnecting a Replicant connector must preserve each Area of Interest and its desired Filter Parameter while
-    removing the corresponding Subscription and making its data unavailable.
+    removing the corresponding Subscription and setting its Data Availability to false.
 24. After disconnection, each non-invalidated Area of Interest must be `PENDING` and reconciliation must resume after
     reconnection.
 25. Disconnection and reconnection must not change an `INVALIDATED` Area of Interest or cause its Dataset Address to be

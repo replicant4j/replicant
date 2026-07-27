@@ -7,7 +7,22 @@ This glossary defines the core language for describing Replicant's entity replic
 ### System Schema
 
 A catalog containing each [Entity Type](#entity-type) and [Dataset](#dataset) belonging to one isolated replicated
-system. Its identifier distinguishes that system within a client context.
+system. Its identifier distinguishes that system within a [Replicant Context](#replicant-context).
+
+### Replicant Context
+
+The client-side boundary that owns [System Schema](#system-schema) definitions, [Area of Interest](#area-of-interest)
+declarations, [Subscription](#subscription) state, and shared [Replica](#replica) instances. Replicant state is not
+shared between Replicant Contexts.
+
+_Avoid_: Client context
+
+### Replicant Session
+
+The server-side state associated with one active Replicant transport session, including authorization,
+[Subscription](#subscription) state, [Dataset Cache Version](#dataset-cache-version) values, and queued changes.
+
+_Avoid_: Client session, WebSocket Session when referring to Replicant-owned state
 
 ### Entity Type
 
@@ -26,6 +41,14 @@ it from specified [Subscription](#subscription) instances.
 
 _Avoid_: Entity message
 
+### Entity Change Candidate
+
+A potential server-side [Entity](#entity) change captured before routing and filtering for individual
+[Subscription](#subscription) instances. It may produce [Entity Change](#entity-change) instances for zero or more
+Subscriptions, including changes that remove a [Replica](#replica).
+
+_Avoid_: Message, Entity message
+
 ### Replica
 
 The client-side representation of one [Entity](#entity). A Replica is shared when it belongs to more than one
@@ -40,6 +63,15 @@ filtering behaviour. A [Subscription](#subscription) materializes that definitio
 [Dataset Address](#dataset-address).
 
 _Avoid_: Graph, channel, replication graph
+
+### Dataset Visibility
+
+A [Dataset](#dataset) declaration controlling how its [Subscription](#subscription) instances may originate. External
+visibility permits an [Area of Interest](#area-of-interest) to request it directly, internal visibility permits it to
+be reached through a [Dataset Link](#dataset-link) or [Required Type Dataset](#required-type-dataset), and universal
+visibility permits both.
+
+_Avoid_: External Dataset, Internal Dataset
 
 ### Cacheable Dataset
 
@@ -141,7 +173,7 @@ A membership rule specific to a [Dataset](#dataset) that further restricts which
 
 ### Filter Decision
 
-The effect of applying a [Filter](#filter) to an [Entity Change](#entity-change) for a
+The effect of applying a [Filter](#filter) to an [Entity Change Candidate](#entity-change-candidate) for a
 [Subscription](#subscription): forward the change, replace it with a [Replica](#replica) removal, or ignore it.
 
 _Avoid_: Filter result, interesting
@@ -190,6 +222,14 @@ An opaque value identifying the cached representation of a [Dataset](#dataset) a
 
 _Avoid_: ETag, cache key
 
+### Dataset Cache Entry
+
+A stored representation belonging to one concrete [Dataset Address](#dataset-address), containing its
+[Dataset Cache Version](#dataset-cache-version) and the serialized [Change Set](#change-set) needed to materialize its
+cached [Subscription](#subscription) state.
+
+_Avoid_: Cached Dataset, cached result, generic cache entry
+
 ### Dataset Address Template
 
 A partially specified [Dataset](#dataset) selection used while evaluating a [Dataset Link](#dataset-link). It is
@@ -211,6 +251,14 @@ _Avoid_: Delete Subscription
 A client declaration that a [Subscription](#subscription) should exist at a [Dataset Address](#dataset-address), using
 a particular [Filter Parameter](#filter-parameter) when required. It represents desired state and records progress
 toward that state.
+
+### Data Availability
+
+Whether complete data for a [Dataset Address](#dataset-address) is currently usable within a
+[Replicant Context](#replicant-context). Data Availability is independent of [Area of Interest](#area-of-interest)
+satisfaction and may remain true while the Area of Interest is pending.
+
+_Avoid_: Data presence, data loaded
 
 ### Subscription
 
@@ -269,9 +317,17 @@ A runtime relationship recording that one [Subscription](#subscription) currentl
 remains in [Implicit Subscription Mode](#implicit-subscription-mode) unless an
 [Area of Interest](#area-of-interest) also places it in [Explicit Subscription Mode](#explicit-subscription-mode).
 
+### Subscription Dependency Candidate
+
+A possible [Subscription Dependency](#subscription-dependency) emitted before its
+[Dataset Address Template](#dataset-address-template) values and target [Filter Parameter](#filter-parameter) have
+been completely resolved. Resolution either produces a concrete Subscription Dependency or discards the candidate.
+
+_Avoid_: Dependency message
+
 ### Routing Key
 
-A named value derived from an [Entity Change](#entity-change) and used to determine which
+A named value derived from an [Entity Change Candidate](#entity-change-candidate) and used to determine which
 [Dataset Address](#dataset-address) values might contain the [Entity](#entity). A [Filter](#filter) then determines
 whether the change belongs to each [Subscription](#subscription); a Routing Key does not identify the Subscription.
 

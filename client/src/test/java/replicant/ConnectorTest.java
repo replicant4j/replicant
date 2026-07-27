@@ -1013,6 +1013,64 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
+    public void progressMessages_subscribeResponseProcessesNextAreaOfInterest() {
+        assertSubscribeResponseProcessesNextAreaOfInterest();
+    }
+
+    @Test
+    public void progressMessages_subscribeResponseProcessesNextAreaOfInterest_whenValidationDisabled() {
+        ReplicantTestUtil.noValidateReplicasOnLoad();
+        assertSubscribeResponseProcessesNextAreaOfInterest();
+    }
+
+    private void assertSubscribeResponseProcessesNextAreaOfInterest() {
+        final Disposable schedulerLock = pauseScheduler();
+        final Connector connector = createConnector();
+        connector.pauseMessageScheduler();
+        final Connection connection = newConnection(connector);
+        safeAction(() -> connector.setState(ConnectorState.CONNECTED));
+
+        final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
+        final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1);
+        safeAction(() -> {
+            Replicant.context().createOrUpdateAreaOfInterest(datasetAddress1, null);
+            Replicant.context().createOrUpdateAreaOfInterest(datasetAddress2, null);
+        });
+        final List<AreaOfInterest> areasOfInterest =
+                safeAction(() -> Replicant.context().getAreasOfInterest());
+        final DatasetAddress firstDatasetAddress = areasOfInterest.get(0).getDatasetAddress();
+        final DatasetAddress secondDatasetAddress = areasOfInterest.get(1).getDatasetAddress();
+
+        final RequestEntry request = newRequest(connection);
+        connector.requestSubscribe(firstDatasetAddress, null);
+        final SubscriptionOperation operation =
+                connection.getCurrentSubscriptionOperations().get(0);
+        operation.markAsInProgress(request.getRequestId());
+
+        final String subscriptionChange = "+" + firstDatasetAddress.datasetId();
+        final MessageResponse response = setCurrentMessageResponse(
+                connection,
+                UpdateMessage.create(request.getRequestId(), null, new String[] {subscriptionChange}, null, null, null),
+                request);
+        response.setParsedSubscriptionChanges(
+                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+        doAnswer(i -> {
+                    newRequest(connection);
+                    return null;
+                })
+                .when(connector.getTransport())
+                .requestSubscribe(secondDatasetAddress, null);
+
+        schedulerLock.dispose();
+        connector.resumeMessageScheduler();
+
+        assertNotNull(Replicant.context().findSubscription(firstDatasetAddress));
+        assertTrue(connector.isSubscriptionOperationPending(
+                SubscriptionOperation.Type.SUBSCRIBE, secondDatasetAddress, null));
+        verify(connector.getTransport()).requestSubscribe(secondDatasetAddress, null);
+    }
+
+    @Test
     public void progressMessages_whenConnectionHasBeenDisconnectedInMeantime() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);

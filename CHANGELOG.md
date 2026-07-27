@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Rename the Domgen `subscription_constants` artifact to `dataset_constants`, generate
+  `<Repository>DatasetConstants`, and describe its name values as Dataset names. This hard-cut generated API migration
+  removes the obsolete Subscription constants terminology.
 * Align Area of Interest reconciliation and Dataset caching with the canonical specifications:
   * Replace operation-history and failure statuses with satisfaction states `PENDING`, `SATISFIED`, and terminal
     `INVALIDATED`; derive satisfaction from the latest shared Filter Parameter and Explicit Subscription Mode, report

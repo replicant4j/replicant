@@ -3,7 +3,6 @@ package replicant.messages;
 import static org.realityforge.braincheck.Guards.*;
 
 import java.util.HashSet;
-import java.util.Objects;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
@@ -17,7 +16,7 @@ import replicant.shared.Messages;
  * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-@SuppressWarnings("NullAway.Init")
+@SuppressWarnings( { "NullAway.Init", "ConstantValue", "NotNullFieldNotInitialized" } )
 public class UpdateMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.UPDATE;
@@ -91,7 +90,8 @@ public class UpdateMessage extends ServerToClientMessage {
                     () -> "Replicant-0013: UpdateMessage.getSubscriptionChanges() invoked when no changes are"
                             + " present. Should guard call with UpdateMessage.hasSubscriptionChanges().");
         }
-        return Objects.requireNonNull(subscriptionChanges);
+        assert null != subscriptionChanges;
+        return subscriptionChanges;
     }
 
     /**
@@ -120,7 +120,8 @@ public class UpdateMessage extends ServerToClientMessage {
                             + " changes are present. Should guard call with"
                             + " UpdateMessage.hasFilterParameterSubscriptionChanges().");
         }
-        return Objects.requireNonNull(filterParameterSubscriptionChanges);
+        assert null != filterParameterSubscriptionChanges;
+        return filterParameterSubscriptionChanges;
     }
 
     /**
@@ -148,7 +149,8 @@ public class UpdateMessage extends ServerToClientMessage {
                     () -> "Replicant-0012: UpdateMessage.getEntityChanges() invoked when no changes are present."
                             + " Should guard call with UpdateMessage.hasEntityChanges().");
         }
-        return Objects.requireNonNull(changes);
+        assert null != changes;
+        return changes;
     }
 
     /**
@@ -172,6 +174,7 @@ public class UpdateMessage extends ServerToClientMessage {
             if (null != changes) {
                 final HashSet<String> existing = new HashSet<>();
                 for (final EntityChange change : changes) {
+                    assert null != change;
                     final String id = change.getId();
                     apiInvariant(
                             () -> existing.add(id),
@@ -182,6 +185,7 @@ public class UpdateMessage extends ServerToClientMessage {
             final HashSet<String> existingDatasetAddresses = new HashSet<>();
             if (null != subscriptionChanges) {
                 for (final String subscriptionChange : subscriptionChanges) {
+                    assert null != subscriptionChange;
                     final String key = subscriptionChange.substring(1);
                     apiInvariant(
                             () -> existingDatasetAddresses.add(key),
@@ -191,6 +195,7 @@ public class UpdateMessage extends ServerToClientMessage {
             }
             if (null != filterParameterSubscriptionChanges) {
                 for (final SubscriptionChangeMessage subscriptionChange : filterParameterSubscriptionChanges) {
+                    assert null != subscriptionChange;
                     final String descriptor = subscriptionChange.getSubscriptionChange();
                     final String key = descriptor.substring(1);
                     apiInvariant(

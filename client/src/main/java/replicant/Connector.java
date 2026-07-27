@@ -554,15 +554,17 @@ abstract class Connector extends ReplicantService {
             getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
             response.markOrphanSubscriptionsRemoved();
             return true;
-        } else if (!response.hasWorldBeenValidated()) {
-            releaseSchedulerLock();
-            // Validate the world after the change set has been applied (if feature is enabled)
-            validateWorld();
-            return true;
         } else {
-            // We have to also release scheduler lock here in scenario where system not configured to validate world
-            releaseSchedulerLock();
-            completeMessageResponse();
+            completeSubscriptionOperations(response);
+            if (!response.hasWorldBeenValidated()) {
+                releaseSchedulerLock();
+                // Validate the world after the change set has been applied (if feature is enabled)
+                validateWorld();
+            } else {
+                // We have to also release scheduler lock here in scenario where system not configured to validate world
+                releaseSchedulerLock();
+                completeMessageResponse();
+            }
             return true;
         }
     }
@@ -749,6 +751,16 @@ abstract class Connector extends ReplicantService {
         _postMessageResponseAction = postMessageResponseAction;
     }
 
+    private void completeSubscriptionOperations(@NonNull final MessageResponse response) {
+        final RequestEntry request = response.getRequest();
+        if (null != request) {
+            final List<SubscriptionOperation> requests = ensureConnection().getActiveSubscriptionOperations();
+            if (!requests.isEmpty() && requests.get(0).getRequestId() == request.getRequestId()) {
+                completeSubscriptionOperations(requests);
+            }
+        }
+    }
+
     void completeMessageResponse() {
         final Connection connection = ensureConnection();
         final MessageResponse response = connection.ensureCurrentMessageResponse();
@@ -781,14 +793,7 @@ abstract class Connector extends ReplicantService {
         onMessageProcessed(response);
         callPostMessageResponseActionIfPresent();
 
-        if (null != request) {
-            final List<SubscriptionOperation> requests = connection.getActiveSubscriptionOperations();
-            if (!requests.isEmpty()) {
-                if (requests.get(0).getRequestId() == request.getRequestId()) {
-                    completeSubscriptionOperations(requests);
-                }
-            }
-        }
+        completeSubscriptionOperations(response);
         //noinspection IfCanBeSwitch
         if (OkMessage.TYPE.equals(message.getType())) {
             if (null != requestId && connection.getLastRxSyncRequestId() == requestId) {
@@ -822,9 +827,9 @@ abstract class Connector extends ReplicantService {
         setState(ConnectorState.FATAL_ERROR);
     }
 
-    // This is in an action so that completeSubscriptionOperation() is called observers can react to status changes in
-    // AreaOfInterest
-    @Action(reportParameters = false)
+    // This is in an action so observers can react to status changes caused by subscription completion. Observable
+    // changes are not required because a subscribe response may have already created the Subscription in explicit mode.
+    @Action(reportParameters = false, verifyRequired = false)
     void completeSubscriptionOperations(@NonNull final List<SubscriptionOperation> subscriptionOperations) {
         subscriptionOperations.forEach(subscriptionOperation -> {
             final DatasetAddress datasetAddress = subscriptionOperation.getDatasetAddress();
