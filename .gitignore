@@ -1,8 +1,11 @@
 # Location where bazel builds dist for uploading to Maven Central
 /dist
 
+# Ignore IDEA project files
 /.bazelbsp
 /.idea
+
+# Ignore local temp directory
 /tmp
 
 # Local user configuration
