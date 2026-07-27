@@ -1,8 +1,8 @@
 goog.module('replicant.j2cl.BuildTest');
 
+const AreaOfInterestView = goog.require('replicant.react4j.AreaOfInterestView');
 const Replicant = goog.require('replicant.Replicant');
 const ReplicantContext = goog.require('replicant.ReplicantContext');
-const AreaOfInterestView = goog.require('replicant.react4j.AreaOfInterestView');
 const SharedConstants = goog.require('replicant.shared.SharedConstants');
 
 goog.exportSymbol('replicant.j2cl.Replicant', Replicant);
