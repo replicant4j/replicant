@@ -1,5 +1,5 @@
 /**
- * Classes representing messages passed across a Transport.
+ * Transport message envelopes and the wire values they contain.
  */
 @NullMarked
 package replicant.messages;

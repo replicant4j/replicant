@@ -10,12 +10,11 @@ applied on the server-side, the changes are batched and transmitted to intereste
 the changes, the client will atomically apply the changes to a local client-side representation. The
 application is then notified of the changes via a local message broker.
 
-The library uses a client-side repository of objects, or replicas, that maintain the state of a subset of
-the world. Changes are transmitted from the server to the client and the replicas are dynamically updated.
-When the replica's are updated, changes are propagated through to the user interface through the use of events
-and a centralized event broker. To avoid the scenario where the UI is updated when the repository is an
-inconsistent state, changes are applied in changesets and only when the complete changeset has been applied are
-the changes propagated through the event broker.
+The library uses a client-side repository of Replicas that represent the subscribed subset of server-side Entities.
+Entity Changes are transmitted from the server to the client in Change Sets and the Replicas are dynamically updated.
+When the Replicas are updated, changes are propagated through to the user interface through events and a centralized
+event broker. To avoid exposing inconsistent Replica state to the UI, each Change Set is applied atomically and only
+after the complete Change Set has been applied are the changes propagated through the event broker.
 
 ## Build
 
@@ -102,8 +101,8 @@ of the domain model, for example they may query:
 
 Each query is represented by a reusable Dataset that selects Entities of one or more Entity Types and declares its
 filtering behavior. A Subscription materializes that Dataset at a Dataset Address for one client. The client receives
-an initial message containing the matching state of the world, followed by subsequent matching changes until it
-unsubscribes or disconnects.
+an initial Change Set that materializes the matching Entities as Replicas, followed by subsequent matching Entity
+Changes until it unsubscribes or disconnects.
 
 Within its System Schema, each Dataset definition has a compact Dataset ID used by runtime metadata and Dataset
 Addresses. It may also have a human-readable Dataset name for diagnostics. The Dataset ID identifies the reusable

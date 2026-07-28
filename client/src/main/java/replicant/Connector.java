@@ -30,7 +30,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
-import replicant.messages.EntityChangeData;
+import replicant.messages.EntityChangePayload;
 import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
@@ -557,18 +557,18 @@ abstract class Connector extends ReplicantService {
         } else if (response.areOrphanSubscriptionsRemoved()) {
             // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
             // incoming change and queries the repository and accesses orphaned and potentially invalid Replicas.
-            // This MUST be done prior to validateWorld()
+            // This MUST be done prior to validating Replicas.
             getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
             response.markOrphanSubscriptionsRemoved();
             return true;
         } else {
             completeSubscriptionOperations(response);
-            if (!response.hasWorldBeenValidated()) {
+            if (!response.hasReplicaValidationStarted()) {
                 releaseSchedulerLock();
-                // Validate the world after the current server message has been applied (if feature is enabled)
-                validateWorld();
+                // Validate all materialized Replicas in this Replicant Context after the response has been applied.
+                validateReplicas();
             } else {
-                // We have to also release scheduler lock here in scenario where system not configured to validate world
+                // Also release the scheduler lock when optional Replica validation is disabled.
                 releaseSchedulerLock();
                 completeMessageResponse();
             }
@@ -1010,7 +1010,7 @@ abstract class Connector extends ReplicantService {
                  * Sometimes a remove can occur for an entity that is no longer present on the client. The most
                  * common cause of this is initiating an action that deletes an entity and then un-subscribing
                  * from the Subscription that contains the Entity. This can result in an Entity that has been removed
-                 * locally but has a remove message in the queue. Other interleaved async operations can also
+                 * locally but has a removal Entity Change in the queue. Other interleaved async operations can also
                  * trigger this scenario.
                  */
                 if (null != replicaEntry) {
@@ -1018,18 +1018,18 @@ abstract class Connector extends ReplicantService {
                     response.incEntityRemoveCount();
                 }
             } else {
-                final EntityChangeData data = change.getData();
+                final EntityChangePayload payload = change.getPayload();
                 if (null == replicaEntry) {
                     final String name = Replicant.areNamesEnabled() ? entityType.getName() + "/" + entityId : null;
                     replicaEntry =
                             getReplicantContext().getReplicaRegistry().findOrCreateReplicaEntry(name, type, entityId);
-                    final Object replica = entityType.getCreator().createReplica(entityId, data);
+                    final Object replica = entityType.getCreator().createReplica(entityId, payload);
                     replicaEntry.setReplica(replica);
                 } else {
                     @SuppressWarnings("rawtypes")
                     final EntityType.Updater updater = entityType.getUpdater();
                     if (null != updater) {
-                        updater.updateReplica(replicaEntry.getReplica(), data);
+                        updater.updateReplica(replicaEntry.getReplica(), payload);
                     }
                 }
 
@@ -1063,8 +1063,8 @@ abstract class Connector extends ReplicantService {
                 }
                 /*
                 We could get the existing subscriptions for a Replica Entry, and any that are not present
-                in the Entity change could be removed here. However we assume the code generated in
-                subscription change will handle subscription changes and remove subscriptions no longer
+                in the Entity Change could be removed here. However we assume the code generated for
+                Subscription Changes will handle membership changes and remove Subscriptions no longer
                 relevant.
                 */
 
@@ -1074,8 +1074,15 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void validateWorld() {
-        ensureCurrentMessageResponse().markWorldAsValidated();
+    /**
+     * Validate every materialized Replica in this connector's Replicant Context that implements Arez
+     * {@code Verifiable}.
+     *
+     * <p>This validates client Replica state after the current response has been applied. It does not validate server
+     * Entities, Subscription metadata, or Replicant Context configuration.</p>
+     */
+    void validateReplicas() {
+        ensureCurrentMessageResponse().markReplicaValidationStarted();
         if (Replicant.shouldValidateReplicasOnLoad()) {
             getReplicantContext().getValidator().validateReplicas();
         }

@@ -40,6 +40,35 @@ public class ValidatorTest extends AbstractReplicantTest {
                 "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
     }
 
+    @Test
+    public void validationIsScopedToReplicantContext() {
+        ReplicantTestUtil.enableZones();
+        ReplicantTestUtil.resetState();
+        final Zone validZone = Replicant.createZone();
+        final Zone invalidZone = Replicant.createZone();
+
+        validZone.safeRun(() -> safeAction(() -> {
+            final ReplicaEntry replicaEntry =
+                    Replicant.context().getReplicaRegistry().findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1);
+            replicaEntry.setReplica(new MyEntity(null));
+        }));
+        invalidZone.safeRun(() -> safeAction(() -> {
+            final ReplicaEntry replicaEntry =
+                    Replicant.context().getReplicaRegistry().findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1);
+            replicaEntry.setReplica(new MyEntity(new Exception()));
+        }));
+
+        validZone.safeRun(() -> Replicant.context().getValidator().validateReplicas());
+        invalidZone.safeRun(() -> {
+            final IllegalStateException exception = expectThrows(
+                    IllegalStateException.class,
+                    () -> Replicant.context().getValidator().validateReplicas());
+            assertEquals(
+                    exception.getMessage(),
+                    "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
+        });
+    }
+
     static class MyEntity implements Verifiable {
         @Nullable
         private final Exception _exception;

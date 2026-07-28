@@ -88,11 +88,13 @@ public final class JsonEncoderTest {
 
         assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
 
-        final var data = object.getJsonObject(Messages.ChangeSet.DATA);
-        assertNotNull(data);
-        assertEquals(data.getString(EntityChangeCandidateTestUtil.ATTR_KEY1), "a1");
-        assertEquals(data.getString(EntityChangeCandidateTestUtil.ATTR_KEY2), "a2");
-        assertTrue(data.getString("key3").startsWith("2001-07-05T05:08:56.000"));
+        assertTrue(object.containsKey("payload"));
+        assertFalse(object.containsKey("data"));
+        final var payload = object.getJsonObject(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD);
+        assertNotNull(payload);
+        assertEquals(payload.getString(EntityChangeCandidateTestUtil.ATTR_KEY1), "a1");
+        assertEquals(payload.getString(EntityChangeCandidateTestUtil.ATTR_KEY2), "a2");
+        assertTrue(payload.getString("key3").startsWith("2001-07-05T05:08:56.000"));
 
         final var datasetAddresses = object.getJsonArray(Messages.Common.DATASET_ADDRESSES);
         assertNotNull(datasetAddresses);
@@ -129,7 +131,7 @@ public final class JsonEncoderTest {
 
         assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
 
-        assertFalse(object.containsKey(Messages.ChangeSet.DATA));
+        assertFalse(object.containsKey(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD));
     }
 
     @Test
@@ -234,14 +236,14 @@ public final class JsonEncoderTest {
         final var changeSet = toJsonObject(JsonEncoder.encodeChangeSet(null, null, null, cs));
         final var change =
                 changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
-        final var data = change.getJsonObject(Messages.ChangeSet.DATA);
+        final var payload = change.getJsonObject(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD);
 
-        assertEquals(data.getString("s"), "text");
-        assertEquals(data.getInt("i"), 12);
-        assertEquals(data.getJsonNumber("f").doubleValue(), 1.5, 0.0001);
-        assertTrue(data.getBoolean("b"));
-        assertTrue(data.getString("d").startsWith("2001-07-05T05:08:56.000"));
-        assertFalse(data.containsKey("n"));
+        assertEquals(payload.getString("s"), "text");
+        assertEquals(payload.getInt("i"), 12);
+        assertEquals(payload.getJsonNumber("f").doubleValue(), 1.5, 0.0001);
+        assertTrue(payload.getBoolean("b"));
+        assertTrue(payload.getString("d").startsWith("2001-07-05T05:08:56.000"));
+        assertFalse(payload.containsKey("n"));
         assertFalse(change.containsKey(Messages.Common.DATASET_ADDRESSES));
     }
 
@@ -298,7 +300,7 @@ public final class JsonEncoderTest {
         final var value = toJsonObject(encoded)
                 .getJsonArray(Messages.ChangeSet.ENTITY_CHANGES)
                 .getJsonObject(0)
-                .getJsonObject(Messages.ChangeSet.DATA)
+                .getJsonObject(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD)
                 .getString("X");
         assertNotNull(value);
         assertEquals(value, "1392061102056");

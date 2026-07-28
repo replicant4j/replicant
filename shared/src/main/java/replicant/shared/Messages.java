@@ -112,7 +112,7 @@ public final class Messages {
         public static final String ENTITY_ID = "id";
 
         @NonNull
-        public static final String DATA = "data";
+        public static final String ENTITY_CHANGE_PAYLOAD = "payload";
 
         @NonNull
         public static final String FILTER_PARAMETER_SUBSCRIPTION_CHANGES = "filterParameterSubscriptionChanges";

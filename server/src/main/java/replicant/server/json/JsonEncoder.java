@@ -30,7 +30,11 @@ public final class JsonEncoder {
     private JsonEncoder() {}
 
     /**
-     * Encode the Change Set with the Entity Change Candidates.
+     * Encode a Change Set containing routed Entity Changes.
+     *
+     * <p>For an update, each Entity Change contains a {@code payload} object with serialized Entity attribute values.
+     * The Entity identity and target Subscription Dataset Addresses remain fields of the surrounding Entity
+     * Change.</p>
      *
      * @param requestId          the requestId that initiated the change. Only set if the packet is destined for the
      *                           originating session.
@@ -85,19 +89,19 @@ public final class JsonEncoder {
             generator.writeEnd();
         }
 
-        final var changes = changeSet.getEntityChanges();
-        if (!changes.isEmpty()) {
+        final var entityChanges = changeSet.getEntityChanges();
+        if (!entityChanges.isEmpty()) {
             generator.writeStartArray(Messages.ChangeSet.ENTITY_CHANGES);
 
-            for (final var change : changes) {
-                final var entityChangeCandidate = change.getEntityChangeCandidate();
+            for (final var entityChange : entityChanges) {
+                final var entityChangeCandidate = entityChange.getEntityChangeCandidate();
 
                 generator.writeStartObject();
                 generator.write(
                         Messages.ChangeSet.ENTITY_ID,
                         entityChangeCandidate.getTypeId() + "." + entityChangeCandidate.getId());
 
-                final var datasetAddresses = change.getDatasetAddresses();
+                final var datasetAddresses = entityChange.getDatasetAddresses();
                 if (!datasetAddresses.isEmpty()) {
                     generator.writeStartArray(Messages.Common.DATASET_ADDRESSES);
                     for (final var datasetAddress : datasetAddresses) {
@@ -107,9 +111,9 @@ public final class JsonEncoder {
                 }
 
                 if (entityChangeCandidate.isUpdate()) {
-                    generator.writeStartObject(Messages.ChangeSet.DATA);
-                    final var values = Objects.requireNonNull(entityChangeCandidate.getAttributeValues());
-                    for (final var entry : values.entrySet()) {
+                    generator.writeStartObject(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD);
+                    final var payloadValues = Objects.requireNonNull(entityChangeCandidate.getAttributeValues());
+                    for (final var entry : payloadValues.entrySet()) {
                         writeField(generator, entry.getKey(), entry.getValue(), dateFormat);
                     }
                     generator.writeEnd();

@@ -114,7 +114,7 @@ public final class EntityChangeCandidate {
         return (isUpdate() ? "U" : "D") + "(Type="
                 + getTypeId() + ",ID="
                 + getId() + ",RoutingKeys="
-                + getRoutingKeys() + (!isDelete() ? ",Data=" + getAttributeValues() : "")
+                + getRoutingKeys() + (!isDelete() ? ",AttributeValues=" + getAttributeValues() : "")
                 + ",Subscription Dependency Candidates="
                 + getSubscriptionDependencyCandidates() + ")";
     }

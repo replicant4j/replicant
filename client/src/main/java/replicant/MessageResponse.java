@@ -45,7 +45,7 @@ final class MessageResponse {
     @Nullable
     private List<SubscriptionChange> _parsedSubscriptionChanges;
 
-    private boolean _worldValidated;
+    private boolean _replicaValidationStarted;
     private boolean _subscriptionChangesProcessed;
     private boolean _orphanSubscriptionRemoved;
     private int _subscriptionSubscribeCount;
@@ -232,14 +232,23 @@ final class MessageResponse {
         return _message;
     }
 
-    void markWorldAsValidated() {
+    /**
+     * Record that optional Replica validation has started for this response.
+     *
+     * <p>The connector records this before invoking the Validator so re-entrant processing cannot repeat the
+     * validation step.</p>
+     */
+    void markReplicaValidationStarted() {
         if (Replicant.shouldValidateReplicasOnLoad()) {
-            _worldValidated = true;
+            _replicaValidationStarted = true;
         }
     }
 
-    boolean hasWorldBeenValidated() {
-        return !Replicant.shouldValidateReplicasOnLoad() || _worldValidated;
+    /**
+     * Return true if optional Replica validation is disabled or has started after this response was applied.
+     */
+    boolean hasReplicaValidationStarted() {
+        return !Replicant.shouldValidateReplicasOnLoad() || _replicaValidationStarted;
     }
 
     @NonNull

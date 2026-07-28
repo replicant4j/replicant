@@ -24,8 +24,10 @@ abstract class Validator extends ReplicantService {
     }
 
     /**
-     * Verify that all Replicas contained within the ReplicaRegistry will pass verification.
-     * A Replica can be verified by implementing the {@link Verifiable} interface.
+     * Verify every materialized Replica in this Validator's Replicant Context that implements {@link Verifiable}.
+     *
+     * <p>This validates Replica objects only. It does not validate server Entities, Subscription metadata, or
+     * Replicant Context configuration.</p>
      */
     @Action
     void validateReplicas() {

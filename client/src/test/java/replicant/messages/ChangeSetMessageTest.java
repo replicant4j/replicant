@@ -56,11 +56,11 @@ public class ChangeSetMessageTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = new String[] {"+1", "+2.50", "+3.50", "+4.23", "+4.24", "+4.25", "+5.1"};
         final EntityChange[] entityChanges = new EntityChange[] {
             EntityChange.create(1, 1, new String[0]),
-            EntityChange.create(1, 2, new String[0], new EntityChangeDataImpl()),
-            EntityChange.create(1, 3, new String[0], new EntityChangeDataImpl()),
+            EntityChange.create(1, 2, new String[0], new EntityChangePayloadImpl()),
+            EntityChange.create(1, 3, new String[0], new EntityChangePayloadImpl()),
             EntityChange.create(1, 4, new String[0]),
-            EntityChange.create(2, 33, new String[0], new EntityChangeDataImpl()),
-            EntityChange.create(3, 34, new String[0], new EntityChangeDataImpl()),
+            EntityChange.create(2, 33, new String[0], new EntityChangePayloadImpl()),
+            EntityChange.create(3, 34, new String[0], new EntityChangePayloadImpl()),
             EntityChange.create(4, 1, new String[0])
         };
 
@@ -100,12 +100,12 @@ public class ChangeSetMessageTest extends AbstractReplicantTest {
     @Test
     public void validate_duplicateEntityChanges() {
         final EntityChange[] entityChanges = new EntityChange[] {
-            EntityChange.create(1, 1, new String[0], new EntityChangeDataImpl()),
-            EntityChange.create(1, 2, new String[0], new EntityChangeDataImpl()),
-            EntityChange.create(1, 3, new String[0], new EntityChangeDataImpl()),
+            EntityChange.create(1, 1, new String[0], new EntityChangePayloadImpl()),
+            EntityChange.create(1, 2, new String[0], new EntityChangePayloadImpl()),
+            EntityChange.create(1, 3, new String[0], new EntityChangePayloadImpl()),
             EntityChange.create(1, 4, new String[0]),
-            EntityChange.create(2, 33, new String[0], new EntityChangeDataImpl()),
-            EntityChange.create(3, 34, new String[0], new EntityChangeDataImpl()),
+            EntityChange.create(2, 33, new String[0], new EntityChangePayloadImpl()),
+            EntityChange.create(3, 34, new String[0], new EntityChangePayloadImpl()),
             EntityChange.create(1, 1, new String[0])
         };
 

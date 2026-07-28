@@ -18,8 +18,8 @@ import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
-import replicant.messages.EntityChangeData;
-import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.EntityChangePayload;
+import replicant.messages.EntityChangePayloadImpl;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
@@ -1014,7 +1014,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Disposable schedulerLock0 = connector.getSchedulerLock();
         assertNotNull(schedulerLock0);
 
-        // response needs worldValidated
+        // response needs Replica validation
 
         final boolean result1 = connector.progressMessages();
 
@@ -1659,19 +1659,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // This Replica Entry is to be removed
         final ReplicaEntry replicaEntry3 = findOrCreateReplicaEntry(Linkable.class, 3);
 
-        final EntityChangeData data1 = mock(EntityChangeData.class);
-        final EntityChangeData data2 = mock(EntityChangeData.class);
+        final EntityChangePayload payload1 = mock(EntityChangePayload.class);
+        final EntityChangePayload payload2 = mock(EntityChangePayload.class);
         final EntityChange[] entityChanges = {
             // Update changes
-            EntityChange.create(0, 1, new String[] {"1"}, data1),
-            EntityChange.create(0, 2, new String[] {"1"}, data2),
+            EntityChange.create(0, 1, new String[] {"1"}, payload1),
+            EntityChange.create(0, 2, new String[] {"1"}, payload2),
             // Remove change
             EntityChange.create(0, 3, new String[] {"1"})
         };
         final MessageResponse response = setCurrentMessageResponse(
                 connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createReplica(1, data1)).thenReturn(replica1);
+        when(creator.createReplica(1, payload1)).thenReturn(replica1);
 
         assertEquals(response.getEntityUpdateCount(), 0);
         assertEquals(response.getEntityRemoveCount(), 0);
@@ -1680,10 +1680,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processEntityChanges();
 
-        verify(creator, times(1)).createReplica(1, data1);
-        verify(updater, never()).updateReplica(replica1, data1);
-        verify(creator, never()).createReplica(2, data2);
-        verify(updater, never()).updateReplica(replica2, data2);
+        verify(creator, times(1)).createReplica(1, payload1);
+        verify(updater, never()).updateReplica(replica1, payload1);
+        verify(creator, never()).createReplica(2, payload2);
+        verify(updater, never()).updateReplica(replica2, payload2);
 
         assertEquals(response.getEntityUpdateCount(), 1);
         assertEquals(response.getEntityRemoveCount(), 0);
@@ -1692,10 +1692,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processEntityChanges();
 
-        verify(creator, times(1)).createReplica(1, data1);
-        verify(updater, never()).updateReplica(replica1, data1);
-        verify(creator, never()).createReplica(2, data2);
-        verify(updater, times(1)).updateReplica(replica2, data2);
+        verify(creator, times(1)).createReplica(1, payload1);
+        verify(updater, never()).updateReplica(replica1, payload1);
+        verify(creator, never()).createReplica(2, payload2);
+        verify(updater, times(1)).updateReplica(replica2, payload2);
 
         assertEquals(response.getEntityUpdateCount(), 2);
         assertEquals(response.getEntityRemoveCount(), 1);
@@ -1737,13 +1737,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 new DatasetAddress(connector.getSystemSchema().getId(), 0, datasetRootId, "fi");
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
-        final EntityChangeData data = mock(EntityChangeData.class);
+        final EntityChangePayload payload = mock(EntityChangePayload.class);
         final EntityChange[] entityChanges = {
-            EntityChange.create(0, 1, new String[] {"0." + datasetRootId + "#fi"}, data)
+            EntityChange.create(0, 1, new String[] {"0." + datasetRootId + "#fi"}, payload)
         };
         setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createReplica(1, data)).thenReturn(mock(Linkable.class));
+        when(creator.createReplica(1, payload)).thenReturn(mock(Linkable.class));
 
         connector.processEntityChanges();
 
@@ -1781,11 +1781,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // Pause scheduler to prevent subscription reconciliation
         pauseScheduler();
 
-        final EntityChangeData data1 = mock(EntityChangeData.class);
-        final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"1"}, data1)};
+        final EntityChangePayload payload = mock(EntityChangePayload.class);
+        final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"1"}, payload)};
         setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
-        when(creator.createReplica(1, data1)).thenReturn(replica1);
+        when(creator.createReplica(1, payload)).thenReturn(replica1);
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processEntityChanges);
@@ -2731,13 +2731,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void validateWorld_invalidEntity() {
+    public void validateReplicas_invalidEntity() {
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertFalse(response.hasWorldBeenValidated());
+        assertFalse(response.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -2745,24 +2745,24 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Exception error = new Exception();
         safeAction(() -> replicaEntry1.setReplica(new MyEntity(error)));
 
-        final IllegalStateException exception = expectThrows(IllegalStateException.class, connector::validateWorld);
+        final IllegalStateException exception = expectThrows(IllegalStateException.class, connector::validateReplicas);
 
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
 
-        assertTrue(response.hasWorldBeenValidated());
+        assertTrue(response.hasReplicaValidationStarted());
     }
 
     @Test
-    public void validateWorld_invalidEntity_ignoredIfCompileSettingDisablesValidation() {
+    public void validateReplicas_invalidEntity_ignoredIfCompileSettingDisablesValidation() {
         ReplicantTestUtil.noValidateReplicasOnLoad();
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertTrue(response.hasWorldBeenValidated());
+        assertTrue(response.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -2770,26 +2770,26 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Exception error = new Exception();
         safeAction(() -> replicaEntry1.setReplica(new MyEntity(error)));
 
-        connector.validateWorld();
+        connector.validateReplicas();
 
-        assertTrue(response.hasWorldBeenValidated());
+        assertTrue(response.hasReplicaValidationStarted());
     }
 
     @Test
-    public void validateWorld_validEntity() {
+    public void validateReplicas_validEntity() {
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertFalse(response.hasWorldBeenValidated());
+        assertFalse(response.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
 
-        connector.validateWorld();
+        connector.validateReplicas();
 
-        assertTrue(response.hasWorldBeenValidated());
+        assertTrue(response.hasReplicaValidationStarted());
     }
 
     static class MyEntity implements Verifiable {
@@ -2992,7 +2992,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 new String[] {"+0"},
                 null,
-                new EntityChange[] {EntityChange.create(0, 1, new String[] {"0"}, new EntityChangeDataImpl())},
+                new EntityChange[] {EntityChange.create(0, 1, new String[] {"0"}, new EntityChangePayloadImpl())},
                 null);
         connection.enqueueResponse(message, null);
         assertNull(connection.getCurrentMessageResponse());
@@ -3018,7 +3018,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         {
             assertTrue(response.areEntityChangesPending());
 
-            when(creator.createReplica(anyInt(), any(EntityChangeData.class))).thenReturn(mock(Linkable.class));
+            when(creator.createReplica(anyInt(), any(EntityChangePayload.class)))
+                    .thenReturn(mock(Linkable.class));
 
             // Process ReplicaEntry Changes in response
             assertTrue(connector.progressResponseProcessing());
@@ -3045,12 +3046,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         }
 
         {
-            assertFalse(response.hasWorldBeenValidated());
+            assertFalse(response.hasReplicaValidationStarted());
 
-            // Validate World
+            // Validate Replicas
             assertTrue(connector.progressResponseProcessing());
 
-            assertTrue(response.hasWorldBeenValidated());
+            assertTrue(response.hasReplicaValidationStarted());
         }
 
         {

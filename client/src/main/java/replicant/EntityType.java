@@ -8,43 +8,48 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.messages.EntityChangeData;
+import replicant.messages.EntityChangePayload;
 
 /**
  * Defines a kind of server-side Entity and how its client Replica is created and updated.
  */
 public final class EntityType {
     /**
-     * Function used to create a Replica on receipt of an initial Entity change.
+     * Function used to create a Replica from an initial Entity Change payload.
      *
      * @param <T> the type of the Replica.
      */
     @FunctionalInterface
     public interface Creator<T> {
         /**
-         * Create a Replica from the supplied Entity change data.
+         * Create a Replica from the serialized Entity attribute values carried by an Entity Change.
          *
-         * @param id   the Entity identifier.
-         * @param data the state to use to create the Replica.
+         * <p>The payload is not the complete Entity Change; this callback receives Entity identity separately and does
+         * not receive the target Subscription Dataset Addresses.</p>
+         *
+         * @param id      the Entity identifier.
+         * @param payload the serialized Entity attribute values used to create the Replica.
          */
         @NonNull
-        T createReplica(int id, @NonNull EntityChangeData data);
+        T createReplica(int id, @NonNull EntityChangePayload payload);
     }
 
     /**
-     * Function used to update a Replica on receipt of subsequent Entity changes.
+     * Function used to update a Replica from a subsequent Entity Change payload.
      *
      * @param <T> the type of the Replica.
      */
     @FunctionalInterface
     public interface Updater<T> {
         /**
-         * Update the specified Replica from the supplied Entity change data.
+         * Update the specified Replica from the serialized Entity attribute values carried by an Entity Change.
+         *
+         * <p>The payload is not the complete Entity Change and contains only the attributes to apply.</p>
          *
          * @param replica the Replica.
-         * @param data    the state to apply to the Replica.
+         * @param payload the serialized Entity attribute values to apply to the Replica.
          */
-        void updateReplica(@NonNull T replica, @NonNull EntityChangeData data);
+        void updateReplica(@NonNull T replica, @NonNull EntityChangePayload payload);
     }
 
     /**

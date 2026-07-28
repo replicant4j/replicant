@@ -7,21 +7,27 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A change to an entity.
+ * A Change Set member directing the client to update an Entity's Replica or remove it from specified Subscriptions.
+ *
+ * <p>An update carries an {@link EntityChangePayload} containing serialized Entity attribute values. The payload is
+ * only one part of the Entity Change.</p>
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-@SuppressWarnings( { "NullAway.Init", "NotNullFieldNotInitialized" } )
+@SuppressWarnings({"NullAway.Init", "NotNullFieldNotInitialized"})
 public class EntityChange {
     private String id;
     private String[] datasetAddresses;
 
     @Nullable
-    private EntityChangeData data;
+    private EntityChangePayload payload;
 
     /**
      * Create a "remove" Entity Change.
      *
-     * @return the new EntityChange.
+     * @param type             the Entity Type identifier.
+     * @param id               the Entity identifier.
+     * @param datasetAddresses the Dataset Addresses of Subscriptions from which to remove the Replica.
+     * @return the new Entity Change.
      */
     @JsOverlay
     @NonNull
@@ -35,7 +41,11 @@ public class EntityChange {
     /**
      * Create an "update" Entity Change.
      *
-     * @return the new EntityChange.
+     * @param type             the Entity Type identifier.
+     * @param id               the Entity identifier.
+     * @param datasetAddresses the Dataset Addresses of Subscriptions containing the Replica after the update.
+     * @param payload the serialized Entity attribute values used to create or update the Replica.
+     * @return the new Entity Change.
      */
     @JsOverlay
     @NonNull
@@ -43,16 +53,19 @@ public class EntityChange {
             final int type,
             final int id,
             @NonNull final String[] datasetAddresses,
-            @Nullable final EntityChangeData data) {
+            @Nullable final EntityChangePayload payload) {
         final EntityChange change = create(type, id, datasetAddresses);
-        change.data = data;
+        change.payload = payload;
         return change;
     }
 
     private EntityChange() {}
 
     /**
-     * @return the id of the entity.
+     * Return the compact Entity identity containing the Entity Type identifier and Entity identifier separated by a
+     * period.
+     *
+     * @return the compact Entity identity.
      */
     @JsOverlay
     public final String getId() {
@@ -74,7 +87,7 @@ public class EntityChange {
      */
     @JsOverlay
     public final boolean isUpdate() {
-        return null != data;
+        return null != payload;
     }
 
     /**
@@ -86,16 +99,19 @@ public class EntityChange {
     }
 
     /**
-     * Return data to update.
+     * Return the serialized Entity attribute values carried by this update.
      *
-     * @return true if the data is present.
+     * <p>This payload does not include the Entity identity, target Subscription Dataset Addresses, or update
+     * semantics represented by this Entity Change.</p>
+     *
+     * @return the Entity Change payload.
      */
     @NonNull
     @JsOverlay
-    public final EntityChangeData getData() {
-        if (null == data) {
-            throw new AssertionError("Entity Change has no data");
+    public final EntityChangePayload getPayload() {
+        if (null == payload) {
+            throw new AssertionError("Entity Change has no payload");
         }
-        return data;
+        return payload;
     }
 }

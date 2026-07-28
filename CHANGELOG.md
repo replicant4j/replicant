@@ -2,6 +2,17 @@
 
 ### Unreleased
 
+* Complete the hard-cut World and Entity Change message terminology migration:
+  * Replace client World validation names with Replica validation names and document that validation invokes
+    `Verifiable` for every materialized Replica in the connector's Replicant Context after the current response is
+    applied; it does not validate server Entities, Subscription metadata, or Replicant Context configuration.
+  * Replace `EntityChangeData` with `EntityChangePayload`, rename `EntityChange.getData()` to `getPayload()`, and
+    generate mapper callbacks that consume the serialized Entity attribute payload rather than describing it as the
+    complete Entity Change.
+  * Rename the Entity Change wire member from `data` to `payload` while retaining `EntityChange` for the actual Change
+    Set member and retaining generic message names for transport envelopes.
+  This hard-cut public API, generated-source, and protocol migration provides no compatibility aliases. Clients and
+  servers must be upgraded together.
 * Adopt Dataset ID terminology for the compact identifier of a reusable Dataset definition within its System Schema:
   * Rename the Domgen Dataset model property and DSL option from `code` to `id`, including ID-spaced System Schema
     metadata construction and duplicate-ID validation.

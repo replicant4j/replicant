@@ -7,7 +7,7 @@ import arez.component.Linkable;
 import org.testng.annotations.Test;
 import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
-import replicant.messages.EntityChangeDataImpl;
+import replicant.messages.EntityChangePayloadImpl;
 import replicant.messages.SubscriptionChangeMessage;
 import replicant.spy.DataLoadStatus;
 
@@ -19,7 +19,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertFalse(action.areReplicaLinksPending());
         assertFalse(action.areEntityChangesPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
         assertEquals(action.getSubscriptionSubscribeCount(), 0);
         assertEquals(action.getSubscriptionUpdateCount(), 0);
@@ -122,12 +122,12 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         // Entity update
         final EntityChange change1 =
-                EntityChange.create(100, 50, new String[] {String.valueOf(datasetId)}, new EntityChangeDataImpl());
+                EntityChange.create(100, 50, new String[] {String.valueOf(datasetId)}, new EntityChangePayloadImpl());
         // Entity Remove
         final EntityChange change2 = EntityChange.create(100, 51, new String[] {String.valueOf(datasetId)});
         // Entity update - non linkable
         final EntityChange change3 =
-                EntityChange.create(100, 52, new String[] {String.valueOf(datasetId)}, new EntityChangeDataImpl());
+                EntityChange.create(100, 52, new String[] {String.valueOf(datasetId)}, new EntityChangePayloadImpl());
         final EntityChange[] entityChanges = new EntityChange[] {change1, change2, change3};
 
         final Object[] entities = new Object[] {mock(Linkable.class), new Object(), new Object()};
@@ -146,7 +146,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertFalse(action.needsSubscriptionChangesProcessed());
         assertTrue(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
         // Process entity changes
         {
@@ -178,7 +178,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertTrue(action.areReplicaLinksPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
         // process links
         {
@@ -192,13 +192,13 @@ public class MessageResponseTest extends AbstractReplicantTest {
 
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
-        action.markWorldAsValidated();
+        action.markReplicaValidationStarted();
 
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertTrue(action.hasWorldBeenValidated());
+        assertTrue(action.hasReplicaValidationStarted());
     }
 
     @Test
@@ -230,7 +230,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertTrue(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
         // processed as single block in caller
         action.markSubscriptionChangesProcessed();
@@ -238,14 +238,14 @@ public class MessageResponseTest extends AbstractReplicantTest {
         assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertFalse(action.hasWorldBeenValidated());
+        assertFalse(action.hasReplicaValidationStarted());
 
-        action.markWorldAsValidated();
+        action.markReplicaValidationStarted();
 
         assertFalse(action.needsSubscriptionChangesProcessed());
         assertFalse(action.areEntityChangesPending());
         assertFalse(action.areReplicaLinksPending());
-        assertTrue(action.hasWorldBeenValidated());
+        assertTrue(action.hasReplicaValidationStarted());
     }
 
     @Test

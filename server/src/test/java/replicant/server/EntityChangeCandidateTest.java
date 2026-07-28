@@ -149,17 +149,17 @@ public final class EntityChangeCandidateTest {
     }
 
     @Test
-    public void toStringIncludesDataWhenDataPresent() {
+    public void toStringIncludesAttributeValuesWhenPresent() {
         final var candidate =
                 EntityChangeCandidateTestUtil.createEntityChangeCandidate(17, 42, 0, "r1", "r2", "a1", "a2");
-        assertTrue(candidate.toString().matches(".*Data=.*"));
+        assertTrue(candidate.toString().matches(".*AttributeValues=.*"));
     }
 
     @Test
     public void toIsDeleteFlagIsCorrect() {
         final var deletionCandidate =
                 EntityChangeCandidateTestUtil.createEntityChangeCandidate(17, 42, 0, "r1", "r2", null, null);
-        assertFalse(deletionCandidate.toString().matches(".*Data=.*"));
+        assertFalse(deletionCandidate.toString().matches(".*AttributeValues=.*"));
         assertFalse(deletionCandidate.isUpdate());
         assertTrue(deletionCandidate.isDelete());
     }

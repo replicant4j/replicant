@@ -9,7 +9,7 @@ import replicant.AbstractReplicantTest;
 public class EntityChangeTest extends AbstractReplicantTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void construct_removeMessage() {
+    public void construct_removal() {
         final String[] datasetAddresses = {"0", "3.4"};
         final EntityChange change = EntityChange.create(2, 1, datasetAddresses);
 
@@ -17,19 +17,19 @@ public class EntityChangeTest extends AbstractReplicantTest {
         assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertTrue(change.isRemove());
         assertFalse(change.isUpdate());
-        assertThrows(change::getData);
+        assertThrows(change::getPayload);
     }
 
     @Test
-    public void construct_updateMessage() {
+    public void construct_update() {
         final String[] datasetAddresses = {"0", "3.4"};
-        final EntityChangeData data = mock(EntityChangeData.class);
-        final EntityChange change = EntityChange.create(2, 1, datasetAddresses, data);
+        final EntityChangePayload payload = mock(EntityChangePayload.class);
+        final EntityChange change = EntityChange.create(2, 1, datasetAddresses, payload);
 
         assertEquals(change.getId(), "2.1");
         assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertFalse(change.isRemove());
         assertTrue(change.isUpdate());
-        assertEquals(change.getData(), data);
+        assertEquals(change.getPayload(), payload);
     }
 }
