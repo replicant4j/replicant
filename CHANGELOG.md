@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Remove the unused `SubscriptionUtil.synchronizeCrossDataSourceSubscriptions(...)` helper and its otherwise empty
+  utility class. This is a hard-cut client API removal with no compatibility alias.
 * Remove the obsolete automatic/manual mode from Dataset Links. Every Dataset Link now participates uniformly in
   generated routing, and the client System Schema representation no longer carries an `automatic` flag. Preserve the
   independent `always_follow` and `exclude_target` controls. This is a hard-cut client and Domgen API migration with
