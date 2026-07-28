@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Remove Domgen's obsolete Dataset `secure` option and always generate per-Dataset authorization hooks for every
+  Dataset whose Dataset Visibility permits a direct Area of Interest origin. Dataset Visibility controls how a
+  Subscription may originate but never bypasses authorization for the requesting Replicant Session. This is a hard-cut
+  Domgen DSL migration with no compatibility alias.
 * Replace the misleading `ReplicantSessionContext` server integration abstraction with `ReplicantServerAdapter`.
   Rename the Replicant base class, Domgen artifacts and templates, generated adapters, application implementations,
   dependency injection bindings, tests, and internal state to match. This is a hard-cut server and generator API
