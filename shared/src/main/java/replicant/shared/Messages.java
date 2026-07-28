@@ -109,7 +109,10 @@ public final class Messages {
         public static final String ENTITY_CHANGES = "entityChanges";
 
         @NonNull
-        public static final String ENTITY_ID = "id";
+        public static final String ENTITY_TYPE_ID = "entityTypeId";
+
+        @NonNull
+        public static final String ENTITY_ID = "entityId";
 
         @NonNull
         public static final String ENTITY_CHANGE_PAYLOAD = "payload";

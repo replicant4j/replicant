@@ -18,7 +18,7 @@ public class DatasetTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void findEntityTypeById() {
+    public void findEntityTypeByEntityTypeId() {
         final EntityType entityType =
                 new EntityType(1, "MyObject", Object.class, (i, d) -> 1, (o, d) -> d.notify(), new DatasetLink[0]);
         final Dataset dataset = new Dataset(
@@ -34,8 +34,8 @@ public class DatasetTest extends AbstractReplicantTest {
                 Collections.singletonList(entityType));
         assertEquals(dataset.getEntityTypes().size(), 1);
         assertEquals(dataset.getEntityTypes().size(), 1);
-        assertEquals(dataset.findEntityTypeById(1), entityType);
-        assertNull(dataset.findEntityTypeById(0));
+        assertEquals(dataset.findEntityTypeByEntityTypeId(1), entityType);
+        assertNull(dataset.findEntityTypeByEntityTypeId(0));
     }
 
     @Test

@@ -20,7 +20,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
 
         assertEquals(replicaEntry.getName(), name);
         assertEquals(replicaEntry.getType(), type);
-        assertEquals(replicaEntry.getId(), id);
+        assertEquals(replicaEntry.getEntityId(), id);
 
         safeAction(() -> assertNull(replicaEntry.maybeReplica()));
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 0));
@@ -350,8 +350,8 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
         safeAction(() -> replicaEntry.linkToSubscription(subscription2));
         safeAction(() -> assertEquals(replicaEntry.getSubscriptions().size(), 2));
 
-        safeAction(() -> assertEquals(subscription1.findReplicaEntryByTypeAndId(type, id), replicaEntry));
-        safeAction(() -> assertEquals(subscription2.findReplicaEntryByTypeAndId(type, id), replicaEntry));
+        safeAction(() -> assertEquals(subscription1.findReplicaEntryByTypeAndEntityId(type, id), replicaEntry));
+        safeAction(() -> assertEquals(subscription2.findReplicaEntryByTypeAndEntityId(type, id), replicaEntry));
 
         Disposable.dispose(replicaEntry);
 

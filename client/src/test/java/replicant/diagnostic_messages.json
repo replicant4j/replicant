@@ -62,7 +62,7 @@
   {
     "code": 14,
     "type": "API_INVARIANT",
-    "messagePattern": "ChangeSetMessage contains multiple Entity Changes with the id '%s'."
+    "messagePattern": "ChangeSetMessage contains multiple Entity Changes for Entity Type ID %s and Entity ID %s."
   },
   {
     "code": 15,
@@ -232,7 +232,7 @@
   {
     "code": 54,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of entity types where entity type at index %s does not have id matching index."
+    "messagePattern": "SystemSchema named '%s' passed an array of Entity Types where Entity Type at index %s does not have an Entity Type ID matching the index."
   },
   {
     "code": 56,
@@ -242,7 +242,7 @@
   {
     "code": 57,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getEntityType(id) passed an id that is out of range."
+    "messagePattern": "SystemSchema.getEntityType passed an Entity Type ID that is out of range."
   },
   {
     "code": 58,

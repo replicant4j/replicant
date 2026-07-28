@@ -110,7 +110,7 @@ public class ChangeSetTest {
         final var changes = changeSet.getEntityChanges();
         assertEquals(changes.size(), 1);
         final var change = changes.iterator().next();
-        assertEquals(change.getEntityChangeCandidate().getId(), id);
+        assertEquals(change.getEntityChangeCandidate().getEntityId(), id);
         assertNotSame(change, change1);
     }
 
@@ -137,7 +137,7 @@ public class ChangeSetTest {
         final var changes = changeSet2.getEntityChanges();
         assertEquals(changes.size(), 1);
         final var change = changes.iterator().next();
-        assertEquals(change.getEntityChangeCandidate().getId(), id);
+        assertEquals(change.getEntityChangeCandidate().getEntityId(), id);
         assertNotSame(change, change1);
 
         final var subscriptionChanges = changeSet2.getSubscriptionChanges();
@@ -168,7 +168,7 @@ public class ChangeSetTest {
         final var changes = changeSet.getEntityChanges();
         assertEquals(changes.size(), 1);
         final var change = changes.iterator().next();
-        assertEquals(change.getEntityChangeCandidate().getId(), id);
+        assertEquals(change.getEntityChangeCandidate().getEntityId(), id);
         assertEquals(change.getDatasetAddresses().size(), 1);
         assertTrue(change.getDatasetAddresses().contains(datasetAddress));
     }

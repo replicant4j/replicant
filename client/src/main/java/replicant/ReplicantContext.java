@@ -129,15 +129,15 @@ public final class ReplicantContext {
     }
 
     /**
-     * Find the Replica Entry by type and id.
+     * Find the Replica Entry by type and Entity ID.
      *
-     * @param type the type of the Replica.
-     * @param id   the Entity identifier.
+     * @param type     the type of the Replica.
+     * @param entityId the Entity ID.
      * @return the Replica Entry if it exists, null otherwise.
      */
     @Nullable
-    public ReplicaEntry findReplicaEntryByTypeAndId(@NonNull final Class<?> type, final int id) {
-        return getReplicaRegistry().findReplicaEntryByTypeAndId(type, id);
+    public ReplicaEntry findReplicaEntryByTypeAndEntityId(@NonNull final Class<?> type, final int entityId) {
+        return getReplicaRegistry().findReplicaEntryByTypeAndEntityId(type, entityId);
     }
 
     @NonNull

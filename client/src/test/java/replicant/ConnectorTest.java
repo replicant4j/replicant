@@ -748,7 +748,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertSame(Replicant.context().findSubscription(datasetAddress), subscription);
             assertEquals(subscription.getMode(), SubscriptionMode.EXPLICIT);
             assertEquals(subscription.getFilterParameter(), filterParameter);
-            assertSame(subscription.findReplicaEntryByTypeAndId(String.class, replicaEntry.getId()), replicaEntry);
+            assertSame(
+                    subscription.findReplicaEntryByTypeAndEntityId(String.class, replicaEntry.getEntityId()),
+                    replicaEntry);
         });
 
         handler.assertEventCount(1);
@@ -1506,7 +1508,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void reevaluateReplicaMembershipAfterFilterParameterUpdate() {
-        final FilterParameterUpdateReplicaMatcher<?> filterParameter = (f, replicaEntry) -> replicaEntry.getId() > 0;
+        final FilterParameterUpdateReplicaMatcher<?> filterParameter =
+                (f, replicaEntry) -> replicaEntry.getEntityId() > 0;
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -1747,7 +1750,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processEntityChanges();
 
-        safeAction(() -> assertNotNull(subscription.findReplicaEntryByTypeAndId(Linkable.class, 1)));
+        safeAction(() -> assertNotNull(subscription.findReplicaEntryByTypeAndEntityId(Linkable.class, 1)));
     }
 
     @SuppressWarnings("unchecked")
@@ -2554,7 +2557,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertSame(Replicant.context().findSubscription(datasetAddress1), subscription1);
             assertEquals(subscription1.getMode(), SubscriptionMode.IMPLICIT);
             assertEquals(subscription1.getFilterParameter(), filterParameter);
-            assertSame(subscription1.findReplicaEntryByTypeAndId(String.class, replicaEntry.getId()), replicaEntry);
+            assertSame(
+                    subscription1.findReplicaEntryByTypeAndEntityId(String.class, replicaEntry.getEntityId()),
+                    replicaEntry);
         });
     }
 

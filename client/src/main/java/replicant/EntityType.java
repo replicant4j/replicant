@@ -27,11 +27,11 @@ public final class EntityType {
          * <p>The payload is not the complete Entity Change; this callback receives Entity identity separately and does
          * not receive the target Subscription Dataset Addresses.</p>
          *
-         * @param id      the Entity identifier.
+         * @param entityId the Entity ID.
          * @param payload the serialized Entity attribute values used to create the Replica.
          */
         @NonNull
-        T createReplica(int id, @NonNull EntityChangePayload payload);
+        T createReplica(int entityId, @NonNull EntityChangePayload payload);
     }
 
     /**
@@ -53,9 +53,9 @@ public final class EntityType {
     }
 
     /**
-     * The id of the entity type. This is the value used when transmitting messages across network.
+     * The Entity Type ID used in the replication protocol.
      */
-    private final int _id;
+    private final int _entityTypeId;
     /**
      * A human consumable name for entity type. It should be non-null if {@link Replicant#areNamesEnabled()} returns
      * true and <tt>null</tt> otherwise.
@@ -83,7 +83,7 @@ public final class EntityType {
     private final DatasetLink[] _datasetLinks;
 
     public <T> EntityType(
-            final int id,
+            final int entityTypeId,
             @Nullable final String name,
             @NonNull final Class<T> type,
             @NonNull final Creator<T> creator,
@@ -95,7 +95,7 @@ public final class EntityType {
                     () -> "Replicant-0049: EntityType passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
         }
-        _id = id;
+        _entityTypeId = entityTypeId;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _type = Objects.requireNonNull(type);
         _creator = Objects.requireNonNull(creator);
@@ -104,12 +104,12 @@ public final class EntityType {
     }
 
     /**
-     * Return the id of the entity type.
+     * Return the Entity Type ID.
      *
-     * @return the id of the entity type.
+     * @return the Entity Type ID.
      */
-    public int getId() {
-        return _id;
+    public int getEntityTypeId() {
+        return _entityTypeId;
     }
 
     /**

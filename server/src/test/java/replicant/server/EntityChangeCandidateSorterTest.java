@@ -9,11 +9,11 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class EntityChangeCandidateSorterTest {
-    private int _nextID;
+    private int _nextEntityId;
 
     @BeforeMethod
     public void resetNextID() {
-        _nextID = 0;
+        _nextEntityId = 0;
     }
 
     @Test
@@ -66,13 +66,13 @@ public class EntityChangeCandidateSorterTest {
     }
 
     private void assertIndex(final List<EntityChangeCandidate> l1, final int index, final int value) {
-        assertEquals(l1.get(index).getId(), value);
+        assertEquals(l1.get(index).getEntityId(), value);
     }
 
     private EntityChangeCandidate newEntityChangeCandidate(
-            final int id, final int typeID, final long timestamp, final boolean isDelete) {
+            final int entityId, final int entityTypeId, final long timestamp, final boolean isDelete) {
         return new EntityChangeCandidate(
-                id, typeID, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null);
+                entityId, entityTypeId, timestamp, new HashMap<>(), isDelete ? null : new HashMap<>(), null);
     }
 
     @Test
@@ -100,10 +100,10 @@ public class EntityChangeCandidateSorterTest {
 
         final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertEquals(sortedCandidates.get(0).getTypeId(), 4);
-        assertEquals(sortedCandidates.get(1).getTypeId(), 3);
-        assertEquals(sortedCandidates.get(2).getTypeId(), 2);
-        assertEquals(sortedCandidates.get(3).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(0).getEntityTypeId(), 4);
+        assertEquals(sortedCandidates.get(1).getEntityTypeId(), 3);
+        assertEquals(sortedCandidates.get(2).getEntityTypeId(), 2);
+        assertEquals(sortedCandidates.get(3).getEntityTypeId(), 1);
         assertUpdate(sortedCandidates.get(4));
     }
 
@@ -120,10 +120,10 @@ public class EntityChangeCandidateSorterTest {
         final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
         assertDeletion(sortedCandidates.get(0));
-        assertEquals(sortedCandidates.get(1).getTypeId(), 1);
-        assertEquals(sortedCandidates.get(2).getTypeId(), 2);
-        assertEquals(sortedCandidates.get(3).getTypeId(), 3);
-        assertEquals(sortedCandidates.get(4).getTypeId(), 4);
+        assertEquals(sortedCandidates.get(1).getEntityTypeId(), 1);
+        assertEquals(sortedCandidates.get(2).getEntityTypeId(), 2);
+        assertEquals(sortedCandidates.get(3).getEntityTypeId(), 3);
+        assertEquals(sortedCandidates.get(4).getEntityTypeId(), 4);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class EntityChangeCandidateSorterTest {
         assertEquals(sortedCandidates.get(0).getTimestamp(), 20);
         assertEquals(sortedCandidates.get(1).getTimestamp(), 15);
         assertEquals(sortedCandidates.get(2).getTimestamp(), 10);
-        assertEquals(sortedCandidates.get(3).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(3).getEntityTypeId(), 1);
     }
 
     @Test
@@ -154,26 +154,26 @@ public class EntityChangeCandidateSorterTest {
 
         final var sortedCandidates = EntityChangeCandidateSorter.sort(Arrays.asList(candidates));
 
-        assertEquals(sortedCandidates.get(0).getTypeId(), 1);
+        assertEquals(sortedCandidates.get(0).getEntityTypeId(), 1);
         assertEquals(sortedCandidates.get(1).getTimestamp(), 10);
         assertEquals(sortedCandidates.get(2).getTimestamp(), 15);
         assertEquals(sortedCandidates.get(3).getTimestamp(), 20);
     }
 
-    private EntityChangeCandidate createUpdateCandidate(final int typeID) {
-        return createUpdateCandidate(typeID, 0);
+    private EntityChangeCandidate createUpdateCandidate(final int entityTypeId) {
+        return createUpdateCandidate(entityTypeId, 0);
     }
 
-    private EntityChangeCandidate createUpdateCandidate(final int typeID, final long time) {
-        return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), new HashMap<>(), null);
+    private EntityChangeCandidate createUpdateCandidate(final int entityTypeId, final long time) {
+        return new EntityChangeCandidate(_nextEntityId++, entityTypeId, time, new HashMap<>(), new HashMap<>(), null);
     }
 
-    private EntityChangeCandidate createDeletionCandidate(final int typeID) {
-        return createDeletionCandidate(typeID, 0);
+    private EntityChangeCandidate createDeletionCandidate(final int entityTypeId) {
+        return createDeletionCandidate(entityTypeId, 0);
     }
 
-    private EntityChangeCandidate createDeletionCandidate(final int typeID, final long time) {
-        return new EntityChangeCandidate(_nextID++, typeID, time, new HashMap<>(), null, null);
+    private EntityChangeCandidate createDeletionCandidate(final int entityTypeId, final long time) {
+        return new EntityChangeCandidate(_nextEntityId++, entityTypeId, time, new HashMap<>(), null, null);
     }
 
     private void assertDeletion(final EntityChangeCandidate candidate) {

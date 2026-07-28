@@ -175,11 +175,12 @@ public class ChangeSetMessage extends ServerToClientMessage {
                 final HashSet<String> existing = new HashSet<>();
                 for (final EntityChange change : entityChanges) {
                     assert null != change;
-                    final String id = change.getId();
+                    final int entityTypeId = change.getEntityTypeId();
+                    final int entityId = change.getEntityId();
                     apiInvariant(
-                            () -> existing.add(id),
-                            () -> "Replicant-0014: ChangeSetMessage contains multiple Entity Changes " + "with the id '"
-                                    + id + "'.");
+                            () -> existing.add(entityTypeId + "#" + entityId),
+                            () -> "Replicant-0014: ChangeSetMessage contains multiple Entity Changes for Entity Type"
+                                    + " ID " + entityTypeId + " and Entity ID " + entityId + ".");
                 }
             }
             final HashSet<String> existingDatasetAddresses = new HashSet<>();

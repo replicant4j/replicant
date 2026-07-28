@@ -1,6 +1,5 @@
 package replicant.server;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import org.jspecify.annotations.NonNull;
@@ -9,8 +8,8 @@ public final class EntityChangeCandidateSet {
     @NonNull
     private final LinkedHashMap<String, EntityChangeCandidate> _candidates = new LinkedHashMap<>();
 
-    public boolean containsEntityChangeCandidate(final int typeID, @NonNull final Serializable id) {
-        return _candidates.containsKey(toKey(typeID, id));
+    public boolean containsEntityChangeCandidate(final int entityTypeId, final int entityId) {
+        return _candidates.containsKey(toKey(entityTypeId, entityId));
     }
 
     public void mergeAll(@NonNull final Collection<EntityChangeCandidate> candidates) {
@@ -28,7 +27,7 @@ public final class EntityChangeCandidateSet {
     }
 
     public void merge(@NonNull final EntityChangeCandidate candidate, final boolean copyOnMerge) {
-        final var key = toKey(candidate.getTypeId(), candidate.getId());
+        final var key = toKey(candidate.getEntityTypeId(), candidate.getEntityId());
         final var existing = _candidates.get(key);
         if (null != existing) {
             existing.merge(candidate);
@@ -43,7 +42,7 @@ public final class EntityChangeCandidateSet {
     }
 
     @NonNull
-    private String toKey(final int typeID, @NonNull final Serializable id) {
-        return typeID + "#" + id;
+    private String toKey(final int entityTypeId, final int entityId) {
+        return entityTypeId + "#" + entityId;
     }
 }

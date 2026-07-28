@@ -34,8 +34,8 @@ public class EntityChangeTest {
         final var duplicate = change.duplicate();
         assertEquals(duplicate.getKey(), change.getKey());
         assertEquals(
-                duplicate.getEntityChangeCandidate().getId(),
-                change.getEntityChangeCandidate().getId());
+                duplicate.getEntityChangeCandidate().getEntityId(),
+                change.getEntityChangeCandidate().getEntityId());
         assertNotSame(duplicate.getEntityChangeCandidate(), change.getEntityChangeCandidate());
         assertEquals(duplicate.getDatasetAddresses(), change.getDatasetAddresses());
         //noinspection SimplifiableAssertion

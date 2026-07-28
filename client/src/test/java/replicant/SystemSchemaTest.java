@@ -57,7 +57,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> systemSchema.getEntityType(2));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0057: SystemSchema.getEntityType(id) passed an id that is out of range.");
+                "Replicant-0057: SystemSchema.getEntityType passed an Entity Type ID that is out of range.");
     }
 
     @Test
@@ -80,8 +80,8 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {entityType}));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0054: SystemSchema named 'X' passed an array of entity types where entity type at index 0"
-                        + " does not have id matching index.");
+                "Replicant-0054: SystemSchema named 'X' passed an array of Entity Types where Entity Type at index 0"
+                        + " does not have an Entity Type ID matching the index.");
     }
 
     @Test

@@ -13,7 +13,8 @@ public class EntityChangeTest extends AbstractReplicantTest {
         final String[] datasetAddresses = {"0", "3.4"};
         final EntityChange change = EntityChange.create(2, 1, datasetAddresses);
 
-        assertEquals(change.getId(), "2.1");
+        assertEquals(change.getEntityTypeId(), 2);
+        assertEquals(change.getEntityId(), 1);
         assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertTrue(change.isRemove());
         assertFalse(change.isUpdate());
@@ -26,7 +27,8 @@ public class EntityChangeTest extends AbstractReplicantTest {
         final EntityChangePayload payload = mock(EntityChangePayload.class);
         final EntityChange change = EntityChange.create(2, 1, datasetAddresses, payload);
 
-        assertEquals(change.getId(), "2.1");
+        assertEquals(change.getEntityTypeId(), 2);
+        assertEquals(change.getEntityId(), 1);
         assertEquals(change.getDatasetAddresses(), datasetAddresses);
         assertFalse(change.isRemove());
         assertTrue(change.isUpdate());

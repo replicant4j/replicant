@@ -92,13 +92,13 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     }
 
     @Nullable
-    public ReplicaEntry findReplicaEntryByTypeAndId(@NonNull final Class<?> type, final int id) {
+    public ReplicaEntry findReplicaEntryByTypeAndEntityId(@NonNull final Class<?> type, final int entityId) {
         final Map<Integer, ReplicaSubscriptionEntry> typeMap = _replicaEntries.get(type);
         if (null == typeMap) {
             getReplicaEntriesObservableValue().reportObserved();
             return null;
         } else {
-            final ReplicaSubscriptionEntry entry = typeMap.get(id);
+            final ReplicaSubscriptionEntry entry = typeMap.get(entityId);
             if (null == entry) {
                 getReplicaEntriesObservableValue().reportObserved();
                 return null;
@@ -130,7 +130,7 @@ public abstract class Subscription extends ReplicantService implements Comparabl
                     () -> "Replicant-0087: Subscription.getDatasetRoot() invoked for Dataset Address " + _datasetAddress
                             + " but the Dataset Address has no Dataset Root ID.");
         }
-        final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndId(
+        final ReplicaEntry replicaEntry = findReplicaEntryByTypeAndEntityId(
                 Objects.requireNonNull(dataset.getDatasetRootEntityType()), Objects.requireNonNull(datasetRootId));
         if (Replicant.shouldCheckApiInvariants()) {
             invariant(
@@ -165,17 +165,17 @@ public abstract class Subscription extends ReplicantService implements Comparabl
     void linkSubscriptionToReplicaEntry(@NonNull final ReplicaEntry replicaEntry) {
         getReplicaEntriesObservableValue().preReportChanged();
         final Class<?> type = replicaEntry.getType();
-        final int id = replicaEntry.getId();
+        final int entityId = replicaEntry.getEntityId();
         final NavigableMap<Integer, ReplicaSubscriptionEntry> typeMap =
                 _replicaEntries.computeIfAbsent(type, t -> new TreeMap<>());
-        if (!typeMap.containsKey(id)) {
+        if (!typeMap.containsKey(entityId)) {
             createSubscriptionEntry(typeMap, replicaEntry);
         }
     }
 
     private void createSubscriptionEntry(
             @NonNull final Map<Integer, ReplicaSubscriptionEntry> typeMap, @NonNull final ReplicaEntry replicaEntry) {
-        typeMap.put(replicaEntry.getId(), ReplicaSubscriptionEntry.create(replicaEntry));
+        typeMap.put(replicaEntry.getEntityId(), ReplicaSubscriptionEntry.create(replicaEntry));
         DisposeNotifier.asDisposeNotifier(replicaEntry)
                 .addOnDisposeListener(this, () -> detachReplicaEntry(replicaEntry, false), true);
         getReplicaEntriesObservableValue().reportChanged();
@@ -198,7 +198,7 @@ public abstract class Subscription extends ReplicantService implements Comparabl
                     () -> "Replica type " + replicaType.getSimpleName() + " not present in Subscription at "
                             + datasetAddress);
         }
-        final ReplicaSubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(replicaEntry.getId());
+        final ReplicaSubscriptionEntry removed = Objects.requireNonNull(typeMap).remove(replicaEntry.getEntityId());
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != removed,

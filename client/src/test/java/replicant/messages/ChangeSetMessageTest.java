@@ -114,7 +114,8 @@ public class ChangeSetMessageTest extends AbstractReplicantTest {
         final IllegalStateException exception = expectThrows(IllegalStateException.class, changeSet::validate);
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0014: ChangeSetMessage contains multiple Entity Changes with the id '1.1'.");
+                "Replicant-0014: ChangeSetMessage contains multiple Entity Changes for Entity Type ID 1 and Entity ID"
+                        + " 1.");
     }
 
     @Test

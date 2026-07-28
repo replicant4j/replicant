@@ -33,13 +33,13 @@ public final class EntityChangeCandidateSorter implements Comparator<EntityChang
             if (o2.isUpdate()) {
                 return -1;
             } else {
-                final var typeComparison = o2.getTypeId() - o1.getTypeId();
+                final var typeComparison = o2.getEntityTypeId() - o1.getEntityTypeId();
                 return 0 != typeComparison ? typeComparison : Long.compare(o2.getTimestamp(), o1.getTimestamp());
             }
         } else if (o2.isDelete()) {
             return 1;
         } else {
-            final var typeComparison = o1.getTypeId() - o2.getTypeId();
+            final var typeComparison = o1.getEntityTypeId() - o2.getEntityTypeId();
             return 0 != typeComparison ? typeComparison : Long.compare(o1.getTimestamp(), o2.getTimestamp());
         }
     }

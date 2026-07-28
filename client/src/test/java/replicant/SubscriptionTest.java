@@ -60,7 +60,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
         final AtomicInteger findCallCount = new AtomicInteger();
         observer(() -> {
             // Just invoke method to get observing
-            subscription.findReplicaEntryByTypeAndId(A.class, 1);
+            subscription.findReplicaEntryByTypeAndEntityId(A.class, 1);
             findCallCount.incrementAndGet();
         });
 
@@ -72,8 +72,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 0));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2)));
 
         safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry1));
 
@@ -85,8 +85,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 1));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2)));
 
         // Add second replicaEntry, finder no need to re-find
         safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry2));
@@ -99,8 +99,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 2));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2), replicaEntry2));
 
         // Duplicate link ... ignored as no change
         safeAction(() -> subscription.linkSubscriptionToReplicaEntry(replicaEntry2));
@@ -112,8 +112,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 2));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 1), replicaEntry1));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1), replicaEntry1));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2), replicaEntry2));
 
         // Removing replicaEntry 1, finder will react
         safeAction(() -> subscription.delinkReplicaEntryFromSubscription(replicaEntry1, true));
@@ -125,8 +125,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 1));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
-        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndId(A.class, 2), replicaEntry2));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+        safeAction(() -> assertEquals(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2), replicaEntry2));
 
         // Removing replicaEntry 2, state is reset
         safeAction(() -> subscription.delinkReplicaEntryFromSubscription(replicaEntry2, true));
@@ -138,8 +138,8 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 assertEquals(subscription.findAllReplicaEntriesByType(A.class).size(), 0));
         safeAction(() -> assertEquals(
                 subscription.findAllReplicaEntriesByType(String.class).size(), 0));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+        safeAction(() -> assertNull(subscription.findReplicaEntryByTypeAndEntityId(A.class, 2)));
     }
 
     @Test

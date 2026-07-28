@@ -9,15 +9,15 @@ import org.testng.annotations.Test;
 public class EntityChangeCandidateSetTest {
     @Test
     public void mergeElementsOverrideExisting() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
 
-        final var candidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var candidate2 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 2, "r3", null, "a3", null);
-        final var candidate3 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 1, null, "r4", null, "a4");
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", "a1", "a2");
+        final var candidate2 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 2, "r3", null, "a3", null);
+        final var candidate3 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 1, null, "r4", null, "a4");
 
         final var set = new EntityChangeCandidateSet();
         set.merge(candidate);
@@ -49,11 +49,11 @@ public class EntityChangeCandidateSetTest {
 
     @Test
     public void mergeReplacesIfCopySpecified() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
 
-        final var candidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", "a1", "a2");
 
         final var set = new EntityChangeCandidateSet();
         set.merge(candidate, true);
@@ -71,15 +71,15 @@ public class EntityChangeCandidateSetTest {
 
     @Test
     public void mergeMultiple() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
 
-        final var candidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var candidate2 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 2, "r3", null, "a3", null);
-        final var candidate3 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 1, null, "r4", null, "a4");
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", "a1", "a2");
+        final var candidate2 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 2, "r3", null, "a3", null);
+        final var candidate3 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 1, null, "r4", null, "a4");
 
         final var set = new EntityChangeCandidateSet();
         set.mergeAll(Arrays.asList(candidate, candidate2, candidate3));
@@ -96,15 +96,15 @@ public class EntityChangeCandidateSetTest {
 
     @Test
     public void mergeMultipleWithCopy() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
 
-        final var candidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
-        final var candidate2 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 2, "r3", null, "a3", null);
-        final var candidate3 =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 1, null, "r4", null, "a4");
+        final var candidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", "a1", "a2");
+        final var candidate2 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 2, "r3", null, "a3", null);
+        final var candidate3 = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 1, null, "r4", null, "a4");
 
         final var set = new EntityChangeCandidateSet();
         set.mergeAll(Arrays.asList(candidate, candidate2, candidate3), true);
@@ -126,8 +126,8 @@ public class EntityChangeCandidateSetTest {
 
         final var set = new EntityChangeCandidateSet();
 
-        assertFalse(set.containsEntityChangeCandidate(candidate.getTypeId(), candidate.getId()));
+        assertFalse(set.containsEntityChangeCandidate(candidate.getEntityTypeId(), candidate.getEntityId()));
         set.merge(candidate);
-        assertTrue(set.containsEntityChangeCandidate(candidate.getTypeId(), candidate.getId()));
+        assertTrue(set.containsEntityChangeCandidate(candidate.getEntityTypeId(), candidate.getEntityId()));
     }
 }

@@ -29,20 +29,20 @@ public final class EntityChangeCandidateTestUtil {
 
     @NonNull
     public static EntityChangeCandidate createEntityChangeCandidate(
-            final int id,
-            final int typeID,
+            final int entityId,
+            final int entityTypeId,
             final long timestamp,
             @Nullable final String r1,
             @Nullable final String r2,
             @Nullable final String a1,
             @Nullable final String a2) {
-        return createEntityChangeCandidate(id, typeID, timestamp, null, r1, r2, a1, a2);
+        return createEntityChangeCandidate(entityId, entityTypeId, timestamp, null, r1, r2, a1, a2);
     }
 
     @NonNull
     static EntityChangeCandidate createEntityChangeCandidate(
-            final int id,
-            final int typeID,
+            final int entityId,
+            final int entityTypeId,
             final long timestamp,
             @Nullable final SubscriptionDependencyCandidate subscriptionDependency,
             @Nullable final String r1,
@@ -74,7 +74,7 @@ public final class EntityChangeCandidateTestUtil {
         }
 
         return new EntityChangeCandidate(
-                id, typeID, timestamp, routingKeys, attributeValues, subscriptionDependencyCandidates);
+                entityId, entityTypeId, timestamp, routingKeys, attributeValues, subscriptionDependencyCandidates);
     }
 
     static void assertAttributeValue(

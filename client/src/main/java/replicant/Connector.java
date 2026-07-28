@@ -993,25 +993,12 @@ abstract class Connector extends ReplicantService {
         final MessageResponse response = ensureCurrentMessageResponse();
         EntityChange change;
         for (int i = 0; i < _changesToProcessPerTick && null != (change = response.nextEntityChange()); i++) {
-            final String id = change.getId();
-            final int idSeparator = id.indexOf(".");
-            if (idSeparator <= 0 || idSeparator >= id.length() - 1) {
-                onMessageProcessFailure(new IllegalArgumentException("Invalid entity id format: '" + id + "'"));
-                return;
-            }
-            final int typeId;
-            final int entityId;
-            try {
-                typeId = Integer.parseInt(id.substring(0, idSeparator));
-                entityId = Integer.parseInt(id.substring(idSeparator + 1));
-            } catch (final Throwable t) {
-                onMessageProcessFailure(t);
-                return;
-            }
-            final EntityType entityType = getSystemSchema().getEntityType(typeId);
+            final int entityTypeId = change.getEntityTypeId();
+            final int entityId = change.getEntityId();
+            final EntityType entityType = getSystemSchema().getEntityType(entityTypeId);
             final Class<?> type = entityType.getType();
             ReplicaEntry replicaEntry =
-                    getReplicantContext().getReplicaRegistry().findReplicaEntryByTypeAndId(type, entityId);
+                    getReplicantContext().getReplicaRegistry().findReplicaEntryByTypeAndEntityId(type, entityId);
             if (change.isRemove()) {
                 /*
                  * Sometimes a remove can occur for an entity that is no longer present on the client. The most

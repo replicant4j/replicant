@@ -27,7 +27,7 @@ public class EntityChange {
      * @param entityChangeCandidate the pre-routing source candidate.
      */
     public EntityChange(@NonNull final EntityChangeCandidate entityChangeCandidate) {
-        _key = entityChangeCandidate.getTypeId() + "#" + entityChangeCandidate.getId();
+        _key = entityChangeCandidate.getEntityTypeId() + "#" + entityChangeCandidate.getEntityId();
         _entityChangeCandidate = Objects.requireNonNull(entityChangeCandidate);
     }
 

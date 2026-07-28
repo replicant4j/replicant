@@ -25,8 +25,8 @@ import replicant.shared.Messages;
 public final class JsonEncoderTest {
     @Test
     public void encodeAllData() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
         final var calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2001);
         calendar.set(Calendar.MONTH, Calendar.JULY);
@@ -39,8 +39,8 @@ public final class JsonEncoderTest {
 
         final var date = calendar.getTime();
 
-        final var entityChangeCandidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", "a1", "a2");
+        final var entityChangeCandidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", "a1", "a2");
         final var values = entityChangeCandidate.getAttributeValues();
         assertNotNull(values);
         Objects.requireNonNull(values).put("key3", date);
@@ -86,7 +86,8 @@ public final class JsonEncoderTest {
         final var object =
                 changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
 
-        assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
+        assertEquals(object.getInt(Messages.ChangeSet.ENTITY_TYPE_ID), 42);
+        assertEquals(object.getInt(Messages.ChangeSet.ENTITY_ID), 17);
 
         assertTrue(object.containsKey("payload"));
         assertFalse(object.containsKey("data"));
@@ -113,11 +114,11 @@ public final class JsonEncoderTest {
 
     @Test
     public void encodeChangeSetFromEntityChangeCandidates_replicaRemoval() {
-        final var id = 17;
-        final var typeID = 42;
+        final var entityId = 17;
+        final var entityTypeId = 42;
 
-        final var entityChangeCandidate =
-                EntityChangeCandidateTestUtil.createEntityChangeCandidate(id, typeID, 0, "r1", "r2", null, null);
+        final var entityChangeCandidate = EntityChangeCandidateTestUtil.createEntityChangeCandidate(
+                entityId, entityTypeId, 0, "r1", "r2", null, null);
 
         final var cs = new ChangeSet();
         cs.merge(new EntityChange(entityChangeCandidate));
@@ -129,7 +130,8 @@ public final class JsonEncoderTest {
         final var object =
                 changeSet.getJsonArray(Messages.ChangeSet.ENTITY_CHANGES).getJsonObject(0);
 
-        assertEquals(object.getString(Messages.ChangeSet.ENTITY_ID), "42.17");
+        assertEquals(object.getInt(Messages.ChangeSet.ENTITY_TYPE_ID), 42);
+        assertEquals(object.getInt(Messages.ChangeSet.ENTITY_ID), 17);
 
         assertFalse(object.containsKey(Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD));
     }
@@ -286,12 +288,13 @@ public final class JsonEncoderTest {
 
     @Test
     public void encodeLong() {
-        final var id = ValueUtil.randomInt();
-        final var typeID = 42;
+        final var entityId = ValueUtil.randomInt();
+        final var entityTypeId = 42;
         final var routingKeys = new HashMap<String, Serializable>();
         final var attributeData = new HashMap<String, Serializable>();
         attributeData.put("X", 1392061102056L);
-        final var entityChangeCandidate = new EntityChangeCandidate(id, typeID, 0, routingKeys, attributeData, null);
+        final var entityChangeCandidate =
+                new EntityChangeCandidate(entityId, entityTypeId, 0, routingKeys, attributeData, null);
         final var cs = new ChangeSet();
         cs.merge(new EntityChange(entityChangeCandidate));
 

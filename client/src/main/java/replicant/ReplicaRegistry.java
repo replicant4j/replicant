@@ -58,20 +58,20 @@ abstract class ReplicaRegistry extends ReplicantService {
     }
 
     /**
-     * Find the ReplicaEntry by type and id.
+     * Find the Replica Entry by type and Entity ID.
      *
-     * @param type the type of the Replica.
-     * @param id   the Entity identifier.
+     * @param type     the type of the Replica.
+     * @param entityId the Entity ID.
      * @return the ReplicaEntry if it exists, null otherwise.
      */
     @Nullable
-    ReplicaEntry findReplicaEntryByTypeAndId(@NonNull final Class<?> type, final int id) {
+    ReplicaEntry findReplicaEntryByTypeAndEntityId(@NonNull final Class<?> type, final int entityId) {
         final Map<Integer, ReplicaEntry> typeMap = _replicaEntries.get(type);
         if (null == typeMap) {
             getReplicaEntriesObservableValue().reportObserved();
             return null;
         } else {
-            final ReplicaEntry replicaEntry = typeMap.get(id);
+            final ReplicaEntry replicaEntry = typeMap.get(entityId);
             if (null == replicaEntry) {
                 getReplicaEntriesObservableValue().reportObserved();
                 return null;
@@ -97,14 +97,14 @@ abstract class ReplicaRegistry extends ReplicantService {
         getReplicaEntriesObservableValue().preReportChanged();
 
         final Class<?> replicaType = replicaEntry.getType();
-        final int id = replicaEntry.getId();
+        final int entityId = replicaEntry.getEntityId();
         final Map<Integer, ReplicaEntry> typeMap = _replicaEntries.get(replicaType);
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != typeMap,
                     () -> "Replica type " + replicaType.getSimpleName() + " not present in ReplicaRegistry");
         }
-        final ReplicaEntry removed = Objects.requireNonNull(typeMap).remove(id);
+        final ReplicaEntry removed = Objects.requireNonNull(typeMap).remove(entityId);
         if (Replicant.shouldCheckInvariants()) {
             invariant(() -> null != removed, () -> "Replica Entry " + replicaEntry + " not present in ReplicaRegistry");
         }
@@ -117,25 +117,26 @@ abstract class ReplicaRegistry extends ReplicantService {
     }
 
     /**
-     * Return the Replica Entry specified by type and id, creating one if it does not already exist.
+     * Return the Replica Entry specified by type and Entity ID, creating one if it does not already exist.
      *
-     * @param name the name of the Replica Entry if any. Must be null unless {@link Replicant#areNamesEnabled()} returns
-     *             true.
-     * @param type the type of the Replica.
-     * @param id   the Entity identifier.
+     * @param name     the name of the Replica Entry if any. Must be null unless
+     *                 {@link Replicant#areNamesEnabled()} returns true.
+     * @param type     the type of the Replica.
+     * @param entityId the Entity ID.
      * @return the existing Replica Entry if it exists, otherwise the newly created entry.
      */
     @NonNull
-    ReplicaEntry findOrCreateReplicaEntry(@Nullable final String name, @NonNull final Class<?> type, final int id) {
+    ReplicaEntry findOrCreateReplicaEntry(
+            @Nullable final String name, @NonNull final Class<?> type, final int entityId) {
         final Map<Integer, ReplicaEntry> typeMap = _replicaEntries.get(type);
         if (null == typeMap) {
             final HashMap<Integer, ReplicaEntry> newTypeMap = new HashMap<>();
             _replicaEntries.put(type, newTypeMap);
-            return createReplicaEntry(newTypeMap, name, type, id);
+            return createReplicaEntry(newTypeMap, name, type, entityId);
         } else {
-            final ReplicaEntry replicaEntry = typeMap.get(id);
+            final ReplicaEntry replicaEntry = typeMap.get(entityId);
             if (null == replicaEntry) {
-                return createReplicaEntry(typeMap, name, type, id);
+                return createReplicaEntry(typeMap, name, type, entityId);
             } else {
                 ComponentObservable.observe(replicaEntry);
                 return replicaEntry;
@@ -148,12 +149,12 @@ abstract class ReplicaRegistry extends ReplicantService {
             @NonNull final Map<Integer, ReplicaEntry> typeMap,
             @Nullable final String name,
             @NonNull final Class<?> type,
-            final int id) {
+            final int entityId) {
         getReplicaEntriesObservableValue().preReportChanged();
         final ReplicaEntry replicaEntry =
-                ReplicaEntry.create(Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, id);
+                ReplicaEntry.create(Replicant.areZonesEnabled() ? getReplicantContext() : null, name, type, entityId);
         DisposeNotifier.asDisposeNotifier(replicaEntry).addOnDisposeListener(this, () -> destroy(replicaEntry), true);
-        typeMap.put(id, replicaEntry);
+        typeMap.put(entityId, replicaEntry);
         getReplicaEntriesObservableValue().reportChanged();
         ComponentObservable.observe(replicaEntry);
         return replicaEntry;

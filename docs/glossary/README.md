@@ -43,12 +43,26 @@ _Avoid_: Client session, WebSocket Session when referring to Replicant-owned sta
 ### Entity Type
 
 A schema definition for a kind of server-side [Entity](#entity), including how its corresponding
-[Replica](#replica) is created and updated.
+[Replica](#replica) is created and updated. Within its [System Schema](#system-schema), the definition has a compact
+[Entity Type ID](#entity-type-id) used by runtime metadata and the replication protocol.
+
+### Entity Type ID
+
+A compact integer identifying one [Entity Type](#entity-type) within a [System Schema](#system-schema).
+
+_Avoid_: Type ID, type identifier
 
 ### Entity
 
-One identifiable server-side domain object eligible for replication. Its identity consists of an
-[Entity Type](#entity-type) and entity identifier.
+One identifiable server-side domain object eligible for replication. Its replication identity consists of an
+[Entity Type ID](#entity-type-id) and [Entity ID](#entity-id).
+
+### Entity ID
+
+An identifier that distinguishes one [Entity](#entity) from other Entities of the same
+[Entity Type](#entity-type). An Entity ID is unique only within its Entity Type.
+
+_Avoid_: ID, entity identifier
 
 ### Entity Change
 

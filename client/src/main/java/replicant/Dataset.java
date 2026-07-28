@@ -307,9 +307,9 @@ public final class Dataset {
      * @return the entity type with specified id, if any.
      */
     @Nullable
-    public EntityType findEntityTypeById(final int entityTypeId) {
+    public EntityType findEntityTypeByEntityTypeId(final int entityTypeId) {
         return _entityTypes.stream()
-                .filter(entityType -> entityType.getId() == entityTypeId)
+                .filter(entityType -> entityType.getEntityTypeId() == entityTypeId)
                 .findAny()
                 .orElse(null);
     }

@@ -11,9 +11,12 @@ import java.util.Set;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+/**
+ * A potential Entity change captured before routing and filtering for individual Subscriptions.
+ */
 public final class EntityChangeCandidate {
-    private final int _id;
-    private final int _typeId;
+    private final int _entityId;
+    private final int _entityTypeId;
     /**
      * Routing keys contain values used to select affected Dataset Addresses. They include configured routing values
      * for this Entity and Entities on an Instance Dataset traversal path, plus identifiers for Dataset Roots reached
@@ -31,23 +34,23 @@ public final class EntityChangeCandidate {
     private long _timestamp;
 
     public EntityChangeCandidate(
-            final int id,
-            final int typeId,
+            final int entityId,
+            final int entityTypeId,
             final long timestamp,
             @NonNull final Map<String, Serializable> routingKeys,
             @Nullable final Map<String, Serializable> attributeValues) {
-        this(id, typeId, timestamp, routingKeys, attributeValues, null);
+        this(entityId, entityTypeId, timestamp, routingKeys, attributeValues, null);
     }
 
     public EntityChangeCandidate(
-            final int id,
-            final int typeId,
+            final int entityId,
+            final int entityTypeId,
             final long timestamp,
             @NonNull final Map<String, Serializable> routingKeys,
             @Nullable final Map<String, Serializable> attributeValues,
             @Nullable final Set<SubscriptionDependencyCandidate> subscriptionDependencyCandidates) {
-        _id = id;
-        _typeId = typeId;
+        _entityId = entityId;
+        _entityTypeId = entityTypeId;
         _timestamp = timestamp;
         _routingKeys = Objects.requireNonNull(routingKeys);
         _attributeValues = attributeValues;
@@ -55,12 +58,22 @@ public final class EntityChangeCandidate {
         assertInvariants();
     }
 
-    public int getTypeId() {
-        return _typeId;
+    /**
+     * Return the Entity Type ID.
+     *
+     * @return the Entity Type ID.
+     */
+    public int getEntityTypeId() {
+        return _entityTypeId;
     }
 
-    public int getId() {
-        return _id;
+    /**
+     * Return the Entity ID.
+     *
+     * @return the Entity ID.
+     */
+    public int getEntityId() {
+        return _entityId;
     }
 
     public long getTimestamp() {
@@ -92,8 +105,8 @@ public final class EntityChangeCandidate {
 
     @NonNull
     public EntityChangeCandidate duplicate() {
-        final var candidate =
-                new EntityChangeCandidate(getId(), getTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
+        final var candidate = new EntityChangeCandidate(
+                getEntityId(), getEntityTypeId(), getTimestamp(), new HashMap<>(), new HashMap<>());
         candidate.merge(this);
         return candidate;
     }
@@ -111,9 +124,9 @@ public final class EntityChangeCandidate {
     @NonNull
     @Override
     public String toString() {
-        return (isUpdate() ? "U" : "D") + "(Type="
-                + getTypeId() + ",ID="
-                + getId() + ",RoutingKeys="
+        return (isUpdate() ? "U" : "D") + "(EntityTypeID="
+                + getEntityTypeId() + ",EntityID="
+                + getEntityId() + ",RoutingKeys="
                 + getRoutingKeys() + (!isDelete() ? ",AttributeValues=" + getAttributeValues() : "")
                 + ",Subscription Dependency Candidates="
                 + getSubscriptionDependencyCandidates() + ")";
@@ -146,9 +159,9 @@ public final class EntityChangeCandidate {
                 final var existing =
                         (List<Integer>) getRoutingKeys().computeIfAbsent(entry.getKey(), k -> new ArrayList<Integer>());
                 final var toMerge = (List<Integer>) entry.getValue();
-                for (final var id : toMerge) {
-                    if (!existing.contains(id)) {
-                        existing.add(id);
+                for (final var entityId : toMerge) {
+                    if (!existing.contains(entityId)) {
+                        existing.add(entityId);
                     }
                 }
             } else {

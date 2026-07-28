@@ -97,9 +97,8 @@ public final class JsonEncoder {
                 final var entityChangeCandidate = entityChange.getEntityChangeCandidate();
 
                 generator.writeStartObject();
-                generator.write(
-                        Messages.ChangeSet.ENTITY_ID,
-                        entityChangeCandidate.getTypeId() + "." + entityChangeCandidate.getId());
+                generator.write(Messages.ChangeSet.ENTITY_TYPE_ID, entityChangeCandidate.getEntityTypeId());
+                generator.write(Messages.ChangeSet.ENTITY_ID, entityChangeCandidate.getEntityId());
 
                 final var datasetAddresses = entityChange.getDatasetAddresses();
                 if (!datasetAddresses.isEmpty()) {

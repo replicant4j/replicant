@@ -10,7 +10,7 @@ public class EntityTypeTest extends AbstractReplicantTest {
         final EntityType.Creator<Object> creator = (i, d) -> 1;
         final EntityType.Updater<Object> updater = (o, d) -> d.notify();
         final EntityType entityType = new EntityType(1, "MyObject", Object.class, creator, updater, new DatasetLink[0]);
-        assertEquals(entityType.getId(), 1);
+        assertEquals(entityType.getEntityTypeId(), 1);
         assertEquals(entityType.getName(), "MyObject");
         assertEquals(entityType.getType(), Object.class);
         assertEquals(entityType.getCreator(), creator);

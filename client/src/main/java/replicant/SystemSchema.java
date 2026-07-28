@@ -64,10 +64,10 @@ public final class SystemSchema {
             for (int i = 0; i < entityTypes.length; i++) {
                 final int index = i;
                 apiInvariant(
-                        () -> index == entityTypes[index].getId(),
+                        () -> index == entityTypes[index].getEntityTypeId(),
                         () -> "Replicant-0054: SystemSchema named '" + (null == name ? "?" : name)
-                                + "' passed an array of entity types where entity type at index "
-                                + index + " does not " + "have id matching index.");
+                                + "' passed an array of Entity Types where Entity Type at index "
+                                + index + " does not have an Entity Type ID matching the index.");
             }
             for (int i = 0; i < datasets.length; i++) {
                 final int index = i;
@@ -126,20 +126,20 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the entity type with specified typeId.
-     * The typeId MUST be 0 or more and less than {@link #getEntityTypeCount()}.
+     * Return the Entity Type with the specified Entity Type ID.
+     * The Entity Type ID MUST be 0 or more and less than {@link #getEntityTypeCount()}.
      *
-     * @param typeId the entity type id.
-     * @return the entity type matching typeId.
+     * @param entityTypeId the Entity Type ID.
+     * @return the Entity Type matching the Entity Type ID.
      */
     @NonNull
-    public EntityType getEntityType(final int typeId) {
+    public EntityType getEntityType(final int entityTypeId) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
-                    () -> typeId >= 0 && typeId < _entityTypes.length,
-                    () -> "Replicant-0057: SystemSchema.getEntityType(id) passed an id that is out of range.");
+                    () -> entityTypeId >= 0 && entityTypeId < _entityTypes.length,
+                    () -> "Replicant-0057: SystemSchema.getEntityType passed an Entity Type ID that is out of range.");
         }
-        return _entityTypes[typeId];
+        return _entityTypes[entityTypeId];
     }
 
     /**
@@ -183,7 +183,7 @@ public final class SystemSchema {
         return Stream.of(_datasets)
                 .filter(Objects::nonNull)
                 .flatMap(dataset -> dataset.getEntityTypes().stream()
-                        .filter(entityType -> entityType.getId() == entityTypeId)
+                        .filter(entityType -> entityType.getEntityTypeId() == entityTypeId)
                         .flatMap(entityType -> Stream.of(entityType.getDatasetLinks())
                                 .filter(datasetLink -> datasetLink.getTargetDatasetId() == datasetId)))
                 .distinct()

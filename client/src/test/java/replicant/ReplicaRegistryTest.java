@@ -42,39 +42,39 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             findAllReplicaEntriesByTypeBCallCount.incrementAndGet();
         });
 
-        final AtomicInteger findReplicaEntryByTypeAndId1CallCount = new AtomicInteger();
+        final AtomicInteger findReplicaEntryByTypeAndEntityId1CallCount = new AtomicInteger();
         observer(() -> {
             if (Disposable.isNotDisposed(registry)) {
                 // Access observable next line
-                registry.findReplicaEntryByTypeAndId(A.class, 1);
+                registry.findReplicaEntryByTypeAndEntityId(A.class, 1);
             }
 
-            findReplicaEntryByTypeAndId1CallCount.incrementAndGet();
+            findReplicaEntryByTypeAndEntityId1CallCount.incrementAndGet();
         });
 
-        final AtomicInteger findReplicaEntryByTypeAndId2CallCount = new AtomicInteger();
+        final AtomicInteger findReplicaEntryByTypeAndEntityId2CallCount = new AtomicInteger();
         observer(() -> {
             if (Disposable.isNotDisposed(registry)) {
                 // Access observable next line
-                registry.findReplicaEntryByTypeAndId(A.class, 2);
+                registry.findReplicaEntryByTypeAndEntityId(A.class, 2);
             }
 
-            findReplicaEntryByTypeAndId2CallCount.incrementAndGet();
+            findReplicaEntryByTypeAndEntityId2CallCount.incrementAndGet();
         });
 
         assertEquals(findAllEntityTypesCallCount.get(), 1);
         assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 1);
         assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 1);
-        assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 1);
-        assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 1);
+        assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 1);
+        assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 1);
 
         safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 0));
         safeAction(
                 () -> assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 0));
         safeAction(
                 () -> assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
 
         // add first replicaEntry
         {
@@ -83,16 +83,16 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 2);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
 
         // Attempt to add same replicaEntry
@@ -102,16 +102,16 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 2);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
 
         // add an replicaEntry of the same type
@@ -121,16 +121,16 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 3);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 3);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 3);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 3);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 2));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
 
         // Add an replicaEntry of a different type
@@ -140,22 +140,22 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 4);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 4);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 4);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 3);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 2));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 2));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 1));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
 
         // Dispose replicaEntry of different type
         {
             safeAction(() -> {
-                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndId(B.class, -53);
+                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndEntityId(B.class, -53);
                 assertNotNull(replicaEntry);
                 Disposable.dispose(replicaEntry);
             });
@@ -163,22 +163,22 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 5);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 5);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 5);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 3);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 2));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
 
         // Dispose replicaEntry of A type
         {
             safeAction(() -> {
-                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndId(A.class, 1);
+                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndEntityId(A.class, 1);
                 assertNotNull(replicaEntry);
                 Disposable.dispose(replicaEntry);
             });
@@ -186,16 +186,16 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             assertEquals(findAllEntityTypesCallCount.get(), 6);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 6);
             assertEquals(findAllReplicaEntriesByTypeBCallCount.get(), 6);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 3);
-            assertEquals(findReplicaEntryByTypeAndId2CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId2CallCount.get(), 3);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(B.class).size(), 0));
-            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 2)));
+            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 2)));
         }
     }
 
@@ -248,36 +248,36 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
             findAllReplicaEntriesByTypeACallCount.incrementAndGet();
         });
 
-        final AtomicInteger findReplicaEntryByTypeAndId1CallCount = new AtomicInteger();
+        final AtomicInteger findReplicaEntryByTypeAndEntityId1CallCount = new AtomicInteger();
         observer(() -> {
             if (Disposable.isNotDisposed(registry)) {
                 // Access observable next line
-                registry.findReplicaEntryByTypeAndId(A.class, 1);
+                registry.findReplicaEntryByTypeAndEntityId(A.class, 1);
             }
 
-            findReplicaEntryByTypeAndId1CallCount.incrementAndGet();
+            findReplicaEntryByTypeAndEntityId1CallCount.incrementAndGet();
         });
 
         assertEquals(findAllEntityTypesCallCount.get(), 1);
         assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 1);
-        assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 1);
+        assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 1);
 
         safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 0));
         safeAction(
                 () -> assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 0));
-        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
+        safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
 
         {
             safeAction(() -> registry.findOrCreateReplicaEntry("A/1", A.class, 1));
 
             assertEquals(findAllEntityTypesCallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
 
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 1));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 1));
-            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
+            safeAction(() -> assertNotNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
             safeAction(() -> assertEquals(
                     Objects.requireNonNull(registry.getReplicaEntries().get(A.class))
                             .size(),
@@ -288,33 +288,33 @@ public class ReplicaRegistryTest extends AbstractReplicantTest {
         {
             final Disposable schedulerLock = pauseScheduler();
             safeAction(() -> {
-                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndId(A.class, 1);
+                final ReplicaEntry replicaEntry = registry.findReplicaEntryByTypeAndEntityId(A.class, 1);
                 assertNotNull(replicaEntry);
                 Disposable.dispose(replicaEntry);
             });
 
             assertEquals(findAllEntityTypesCallCount.get(), 2);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 2);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 2);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 2);
 
             safeAction(() -> assertNull(registry.getReplicaEntries().get(A.class)));
             // Oddity - we have a type with 0 members. Can happen during deletion
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 0));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 0));
-            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
+            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
 
             schedulerLock.dispose();
 
             assertEquals(findAllEntityTypesCallCount.get(), 3);
             assertEquals(findAllReplicaEntriesByTypeACallCount.get(), 3);
-            assertEquals(findReplicaEntryByTypeAndId1CallCount.get(), 3);
+            assertEquals(findReplicaEntryByTypeAndEntityId1CallCount.get(), 3);
 
             safeAction(() -> assertEquals(registry.getReplicaEntries().size(), 0));
             safeAction(() -> assertEquals(registry.findAllReplicaTypes().size(), 0));
             safeAction(() ->
                     assertEquals(registry.findAllReplicaEntriesByType(A.class).size(), 0));
-            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndId(A.class, 1)));
+            safeAction(() -> assertNull(registry.findReplicaEntryByTypeAndEntityId(A.class, 1)));
         }
     }
 

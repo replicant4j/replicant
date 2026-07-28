@@ -678,7 +678,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             final var entityChangeCandidate = change.getEntityChangeCandidate();
             if (entityChangeCandidate.isUpdate()) {
                 final var owner = SubscriptionDependencyOwner.entity(
-                        entityChangeCandidate.getTypeId(), entityChangeCandidate.getId());
+                        entityChangeCandidate.getEntityTypeId(), entityChangeCandidate.getEntityId());
                 for (final var sourceDatasetAddress : change.getDatasetAddresses()) {
                     final var sourceEntry = session.findSubscriptionEntry(sourceDatasetAddress);
                     if (null != sourceEntry) {
@@ -879,7 +879,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             final var entityChangeCandidate = change.getEntityChangeCandidate();
             if (entityChangeCandidate.isUpdate()) {
                 final var owner = SubscriptionDependencyOwner.entity(
-                        entityChangeCandidate.getTypeId(), entityChangeCandidate.getId());
+                        entityChangeCandidate.getEntityTypeId(), entityChangeCandidate.getEntityId());
                 for (final var sourceDatasetAddress : change.getDatasetAddresses()) {
                     final var sourceEntry = session.findSubscriptionEntry(sourceDatasetAddress);
                     if (null != sourceEntry) {
@@ -936,8 +936,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final Set<DatasetAddress> datasetRootDeletedDatasetAddresses) {
         final var systemSchema = getSystemSchema();
         final var datasetCount = systemSchema.getDatasetCount();
-        final var owner =
-                SubscriptionDependencyOwner.entity(entityChangeCandidate.getTypeId(), entityChangeCandidate.getId());
+        final var owner = SubscriptionDependencyOwner.entity(
+                entityChangeCandidate.getEntityTypeId(), entityChangeCandidate.getEntityId());
         for (var i = 0; i < datasetCount; i++) {
             if (systemSchema.hasDataset(i)) {
                 final var dataset = systemSchema.getDataset(i);
@@ -1470,7 +1470,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     session.removeDownstreamSubscriptionDependencies(
                             entry,
                             SubscriptionDependencyOwner.entity(
-                                    filteredCandidate.getTypeId(), filteredCandidate.getId()),
+                                    filteredCandidate.getEntityTypeId(), filteredCandidate.getEntityId()),
                             changeSet);
                 }
             }
@@ -1483,8 +1483,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final EntityChangeCandidate entityChangeCandidate) {
         final var dataset = getSystemSchema().getDataset(entry.datasetAddress());
         return dataset.isInstanceDataset()
-                && dataset.getDatasetRootEntityTypeId() == entityChangeCandidate.getTypeId()
-                && Objects.equals(datasetAddress.datasetRootId(), entityChangeCandidate.getId());
+                && dataset.getDatasetRootEntityTypeId() == entityChangeCandidate.getEntityTypeId()
+                && Objects.equals(datasetAddress.datasetRootId(), entityChangeCandidate.getEntityId());
     }
 
     @NonNull

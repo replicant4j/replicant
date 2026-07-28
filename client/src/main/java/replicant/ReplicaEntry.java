@@ -34,7 +34,7 @@ public abstract class ReplicaEntry extends ReplicantService {
     @NonNull
     private final Class<?> _type;
 
-    private final int _id;
+    private final int _entityId;
 
     @Nullable
     private Object _replica;
@@ -43,15 +43,15 @@ public abstract class ReplicaEntry extends ReplicantService {
             @Nullable final ReplicantContext context,
             @Nullable final String name,
             @NonNull final Class<?> type,
-            final int id) {
-        return new Arez_ReplicaEntry(context, name, type, id);
+            final int entityId) {
+        return new Arez_ReplicaEntry(context, name, type, entityId);
     }
 
     ReplicaEntry(
             @Nullable final ReplicantContext context,
             @Nullable final String name,
             @NonNull final Class<?> type,
-            final int id) {
+            final int entityId) {
         super(context);
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
@@ -61,7 +61,7 @@ public abstract class ReplicaEntry extends ReplicantService {
         }
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
         _type = Objects.requireNonNull(type);
-        _id = id;
+        _entityId = entityId;
     }
 
     /**
@@ -86,8 +86,13 @@ public abstract class ReplicaEntry extends ReplicantService {
         return _type;
     }
 
-    public int getId() {
-        return _id;
+    /**
+     * Return the Entity ID of the represented Replica.
+     *
+     * @return the Entity ID.
+     */
+    public int getEntityId() {
+        return _entityId;
     }
 
     @NonNull
@@ -143,7 +148,7 @@ public abstract class ReplicaEntry extends ReplicantService {
     void linkToSubscription(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> null == subscription.findReplicaEntryByTypeAndId(getType(), getId()),
+                    () -> null == subscription.findReplicaEntryByTypeAndEntityId(getType(), getEntityId()),
                     () -> "Replicant-0080: ReplicaEntry.linkToSubscription invoked on Replica Entry " + this
                             + " passing subscription "
                             + subscription.datasetAddress() + " but Replica Entry is already linked to subscription.");
@@ -192,7 +197,7 @@ public abstract class ReplicaEntry extends ReplicantService {
     void delinkFromSubscription(@NonNull final Subscription subscription) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
-                    () -> null != subscription.findReplicaEntryByTypeAndId(getType(), getId()),
+                    () -> null != subscription.findReplicaEntryByTypeAndEntityId(getType(), getEntityId()),
                     () -> "Replicant-0081: ReplicaEntry.delinkFromSubscription invoked on Replica Entry " + this
                             + " passing subscription "
                             + subscription.datasetAddress() + " but Replica Entry is not linked to subscription.");
@@ -245,7 +250,7 @@ public abstract class ReplicaEntry extends ReplicantService {
                 final Dataset dataset = subscription.getDataset();
                 if (dataset.isInstanceDataset()
                         && (dataset.getDatasetRootEntityType() == getType())
-                        && (Objects.equals(subscription.datasetAddress().datasetRootId(), getId()))) {
+                        && (Objects.equals(subscription.datasetAddress().datasetRootId(), getEntityId()))) {
                     // If there is any subscription that this Replica is the Dataset Root of, then explicitly dispose
                     // it.
                     // Historically we used to leave this to removeOrphanedSubscriptions process to clean them up but

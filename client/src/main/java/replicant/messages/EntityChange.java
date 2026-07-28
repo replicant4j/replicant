@@ -15,7 +15,8 @@ import org.jspecify.annotations.Nullable;
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 @SuppressWarnings({"NullAway.Init", "NotNullFieldNotInitialized"})
 public class EntityChange {
-    private String id;
+    private int entityTypeId;
+    private int entityId;
     private String[] datasetAddresses;
 
     @Nullable
@@ -24,16 +25,18 @@ public class EntityChange {
     /**
      * Create a "remove" Entity Change.
      *
-     * @param type             the Entity Type identifier.
-     * @param id               the Entity identifier.
+     * @param entityTypeId     the Entity Type ID.
+     * @param entityId         the Entity ID.
      * @param datasetAddresses the Dataset Addresses of Subscriptions from which to remove the Replica.
      * @return the new Entity Change.
      */
     @JsOverlay
     @NonNull
-    public static EntityChange create(final int type, final int id, @NonNull final String[] datasetAddresses) {
+    public static EntityChange create(
+            final int entityTypeId, final int entityId, @NonNull final String[] datasetAddresses) {
         final EntityChange change = new EntityChange();
-        change.id = type + "." + id;
+        change.entityTypeId = entityTypeId;
+        change.entityId = entityId;
         change.datasetAddresses = datasetAddresses;
         return change;
     }
@@ -41,20 +44,20 @@ public class EntityChange {
     /**
      * Create an "update" Entity Change.
      *
-     * @param type             the Entity Type identifier.
-     * @param id               the Entity identifier.
+     * @param entityTypeId     the Entity Type ID.
+     * @param entityId         the Entity ID.
      * @param datasetAddresses the Dataset Addresses of Subscriptions containing the Replica after the update.
-     * @param payload the serialized Entity attribute values used to create or update the Replica.
+     * @param payload          the serialized Entity attribute values used to create or update the Replica.
      * @return the new Entity Change.
      */
     @JsOverlay
     @NonNull
     public static EntityChange create(
-            final int type,
-            final int id,
+            final int entityTypeId,
+            final int entityId,
             @NonNull final String[] datasetAddresses,
             @Nullable final EntityChangePayload payload) {
-        final EntityChange change = create(type, id, datasetAddresses);
+        final EntityChange change = create(entityTypeId, entityId, datasetAddresses);
         change.payload = payload;
         return change;
     }
@@ -62,14 +65,23 @@ public class EntityChange {
     private EntityChange() {}
 
     /**
-     * Return the compact Entity identity containing the Entity Type identifier and Entity identifier separated by a
-     * period.
+     * Return the Entity Type ID.
      *
-     * @return the compact Entity identity.
+     * @return the Entity Type ID.
      */
     @JsOverlay
-    public final String getId() {
-        return id;
+    public final int getEntityTypeId() {
+        return entityTypeId;
+    }
+
+    /**
+     * Return the Entity ID.
+     *
+     * @return the Entity ID.
+     */
+    @JsOverlay
+    public final int getEntityId() {
+        return entityId;
     }
 
     /**
