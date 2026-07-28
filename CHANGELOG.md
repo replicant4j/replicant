@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Align the remaining generated Dataset Root Routing Key helper and parameter names with the canonical Routing Key
+  terminology. This is a hard-cut generated and server API migration with no compatibility alias.
 * Complete the hard-cut World and Entity Change message terminology migration:
   * Replace client World validation names with Replica validation names and document that validation invokes
     `Verifiable` for every materialized Replica in the connector's Replicant Context after the current response is
