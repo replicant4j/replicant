@@ -17,6 +17,22 @@ shared between Replicant Contexts.
 
 _Avoid_: Client context
 
+### Connector
+
+The client runtime component for one [System Schema](#system-schema) that owns its transport connection, sends
+[Subscription Operation](#subscription-operation) instances and commands, applies server messages, and coordinates
+[Synchronization Point](#synchronization-point) processing.
+
+_Avoid_: DataLoader
+
+### Synchronization Point
+
+A client-server protocol checkpoint confirming that a [Connector](#connector) has processed every request sent before
+the checkpoint and its resulting server messages. Reaching a Synchronization Point does not mean that
+[Subscription Reconciliation](#subscription-reconciliation) is complete.
+
+_Avoid_: Sync when referring to the protocol checkpoint
+
 ### Replicant Session
 
 The server-side state associated with one active Replicant transport session, including authorization,
@@ -48,6 +64,14 @@ A potential server-side [Entity](#entity) change captured before routing and fil
 Subscriptions, including changes that remove a [Replica](#replica).
 
 _Avoid_: Message, Entity message
+
+### Replication Invocation
+
+A server-side application invocation during which [Entity Change Candidate](#entity-change-candidate) instances and
+initiating-session [Change Set](#change-set) changes are captured and submitted for replication after successful
+transaction completion.
+
+_Avoid_: Service call, request, unit of work, transaction when referring specifically to the Replicant capture boundary
 
 ### Replica
 
@@ -253,6 +277,15 @@ A client declaration that a [Subscription](#subscription) should exist at a [Dat
 a particular [Filter Parameter](#filter-parameter) when required. It represents desired state and records progress
 toward that state.
 
+### Area of Interest Status
+
+The reconciliation state of an [Area of Interest](#area-of-interest): `PENDING` until its desired
+[Explicit Subscription Mode](#explicit-subscription-mode) Subscription exists, `SATISFIED` while it exists, or
+terminal `INVALIDATED` after [Dataset Address Invalidation](#dataset-address-invalidation). Area of Interest Status is
+independent of [Data Availability](#data-availability).
+
+_Avoid_: Subscription status when referring to desired-state reconciliation
+
 ### Data Availability
 
 Whether complete data for a [Dataset Address](#dataset-address) is currently usable within a
@@ -265,6 +298,13 @@ _Avoid_: Data presence, data loaded
 
 The actual replication state at a [Dataset Address](#dataset-address), including its current
 [Filter Parameter](#filter-parameter) and the [Replica](#replica) instances belonging to it.
+
+### Subscription Collection
+
+The server-side process that materializes the current contents of a [Dataset](#dataset) selection into a
+[Change Set](#change-set) when establishing or replacing a [Subscription](#subscription).
+
+_Avoid_: Initial data load, bulk load
 
 ### Subscription Operation
 
