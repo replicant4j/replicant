@@ -48,6 +48,15 @@ replication logic. Replicant does not interpret its type or contents.
 
 _Avoid_: User Object, session user object
 
+### Replicant Server Adapter
+
+The application-supplied boundary that connects the Replicant server runtime to application-specific
+[System Schema](#system-schema), authorization, command handling, persistence, and
+[Dataset](#dataset) selection logic. It serves all [Replicant Session](#replicant-session) instances and does not
+represent per-session state.
+
+_Avoid_: Replicant Session Context, Session Context Impl
+
 ### Entity Type
 
 A schema definition for a kind of server-side [Entity](#entity), including how its corresponding

@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Replace the misleading `ReplicantSessionContext` server integration abstraction with `ReplicantServerAdapter`.
+  Rename the Replicant base class, Domgen artifacts and templates, generated adapters, application implementations,
+  dependency injection bindings, tests, and internal state to match. This is a hard-cut server and generator API
+  migration with no compatibility aliases.
 * Replace the generic Replicant Session User Object with the Principal domain concept. Rename the public session
   accessors and backing state to `getPrincipal()` and `setPrincipal(...)`, update server integrations, and document the
   opaque application identity carried by a Replicant Session. This is a hard-cut server API migration with no
@@ -64,8 +68,8 @@
     `<Repository>SystemSchemaHooks` for application callbacks that construct and support a System Schema without
     representing a Replicant Context.
   * Rename the unrelated server request thread-local from `ReplicantContextHolder` to
-    `ReplicantRequestContextHolder`, while preserving `ReplicantSession` and `ReplicantSessionContext` as server-side
-    transport-session state.
+    `ReplicantRequestContextHolder`, while preserving `ReplicantSession` as server-side transport-session state. The
+    application integration boundary is now named `ReplicantServerAdapter`.
   This is a hard-cut public API, Domgen model, generated-source, and server API migration; no compatibility aliases
   are provided.
 * Adopt Dataset Visibility terminology for the Dataset declaration that controls how Subscriptions may originate:

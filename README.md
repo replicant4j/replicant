@@ -88,6 +88,12 @@ not a Replicant Session. A Replicant Session is the distinct server-side state f
 Each Replicant Session may carry an opaque application Principal supplied by its authorization adapter and available
 to server-side replication logic.
 
+### Server Integration
+
+An application integrates the Replicant server runtime through a `ReplicantServerAdapter`. The adapter supplies the
+application System Schema and connects Replicant to application-specific authorization, commands, persistence, and
+Dataset selection logic. One adapter serves all Replicant Sessions; it is not session-owned state.
+
 ### Datasets and Subscriptions
 
 When a client connects to the replicant system, they are typically interested in a subset of the

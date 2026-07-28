@@ -10,7 +10,11 @@ import replicant.server.DatasetAddressCandidate;
 import replicant.server.DatasetAddressTemplate;
 import replicant.server.EntityChangeCandidate;
 
-public interface ReplicantSessionContext {
+/**
+ * Application-supplied adapter that connects the Replicant server runtime to the application System Schema,
+ * authorization, commands, persistence, and Dataset selection logic.
+ */
+public interface ReplicantServerAdapter {
     @NonNull
     SystemSchema getSystemSchema();
 

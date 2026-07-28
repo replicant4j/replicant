@@ -18,9 +18,9 @@ java_server_library(
 )
 
 java_testng(
-    name = "AbstractSessionContextImplTest",
-    srcs = ["AbstractSessionContextImplTest.java"],
-    test_class = "replicant.server.ee.AbstractSessionContextImplTest",
+    name = "AbstractReplicantServerAdapterTest",
+    srcs = ["AbstractReplicantServerAdapterTest.java"],
+    test_class = "replicant.server.ee.AbstractReplicantServerAdapterTest",
     deps = ["//server:server_test_support"],
 )
 

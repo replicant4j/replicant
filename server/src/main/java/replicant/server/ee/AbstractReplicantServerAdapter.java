@@ -24,15 +24,15 @@ import replicant.server.DatasetAddressTemplate;
 import replicant.server.EntityChangeCandidate;
 import replicant.server.transport.Packet;
 import replicant.server.transport.ReplicantChangeRecorder;
+import replicant.server.transport.ReplicantServerAdapter;
 import replicant.server.transport.ReplicantSession;
-import replicant.server.transport.ReplicantSessionContext;
 
 /**
  * Base class used to support Replicant Server Adapter implementations.
  * Primarily it contains support for customizing Subscription Collection using SQL.
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "SameParameterValue"})
-public abstract class AbstractSessionContextImpl implements ReplicantChangeRecorder, ReplicantSessionContext {
+public abstract class AbstractReplicantServerAdapter implements ReplicantChangeRecorder, ReplicantServerAdapter {
     @NonNull
     @Override
     public JsonObject deriveTargetFilterParameter(

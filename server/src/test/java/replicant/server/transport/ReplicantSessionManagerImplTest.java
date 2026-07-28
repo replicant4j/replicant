@@ -61,8 +61,8 @@ public class ReplicantSessionManagerImplTest {
     public void sendChangeSet_filterRemovalProducesReplicaRemovalEntityChange() {
         final var dataset = new Dataset(
                 0, "Filtered", null, Dataset.FilterMode.IMPLICIT, null, false, false, Dataset.Visibility.UNIVERSAL);
-        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(new SystemSchema("Test", dataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
@@ -80,7 +80,7 @@ public class ReplicantSessionManagerImplTest {
         session.getLock().lock();
         try {
             session.createSubscriptionEntry(datasetAddress, SubscriptionMode.EXPLICIT);
-            context.removeFilterEntityChangeCandidateAtDatasetAddress(datasetAddress);
+            serverAdapter.removeFilterEntityChangeCandidateAtDatasetAddress(datasetAddress);
 
             assertTrue(manager.sendChangeSet(session, packet));
         } finally {
@@ -97,9 +97,9 @@ public class ReplicantSessionManagerImplTest {
     public void sendChangeSet_datasetCacheEntryReferenceRequiresCurrentSubscription() throws Exception {
         final var dataset = new Dataset(
                 0, "Cacheable", null, Dataset.FilterMode.UNFILTERED, null, false, true, Dataset.Visibility.UNIVERSAL);
-        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
+        final var serverAdapter = new TestReplicantServerAdapter(new SystemSchema("Test", dataset));
         final var manager = new ReplicantSessionManagerImpl();
-        setField(manager, "_context", context);
+        setField(manager, "_serverAdapter", serverAdapter);
 
         final var webSocketSession = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
@@ -124,7 +124,7 @@ public class ReplicantSessionManagerImplTest {
         }
 
         verify(remote).sendText(contains("\"type\":\"use-dataset-cache-entry\""));
-        assertEquals(context.getPreSendChangeSets(), List.of(packet, packet));
+        assertEquals(serverAdapter.getPreSendChangeSets(), List.of(packet, packet));
     }
 
     @Test
@@ -142,9 +142,9 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
 
-        final var context = new TestSessionContext(systemSchema);
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
         final var manager = new ReplicantSessionManagerImpl();
-        setField(manager, "_context", context);
+        setField(manager, "_serverAdapter", serverAdapter);
         setField(manager, "_broker", mock(ReplicantMessageBroker.class));
         setField(manager, "_registry", TransactionSynchronizationRegistryUtil.lookup());
 
@@ -180,7 +180,7 @@ public class ReplicantSessionManagerImplTest {
 
             manager.sendChangeSet(session, packet);
 
-            assertEquals(context.getPreSendChangeSets(), List.of(packet));
+            assertEquals(serverAdapter.getPreSendChangeSets(), List.of(packet));
             final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
             assertEquals(targetEntry.getFilterParameter(), newFilterParameter);
             assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
@@ -189,7 +189,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getSubscriptionCollectionCalls();
+        final var collectCalls = serverAdapter.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         final var call = collectCalls.get(0);
         assertEquals(call.datasetAddresses(), List.of(targetDatasetAddress));
@@ -203,8 +203,8 @@ public class ReplicantSessionManagerImplTest {
                 0, "Source", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var targetDataset = new Dataset(
                 1, "Target", 2, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.EXTERNAL);
-        final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(new SystemSchema("Test", sourceDataset, targetDataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var sourceDatasetAddress = DatasetAddress.of(0, 1);
         final var targetDatasetAddress = DatasetAddress.of(1, 2);
@@ -232,8 +232,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
@@ -298,8 +298,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -333,7 +333,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -343,8 +343,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -378,7 +378,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -388,8 +388,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -421,7 +421,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getSubscriptionCollectionCalls();
+        final var collectCalls = serverAdapter.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(newTargetDatasetAddress));
         assertNull(collectCalls.get(0).filterParameter());
@@ -442,8 +442,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -477,7 +477,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getSubscriptionCollectionCalls();
+        final var collectCalls = serverAdapter.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(targetDatasetAddress));
         assertEquals(collectCalls.get(0).filterParameter(), newFilterParameter);
@@ -497,8 +497,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(new SystemSchema("Test", sourceDataset, targetDataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
@@ -532,7 +532,7 @@ public class ReplicantSessionManagerImplTest {
         }
 
         assertEquals(
-                context.getFilterParameterChangeCalls(),
+                serverAdapter.getFilterParameterChangeCalls(),
                 List.of(new FilterParameterChangeCall(
                         List.of(targetDatasetAddress), originalFilterParameter, newFilterParameter)));
     }
@@ -550,8 +550,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(new SystemSchema("Test", sourceDataset, targetDataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
@@ -587,10 +587,10 @@ public class ReplicantSessionManagerImplTest {
         }
         verify(session.getWebSocketSession(), never()).close(any(javax.websocket.CloseReason.class));
         assertEquals(
-                context.getSubscriptionCollectionCalls(),
+                serverAdapter.getSubscriptionCollectionCalls(),
                 List.of(new SubscriptionCollectionCall(
                         List.of(targetDatasetAddress), newFilterParameter, SubscriptionMode.IMPLICIT)));
-        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
+        assertTrue(serverAdapter.getFilterParameterChangeCalls().isEmpty());
     }
 
     @Test
@@ -607,8 +607,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = createManagerContext(new SystemSchema("Test", sourceDataset, targetDataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(new SystemSchema("Test", sourceDataset, targetDataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
         final var targetDatasetAddress = DatasetAddress.of(1);
@@ -639,8 +639,8 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
         verify(session.getWebSocketSession()).close(any(javax.websocket.CloseReason.class));
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
-        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getFilterParameterChangeCalls().isEmpty());
     }
 
     @Test
@@ -657,8 +657,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var includedSourceDatasetAddress = DatasetAddress.of(0, 10, "included");
@@ -671,7 +671,7 @@ public class ReplicantSessionManagerImplTest {
         final var updateNew = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
         final var deleteOld = new EntityChangeCandidate(100, 2, 1L, instanceRouting("Source", 10), null, null);
-        context.excludeFilterEntityChangeCandidateDatasetAddress(excludedSourceDatasetAddress);
+        serverAdapter.excludeFilterEntityChangeCandidateDatasetAddress(excludedSourceDatasetAddress);
 
         session.getLock().lock();
         try {
@@ -706,18 +706,18 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
     public void sendChangeSet_implicitlyFilteredDatasetAppliesMembershipFilter() {
         final var dataset = new Dataset(
                 0, "Source", 1, Dataset.FilterMode.IMPLICIT, null, false, false, Dataset.Visibility.UNIVERSAL);
-        final var context = createManagerContext(new SystemSchema("Test", dataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(new SystemSchema("Test", dataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0, 10);
-        context.excludeFilterEntityChangeCandidateDatasetAddress(datasetAddress);
+        serverAdapter.excludeFilterEntityChangeCandidateDatasetAddress(datasetAddress);
         final var entityChangeCandidate =
                 new EntityChangeCandidate(101, 2, 0L, instanceRouting("Source", 10), attributes(101), null);
         final var changeSet = new ChangeSet();
@@ -750,9 +750,9 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        context.setShouldFollowDatasetLink(false);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        serverAdapter.setShouldFollowDatasetLink(false);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -785,7 +785,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -795,8 +795,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10);
@@ -824,7 +824,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -841,8 +841,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", 3, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = createManagerContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = createServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
 
         final var sourceDatasetAddress = DatasetAddress.of(0, 10, "fi-source");
@@ -874,7 +874,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
+        assertTrue(serverAdapter.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -899,8 +899,8 @@ public class ReplicantSessionManagerImplTest {
                 Dataset.Visibility.UNIVERSAL,
                 requiredTypeDataset);
         final var systemSchema = new SystemSchema("Test", requiredTypeDataset, requiringDataset);
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var requiredTypeDatasetAddress = DatasetAddress.of(0);
         final var requiringDatasetAddress = DatasetAddress.of(1, 42);
@@ -908,7 +908,7 @@ public class ReplicantSessionManagerImplTest {
 
         manager.subscribe(session, 7, List.of(requiringDatasetAddress), null);
 
-        final var collectCalls = context.getSubscriptionCollectionCalls();
+        final var collectCalls = serverAdapter.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 2);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(requiredTypeDatasetAddress));
         assertEquals(collectCalls.get(1).datasetAddresses(), List.of(requiringDatasetAddress));
@@ -944,8 +944,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(new SystemSchema("Test", dataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0);
         final var sourceDatasetAddress = DatasetAddress.of(1);
@@ -978,7 +978,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
         assertEquals(
-                context.getFilterParameterChangeCalls(),
+                serverAdapter.getFilterParameterChangeCalls(),
                 List.of(new FilterParameterChangeCall(
                         List.of(datasetAddress), originalFilterParameter, newFilterParameter)));
     }
@@ -994,8 +994,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(new SystemSchema("Test", dataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0);
         final var originalFilterParameter =
@@ -1018,7 +1018,7 @@ public class ReplicantSessionManagerImplTest {
         } finally {
             session.getLock().unlock();
         }
-        assertTrue(context.getFilterParameterChangeCalls().isEmpty());
+        assertTrue(serverAdapter.getFilterParameterChangeCalls().isEmpty());
     }
 
     @Test
@@ -1032,8 +1032,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 false,
                 Dataset.Visibility.UNIVERSAL);
-        final var context = new TestSessionContext(new SystemSchema("Test", dataset));
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(new SystemSchema("Test", dataset));
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
         final var session = createOpenSession();
         final var datasetAddress = DatasetAddress.of(0);
         final var originalFilterParameter =
@@ -1080,8 +1080,8 @@ public class ReplicantSessionManagerImplTest {
                         false,
                         false,
                         Dataset.Visibility.UNIVERSAL));
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         when(webSocketSession.getId()).thenReturn("session-1");
@@ -1109,8 +1109,8 @@ public class ReplicantSessionManagerImplTest {
                         false,
                         false,
                         Dataset.Visibility.UNIVERSAL));
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         when(webSocketSession.getId()).thenReturn("unknown-session");
@@ -1126,8 +1126,8 @@ public class ReplicantSessionManagerImplTest {
         final var dataset = new Dataset(
                 0, "Dataset", 1, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", dataset);
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         when(webSocketSession.getId()).thenReturn("session-1");
@@ -1177,8 +1177,8 @@ public class ReplicantSessionManagerImplTest {
         final var targetDataset = new Dataset(
                 1, "Target", null, Dataset.FilterMode.UNFILTERED, null, false, false, Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
@@ -1242,8 +1242,8 @@ public class ReplicantSessionManagerImplTest {
                 false,
                 Dataset.Visibility.UNIVERSAL);
         final var systemSchema = new SystemSchema("Test", sourceDataset, targetDataset);
-        final var context = new TestSessionContext(systemSchema);
-        final var manager = createManager(context, mock(ReplicantMessageBroker.class));
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
 
         final var webSocketSession = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
@@ -1289,7 +1289,7 @@ public class ReplicantSessionManagerImplTest {
         final var dataset = new Dataset(
                 0, "Source", null, Dataset.FilterMode.IMPLICIT, null, false, true, Dataset.Visibility.UNIVERSAL);
         final var manager = createManager(
-                new TestSessionContext(new SystemSchema("Test", dataset)), mock(ReplicantMessageBroker.class));
+                new TestReplicantServerAdapter(new SystemSchema("Test", dataset)), mock(ReplicantMessageBroker.class));
         final var method =
                 ReplicantSessionManagerImpl.class.getDeclaredMethod("tryGetDatasetCacheEntry", DatasetAddress.class);
         method.setAccessible(true);
@@ -1308,7 +1308,7 @@ public class ReplicantSessionManagerImplTest {
         final var transitiveDependent = cacheableDataset(2, "TransitiveDependent", directDependent);
         final var unrelated = cacheableDataset(3, "Unrelated");
         final var manager = createManager(
-                new TestSessionContext(
+                new TestReplicantServerAdapter(
                         new SystemSchema("Test", source, directDependent, transitiveDependent, unrelated)),
                 mock(ReplicantMessageBroker.class));
 
@@ -1345,17 +1345,17 @@ public class ReplicantSessionManagerImplTest {
 
     @NonNull
     private ReplicantSessionManagerImpl createManager(
-            @NonNull final TestSessionContext context, @NonNull final ReplicantMessageBroker broker) {
+            @NonNull final TestReplicantServerAdapter serverAdapter, @NonNull final ReplicantMessageBroker broker) {
         final var manager = new ReplicantSessionManagerImpl();
-        setField(manager, "_context", context);
+        setField(manager, "_serverAdapter", serverAdapter);
         setField(manager, "_broker", broker);
         setField(manager, "_registry", TransactionSynchronizationRegistryUtil.lookup());
         return manager;
     }
 
     @NonNull
-    private TestSessionContext createManagerContext(@NonNull final SystemSchema systemSchema) {
-        return new TestSessionContext(systemSchema);
+    private TestReplicantServerAdapter createServerAdapter(@NonNull final SystemSchema systemSchema) {
+        return new TestReplicantServerAdapter(systemSchema);
     }
 
     private void setField(@NonNull final Object target, @NonNull final String name, @Nullable final Object value) {
@@ -1398,7 +1398,7 @@ public class ReplicantSessionManagerImplTest {
         return attributes;
     }
 
-    private static final class TestSessionContext implements ReplicantSessionContext {
+    private static final class TestReplicantServerAdapter implements ReplicantServerAdapter {
         @NonNull
         private final SystemSchema _systemSchema;
 
@@ -1419,7 +1419,7 @@ public class ReplicantSessionManagerImplTest {
 
         private boolean _shouldFollowDatasetLink = true;
 
-        private TestSessionContext(@NonNull final SystemSchema systemSchema) {
+        private TestReplicantServerAdapter(@NonNull final SystemSchema systemSchema) {
             _systemSchema = systemSchema;
         }
 

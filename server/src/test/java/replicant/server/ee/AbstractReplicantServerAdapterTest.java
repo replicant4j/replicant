@@ -33,7 +33,7 @@ import replicant.server.transport.SubscriptionMode;
 import replicant.server.transport.SystemSchema;
 
 @SuppressWarnings({"resource", "SqlNoDataSourceInspection"})
-public class AbstractSessionContextImplTest {
+public class AbstractReplicantServerAdapterTest {
     @BeforeMethod
     public void setup() {
         RegistryUtil.bind();
@@ -46,14 +46,14 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void deriveTargetFilterParameter_throwsWhenNotOverridden() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2);
         final var targetDatasetAddress = DatasetAddress.of(3, 4);
         final var entityChangeCandidate = new EntityChangeCandidate(1, 2, 0, new HashMap<>(), null, null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
-                () -> context.deriveTargetFilterParameter(
+                () -> serverAdapter.deriveTargetFilterParameter(
                         entityChangeCandidate,
                         sourceDatasetAddress,
                         Json.createObjectBuilder().build(),
@@ -70,14 +70,14 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void deriveTargetDatasetKey_throwsWhenNotOverridden() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var sourceDatasetAddress = DatasetAddress.of(1, 2, "fi");
         final var targetDatasetAddress = DatasetAddressTemplate.of(3, 4);
         final var entityChangeCandidate = new EntityChangeCandidate(1, 2, 0, new HashMap<>(), new HashMap<>(), null);
 
         final var exception = expectThrows(
                 IllegalStateException.class,
-                () -> context.deriveTargetDatasetKey(
+                () -> serverAdapter.deriveTargetDatasetKey(
                         entityChangeCandidate,
                         sourceDatasetAddress,
                         Json.createObjectBuilder().add("src", true).build(),
@@ -98,17 +98,17 @@ public class AbstractSessionContextImplTest {
     @Test
     public void collectSubscriptionData_delegates() {
         final var em = mock(EntityManager.class);
-        final var context = newContext(em);
+        final var serverAdapter = newServerAdapter(em);
         final var session = newSession();
         final var datasetAddresses = List.of(DatasetAddress.of(1, 2), DatasetAddress.of(3, 4));
         final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var changeSet = new ChangeSet();
 
-        context.collectSubscriptionData(
+        serverAdapter.collectSubscriptionData(
                 session, datasetAddresses, filterParameter, changeSet, SubscriptionMode.EXPLICIT);
 
-        assertEquals(context.getSubscriptionCollectionCalls().size(), 1);
-        final var call = context.getSubscriptionCollectionCalls().get(0);
+        assertEquals(serverAdapter.getSubscriptionCollectionCalls().size(), 1);
+        final var call = serverAdapter.getSubscriptionCollectionCalls().get(0);
         assertEquals(call.session(), session);
         assertEquals(call.datasetAddresses(), datasetAddresses);
         assertEquals(call.filterParameter(), filterParameter);
@@ -118,15 +118,15 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void convertToEntityChangeCandidate_delegatesWithSubscriptionCollectionFalse() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var entity = new Object();
         final var entityChangeCandidate = new EntityChangeCandidate(11, 7, 0, new HashMap<>(), Map.of("k", "v"));
-        context.registerEntityChangeCandidateForObject(entity, entityChangeCandidate);
+        serverAdapter.registerEntityChangeCandidateForObject(entity, entityChangeCandidate);
 
-        assertEquals(context.convertToEntityChangeCandidate(entity, true), entityChangeCandidate);
-        assertEquals(context.getConvertCalls().size(), 1);
+        assertEquals(serverAdapter.convertToEntityChangeCandidate(entity, true), entityChangeCandidate);
+        assertEquals(serverAdapter.getConvertCalls().size(), 1);
 
-        final var call = context.getConvertCalls().get(0);
+        final var call = serverAdapter.getConvertCalls().get(0);
         assertEquals(call.object(), entity);
         assertTrue(call.isUpdate());
         assertFalse(call.isSubscriptionCollection());
@@ -137,19 +137,19 @@ public class AbstractSessionContextImplTest {
         final var em = mock(EntityManager.class);
         final var connection = mock(Connection.class);
         when(em.unwrap(Connection.class)).thenReturn(connection);
-        final var context = newContext(em);
+        final var serverAdapter = newServerAdapter(em);
 
-        assertEquals(context.connection(), connection);
+        assertEquals(serverAdapter.connection(), connection);
         verify(em).unwrap(Connection.class);
     }
 
     @Test
     public void generateTempIdTable_buildsSql() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var datasetAddresses =
                 List.of(DatasetAddress.of(1, 11), DatasetAddress.of(1, 12), DatasetAddress.of(1, 13));
 
-        final var sql = context.generateTempIdTable(datasetAddresses);
+        final var sql = serverAdapter.generateTempIdTable(datasetAddresses);
 
         assertEquals(sql, """
             DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
@@ -159,9 +159,9 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void generateTempIdTableFromIds_buildsSql() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
 
-        final var sql = context.generateTempIdTableFromIds(List.of(11, 12, 13));
+        final var sql = serverAdapter.generateTempIdTableFromIds(List.of(11, 12, 13));
 
         assertEquals(sql, """
             DECLARE @Ids TABLE ( Id INTEGER NOT NULL );
@@ -171,10 +171,10 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void generateTempIdTableFromIds_chunksLargeInput() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var ids = IntStream.rangeClosed(1, 901).boxed().toList();
 
-        final var sql = context.generateTempIdTableFromIds(ids);
+        final var sql = serverAdapter.generateTempIdTableFromIds(ids);
         final var statements = sql.split("\n");
 
         assertEquals(statements.length, 3);
@@ -186,11 +186,11 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void generateTempIdAndDatasetKeyTable_buildsSql() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var datasetAddresses = List.of(
                 DatasetAddress.of(1, 11, "fi-1"), DatasetAddress.of(1, 12, "fi-2"), DatasetAddress.of(1, 13, "fi-3"));
 
-        final var sql = context.generateTempIdAndDatasetKeyTable(datasetAddresses);
+        final var sql = serverAdapter.generateTempIdAndDatasetKeyTable(datasetAddresses);
 
         assertEquals(sql, """
             DECLARE @IdAndDatasetKeys TABLE ( Id INTEGER NOT NULL, DatasetKey VARCHAR(255) NOT NULL );
@@ -200,10 +200,10 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void chunked_groupsValues() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var values = List.of(1, 2, 3, 4, 5);
 
-        final var chunks = context.chunked(values.stream(), 2).toList();
+        final var chunks = serverAdapter.chunked(values.stream(), 2).toList();
 
         assertEquals(chunks.size(), 3);
         assertEquals(chunks.get(0), List.of(1, 2));
@@ -213,11 +213,11 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void addDatasetRootRoutingKey_appendsIds() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var routingKeys = new HashMap<String, Serializable>();
 
-        context.addDatasetRootRoutingKey(routingKeys, "R", 1);
-        context.addDatasetRootRoutingKey(routingKeys, "R", 2);
+        serverAdapter.addDatasetRootRoutingKey(routingKeys, "R", 1);
+        serverAdapter.addDatasetRootRoutingKey(routingKeys, "R", 2);
 
         @SuppressWarnings("unchecked")
         final var ids = (List<Integer>) routingKeys.get("R");
@@ -226,7 +226,7 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void decodeAttributes_populatesMap() throws Exception {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var resultSet = mock(ResultSet.class);
         final var attributes = new HashMap<String, Serializable>();
 
@@ -241,23 +241,23 @@ public class AbstractSessionContextImplTest {
         when(resultSet.getBoolean("B")).thenReturn(true);
         when(resultSet.getObject("NB")).thenReturn(Boolean.FALSE);
 
-        assertEquals(context.decodeIntAttribute(resultSet, attributes, "I", "I"), 12);
-        assertEquals(context.decodeNullableIntAttribute(resultSet, attributes, "NI", "NI"), Integer.valueOf(13));
-        context.decodeTimestampAttribute(resultSet, attributes, "TS", "TS");
-        context.decodeNullableTimestampAttribute(resultSet, attributes, "NTS", "NTS");
-        context.decodeDateAttribute(resultSet, attributes, "D", "D");
-        context.decodeNullableDateAttribute(resultSet, attributes, "ND", "ND");
-        context.decodeStringAttribute(resultSet, attributes, "S", "S");
-        context.decodeNullableStringAttribute(resultSet, attributes, "NS", "NS");
-        context.decodeBooleanAttribute(resultSet, attributes, "B", "B");
-        context.decodeNullableBooleanAttribute(resultSet, attributes, "NB", "NB");
+        assertEquals(serverAdapter.decodeIntAttribute(resultSet, attributes, "I", "I"), 12);
+        assertEquals(serverAdapter.decodeNullableIntAttribute(resultSet, attributes, "NI", "NI"), Integer.valueOf(13));
+        serverAdapter.decodeTimestampAttribute(resultSet, attributes, "TS", "TS");
+        serverAdapter.decodeNullableTimestampAttribute(resultSet, attributes, "NTS", "NTS");
+        serverAdapter.decodeDateAttribute(resultSet, attributes, "D", "D");
+        serverAdapter.decodeNullableDateAttribute(resultSet, attributes, "ND", "ND");
+        serverAdapter.decodeStringAttribute(resultSet, attributes, "S", "S");
+        serverAdapter.decodeNullableStringAttribute(resultSet, attributes, "NS", "NS");
+        serverAdapter.decodeBooleanAttribute(resultSet, attributes, "B", "B");
+        serverAdapter.decodeNullableBooleanAttribute(resultSet, attributes, "NB", "NB");
 
         assertEquals(attributes.get("I"), 12);
         assertEquals(attributes.get("NI"), 13);
         assertEquals(attributes.get("TS"), 1000L);
         assertEquals(attributes.get("NTS"), 2000L);
-        assertEquals(attributes.get("D"), context.toDateString(new java.sql.Date(0L)));
-        assertEquals(attributes.get("ND"), context.toDateString(new java.sql.Date(0L)));
+        assertEquals(attributes.get("D"), serverAdapter.toDateString(new java.sql.Date(0L)));
+        assertEquals(attributes.get("ND"), serverAdapter.toDateString(new java.sql.Date(0L)));
         assertEquals(attributes.get("S"), "value");
         assertEquals(attributes.get("NS"), "nvalue");
         assertEquals(attributes.get("B"), true);
@@ -266,7 +266,7 @@ public class AbstractSessionContextImplTest {
 
     @Test
     public void decodeNullableAttributes_skipNulls() throws Exception {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var resultSet = mock(ResultSet.class);
         final var attributes = new HashMap<String, Serializable>();
 
@@ -276,18 +276,18 @@ public class AbstractSessionContextImplTest {
         when(resultSet.getString("NS")).thenReturn(null);
         when(resultSet.getObject("NB")).thenReturn(null);
 
-        assertNull(context.decodeNullableIntAttribute(resultSet, attributes, "NI", "NI"));
-        context.decodeNullableTimestampAttribute(resultSet, attributes, "NTS", "NTS");
-        context.decodeNullableDateAttribute(resultSet, attributes, "ND", "ND");
-        context.decodeNullableStringAttribute(resultSet, attributes, "NS", "NS");
-        context.decodeNullableBooleanAttribute(resultSet, attributes, "NB", "NB");
+        assertNull(serverAdapter.decodeNullableIntAttribute(resultSet, attributes, "NI", "NI"));
+        serverAdapter.decodeNullableTimestampAttribute(resultSet, attributes, "NTS", "NTS");
+        serverAdapter.decodeNullableDateAttribute(resultSet, attributes, "ND", "ND");
+        serverAdapter.decodeNullableStringAttribute(resultSet, attributes, "NS", "NS");
+        serverAdapter.decodeNullableBooleanAttribute(resultSet, attributes, "NB", "NB");
 
         assertTrue(attributes.isEmpty());
     }
 
     @Test
     public void toDateString_convertsDate() {
-        final var context = newContext(mock(EntityManager.class));
+        final var serverAdapter = newServerAdapter(mock(EntityManager.class));
         final var value = new Date(10_000L);
         final var expected = new Date(value.getTime())
                 .toInstant()
@@ -295,12 +295,12 @@ public class AbstractSessionContextImplTest {
                 .toLocalDate()
                 .toString();
 
-        assertEquals(context.toDateString(value), expected);
+        assertEquals(serverAdapter.toDateString(value), expected);
     }
 
     @NonNull
-    private TestSessionContext newContext(@NonNull final EntityManager em) {
-        return new TestSessionContext(em);
+    private TestReplicantServerAdapter newServerAdapter(@NonNull final EntityManager em) {
+        return new TestReplicantServerAdapter(em);
     }
 
     @NonNull
@@ -311,7 +311,7 @@ public class AbstractSessionContextImplTest {
         return new ReplicantSession(webSocketSession);
     }
 
-    private static final class TestSessionContext extends AbstractSessionContextImpl {
+    private static final class TestReplicantServerAdapter extends AbstractReplicantServerAdapter {
         @NonNull
         private final EntityManager _em;
 
@@ -355,7 +355,7 @@ public class AbstractSessionContextImplTest {
         @NonNull
         private final List<ConvertCall> _convertCalls = new ArrayList<>();
 
-        private TestSessionContext(@NonNull final EntityManager em) {
+        private TestReplicantServerAdapter(@NonNull final EntityManager em) {
             _em = em;
         }
 

@@ -74,7 +74,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @SuppressWarnings("CdiInjectionPointsInspection")
     @Inject
-    private ReplicantSessionContext _context;
+    private ReplicantServerAdapter _serverAdapter;
 
     @Inject
     @ReplicantSystem
@@ -156,7 +156,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @Override
     public boolean isAuthorized(@NonNull final ReplicantSession session) {
-        return _context.isAuthorized(session);
+        return _serverAdapter.isAuthorized(session);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @NonNull final String command,
             final int requestId,
             @Nullable final JsonObject payload) {
-        _context.execCommand(session, command, requestId, payload);
+        _serverAdapter.execCommand(session, command, requestId, payload);
     }
 
     private void sessionUpdateRequest(
@@ -219,7 +219,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     private void completeReplicationInvocation(@NonNull final String invocationKey) {
         if (Status.STATUS_ACTIVE == _registry.getTransactionStatus()
                 && !_registry.getRollbackOnly()
-                && _context.flushOpenEntityManager()) {
+                && _serverAdapter.flushOpenEntityManager()) {
             final var sessionId = (String) _registry.getResource(ServerConstants.SESSION_ID_KEY);
             final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
             final var response = (JsonValue) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
@@ -263,7 +263,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     @NonNull
     @Override
     public SystemSchema getSystemSchema() {
-        return _context.getSystemSchema();
+        return _serverAdapter.getSystemSchema();
     }
 
     @SuppressWarnings("resource")
@@ -502,7 +502,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         .distinct()
                         .count();
 
-        _context.preSendChangeSet(session, packet);
+        _serverAdapter.preSendChangeSet(session, packet);
 
         final var requestId = packet.requestId();
         final var response = packet.response();
@@ -712,7 +712,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @Nullable final JsonObject targetFilterParameter) {
         if (targetDatasetAddressCandidate instanceof DatasetAddressTemplate targetDatasetAddressTemplate) {
             assert entityChangeCandidate.isUpdate();
-            final var datasetKey = _context.deriveTargetDatasetKey(
+            final var datasetKey = _serverAdapter.deriveTargetDatasetKey(
                     entityChangeCandidate,
                     sourceDatasetAddress,
                     sourceFilterParameter,
@@ -805,9 +805,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         if (dataset.isParameterFiltered()) {
             final var filterParameter = subscriptionDependency.hasTargetFilterParameter()
                     ? subscriptionDependency.targetFilterParameter()
-                    : _context.deriveTargetFilterParameter(
+                    : _serverAdapter.deriveTargetFilterParameter(
                             entityChangeCandidate, sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress);
-            return _context.shouldFollowDatasetLink(
+            return _serverAdapter.shouldFollowDatasetLink(
                             sourceDatasetAddress, sourceFilterParameter, targetDatasetAddress, filterParameter)
                     ? new ResolvedSubscriptionDependency(targetDatasetAddress, filterParameter)
                     : null;
@@ -914,7 +914,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                     datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                                 final var entryDatasetAddress = entry.datasetAddress();
                                 final var filteredCandidate = hasFilter
-                                        ? _context.filterEntityChangeCandidate(
+                                        ? _serverAdapter.filterEntityChangeCandidate(
                                                 session, entryDatasetAddress, entityChangeCandidate)
                                         : entityChangeCandidate;
                                 if (null != filteredCandidate && filteredCandidate.isDelete()) {
@@ -951,7 +951,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 datasetAddress.datasetId(), datasetAddress.datasetRootId())) {
                             final var entryDatasetAddress = entry.datasetAddress();
                             final var filteredCandidate = hasFilter
-                                    ? _context.filterEntityChangeCandidate(
+                                    ? _serverAdapter.filterEntityChangeCandidate(
                                             session, entryDatasetAddress, entityChangeCandidate)
                                     : entityChangeCandidate;
                             if (null != filteredCandidate) {
@@ -1012,7 +1012,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
                 initiatingSessionChangeSet.setRequired(true);
                 datasetAddresses.forEach(
-                        datasetAddress -> _context.preSubscribe(session, datasetAddress, filterParameter));
+                        datasetAddress -> _serverAdapter.preSubscribe(session, datasetAddress, filterParameter));
                 doSubscribe(
                         session,
                         datasetAddresses,
@@ -1111,7 +1111,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     }
                 }
             } else {
-                _context.collectSubscriptionData(session, newDatasetAddresses, filterParameter, changeSet, mode);
+                _serverAdapter.collectSubscriptionData(session, newDatasetAddresses, filterParameter, changeSet, mode);
             }
         }
         if (!datasetAddressesToUpdate.isEmpty()) {
@@ -1121,7 +1121,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var updateDatasetAddresses = update.getValue();
 
                 if (dataset.hasUpdatableFilterParameter()) {
-                    _context.collectSubscriptionDataForFilterParameterChange(
+                    _serverAdapter.collectSubscriptionDataForFilterParameterChange(
                             session,
                             updateDatasetAddresses,
                             originalFilterParameter,
@@ -1266,7 +1266,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     try {
                         if (!datasetCacheEntry.isInitialized()) {
                             final var changeSet = new ChangeSet();
-                            _context.collectSubscriptionData(
+                            _serverAdapter.collectSubscriptionData(
                                     null,
                                     Collections.singletonList(datasetAddress),
                                     null,
@@ -1410,7 +1410,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
             final var filteredCandidate = hasFilter
-                    ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, entityChangeCandidate)
+                    ? _serverAdapter.filterEntityChangeCandidate(session, entryDatasetAddress, entityChangeCandidate)
                     : entityChangeCandidate;
 
             if (null != filteredCandidate) {
@@ -1461,7 +1461,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         for (final var entry : entries) {
             final var entryDatasetAddress = entry.datasetAddress();
             final var filteredCandidate = hasFilter
-                    ? _context.filterEntityChangeCandidate(session, entryDatasetAddress, entityChangeCandidate)
+                    ? _serverAdapter.filterEntityChangeCandidate(session, entryDatasetAddress, entityChangeCandidate)
                     : entityChangeCandidate;
 
             if (null != filteredCandidate && filteredCandidate.isDelete()) {
