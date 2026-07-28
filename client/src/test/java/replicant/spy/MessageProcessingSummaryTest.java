@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ReplicantTestUtil;
 
-public class DataLoadStatusTest extends AbstractReplicantTest {
+public class MessageProcessingSummaryTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
         final int requestId = 44;
@@ -16,7 +16,7 @@ public class DataLoadStatusTest extends AbstractReplicantTest {
         final int entityUpdateCount = 123;
         final int entityRemoveCount = 3;
         final int entityLinkCount = 126;
-        final DataLoadStatus status = new DataLoadStatus(
+        final MessageProcessingSummary summary = new MessageProcessingSummary(
                 requestId,
                 subscriptionSubscribeCount,
                 subscriptionUpdateCount,
@@ -25,21 +25,23 @@ public class DataLoadStatusTest extends AbstractReplicantTest {
                 entityRemoveCount,
                 entityLinkCount);
 
-        assertEquals(status.getRequestId(), (Integer) requestId);
-        assertEquals(status.getSubscriptionSubscribeCount(), subscriptionSubscribeCount);
-        assertEquals(status.getSubscriptionUpdateCount(), subscriptionUpdateCount);
-        assertEquals(status.getSubscriptionUnsubscribeCount(), subscriptionUnsubscribeCount);
-        assertEquals(status.getEntityUpdateCount(), entityUpdateCount);
-        assertEquals(status.getEntityRemoveCount(), entityRemoveCount);
-        assertEquals(status.getEntityLinkCount(), entityLinkCount);
+        assertEquals(summary.getRequestId(), (Integer) requestId);
+        assertEquals(summary.getSubscriptionSubscribeCount(), subscriptionSubscribeCount);
+        assertEquals(summary.getSubscriptionUpdateCount(), subscriptionUpdateCount);
+        assertEquals(summary.getSubscriptionUnsubscribeCount(), subscriptionUnsubscribeCount);
+        assertEquals(summary.getEntityUpdateCount(), entityUpdateCount);
+        assertEquals(summary.getEntityRemoveCount(), entityRemoveCount);
+        assertEquals(summary.getEntityLinkCount(), entityLinkCount);
 
         assertEquals(
-                status.toString(),
+                summary.toString(),
                 "[Message for request 44 involved 4 subscribes, 2 subscription updates, 1 unsubscribes, 123 updates,"
                         + " 3 removes and 126 links]");
 
         ReplicantTestUtil.disableNames();
 
-        assertEquals(status.toString(), "replicant.spy.DataLoadStatus@" + Integer.toHexString(status.hashCode()));
+        assertEquals(
+                summary.toString(),
+                "replicant.spy.MessageProcessingSummary@" + Integer.toHexString(summary.hashCode()));
     }
 }

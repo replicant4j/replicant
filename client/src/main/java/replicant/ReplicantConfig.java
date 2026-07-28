@@ -19,7 +19,8 @@ final class ReplicantConfig {
     private static boolean ENABLE_NAMES = PROVIDER.areNamesEnabled();
     private static boolean ENABLE_ZONES = PROVIDER.enableZones();
     private static boolean VALIDATE_CHANGE_SET_ON_READ = PROVIDER.validateChangeSetOnRead();
-    private static boolean VALIDATE_REPLICAS_ON_LOAD = PROVIDER.validateReplicasOnLoad();
+    private static boolean VALIDATE_REPLICAS_AFTER_MESSAGE_PROCESSING =
+            PROVIDER.validateReplicasAfterMessageProcessing();
     private static boolean ENABLE_SPIES = PROVIDER.enableSpies();
 
     @NonNull
@@ -71,12 +72,12 @@ final class ReplicantConfig {
         ENABLE_ZONES = enableZones;
     }
 
-    static boolean shouldValidateReplicasOnLoad() {
-        return VALIDATE_REPLICAS_ON_LOAD;
+    static boolean shouldValidateReplicasAfterMessageProcessing() {
+        return VALIDATE_REPLICAS_AFTER_MESSAGE_PROCESSING;
     }
 
-    static void setValidateReplicasOnLoad(final boolean validateReplicasOnLoad) {
-        VALIDATE_REPLICAS_ON_LOAD = validateReplicasOnLoad;
+    static void setValidateReplicasAfterMessageProcessing(final boolean validateReplicasAfterMessageProcessing) {
+        VALIDATE_REPLICAS_AFTER_MESSAGE_PROCESSING = validateReplicasAfterMessageProcessing;
     }
 
     static boolean shouldValidateChangeSetOnRead() {
@@ -137,9 +138,10 @@ final class ReplicantConfig {
 
         @GwtIncompatible
         @Override
-        boolean validateReplicasOnLoad() {
+        boolean validateReplicasAfterMessageProcessing() {
             return "true"
-                    .equals(System.getProperty("replicant.validateReplicasOnLoad", PRODUCTION_MODE ? "false" : "true"));
+                    .equals(System.getProperty(
+                            "replicant.validateReplicasAfterMessageProcessing", PRODUCTION_MODE ? "false" : "true"));
         }
 
         @GwtIncompatible
@@ -188,8 +190,8 @@ final class ReplicantConfig {
             return "true" == System.getProperty("replicant.validateChangeSetOnRead");
         }
 
-        boolean validateReplicasOnLoad() {
-            return "true" == System.getProperty("replicant.validateReplicasOnLoad");
+        boolean validateReplicasAfterMessageProcessing() {
+            return "true" == System.getProperty("replicant.validateReplicasAfterMessageProcessing");
         }
 
         boolean enableSpies() {

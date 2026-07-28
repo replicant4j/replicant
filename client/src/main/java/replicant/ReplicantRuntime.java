@@ -239,9 +239,9 @@ abstract class ReplicantRuntime {
 
     @Nullable
     private ConnectorEntry findConnectorEntryBySystemSchemaId(final int systemSchemaId) {
-        for (final ConnectorEntry dataLoader : _connectors) {
-            if (dataLoader.getConnector().getSystemSchema().getId() == systemSchemaId) {
-                return dataLoader;
+        for (final ConnectorEntry entry : _connectors) {
+            if (entry.getConnector().getSystemSchema().getId() == systemSchemaId) {
+                return entry;
             }
         }
         return null;

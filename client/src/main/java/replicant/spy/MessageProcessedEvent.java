@@ -15,15 +15,15 @@ public final class MessageProcessedEvent implements SerializableEvent {
     private final String _systemSchemaName;
 
     @NonNull
-    private final DataLoadStatus _dataLoadStatus;
+    private final MessageProcessingSummary _messageProcessingSummary;
 
     public MessageProcessedEvent(
             final int systemSchemaId,
             @NonNull final String systemSchemaName,
-            @NonNull final DataLoadStatus dataLoadStatus) {
+            @NonNull final MessageProcessingSummary messageProcessingSummary) {
         _systemSchemaId = systemSchemaId;
         _systemSchemaName = Objects.requireNonNull(systemSchemaName);
-        _dataLoadStatus = Objects.requireNonNull(dataLoadStatus);
+        _messageProcessingSummary = Objects.requireNonNull(messageProcessingSummary);
     }
 
     public int getSystemSchemaId() {
@@ -36,8 +36,8 @@ public final class MessageProcessedEvent implements SerializableEvent {
     }
 
     @NonNull
-    public DataLoadStatus getDataLoadStatus() {
-        return _dataLoadStatus;
+    public MessageProcessingSummary getMessageProcessingSummary() {
+        return _messageProcessingSummary;
     }
 
     @Override
@@ -45,13 +45,13 @@ public final class MessageProcessedEvent implements SerializableEvent {
         map.put("type", "Connector.MessageProcess");
         map.put("systemSchema.id", getSystemSchemaId());
         map.put("systemSchema.name", getSystemSchemaName());
-        final DataLoadStatus status = getDataLoadStatus();
-        map.put("requestId", status.getRequestId());
-        map.put("subscriptionSubscribeCount", status.getSubscriptionSubscribeCount());
-        map.put("subscriptionUnsubscribeCount", status.getSubscriptionUnsubscribeCount());
-        map.put("subscriptionUpdateCount", status.getSubscriptionUpdateCount());
-        map.put("entityUpdateCount", status.getEntityUpdateCount());
-        map.put("entityRemoveCount", status.getEntityRemoveCount());
-        map.put("entityLinkCount", status.getEntityLinkCount());
+        final MessageProcessingSummary summary = getMessageProcessingSummary();
+        map.put("requestId", summary.getRequestId());
+        map.put("subscriptionSubscribeCount", summary.getSubscriptionSubscribeCount());
+        map.put("subscriptionUnsubscribeCount", summary.getSubscriptionUnsubscribeCount());
+        map.put("subscriptionUpdateCount", summary.getSubscriptionUpdateCount());
+        map.put("entityUpdateCount", summary.getEntityUpdateCount());
+        map.put("entityRemoveCount", summary.getEntityRemoveCount());
+        map.put("entityLinkCount", summary.getEntityLinkCount());
     }
 }

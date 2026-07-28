@@ -1083,7 +1083,7 @@ abstract class Connector extends ReplicantService {
      */
     void validateReplicas() {
         ensureCurrentMessageResponse().markReplicaValidationStarted();
-        if (Replicant.shouldValidateReplicasOnLoad()) {
+        if (Replicant.shouldValidateReplicasAfterMessageProcessing()) {
             getReplicantContext().getValidator().validateReplicas();
         }
     }
@@ -1394,7 +1394,9 @@ abstract class Connector extends ReplicantService {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new MessageProcessedEvent(
-                            getSystemSchema().getId(), getSystemSchema().getName(), response.toStatus()));
+                            getSystemSchema().getId(),
+                            getSystemSchema().getName(),
+                            response.toMessageProcessingSummary()));
         }
     }
 
@@ -1427,7 +1429,7 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Called when a data load has resulted in a failure.
+     * Called when message processing has resulted in a failure.
      */
     @Action(verifyRequired = false)
     void onMessageProcessFailure(@NonNull final Throwable error) {

@@ -197,7 +197,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onMessageProcessed(@NonNull final MessageProcessedEvent e) {
-        log("%cConnector Processed Message " + e.getDataLoadStatus(), CONNECTOR_COLOR);
+        log("%cConnector Processed Message " + e.getMessageProcessingSummary(), CONNECTOR_COLOR);
     }
 
     /**

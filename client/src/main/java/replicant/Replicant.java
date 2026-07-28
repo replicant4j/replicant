@@ -86,8 +86,8 @@ public final class Replicant {
      *
      * @return true if Replicas should be validated after a message has been processed, false otherwise.
      */
-    public static boolean shouldValidateReplicasOnLoad() {
-        return shouldCheckInvariants() && ReplicantConfig.shouldValidateReplicasOnLoad();
+    public static boolean shouldValidateReplicasAfterMessageProcessing() {
+        return shouldCheckInvariants() && ReplicantConfig.shouldValidateReplicasAfterMessageProcessing();
     }
 
     /**

@@ -221,12 +221,10 @@ a single transaction are routed and packaged as a single Change Set when sent to
 Set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
 guarantees around the client-side representation.
 
-After a Change Set is applied a `DataLoadComplete` message is fired on the client-side. To get fine-grain
-notification of changes, the developer can register listeners on the client-side broker and receive
-notification when an entity is added, removed or updated. This is only possible when the Change Set is
-marked as an _incremental load_ rather than as a _bulk load_. The vast majority of service calls result
-in _incremental load_ Change Sets, but sometimes for the sake of performance subscribe service calls and
-other calls that result in mass change may result in _bulk load_ Change Sets.
+After each server message is completely processed, Replicant emits a `MessageProcessedEvent` through the Spy subsystem
+when spies are enabled. Its `MessageProcessingSummary` reports the Subscription Operations, Entity updates and
+removals, and Replica links applied while processing the message. Replica changes remain atomic at the Change Set
+boundary, so application observers see the resulting state only after the complete Change Set has been applied.
 
 ### Server-Side Broker Scheduling
 

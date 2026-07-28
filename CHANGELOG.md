@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Replace the obsolete Data Load client vocabulary with Message Processing terminology. `DataLoadStatus` is now
+  `MessageProcessingSummary`, and the Replica validation setting is now
+  `replicant.validateReplicasAfterMessageProcessing`. This is a hard-cut client API and configuration migration with
+  no compatibility aliases.
 * Align Connector processing with Subscription Operation terminology by replacing Area of Interest request, add,
   update, and remove names with subscribe, Subscription update, and unsubscribe operation names. This is a hard-cut
   internal client API migration with no compatibility alias.

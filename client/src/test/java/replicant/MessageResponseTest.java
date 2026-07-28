@@ -9,7 +9,7 @@ import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.EntityChangePayloadImpl;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.spy.DataLoadStatus;
+import replicant.spy.MessageProcessingSummary;
 
 public class MessageResponseTest extends AbstractReplicantTest {
     @Test
@@ -30,7 +30,7 @@ public class MessageResponseTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void toStatus() {
+    public void toMessageProcessingSummary() {
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
 
@@ -47,15 +47,15 @@ public class MessageResponseTest extends AbstractReplicantTest {
         action.incEntityRemoveCount();
         action.incEntityLinkCount();
 
-        final DataLoadStatus status = action.toStatus();
+        final MessageProcessingSummary summary = action.toMessageProcessingSummary();
 
-        assertNull(status.getRequestId());
-        assertEquals(status.getSubscriptionSubscribeCount(), 2);
-        assertEquals(status.getSubscriptionUpdateCount(), 1);
-        assertEquals(status.getSubscriptionUnsubscribeCount(), 3);
-        assertEquals(status.getEntityUpdateCount(), 1);
-        assertEquals(status.getEntityRemoveCount(), 2);
-        assertEquals(status.getEntityLinkCount(), 1);
+        assertNull(summary.getRequestId());
+        assertEquals(summary.getSubscriptionSubscribeCount(), 2);
+        assertEquals(summary.getSubscriptionUpdateCount(), 1);
+        assertEquals(summary.getSubscriptionUnsubscribeCount(), 3);
+        assertEquals(summary.getEntityUpdateCount(), 1);
+        assertEquals(summary.getEntityRemoveCount(), 2);
+        assertEquals(summary.getEntityLinkCount(), 1);
     }
 
     @Test

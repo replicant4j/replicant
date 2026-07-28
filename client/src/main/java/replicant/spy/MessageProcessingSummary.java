@@ -4,9 +4,9 @@ import org.jspecify.annotations.Nullable;
 import replicant.Replicant;
 
 /**
- * Summary describing the result of a data load action.
+ * Summary describing the result of processing a server message.
  */
-public final class DataLoadStatus {
+public final class MessageProcessingSummary {
     @Nullable
     private final Integer _requestId;
     /// The number of subscribe operations applied as a result of the Message
@@ -22,7 +22,7 @@ public final class DataLoadStatus {
     // The number of entities where link() was invoked
     private final int _entityLinkCount;
 
-    public DataLoadStatus(
+    public MessageProcessingSummary(
             @Nullable final Integer requestId,
             final int subscriptionSubscribeCount,
             final int subscriptionUpdateCount,

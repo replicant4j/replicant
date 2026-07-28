@@ -28,10 +28,10 @@ public class ReplicantTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void setting_shouldValidateReplicasOnLoad() {
-        assertTrue(Replicant.shouldValidateReplicasOnLoad());
-        ReplicantTestUtil.noValidateReplicasOnLoad();
-        assertFalse(Replicant.shouldValidateReplicasOnLoad());
+    public void setting_shouldValidateReplicasAfterMessageProcessing() {
+        assertTrue(Replicant.shouldValidateReplicasAfterMessageProcessing());
+        ReplicantTestUtil.noValidateReplicasAfterMessageProcessing();
+        assertFalse(Replicant.shouldValidateReplicasAfterMessageProcessing());
     }
 
     @Test

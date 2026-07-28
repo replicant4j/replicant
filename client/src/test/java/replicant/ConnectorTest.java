@@ -1041,7 +1041,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void progressMessages_subscribeResponseProcessesNextAreaOfInterest_whenValidationDisabled() {
-        ReplicantTestUtil.noValidateReplicasOnLoad();
+        ReplicantTestUtil.noValidateReplicasAfterMessageProcessing();
         assertSubscribeResponseProcessesNextAreaOfInterest();
     }
 
@@ -2760,7 +2760,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void validateReplicas_invalidEntity_ignoredIfCompileSettingDisablesValidation() {
-        ReplicantTestUtil.noValidateReplicasOnLoad();
+        ReplicantTestUtil.noValidateReplicasAfterMessageProcessing();
         final Connector connector = createConnector();
         newConnection(connector);
         final MessageResponse response = setCurrentMessageResponse(

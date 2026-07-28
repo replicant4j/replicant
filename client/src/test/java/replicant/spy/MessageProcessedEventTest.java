@@ -17,7 +17,7 @@ public class MessageProcessedEventTest extends AbstractReplicantTest {
         final int entityUpdateCount = ValueUtil.getRandom().nextInt(100);
         final int entityRemoveCount = ValueUtil.getRandom().nextInt(100);
         final int entityLinkCount = ValueUtil.getRandom().nextInt(10);
-        final DataLoadStatus dataLoadStatus = new DataLoadStatus(
+        final MessageProcessingSummary summary = new MessageProcessingSummary(
                 requestId,
                 subscriptionSubscribeCount,
                 subscriptionUpdateCount,
@@ -25,11 +25,11 @@ public class MessageProcessedEventTest extends AbstractReplicantTest {
                 entityUpdateCount,
                 entityRemoveCount,
                 entityLinkCount);
-        final MessageProcessedEvent event = new MessageProcessedEvent(23, "Rose", dataLoadStatus);
+        final MessageProcessedEvent event = new MessageProcessedEvent(23, "Rose", summary);
 
         assertEquals(event.getSystemSchemaId(), 23);
         assertEquals(event.getSystemSchemaName(), "Rose");
-        assertEquals(event.getDataLoadStatus(), dataLoadStatus);
+        assertEquals(event.getMessageProcessingSummary(), summary);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);

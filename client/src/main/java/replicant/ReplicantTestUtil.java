@@ -25,14 +25,14 @@ public final class ReplicantTestUtil {
         if (productionMode) {
             disableNames();
             noValidateChangeSetOnRead();
-            noValidateReplicasOnLoad();
+            noValidateReplicasAfterMessageProcessing();
             disableSpies();
             noCheckInvariants();
             noCheckApiInvariants();
         } else {
             enableNames();
             validateChangeSetOnRead();
-            validateReplicasOnLoad();
+            validateReplicasAfterMessageProcessing();
             enableSpies();
             checkInvariants();
             checkApiInvariants();
@@ -80,17 +80,17 @@ public final class ReplicantTestUtil {
     }
 
     /**
-     * Set `replicant.validateReplicasOnLoad` setting to true.
+     * Set {@code replicant.validateReplicasAfterMessageProcessing} to true.
      */
-    public static void validateReplicasOnLoad() {
-        ReplicantConfig.setValidateReplicasOnLoad(true);
+    public static void validateReplicasAfterMessageProcessing() {
+        ReplicantConfig.setValidateReplicasAfterMessageProcessing(true);
     }
 
     /**
-     * Set `replicant.validateReplicasOnLoad` setting to false.
+     * Set {@code replicant.validateReplicasAfterMessageProcessing} to false.
      */
-    public static void noValidateReplicasOnLoad() {
-        ReplicantConfig.setValidateReplicasOnLoad(false);
+    public static void noValidateReplicasAfterMessageProcessing() {
+        ReplicantConfig.setValidateReplicasAfterMessageProcessing(false);
     }
 
     /**

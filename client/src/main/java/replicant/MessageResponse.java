@@ -13,7 +13,7 @@ import replicant.messages.ChangeSetMessage;
 import replicant.messages.EntityChange;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
-import replicant.spy.DataLoadStatus;
+import replicant.spy.MessageProcessingSummary;
 
 /**
  * Encapsulates incremental processing state for one server-to-client transport message.
@@ -239,7 +239,7 @@ final class MessageResponse {
      * validation step.</p>
      */
     void markReplicaValidationStarted() {
-        if (Replicant.shouldValidateReplicasOnLoad()) {
+        if (Replicant.shouldValidateReplicasAfterMessageProcessing()) {
             _replicaValidationStarted = true;
         }
     }
@@ -248,13 +248,13 @@ final class MessageResponse {
      * Return true if optional Replica validation is disabled or has started after this response was applied.
      */
     boolean hasReplicaValidationStarted() {
-        return !Replicant.shouldValidateReplicasOnLoad() || _replicaValidationStarted;
+        return !Replicant.shouldValidateReplicasAfterMessageProcessing() || _replicaValidationStarted;
     }
 
     @NonNull
-    DataLoadStatus toStatus() {
+    MessageProcessingSummary toMessageProcessingSummary() {
         assert Replicant.areSpiesEnabled();
-        return new DataLoadStatus(
+        return new MessageProcessingSummary(
                 _message.getRequestId(),
                 getSubscriptionSubscribeCount(),
                 getSubscriptionUpdateCount(),

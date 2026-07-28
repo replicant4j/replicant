@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
  */
 final class ConnectorEntry implements Disposable {
     /**
-     * The cost to attempt to modify action on DataLoader.
+     * The cost to attempt an action on the Connector.
      */
     private static final int ACTION_COST = 10000;
 
