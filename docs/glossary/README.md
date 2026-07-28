@@ -380,7 +380,8 @@ The [Subscription Mode](#subscription-mode) of a [Subscription](#subscription) w
 ### Dataset Link
 
 A schema rule declaring that encountering a configured [Entity](#entity) relationship in one [Dataset](#dataset) may
-require a [Subscription](#subscription) to another Dataset.
+require a [Subscription](#subscription) to another Dataset. Dataset Links are evaluated as part of routing; a
+followed link produces a [Subscription Dependency](#subscription-dependency).
 
 _Avoid_: Graph link, channel link
 

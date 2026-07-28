@@ -21,11 +21,6 @@ public final class DatasetLink {
      */
     private final int _targetDatasetId;
     /**
-     * Whether generated runtime integration automatically derives a Subscription Dependency when the relationship is
-     * encountered.
-     */
-    private final boolean _automatic;
-    /**
      * The path of attributes from the Entity in the source Dataset to the Dataset Root of the target Dataset.
      * It is expected that the attributes are immutable and all but the first are non-null.(Unlike Domgen where
      * the path omits the first attribute, this path includes the entire path)
@@ -33,14 +28,9 @@ public final class DatasetLink {
     @NonNull
     private final String[] _path;
 
-    public DatasetLink(
-            final int sourceDatasetId,
-            final int targetDatasetId,
-            final boolean automatic,
-            @NonNull final String[] path) {
+    public DatasetLink(final int sourceDatasetId, final int targetDatasetId, @NonNull final String[] path) {
         _sourceDatasetId = sourceDatasetId;
         _targetDatasetId = targetDatasetId;
-        _automatic = automatic;
         _path = Objects.requireNonNull(path);
     }
 
@@ -50,10 +40,6 @@ public final class DatasetLink {
 
     public int getTargetDatasetId() {
         return _targetDatasetId;
-    }
-
-    public boolean isAutomatic() {
-        return _automatic;
     }
 
     @NonNull

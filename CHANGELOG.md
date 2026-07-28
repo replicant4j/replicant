@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Remove the obsolete automatic/manual mode from Dataset Links. Every Dataset Link now participates uniformly in
+  generated routing, and the client System Schema representation no longer carries an `automatic` flag. Preserve the
+  independent `always_follow` and `exclude_target` controls. This is a hard-cut client and Domgen API migration with
+  no compatibility aliases.
 * Remove Domgen's obsolete Dataset `secure` option and always generate per-Dataset authorization hooks for every
   Dataset whose Dataset Visibility permits a direct Area of Interest origin. Dataset Visibility controls how a
   Subscription may originate but never bypasses authorization for the requesting Replicant Session. This is a hard-cut

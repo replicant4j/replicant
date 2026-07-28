@@ -170,8 +170,8 @@ atomically. The current server implementation does not support filtered or Insta
 this is an implementation capability limit rather than a domain definition.
 
 It is possible and expected that one client may have Subscriptions to more than one Dataset, and the
-materialized selections may overlap. Often applications link one Dataset to another and automatically
-subscribe the client to the related Dataset.
+materialized selections may overlap. Often applications link one Dataset to another so that the client
+subscribes to the related Dataset.
 
 Consider a roster application. The developer may define one Dataset that includes assignment of people
 to activities on a single day. If the client was to subscribe to three days that shared people, then
