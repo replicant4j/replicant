@@ -10,6 +10,24 @@ import org.testng.annotations.Test;
 
 public class ChangeSetTest {
     @Test
+    public void deliveryRequiredControlsEmptyChangeSetDelivery() {
+        final var changeSet = new ChangeSet();
+
+        assertFalse(changeSet.isDeliveryRequired());
+        assertFalse(changeSet.shouldDeliver());
+
+        changeSet.setDeliveryRequired(true);
+
+        assertTrue(changeSet.isDeliveryRequired());
+        assertTrue(changeSet.shouldDeliver());
+
+        changeSet.setDeliveryRequired(false);
+
+        assertFalse(changeSet.isDeliveryRequired());
+        assertFalse(changeSet.shouldDeliver());
+    }
+
+    @Test
     public void basicOperation() {
         final var id = 17;
         final var typeID = 42;
@@ -31,11 +49,13 @@ public class ChangeSetTest {
         final var changeSet = new ChangeSet();
 
         assertEquals(changeSet.getEntityChanges().size(), 0);
+        assertFalse(changeSet.shouldDeliver());
 
         changeSet.merge(Collections.singletonList(change1));
 
         assertEquals(changeSet.getEntityChanges().size(), 1);
         assertEquals(change1.getDatasetAddresses().size(), 1);
+        assertTrue(changeSet.shouldDeliver());
 
         changeSet.merge(change2);
 
@@ -58,6 +78,7 @@ public class ChangeSetTest {
         final var changeSet = new ChangeSet();
 
         assertEquals(changeSet.getSubscriptionChanges().size(), 0);
+        assertFalse(changeSet.shouldDeliver());
 
         final var filterParameter =
                 Json.createBuilderFactory(null).createObjectBuilder().build();
@@ -65,6 +86,7 @@ public class ChangeSetTest {
                 SubscriptionChange.of(DatasetAddress.of(1, 2), SubscriptionChange.Type.SUBSCRIBE, filterParameter));
 
         assertEquals(changeSet.getSubscriptionChanges().size(), 1);
+        assertTrue(changeSet.shouldDeliver());
 
         final var subscriptionChange = changeSet.getSubscriptionChanges().get(0);
         assertEquals(subscriptionChange.datasetAddress().datasetId(), 1);

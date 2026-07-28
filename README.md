@@ -229,6 +229,9 @@ a single transaction are routed and packaged as a single Change Set when sent to
 Set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
 guarantees around the client-side representation.
 
+A Change Set marked [Delivery Required](docs/glossary/README.md#delivery-required) is delivered even when it contains
+no Subscription Changes or Entity Changes.
+
 After each server message is completely processed, Replicant emits a `MessageProcessedEvent` through the Spy subsystem
 when spies are enabled. Its `MessageProcessingSummary` reports the Subscription Operations, Entity updates and
 removals, and Replica links applied while processing the message. Replica changes remain atomic at the Change Set

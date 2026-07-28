@@ -16,18 +16,36 @@ public final class ChangeSet {
     @NonNull
     private final Map<String, EntityChange> _entityChanges = new LinkedHashMap<>();
 
-    private boolean _required;
+    private boolean _deliveryRequired;
 
-    public boolean hasContent() {
-        return _required || !_subscriptionChanges.isEmpty() || !_entityChanges.isEmpty();
+    /**
+     * Return true if this Change Set must be delivered.
+     *
+     * <p>A Change Set is delivered when Delivery Required is set or when it contains at least one Subscription Change
+     * or Entity Change.
+     *
+     * @return true if this Change Set must be delivered.
+     */
+    public boolean shouldDeliver() {
+        return _deliveryRequired || !_subscriptionChanges.isEmpty() || !_entityChanges.isEmpty();
     }
 
-    public boolean isRequired() {
-        return _required;
+    /**
+     * Return true if this Change Set must be delivered even when it contains no changes.
+     *
+     * @return true if Delivery Required is set.
+     */
+    public boolean isDeliveryRequired() {
+        return _deliveryRequired;
     }
 
-    public void setRequired(final boolean required) {
-        _required = required;
+    /**
+     * Set whether this Change Set must be delivered even when it contains no changes.
+     *
+     * @param deliveryRequired true to require delivery of an otherwise empty Change Set.
+     */
+    public void setDeliveryRequired(final boolean deliveryRequired) {
+        _deliveryRequired = deliveryRequired;
     }
 
     public void mergeSubscriptionChanges(@NonNull final Collection<SubscriptionChange> changes) {

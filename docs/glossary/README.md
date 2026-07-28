@@ -417,6 +417,14 @@ whether the change belongs to each [Subscription](#subscription); a Routing Key 
 A batch of [Subscription Change](#subscription-change) and [Entity Change](#entity-change) instances delivered and
 applied to the client as one consistent unit before observers are notified.
 
+### Delivery Required
+
+A state of a [Change Set](#change-set) requiring it to be delivered even when it contains no
+[Subscription Change](#subscription-change) or [Entity Change](#entity-change). A Change Set containing either kind
+of change is delivered regardless of this state.
+
+_Avoid_: Required flag, Has Content
+
 ### Subscription Reconciliation
 
 The process of comparing each desired [Area of Interest](#area-of-interest) with the actual

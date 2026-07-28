@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Adopt Delivery Required terminology for the Change Set state that forces delivery when no Subscription Changes or
+  Entity Changes are present. Rename the server API to `isDeliveryRequired()`, `setDeliveryRequired(...)`, and
+  `shouldDeliver()` so the override and the resulting delivery decision are distinct. This is a hard-cut server API
+  migration with no compatibility aliases.
 * Remove the unused `SubscriptionUtil.synchronizeCrossDataSourceSubscriptions(...)` helper and its otherwise empty
   utility class. This is a hard-cut client API removal with no compatibility alias.
 * Remove the obsolete automatic/manual mode from Dataset Links. Every Dataset Link now participates uniformly in

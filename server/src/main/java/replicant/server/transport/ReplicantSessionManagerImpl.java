@@ -442,21 +442,21 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 final var changeSet = new ChangeSet();
                 if (isInitiator) {
                     if (null != initiatingSessionChangeSet) {
-                        changeSet.setRequired(initiatingSessionChangeSet.isRequired());
+                        changeSet.setDeliveryRequired(initiatingSessionChangeSet.isDeliveryRequired());
                         changeSet.merge(initiatingSessionChangeSet.getEntityChanges());
                         changeSet.mergeSubscriptionChanges(initiatingSessionChangeSet.getSubscriptionChanges());
                     }
 
                     /*
-                     * We mark this as required and as impacting the initiator because we no longer know whether the
-                     * action did result in an Entity Change that needs to be sent to the client as routing occurs in a separate
-                     * thread. This change here now means every rpc will be paired with a Change Set even if it is
-                     * empty. This is acceptable in the short term as we expect to remove external rpc at a later stage
-                     * and move all rpc onto the Replicant transport.
+                     * We mark this as Delivery Required and as impacting the initiator because we no longer know
+                     * whether the action did result in an Entity Change that needs to be sent to the client as routing
+                     * occurs in a separate thread. This change here now means every rpc will be paired with a Change
+                     * Set even if it is empty. This is acceptable in the short term as we expect to remove external rpc
+                     * at a later stage and move all rpc onto the Replicant transport.
                      */
                     if (null == _registry.getResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY)) {
                         // Skip the scenario where a Cacheable Dataset Change Set has already been queued.
-                        changeSet.setRequired(true);
+                        changeSet.setDeliveryRequired(true);
                     }
                 }
                 final var fromSubscriptionRequest =
@@ -544,8 +544,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         routeEntityChangeCandidates(entityChangeCandidates, session, changeSet);
 
         // Change Sets from a Subscription that queue a use-dataset-cache-entry message still come through here.
-        // hasContent() returns false because there are no changes in the Change Set and the required flag is unset.
-        if (changeSet.hasContent()) {
+        // shouldDeliver() returns false because there are no changes and Delivery Required is unset.
+        if (changeSet.shouldDeliver()) {
             final var start = System.nanoTime();
 
             final var expandCycleCount =
@@ -1010,7 +1010,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         sessionUpdateRequest(key, session, requestId, () -> {
             if (session.isOpen()) {
                 final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
-                initiatingSessionChangeSet.setRequired(true);
+                initiatingSessionChangeSet.setDeliveryRequired(true);
                 datasetAddresses.forEach(
                         datasetAddress -> _serverAdapter.preSubscribe(session, datasetAddress, filterParameter));
                 doSubscribe(
@@ -1086,7 +1086,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
                                 _broker.queueDatasetCacheEntryReference(
                                         session, requestId, newDatasetAddress, datasetCacheVersion);
-                                changeSet.setRequired(false);
+                                changeSet.setDeliveryRequired(false);
                                 _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, "1");
                             } else {
                                 session.setDatasetCacheVersion(newDatasetAddress, null);
@@ -1094,7 +1094,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                                 datasetCacheEntryChangeSet.merge(datasetCacheEntry.getChangeSet());
                                 queueCacheableDatasetChangeSet(
                                         session, datasetCacheVersion, datasetCacheEntryChangeSet);
-                                changeSet.setRequired(false);
+                                changeSet.setDeliveryRequired(false);
                             }
 
                             final var entry = session.createSubscriptionEntry(newDatasetAddress, mode);
@@ -1104,7 +1104,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                             datasetCacheEntryChangeSet.mergeSubscriptionChange(
                                     newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
                             queueCacheableDatasetChangeSet(session, null, datasetCacheEntryChangeSet);
-                            changeSet.setRequired(false);
+                            changeSet.setDeliveryRequired(false);
                         }
                     } finally {
                         _datasetCacheEntriesLock.writeLock().unlock();
@@ -1209,7 +1209,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
                 final var changeSet = new ChangeSet();
                 subscribe(session, datasetAddress, SubscriptionMode.IMPLICIT, null, changeSet);
-                if (changeSet.hasContent()) {
+                if (changeSet.shouldDeliver()) {
                     // This is a regular Change Set, so queue it for delivery.
                     _broker.queueChangeSet(session, true, null, null, null, Collections.emptyList(), changeSet);
                 }
@@ -1330,7 +1330,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         sessionUpdateRequest(invocationKey, session, requestId, () -> {
             if (session.isOpen()) {
                 final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
-                initiatingSessionChangeSet.setRequired(true);
+                initiatingSessionChangeSet.setDeliveryRequired(true);
                 session.bulkUnsubscribe(datasetAddresses, initiatingSessionChangeSet);
             }
         });

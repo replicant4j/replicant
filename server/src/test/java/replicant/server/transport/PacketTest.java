@@ -57,6 +57,6 @@ public class PacketTest {
         assertEquals(packet.datasetCacheVersion(), datasetCacheVersion);
         assertEquals(packet.datasetCacheEntryAddress(), datasetAddress);
         assertTrue(packet.entityChangeCandidates().isEmpty());
-        assertFalse(packet.changeSet().hasContent());
+        assertFalse(packet.changeSet().shouldDeliver());
     }
 }

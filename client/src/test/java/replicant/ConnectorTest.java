@@ -2842,7 +2842,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeMessageResponse_hasContent() {
+    public void completeMessageResponse_withSubscriptionChange() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
