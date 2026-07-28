@@ -78,7 +78,8 @@ public interface ReplicantSessionContext {
             @NonNull ReplicantSession session, @NonNull String command, int requestId, @Nullable JsonObject payload);
 
     /**
-     * Add changes to the ChangeSet as a result of subscribing at one or more Dataset Addresses.
+     * Collect the current contents of a Dataset selection into the Change Set when establishing one or more
+     * Subscriptions.
      * If the session is not null, then the implementation is expected to update the actual Subscription state.
      *
      * @param session             the session. May be null while collecting a Dataset Cache Entry Change Set.
@@ -95,7 +96,8 @@ public interface ReplicantSessionContext {
             @NonNull SubscriptionMode mode);
 
     /**
-     * Add changes to the ChangeSet as a result of changing a Subscription Filter Parameter.
+     * Collect the current contents of a Dataset selection into the Change Set when changing a Subscription Filter
+     * Parameter.
      * It is expected that the hook does everything including updating SubscriptionEntry with new
      * Filter Parameter and reconciling Subscription Dependencies.
      *

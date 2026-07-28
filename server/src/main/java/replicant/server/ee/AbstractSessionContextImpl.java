@@ -28,8 +28,8 @@ import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionContext;
 
 /**
- * Base class used to support implementation of SessionContext implementations.
- * Primarily it contains support for customizing bulk loads using SQL.
+ * Base class used to support Replicant Server Adapter implementations.
+ * Primarily it contains support for customizing Subscription Collection using SQL.
  */
 @SuppressWarnings({"SqlNoDataSourceInspection", "SameParameterValue"})
 public abstract class AbstractSessionContextImpl implements ReplicantChangeRecorder, ReplicantSessionContext {
@@ -127,17 +127,17 @@ public abstract class AbstractSessionContextImpl implements ReplicantChangeRecor
 
     /**
      * Converts the given object into an appropriate {@link EntityChangeCandidate}.
-     * This method may be used for initial data load or for entity updates.
+     * This method may be used during Subscription Collection or for Entity updates.
      * Implementations of this abstract method define the specific conversion logic.
      *
      * @param object        the source object to be converted; must not be null
      * @param isUpdate      a boolean indicating if the conversion is for an update
-     * @param isInitialLoad a boolean indicating if the conversion is for an initial data load
+     * @param isSubscriptionCollection true if the conversion occurs during Subscription Collection
      * @return the converted {@link EntityChangeCandidate}, or null if the conversion cannot be performed
      */
     @Nullable
     protected abstract EntityChangeCandidate convertToEntityChangeCandidate(
-            @NonNull final Object object, final boolean isUpdate, final boolean isInitialLoad);
+            @NonNull final Object object, final boolean isUpdate, final boolean isSubscriptionCollection);
 
     @Nullable
     @Override

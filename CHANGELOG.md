@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Align the server and Domgen integration with Subscription Collection terminology. The encoder conversion flag is now
+  `isSubscriptionCollection`, and the Domgen Dataset option is now `post_subscription_collection_hook`. This is a
+  hard-cut server and generator API migration with no compatibility aliases.
 * Replace the obsolete Data Load client vocabulary with Message Processing terminology. `DataLoadStatus` is now
   `MessageProcessingSummary`, and the Replica validation setting is now
   `replicant.validateReplicasAfterMessageProcessing`. This is a hard-cut client API and configuration migration with

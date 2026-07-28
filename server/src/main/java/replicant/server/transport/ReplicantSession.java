@@ -331,7 +331,8 @@ public final class ReplicantSession implements Serializable, Closeable {
      * Subscriptions in this session.</p>
      *
      * <p>Entity-owned Subscription Dependencies derived from Dataset Links are managed internally and should not be
-     * recorded through this API unless the developer is using post-subscribe hooks to optimize data loads.</p>
+     * recorded through this API unless the developer is using post-collection hooks to optimize Subscription
+     * Collection.</p>
      */
     public void recordEntityScopedSubscriptionDependency(
             @NonNull final DatasetAddress sourceDatasetAddress,

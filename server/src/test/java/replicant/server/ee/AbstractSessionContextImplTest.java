@@ -96,7 +96,7 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void bulkCollectDataForSubscribe_delegates() {
+    public void collectSubscriptionData_delegates() {
         final var em = mock(EntityManager.class);
         final var context = newContext(em);
         final var session = newSession();
@@ -107,8 +107,8 @@ public class AbstractSessionContextImplTest {
         context.collectSubscriptionData(
                 session, datasetAddresses, filterParameter, changeSet, SubscriptionMode.EXPLICIT);
 
-        assertEquals(context.getBulkCollectCalls().size(), 1);
-        final var call = context.getBulkCollectCalls().get(0);
+        assertEquals(context.getSubscriptionCollectionCalls().size(), 1);
+        final var call = context.getSubscriptionCollectionCalls().get(0);
         assertEquals(call.session(), session);
         assertEquals(call.datasetAddresses(), datasetAddresses);
         assertEquals(call.filterParameter(), filterParameter);
@@ -117,7 +117,7 @@ public class AbstractSessionContextImplTest {
     }
 
     @Test
-    public void convertToEntityChangeCandidate_delegatesWithInitialLoadFalse() {
+    public void convertToEntityChangeCandidate_delegatesWithSubscriptionCollectionFalse() {
         final var context = newContext(mock(EntityManager.class));
         final var entity = new Object();
         final var entityChangeCandidate = new EntityChangeCandidate(11, 7, 0, new HashMap<>(), Map.of("k", "v"));
@@ -129,7 +129,7 @@ public class AbstractSessionContextImplTest {
         final var call = context.getConvertCalls().get(0);
         assertEquals(call.object(), entity);
         assertTrue(call.isUpdate());
-        assertFalse(call.isInitialLoad());
+        assertFalse(call.isSubscriptionCollection());
     }
 
     @Test
@@ -347,7 +347,7 @@ public class AbstractSessionContextImplTest {
                         Dataset.Visibility.UNIVERSAL));
 
         @NonNull
-        private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
+        private final List<SubscriptionCollectionCall> _subscriptionCollectionCalls = new ArrayList<>();
 
         @NonNull
         private final Map<Object, EntityChangeCandidate> _entityChangeCandidates = new HashMap<>();
@@ -401,14 +401,15 @@ public class AbstractSessionContextImplTest {
                 @Nullable final JsonObject filterParameter,
                 @NonNull final ChangeSet changeSet,
                 @NonNull final SubscriptionMode mode) {
-            _bulkCollectCalls.add(new BulkCollectCall(session, datasetAddresses, filterParameter, changeSet, mode));
+            _subscriptionCollectionCalls.add(
+                    new SubscriptionCollectionCall(session, datasetAddresses, filterParameter, changeSet, mode));
         }
 
         @Nullable
         @Override
         protected EntityChangeCandidate convertToEntityChangeCandidate(
-                @NonNull final Object object, final boolean isUpdate, final boolean isInitialLoad) {
-            _convertCalls.add(new ConvertCall(object, isUpdate, isInitialLoad));
+                @NonNull final Object object, final boolean isUpdate, final boolean isSubscriptionCollection) {
+            _convertCalls.add(new ConvertCall(object, isUpdate, isSubscriptionCollection));
             return _entityChangeCandidates.get(object);
         }
 
@@ -439,8 +440,8 @@ public class AbstractSessionContextImplTest {
         }
 
         @NonNull
-        List<BulkCollectCall> getBulkCollectCalls() {
-            return _bulkCollectCalls;
+        List<SubscriptionCollectionCall> getSubscriptionCollectionCalls() {
+            return _subscriptionCollectionCalls;
         }
 
         void registerEntityChangeCandidateForObject(
@@ -454,12 +455,12 @@ public class AbstractSessionContextImplTest {
         }
     }
 
-    private record BulkCollectCall(
+    private record SubscriptionCollectionCall(
             @Nullable ReplicantSession session,
             @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable Object filterParameter,
             @NonNull ChangeSet changeSet,
             @NonNull SubscriptionMode mode) {}
 
-    private record ConvertCall(@NonNull Object object, boolean isUpdate, boolean isInitialLoad) {}
+    private record ConvertCall(@NonNull Object object, boolean isUpdate, boolean isSubscriptionCollection) {}
 }

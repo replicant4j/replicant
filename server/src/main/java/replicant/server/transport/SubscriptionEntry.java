@@ -98,8 +98,8 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
 
     /**
      * Set the Filter Parameter.
-     * User code should not invoke this unless they are implementing bulk loading and are propagating
-     * Filter Parameters between multiple Datasets loaded in a single sweep.
+     * User code should not invoke this unless they are implementing Subscription Collection and are propagating
+     * Filter Parameters between multiple Datasets collected in a single sweep.
      *
      * @param filterParameter the Filter Parameter.
      */

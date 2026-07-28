@@ -189,7 +189,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getBulkCollectCalls();
+        final var collectCalls = context.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         final var call = collectCalls.get(0);
         assertEquals(call.datasetAddresses(), List.of(targetDatasetAddress));
@@ -333,7 +333,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -378,7 +378,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -421,7 +421,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getBulkCollectCalls();
+        final var collectCalls = context.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(newTargetDatasetAddress));
         assertNull(collectCalls.get(0).filterParameter());
@@ -477,7 +477,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var collectCalls = context.getBulkCollectCalls();
+        final var collectCalls = context.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 1);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(targetDatasetAddress));
         assertEquals(collectCalls.get(0).filterParameter(), newFilterParameter);
@@ -587,8 +587,8 @@ public class ReplicantSessionManagerImplTest {
         }
         verify(session.getWebSocketSession(), never()).close(any(javax.websocket.CloseReason.class));
         assertEquals(
-                context.getBulkCollectCalls(),
-                List.of(new BulkCollectCall(
+                context.getSubscriptionCollectionCalls(),
+                List.of(new SubscriptionCollectionCall(
                         List.of(targetDatasetAddress), newFilterParameter, SubscriptionMode.IMPLICIT)));
         assertTrue(context.getFilterParameterChangeCalls().isEmpty());
     }
@@ -639,7 +639,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
         verify(session.getWebSocketSession()).close(any(javax.websocket.CloseReason.class));
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
         assertTrue(context.getFilterParameterChangeCalls().isEmpty());
     }
 
@@ -706,7 +706,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -785,7 +785,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -824,7 +824,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -874,7 +874,7 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        assertTrue(context.getBulkCollectCalls().isEmpty());
+        assertTrue(context.getSubscriptionCollectionCalls().isEmpty());
     }
 
     @Test
@@ -908,7 +908,7 @@ public class ReplicantSessionManagerImplTest {
 
         manager.subscribe(session, 7, List.of(requiringDatasetAddress), null);
 
-        final var collectCalls = context.getBulkCollectCalls();
+        final var collectCalls = context.getSubscriptionCollectionCalls();
         assertEquals(collectCalls.size(), 2);
         assertEquals(collectCalls.get(0).datasetAddresses(), List.of(requiredTypeDatasetAddress));
         assertEquals(collectCalls.get(1).datasetAddresses(), List.of(requiringDatasetAddress));
@@ -1400,7 +1400,7 @@ public class ReplicantSessionManagerImplTest {
         private final SystemSchema _systemSchema;
 
         @NonNull
-        private final List<BulkCollectCall> _bulkCollectCalls = new ArrayList<>();
+        private final List<SubscriptionCollectionCall> _subscriptionCollectionCalls = new ArrayList<>();
 
         @NonNull
         private final List<FilterParameterChangeCall> _filterParameterChangeCalls = new ArrayList<>();
@@ -1483,7 +1483,7 @@ public class ReplicantSessionManagerImplTest {
                 @Nullable final JsonObject filterParameter,
                 @NonNull final ChangeSet changeSet,
                 @NonNull final SubscriptionMode mode) {
-            _bulkCollectCalls.add(new BulkCollectCall(datasetAddresses, filterParameter, mode));
+            _subscriptionCollectionCalls.add(new SubscriptionCollectionCall(datasetAddresses, filterParameter, mode));
             if (null != session) {
                 for (final var datasetAddress : datasetAddresses) {
                     final var existing = session.findSubscriptionEntry(datasetAddress);
@@ -1540,8 +1540,8 @@ public class ReplicantSessionManagerImplTest {
         }
 
         @NonNull
-        List<BulkCollectCall> getBulkCollectCalls() {
-            return _bulkCollectCalls;
+        List<SubscriptionCollectionCall> getSubscriptionCollectionCalls() {
+            return _subscriptionCollectionCalls;
         }
 
         @NonNull
@@ -1567,7 +1567,7 @@ public class ReplicantSessionManagerImplTest {
         }
     }
 
-    private record BulkCollectCall(
+    private record SubscriptionCollectionCall(
             @NonNull List<DatasetAddress> datasetAddresses,
             @Nullable JsonObject filterParameter,
             @NonNull SubscriptionMode mode) {}
