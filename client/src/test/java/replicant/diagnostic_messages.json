@@ -192,17 +192,17 @@
   {
     "code": 46,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe at Dataset Address %s but no Subscription exists."
+    "messagePattern": "Unsubscribe Operation at Dataset Address %s has no Subscription."
   },
   {
     "code": 47,
     "type": "INVARIANT",
-    "messagePattern": "Request to unsubscribe at Dataset Address %s but Subscription is not in Explicit Subscription Mode."
+    "messagePattern": "Unsubscribe Operation at Dataset Address %s targets a Subscription that is not in Explicit Subscription Mode."
   },
   {
     "code": 48,
     "type": "INVARIANT",
-    "messagePattern": "Request to update Subscription at Dataset Address %s but no Subscription exists."
+    "messagePattern": "Subscription Operation to update Subscription at Dataset Address %s but no Subscription exists."
   },
   {
     "code": 49,

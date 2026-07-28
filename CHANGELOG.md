@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Align Connector processing with Subscription Operation terminology by replacing Area of Interest request, add,
+  update, and remove names with subscribe, Subscription update, and unsubscribe operation names. This is a hard-cut
+  internal client API migration with no compatibility alias.
 * Align the remaining generated Dataset Root Routing Key helper and parameter names with the canonical Routing Key
   terminology. This is a hard-cut generated and server API migration with no compatibility alias.
 * Complete the hard-cut World and Entity Change message terminology migration:

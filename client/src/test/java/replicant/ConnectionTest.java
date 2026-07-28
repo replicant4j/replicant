@@ -95,18 +95,18 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 connection.getPendingSubscriptionOperations().get(0);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 connection.getPendingSubscriptionOperations().get(1);
 
-        assertEquals(request1.getDatasetAddress(), datasetAddress1);
-        assertEquals(request1.getFilterParameter(), filterParameter1);
-        assertEquals(request1.getType(), SubscriptionOperation.Type.SUBSCRIBE);
+        assertEquals(operation1.getDatasetAddress(), datasetAddress1);
+        assertEquals(operation1.getFilterParameter(), filterParameter1);
+        assertEquals(operation1.getType(), SubscriptionOperation.Type.SUBSCRIBE);
 
-        assertEquals(request2.getDatasetAddress(), datasetAddress2);
-        assertEquals(request2.getFilterParameter(), filterParameter2);
-        assertEquals(request2.getType(), SubscriptionOperation.Type.SUBSCRIBE);
+        assertEquals(operation2.getDatasetAddress(), datasetAddress2);
+        assertEquals(operation2.getFilterParameter(), filterParameter2);
+        assertEquals(operation2.getType(), SubscriptionOperation.Type.SUBSCRIBE);
     }
 
     @Test
@@ -128,18 +128,18 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 connection.getPendingSubscriptionOperations().get(0);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 connection.getPendingSubscriptionOperations().get(1);
 
-        assertEquals(request1.getDatasetAddress(), datasetAddress1);
-        assertEquals(request1.getFilterParameter(), filterParameter1);
-        assertEquals(request1.getType(), SubscriptionOperation.Type.UPDATE);
+        assertEquals(operation1.getDatasetAddress(), datasetAddress1);
+        assertEquals(operation1.getFilterParameter(), filterParameter1);
+        assertEquals(operation1.getType(), SubscriptionOperation.Type.UPDATE);
 
-        assertEquals(request2.getDatasetAddress(), datasetAddress2);
-        assertEquals(request2.getFilterParameter(), filterParameter2);
-        assertEquals(request2.getType(), SubscriptionOperation.Type.UPDATE);
+        assertEquals(operation2.getDatasetAddress(), datasetAddress2);
+        assertEquals(operation2.getFilterParameter(), filterParameter2);
+        assertEquals(operation2.getType(), SubscriptionOperation.Type.UPDATE);
     }
 
     @Test
@@ -159,18 +159,18 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         assertEquals(connection.getPendingSubscriptionOperations().size(), 2);
 
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 connection.getPendingSubscriptionOperations().get(0);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 connection.getPendingSubscriptionOperations().get(1);
 
-        assertEquals(request1.getDatasetAddress(), datasetAddress1);
-        assertNull(request1.getFilterParameter());
-        assertEquals(request1.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
+        assertEquals(operation1.getDatasetAddress(), datasetAddress1);
+        assertNull(operation1.getFilterParameter());
+        assertEquals(operation1.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
 
-        assertEquals(request2.getDatasetAddress(), datasetAddress2);
-        assertNull(request2.getFilterParameter());
-        assertEquals(request2.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
+        assertEquals(operation2.getDatasetAddress(), datasetAddress2);
+        assertNull(operation2.getFilterParameter());
+        assertEquals(operation2.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
     }
 
     @Test
@@ -307,24 +307,24 @@ public class ConnectionTest extends AbstractReplicantTest {
         final Object filterParameter1 = null;
         final Object filterParameter2 = null;
 
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter1);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.SUBSCRIBE, filterParameter2);
-        connection.injectCurrentSubscriptionOperation(request1);
-        connection.injectCurrentSubscriptionOperation(request2);
+        connection.injectCurrentSubscriptionOperation(operation1);
+        connection.injectCurrentSubscriptionOperation(operation2);
 
-        request1.markAsInProgress(1);
-        request2.markAsInProgress(2);
+        operation1.markAsInProgress(1);
+        operation2.markAsInProgress(2);
 
-        assertTrue(request1.isInProgress());
-        assertTrue(request2.isInProgress());
+        assertTrue(operation1.isInProgress());
+        assertTrue(operation2.isInProgress());
         assertEquals(connection.getCurrentSubscriptionOperations().size(), 2);
 
         connection.completeSubscriptionOperation();
 
-        assertFalse(request1.isInProgress());
-        assertFalse(request2.isInProgress());
+        assertFalse(operation1.isInProgress());
+        assertFalse(operation2.isInProgress());
         assertEquals(connection.getCurrentSubscriptionOperations().size(), 0);
     }
 
@@ -354,50 +354,62 @@ public class ConnectionTest extends AbstractReplicantTest {
         final String filterParameterQ = "F1";
         final String filterParameterR = "F2";
 
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.UNSUBSCRIBE, filterParameterP);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.UPDATE, filterParameterP);
-        final SubscriptionOperation request4 =
+        final SubscriptionOperation operation4 =
                 new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
 
-        final SubscriptionOperation request10 =
+        final SubscriptionOperation operation10 =
                 new SubscriptionOperation(datasetAddressB, SubscriptionOperation.Type.SUBSCRIBE, filterParameterQ);
-        final SubscriptionOperation request11 =
+        final SubscriptionOperation operation11 =
                 new SubscriptionOperation(datasetAddressC, SubscriptionOperation.Type.SUBSCRIBE, filterParameterQ);
-        final SubscriptionOperation request12 =
+        final SubscriptionOperation operation12 =
                 new SubscriptionOperation(datasetAddressD, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request13 =
+        final SubscriptionOperation operation13 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request14 =
+        final SubscriptionOperation operation14 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterQ);
-        final SubscriptionOperation request15 =
+        final SubscriptionOperation operation15 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.SUBSCRIBE, filterParameterP);
-        final SubscriptionOperation request16 =
+        final SubscriptionOperation operation16 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterP);
-        final SubscriptionOperation request17 =
+        final SubscriptionOperation operation17 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request18 =
+        final SubscriptionOperation operation18 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterP);
-        final SubscriptionOperation request19 =
+        final SubscriptionOperation operation19 =
                 new SubscriptionOperation(datasetAddressE, SubscriptionOperation.Type.UPDATE, filterParameterR);
 
-        final List<SubscriptionOperation> requests = Arrays.asList(
-                request1, request2, request3, request4, request10, request11, request12, request13, request14,
-                request15, request16, request17, request18, request19);
+        final List<SubscriptionOperation> operations = Arrays.asList(
+                operation1,
+                operation2,
+                operation3,
+                operation4,
+                operation10,
+                operation11,
+                operation12,
+                operation13,
+                operation14,
+                operation15,
+                operation16,
+                operation17,
+                operation18,
+                operation19);
 
         final HashMap<String, String> groupingPairs = new HashMap<>();
 
-        groupingPairs.put(request10.toString(), request11.toString());
-        groupingPairs.put(request12.toString(), request13.toString());
-        groupingPairs.put(request12.toString(), request17.toString());
-        groupingPairs.put(request13.toString(), request17.toString());
-        groupingPairs.put(request16.toString(), request18.toString());
+        groupingPairs.put(operation10.toString(), operation11.toString());
+        groupingPairs.put(operation12.toString(), operation13.toString());
+        groupingPairs.put(operation12.toString(), operation17.toString());
+        groupingPairs.put(operation13.toString(), operation17.toString());
+        groupingPairs.put(operation16.toString(), operation18.toString());
 
-        for (final SubscriptionOperation r1 : requests) {
-            for (final SubscriptionOperation r2 : requests) {
+        for (final SubscriptionOperation r1 : operations) {
+            for (final SubscriptionOperation r2 : operations) {
                 final boolean expected =
                         (r1 == r2 && null != r1.getDatasetAddress().datasetRootId())
                                 || Objects.equals(String.valueOf(groupingPairs.get(r1.toString())), r2.toString())
@@ -417,13 +429,13 @@ public class ConnectionTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddressA = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddressB = new DatasetAddress(1, 1, 2);
 
-        final SubscriptionOperation requestA =
+        final SubscriptionOperation operationA =
                 new SubscriptionOperation(datasetAddressA, SubscriptionOperation.Type.SUBSCRIBE, null);
-        final SubscriptionOperation requestB =
+        final SubscriptionOperation operationB =
                 new SubscriptionOperation(datasetAddressB, SubscriptionOperation.Type.SUBSCRIBE, null);
 
-        assertTrue(connection.canGroupSubscriptionOperations(requestA, requestB));
-        assertTrue(connection.canGroupSubscriptionOperations(requestB, requestA));
+        assertTrue(connection.canGroupSubscriptionOperations(operationA, operationB));
+        assertTrue(connection.canGroupSubscriptionOperations(operationB, operationA));
 
         final TestDatasetCacheService datasetCacheService = new TestDatasetCacheService();
         Replicant.context().setDatasetCacheService(datasetCacheService);
@@ -433,8 +445,8 @@ public class ConnectionTest extends AbstractReplicantTest {
                 ValueUtil.randomString(),
                 replicant.messages.ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertFalse(connection.canGroupSubscriptionOperations(requestA, requestB));
-        assertFalse(connection.canGroupSubscriptionOperations(requestB, requestA));
+        assertFalse(connection.canGroupSubscriptionOperations(operationA, operationB));
+        assertFalse(connection.canGroupSubscriptionOperations(operationB, operationA));
     }
 
     @Test
@@ -502,7 +514,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void pendingSubscriptionOperationQueries_noRequestsInConnection() {
+    public void pendingSubscriptionOperationQueries_noOperationsInConnection() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0);
@@ -516,7 +528,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void pendingSubscriptionOperationQueries_requestPending() {
+    public void pendingSubscriptionOperationQueries_operationPending() {
         final Connection connection = createConnection();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);

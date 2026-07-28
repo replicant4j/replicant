@@ -222,12 +222,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
-            final List<SubscriptionOperation> requests =
+            final List<SubscriptionOperation> operations =
                     connector.ensureConnection().getPendingSubscriptionOperations();
-            assertEquals(requests.size(), 1);
-            final SubscriptionOperation request = requests.get(0);
-            assertEquals(request.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
-            assertEquals(request.getDatasetAddress(), datasetAddress);
+            assertEquals(operations.size(), 1);
+            final SubscriptionOperation operation = operations.get(0);
+            assertEquals(operation.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
+            assertEquals(operation.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
 
@@ -263,12 +263,12 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
 
-            final List<SubscriptionOperation> requests =
+            final List<SubscriptionOperation> operations =
                     connector.ensureConnection().getPendingSubscriptionOperations();
-            assertEquals(requests.size(), 1);
-            final SubscriptionOperation request = requests.get(0);
-            assertEquals(request.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
-            assertEquals(request.getDatasetAddress(), datasetAddress);
+            assertEquals(operations.size(), 1);
+            final SubscriptionOperation operation = operations.get(0);
+            assertEquals(operation.getType(), SubscriptionOperation.Type.UNSUBSCRIBE);
+            assertEquals(operation.getDatasetAddress(), datasetAddress);
 
             handler.assertEventCount(2);
 

@@ -1154,7 +1154,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(
                     e.getError().getMessage(),
-                    "Replicant-0046: Request to unsubscribe at Dataset Address 0.0 but no Subscription exists.");
+                    "Replicant-0046: Unsubscribe Operation at Dataset Address 0.0 has no Subscription.");
         });
     }
 
@@ -2155,10 +2155,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         response.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, null);
-        connection.injectCurrentSubscriptionOperation(request);
-        request.markAsInProgress(newRequest(connection).getRequestId());
+        connection.injectCurrentSubscriptionOperation(operation);
+        operation.markAsInProgress(newRequest(connection).getRequestId());
 
         assertTrue(response.needsSubscriptionChangesProcessed());
         assertEquals(response.getSubscriptionSubscribeCount(), 0);
@@ -2534,10 +2534,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        requests.add(new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null));
-        requests.add(new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UNSUBSCRIBE, null));
-        requests.add(new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UNSUBSCRIBE, null));
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        operations.add(new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null));
+        operations.add(new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UNSUBSCRIBE, null));
+        operations.add(new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UNSUBSCRIBE, null));
 
         final String filterParameter = ValueUtil.randomString();
         final Subscription subscription1 =
@@ -2548,7 +2548,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         createSubscription(datasetAddress2, null, SubscriptionMode.IMPLICIT);
         // Address3 has no subscription ... maybe not reconciled yet
 
-        connector.transitionSubscriptionsToImplicitMode(requests);
+        connector.transitionSubscriptionsToImplicitMode(operations);
 
         safeAction(() -> {
             assertSame(Replicant.context().findSubscription(datasetAddress1), subscription1);
@@ -2567,14 +2567,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        requests.add(new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, null));
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        operations.add(new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, null));
 
         createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> safeAction(() -> connector.transitionSubscriptionsToImplicitMode(requests)));
+                () -> safeAction(() -> connector.transitionSubscriptionsToImplicitMode(operations)));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0034: Connector.transitionSubscriptionsToImplicitMode() invoked with Subscription Operation"
@@ -2583,28 +2583,28 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void removeUnneededRemoveRequests_whenInvariantsDisabled() {
+    public void removeUnneededUnsubscribeOperations_whenInvariantsDisabled() {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        final SubscriptionOperation request1 =
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        requests.add(request1);
-        requests.add(request2);
-        requests.add(request3);
+        operations.add(operation1);
+        operations.add(operation2);
+        operations.add(operation3);
 
         final Connection connection = createConnection();
         final Connector connector = connection.getConnector();
 
         final RequestEntry request = newRequest(connection);
 
-        requests.forEach(r -> r.markAsInProgress(request.getRequestId()));
+        operations.forEach(r -> r.markAsInProgress(request.getRequestId()));
 
         createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
         // Address2 is already implicit ...
@@ -2613,83 +2613,85 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         ReplicantTestUtil.noCheckInvariants();
 
-        connector.removeUnneededRemoveRequests(requests);
+        connector.removeUnneededUnsubscribeOperations(operations);
 
-        assertEquals(requests.size(), 1);
-        assertTrue(requests.contains(request1));
-        assertTrue(request1.isInProgress());
-        assertFalse(request2.isInProgress());
-        assertFalse(request3.isInProgress());
+        assertEquals(operations.size(), 1);
+        assertTrue(operations.contains(operation1));
+        assertTrue(operation1.isInProgress());
+        assertFalse(operation2.isInProgress());
+        assertFalse(operation3.isInProgress());
     }
 
     @Test
-    public void removeUnneededRemoveRequests_noSubscription() {
+    public void removeUnneededUnsubscribeOperations_noSubscription() {
         final Connector connector = createConnector();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        final SubscriptionOperation request1 =
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        requests.add(request1);
+        operations.add(operation1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(r -> r.markAsInProgress(requestId));
 
         final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> safeAction(() -> connector.removeUnneededRemoveRequests(requests)));
+                IllegalStateException.class,
+                () -> safeAction(() -> connector.removeUnneededUnsubscribeOperations(operations)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0046: Request to unsubscribe at Dataset Address 1.1.1 but no Subscription exists.");
+                "Replicant-0046: Unsubscribe Operation at Dataset Address 1.1.1 has no Subscription.");
     }
 
     @Test
-    public void removeUnneededRemoveRequests_implicitSubscriptionMode() {
+    public void removeUnneededUnsubscribeOperations_implicitSubscriptionMode() {
         final Connector connector = createConnector();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        final SubscriptionOperation request1 =
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        requests.add(request1);
+        operations.add(operation1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(r -> r.markAsInProgress(requestId));
 
         createSubscription(datasetAddress1, null, SubscriptionMode.IMPLICIT);
 
         final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> safeAction(() -> connector.removeUnneededRemoveRequests(requests)));
+                IllegalStateException.class,
+                () -> safeAction(() -> connector.removeUnneededUnsubscribeOperations(operations)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0047: Request to unsubscribe at Dataset Address 1.1.1 but Subscription is not in Explicit"
-                        + " Subscription Mode.");
+                "Replicant-0047: Unsubscribe Operation at Dataset Address 1.1.1 targets a Subscription that is not in"
+                        + " Explicit Subscription Mode.");
     }
 
     @Test
-    public void removeUnneededUpdateRequests_whenInvariantsDisabled() {
+    public void removeUnneededSubscriptionUpdateOperations_whenInvariantsDisabled() {
         final Connector connector = createConnector();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 1, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 1, 3);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        final SubscriptionOperation request1 =
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UPDATE, null);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UPDATE, null);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UPDATE, null);
-        requests.add(request1);
-        requests.add(request2);
-        requests.add(request3);
+        operations.add(operation1);
+        operations.add(operation2);
+        operations.add(operation3);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(r -> r.markAsInProgress(requestId));
 
         createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
         // Address2 is already implicit ...
@@ -2698,36 +2700,38 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         ReplicantTestUtil.noCheckInvariants();
 
-        connector.removeUnneededUpdateRequests(requests);
+        connector.removeUnneededSubscriptionUpdateOperations(operations);
 
-        assertEquals(requests.size(), 2);
-        assertTrue(requests.contains(request1));
-        assertTrue(requests.contains(request2));
-        assertTrue(request1.isInProgress());
-        assertTrue(request2.isInProgress());
-        assertFalse(request3.isInProgress());
+        assertEquals(operations.size(), 2);
+        assertTrue(operations.contains(operation1));
+        assertTrue(operations.contains(operation2));
+        assertTrue(operation1.isInProgress());
+        assertTrue(operation2.isInProgress());
+        assertFalse(operation3.isInProgress());
     }
 
     @Test
-    public void removeUnneededUpdateRequests_noSubscription() {
+    public void removeUnneededSubscriptionUpdateOperations_noSubscription() {
         final Connector connector = createConnector();
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 1, 1);
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        final SubscriptionOperation request1 =
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UPDATE, null);
-        requests.add(request1);
+        operations.add(operation1);
 
         final int requestId = newRequest(newConnection(connector)).getRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(r -> r.markAsInProgress(requestId));
 
         final IllegalStateException exception = expectThrows(
-                IllegalStateException.class, () -> safeAction(() -> connector.removeUnneededUpdateRequests(requests)));
+                IllegalStateException.class,
+                () -> safeAction(() -> connector.removeUnneededSubscriptionUpdateOperations(operations)));
 
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0048: Request to update Subscription at Dataset Address 1.1.1 but no Subscription exists.");
+                "Replicant-0048: Subscription Operation to update Subscription at Dataset Address 1.1.1 but no"
+                        + " Subscription exists.");
     }
 
     @Test
@@ -3065,7 +3069,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequest_onSuccess() {
+    public void progressSubscribeOperation_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3085,12 +3089,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request);
+        connection.injectCurrentSubscriptionOperation(operation);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3107,7 +3111,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressAreaOfInterestAddRequest(request);
+        connector.progressSubscribeOperation(operation);
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3121,7 +3125,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequest_onSuccess_DatasetCacheEntryNotStoredLocally() {
+    public void progressSubscribeOperation_onSuccess_DatasetCacheEntryNotStoredLocally() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3143,10 +3147,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
-        connection.injectCurrentSubscriptionOperation(request);
+        connection.injectCurrentSubscriptionOperation(operation);
 
         Replicant.context().setDatasetCacheService(new TestDatasetCacheService());
 
@@ -3163,7 +3167,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressAreaOfInterestAddRequest(request);
+        connector.progressSubscribeOperation(operation);
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3177,7 +3181,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequest_onSuccess_DatasetCacheEntryStoredLocally() {
+    public void progressSubscribeOperation_onSuccess_DatasetCacheEntryStoredLocally() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3197,13 +3201,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request);
+        connection.injectCurrentSubscriptionOperation(operation);
 
         final TestDatasetCacheService datasetCacheService = new TestDatasetCacheService();
         Replicant.context().setDatasetCacheService(datasetCacheService);
@@ -3224,7 +3228,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressAreaOfInterestAddRequest(request);
+        connector.progressSubscribeOperation(operation);
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3241,7 +3245,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void progressBulkAreaOfInterestAddRequests_onSuccess() {
+    public void progressBulkSubscribeOperations_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3263,11 +3267,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
@@ -3276,9 +3280,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription2 = createSubscription(datasetAddress2, null, SubscriptionMode.EXPLICIT);
         final Subscription subscription3 = createSubscription(datasetAddress3, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request1);
-        connection.injectCurrentSubscriptionOperation(request2);
-        connection.injectCurrentSubscriptionOperation(request3);
+        connection.injectCurrentSubscriptionOperation(operation1);
+        connection.injectCurrentSubscriptionOperation(operation2);
+        connection.injectCurrentSubscriptionOperation(operation3);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3297,7 +3301,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressBulkAreaOfInterestAddRequests(Arrays.asList(request1, request2, request3));
+        connector.progressBulkSubscribeOperations(Arrays.asList(operation1, operation2, operation3));
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3321,7 +3325,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestAddRequests_onFailure_zeroRequests() {
+    public void progressSubscribeOperations_onFailure_zeroOperations() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3341,20 +3345,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        // Pass in empty requests list to simulate that they are all filtered out
-        connector.progressAreaOfInterestAddRequests(requests);
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        // Pass in empty operations list to simulate that they are all filtered out
+        connector.progressSubscribeOperations(operations);
 
         assertTrue(connection.getCurrentSubscriptionOperations().isEmpty());
 
@@ -3362,7 +3366,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestUpdateRequest_onSuccess() {
+    public void progressSubscriptionUpdateOperation_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3382,14 +3386,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request);
+        connection.injectCurrentSubscriptionOperation(operation);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3404,7 +3408,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressAreaOfInterestUpdateRequest(request);
+        connector.progressSubscriptionUpdateOperation(operation);
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3419,7 +3423,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void progressBulkAreaOfInterestUpdateRequests_onSuccess() {
+    public void progressBulkSubscriptionUpdateOperations_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3441,11 +3445,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UPDATE, filterParameter);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UPDATE, filterParameter);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UPDATE, filterParameter);
 
         pauseScheduler();
@@ -3454,9 +3458,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription2 = createSubscription(datasetAddress2, null, SubscriptionMode.EXPLICIT);
         final Subscription subscription3 = createSubscription(datasetAddress3, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request1);
-        connection.injectCurrentSubscriptionOperation(request2);
-        connection.injectCurrentSubscriptionOperation(request3);
+        connection.injectCurrentSubscriptionOperation(operation1);
+        connection.injectCurrentSubscriptionOperation(operation2);
+        connection.injectCurrentSubscriptionOperation(operation3);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3475,7 +3479,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressBulkAreaOfInterestUpdateRequests(Arrays.asList(request1, request2, request3));
+        connector.progressBulkSubscriptionUpdateOperations(Arrays.asList(operation1, operation2, operation3));
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3499,7 +3503,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestUpdateRequests_onFailure_zeroRequests() {
+    public void progressSubscriptionUpdateOperations_onFailure_zeroOperations() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3519,20 +3523,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        // Pass in empty requests list to simulate that they are all filtered out
-        connector.progressAreaOfInterestUpdateRequests(requests);
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        // Pass in empty operations list to simulate that they are all filtered out
+        connector.progressSubscriptionUpdateOperations(operations);
 
         assertTrue(connection.getCurrentSubscriptionOperations().isEmpty());
 
@@ -3540,7 +3544,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestRemoveRequest_onSuccess() {
+    public void progressUnsubscribeOperation_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3559,14 +3563,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
-        final SubscriptionOperation request =
+        final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.UNSUBSCRIBE, null);
 
         pauseScheduler();
 
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request);
+        connection.injectCurrentSubscriptionOperation(operation);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3581,7 +3585,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressAreaOfInterestRemoveRequest(request);
+        connector.progressUnsubscribeOperation(operation);
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3596,7 +3600,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void progressBulkAreaOfInterestRemoveRequests_onSuccess() {
+    public void progressBulkUnsubscribeOperations_onSuccess() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3617,11 +3621,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final DatasetAddress datasetAddress2 = new DatasetAddress(1, 0, 2);
         final DatasetAddress datasetAddress3 = new DatasetAddress(1, 0, 3);
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request2 =
+        final SubscriptionOperation operation2 =
                 new SubscriptionOperation(datasetAddress2, SubscriptionOperation.Type.UNSUBSCRIBE, null);
-        final SubscriptionOperation request3 =
+        final SubscriptionOperation operation3 =
                 new SubscriptionOperation(datasetAddress3, SubscriptionOperation.Type.UNSUBSCRIBE, null);
 
         pauseScheduler();
@@ -3630,9 +3634,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription2 = createSubscription(datasetAddress2, null, SubscriptionMode.EXPLICIT);
         final Subscription subscription3 = createSubscription(datasetAddress3, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request1);
-        connection.injectCurrentSubscriptionOperation(request2);
-        connection.injectCurrentSubscriptionOperation(request3);
+        connection.injectCurrentSubscriptionOperation(operation1);
+        connection.injectCurrentSubscriptionOperation(operation2);
+        connection.injectCurrentSubscriptionOperation(operation3);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3651,7 +3655,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        connector.progressBulkAreaOfInterestRemoveRequests(Arrays.asList(request1, request2, request3));
+        connector.progressBulkUnsubscribeOperations(Arrays.asList(operation1, operation2, operation3));
 
         assertEquals(callCount.get(), 1);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3675,7 +3679,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void progressAreaOfInterestRemoveRequests_onFailure_zeroRequests() {
+    public void progressUnsubscribeOperations_onFailure_zeroOperations() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -3694,20 +3698,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
 
         pauseScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
 
-        final ArrayList<SubscriptionOperation> requests = new ArrayList<>();
-        // Pass in empty requests list to simulate that they are all filtered out
-        connector.progressAreaOfInterestRemoveRequests(requests);
+        final ArrayList<SubscriptionOperation> operations = new ArrayList<>();
+        // Pass in empty operations list to simulate that they are all filtered out
+        connector.progressUnsubscribeOperations(operations);
 
         assertTrue(connection.getCurrentSubscriptionOperations().isEmpty());
 
@@ -3767,14 +3771,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
 
-        request1.markAsInProgress(newRequest(connection).getRequestId());
+        operation1.markAsInProgress(newRequest(connection).getRequestId());
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3808,12 +3812,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.SUBSCRIBE, filterParameter);
 
         pauseScheduler();
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3848,13 +3852,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UPDATE, filterParameter);
 
         pauseScheduler();
 
         createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
@@ -3889,14 +3893,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final DatasetAddress datasetAddress1 = new DatasetAddress(1, 0, 1);
-        final SubscriptionOperation request1 =
+        final SubscriptionOperation operation1 =
                 new SubscriptionOperation(datasetAddress1, SubscriptionOperation.Type.UNSUBSCRIBE, null);
 
         pauseScheduler();
 
         createSubscription(datasetAddress1, null, SubscriptionMode.EXPLICIT);
 
-        connection.injectCurrentSubscriptionOperation(request1);
+        connection.injectCurrentSubscriptionOperation(operation1);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 

@@ -761,9 +761,9 @@ abstract class Connector extends ReplicantService {
     private void completeSubscriptionOperations(@NonNull final MessageResponse response) {
         final RequestEntry request = response.getRequest();
         if (null != request) {
-            final List<SubscriptionOperation> requests = ensureConnection().getActiveSubscriptionOperations();
-            if (!requests.isEmpty() && requests.get(0).getRequestId() == request.getRequestId()) {
-                completeSubscriptionOperations(requests);
+            final List<SubscriptionOperation> operations = ensureConnection().getActiveSubscriptionOperations();
+            if (!operations.isEmpty() && operations.get(0).getRequestId() == request.getRequestId()) {
+                completeSubscriptionOperations(operations);
             }
         }
     }
@@ -886,22 +886,22 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action(verifyRequired = false)
-    void removeUnneededUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
-        requests.removeIf(a -> {
-            final DatasetAddress datasetAddress = a.getDatasetAddress();
+    void removeUnneededSubscriptionUpdateOperations(@NonNull final List<SubscriptionOperation> operations) {
+        operations.removeIf(operation -> {
+            final DatasetAddress datasetAddress = operation.getDatasetAddress();
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0048: Request to update Subscription at Dataset Address " + datasetAddress
-                                + " but no Subscription exists.");
+                        () -> "Replicant-0048: Subscription Operation to update Subscription at Dataset Address "
+                                + datasetAddress + " but no Subscription exists.");
             }
             // The following code can probably be removed but it was present in the previous system
             // and it is unclear if there is any scenarios where it can still happen. The code has
             // been left in until we can verify it is no longer an issue. The above invariants will trigger
             // in development mode to help us track down these scenarios
             if (null == subscription) {
-                a.markAsComplete();
+                operation.markAsComplete();
                 return true;
             } else {
                 return false;
@@ -910,19 +910,19 @@ abstract class Connector extends ReplicantService {
     }
 
     @Action(verifyRequired = false)
-    void removeUnneededRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
-        requests.removeIf(request -> {
-            final DatasetAddress datasetAddress = request.getDatasetAddress();
+    void removeUnneededUnsubscribeOperations(@NonNull final List<SubscriptionOperation> operations) {
+        operations.removeIf(operation -> {
+            final DatasetAddress datasetAddress = operation.getDatasetAddress();
             final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
             if (Replicant.shouldCheckInvariants()) {
                 invariant(
                         () -> null != subscription,
-                        () -> "Replicant-0046: Request to unsubscribe at Dataset Address " + datasetAddress
-                                + " but no Subscription exists.");
+                        () -> "Replicant-0046: Unsubscribe Operation at Dataset Address " + datasetAddress
+                                + " has no Subscription.");
                 invariant(
                         () -> null == subscription || SubscriptionMode.EXPLICIT == subscription.getMode(),
-                        () -> "Replicant-0047: Request to unsubscribe at Dataset Address " + datasetAddress
-                                + " but Subscription is not in Explicit Subscription Mode.");
+                        () -> "Replicant-0047: Unsubscribe Operation at Dataset Address " + datasetAddress
+                                + " targets a Subscription that is not in Explicit Subscription Mode.");
             }
             // The following code can probably be removed but it was present in the previous system
             // and it is unclear if there is any scenarios where it can still happen. The code has
@@ -932,7 +932,7 @@ abstract class Connector extends ReplicantService {
                 // We were getting here if a Dataset Address Invalidation was reported after removal of its Dataset
                 // Root was delivered to the client. That delivery explicitly unsubscribes, which gets sent back a
                 // successful unsubscribe even though the Subscription had already been orphaned or invalidated.
-                request.markAsComplete();
+                operation.markAsComplete();
                 return true;
             } else {
                 return false;
@@ -1088,24 +1088,22 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    /**
-     * Perform a single step in sending one (or a batch) or requests to the server.
-     */
+    /** Perform one step in sending one or more Subscription Operations to the server. */
     boolean progressSubscriptionOperationProcessing() {
-        final List<SubscriptionOperation> requests =
+        final List<SubscriptionOperation> operations =
                 new ArrayList<>(ensureConnection().getCurrentSubscriptionOperations());
-        if (requests.isEmpty()) {
+        if (operations.isEmpty()) {
             return false;
-        } else if (requests.get(0).isInProgress()) {
+        } else if (operations.get(0).isInProgress()) {
             return false;
         } else {
-            final SubscriptionOperation.Type type = requests.get(0).getType();
+            final SubscriptionOperation.Type type = operations.get(0).getType();
             if (SubscriptionOperation.Type.SUBSCRIBE == type) {
-                progressAreaOfInterestAddRequests(requests);
+                progressSubscribeOperations(operations);
             } else if (SubscriptionOperation.Type.UNSUBSCRIBE == type) {
-                progressAreaOfInterestRemoveRequests(requests);
+                progressUnsubscribeOperations(operations);
             } else {
-                progressAreaOfInterestUpdateRequests(requests);
+                progressSubscriptionUpdateOperations(operations);
             }
             return true;
         }
@@ -1127,103 +1125,104 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void progressAreaOfInterestAddRequests(@NonNull final List<SubscriptionOperation> requests) {
-        // We very deliberately do not strip out requests even if there is a local subscription.
-        // If the local subscription matched exactly the request would not make it to here and
-        // If an Area of Interest is moving a Subscription from Implicit to Explicit Subscription Mode, let the
-        // to let it flow through to backend so that the backend knows that the subscription has
-        // server observe the mode transition.
-        if (requests.isEmpty()) {
+    void progressSubscribeOperations(@NonNull final List<SubscriptionOperation> operations) {
+        // Do not strip out operations merely because there is a local Subscription. An equal local Subscription would
+        // prevent the operation reaching this point, while the server must observe an operation that moves a
+        // Subscription from Implicit to Explicit Subscription Mode.
+        if (operations.isEmpty()) {
             completeSubscriptionOperation();
-        } else if (1 == requests.size()) {
-            progressAreaOfInterestAddRequest(requests.get(0));
+        } else if (1 == operations.size()) {
+            progressSubscribeOperation(operations.get(0));
         } else {
-            progressBulkAreaOfInterestAddRequests(requests);
+            progressBulkSubscribeOperations(operations);
         }
     }
 
-    void progressAreaOfInterestAddRequest(@NonNull final SubscriptionOperation request) {
-        final DatasetAddress datasetAddress = request.getDatasetAddress();
+    void progressSubscribeOperation(@NonNull final SubscriptionOperation operation) {
+        final DatasetAddress datasetAddress = operation.getDatasetAddress();
         onSubscribeStarted(datasetAddress);
 
-        _transport.requestSubscribe(request.getDatasetAddress(), request.getFilterParameter());
-        request.markAsInProgress(ensureConnection().getLastTxRequestId());
+        _transport.requestSubscribe(operation.getDatasetAddress(), operation.getFilterParameter());
+        operation.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
-    void progressBulkAreaOfInterestAddRequests(@NonNull final List<SubscriptionOperation> requests) {
-        final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
+    void progressBulkSubscribeOperations(@NonNull final List<SubscriptionOperation> operations) {
+        final List<DatasetAddress> datasetAddresses = operations.stream()
+                .map(SubscriptionOperation::getDatasetAddress)
+                .collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscribeStarted);
 
-        _transport.requestBulkSubscribe(datasetAddresses, requests.get(0).getFilterParameter());
+        _transport.requestBulkSubscribe(datasetAddresses, operations.get(0).getFilterParameter());
         final int requestId = ensureConnection().getLastTxRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(operation -> operation.markAsInProgress(requestId));
     }
 
-    void progressAreaOfInterestUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
-        removeUnneededUpdateRequests(requests);
+    void progressSubscriptionUpdateOperations(@NonNull final List<SubscriptionOperation> operations) {
+        removeUnneededSubscriptionUpdateOperations(operations);
 
-        if (requests.isEmpty()) {
+        if (operations.isEmpty()) {
             completeSubscriptionOperation();
-        } else if (requests.size() > 1) {
-            progressBulkAreaOfInterestUpdateRequests(requests);
+        } else if (operations.size() > 1) {
+            progressBulkSubscriptionUpdateOperations(operations);
         } else {
-            progressAreaOfInterestUpdateRequest(requests.get(0));
+            progressSubscriptionUpdateOperation(operations.get(0));
         }
     }
 
-    void progressAreaOfInterestUpdateRequest(@NonNull final SubscriptionOperation request) {
-        final DatasetAddress datasetAddress = request.getDatasetAddress();
+    void progressSubscriptionUpdateOperation(@NonNull final SubscriptionOperation operation) {
+        final DatasetAddress datasetAddress = operation.getDatasetAddress();
         onSubscriptionUpdateStarted(datasetAddress);
 
-        final Object filterParameter = request.getFilterParameter();
+        final Object filterParameter = operation.getFilterParameter();
         assert null != filterParameter;
         _transport.requestSubscribe(datasetAddress, filterParameter);
         final int requestId = ensureConnection().getLastTxRequestId();
-        request.markAsInProgress(requestId);
+        operation.markAsInProgress(requestId);
     }
 
-    void progressBulkAreaOfInterestUpdateRequests(@NonNull final List<SubscriptionOperation> requests) {
-        final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
+    void progressBulkSubscriptionUpdateOperations(@NonNull final List<SubscriptionOperation> operations) {
+        final List<DatasetAddress> datasetAddresses = operations.stream()
+                .map(SubscriptionOperation::getDatasetAddress)
+                .collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscriptionUpdateStarted);
 
         // All Filter Parameters will be the same if they are grouped
-        final Object filterParameter = requests.get(0).getFilterParameter();
+        final Object filterParameter = operations.get(0).getFilterParameter();
         assert null != filterParameter;
         _transport.requestBulkSubscribe(datasetAddresses, filterParameter);
         final int requestId = ensureConnection().getLastTxRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(operation -> operation.markAsInProgress(requestId));
     }
 
-    void progressAreaOfInterestRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
-        removeUnneededRemoveRequests(requests);
+    void progressUnsubscribeOperations(@NonNull final List<SubscriptionOperation> operations) {
+        removeUnneededUnsubscribeOperations(operations);
 
-        if (requests.isEmpty()) {
+        if (operations.isEmpty()) {
             completeSubscriptionOperation();
-        } else if (requests.size() > 1) {
-            progressBulkAreaOfInterestRemoveRequests(requests);
+        } else if (operations.size() > 1) {
+            progressBulkUnsubscribeOperations(operations);
         } else {
-            progressAreaOfInterestRemoveRequest(requests.get(0));
+            progressUnsubscribeOperation(operations.get(0));
         }
     }
 
-    void progressAreaOfInterestRemoveRequest(@NonNull final SubscriptionOperation request) {
-        final DatasetAddress datasetAddress = request.getDatasetAddress();
+    void progressUnsubscribeOperation(@NonNull final SubscriptionOperation operation) {
+        final DatasetAddress datasetAddress = operation.getDatasetAddress();
         onUnsubscribeStarted(datasetAddress);
 
         _transport.requestUnsubscribe(datasetAddress);
-        request.markAsInProgress(ensureConnection().getLastTxRequestId());
+        operation.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
-    void progressBulkAreaOfInterestRemoveRequests(@NonNull final List<SubscriptionOperation> requests) {
-        final List<DatasetAddress> datasetAddresses =
-                requests.stream().map(SubscriptionOperation::getDatasetAddress).collect(Collectors.toList());
+    void progressBulkUnsubscribeOperations(@NonNull final List<SubscriptionOperation> operations) {
+        final List<DatasetAddress> datasetAddresses = operations.stream()
+                .map(SubscriptionOperation::getDatasetAddress)
+                .collect(Collectors.toList());
         datasetAddresses.forEach(this::onUnsubscribeStarted);
 
         _transport.requestBulkUnsubscribe(datasetAddresses);
         final int requestId = ensureConnection().getLastTxRequestId();
-        requests.forEach(r -> r.markAsInProgress(requestId));
+        operations.forEach(operation -> operation.markAsInProgress(requestId));
     }
 
     /**
