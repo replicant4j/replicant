@@ -85,6 +85,8 @@ state is shared between Contexts.
 
 A Zone is only an activation scope that selects which Replicant Context is returned by `Replicant.context()`. It is
 not a Replicant Session. A Replicant Session is the distinct server-side state for one active transport session.
+Each Replicant Session may carry an opaque application Principal supplied by its authorization adapter and available
+to server-side replication logic.
 
 ### Datasets and Subscriptions
 

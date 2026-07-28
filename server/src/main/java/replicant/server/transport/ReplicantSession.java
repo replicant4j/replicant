@@ -60,7 +60,7 @@ public final class ReplicantSession implements Serializable, Closeable {
     private String _authToken;
 
     @Nullable
-    private Object _userObject;
+    private Object _principal;
 
     private boolean _authorizationClosed;
 
@@ -72,18 +72,26 @@ public final class ReplicantSession implements Serializable, Closeable {
             @NonNull final Session webSocketSession, @Nullable final ReplicantSessionAuthorization authorization) {
         _webSocketSession = Objects.requireNonNull(webSocketSession);
         _authorization = authorization;
-        _userObject = null == authorization ? null : authorization.getPrincipal();
+        _principal = null == authorization ? null : authorization.getPrincipal();
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Return the Principal associated with this Replicant Session.
+     *
+     * @return the Principal, or null if no Principal is associated with the session.
+     */
     @Nullable
-    public Object getUserObject() {
-        return _userObject;
+    public Object getPrincipal() {
+        return _principal;
     }
 
-    @SuppressWarnings("unused")
-    public void setUserObject(@Nullable final Object userObject) {
-        _userObject = userObject;
+    /**
+     * Associate a Principal with this Replicant Session.
+     *
+     * @param principal the Principal, or null to remove the current Principal.
+     */
+    public void setPrincipal(@Nullable final Object principal) {
+        _principal = principal;
     }
 
     public void closeDueToInterrupt() {

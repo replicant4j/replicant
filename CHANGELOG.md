@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Replace the generic Replicant Session User Object with the Principal domain concept. Rename the public session
+  accessors and backing state to `getPrincipal()` and `setPrincipal(...)`, update server integrations, and document the
+  opaque application identity carried by a Replicant Session. This is a hard-cut server API migration with no
+  compatibility aliases.
 * Adopt Initiating Session Change Set terminology for the Change Set accumulated during a Replication Invocation and
   delivered only to its initiating Replicant Session. Replace generic session-change cache APIs and variables with
   explicit Initiating Session Change Set names. This is a hard-cut server API migration with no compatibility aliases.

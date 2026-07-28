@@ -28,6 +28,23 @@ import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
 public class ReplicantSessionTest {
+    @Test
+    public void principal() {
+        final var authorization = mock(ReplicantSessionAuthorization.class);
+        final var initialPrincipal = new Object();
+        when(authorization.getPrincipal()).thenReturn(initialPrincipal);
+
+        final var session = new ReplicantSession(mock(Session.class), authorization);
+        assertSame(session.getPrincipal(), initialPrincipal);
+
+        final var replacementPrincipal = new Object();
+        session.setPrincipal(replacementPrincipal);
+        assertSame(session.getPrincipal(), replacementPrincipal);
+
+        session.setPrincipal(null);
+        assertNull(session.getPrincipal());
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Test
     public void basicOperation() {

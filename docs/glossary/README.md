@@ -36,9 +36,17 @@ _Avoid_: Sync when referring to the protocol checkpoint
 ### Replicant Session
 
 The server-side state associated with one active Replicant transport session, including authorization,
-[Subscription](#subscription) state, [Dataset Cache Version](#dataset-cache-version) values, and queued changes.
+[Principal](#principal), [Subscription](#subscription) state,
+[Dataset Cache Version](#dataset-cache-version) values, and queued changes.
 
 _Avoid_: Client session, WebSocket Session when referring to Replicant-owned state
+
+### Principal
+
+An opaque application identity associated with a [Replicant Session](#replicant-session) and available to server-side
+replication logic. Replicant does not interpret its type or contents.
+
+_Avoid_: User Object, session user object
 
 ### Entity Type
 
