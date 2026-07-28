@@ -2,12 +2,15 @@
 
 ### Unreleased
 
+* Adopt Initiating Session Change Set terminology for the Change Set accumulated during a Replication Invocation and
+  delivered only to its initiating Replicant Session. Replace generic session-change cache APIs and variables with
+  explicit Initiating Session Change Set names. This is a hard-cut server API migration with no compatibility aliases.
 * Make Entity Type ID and Entity ID explicit throughout the replication model. Replace generic `type`, `typeId`, and
   `id` APIs on Entity Type, Entity Change Candidate, Entity Change, and Replica Entry paths with domain-specific
   names, and replace the compact Entity Change wire field `"id":"42.17"` with separate integer `entityTypeId` and
   `entityId` fields. This is a hard-cut client, server, and wire-protocol migration with no compatibility aliases.
 * Adopt Replication Invocation terminology for the server-side application boundary that captures Entity Change
-  Candidates and initiating-session Change Set changes. Replace `@Replicate`, `ReplicationInterceptor`, and generic
+  Candidates and an Initiating Session Change Set. Replace `@Replicate`, `ReplicationInterceptor`, and generic
   request-running APIs with `@ReplicationInvocation`, `ReplicationInvocationInterceptor`, and explicit Replication
   Invocation lifecycle names across Replicant, Domgen, and generated Rose services. This is a hard-cut server and
   generator API migration with no compatibility aliases.

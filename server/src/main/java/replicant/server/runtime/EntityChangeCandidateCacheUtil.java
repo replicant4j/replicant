@@ -8,7 +8,7 @@ import replicant.server.EntityChangeCandidateSet;
 import replicant.server.ServerConstants;
 
 /**
- * Some utility methods for interacting with the TransactionSynchronizationRegistry to access an EntityChangeCandidateSet.
+ * Utility methods for accessing Replication Invocation resources in the TransactionSynchronizationRegistry.
  */
 public final class EntityChangeCandidateCacheUtil {
     /**
@@ -16,9 +16,9 @@ public final class EntityChangeCandidateCacheUtil {
      */
     private static final String KEY = EntityChangeCandidateSet.class.getName();
     /**
-     * Key used to lookup client specific changes. Should not be routed.
+     * Key used to look up the Initiating Session Change Set. Its changes are not routed.
      */
-    private static final String SESSION_KEY = KEY + "/Session";
+    private static final String INITIATING_SESSION_CHANGE_SET_KEY = KEY + "/InitiatingSessionChangeSet";
 
     private EntityChangeCandidateCacheUtil() {}
 
@@ -49,39 +49,72 @@ public final class EntityChangeCandidateCacheUtil {
         return remove(r, KEY);
     }
 
+    /**
+     * Return the Initiating Session Change Set, creating it if necessary.
+     *
+     * @return the Initiating Session Change Set.
+     */
     @NonNull
-    public static ChangeSet getSessionChanges() {
-        return getSessionChanges(TransactionSynchronizationRegistryUtil.lookup());
+    public static ChangeSet getInitiatingSessionChangeSet() {
+        return getInitiatingSessionChangeSet(TransactionSynchronizationRegistryUtil.lookup());
     }
 
+    /**
+     * Return the Initiating Session Change Set, creating it if necessary.
+     *
+     * @param r the TransactionSynchronizationRegistry containing the Replication Invocation resources.
+     * @return the Initiating Session Change Set.
+     */
     @NonNull
-    public static ChangeSet getSessionChanges(@NonNull final TransactionSynchronizationRegistry r) {
-        var changes = EntityChangeCandidateCacheUtil.<ChangeSet>lookup(r, SESSION_KEY);
-        if (null == changes) {
-            changes = new ChangeSet();
-            r.putResource(SESSION_KEY, changes);
+    public static ChangeSet getInitiatingSessionChangeSet(@NonNull final TransactionSynchronizationRegistry r) {
+        var changeSet = EntityChangeCandidateCacheUtil.<ChangeSet>lookup(r, INITIATING_SESSION_CHANGE_SET_KEY);
+        if (null == changeSet) {
+            changeSet = new ChangeSet();
+            r.putResource(INITIATING_SESSION_CHANGE_SET_KEY, changeSet);
         }
-        return changes;
+        return changeSet;
     }
 
+    /**
+     * Return the Initiating Session Change Set if one exists.
+     *
+     * @return the Initiating Session Change Set, or null if none exists.
+     */
     @Nullable
-    public static ChangeSet lookupSessionChanges() {
-        return lookupSessionChanges(TransactionSynchronizationRegistryUtil.lookup());
+    public static ChangeSet lookupInitiatingSessionChangeSet() {
+        return lookupInitiatingSessionChangeSet(TransactionSynchronizationRegistryUtil.lookup());
     }
 
+    /**
+     * Return the Initiating Session Change Set if one exists.
+     *
+     * @param r the TransactionSynchronizationRegistry containing the Replication Invocation resources.
+     * @return the Initiating Session Change Set, or null if none exists.
+     */
     @Nullable
-    public static ChangeSet lookupSessionChanges(@NonNull final TransactionSynchronizationRegistry r) {
-        return lookup(r, SESSION_KEY);
+    public static ChangeSet lookupInitiatingSessionChangeSet(@NonNull final TransactionSynchronizationRegistry r) {
+        return lookup(r, INITIATING_SESSION_CHANGE_SET_KEY);
     }
 
+    /**
+     * Remove and return the Initiating Session Change Set if one exists.
+     *
+     * @return the removed Initiating Session Change Set, or null if none exists.
+     */
     @Nullable
-    public static ChangeSet removeSessionChanges() {
-        return removeSessionChanges(TransactionSynchronizationRegistryUtil.lookup());
+    public static ChangeSet removeInitiatingSessionChangeSet() {
+        return removeInitiatingSessionChangeSet(TransactionSynchronizationRegistryUtil.lookup());
     }
 
+    /**
+     * Remove and return the Initiating Session Change Set if one exists.
+     *
+     * @param r the TransactionSynchronizationRegistry containing the Replication Invocation resources.
+     * @return the removed Initiating Session Change Set, or null if none exists.
+     */
     @Nullable
-    public static ChangeSet removeSessionChanges(@NonNull final TransactionSynchronizationRegistry r) {
-        return remove(r, SESSION_KEY);
+    public static ChangeSet removeInitiatingSessionChangeSet(@NonNull final TransactionSynchronizationRegistry r) {
+        return remove(r, INITIATING_SESSION_CHANGE_SET_KEY);
     }
 
     private static <T> T remove(@NonNull final TransactionSynchronizationRegistry r, @NonNull final String key) {

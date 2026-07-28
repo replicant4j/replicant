@@ -452,9 +452,9 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     void bulkUnsubscribe(
-            @NonNull final List<DatasetAddress> datasetAddresses, @NonNull final ChangeSet sessionChanges) {
+            @NonNull final List<DatasetAddress> datasetAddresses, @NonNull final ChangeSet initiatingSessionChangeSet) {
         for (final var datasetAddress : datasetAddresses) {
-            unsubscribe(datasetAddress, sessionChanges);
+            unsubscribe(datasetAddress, initiatingSessionChangeSet);
         }
     }
 

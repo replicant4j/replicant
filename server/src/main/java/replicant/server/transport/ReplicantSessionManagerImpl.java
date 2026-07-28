@@ -226,14 +226,15 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             var requestComplete = true;
             final var entityChangeCandidateSet =
                     EntityChangeCandidateCacheUtil.removeEntityChangeCandidateSet(_registry);
-            final var changeSet = EntityChangeCandidateCacheUtil.removeSessionChanges(_registry);
-            if (null != entityChangeCandidateSet || null != changeSet || null != requestId) {
+            final var initiatingSessionChangeSet =
+                    EntityChangeCandidateCacheUtil.removeInitiatingSessionChangeSet(_registry);
+            if (null != entityChangeCandidateSet || null != initiatingSessionChangeSet || null != requestId) {
                 final var entityChangeCandidates = null == entityChangeCandidateSet
                         ? Collections.<EntityChangeCandidate>emptySet()
                         : entityChangeCandidateSet.getEntityChangeCandidates();
-                if (null != changeSet || !entityChangeCandidates.isEmpty() || null != requestId) {
+                if (null != initiatingSessionChangeSet || !entityChangeCandidates.isEmpty() || null != requestId) {
                     requestComplete = !saveEntityChangeCandidates(
-                            sessionId, requestId, response, entityChangeCandidates, changeSet);
+                            sessionId, requestId, response, entityChangeCandidates, initiatingSessionChangeSet);
                 }
             }
             final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
@@ -421,7 +422,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
-            @Nullable final ChangeSet sessionChanges) {
+            @Nullable final ChangeSet initiatingSessionChangeSet) {
         var impactsInitiator = false;
 
         // Invalidate Dataset Cache Entries affected by each Entity Change Candidate.
@@ -440,10 +441,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (session.isOpen()) {
                 final var changeSet = new ChangeSet();
                 if (isInitiator) {
-                    if (null != sessionChanges) {
-                        changeSet.setRequired(sessionChanges.isRequired());
-                        changeSet.merge(sessionChanges.getEntityChanges());
-                        changeSet.mergeSubscriptionChanges(sessionChanges.getSubscriptionChanges());
+                    if (null != initiatingSessionChangeSet) {
+                        changeSet.setRequired(initiatingSessionChangeSet.isRequired());
+                        changeSet.merge(initiatingSessionChangeSet.getEntityChanges());
+                        changeSet.mergeSubscriptionChanges(initiatingSessionChangeSet.getSubscriptionChanges());
                     }
 
                     /*
@@ -1008,11 +1009,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         : datasetAddresses.get(0).datasetId()) + ")";
         sessionUpdateRequest(key, session, requestId, () -> {
             if (session.isOpen()) {
-                final var sessionChanges = EntityChangeCandidateCacheUtil.getSessionChanges();
-                sessionChanges.setRequired(true);
+                final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
+                initiatingSessionChangeSet.setRequired(true);
                 datasetAddresses.forEach(
                         datasetAddress -> _context.preSubscribe(session, datasetAddress, filterParameter));
-                doSubscribe(session, datasetAddresses, filterParameter, sessionChanges, SubscriptionMode.EXPLICIT);
+                doSubscribe(
+                        session,
+                        datasetAddresses,
+                        filterParameter,
+                        initiatingSessionChangeSet,
+                        SubscriptionMode.EXPLICIT);
             }
         });
     }
@@ -1323,9 +1329,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 : "BulkUnsubscribe(" + datasetAddresses.get(0).datasetId() + ")";
         sessionUpdateRequest(invocationKey, session, requestId, () -> {
             if (session.isOpen()) {
-                final var sessionChanges = EntityChangeCandidateCacheUtil.getSessionChanges();
-                sessionChanges.setRequired(true);
-                session.bulkUnsubscribe(datasetAddresses, sessionChanges);
+                final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
+                initiatingSessionChangeSet.setRequired(true);
+                session.bulkUnsubscribe(datasetAddresses, initiatingSessionChangeSet);
             }
         });
     }

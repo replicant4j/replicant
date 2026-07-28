@@ -1161,10 +1161,13 @@ public class ReplicantSessionManagerImplTest {
             session.getLock().unlock();
         }
 
-        final var sessionChanges = Objects.requireNonNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
-        assertEquals(sessionChanges.getSubscriptionChanges().size(), 2);
-        assertEquals(sessionChanges.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
-        assertEquals(sessionChanges.getSubscriptionChanges().get(1).type(), SubscriptionChange.Type.UNSUBSCRIBE);
+        final var initiatingSessionChangeSet =
+                Objects.requireNonNull(EntityChangeCandidateCacheUtil.lookupInitiatingSessionChangeSet());
+        assertEquals(initiatingSessionChangeSet.getSubscriptionChanges().size(), 2);
+        assertEquals(
+                initiatingSessionChangeSet.getSubscriptionChanges().get(0).type(), SubscriptionChange.Type.UNSUBSCRIBE);
+        assertEquals(
+                initiatingSessionChangeSet.getSubscriptionChanges().get(1).type(), SubscriptionChange.Type.UNSUBSCRIBE);
     }
 
     @Test

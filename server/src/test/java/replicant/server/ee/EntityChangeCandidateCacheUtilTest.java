@@ -44,22 +44,22 @@ public class EntityChangeCandidateCacheUtilTest {
     }
 
     @Test
-    public void clientEntityChangeCandidateSet() {
-        assertNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
+    public void initiatingSessionChangeSet() {
+        assertNull(EntityChangeCandidateCacheUtil.lookupInitiatingSessionChangeSet());
 
-        // Now we force the creation of EntityChangeCandidateSet
-        final var entityChangeCandidateSet = EntityChangeCandidateCacheUtil.getSessionChanges();
+        // Now we force the creation of the Initiating Session Change Set
+        final var initiatingSessionChangeSet = EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet();
 
-        assertNotNull(entityChangeCandidateSet);
-        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.lookupSessionChanges());
-        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.getSessionChanges());
+        assertNotNull(initiatingSessionChangeSet);
+        assertEquals(initiatingSessionChangeSet, EntityChangeCandidateCacheUtil.lookupInitiatingSessionChangeSet());
+        assertEquals(initiatingSessionChangeSet, EntityChangeCandidateCacheUtil.getInitiatingSessionChangeSet());
 
-        // Now we remove EntityChangeCandidateSet
-        assertEquals(entityChangeCandidateSet, EntityChangeCandidateCacheUtil.removeSessionChanges());
-        assertNull(EntityChangeCandidateCacheUtil.lookupSessionChanges());
+        // Now we remove the Initiating Session Change Set
+        assertEquals(initiatingSessionChangeSet, EntityChangeCandidateCacheUtil.removeInitiatingSessionChangeSet());
+        assertNull(EntityChangeCandidateCacheUtil.lookupInitiatingSessionChangeSet());
 
         // Duplicate remove returns null
-        assertNull(EntityChangeCandidateCacheUtil.removeSessionChanges());
+        assertNull(EntityChangeCandidateCacheUtil.removeInitiatingSessionChangeSet());
 
         // Ensure that it works with regular changes
         assertNull(EntityChangeCandidateCacheUtil.removeEntityChangeCandidateSet());
@@ -69,6 +69,6 @@ public class EntityChangeCandidateCacheUtilTest {
     public void lookupOfResourceOutsideReplicationInvocation() {
         TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
 
-        EntityChangeCandidateCacheUtil.lookupSessionChanges();
+        EntityChangeCandidateCacheUtil.lookupInitiatingSessionChangeSet();
     }
 }

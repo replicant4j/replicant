@@ -81,11 +81,19 @@ _Avoid_: Message, Entity message
 
 ### Replication Invocation
 
-A server-side application invocation during which [Entity Change Candidate](#entity-change-candidate) instances and
-initiating-session [Change Set](#change-set) changes are captured and submitted for replication after successful
-transaction completion.
+A server-side application invocation during which [Entity Change Candidate](#entity-change-candidate) instances and an
+[Initiating Session Change Set](#initiating-session-change-set) are captured and submitted for replication after
+successful transaction completion.
 
 _Avoid_: Service call, request, unit of work, transaction when referring specifically to the Replicant capture boundary
+
+### Initiating Session Change Set
+
+A [Change Set](#change-set) accumulated during a [Replication Invocation](#replication-invocation) and merged only into
+the Change Set delivered to the [Replicant Session](#replicant-session) that initiated the invocation. Its changes are
+not routed to other Replicant Sessions.
+
+_Avoid_: Session changes, session Change Set
 
 ### Replica
 
