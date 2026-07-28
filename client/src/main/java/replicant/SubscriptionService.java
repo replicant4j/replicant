@@ -91,7 +91,7 @@ abstract class SubscriptionService extends ReplicantService {
      * @return the set of Dataset Root IDs for all Instance Dataset subscriptions with the specified Dataset ID.
      */
     @NonNull
-    Set<Integer> getInstanceDatasetSubscriptionIds(final int systemSchemaId, final int datasetId) {
+    Set<Integer> getSubscribedDatasetRootIds(final int systemSchemaId, final int datasetId) {
         getInstanceDatasetSubscriptionsObservableValue().reportObserved();
         final Map<Integer, Map<Integer, Map<String, Subscription>>> datasetMaps =
                 _instanceDatasetSubscriptions.get(systemSchemaId);

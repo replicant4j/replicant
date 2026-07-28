@@ -76,8 +76,14 @@ public final class Dataset {
         UPDATABLE
     }
 
+    /**
+     * The compact Dataset identifier used in runtime metadata, Dataset Addresses, and transport messages.
+     */
     private final int _id;
 
+    /**
+     * The human-readable Dataset name used for diagnostics and Routing Key lookup.
+     */
     @NonNull
     private final String _name;
 
@@ -156,10 +162,20 @@ public final class Dataset {
         }
     }
 
+    /**
+     * Return the compact runtime ID of the Dataset definition.
+     *
+     * @return the Dataset ID.
+     */
     public int getId() {
         return _id;
     }
 
+    /**
+     * Return the human-readable Dataset name.
+     *
+     * @return the Dataset name.
+     */
     @NonNull
     public String getName() {
         return _name;

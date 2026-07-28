@@ -272,7 +272,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
         safeAction(() -> {
             assertEquals(context.getTypeDatasetSubscriptions().size(), 0);
             assertEquals(context.getInstanceDatasetSubscriptions().size(), 0);
-            assertEquals(context.getInstanceDatasetSubscriptionIds(1, 1).size(), 0);
+            assertEquals(context.getSubscribedDatasetRootIds(1, 1).size(), 0);
             assertNull(context.findSubscription(datasetAddress1));
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
@@ -288,7 +288,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
             assertEquals(context.getInstanceDatasetSubscriptions().size(), 0);
-            assertEquals(context.getInstanceDatasetSubscriptionIds(1, 1).size(), 0);
+            assertEquals(context.getSubscribedDatasetRootIds(1, 1).size(), 0);
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));
@@ -304,7 +304,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
             assertEquals(context.getInstanceDatasetSubscriptions().size(), 1);
-            assertEquals(context.getInstanceDatasetSubscriptionIds(1, 1).size(), 1);
+            assertEquals(context.getSubscribedDatasetRootIds(1, 1).size(), 1);
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertEquals(context.findSubscription(datasetAddress2), subscription2);
             assertNull(context.findSubscription(datasetAddress3));
@@ -320,7 +320,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
             assertEquals(context.getInstanceDatasetSubscriptions().size(), 2);
-            assertEquals(context.getInstanceDatasetSubscriptionIds(1, 1).size(), 2);
+            assertEquals(context.getSubscribedDatasetRootIds(1, 1).size(), 2);
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertEquals(context.findSubscription(datasetAddress2), subscription2);
             assertEquals(context.findSubscription(datasetAddress3), subscription3);
@@ -333,7 +333,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
             assertEquals(context.getTypeDatasetSubscriptions().size(), 1);
             assertEquals(context.getInstanceDatasetSubscriptions().size(), 0);
-            assertEquals(context.getInstanceDatasetSubscriptionIds(1, 1).size(), 0);
+            assertEquals(context.getSubscribedDatasetRootIds(1, 1).size(), 0);
             assertEquals(context.findSubscription(datasetAddress1), subscription1);
             assertNull(context.findSubscription(datasetAddress2));
             assertNull(context.findSubscription(datasetAddress3));

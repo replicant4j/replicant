@@ -15,7 +15,7 @@ public class SubscriptionChangeMessageTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void construct_withoutSubdatasetId() {
+    public void construct_withoutDatasetRootId() {
         final Object filterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage action = SubscriptionChangeMessage.create("-1", filterParameter);
 

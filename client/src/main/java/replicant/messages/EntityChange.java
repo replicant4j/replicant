@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
  * A change to an entity.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
-@SuppressWarnings("NullAway.Init")
+@SuppressWarnings( { "NullAway.Init", "NotNullFieldNotInitialized" } )
 public class EntityChange {
     private String id;
     private String[] datasetAddresses;

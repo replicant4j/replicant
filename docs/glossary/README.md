@@ -59,8 +59,9 @@ _Avoid_: Imitation, user object, client entity
 ### Dataset
 
 A reusable definition of a replicable population of [Entity](#entity) instances, including its selection shape and
-filtering behaviour. A [Subscription](#subscription) materializes that definition for one client at a
-[Dataset Address](#dataset-address).
+filtering behaviour. Within its [System Schema](#system-schema), the definition has a compact Dataset ID used by
+runtime metadata and [Dataset Address](#dataset-address) values, plus a human-readable Dataset name used for
+diagnostics. A [Subscription](#subscription) materializes that definition for one client at a Dataset Address.
 
 _Avoid_: Graph, channel, replication graph
 

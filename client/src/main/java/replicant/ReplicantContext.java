@@ -182,12 +182,12 @@ public final class ReplicantContext {
      * Return the collection of Instance Dataset subscriptions for the Dataset.
      *
      * @param systemSchemaId  the System Schema identifier.
-     * @param datasetId the Dataset id.
+     * @param datasetId the Dataset ID.
      * @return the set of Dataset Root identifiers for all Instance Dataset subscriptions to the specified Dataset.
      */
     @NonNull
-    public Set<Integer> getInstanceDatasetSubscriptionIds(final int systemSchemaId, final int datasetId) {
-        return getSubscriptionService().getInstanceDatasetSubscriptionIds(systemSchemaId, datasetId);
+    public Set<Integer> getSubscribedDatasetRootIds(final int systemSchemaId, final int datasetId) {
+        return getSubscriptionService().getSubscribedDatasetRootIds(systemSchemaId, datasetId);
     }
 
     /**

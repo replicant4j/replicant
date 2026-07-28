@@ -105,6 +105,11 @@ filtering behavior. A Subscription materializes that Dataset at a Dataset Addres
 an initial message containing the matching state of the world, followed by subsequent matching changes until it
 unsubscribes or disconnects.
 
+Within its System Schema, each Dataset definition has a compact Dataset ID used by runtime metadata and Dataset
+Addresses. It may also have a human-readable Dataset name for diagnostics. The Dataset ID identifies the reusable
+definition; it is distinct from the Dataset Root identifier and Dataset Key that complete particular Dataset
+Addresses.
+
 Datasets have several independent dimensions:
 
 * Selection shape: Type Dataset or Instance Dataset.

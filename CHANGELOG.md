@@ -2,6 +2,15 @@
 
 ### Unreleased
 
+* Adopt Dataset ID terminology for the compact identifier of a reusable Dataset definition within its System Schema:
+  * Rename the Domgen Dataset model property and DSL option from `code` to `id`, including ID-spaced System Schema
+    metadata construction and duplicate-ID validation.
+  * Rename `ReplicantContext.getInstanceDatasetSubscriptionIds(...)` to `getSubscribedDatasetRootIds(...)` so the
+    returned Dataset Root identifiers are not mistaken for Subscription or Dataset IDs.
+  * Document the compact runtime Dataset ID separately from the human-readable Dataset name and from the Dataset Root
+    identifier and Dataset Key that complete a Dataset Address.
+  This is a hard-cut Domgen model and DSL migration with no compatibility alias. Existing numeric IDs, generated
+  constants, Dataset Address serialization, transport messages, and database records are unchanged.
 * Adopt Replicant Context terminology for the client-side boundary that owns System Schema registrations, Areas of
   Interest, Subscriptions, connector lifecycle, Dataset Cache Service integration, and shared Replica instances:
   * Document that one Context may own multiple System Schemas, Replicas are shared only among Subscriptions in that

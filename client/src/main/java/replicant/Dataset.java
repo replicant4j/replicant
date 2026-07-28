@@ -66,12 +66,12 @@ public final class Dataset {
     }
 
     /**
-     * The id of the Dataset. This is the value used when transmitting messages across network.
+     * The compact Dataset identifier used in runtime metadata, Dataset Addresses, and transport messages.
      */
     private final int _id;
     /**
-     * A human consumable name for the Dataset. It should be non-null if {@link Replicant#areNamesEnabled()} returns
-     * true and <tt>null</tt> otherwise.
+     * A human-readable Dataset name used for diagnostics. It should be non-null if
+     * {@link Replicant#areNamesEnabled()} returns true and <tt>null</tt> otherwise.
      */
     @Nullable
     private final String _name;
@@ -164,20 +164,20 @@ public final class Dataset {
     }
 
     /**
-     * Return the id of the Dataset.
+     * Return the compact runtime ID of the Dataset definition.
      *
-     * @return the id of the Dataset.
+     * @return the Dataset ID.
      */
     public int getId() {
         return _id;
     }
 
     /**
-     * Return the name of the Dataset.
+     * Return the human-readable name of the Dataset.
      * This method should NOT be invoked unless {@link Replicant#areNamesEnabled()} returns true and will throw an
      * exception if invariant checking is enabled.
      *
-     * @return the name of the Dataset.
+     * @return the Dataset name.
      */
     @NonNull
     public String getName() {
