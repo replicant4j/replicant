@@ -5,12 +5,12 @@ import java.util.Map;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector requested a sync with a datasource.
+ * Notification when a Connector is not at a Synchronization Point.
  */
-public final class SyncRequestEvent implements SerializableEvent {
+public final class SynchronizationPointPendingEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
-    public SyncRequestEvent(final int systemSchemaId) {
+    public SynchronizationPointPendingEvent(final int systemSchemaId) {
         _systemSchemaId = systemSchemaId;
     }
 
@@ -20,7 +20,7 @@ public final class SyncRequestEvent implements SerializableEvent {
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.SyncRequest");
+        map.put("type", "Connector.SynchronizationPointPending");
         map.put("systemSchema.id", getSystemSchemaId());
     }
 }

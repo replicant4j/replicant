@@ -36,13 +36,11 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Request a resynchronization with the backend if necessary. This should rarely if ever be used
-     * but can be required when bugs are present in the replicant code and it is not resynchronizing
-     * with the backend.
+     * Request a Synchronization Point with each backend if necessary.
      */
     @Action
-    void requestSync() {
-        getConnectors().forEach(c -> c.getConnector().maybeRequestSync());
+    void requestSynchronizationPoint() {
+        getConnectors().forEach(c -> c.getConnector().maybeRequestSynchronizationPoint());
     }
 
     @Action(verifyRequired = false, reportParameters = false)

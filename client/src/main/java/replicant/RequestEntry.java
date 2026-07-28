@@ -15,7 +15,7 @@ final class RequestEntry {
     @Nullable
     private final String _name;
 
-    private final boolean _syncRequest;
+    private final boolean _synchronizationPointRequest;
 
     @Nullable
     private final ResponseHandler _responseHandler;
@@ -23,7 +23,7 @@ final class RequestEntry {
     RequestEntry(
             final int requestId,
             @Nullable final String name,
-            final boolean syncRequest,
+            final boolean synchronizationPointRequest,
             @Nullable final ResponseHandler responseHandler) {
         _responseHandler = responseHandler;
         if (Replicant.shouldCheckInvariants()) {
@@ -34,15 +34,15 @@ final class RequestEntry {
         }
         _requestId = requestId;
         _name = Replicant.areNamesEnabled() ? Objects.requireNonNull(name) : null;
-        _syncRequest = syncRequest;
+        _synchronizationPointRequest = synchronizationPointRequest;
     }
 
     int getRequestId() {
         return _requestId;
     }
 
-    boolean isSyncRequest() {
-        return _syncRequest;
+    boolean isSynchronizationPointRequest() {
+        return _synchronizationPointRequest;
     }
 
     @NonNull

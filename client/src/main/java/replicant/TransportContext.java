@@ -9,9 +9,10 @@ public interface TransportContext {
      * Create a new request abstraction.
      *
      * @param name        the name of the request. This should be null if {@link Replicant#areNamesEnabled()} returns false, otherwise it should be non-null.
-     * @param syncRequest is request a sync request.
+     * @param synchronizationPointRequest true if the request establishes a Synchronization Point when processed.
      */
-    int newRequestId(@Nullable String name, boolean syncRequest, @Nullable ResponseHandler responseHandler);
+    int newRequestId(
+            @Nullable String name, boolean synchronizationPointRequest, @Nullable ResponseHandler responseHandler);
 
     /**
      * Notify the Connector that a message was received.

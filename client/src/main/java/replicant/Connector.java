@@ -42,11 +42,9 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.ExecCompletedEvent;
 import replicant.spy.ExecRequestQueuedEvent;
 import replicant.spy.ExecStartedEvent;
-import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
-import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
@@ -54,7 +52,9 @@ import replicant.spy.SubscribeStartedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncRequestEvent;
+import replicant.spy.SynchronizationPointPendingEvent;
+import replicant.spy.SynchronizationPointReachedEvent;
+import replicant.spy.SynchronizationPointRequestedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
@@ -280,7 +280,7 @@ abstract class Connector extends ReplicantService {
                 }
             }
             if (!datasetCacheVersions.isEmpty()) {
-                _transport.updateDatasetCacheVersionsSync(datasetCacheVersions);
+                _transport.updateDatasetCacheVersionsAndRequestSynchronizationPoint(datasetCacheVersions);
             }
         }
     }
@@ -345,13 +345,14 @@ abstract class Connector extends ReplicantService {
                 : _connection.lastIndexOfPendingSubscriptionOperation(type, datasetAddress, filterParameter);
     }
 
-    void requestSync() {
+    void requestSynchronizationPoint() {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new SyncRequestEvent(getSystemSchema().getId()));
+                    .reportSpyEvent(new SynchronizationPointRequestedEvent(
+                            getSystemSchema().getId()));
         }
-        _transport.requestSync();
+        _transport.requestSynchronizationPoint();
         tryTriggerMessageScheduler();
     }
 
@@ -576,13 +577,19 @@ abstract class Connector extends ReplicantService {
         }
     }
 
+    /**
+     * Return true if this Connector has reached a Synchronization Point and has no queued requests or responses.
+     */
     @Memoize
-    boolean isSynchronized() {
-        return areRequestResponseQueuesEmpty() && ensureConnection().syncComplete();
+    boolean isAtSynchronizationPoint() {
+        return areRequestResponseQueuesEmpty() && ensureConnection().isSynchronizationPointReached();
     }
 
-    boolean shouldRequestSync() {
-        return areRequestResponseQueuesEmpty() && !ensureConnection().syncComplete();
+    /**
+     * Return true if this Connector can request the next Synchronization Point.
+     */
+    boolean shouldRequestSynchronizationPoint() {
+        return areRequestResponseQueuesEmpty() && !ensureConnection().isSynchronizationPointReached();
     }
 
     private boolean areRequestResponseQueuesEmpty() {
@@ -803,18 +810,18 @@ abstract class Connector extends ReplicantService {
         completeSubscriptionOperations(response);
         //noinspection IfCanBeSwitch
         if (OkMessage.TYPE.equals(message.getType())) {
-            if (null != requestId && connection.getLastRxSyncRequestId() == requestId) {
-                if (connection.syncComplete()) {
-                    onInSync();
+            if (null != requestId && connection.getLastReachedSynchronizationPointRequestId() == requestId) {
+                if (connection.isSynchronizationPointReached()) {
+                    onSynchronizationPointReached();
                     getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
                 } else {
-                    onOutOfSync();
+                    onSynchronizationPointPending();
                 }
                 triggerMessageScheduler();
             }
         } else if (ChangeSetMessage.TYPE.equals(message.getType())) {
-            // If message is not a ping response then try to perform sync
-            maybeRequestSync();
+            // If message is not a ping response then try to establish a Synchronization Point.
+            maybeRequestSynchronizationPoint();
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             if (null != changeSet.getDatasetCacheVersion()) {
                 storeDatasetCacheEntryIfPossible(response, changeSet);
@@ -854,9 +861,9 @@ abstract class Connector extends ReplicantService {
         completeSubscriptionOperation();
     }
 
-    void maybeRequestSync() {
-        if (shouldRequestSync()) {
-            requestSync();
+    void maybeRequestSynchronizationPoint() {
+        if (shouldRequestSynchronizationPoint()) {
+            requestSynchronizationPoint();
         }
     }
 
@@ -1050,7 +1057,7 @@ abstract class Connector extends ReplicantService {
                         if (null != subscription) {
                             replicaEntry.tryLinkToSubscription(subscription);
                         } else {
-                            onOutOfSync();
+                            onSynchronizationPointPending();
                             return;
                         }
                     } catch (final Throwable t) {
@@ -1470,19 +1477,21 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void onInSync() {
+    void onSynchronizationPointReached() {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new InSyncEvent(getSystemSchema().getId()));
+                    .reportSpyEvent(new SynchronizationPointReachedEvent(
+                            getSystemSchema().getId()));
         }
     }
 
-    void onOutOfSync() {
+    void onSynchronizationPointPending() {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new OutOfSyncEvent(getSystemSchema().getId()));
+                    .reportSpyEvent(new SynchronizationPointPendingEvent(
+                            getSystemSchema().getId()));
         }
     }
 

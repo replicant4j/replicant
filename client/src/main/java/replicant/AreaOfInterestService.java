@@ -230,7 +230,7 @@ abstract class AreaOfInterestService extends ReplicantService {
             if (null != subscription) {
                 context.getRuntime()
                         .getConnector(datasetAddress.systemSchemaId())
-                        .requestSync();
+                        .requestSynchronizationPoint();
             }
         }
     }

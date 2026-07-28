@@ -179,10 +179,12 @@ abstract class Connection {
 
     @NonNull
     RequestEntry newRequest(
-            @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler) {
+            @Nullable final String name,
+            final boolean synchronizationPointRequest,
+            @Nullable final ResponseHandler responseHandler) {
         final int requestId = getLastTxRequestId() + 1;
         setLastTxRequestId(requestId);
-        final RequestEntry request = new RequestEntry(requestId, name, syncRequest, responseHandler);
+        final RequestEntry request = new RequestEntry(requestId, name, synchronizationPointRequest, responseHandler);
         _requests.put(requestId, request);
         if (Replicant.areSpiesEnabled()
                 && _connector.getReplicantContext().getSpy().willPropagateSpyEvents()) {
@@ -216,8 +218,8 @@ abstract class Connection {
 
     void removeRequest(final int requestId) {
         final RequestEntry entry = _requests.remove(requestId);
-        if (null != entry && entry.isSyncRequest()) {
-            setLastRxSyncRequestId(requestId);
+        if (null != entry && entry.isSynchronizationPointRequest()) {
+            setLastReachedSynchronizationPointRequestId(requestId);
         }
         if (Replicant.shouldCheckInvariants()) {
             invariant(
@@ -246,18 +248,18 @@ abstract class Connection {
     abstract void setLastTxRequestId(int lastTxRequestId);
 
     /**
-     * Return the id of the last sync request received from the server.
+     * Return the id of the last request that established a Synchronization Point.
      */
     @Observable(readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE)
-    abstract int getLastRxSyncRequestId();
+    abstract int getLastReachedSynchronizationPointRequestId();
 
-    abstract void setLastRxSyncRequestId(int lastRxSyncRequestId);
+    abstract void setLastReachedSynchronizationPointRequestId(int requestId);
 
     /**
-     * Return true if there are no pending requests and the last request was a "SYNC" request.
+     * Return true if the latest request has established a Synchronization Point.
      */
-    boolean syncComplete() {
-        return null != getConnectionId() && getLastTxRequestId() == getLastRxSyncRequestId();
+    boolean isSynchronizationPointReached() {
+        return null != getConnectionId() && getLastTxRequestId() == getLastReachedSynchronizationPointRequestId();
     }
 
     /**

@@ -13,7 +13,15 @@ public class RequestEntryTest extends AbstractReplicantTest {
 
         assertEquals(e.getRequestId(), requestId);
         assertEquals(e.getName(), requestKey);
+        assertFalse(e.isSynchronizationPointRequest());
         assertEquals(e.toString(), "Request(ABC.go)[Id=321]");
+    }
+
+    @Test
+    public void synchronizationPointRequest() {
+        final RequestEntry e = new RequestEntry(321, "SynchronizationPoint", true, null);
+
+        assertTrue(e.isSynchronizationPointRequest());
     }
 
     @Test

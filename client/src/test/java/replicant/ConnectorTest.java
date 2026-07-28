@@ -31,11 +31,9 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.ExecCompletedEvent;
 import replicant.spy.ExecRequestQueuedEvent;
 import replicant.spy.ExecStartedEvent;
-import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
-import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
@@ -45,7 +43,9 @@ import replicant.spy.SubscriptionDisposedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncRequestEvent;
+import replicant.spy.SynchronizationPointPendingEvent;
+import replicant.spy.SynchronizationPointReachedEvent;
+import replicant.spy.SynchronizationPointRequestedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
@@ -512,7 +512,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.onConnection(ValueUtil.randomString());
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
-        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsAndRequestSynchronizationPoint(anyMap());
     }
 
     @Test
@@ -534,7 +534,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
         verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
-        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsAndRequestSynchronizationPoint(anyMap());
     }
 
     @Test
@@ -559,7 +559,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
         connector.onConnection(ValueUtil.randomString());
 
-        verify(connector.getTransport(), never()).updateDatasetCacheVersionsSync(anyMap());
+        verify(connector.getTransport(), never()).updateDatasetCacheVersionsAndRequestSynchronizationPoint(anyMap());
     }
 
     @Test
@@ -2860,7 +2860,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
         });
         handler.assertNextEvent(
-                SyncRequestEvent.class,
+                SynchronizationPointRequestedEvent.class,
                 e -> assertEquals(
                         e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
@@ -3951,148 +3951,149 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void isSynchronized_notConnected() {
+    public void isAtSynchronizationPoint_notConnected() {
         final Connector connector = createConnector();
         safeAction(() -> connector.setState(ConnectorState.DISCONNECTED));
-        safeAction(() -> assertFalse(connector.isSynchronized()));
+        safeAction(() -> assertFalse(connector.isAtSynchronizationPoint()));
     }
 
     @Test
-    public void isSynchronized_connected() {
+    public void isAtSynchronizationPoint_connected() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
-        safeAction(() -> assertTrue(connector.isSynchronized()));
+        safeAction(() -> assertTrue(connector.isAtSynchronizationPoint()));
     }
 
     @Test
-    public void shouldRequestSync_notConnected() {
+    public void shouldRequestSynchronizationPoint_notConnected() {
         final Connector connector = createConnector();
         safeAction(() -> connector.setState(ConnectorState.DISCONNECTED));
-        assertFalse(connector.shouldRequestSync());
+        assertFalse(connector.shouldRequestSynchronizationPoint());
     }
 
     @Test
-    public void shouldRequestSync_connected() {
+    public void shouldRequestSynchronizationPoint_connected() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
-            assertFalse(connector.shouldRequestSync());
+            assertFalse(connector.shouldRequestSynchronizationPoint());
         });
     }
 
     @Test
-    public void shouldRequestSync_sentRequest_NotSynced() {
+    public void shouldRequestSynchronizationPoint_sentRequest_NotAtSynchronizationPoint() {
         final Connector connector = createConnector();
         newConnection(connector);
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             newRequest(connector.ensureConnection());
-            assertFalse(connector.shouldRequestSync());
+            assertFalse(connector.shouldRequestSynchronizationPoint());
         });
     }
 
     @Test
-    public void shouldRequestSync_receivedRequestResponse_NotSynced() {
+    public void shouldRequestSynchronizationPoint_receivedRequestResponse_NotAtSynchronizationPoint() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             connection.removeRequest(newRequest(connection).getRequestId());
-            assertTrue(connector.shouldRequestSync());
+            assertTrue(connector.shouldRequestSynchronizationPoint());
         });
     }
 
     @Test
-    public void shouldRequestSync_receivedSyncRequestResponse_Synced() {
+    public void shouldRequestSynchronizationPoint_receivedSynchronizationPointResponse_AtSynchronizationPoint() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             final RequestEntry entry = connection.newRequest(ValueUtil.randomString(), true, null);
             connection.removeRequest(entry.getRequestId());
-            assertFalse(connector.shouldRequestSync());
+            assertFalse(connector.shouldRequestSynchronizationPoint());
         });
     }
 
     @Test
-    public void shouldRequestSync_receivedSyncRequestResponseButResponsesQueued_NotSynced() {
+    public void
+            shouldRequestSynchronizationPoint_receivedSynchronizationPointResponseButResponsesQueued_NotAtSynchronizationPoint() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             connection.removeRequest(newRequest(connection).getRequestId());
             connection.enqueueResponse(ChangeSetMessage.create(null, null, null, null, null, null), null);
-            assertFalse(connector.shouldRequestSync());
+            assertFalse(connector.shouldRequestSynchronizationPoint());
         });
     }
 
     @Test
-    public void onInSync() {
+    public void onSynchronizationPointReached() {
         final Connector connector = createConnector();
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onInSync();
+        connector.onSynchronizationPointReached();
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
-                InSyncEvent.class,
+                SynchronizationPointReachedEvent.class,
                 e -> assertEquals(
                         e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
-    public void onOutOfSync() {
+    public void onSynchronizationPointPending() {
         final Connector connector = createConnector();
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.onOutOfSync();
+        connector.onSynchronizationPointPending();
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
-                OutOfSyncEvent.class,
+                SynchronizationPointPendingEvent.class,
                 e -> assertEquals(
                         e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
-    public void requestSync() {
+    public void requestSynchronizationPoint() {
         final Connector connector = createConnector();
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.requestSync();
+        connector.requestSynchronizationPoint();
 
-        verify(connector.getTransport()).requestSync();
+        verify(connector.getTransport()).requestSynchronizationPoint();
 
         handler.assertEventCount(1);
         handler.assertNextEvent(
-                SyncRequestEvent.class,
+                SynchronizationPointRequestedEvent.class,
                 e -> assertEquals(
                         e.getSystemSchemaId(), connector.getSystemSchema().getId()));
     }
 
     @Test
-    public void maybeRequestSync() {
+    public void maybeRequestSynchronizationPoint() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
 
-        assertFalse(connector.shouldRequestSync());
-        connector.maybeRequestSync();
+        assertFalse(connector.shouldRequestSynchronizationPoint());
+        connector.maybeRequestSynchronizationPoint();
 
         assertTrue(connector.ensureConnection().getRequests().isEmpty());
 
         connection.removeRequest(newRequest(connection).getRequestId());
-        assertTrue(connector.shouldRequestSync());
+        assertTrue(connector.shouldRequestSynchronizationPoint());
 
-        connector.maybeRequestSync();
+        connector.maybeRequestSynchronizationPoint();
 
-        verify(connector.getTransport()).requestSync();
+        verify(connector.getTransport()).requestSynchronizationPoint();
     }
 
     @Test

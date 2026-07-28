@@ -15,11 +15,9 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.ExecCompletedEvent;
 import replicant.spy.ExecRequestQueuedEvent;
 import replicant.spy.ExecStartedEvent;
-import replicant.spy.InSyncEvent;
 import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageReadFailureEvent;
-import replicant.spy.OutOfSyncEvent;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 import replicant.spy.RestartEvent;
@@ -32,7 +30,9 @@ import replicant.spy.SubscriptionOrphanedEvent;
 import replicant.spy.SubscriptionUpdateCompletedEvent;
 import replicant.spy.SubscriptionUpdateRequestQueuedEvent;
 import replicant.spy.SubscriptionUpdateStartedEvent;
-import replicant.spy.SyncRequestEvent;
+import replicant.spy.SynchronizationPointPendingEvent;
+import replicant.spy.SynchronizationPointReachedEvent;
+import replicant.spy.SynchronizationPointRequestedEvent;
 import replicant.spy.UnsubscribeCompletedEvent;
 import replicant.spy.UnsubscribeRequestQueuedEvent;
 import replicant.spy.UnsubscribeStartedEvent;
@@ -95,36 +95,36 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         on(RequestStartedEvent.class, this::onRequestStarted);
         on(RequestCompletedEvent.class, this::onRequestCompleted);
 
-        on(SyncRequestEvent.class, this::onSyncRequest);
-        on(InSyncEvent.class, this::onInSync);
-        on(OutOfSyncEvent.class, this::onOutOfSync);
+        on(SynchronizationPointRequestedEvent.class, this::onSynchronizationPointRequested);
+        on(SynchronizationPointReachedEvent.class, this::onSynchronizationPointReached);
+        on(SynchronizationPointPendingEvent.class, this::onSynchronizationPointPending);
     }
 
     /**
-     * Handle the SyncRequestEvent.
+     * Handle the SynchronizationPointRequestedEvent.
      *
      * @param e the event.
      */
-    protected void onSyncRequest(@NonNull final SyncRequestEvent e) {
-        log("%cSync requested. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
+    protected void onSynchronizationPointRequested(@NonNull final SynchronizationPointRequestedEvent e) {
+        log("%cSynchronization Point requested. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**
-     * Handle the InSyncEvent.
+     * Handle the SynchronizationPointReachedEvent.
      *
      * @param e the event.
      */
-    protected void onInSync(@NonNull final InSyncEvent e) {
-        log("%cSync completed. Backend synchronized. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
+    protected void onSynchronizationPointReached(@NonNull final SynchronizationPointReachedEvent e) {
+        log("%cSynchronization Point reached. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**
-     * Handle the OutOfSyncEvent.
+     * Handle the SynchronizationPointPendingEvent.
      *
      * @param e the event.
      */
-    protected void onOutOfSync(@NonNull final OutOfSyncEvent e) {
-        log("%cSync completed. Backend not synchronized. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
+    protected void onSynchronizationPointPending(@NonNull final SynchronizationPointPendingEvent e) {
+        log("%cSynchronization Point pending. System Schema ID: " + e.getSystemSchemaId(), CONNECTOR_COLOR);
     }
 
     /**

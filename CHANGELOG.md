@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Adopt Synchronization Point terminology for the client-server protocol checkpoint that confirms a Connector has
+  processed every earlier request and its resulting server messages. Replace sync, synchronized, in-sync, and
+  out-of-sync checkpoint APIs and spy events with explicit Synchronization Point names, while retaining the existing
+  ping wire message. This is a hard-cut client API and diagnostic-event migration with no compatibility aliases.
 * Align the server and Domgen integration with Subscription Collection terminology. The encoder conversion flag is now
   `isSubscriptionCollection`, and the Domgen Dataset option is now `post_subscription_collection_hook`. This is a
   hard-cut server and generator API migration with no compatibility aliases.

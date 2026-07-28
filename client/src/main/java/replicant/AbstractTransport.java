@@ -29,9 +29,9 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void requestSync() {
+    public final void requestSynchronizationPoint() {
         assert null != _transportContext;
-        final int requestId = newRequestId("Sync", true, null);
+        final int requestId = newRequestId("SynchronizationPoint", true, null);
         sendRemoteMessage(PingMessage.create(requestId));
     }
 
@@ -42,11 +42,11 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public final void updateDatasetCacheVersionsSync(
+    public final void updateDatasetCacheVersionsAndRequestSynchronizationPoint(
             @NonNull final Map<String, String> datasetAddressToDatasetCacheVersionMap) {
         final JsPropertyMap<Object> map = JsPropertyMap.of();
         datasetAddressToDatasetCacheVersionMap.forEach(map::set);
-        final int requestId = newRequestId("Sync", true, null);
+        final int requestId = newRequestId("DatasetCacheVersions", true, null);
         sendRemoteMessage(DatasetCacheVersionsMessage.create(requestId, Js.uncheckedCast(map)));
     }
 
@@ -146,8 +146,11 @@ public abstract class AbstractTransport implements Transport {
     }
 
     private int newRequestId(
-            @Nullable final String name, final boolean syncRequest, @Nullable final ResponseHandler responseHandler) {
-        return Objects.requireNonNull(_transportContext).newRequestId(name, syncRequest, responseHandler);
+            @Nullable final String name,
+            final boolean synchronizationPointRequest,
+            @Nullable final ResponseHandler responseHandler) {
+        return Objects.requireNonNull(_transportContext)
+                .newRequestId(name, synchronizationPointRequest, responseHandler);
     }
 
     @Nullable

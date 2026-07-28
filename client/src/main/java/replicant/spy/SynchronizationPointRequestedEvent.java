@@ -5,12 +5,12 @@ import java.util.Map;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector requested synchronized but is out of synchronization with the backend.
+ * Notification when a Connector requests a Synchronization Point.
  */
-public final class OutOfSyncEvent implements SerializableEvent {
+public final class SynchronizationPointRequestedEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
-    public OutOfSyncEvent(final int systemSchemaId) {
+    public SynchronizationPointRequestedEvent(final int systemSchemaId) {
         _systemSchemaId = systemSchemaId;
     }
 
@@ -20,7 +20,7 @@ public final class OutOfSyncEvent implements SerializableEvent {
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.OutOfSync");
+        map.put("type", "Connector.SynchronizationPointRequested");
         map.put("systemSchema.id", getSystemSchemaId());
     }
 }

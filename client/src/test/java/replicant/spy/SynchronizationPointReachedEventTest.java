@@ -6,17 +6,17 @@ import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 
-public class InSyncEventTest extends AbstractReplicantTest {
+public class SynchronizationPointReachedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        final InSyncEvent event = new InSyncEvent(23);
+        final SynchronizationPointReachedEvent event = new SynchronizationPointReachedEvent(23);
 
         assertEquals(event.getSystemSchemaId(), 23);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
-        assertEquals(data.get("type"), "Connector.InSync");
+        assertEquals(data.get("type"), "Connector.SynchronizationPointReached");
         assertEquals(data.get("systemSchema.id"), 23);
         assertEquals(data.size(), 2);
     }

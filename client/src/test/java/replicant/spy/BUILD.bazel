@@ -20,12 +20,10 @@ java_library(
         "ExecCompletedEventTest.java",
         "ExecRequestQueuedEventTest.java",
         "ExecStartedEventTest.java",
-        "InSyncEventTest.java",
         "MessageProcessFailureEventTest.java",
         "MessageProcessedEventTest.java",
         "MessageProcessingSummaryTest.java",
         "MessageReadFailureEventTest.java",
-        "OutOfSyncEventTest.java",
         "RequestCompletedEventTest.java",
         "RequestStartedEventTest.java",
         "RestartEventTest.java",
@@ -38,7 +36,9 @@ java_library(
         "SubscriptionUpdateCompletedEventTest.java",
         "SubscriptionUpdateRequestQueuedEventTest.java",
         "SubscriptionUpdateStartedEventTest.java",
-        "SyncRequestEventTest.java",
+        "SynchronizationPointPendingEventTest.java",
+        "SynchronizationPointReachedEventTest.java",
+        "SynchronizationPointRequestedEventTest.java",
         "UnsubscribeCompletedEventTest.java",
         "UnsubscribeRequestQueuedEventTest.java",
         "UnsubscribeStartedEventTest.java",
@@ -141,15 +141,6 @@ java_testng(
 )
 
 java_testng(
-    name = "InSyncEventTest",
-    srcs = ["InSyncEventTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.InSyncEventTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
     name = "MessageProcessFailureEventTest",
     srcs = ["MessageProcessFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
@@ -182,15 +173,6 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.spy.MessageReadFailureEventTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
-    name = "OutOfSyncEventTest",
-    srcs = ["OutOfSyncEventTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.OutOfSyncEventTest",
     deps = ["//client:client_test_support"],
 )
 
@@ -303,11 +285,29 @@ java_testng(
 )
 
 java_testng(
-    name = "SyncRequestEventTest",
-    srcs = ["SyncRequestEventTest.java"],
+    name = "SynchronizationPointPendingEventTest",
+    srcs = ["SynchronizationPointPendingEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.SyncRequestEventTest",
+    test_class = "replicant.spy.SynchronizationPointPendingEventTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "SynchronizationPointReachedEventTest",
+    srcs = ["SynchronizationPointReachedEventTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.spy.SynchronizationPointReachedEventTest",
+    deps = ["//client:client_test_support"],
+)
+
+java_testng(
+    name = "SynchronizationPointRequestedEventTest",
+    srcs = ["SynchronizationPointRequestedEventTest.java"],
+    data = CLIENT_TEST_DATA,
+    jvm_flags = CLIENT_TEST_JVM_FLAGS,
+    test_class = "replicant.spy.SynchronizationPointRequestedEventTest",
     deps = ["//client:client_test_support"],
 )
 

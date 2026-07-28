@@ -5,12 +5,12 @@ import java.util.Map;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector is synchronized with the backend.
+ * Notification when a Connector reaches a Synchronization Point.
  */
-public final class InSyncEvent implements SerializableEvent {
+public final class SynchronizationPointReachedEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
-    public InSyncEvent(final int systemSchemaId) {
+    public SynchronizationPointReachedEvent(final int systemSchemaId) {
         _systemSchemaId = systemSchemaId;
     }
 
@@ -20,7 +20,7 @@ public final class InSyncEvent implements SerializableEvent {
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.InSync");
+        map.put("type", "Connector.SynchronizationPointReached");
         map.put("systemSchema.id", getSystemSchemaId());
     }
 }

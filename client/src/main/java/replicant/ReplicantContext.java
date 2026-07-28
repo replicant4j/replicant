@@ -329,7 +329,7 @@ public final class ReplicantContext {
     public void activate() {
         final ReplicantRuntime runtime = getRuntime();
         runtime.activate();
-        runtime.requestSync();
+        runtime.requestSynchronizationPoint();
     }
 
     /**

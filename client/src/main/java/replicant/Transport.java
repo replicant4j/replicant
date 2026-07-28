@@ -27,17 +27,20 @@ public interface Transport {
     void requestDisconnect();
 
     /**
-     * Request a synchronization point.
-     * This method talks to the back-end and pings it. If the reply returns and there has been no
-     * intermediate requests then the connection is considered synchronized to that point. If there
-     * has been requests in the meantime (i.e. the sequence number of sync is not 1 behind) then
-     * there is still processing queued on the server (or client).
+     * Request a Synchronization Point.
+     * This method talks to the backend and pings it. If the reply returns and there have been no
+     * intermediate requests, the Connector has reached the Synchronization Point. Otherwise there
+     * is still processing queued on the server or client.
      */
-    void requestSync();
+    void requestSynchronizationPoint();
 
     void updateAuthToken(@Nullable String authToken);
 
-    void updateDatasetCacheVersionsSync(@NonNull Map<String, String> datasetAddressToDatasetCacheVersionMap);
+    /**
+     * Send the known Dataset Cache Versions and use the response to establish a Synchronization Point.
+     */
+    void updateDatasetCacheVersionsAndRequestSynchronizationPoint(
+            @NonNull Map<String, String> datasetAddressToDatasetCacheVersionMap);
 
     void requestExec(@NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
 
