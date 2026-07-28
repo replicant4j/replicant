@@ -97,9 +97,9 @@ public final class EntityChangeCandidateCacheUtil {
         final var invocationContext = r.getResource(ServerConstants.REPLICATION_INVOCATION_KEY);
         if (null == invocationContext) {
             final var message = "Attempting to look up replication resource '" + key
-                    + "' but there is no active replication invocation. This probably means you are attempting to"
-                    + " update replicated entities outside of a valid replication invocation. Make sure the entity is"
-                    + " modified in a service surrounded by a replication interceptor.";
+                    + "' but there is no active Replication Invocation. This probably means you are attempting to"
+                    + " update replicated Entities outside a valid Replication Invocation. Make sure the Entity is"
+                    + " modified within a Replication Invocation.";
             throw new IllegalStateException(message);
         }
         return (T) r.getResource(key);

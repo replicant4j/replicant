@@ -11,8 +11,8 @@ java_server_library(
         "ReplicantSessionAdded.java",
         "ReplicantSessionRemoved.java",
         "ReplicantSessionUpdated.java",
-        "Replicate.java",
-        "ReplicationInterceptor.java",
+        "ReplicationInvocation.java",
+        "ReplicationInvocationInterceptor.java",
         "package-info.java",
     ],
     visibility = [

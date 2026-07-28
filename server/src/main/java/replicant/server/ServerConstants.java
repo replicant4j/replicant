@@ -5,10 +5,10 @@ package replicant.server;
  */
 public final class ServerConstants {
     /**
-     * Key added to the request context when passing through a replication method.
-     * Used to ensure that there can be at most one replication invocation active.
+     * Key added to the request context during a Replication Invocation.
+     * Used to ensure that at most one Replication Invocation is active.
      */
-    public static final String REPLICATION_INVOCATION_KEY = "ReplicationActive";
+    public static final String REPLICATION_INVOCATION_KEY = "ReplicationInvocation";
     /**
      * Key used to retrieve an opaque identifier for the session from the ReplicantRequestContextHolder.
      * Used to pass data from the servlet to the EJB.

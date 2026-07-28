@@ -12,13 +12,13 @@ import replicant.server.runtime.ReplicantRequestContextHolder;
 import replicant.server.transport.ReplicantSessionManager;
 
 /**
- * A base class for an interceptor that should be applied to services that capture Entity Change Candidates for
- * routing on completion.
+ * Intercepts a Replication Invocation to capture Entity Change Candidates and submit them after successful
+ * transaction completion.
  */
 @Interceptor
 @Priority(Interceptor.Priority.LIBRARY_BEFORE + 100)
-@Replicate
-public class ReplicationInterceptor {
+@ReplicationInvocation
+public class ReplicationInvocationInterceptor {
     @VisibleForTesting
     @Inject
     ReplicantSessionManager _sessionManager;
@@ -29,11 +29,12 @@ public class ReplicationInterceptor {
         final var requestId = (Integer) ReplicantRequestContextHolder.get(ServerConstants.REQUEST_ID_KEY);
         final var session = null != sessionId ? _sessionManager.getSession(sessionId) : null;
         ReplicantRequestContextHolder.clean();
-        return _sessionManager.runRequest(getInvocationKey(context), session, requestId, context::proceed);
+        return _sessionManager.runReplicationInvocation(
+                getReplicationInvocationKey(context), session, requestId, context::proceed);
     }
 
     @NonNull
-    private String getInvocationKey(@NonNull final InvocationContext context) {
+    private String getReplicationInvocationKey(@NonNull final InvocationContext context) {
         final var method = context.getMethod();
         if (null != method) {
             return method.getDeclaringClass().getName() + "." + method.getName();

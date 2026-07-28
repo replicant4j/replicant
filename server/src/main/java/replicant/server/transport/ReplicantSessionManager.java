@@ -20,7 +20,10 @@ public interface ReplicantSessionManager {
     @Nullable
     ReplicantSession getSession(@NonNull String sessionId);
 
-    <T> T runRequest(
+    /**
+     * Run an action as a Replication Invocation.
+     */
+    <T> T runReplicationInvocation(
             @NonNull String invocationKey,
             @Nullable ReplicantSession session,
             @Nullable Integer requestId,

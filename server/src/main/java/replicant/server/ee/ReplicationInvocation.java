@@ -8,10 +8,10 @@ import java.lang.annotation.Target;
 import javax.interceptor.InterceptorBinding;
 
 /**
- * Interceptor binding for replication interceptor.
+ * Marks a server application invocation as a Replication Invocation.
  */
 @Inherited
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @InterceptorBinding
-public @interface Replicate {}
+public @interface ReplicationInvocation {}

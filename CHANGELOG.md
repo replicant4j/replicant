@@ -2,6 +2,11 @@
 
 ### Unreleased
 
+* Adopt Replication Invocation terminology for the server-side application boundary that captures Entity Change
+  Candidates and initiating-session Change Set changes. Replace `@Replicate`, `ReplicationInterceptor`, and generic
+  request-running APIs with `@ReplicationInvocation`, `ReplicationInvocationInterceptor`, and explicit Replication
+  Invocation lifecycle names across Replicant, Domgen, and generated Rose services. This is a hard-cut server and
+  generator API migration with no compatibility aliases.
 * Adopt Synchronization Point terminology for the client-server protocol checkpoint that confirms a Connector has
   processed every earlier request and its resulting server messages. Replace sync, synchronized, in-sync, and
   out-of-sync checkpoint APIs and spy events with explicit Synchronization Point names, while retaining the existing

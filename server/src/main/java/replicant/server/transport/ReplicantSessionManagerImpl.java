@@ -119,17 +119,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     @Override
-    public <T> T runRequest(
+    public <T> T runReplicationInvocation(
             @NonNull final String invocationKey,
             @Nullable final ReplicantSession session,
             @Nullable final Integer requestId,
             @NonNull final Callable<T> action)
             throws Exception {
-        startReplication(invocationKey, session, requestId);
+        startReplicationInvocation(invocationKey, session, requestId);
         try {
             return action.call();
         } finally {
-            completeReplication(invocationKey);
+            completeReplicationInvocation(invocationKey);
         }
     }
 
@@ -141,11 +141,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         final var lock = session.getLock();
         try {
             lock.lockInterruptibly();
-            startReplication(invocationKey, session, requestId);
+            startReplicationInvocation(invocationKey, session, requestId);
             try {
                 action.run();
             } finally {
-                completeReplication(invocationKey);
+                completeReplicationInvocation(invocationKey);
             }
         } catch (final InterruptedException ie) {
             session.closeDueToInterrupt();
@@ -180,22 +180,22 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     /**
-     * Start a replication invocation.
+     * Start a Replication Invocation.
      *
      * @param invocationKey the identifier of the element that is initiating replication. (i.e. Method name).
      * @param session       the session that initiated change if any.
      * @param requestId     the id of the request in the session that initiated change..
      */
     @SuppressWarnings({"deprecation", "RedundantSuppression"})
-    private void startReplication(
+    private void startReplicationInvocation(
             @NonNull final String invocationKey,
             @Nullable final ReplicantSession session,
             @Nullable final Integer requestId) {
         // Clear the context completely, in case the caller is not a GwtRpcServlet or does not reset the state.
         final var existingKey = _registry.getResource(ServerConstants.REPLICATION_INVOCATION_KEY);
         if (null != existingKey) {
-            final var message = "Attempted to invoke service method '" + invocationKey
-                    + "' while there is an active replication '" + existingKey + "'";
+            final var message = "Attempted to start Replication Invocation '" + invocationKey
+                    + "' while Replication Invocation '" + existingKey + "' is active";
             throw new IllegalStateException(message);
         }
 
@@ -207,16 +207,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
         _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Starting invocation of " + invocationKey + " Thread: "
+            LOG.fine("Starting Replication Invocation " + invocationKey + " Thread: "
                     + Thread.currentThread().getId());
         }
     }
 
     /**
-     * Complete a replication invocation and submit changes for replication.
+     * Complete a Replication Invocation and submit changes for replication.
      */
     @SuppressWarnings({"deprecation", "RedundantSuppression"})
-    private void completeReplication(@NonNull final String invocationKey) {
+    private void completeReplicationInvocation(@NonNull final String invocationKey) {
         if (Status.STATUS_ACTIVE == _registry.getTransactionStatus()
                 && !_registry.getRollbackOnly()
                 && _context.flushOpenEntityManager()) {
@@ -237,7 +237,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 }
             }
             final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
-            // Clear all state in case multiple replication invocations started in one transaction
+            // Clear all state in case multiple Replication Invocations started in one transaction.
             _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
             _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
@@ -254,7 +254,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             ReplicantRequestContextHolder.put(ServerConstants.REQUEST_RESPONSE_KEY, null);
         }
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Completed invocation of " + invocationKey + " Thread: "
+            LOG.fine("Completed Replication Invocation " + invocationKey + " Thread: "
                     + Thread.currentThread().getId());
         }
     }
