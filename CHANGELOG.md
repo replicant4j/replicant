@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Remove the inert `PushReplicationState` interceptor binding. No interceptor implemented the binding, so its
+  annotations had no runtime effect. This is a hard-cut server API removal with no compatibility alias.
 * Remove the unused `Request` facade and `PendingRequest` implementation together with the isolated `Request` test.
   Active Requests continue to be represented internally by `RequestEntry`. This is a hard-cut client API removal with
   no compatibility aliases.
