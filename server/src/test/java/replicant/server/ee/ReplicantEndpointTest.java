@@ -33,11 +33,11 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onOpen(fixture.session);
 
         verify(fixture.sessionManager).createSession(fixture.session, fixture.authorization);
-        verify(fixture.addedEvent).fire(new ReplicantSessionAdded(fixture.sessionId));
+        verify(fixture.addedEvent).fire(new ReplicantSessionAdded(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.SESSION_CREATED);
-        assertEquals(response.getString(Messages.S2C_Common.SESSION_ID), fixture.sessionId);
+        assertEquals(response.getString(Messages.S2C_Common.REPLICANT_SESSION_ID), fixture.replicantSessionId);
     }
 
     @Test
@@ -67,13 +67,13 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onClose(fixture.session);
 
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
     }
 
     @Test
     public void onClose_withoutSession() {
         final var fixture = newFixture();
-        when(fixture.sessionManager.getSession(fixture.sessionId)).thenReturn(null);
+        when(fixture.sessionManager.getSession(fixture.replicantSessionId)).thenReturn(null);
 
         fixture.endpoint.onClose(fixture.session);
 
@@ -88,7 +88,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
@@ -99,7 +99,7 @@ public final class ReplicantEndpointTest {
     @Test
     public void command_unknownSession() throws Exception {
         final var fixture = newFixture();
-        when(fixture.sessionManager.getSession(fixture.sessionId)).thenThrow(new IllegalStateException());
+        when(fixture.sessionManager.getSession(fixture.replicantSessionId)).thenThrow(new IllegalStateException());
 
         fixture.endpoint.onMessage(fixture.session, "{\"type\":\"ping\",\"requestId\":1}");
 
@@ -107,7 +107,7 @@ public final class ReplicantEndpointTest {
         verify(fixture.sessionManager, never()).invalidateSession(any());
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
-        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), "Unable to locate associated replicant session");
+        assertEquals(response.getString(Messages.S2C_Common.MESSAGE), "Unable to locate associated Replicant Session");
     }
 
     @Test
@@ -118,7 +118,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
         verify(fixture.updatedEvent, never()).fire(any());
 
         final var response = getLastSentMessage(fixture);
@@ -135,7 +135,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
         verify(fixture.updatedEvent, never()).fire(any());
 
         final var response = getLastSentMessage(fixture);
@@ -155,7 +155,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onMessage(fixture.session, command.toString());
 
         assertNull(fixture.replicantSession.getAuthToken());
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
         verify(fixture.session).close(any(CloseReason.class));
 
         final var response = getLastSentMessage(fixture);
@@ -176,7 +176,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onMessage(fixture.session, request.toString());
 
         verify(fixture.sessionManager).executeCommand(fixture.replicantSession, "cmd", 4, payload);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -191,7 +191,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onMessage(fixture.session, request.toString());
 
         verify(fixture.sessionManager).executeCommand(fixture.replicantSession, "cmd", 5, null);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -218,7 +218,7 @@ public final class ReplicantEndpointTest {
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
         assertEquals(response.getInt(Messages.Common.REQUEST_ID), 9);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -230,7 +230,7 @@ public final class ReplicantEndpointTest {
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
         assertEquals(response.getInt(Messages.Common.REQUEST_ID), 7);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -242,7 +242,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager)
                 .subscribe(fixture.replicantSession, 1, Collections.singletonList(DatasetAddress.of(0)), null);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -259,7 +259,7 @@ public final class ReplicantEndpointTest {
                         2,
                         Collections.singletonList(DatasetAddress.of(1, 5)),
                         filterParameter);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -340,7 +340,7 @@ public final class ReplicantEndpointTest {
 
         final var expected = Arrays.asList(DatasetAddress.of(2, 7, "fi"), DatasetAddress.of(2, 8, "fi2"));
         verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filterParameter);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -355,7 +355,7 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -373,8 +373,8 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
@@ -396,7 +396,7 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager)
                 .unsubscribe(fixture.replicantSession, 7, Collections.singletonList(DatasetAddress.of(1, 5)));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -412,8 +412,8 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -431,7 +431,7 @@ public final class ReplicantEndpointTest {
 
         final var expected = Arrays.asList(DatasetAddress.of(1, 1), DatasetAddress.of(1, 2));
         verify(fixture.sessionManager).unsubscribe(fixture.replicantSession, 8, expected);
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
     }
 
     @Test
@@ -449,8 +449,8 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
@@ -470,8 +470,8 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE);
@@ -486,8 +486,8 @@ public final class ReplicantEndpointTest {
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
-        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
-        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
+        verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.replicantSessionId));
+        verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.replicantSessionId));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.ERROR);
@@ -550,15 +550,15 @@ public final class ReplicantEndpointTest {
 
         final var session = mock(Session.class);
         final var remote = mock(RemoteEndpoint.Basic.class);
-        final var sessionId = "session-1";
-        when(session.getId()).thenReturn(sessionId);
+        final var replicantSessionId = "session-1";
+        when(session.getId()).thenReturn(replicantSessionId);
         when(session.isOpen()).thenReturn(true);
         when(session.getBasicRemote()).thenReturn(remote);
         final var authorization = new TestAuthorization();
         final var replicantSession = new ReplicantSession(session, authorization);
         when(handshakeAuthenticator.authenticate(session)).thenReturn(authorization);
         when(sessionManager.createSession(session, authorization)).thenReturn(replicantSession);
-        when(sessionManager.getSession(sessionId)).thenReturn(replicantSession);
+        when(sessionManager.getSession(replicantSessionId)).thenReturn(replicantSession);
         when(sessionManager.getSystemSchema()).thenReturn(newSystemSchema());
 
         return new EndpointFixture(
@@ -569,7 +569,7 @@ public final class ReplicantEndpointTest {
                 removedEvent,
                 session,
                 remote,
-                sessionId,
+                replicantSessionId,
                 replicantSession,
                 authorization);
     }
@@ -646,7 +646,7 @@ public final class ReplicantEndpointTest {
             @NonNull Event<ReplicantSessionRemoved> removedEvent,
             @NonNull Session session,
             RemoteEndpoint.@NonNull Basic remote,
-            @NonNull String sessionId,
+            @NonNull String replicantSessionId,
             @NonNull ReplicantSession replicantSession,
             @NonNull TestAuthorization authorization) {}
 

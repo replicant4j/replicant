@@ -180,10 +180,10 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String encodeSessionCreatedMessage(@NonNull final String sessionId) {
+    public static String encodeSessionCreatedMessage(@NonNull final String replicantSessionId) {
         return asString(Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.S2C_Type.SESSION_CREATED)
-                .add(Messages.S2C_Common.SESSION_ID, sessionId)
+                .add(Messages.S2C_Common.REPLICANT_SESSION_ID, replicantSessionId)
                 .build());
     }
 

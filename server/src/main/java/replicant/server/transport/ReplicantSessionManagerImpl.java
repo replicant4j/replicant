@@ -201,9 +201,9 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, invocationKey);
         if (null != session) {
-            _registry.putResource(ServerConstants.SESSION_ID_KEY, session.getId());
+            _registry.putResource(ServerConstants.REPLICANT_SESSION_ID_KEY, session.getReplicantSessionId());
         } else {
-            _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
+            _registry.putResource(ServerConstants.REPLICANT_SESSION_ID_KEY, null);
         }
         _registry.putResource(ServerConstants.REQUEST_ID_KEY, requestId);
         if (LOG.isLoggable(Level.FINE)) {
@@ -220,7 +220,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         if (Status.STATUS_ACTIVE == _registry.getTransactionStatus()
                 && !_registry.getRollbackOnly()
                 && _serverAdapter.flushOpenEntityManager()) {
-            final var sessionId = (String) _registry.getResource(ServerConstants.SESSION_ID_KEY);
+            final var replicantSessionId = (String) _registry.getResource(ServerConstants.REPLICANT_SESSION_ID_KEY);
             final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
             final var response = (JsonValue) _registry.getResource(ServerConstants.REQUEST_RESPONSE_KEY);
             var requestComplete = true;
@@ -234,13 +234,17 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         : entityChangeCandidateSet.getEntityChangeCandidates();
                 if (null != initiatingSessionChangeSet || !entityChangeCandidates.isEmpty() || null != requestId) {
                     requestComplete = !saveEntityChangeCandidates(
-                            sessionId, requestId, response, entityChangeCandidates, initiatingSessionChangeSet);
+                            replicantSessionId,
+                            requestId,
+                            response,
+                            entityChangeCandidates,
+                            initiatingSessionChangeSet);
                 }
             }
             final var complete = (String) _registry.getResource(ServerConstants.REQUEST_COMPLETE_KEY);
             // Clear all state in case multiple Replication Invocations started in one transaction.
             _registry.putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
-            _registry.putResource(ServerConstants.SESSION_ID_KEY, null);
+            _registry.putResource(ServerConstants.REPLICANT_SESSION_ID_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_ID_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_COMPLETE_KEY, null);
             _registry.putResource(ServerConstants.REQUEST_RESPONSE_KEY, null);
@@ -272,7 +276,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         var removed = false;
         _lock.writeLock().lock();
         try {
-            if (null != _sessions.remove(session.getId())) {
+            if (null != _sessions.remove(session.getReplicantSessionId())) {
                 removed = true;
                 session.close();
             }
@@ -282,7 +286,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         if (LOG.isLoggable(removed ? Level.INFO : Level.FINE)) {
             LOG.log(
                     removed ? Level.INFO : Level.FINE,
-                    "event=session.invalidate sessionId=" + session.getId() + " removed="
+                    "event=session.invalidate replicantSessionId=" + session.getReplicantSessionId() + " removed="
                             + removed + " sessionCount="
                             + getSessions().size());
         }
@@ -290,10 +294,10 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @Override
     @Nullable
-    public ReplicantSession getSession(@NonNull final String sessionId) {
+    public ReplicantSession getSession(@NonNull final String replicantSessionId) {
         _lock.readLock().lock();
         try {
-            return _sessions.get(sessionId);
+            return _sessions.get(replicantSessionId);
         } finally {
             _lock.readLock().unlock();
         }
@@ -317,7 +321,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         var sessionCount = 0;
         _lock.writeLock().lock();
         try {
-            _sessions.put(session.getId(), session);
+            _sessions.put(session.getReplicantSessionId(), session);
             sessionCount = _sessions.size();
         } finally {
             _lock.writeLock().unlock();
@@ -325,7 +329,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.log(
                     Level.INFO,
-                    "event=session.create sessionId=" + session.getId() + " webSocketSessionId="
+                    "event=session.create replicantSessionId=" + session.getReplicantSessionId()
+                            + " webSocketSessionId="
                             + webSocketSession.getId() + " sessionCount="
                             + sessionCount);
         }
@@ -338,7 +343,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             try {
                 for (final var session : _sessions.values()) {
                     if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Pinging websocket for session " + session.getId());
+                        LOG.finest("Pinging websocket for Replicant Session ID " + session.getReplicantSessionId());
                     }
                     session.pingTransport();
                 }
@@ -418,7 +423,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     private boolean saveEntityChangeCandidates(
-            @Nullable final String sessionId,
+            @Nullable final String replicantSessionId,
             @Nullable final Integer requestId,
             @Nullable final JsonValue response,
             @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
@@ -432,7 +437,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
         // TODO: Rewrite this so that we add clients to indexes rather than searching through everyone for each change!
         for (final var session : getSessions()) {
-            final var isInitiator = Objects.equals(session.getId(), sessionId);
+            final var isInitiator = Objects.equals(session.getReplicantSessionId(), replicantSessionId);
             if (isInitiator) {
                 // The initiator has been impacted, even if the underlying session has been closed
                 // so bring this logic outside of the session.isOpen() guard.
@@ -515,7 +520,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(
                         Level.FINE,
-                        "event=session.change.skip reason=sessionClosed sessionId=" + session.getId() + " requestId="
+                        "event=session.change.skip reason=sessionClosed replicantSessionId="
+                                + session.getReplicantSessionId() + " requestId="
                                 + requestId + " incomingEntityCount="
                                 + incomingEntityCount + " incomingSubscriptionDependencyCount="
                                 + incomingSubscriptionDependencies + " fromSubscriptionRequest="
@@ -569,7 +575,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                         .toList();
                 LOG.log(
                         level,
-                        "event=session.change.send sessionId=" + session.getId() + " requestId="
+                        "event=session.change.send replicantSessionId=" + session.getReplicantSessionId()
+                                + " requestId="
                                 + requestId + " datasetCacheVersion="
                                 + datasetCacheVersion + " fromSubscriptionRequest="
                                 + packet.fromSubscriptionRequest() + " incomingEntityCount="
@@ -587,7 +594,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
             if (LOG.isLoggable(Level.FINE)) {
                 LOG.log(
                         Level.FINE,
-                        "event=session.change.skip reason=noContent sessionId=" + session.getId() + " requestId="
+                        "event=session.change.skip reason=noContent replicantSessionId="
+                                + session.getReplicantSessionId() + " requestId="
                                 + requestId + " datasetCacheVersion="
                                 + datasetCacheVersion + " fromSubscriptionRequest="
                                 + packet.fromSubscriptionRequest() + " incomingEntityCount="
@@ -613,7 +621,7 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.log(
                             Level.FINE,
-                            "event=session.change.send.expand sessionId=" + session.getId()
+                            "event=session.change.send.expand replicantSessionId=" + session.getReplicantSessionId()
                                     + " cycle="
                                     + expandCycleCount
                                     + " changes="
@@ -659,7 +667,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         } catch (final Exception e) {
             // This can occur when there is an error accessing the database
             if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "Error invoking expandSubscriptionDependencies for session " + session.getId(), e);
+                LOG.log(
+                        Level.INFO,
+                        "Error invoking expandSubscriptionDependencies for Replicant Session ID "
+                                + session.getReplicantSessionId(),
+                        e);
             }
             session.close(new CloseReason(
                     CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Expanding Subscription Dependencies failed"));

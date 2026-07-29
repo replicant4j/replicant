@@ -45,7 +45,7 @@ final class TransportContextImpl implements TransportContext, Disposable {
     public void onMessageReceived(@NonNull final ServerToClientMessage message) {
         if (isNotDisposed()) {
             if (SessionCreatedMessage.TYPE.equals(message.getType())) {
-                _connector.onReplicantSessionCreated(((SessionCreatedMessage) message).getSessionId());
+                _connector.onReplicantSessionCreated(((SessionCreatedMessage) message).getReplicantSessionId());
             } else {
                 final boolean active = _connector.isSchedulerActive();
                 final boolean paused = _connector.isSchedulerPaused();

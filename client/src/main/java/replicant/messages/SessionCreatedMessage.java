@@ -16,22 +16,22 @@ public class SessionCreatedMessage extends ServerToClientMessage {
     public static final String TYPE = Messages.S2C_Type.SESSION_CREATED;
 
     @NonNull
-    private String sessionId;
+    private String replicantSessionId;
 
     @JsOverlay
     @NonNull
-    public static SessionCreatedMessage create(@NonNull final String sessionId) {
+    public static SessionCreatedMessage create(@NonNull final String replicantSessionId) {
         final SessionCreatedMessage message = new SessionCreatedMessage();
-        assert null != sessionId;
+        assert null != replicantSessionId;
         message.type = TYPE;
         message.requestId = null;
-        message.sessionId = sessionId;
+        message.replicantSessionId = replicantSessionId;
         return message;
     }
 
     @JsOverlay
     @NonNull
-    public final String getSessionId() {
-        return sessionId;
+    public final String getReplicantSessionId() {
+        return replicantSessionId;
     }
 }

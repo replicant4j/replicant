@@ -122,7 +122,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(
                     Level.FINE,
-                    "event=broker.packet.queue sessionId=" + session.getId() + " requestId="
+                    "event=broker.packet.queue replicantSessionId=" + session.getReplicantSessionId() + " requestId="
                             + packet.requestId() + " entityChangeCandidateCount="
                             + packet.entityChangeCandidates().size() + " entityChangeCount="
                             + packet.changeSet().getEntityChanges().size() + " subscriptionChangeCount="
@@ -136,7 +136,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
     }
 
     private boolean enqueueSessionIfRequired(@NonNull final ReplicantSession session) {
-        if (null == _workStates.putIfAbsent(session.getId(), WorkState.QUEUED)) {
+        if (null == _workStates.putIfAbsent(session.getReplicantSessionId(), WorkState.QUEUED)) {
             _queue.add(session);
             return true;
         }
@@ -255,14 +255,14 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         var duplicateSessionsSkipped = 0;
         var sessionsSkipped = 0;
         var madeProgress = false;
-        final var processedSessionIds = new HashSet<String>();
+        final var processedReplicantSessionIds = new HashSet<String>();
         for (var i = 0; i < _maxSessionsPerDrainTask; i++) {
             final var session = _queue.poll();
             if (null == session) {
                 break;
             } else {
                 sessionsPolled++;
-                if (!processedSessionIds.add(session.getId())) {
+                if (!processedReplicantSessionIds.add(session.getReplicantSessionId())) {
                     duplicateSessionsSkipped++;
                     _queue.add(session);
                     break;
@@ -290,24 +290,28 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
     }
 
     private boolean processPendingSession(@NonNull final ReplicantSession session) {
-        final var id = session.getId();
+        final var replicantSessionId = session.getReplicantSessionId();
         if (LOG.isLoggable(Level.FINEST)) {
-            LOG.log(Level.FINEST, "event=broker.session.process.start sessionId=" + id);
+            LOG.log(Level.FINEST, "event=broker.session.process.start replicantSessionId=" + replicantSessionId);
         }
-        if (!_workStates.replace(id, WorkState.QUEUED, WorkState.RUNNING)) {
+        if (!_workStates.replace(replicantSessionId, WorkState.QUEUED, WorkState.RUNNING)) {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.log(
                         Level.FINEST,
-                        "event=broker.session.process.skip reason=workStateMismatch sessionId=" + id + " queueSize="
+                        "event=broker.session.process.skip reason=workStateMismatch replicantSessionId="
+                                + replicantSessionId + " queueSize="
                                 + _queue.size() + " workStateCount="
                                 + _workStates.size());
             }
             return false;
         }
         if (!session.isOpen()) {
-            _workStates.remove(id, WorkState.RUNNING);
+            _workStates.remove(replicantSessionId, WorkState.RUNNING);
             if (LOG.isLoggable(Level.FINEST)) {
-                LOG.log(Level.FINEST, "event=broker.session.process.skip reason=sessionClosed sessionId=" + id);
+                LOG.log(
+                        Level.FINEST,
+                        "event=broker.session.process.skip reason=sessionClosed replicantSessionId="
+                                + replicantSessionId);
             }
             return true;
         }
@@ -317,8 +321,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.log(
                         Level.FINEST,
-                        "event=broker.session.process.skip reason=lockContention sessionId=" + id
-                                + " requeued=true queueSize=" + _queue.size());
+                        "event=broker.session.process.skip reason=lockContention replicantSessionId="
+                                + replicantSessionId + " requeued=true queueSize=" + _queue.size());
             }
             return false;
         }
@@ -349,7 +353,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.log(
                         Level.FINEST,
-                        "event=broker.session.process.complete sessionId=" + id + " packetsProcessed="
+                        "event=broker.session.process.complete replicantSessionId=" + replicantSessionId
+                                + " packetsProcessed="
                                 + packetsProcessed + " emptyPacketsSkipped="
                                 + emptyPacketsSkipped + " closeSession="
                                 + closeSession + " hasPendingPackets="
@@ -359,7 +364,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             if (LOG.isLoggable(Level.SEVERE)) {
                 LOG.log(
                         Level.SEVERE,
-                        "event=broker.packet.process.failed sessionId=" + id + " " + describePacket(currentPacket),
+                        "event=broker.packet.process.failed replicantSessionId=" + replicantSessionId + " "
+                                + describePacket(currentPacket),
                         t);
             }
             session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Packet processing failed"));
@@ -367,7 +373,7 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
         } finally {
             lock.unlock();
         }
-        _workStates.remove(id, WorkState.RUNNING);
+        _workStates.remove(replicantSessionId, WorkState.RUNNING);
         if (closeSession || !session.isOpen()) {
             return true;
         } else {
@@ -375,8 +381,8 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
                 if (LOG.isLoggable(Level.FINEST)) {
                     LOG.log(
                             Level.FINEST,
-                            "event=broker.session.requeue reason=pendingPackets sessionId=" + id + " queueSize="
-                                    + _queue.size());
+                            "event=broker.session.requeue reason=pendingPackets replicantSessionId="
+                                    + replicantSessionId + " queueSize=" + _queue.size());
                 }
                 enqueueSessionIfRequired(session);
             }
@@ -385,13 +391,13 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
     }
 
     private void requeueRunningSession(@NonNull final ReplicantSession session) {
-        if (_workStates.replace(session.getId(), WorkState.RUNNING, WorkState.QUEUED)) {
+        if (_workStates.replace(session.getReplicantSessionId(), WorkState.RUNNING, WorkState.QUEUED)) {
             _queue.add(session);
             if (LOG.isLoggable(Level.FINEST)) {
                 LOG.log(
                         Level.FINEST,
-                        "event=broker.session.requeue reason=lockContention sessionId=" + session.getId()
-                                + " queueSize=" + _queue.size());
+                        "event=broker.session.requeue reason=lockContention replicantSessionId="
+                                + session.getReplicantSessionId() + " queueSize=" + _queue.size());
             }
         }
     }

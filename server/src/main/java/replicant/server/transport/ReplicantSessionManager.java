@@ -11,14 +11,14 @@ import replicant.server.DatasetAddress;
 
 public interface ReplicantSessionManager {
     /**
-     * Return the session for specified ID.
-     * Session ID's are effectively opaque.
+     * Return the Replicant Session for the specified Replicant Session ID.
+     * Replicant Session IDs are effectively opaque.
      *
-     * @param sessionId the session id.
-     * @return the associated session or null if no such session.
+     * @param replicantSessionId the Replicant Session ID.
+     * @return the associated Replicant Session or null if no such Replicant Session.
      */
     @Nullable
-    ReplicantSession getSession(@NonNull String sessionId);
+    ReplicantSession getSession(@NonNull String replicantSessionId);
 
     /**
      * Run an action as a Replication Invocation.

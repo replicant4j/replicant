@@ -101,19 +101,23 @@ public final class ReplicantSession implements Serializable, Closeable {
     public void close(@NonNull final CloseReason closeReason) {
         releaseAuthorization();
         if (isOpen()) {
-            LOG.log(Level.FINE, () -> "Closing websocket for replicant session " + getId() + " with " + closeReason);
+            LOG.log(
+                    Level.FINE,
+                    () -> "Closing websocket for Replicant Session ID " + getReplicantSessionId() + " with "
+                            + closeReason);
             try {
                 _webSocketSession.close(closeReason);
             } catch (final IOException ioe) {
                 LOG.log(
                         Level.FINE,
-                        () -> "Websocket close for replicant session " + getId() + " generated error " + ioe);
+                        () -> "Websocket close for Replicant Session ID " + getReplicantSessionId()
+                                + " generated error " + ioe);
             }
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Websocket close requested for replicant session " + getId() + " with " + closeReason
-                            + " but the websocket is already closed");
+                    () -> "Websocket close requested for Replicant Session ID " + getReplicantSessionId() + " with "
+                            + closeReason + " but the websocket is already closed");
         }
     }
 
@@ -121,18 +125,19 @@ public final class ReplicantSession implements Serializable, Closeable {
     public void close() {
         releaseAuthorization();
         if (isOpen()) {
-            LOG.log(Level.FINE, () -> "Closing websocket for replicant session " + getId());
+            LOG.log(Level.FINE, () -> "Closing websocket for Replicant Session ID " + getReplicantSessionId());
             try {
                 _webSocketSession.close();
             } catch (final IOException ioe) {
                 LOG.log(
                         Level.FINE,
-                        () -> "Websocket close for replicant session " + getId() + " generated error " + ioe);
+                        () -> "Websocket close for Replicant Session ID " + getReplicantSessionId()
+                                + " generated error " + ioe);
             }
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Websocket close requested for replicant session " + getId()
+                    () -> "Websocket close requested for Replicant Session ID " + getReplicantSessionId()
                             + " but the websocket is already closed");
         }
     }
@@ -145,19 +150,20 @@ public final class ReplicantSession implements Serializable, Closeable {
      */
     public void pingTransport() {
         if (isOpen()) {
-            LOG.log(Level.FINE, () -> "Pinging websocket for replicant session " + getId());
+            LOG.log(Level.FINE, () -> "Pinging websocket for Replicant Session ID " + getReplicantSessionId());
             try {
                 _webSocketSession.getBasicRemote().sendPing(null);
             } catch (final IOException ioe) {
                 // All scenarios we can envision imply the session is shutting down, and thus can be ignored
                 LOG.log(
                         Level.FINER,
-                        () -> "Websocket ping for replicant session " + getId() + " generated error " + ioe);
+                        () -> "Websocket ping for Replicant Session ID " + getReplicantSessionId() + " generated error "
+                                + ioe);
             }
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Websocket ping requested for replicant session " + getId()
+                    () -> "Websocket ping requested for Replicant Session ID " + getReplicantSessionId()
                             + " but the websocket is already closed");
         }
     }
@@ -185,10 +191,10 @@ public final class ReplicantSession implements Serializable, Closeable {
     }
 
     /**
-     * @return an opaque ID representing session.
+     * @return the Replicant Session ID.
      */
     @NonNull
-    public String getId() {
+    public String getReplicantSessionId() {
         return getWebSocketSession().getId();
     }
 
@@ -265,12 +271,13 @@ public final class ReplicantSession implements Serializable, Closeable {
         final var encodedChangeSet = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, changeSet);
         LOG.log(
                 Level.FINE,
-                () -> "Sending Change Set for Replicant Session " + getId() + " with payload " + encodedChangeSet);
+                () -> "Sending Change Set for Replicant Session ID " + getReplicantSessionId() + " with payload "
+                        + encodedChangeSet);
         if (!WebSocketUtil.sendText(getWebSocketSession(), encodedChangeSet)) {
             LOG.log(
                     Level.FINE,
-                    () -> "Failed to send Change Set for Replicant Session " + getId() + " with payload "
-                            + encodedChangeSet);
+                    () -> "Failed to send Change Set for Replicant Session ID " + getReplicantSessionId()
+                            + " with payload " + encodedChangeSet);
         }
     }
 
@@ -419,8 +426,8 @@ public final class ReplicantSession implements Serializable, Closeable {
         if (!_subscriptions.containsKey(datasetAddress)) {
             LOG.log(
                     Level.FINE,
-                    () -> "Creating subscription entry for replicant session " + getId() + " at Dataset Address "
-                            + datasetAddress);
+                    () -> "Creating subscription entry for Replicant Session ID " + getReplicantSessionId()
+                            + " at Dataset Address " + datasetAddress);
             final var entry = new SubscriptionEntry(this, datasetAddress, mode);
             _subscriptions.put(datasetAddress, entry);
             _subscriptionsByDatasetRoot
@@ -558,12 +565,13 @@ public final class ReplicantSession implements Serializable, Closeable {
             }
             LOG.log(
                     Level.FINE,
-                    () -> "Removed subscription entry for replicant session " + getId() + " at Dataset Address "
-                            + datasetAddress);
+                    () -> "Removed subscription entry for Replicant Session ID " + getReplicantSessionId()
+                            + " at Dataset Address " + datasetAddress);
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Attempted to remove subscription entry for replicant session " + getId()
+                    () -> "Attempted to remove subscription entry for Replicant Session ID "
+                            + getReplicantSessionId()
                             + " at Dataset Address " + datasetAddress + " but no such subscription existed");
         }
         return removed;

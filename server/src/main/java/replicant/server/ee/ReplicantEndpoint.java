@@ -71,13 +71,14 @@ public class ReplicantEndpoint {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(
                     Level.FINE,
-                    "Opening WebSocket Session " + session.getId() + " for replicant session "
-                            + getReplicantSession(session).getId());
+                    "Opening WebSocket Session " + session.getId() + " for Replicant Session ID "
+                            + getReplicantSession(session).getReplicantSessionId());
         }
 
-        _replicantSessionAddedEventEvent.fire(new ReplicantSessionAdded(newReplicantSession.getId()));
+        _replicantSessionAddedEventEvent.fire(new ReplicantSessionAdded(newReplicantSession.getReplicantSessionId()));
 
-        WebSocketUtil.sendText(session, JsonEncoder.encodeSessionCreatedMessage(newReplicantSession.getId()));
+        WebSocketUtil.sendText(
+                session, JsonEncoder.encodeSessionCreatedMessage(newReplicantSession.getReplicantSessionId()));
     }
 
     @OnMessage
@@ -87,14 +88,14 @@ public class ReplicantEndpoint {
         try {
             replicantSession = getReplicantSession(session);
         } catch (final Throwable ignored) {
-            sendErrorAndClose(session, "Unable to locate associated replicant session");
+            sendErrorAndClose(session, "Unable to locate associated Replicant Session");
             return;
         }
         if (LOG.isLoggable(Level.FINE)) {
             LOG.log(
                     Level.FINE,
-                    "Message on WebSocket Session " + session.getId() + " for replicant session "
-                            + getReplicantSession(session).getId() + ". Message:\n" + message);
+                    "Message on WebSocket Session " + session.getId() + " for Replicant Session ID "
+                            + getReplicantSession(session).getReplicantSessionId() + ". Message:\n" + message);
         }
         final JsonObject request;
         final String type;
@@ -145,7 +146,7 @@ public class ReplicantEndpoint {
             } else {
                 onUnknownType(replicantSession, request);
             }
-            _replicantSessionUpdatedEvent.fire(new ReplicantSessionUpdated(replicantSession.getId()));
+            _replicantSessionUpdatedEvent.fire(new ReplicantSessionUpdated(replicantSession.getReplicantSessionId()));
         } catch (final SecurityException ignored) {
             sendErrorAndClose(replicantSession, "Security constraints violated");
         }
@@ -352,7 +353,8 @@ public class ReplicantEndpoint {
     @Nullable
     private ReplicantSession findReplicantSession(@NonNull final Session session) {
         try {
-            return _sessionManager.getSession(session.getId());
+            final var replicantSessionId = session.getId();
+            return _sessionManager.getSession(replicantSessionId);
         } catch (final Throwable ignored) {
             // This is sometimes called from onClose after the application has already been
             // un-deployed but the websockets have not completed closing. In this scenario
@@ -369,7 +371,7 @@ public class ReplicantEndpoint {
             return replicantSession;
         } else {
             throw new IllegalStateException(
-                    "Unable to locate ReplicantSession for WebSocket session " + session.getId());
+                    "Unable to locate Replicant Session for WebSocket Session ID " + session.getId());
         }
     }
 
@@ -405,13 +407,13 @@ public class ReplicantEndpoint {
             LOG.log(
                     Level.FINE,
                     () -> "Closing WebSocket Session " + session.getId()
-                            + " but no replicant session found. This can occur except during "
+                            + " but no Replicant Session found. This can occur except during "
                             + "application undeploy or when the session has errored.");
         } else {
             LOG.log(
                     Level.FINE,
-                    () -> "Closing WebSocket Session " + session.getId() + " for replicant session "
-                            + replicantSession.getId());
+                    () -> "Closing WebSocket Session " + session.getId() + " for Replicant Session ID "
+                            + replicantSession.getReplicantSessionId());
             closeReplicantSession(replicantSession);
         }
     }
@@ -431,7 +433,7 @@ public class ReplicantEndpoint {
     }
 
     private void closeReplicantSession(@NonNull final ReplicantSession replicantSession) {
-        _replicantSessionRemovedEvent.fire(new ReplicantSessionRemoved(replicantSession.getId()));
+        _replicantSessionRemovedEvent.fire(new ReplicantSessionRemoved(replicantSession.getReplicantSessionId()));
         _sessionManager.invalidateSession(replicantSession);
     }
 }

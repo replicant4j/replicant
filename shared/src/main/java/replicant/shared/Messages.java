@@ -86,7 +86,7 @@ public final class Messages {
 
     public static final class S2C_Common {
         @NonNull
-        public static final String SESSION_ID = "sessionId";
+        public static final String REPLICANT_SESSION_ID = "replicantSessionId";
 
         @NonNull
         public static final String DATASET_CACHE_VERSION = "datasetCacheVersion";

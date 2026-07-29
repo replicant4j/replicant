@@ -49,12 +49,12 @@ public class ReplicantSessionTest {
     @Test
     public void basicOperation() {
         final var webSocketSession = mock(Session.class);
-        final var sessionId = ValueUtil.randomString();
-        when(webSocketSession.getId()).thenReturn(sessionId);
+        final var replicantSessionId = ValueUtil.randomString();
+        when(webSocketSession.getId()).thenReturn(replicantSessionId);
         final var session = new ReplicantSession(webSocketSession);
         session.getLock().lock();
 
-        assertEquals(session.getId(), sessionId);
+        assertEquals(session.getReplicantSessionId(), replicantSessionId);
 
         assertEquals(getSubscriptions(session).size(), 0);
 

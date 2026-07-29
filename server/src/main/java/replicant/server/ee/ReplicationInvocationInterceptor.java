@@ -25,9 +25,10 @@ public class ReplicationInvocationInterceptor {
 
     @AroundInvoke
     public Object businessIntercept(final InvocationContext context) throws Exception {
-        final var sessionId = (String) ReplicantRequestContextHolder.get(ServerConstants.SESSION_ID_KEY);
+        final var replicantSessionId =
+                (String) ReplicantRequestContextHolder.get(ServerConstants.REPLICANT_SESSION_ID_KEY);
         final var requestId = (Integer) ReplicantRequestContextHolder.get(ServerConstants.REQUEST_ID_KEY);
-        final var session = null != sessionId ? _sessionManager.getSession(sessionId) : null;
+        final var session = null != replicantSessionId ? _sessionManager.getSession(replicantSessionId) : null;
         ReplicantRequestContextHolder.clean();
         return _sessionManager.runReplicationInvocation(
                 getReplicationInvocationKey(context), session, requestId, context::proceed);

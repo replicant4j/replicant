@@ -10,10 +10,10 @@ public final class ServerConstants {
      */
     public static final String REPLICATION_INVOCATION_KEY = "ReplicationInvocation";
     /**
-     * Key used to retrieve an opaque identifier for the session from the ReplicantRequestContextHolder.
+     * Key used to retrieve the Replicant Session ID from the ReplicantRequestContextHolder.
      * Used to pass data from the servlet to the EJB.
      */
-    public static final String SESSION_ID_KEY = "SessionID";
+    public static final String REPLICANT_SESSION_ID_KEY = "ReplicantSessionId";
     /**
      * Key used to retrieve an opaque identifier for the request from the ReplicantRequestContextHolder.
      * Used to pass data from the servlet to the EJB.

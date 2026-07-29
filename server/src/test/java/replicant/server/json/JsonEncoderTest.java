@@ -336,7 +336,7 @@ public final class JsonEncoderTest {
         final var message = toJsonObject(JsonEncoder.encodeSessionCreatedMessage("sid-1"));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.SESSION_CREATED);
-        assertEquals(message.getString(Messages.S2C_Common.SESSION_ID), "sid-1");
+        assertEquals(message.getString(Messages.S2C_Common.REPLICANT_SESSION_ID), "sid-1");
     }
 
     @Test
