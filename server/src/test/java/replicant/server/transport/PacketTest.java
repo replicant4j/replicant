@@ -14,17 +14,17 @@ public class PacketTest {
     @Test
     public void packetFromInitiator() {
         final var requestId = ValueUtil.randomInt();
-        final var response = Json.createArrayBuilder().build();
+        final var commandResult = Json.createArrayBuilder().build();
         final var datasetCacheVersion = ValueUtil.randomString();
         final var entityChangeCandidates = new ArrayList<EntityChangeCandidate>();
         final var changeSet = new ChangeSet();
 
         final var packet =
-                new Packet(true, requestId, response, datasetCacheVersion, entityChangeCandidates, changeSet);
+                new Packet(true, requestId, commandResult, datasetCacheVersion, entityChangeCandidates, changeSet);
 
         assertTrue(packet.fromSubscriptionRequest());
         assertEquals(packet.requestId(), (Integer) requestId);
-        assertEquals(packet.response(), response);
+        assertEquals(packet.commandResult(), commandResult);
         assertEquals(packet.datasetCacheVersion(), datasetCacheVersion);
         assertSame(packet.entityChangeCandidates(), entityChangeCandidates);
         assertSame(packet.changeSet(), changeSet);

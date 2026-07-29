@@ -33,11 +33,11 @@ final class TransportContextImpl implements TransportContext, Disposable {
     public int newRequestId(
             @Nullable final String name,
             final boolean synchronizationPointRequest,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         assert isNotDisposed();
         return _connector
                 .ensureConnection()
-                .newRequest(name, synchronizationPointRequest, responseHandler)
+                .newRequest(name, synchronizationPointRequest, commandResultHandler)
                 .getRequestId();
     }
 

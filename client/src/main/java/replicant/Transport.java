@@ -46,7 +46,7 @@ public interface Transport {
      * Send a Command to the server.
      */
     void requestCommand(
-            @NonNull String commandName, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
+            @NonNull String commandName, @Nullable Object payload, @Nullable CommandResultHandler commandResultHandler);
 
     void requestSubscribe(@NonNull DatasetAddress datasetAddress, @Nullable Object filterParameter);
 

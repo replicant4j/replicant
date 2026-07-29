@@ -105,12 +105,17 @@ public class ReplicantMessageBrokerImpl implements ReplicantMessageBroker {
             @NonNull final ReplicantSession session,
             final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
-            @Nullable final JsonValue response,
+            @Nullable final JsonValue commandResult,
             @Nullable final String datasetCacheVersion,
             @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull final ChangeSet changeSet) {
         final var packet = new Packet(
-                fromSubscriptionRequest, requestId, response, datasetCacheVersion, entityChangeCandidates, changeSet);
+                fromSubscriptionRequest,
+                requestId,
+                commandResult,
+                datasetCacheVersion,
+                entityChangeCandidates,
+                changeSet);
         queuePacket(session, packet);
         return packet;
     }

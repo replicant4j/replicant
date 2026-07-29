@@ -18,14 +18,14 @@ final class RequestEntry {
     private final boolean _synchronizationPointRequest;
 
     @Nullable
-    private final ResponseHandler _responseHandler;
+    private final CommandResultHandler _commandResultHandler;
 
     RequestEntry(
             final int requestId,
             @Nullable final String name,
             final boolean synchronizationPointRequest,
-            @Nullable final ResponseHandler responseHandler) {
-        _responseHandler = responseHandler;
+            @Nullable final CommandResultHandler commandResultHandler) {
+        _commandResultHandler = commandResultHandler;
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> Replicant.areNamesEnabled() || null == name,
@@ -56,8 +56,8 @@ final class RequestEntry {
     }
 
     @Nullable
-    ResponseHandler getResponseHandler() {
-        return _responseHandler;
+    CommandResultHandler getCommandResultHandler() {
+        return _commandResultHandler;
     }
 
     @Override

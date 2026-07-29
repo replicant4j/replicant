@@ -59,7 +59,7 @@ abstract class Connection {
     @NonNull
     private final List<SubscriptionOperation> _currentSubscriptionOperations = new ArrayList<>();
     /**
-     * Commands that have been sent to the server and are awaiting a response.
+     * Commands that have been sent to the server and are awaiting a Command Result.
      */
     @NonNull
     private final Map<Integer, Command> _activeCommands = new HashMap<>();
@@ -96,8 +96,8 @@ abstract class Connection {
     void requestCommand(
             @NonNull final String commandName,
             @Nullable final Object payload,
-            @Nullable final ResponseHandler responseHandler) {
-        _pendingCommands.add(new Command(commandName, payload, responseHandler));
+            @Nullable final CommandResultHandler commandResultHandler) {
+        _pendingCommands.add(new Command(commandName, payload, commandResultHandler));
     }
 
     void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
@@ -183,10 +183,11 @@ abstract class Connection {
     RequestEntry newRequest(
             @Nullable final String name,
             final boolean synchronizationPointRequest,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         final int requestId = getLastTxRequestId() + 1;
         setLastTxRequestId(requestId);
-        final RequestEntry request = new RequestEntry(requestId, name, synchronizationPointRequest, responseHandler);
+        final RequestEntry request =
+                new RequestEntry(requestId, name, synchronizationPointRequest, commandResultHandler);
         _requests.put(requestId, request);
         if (Replicant.areSpiesEnabled()
                 && _connector.getReplicantContext().getSpy().willPropagateSpyEvents()) {

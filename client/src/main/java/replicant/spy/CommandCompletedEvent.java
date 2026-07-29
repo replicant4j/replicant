@@ -6,7 +6,7 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector receives a response to a Command.
+ * Notification when a Connector receives a Command Result.
  */
 public final class CommandCompletedEvent implements SerializableEvent {
     private final int _systemSchemaId;

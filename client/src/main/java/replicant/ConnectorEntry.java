@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Container describing the Container and state in client.
+ * Container describing a Connector and whether it is a Required Connector.
  */
 final class ConnectorEntry implements Disposable {
     /**

@@ -46,7 +46,7 @@ public final class JsonEncoderTest {
         Objects.requireNonNull(values).put("key3", date);
 
         final var requestId = 1;
-        final var response = Json.createArrayBuilder().add(17).add(42).build();
+        final var commandResult = Json.createArrayBuilder().add(17).add(42).build();
 
         final var datasetCacheVersion = "#1";
         final var filterParameter = Json.createBuilderFactory(null)
@@ -62,7 +62,7 @@ public final class JsonEncoderTest {
         cs.merge(change);
         cs.mergeSubscriptionChange(
                 SubscriptionChange.of(DatasetAddress.of(45, 77), SubscriptionChange.Type.UPDATE, filterParameter));
-        final var encoded = JsonEncoder.encodeChangeSet(requestId, response, datasetCacheVersion, cs);
+        final var encoded = JsonEncoder.encodeChangeSet(requestId, commandResult, datasetCacheVersion, cs);
         final var changeSet = toJsonObject(encoded);
 
         assertNotNull(changeSet);
@@ -71,10 +71,10 @@ public final class JsonEncoderTest {
         assertTrue(changeSet.containsKey("entityChanges"));
         assertFalse(changeSet.containsKey("changes"));
         assertEquals(changeSet.getInt(Messages.Common.REQUEST_ID), requestId);
-        final var jsonResponse = changeSet.getJsonArray(Messages.ChangeSet.RESPONSE);
-        assertEquals(jsonResponse.size(), 2);
-        assertEquals(jsonResponse.getInt(0), 17);
-        assertEquals(jsonResponse.getInt(1), 42);
+        final var jsonCommandResult = changeSet.getJsonArray(Messages.ChangeSet.COMMAND_RESULT);
+        assertEquals(jsonCommandResult.size(), 2);
+        assertEquals(jsonCommandResult.getInt(0), 17);
+        assertEquals(jsonCommandResult.getInt(1), 42);
         assertEquals(changeSet.getString(Messages.S2C_Common.DATASET_CACHE_VERSION), datasetCacheVersion);
 
         final var action = changeSet
@@ -144,7 +144,7 @@ public final class JsonEncoderTest {
         assertNotNull(changeSet);
         assertEquals(changeSet.getString(Messages.Common.TYPE), Messages.S2C_Type.CHANGE_SET);
         assertFalse(changeSet.containsKey(Messages.Common.REQUEST_ID));
-        assertFalse(changeSet.containsKey(Messages.ChangeSet.RESPONSE));
+        assertFalse(changeSet.containsKey(Messages.ChangeSet.COMMAND_RESULT));
         assertFalse(changeSet.containsKey(Messages.S2C_Common.DATASET_CACHE_VERSION));
         assertFalse(changeSet.containsKey(Messages.ChangeSet.SUBSCRIPTION_CHANGES));
         assertFalse(changeSet.containsKey(Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES));

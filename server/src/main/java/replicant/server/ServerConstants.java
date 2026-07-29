@@ -26,10 +26,10 @@ public final class ServerConstants {
      */
     public static final String REQUEST_COMPLETE_KEY = "RequestComplete";
     /**
-     * Key used to retrieve the encoded response for the request relevant to the initiating Replicant Session.
+     * Key used to retrieve the encoded Command Result relevant to the initiating Replicant Session.
      * Used to pass data from the EJB to the servlet.
      */
-    public static final String REQUEST_RESPONSE_KEY = "RequestResponse";
+    public static final String COMMAND_RESULT_KEY = "CommandResult";
     /**
      * Key used to flag that a Cacheable Dataset Change Set or use-dataset-cache-entry message has been queued.
      * This means there should be no other changes in the Initiating Session Change Set and it should be marked as not

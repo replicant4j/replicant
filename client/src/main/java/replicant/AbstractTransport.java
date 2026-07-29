@@ -54,8 +54,8 @@ public abstract class AbstractTransport implements Transport {
     public void requestCommand(
             @NonNull final String commandName,
             @Nullable final Object payload,
-            @Nullable final ResponseHandler responseHandler) {
-        final int requestId = newRequestId("Command-" + commandName, responseHandler);
+            @Nullable final CommandResultHandler commandResultHandler) {
+        final int requestId = newRequestId("Command-" + commandName, commandResultHandler);
         sendRemoteMessage(CommandMessage.create(requestId, commandName, payload));
     }
 
@@ -141,16 +141,16 @@ public abstract class AbstractTransport implements Transport {
         return Replicant.areNamesEnabled() ? requestType + ":" + datasetAddress : null;
     }
 
-    private int newRequestId(@Nullable final String name, @Nullable final ResponseHandler responseHandler) {
-        return newRequestId(name, false, responseHandler);
+    private int newRequestId(@Nullable final String name, @Nullable final CommandResultHandler commandResultHandler) {
+        return newRequestId(name, false, commandResultHandler);
     }
 
     private int newRequestId(
             @Nullable final String name,
             final boolean synchronizationPointRequest,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         return Objects.requireNonNull(_transportContext)
-                .newRequestId(name, synchronizationPointRequest, responseHandler);
+                .newRequestId(name, synchronizationPointRequest, commandResultHandler);
     }
 
     @Nullable

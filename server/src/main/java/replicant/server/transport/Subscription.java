@@ -16,7 +16,7 @@ import replicant.server.DatasetAddress;
  * An object defining the state of the Subscription at a particular Dataset Address and
  * all its Subscription Dependencies.
  */
-final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
+final class Subscription implements Comparable<Subscription> {
     @NonNull
     private final ReplicantSession _session;
 
@@ -54,7 +54,7 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     @Nullable
     private JsonObject _filterParameter;
 
-    SubscriptionEntry(
+    Subscription(
             @NonNull final ReplicantSession session,
             @NonNull final DatasetAddress datasetAddress,
             @NonNull final SubscriptionMode mode) {
@@ -243,7 +243,7 @@ final class SubscriptionEntry implements Comparable<SubscriptionEntry> {
     }
 
     @Override
-    public int compareTo(@NonNull final SubscriptionEntry o) {
+    public int compareTo(@NonNull final Subscription o) {
         return datasetAddress().compareTo(o.datasetAddress());
     }
 }

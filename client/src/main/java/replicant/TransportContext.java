@@ -12,7 +12,9 @@ public interface TransportContext {
      * @param synchronizationPointRequest true if the request establishes a Synchronization Point when processed.
      */
     int newRequestId(
-            @Nullable String name, boolean synchronizationPointRequest, @Nullable ResponseHandler responseHandler);
+            @Nullable String name,
+            boolean synchronizationPointRequest,
+            @Nullable CommandResultHandler commandResultHandler);
 
     /**
      * Notify the Connector that a message was received.

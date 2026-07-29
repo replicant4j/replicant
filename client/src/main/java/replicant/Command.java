@@ -12,17 +12,17 @@ final class Command {
     private final Object _payload;
 
     @Nullable
-    private final ResponseHandler _responseHandler;
+    private final CommandResultHandler _commandResultHandler;
 
     private int _requestId;
 
     Command(
             @NonNull final String name,
             @Nullable final Object payload,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         _name = Objects.requireNonNull(name);
         _payload = payload;
-        _responseHandler = responseHandler;
+        _commandResultHandler = commandResultHandler;
         _requestId = -1;
     }
 
@@ -37,8 +37,8 @@ final class Command {
     }
 
     @Nullable
-    ResponseHandler getResponseHandler() {
-        return _responseHandler;
+    CommandResultHandler getCommandResultHandler() {
+        return _commandResultHandler;
     }
 
     boolean isInProgress() {

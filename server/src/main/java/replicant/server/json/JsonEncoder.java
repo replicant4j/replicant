@@ -38,8 +38,7 @@ public final class JsonEncoder {
      *
      * @param requestId          the requestId that initiated the change. Only set if the packet is destined for the
      *                           originating session.
-     * @param response           the response message if the packet is the result of a request with a response and the
-     *                           request was initiated by the session.
+     * @param commandResult      the Command Result if the Change Set completes a Command initiated by the session.
      * @param datasetCacheVersion the opaque Dataset Cache Version for a complete Cacheable Dataset Change Set.
      * @param changeSet          the Change Set being encoded.
      * @return the encoded Change Set.
@@ -47,7 +46,7 @@ public final class JsonEncoder {
     @NonNull
     public static String encodeChangeSet(
             @Nullable final Integer requestId,
-            @Nullable final JsonValue response,
+            @Nullable final JsonValue commandResult,
             @Nullable final String datasetCacheVersion,
             @NonNull final ChangeSet changeSet) {
         final var writer = new StringWriter();
@@ -59,8 +58,8 @@ public final class JsonEncoder {
         if (null != requestId) {
             generator.write(Messages.Common.REQUEST_ID, requestId);
         }
-        if (null != response) {
-            generator.write(Messages.ChangeSet.RESPONSE, response);
+        if (null != commandResult) {
+            generator.write(Messages.ChangeSet.COMMAND_RESULT, commandResult);
         }
         if (null != datasetCacheVersion) {
             generator.write(Messages.S2C_Common.DATASET_CACHE_VERSION, datasetCacheVersion);

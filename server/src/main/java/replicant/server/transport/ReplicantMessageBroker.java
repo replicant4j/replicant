@@ -21,7 +21,7 @@ public interface ReplicantMessageBroker {
             @NonNull ReplicantSession session,
             boolean fromSubscriptionRequest,
             @Nullable Integer requestId,
-            @Nullable JsonValue response,
+            @Nullable JsonValue commandResult,
             @Nullable String datasetCacheVersion,
             @NonNull Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull ChangeSet changeSet);

@@ -358,14 +358,14 @@ abstract class Connector extends ReplicantService {
     void requestCommand(
             @NonNull final String commandName,
             @Nullable final Object payload,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new CommandQueuedEvent(
                             getSystemSchema().getId(), getSystemSchema().getName(), commandName));
         }
-        ensureConnection().requestCommand(commandName, payload, responseHandler);
+        ensureConnection().requestCommand(commandName, payload, commandResultHandler);
         tryTriggerMessageScheduler();
     }
 
@@ -789,9 +789,9 @@ abstract class Connector extends ReplicantService {
         if (null != command && null != request && message instanceof ChangeSetMessage) {
             @SuppressWarnings("PatternVariableCanBeUsed")
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
-            final ResponseHandler responseHandler = request.getResponseHandler();
-            if (null != responseHandler) {
-                responseHandler.onResponse(Objects.requireNonNull(changeSet.getResponse()));
+            final CommandResultHandler commandResultHandler = request.getCommandResultHandler();
+            if (null != commandResultHandler) {
+                commandResultHandler.onCommandResult(Objects.requireNonNull(changeSet.getCommandResult()));
             }
         }
 
@@ -1109,7 +1109,7 @@ abstract class Connector extends ReplicantService {
         if (null == command) {
             return false;
         } else {
-            _transport.requestCommand(command.getName(), command.getPayload(), command.getResponseHandler());
+            _transport.requestCommand(command.getName(), command.getPayload(), command.getCommandResultHandler());
             command.markAsInProgress(ensureConnection().getLastTxRequestId());
             ensureConnection().recordActiveCommand(command);
 
@@ -1408,7 +1408,7 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Invoked when a response to a Command has been processed.
+     * Invoked when a Command Result has been processed.
      *
      * @param commandName the Command name.
      */

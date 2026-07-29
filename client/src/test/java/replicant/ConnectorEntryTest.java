@@ -38,7 +38,7 @@ public class ConnectorEntryTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void optionalService() {
+    public void optionalConnector() {
         final ConnectorEntry entry = new ConnectorEntry(createConnector(), false);
         assertFalse(entry.isRequired());
         assertEquals(entry.getRateLimiter().getTokensPerSecond(), 1D * ConnectorEntry.OPTIONAL_REGEN_PER_SECOND);

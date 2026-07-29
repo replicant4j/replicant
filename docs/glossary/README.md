@@ -462,6 +462,8 @@ _Avoid_: Data presence, data loaded
 The actual replication state at a [Dataset Address](#dataset-address), including its current
 [Filter Parameter](#filter-parameter) and the [Replica](#replica) instances belonging to it.
 
+_Avoid_: Subscription entry
+
 ### Orphaned Subscription
 
 An [Explicit Subscription Mode](#explicit-subscription-mode) [Subscription](#subscription) no longer backed by an

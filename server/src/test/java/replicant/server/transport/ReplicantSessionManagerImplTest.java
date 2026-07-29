@@ -79,7 +79,7 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            session.createSubscriptionEntry(datasetAddress, SubscriptionMode.EXPLICIT);
+            session.createSubscription(datasetAddress, SubscriptionMode.EXPLICIT);
             serverAdapter.removeFilterEntityChangeCandidateAtDatasetAddress(datasetAddress);
 
             assertTrue(manager.sendChangeSet(session, packet));
@@ -116,7 +116,7 @@ public class ReplicantSessionManagerImplTest {
             assertFalse(manager.sendChangeSet(session, packet));
             verify(remote, never()).sendText(anyString());
 
-            session.createSubscriptionEntry(datasetAddress, SubscriptionMode.EXPLICIT);
+            session.createSubscription(datasetAddress, SubscriptionMode.EXPLICIT);
 
             assertTrue(manager.sendChangeSet(session, packet));
         } finally {
@@ -173,18 +173,18 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
             final var originalFilter =
                     Json.createObjectBuilder().add("old", "value").build();
-            sourceEntry.setFilterParameter(originalFilter);
+            sourceSubscription.setFilterParameter(originalFilter);
 
             manager.sendChangeSet(session, packet);
 
             assertEquals(serverAdapter.getPreSendChangeSets(), List.of(packet));
-            final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertEquals(targetEntry.getFilterParameter(), newFilterParameter);
-            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
-            assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
+            final var targetSubscription = Objects.requireNonNull(session.findSubscription(targetDatasetAddress));
+            assertEquals(targetSubscription.getFilterParameter(), newFilterParameter);
+            assertTrue(sourceSubscription.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertTrue(targetSubscription.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -215,10 +215,10 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.EXPLICIT);
+            session.createSubscription(sourceDatasetAddress, SubscriptionMode.EXPLICIT);
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
-            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
+            assertNull(session.findSubscription(targetDatasetAddress));
             verify(session.getWebSocketSession()).close(any(javax.websocket.CloseReason.class));
         } finally {
             session.getLock().unlock();
@@ -261,30 +261,33 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(updateA, updateB), new ChangeSet()));
 
-            assertNotNull(session.findSubscriptionEntry(targetDatasetAddress));
+            assertNotNull(session.findSubscription(targetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 100)),
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(
+                            SubscriptionDependencyOwner.entity(2, 100)),
                     Set.of(targetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 101)),
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(
+                            SubscriptionDependencyOwner.entity(2, 101)),
                     Set.of(targetDatasetAddress));
 
             manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(deleteA), new ChangeSet()));
 
-            final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
-            assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
-            assertTrue(sourceEntry
+            final var targetSubscription = Objects.requireNonNull(session.findSubscription(targetDatasetAddress));
+            assertTrue(sourceSubscription.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertTrue(targetSubscription.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
+            assertTrue(sourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 100))
                     .isEmpty());
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 101)),
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(
+                            SubscriptionDependencyOwner.entity(2, 101)),
                     Set.of(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -314,21 +317,22 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
-            final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertTrue(sourceEntry
+            final var targetSubscription = Objects.requireNonNull(session.findSubscription(targetDatasetAddress));
+            assertTrue(sourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(oldOwner)
                     .isEmpty());
-            assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
-            assertTrue(sourceEntry.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
-            assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
+            assertEquals(
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
+            assertTrue(sourceSubscription.getOutwardSubscriptionDependencies().contains(targetDatasetAddress));
+            assertTrue(targetSubscription.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -361,19 +365,20 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(session, new Packet(false, null, null, null, List.of(deleteOld), changeSet));
 
-            final var targetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertTrue(sourceEntry
+            final var targetSubscription = Objects.requireNonNull(session.findSubscription(targetDatasetAddress));
+            assertTrue(sourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(oldOwner)
                     .isEmpty());
-            assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
-            assertTrue(targetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
+            assertEquals(
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
+            assertTrue(targetSubscription.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -404,18 +409,19 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(oldTargetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(oldTargetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, oldTargetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
-            assertNull(session.findSubscriptionEntry(oldTargetDatasetAddress));
-            final var newTargetEntry = Objects.requireNonNull(session.findSubscriptionEntry(newTargetDatasetAddress));
+            assertNull(session.findSubscription(oldTargetDatasetAddress));
+            final var newTargetEntry = Objects.requireNonNull(session.findSubscription(newTargetDatasetAddress));
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(newTargetDatasetAddress));
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(newOwner),
+                    Set.of(newTargetDatasetAddress));
             assertTrue(newTargetEntry.getInwardSubscriptionDependencies().contains(sourceDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -461,18 +467,19 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
-            targetEntry.setFilterParameter(oldFilterParameter);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            final var targetSubscription = session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            targetSubscription.setFilterParameter(oldFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
-            final var reloadedTargetEntry = Objects.requireNonNull(session.findSubscriptionEntry(targetDatasetAddress));
+            final var reloadedTargetEntry = Objects.requireNonNull(session.findSubscription(targetDatasetAddress));
             assertEquals(reloadedTargetEntry.getFilterParameter(), newFilterParameter);
-            assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
+            assertEquals(
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(newOwner), Set.of(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -512,21 +519,22 @@ public class ReplicantSessionManagerImplTest {
         final var entityChangeCandidate = new EntityChangeCandidate(
                 101, 2, 0L, instanceRouting("Source", 10), attributes(101), Set.of(subscriptionDependency));
 
-        final SubscriptionEntry originalTargetEntry;
+        final Subscription originalTargetEntry;
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            originalTargetEntry = session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            originalTargetEntry = session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             originalTargetEntry.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
-            assertSame(session.getSubscriptionEntry(targetDatasetAddress), originalTargetEntry);
+            assertSame(session.getSubscription(targetDatasetAddress), originalTargetEntry);
             assertEquals(originalTargetEntry.getFilterParameter(), newFilterParameter);
-            assertEquals(sourceEntry.getOwnedOutwardSubscriptionDependencies(owner), Set.of(targetDatasetAddress));
+            assertEquals(
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(owner), Set.of(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -566,21 +574,21 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            final var originalTargetEntry =
-                    session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            final var originalTargetEntry = session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             originalTargetEntry.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
-            final var replacementTargetEntry = session.getSubscriptionEntry(targetDatasetAddress);
+            final var replacementTargetEntry = session.getSubscription(targetDatasetAddress);
             assertNotSame(replacementTargetEntry, originalTargetEntry);
             assertEquals(replacementTargetEntry.getFilterParameter(), newFilterParameter);
             assertEquals(
-                    sourceEntry.getOwnedOutwardSubscriptionDependencies(SubscriptionDependencyOwner.entity(2, 101)),
+                    sourceSubscription.getOwnedOutwardSubscriptionDependencies(
+                            SubscriptionDependencyOwner.entity(2, 101)),
                     Set.of(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
@@ -623,18 +631,18 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
-            targetEntry.setMode(SubscriptionMode.EXPLICIT);
-            targetEntry.setFilterParameter(originalFilterParameter);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            final var targetSubscription = session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            targetSubscription.setMode(SubscriptionMode.EXPLICIT);
+            targetSubscription.setFilterParameter(originalFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 101);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(entityChangeCandidate), new ChangeSet()));
 
-            assertSame(session.getSubscriptionEntry(targetDatasetAddress), targetEntry);
-            assertEquals(targetEntry.getFilterParameter(), originalFilterParameter);
+            assertSame(session.getSubscription(targetDatasetAddress), targetSubscription);
+            assertEquals(targetSubscription.getFilterParameter(), originalFilterParameter);
         } finally {
             session.getLock().unlock();
         }
@@ -675,13 +683,13 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var includedSourceEntry =
-                    session.createSubscriptionEntry(includedSourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            final var excludedSourceEntry =
-                    session.createSubscriptionEntry(excludedSourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            includedSourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            excludedSourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var includedSourceSubscription =
+                    session.createSubscription(includedSourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var excludedSourceSubscription =
+                    session.createSubscription(excludedSourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            includedSourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            excludedSourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(
                     includedSourceDatasetAddress, targetDatasetAddress, 2, 100);
             session.recordEntityScopedSubscriptionDependency(
@@ -690,16 +698,16 @@ public class ReplicantSessionManagerImplTest {
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
-            assertTrue(includedSourceEntry
+            assertTrue(includedSourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(oldOwner)
                     .isEmpty());
             assertEquals(
-                    includedSourceEntry.getOwnedOutwardSubscriptionDependencies(newOwner),
+                    includedSourceSubscription.getOwnedOutwardSubscriptionDependencies(newOwner),
                     Set.of(targetDatasetAddress));
             assertEquals(
-                    excludedSourceEntry.getOwnedOutwardSubscriptionDependencies(oldOwner),
+                    excludedSourceSubscription.getOwnedOutwardSubscriptionDependencies(oldOwner),
                     Set.of(targetDatasetAddress));
-            assertTrue(excludedSourceEntry
+            assertTrue(excludedSourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(newOwner)
                     .isEmpty());
         } finally {
@@ -724,7 +732,7 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var entry = session.createSubscriptionEntry(datasetAddress, SubscriptionMode.IMPLICIT);
+            final var entry = session.createSubscription(datasetAddress, SubscriptionMode.IMPLICIT);
             entry.setMode(SubscriptionMode.EXPLICIT);
 
             manager.sendChangeSet(
@@ -768,17 +776,17 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            final var targetEntry = session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
-            targetEntry.setFilterParameter(targetFilterParameter);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            final var targetSubscription = session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            targetSubscription.setFilterParameter(targetFilterParameter);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(
                     session, new Packet(false, null, null, null, List.of(deleteOld, updateNew), new ChangeSet()));
 
-            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertTrue(sourceEntry
+            assertNull(session.findSubscription(targetDatasetAddress));
+            assertTrue(sourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(newOwner)
                     .isEmpty());
         } finally {
@@ -809,17 +817,17 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 1, 10);
 
             manager.sendChangeSet(
                     session,
                     new Packet(false, null, null, null, List.of(deleteSourceRoot, updateNew), new ChangeSet()));
 
-            assertNull(session.findSubscriptionEntry(sourceDatasetAddress));
-            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
+            assertNull(session.findSubscription(sourceDatasetAddress));
+            assertNull(session.findSubscription(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -856,9 +864,9 @@ public class ReplicantSessionManagerImplTest {
         final var deleteTargetRoot = new EntityChangeCandidate(20, 3, 1L, instanceRouting("Target", 20), null, null);
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordEntityScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress, 2, 100);
 
             manager.sendChangeSet(
@@ -866,8 +874,8 @@ public class ReplicantSessionManagerImplTest {
                     new Packet(
                             false, null, null, null, List.of(deleteOld, deleteTargetRoot, updateNew), new ChangeSet()));
 
-            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
-            assertTrue(sourceEntry
+            assertNull(session.findSubscription(targetDatasetAddress));
+            assertTrue(sourceSubscription
                     .getOwnedOutwardSubscriptionDependencies(newOwner)
                     .isEmpty());
         } finally {
@@ -926,8 +934,8 @@ public class ReplicantSessionManagerImplTest {
 
         lock.lock();
         try {
-            assertFalse(session.isSubscriptionEntryPresent(requiringDatasetAddress));
-            assertFalse(session.isSubscriptionEntryPresent(requiredTypeDatasetAddress));
+            assertFalse(session.isSubscriptionPresent(requiringDatasetAddress));
+            assertFalse(session.isSubscriptionPresent(requiredTypeDatasetAddress));
         } finally {
             lock.unlock();
         }
@@ -954,11 +962,11 @@ public class ReplicantSessionManagerImplTest {
         final var newFilterParameter =
                 Json.createObjectBuilder().add("value", "new").build();
 
-        final SubscriptionEntry originalEntry;
+        final Subscription originalEntry;
         session.getLock().lock();
         try {
-            session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.EXPLICIT);
-            originalEntry = session.createSubscriptionEntry(datasetAddress, SubscriptionMode.IMPLICIT);
+            session.createSubscription(sourceDatasetAddress, SubscriptionMode.EXPLICIT);
+            originalEntry = session.createSubscription(datasetAddress, SubscriptionMode.IMPLICIT);
             originalEntry.setFilterParameter(originalFilterParameter);
             session.recordDatasetScopedSubscriptionDependency(sourceDatasetAddress, datasetAddress);
         } finally {
@@ -970,7 +978,7 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            assertSame(session.getSubscriptionEntry(datasetAddress), originalEntry);
+            assertSame(session.getSubscription(datasetAddress), originalEntry);
             assertEquals(originalEntry.getMode(), SubscriptionMode.EXPLICIT);
             assertEquals(originalEntry.getFilterParameter(), newFilterParameter);
             assertEquals(originalEntry.getInwardSubscriptionDependencies(), Set.of(sourceDatasetAddress));
@@ -1014,7 +1022,7 @@ public class ReplicantSessionManagerImplTest {
         assertTrue(Objects.requireNonNull(error.getMessage()).contains("Fixed Filter Parameter"));
         session.getLock().lock();
         try {
-            assertEquals(session.getSubscriptionEntry(datasetAddress).getFilterParameter(), originalFilterParameter);
+            assertEquals(session.getSubscription(datasetAddress).getFilterParameter(), originalFilterParameter);
         } finally {
             session.getLock().unlock();
         }
@@ -1043,10 +1051,10 @@ public class ReplicantSessionManagerImplTest {
 
         TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
         manager.subscribe(session, 1, List.of(datasetAddress), originalFilterParameter);
-        final SubscriptionEntry originalEntry;
+        final Subscription originalEntry;
         session.getLock().lock();
         try {
-            originalEntry = session.getSubscriptionEntry(datasetAddress);
+            originalEntry = session.getSubscription(datasetAddress);
         } finally {
             session.getLock().unlock();
         }
@@ -1059,7 +1067,7 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var replacementEntry = session.getSubscriptionEntry(datasetAddress);
+            final var replacementEntry = session.getSubscription(datasetAddress);
             assertNotSame(replacementEntry, originalEntry);
             assertEquals(replacementEntry.getFilterParameter(), newFilterParameter);
         } finally {
@@ -1140,8 +1148,8 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var entry1 = session.createSubscriptionEntry(datasetAddress1, SubscriptionMode.IMPLICIT);
-            final var entry2 = session.createSubscriptionEntry(datasetAddress2, SubscriptionMode.IMPLICIT);
+            final var entry1 = session.createSubscription(datasetAddress1, SubscriptionMode.IMPLICIT);
+            final var entry2 = session.createSubscription(datasetAddress2, SubscriptionMode.IMPLICIT);
             entry1.setMode(SubscriptionMode.EXPLICIT);
             entry2.setMode(SubscriptionMode.EXPLICIT);
         } finally {
@@ -1155,8 +1163,8 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            assertNull(session.findSubscriptionEntry(datasetAddress1));
-            assertNull(session.findSubscriptionEntry(datasetAddress2));
+            assertNull(session.findSubscription(datasetAddress1));
+            assertNull(session.findSubscription(datasetAddress2));
         } finally {
             session.getLock().unlock();
         }
@@ -1198,15 +1206,15 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntry = session.createSubscriptionEntry(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
-            sourceEntry.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddress, SubscriptionMode.IMPLICIT);
+            final var sourceSubscription = session.createSubscription(sourceDatasetAddress, SubscriptionMode.IMPLICIT);
+            sourceSubscription.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddress, SubscriptionMode.IMPLICIT);
             session.recordDatasetScopedSubscriptionDependency(sourceDatasetAddress, targetDatasetAddress);
 
             manager.sendChangeSet(session, packet);
 
-            assertNull(session.findSubscriptionEntry(sourceDatasetAddress));
-            assertNull(session.findSubscriptionEntry(targetDatasetAddress));
+            assertNull(session.findSubscription(sourceDatasetAddress));
+            assertNull(session.findSubscription(targetDatasetAddress));
         } finally {
             session.getLock().unlock();
         }
@@ -1264,21 +1272,21 @@ public class ReplicantSessionManagerImplTest {
 
         session.getLock().lock();
         try {
-            final var sourceEntryA = session.createSubscriptionEntry(sourceAddressA, SubscriptionMode.IMPLICIT);
-            final var sourceEntryB = session.createSubscriptionEntry(sourceAddressB, SubscriptionMode.IMPLICIT);
-            sourceEntryA.setMode(SubscriptionMode.EXPLICIT);
-            sourceEntryB.setMode(SubscriptionMode.EXPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddressA, SubscriptionMode.IMPLICIT);
-            session.createSubscriptionEntry(targetDatasetAddressB, SubscriptionMode.IMPLICIT);
+            final var sourceSubscriptionA = session.createSubscription(sourceAddressA, SubscriptionMode.IMPLICIT);
+            final var sourceSubscriptionB = session.createSubscription(sourceAddressB, SubscriptionMode.IMPLICIT);
+            sourceSubscriptionA.setMode(SubscriptionMode.EXPLICIT);
+            sourceSubscriptionB.setMode(SubscriptionMode.EXPLICIT);
+            session.createSubscription(targetDatasetAddressA, SubscriptionMode.IMPLICIT);
+            session.createSubscription(targetDatasetAddressB, SubscriptionMode.IMPLICIT);
             session.recordDatasetScopedSubscriptionDependency(sourceAddressA, targetDatasetAddressA);
             session.recordDatasetScopedSubscriptionDependency(sourceAddressB, targetDatasetAddressB);
 
             manager.sendChangeSet(session, packet);
 
-            assertNull(session.findSubscriptionEntry(sourceAddressA));
-            assertNull(session.findSubscriptionEntry(sourceAddressB));
-            assertNull(session.findSubscriptionEntry(targetDatasetAddressA));
-            assertNull(session.findSubscriptionEntry(targetDatasetAddressB));
+            assertNull(session.findSubscription(sourceAddressA));
+            assertNull(session.findSubscription(sourceAddressB));
+            assertNull(session.findSubscription(targetDatasetAddressA));
+            assertNull(session.findSubscription(targetDatasetAddressB));
         } finally {
             session.getLock().unlock();
         }
@@ -1489,9 +1497,8 @@ public class ReplicantSessionManagerImplTest {
             _subscriptionCollectionCalls.add(new SubscriptionCollectionCall(datasetAddresses, filterParameter, mode));
             if (null != session) {
                 for (final var datasetAddress : datasetAddresses) {
-                    final var existing = session.findSubscriptionEntry(datasetAddress);
-                    final var entry =
-                            null == existing ? session.createSubscriptionEntry(datasetAddress, mode) : existing;
+                    final var existing = session.findSubscription(datasetAddress);
+                    final var entry = null == existing ? session.createSubscription(datasetAddress, mode) : existing;
                     entry.setFilterParameter(filterParameter);
                     if (SubscriptionMode.EXPLICIT == mode) {
                         entry.setMode(SubscriptionMode.EXPLICIT);

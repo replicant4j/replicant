@@ -34,7 +34,7 @@ public class ChangeSetMessage extends ServerToClientMessage {
     private EntityChange[] entityChanges;
 
     @Nullable
-    private Object response;
+    private Object commandResult;
 
     @JsOverlay
     @NonNull
@@ -45,7 +45,7 @@ public class ChangeSetMessage extends ServerToClientMessage {
             @Nullable final String[] subscriptionChanges,
             @Nullable final SubscriptionChangeMessage[] filterParameterSubscriptionChanges,
             @Nullable final EntityChange[] entityChanges,
-            @Nullable final Object response) {
+            @Nullable final Object commandResult) {
         final ChangeSetMessage changeSet = new ChangeSetMessage();
         changeSet.type = TYPE;
         changeSet.requestId = null == requestId ? null : requestId.doubleValue();
@@ -53,7 +53,7 @@ public class ChangeSetMessage extends ServerToClientMessage {
         changeSet.subscriptionChanges = subscriptionChanges;
         changeSet.filterParameterSubscriptionChanges = filterParameterSubscriptionChanges;
         changeSet.entityChanges = entityChanges;
-        changeSet.response = response;
+        changeSet.commandResult = commandResult;
         return changeSet;
     }
 
@@ -71,8 +71,8 @@ public class ChangeSetMessage extends ServerToClientMessage {
      */
     @Nullable
     @JsOverlay
-    public final Object getResponse() {
-        return response;
+    public final Object getCommandResult() {
+        return commandResult;
     }
 
     /**

@@ -76,7 +76,7 @@ public interface ReplicantSessionManager {
      * Send the Change Set in the packet to the client.
      * The Change Set is most likely the result of a request.
      * If the session that initiated the request is the specified session,
-     * then the requestId and response parameters will be present.
+     * then the Request ID and Command Result will be present when applicable.
      *
      * @param session the session
      * @param packet  the packet containing the Change Set.

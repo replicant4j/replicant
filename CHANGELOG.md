@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+* Align implementation terminology with the canonical glossary: rename the client Command Result handler and Change
+  Set wire member, rename the server Subscription representation, and replace remaining service-state wording with
+  Connector State or Replicant Context State. This is a hard-cut client, server, generator, application, and wire
+  protocol migration with no compatibility aliases.
 * Extend the canonical glossary with Connector State, Request, Request ID, Entity Change Payload, Command Result, and
   Replica Entry terminology, and clarify that the Replica Registry indexes Replica Entries rather than materialized
   Replica objects directly.

@@ -16,7 +16,7 @@ import replicant.server.EntityChangeCandidate;
  *
  * @param fromSubscriptionRequest true if the packet resulted from a Subscription request.
  * @param requestId               the request that resulted in this change when the packet is sent to the initiator.
- * @param response                the response when the packet is sent to the request initiator.
+ * @param commandResult           the Command Result when the packet is sent to the Command initiator.
  * @param datasetCacheVersion     the opaque Dataset Cache Version for a complete Cacheable Dataset Change Set, if any.
  * @param entityChangeCandidates  the Entity Change Candidates collected during the transaction.
  * @param changeSet               the complete Change Set carried by this packet.
@@ -26,7 +26,7 @@ import replicant.server.EntityChangeCandidate;
 public record Packet(
         boolean fromSubscriptionRequest,
         @Nullable Integer requestId,
-        @Nullable JsonValue response,
+        @Nullable JsonValue commandResult,
         @Nullable String datasetCacheVersion,
         @NonNull Collection<EntityChangeCandidate> entityChangeCandidates,
         @NonNull ChangeSet changeSet,
@@ -34,14 +34,14 @@ public record Packet(
     public Packet(
             final boolean fromSubscriptionRequest,
             @Nullable final Integer requestId,
-            @Nullable final JsonValue response,
+            @Nullable final JsonValue commandResult,
             @Nullable final String datasetCacheVersion,
             @NonNull final Collection<EntityChangeCandidate> entityChangeCandidates,
             @NonNull final ChangeSet changeSet) {
         this(
                 fromSubscriptionRequest,
                 requestId,
-                response,
+                commandResult,
                 datasetCacheVersion,
                 entityChangeCandidates,
                 changeSet,

@@ -217,7 +217,7 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Retrieve the Connector service associated with the System Schema.
+     * Retrieve the Connector associated with the System Schema.
      */
     @NonNull
     Connector getConnector(final int systemSchemaId) {

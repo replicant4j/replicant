@@ -393,14 +393,14 @@ public final class ReplicantContext {
      * @param systemSchemaId  the System Schema ID.
      * @param commandName     the Command name.
      * @param payload         the optional Command payload.
-     * @param responseHandler the ResponseHandler invoked when a result is received.
+     * @param commandResultHandler the handler invoked when the Command Result is received.
      */
     public void sendCommand(
             final int systemSchemaId,
             @NonNull final String commandName,
             @Nullable final Object payload,
-            @Nullable final ResponseHandler responseHandler) {
-        getRuntime().getConnector(systemSchemaId).requestCommand(commandName, payload, responseHandler);
+            @Nullable final CommandResultHandler commandResultHandler) {
+        getRuntime().getConnector(systemSchemaId).requestCommand(commandName, payload, commandResultHandler);
     }
 
     /**

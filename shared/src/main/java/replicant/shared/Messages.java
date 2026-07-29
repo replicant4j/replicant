@@ -122,7 +122,7 @@ public final class Messages {
         public static final String SUBSCRIPTION_CHANGES = "subscriptionChanges";
 
         @NonNull
-        public static final String RESPONSE = "response";
+        public static final String COMMAND_RESULT = "commandResult";
 
         @NonNull
         public static final String SUBSCRIPTION_CHANGE = "subscriptionChange";

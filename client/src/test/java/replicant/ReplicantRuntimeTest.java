@@ -131,11 +131,11 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         final SystemSchema systemSchema2 = newSystemSchema();
         final SystemSchema systemSchema3 = newSystemSchema();
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(systemSchema1);
-        final Connector service2 = createConnector(systemSchema2);
+        final Connector connector1 = createConnector(systemSchema1);
+        final Connector connector2 = createConnector(systemSchema2);
 
-        assertEquals(runtime.getConnector(service1.getSystemSchema().getId()), service1);
-        assertEquals(runtime.getConnector(service2.getSystemSchema().getId()), service2);
+        assertEquals(runtime.getConnector(connector1.getSystemSchema().getId()), connector1);
+        assertEquals(runtime.getConnector(connector2.getSystemSchema().getId()), connector2);
 
         assertThrows(IllegalStateException.class, () -> runtime.getConnector(systemSchema3.getId()));
     }
@@ -145,68 +145,68 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         final SystemSchema systemSchema1 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(systemSchema1);
+        final Connector connector1 = createConnector(systemSchema1);
 
         final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
-                service1.getSystemSchema().getId());
+                connector1.getSystemSchema().getId());
 
         final Disposable schedulerLock1 = pauseScheduler();
         runtime.deactivate();
-        reset(service1.getTransport());
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        reset(connector1.getTransport());
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock1.dispose();
-        verify(service1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
 
-        reset(service1.getTransport());
+        reset(connector1.getTransport());
 
-        // set service state to in transition so connect is not called
+        // set Connector State to in transition so connect is not called
 
         final Disposable schedulerLock2 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.CONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTING));
         entry1.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock2.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
 
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTING));
         entry1.getRateLimiter().fillBucket();
         runtime.activate();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to connected so no action required
+        // set Connector State to connected so no action required
 
         final Disposable schedulerLock3 = pauseScheduler();
         runtime.deactivate();
-        newConnection(service1);
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        newConnection(connector1);
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
         entry1.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock3.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to disconnected but rate limit it
+        // set Connector State to disconnected but rate limit it
 
         final Disposable schedulerLock4 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().setTokenCount(0);
         runtime.activate();
         schedulerLock4.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to disconnected but rate limit it
+        // set Connector State to disconnected but rate limit it
 
         final Disposable schedulerLock5 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock5.dispose();
-        verify(service1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
     }
 
     @Test
@@ -216,95 +216,95 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
 
-        final Connector service1 = createConnector(systemSchema1);
+        final Connector connector1 = createConnector(systemSchema1);
         final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
-                service1.getSystemSchema().getId());
+                connector1.getSystemSchema().getId());
 
-        final Connector service3 = createConnector(systemSchema3);
+        final Connector connector3 = createConnector(systemSchema3);
         final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemSchemaId(
-                service3.getSystemSchema().getId());
+                connector3.getSystemSchema().getId());
 
-        reset(service1.getTransport());
-        reset(service3.getTransport());
+        reset(connector1.getTransport());
+        reset(connector3.getTransport());
 
         final Disposable schedulerLock1 = pauseScheduler();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
-        safeAction(() -> service3.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector3.setState(ConnectorState.DISCONNECTED));
         runtime.deactivate();
         entry1.getRateLimiter().fillBucket();
         entry3.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock1.dispose();
-        verify(service1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), times(1)).requestConnect(any(TransportContext.class));
 
-        reset(service1.getTransport());
-        reset(service3.getTransport());
+        reset(connector1.getTransport());
+        reset(connector3.getTransport());
 
-        // set service state to in transition so connect is not called
+        // set Connector State to in transition so connect is not called
 
         final Disposable schedulerLock2 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.CONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTING));
         entry1.getRateLimiter().fillBucket();
-        safeAction(() -> service3.setState(ConnectorState.CONNECTING));
+        safeAction(() -> connector3.setState(ConnectorState.CONNECTING));
         entry3.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock2.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), never()).requestConnect(any(TransportContext.class));
 
         final Disposable schedulerLock3 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTING));
         entry1.getRateLimiter().fillBucket();
-        safeAction(() -> service3.setState(ConnectorState.DISCONNECTING));
+        safeAction(() -> connector3.setState(ConnectorState.DISCONNECTING));
         entry3.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock3.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to connected so no action required
+        // set Connector State to connected so no action required
 
         final Disposable schedulerLock4 = pauseScheduler();
         runtime.deactivate();
-        newConnection(service1);
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        newConnection(connector1);
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
         entry1.getRateLimiter().fillBucket();
-        newConnection(service3);
-        safeAction(() -> service3.setState(ConnectorState.CONNECTED));
+        newConnection(connector3);
+        safeAction(() -> connector3.setState(ConnectorState.CONNECTED));
         entry3.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock4.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to disconnected but rate limit it
+        // set Connector State to disconnected but rate limit it
 
         final Disposable schedulerLock5 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().setTokenCount(0);
-        safeAction(() -> service3.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector3.setState(ConnectorState.DISCONNECTED));
         entry3.getRateLimiter().setTokenCount(0);
         runtime.activate();
         schedulerLock5.dispose();
-        verify(service1.getTransport(), never()).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), never()).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), never()).requestConnect(any(TransportContext.class));
 
-        // set service state to disconnected but rate limit it
+        // set Connector State to disconnected but rate limit it
 
         final Disposable schedulerLock6 = pauseScheduler();
         runtime.deactivate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().fillBucket();
-        safeAction(() -> service3.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector3.setState(ConnectorState.DISCONNECTED));
         entry3.getRateLimiter().fillBucket();
         runtime.activate();
         schedulerLock6.dispose();
-        verify(service1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
-        verify(service3.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector1.getTransport(), times(1)).requestConnect(any(TransportContext.class));
+        verify(connector3.getTransport(), times(1)).requestConnect(any(TransportContext.class));
     }
 
     @Test
@@ -312,68 +312,68 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         final SystemSchema systemSchema1 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(systemSchema1);
-        newConnection(service1);
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        final Connector connector1 = createConnector(systemSchema1);
+        newConnection(connector1);
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
 
         final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
-                service1.getSystemSchema().getId());
+                connector1.getSystemSchema().getId());
 
         runtime.activate();
 
-        reset(service1.getTransport());
+        reset(connector1.getTransport());
 
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), times(1)).requestDisconnect();
+        verify(connector1.getTransport(), times(1)).requestDisconnect();
 
-        reset(service1.getTransport());
+        reset(connector1.getTransport());
 
-        // set service state to in transition so connect is not called
+        // set Connector State to in transition so connect is not called
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.CONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTING));
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), never()).requestDisconnect();
+        verify(connector1.getTransport(), never()).requestDisconnect();
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTING));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTING));
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), never()).requestDisconnect();
+        verify(connector1.getTransport(), never()).requestDisconnect();
 
-        // set service state to DISCONNECTED so no action required
+        // set Connector State to DISCONNECTED so no action required
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.DISCONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.DISCONNECTED));
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), never()).requestDisconnect();
+        verify(connector1.getTransport(), never()).requestDisconnect();
 
-        // set service state to ERROR so no action required
+        // set Connector State to ERROR so no action required
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.ERROR));
+        safeAction(() -> connector1.setState(ConnectorState.ERROR));
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), never()).requestDisconnect();
+        verify(connector1.getTransport(), never()).requestDisconnect();
 
-        // set service state to connected but rate limit it
+        // set Connector State to connected but rate limit it
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
         entry1.getRateLimiter().setTokenCount(0);
         runtime.deactivate();
-        verify(service1.getTransport(), never()).requestDisconnect();
+        verify(connector1.getTransport(), never()).requestDisconnect();
 
-        // set service state to connected
+        // set Connector State to connected
 
         runtime.activate();
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
         entry1.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), times(1)).requestDisconnect();
+        verify(connector1.getTransport(), times(1)).requestDisconnect();
     }
 
     @Test
@@ -382,30 +382,30 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         final SystemSchema systemSchema2 = newSystemSchema();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        final Connector service1 = createConnector(systemSchema1);
-        newConnection(service1);
-        safeAction(() -> service1.setState(ConnectorState.CONNECTED));
+        final Connector connector1 = createConnector(systemSchema1);
+        newConnection(connector1);
+        safeAction(() -> connector1.setState(ConnectorState.CONNECTED));
 
-        final Connector service3 = createConnector(systemSchema2);
-        newConnection(service3);
-        safeAction(() -> service3.setState(ConnectorState.CONNECTED));
+        final Connector connector3 = createConnector(systemSchema2);
+        newConnection(connector3);
+        safeAction(() -> connector3.setState(ConnectorState.CONNECTED));
 
         final ConnectorEntry entry1 = runtime.getConnectorEntryBySystemSchemaId(
-                service1.getSystemSchema().getId());
+                connector1.getSystemSchema().getId());
         final ConnectorEntry entry3 = runtime.getConnectorEntryBySystemSchemaId(
-                service3.getSystemSchema().getId());
+                connector3.getSystemSchema().getId());
         entry3.setRequired(false);
 
         runtime.activate();
 
-        reset(service1.getTransport());
-        reset(service3.getTransport());
+        reset(connector1.getTransport());
+        reset(connector3.getTransport());
 
         entry1.getRateLimiter().fillBucket();
         entry3.getRateLimiter().fillBucket();
         runtime.deactivate();
-        verify(service1.getTransport(), times(1)).requestDisconnect();
-        verify(service3.getTransport(), times(1)).requestDisconnect();
+        verify(connector1.getTransport(), times(1)).requestDisconnect();
+        verify(connector3.getTransport(), times(1)).requestDisconnect();
     }
 
     @Test

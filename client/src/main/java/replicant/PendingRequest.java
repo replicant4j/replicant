@@ -12,15 +12,15 @@ final class PendingRequest {
     private final SafeProcedure _callback;
 
     @Nullable
-    private final ResponseHandler _responseHandler;
+    private final CommandResultHandler _commandResultHandler;
 
     PendingRequest(
             @Nullable final String name,
             @NonNull final SafeProcedure callback,
-            @Nullable final ResponseHandler responseHandler) {
+            @Nullable final CommandResultHandler commandResultHandler) {
         _name = name;
         _callback = Objects.requireNonNull(callback);
-        _responseHandler = responseHandler;
+        _commandResultHandler = commandResultHandler;
     }
 
     @Nullable
@@ -34,7 +34,7 @@ final class PendingRequest {
     }
 
     @Nullable
-    ResponseHandler getResponseHandler() {
-        return _responseHandler;
+    CommandResultHandler getCommandResultHandler() {
+        return _commandResultHandler;
     }
 }

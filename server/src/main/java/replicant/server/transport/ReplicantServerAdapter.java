@@ -105,7 +105,7 @@ public interface ReplicantServerAdapter {
     /**
      * Collect the current contents of a Dataset selection into the Change Set when changing a Subscription Filter
      * Parameter.
-     * It is expected that the hook does everything including updating SubscriptionEntry with new
+     * It is expected that the hook does everything including updating Subscription with new
      * Filter Parameter and reconciling Subscription Dependencies.
      *
      * @param session        the session.
