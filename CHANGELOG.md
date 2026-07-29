@@ -25,9 +25,9 @@
   an unknown client request as a request rather than a command. This is a hard-cut client, server, generator,
   diagnostic-event, and wire-protocol migration with no compatibility aliases.
 * Adopt Replicant Session ID terminology for the server-issued identifier of one Replicant Session. Replace client
-  Connection ID APIs and Rose Client Session ID names with Replicant Session ID, while preserving Rose's existing
-  `ClientSessionId` database column. This is a hard-cut client and application API migration with no compatibility
-  aliases.
+  Connection ID APIs and Rose Client Session ID names with Replicant Session ID, align the Session Created message
+  documentation, and preserve Rose's existing `ClientSessionId` database column. This is a hard-cut client and
+  application API migration with no compatibility aliases.
 * Adopt Delivery Required terminology for the Change Set state that forces delivery when no Subscription Changes or
   Entity Changes are present. Rename the server API to `isDeliveryRequired()`, `setDeliveryRequired(...)`, and
   `shouldDeliver()` so the override and the resulting delivery decision are distinct. This is a hard-cut server API
