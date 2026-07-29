@@ -134,7 +134,8 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      */
     protected void onRequestStarted(@NonNull final RequestStartedEvent e) {
         log(
-                "%cRequest started. System Schema: " + e.getName() + " Request: " + e.getName() + " RequestId: "
+                "%cRequest started. System Schema: " + e.getSystemSchemaName() + " Request: " + e.getName()
+                        + " Request ID: "
                         + e.getRequestId(),
                 CONNECTOR_COLOR);
     }
@@ -145,13 +146,9 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param e the event.
      */
     protected void onRequestCompleted(@NonNull final RequestCompletedEvent e) {
-        final String changeSetDescription = !e.isExpectingResults()
-                ? "No Change set expected."
-                : e.haveResultsArrived() ? "Change set has already arrived." : "Change set has not arrived.";
-
         log(
                 "%cRequest completed. System Schema: " + e.getSystemSchemaName() + " Request: " + e.getName()
-                        + " RequestId: " + e.getRequestId() + " - " + changeSetDescription,
+                        + " Request ID: " + e.getRequestId(),
                 CONNECTOR_COLOR);
     }
 

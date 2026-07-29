@@ -34,6 +34,7 @@ import replicant.spy.DisconnectedEvent;
 import replicant.spy.MessageProcessedEvent;
 import replicant.spy.MessageProcessingFailureEvent;
 import replicant.spy.MessageReadFailureEvent;
+import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
 import replicant.spy.SubscribeRequestQueuedEvent;
@@ -2860,7 +2861,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertNull(connection.getCurrentMessageProcessing());
 
-        handler.assertEventCount(2);
+        handler.assertEventCount(3);
+        handler.assertNextEvent(RequestCompletedEvent.class, e -> {
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
+            assertEquals(e.getRequestId(), request.getRequestId());
+            assertEquals(e.getName(), request.getName());
+        });
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
@@ -2963,7 +2970,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertNull(connection.getCurrentMessageProcessing());
         assertNull(connection.getRequests().get(requestId));
 
-        handler.assertEventCount(1);
+        handler.assertEventCount(2);
+        handler.assertNextEvent(RequestCompletedEvent.class, e -> {
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
+            assertEquals(e.getRequestId(), request.getRequestId());
+            assertEquals(e.getName(), request.getName());
+        });
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());

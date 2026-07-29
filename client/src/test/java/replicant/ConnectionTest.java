@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UseDatasetCacheEntryMessage;
+import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 
 public class ConnectionTest extends AbstractReplicantTest {
@@ -218,6 +219,7 @@ public class ConnectionTest extends AbstractReplicantTest {
         handler.assertEventCount(1);
         handler.assertNextEvent(RequestStartedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
             assertEquals(e.getRequestId(), request.getRequestId());
             assertEquals(e.getName(), requestName);
         });
@@ -229,6 +231,13 @@ public class ConnectionTest extends AbstractReplicantTest {
         connection.removeRequest(request.getRequestId());
 
         assertNull(connection.getRequests().get(request.getRequestId()));
+        handler.assertEventCount(2);
+        handler.assertNextEvent(RequestCompletedEvent.class, e -> {
+            assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
+            assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
+            assertEquals(e.getRequestId(), request.getRequestId());
+            assertEquals(e.getName(), requestName);
+        });
     }
 
     @Test

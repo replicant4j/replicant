@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Emit `RequestCompletedEvent` when a Request leaves active tracking, correct Request console telemetry to report the
+  System Schema name, and remove obsolete result-arrival flags that no longer describe the single-message Request
+  lifecycle.
 * Remove the inert `PushReplicationState` interceptor binding. No interceptor implemented the binding, so its
   annotations had no runtime effect. This is a hard-cut server API removal with no compatibility alias.
 * Remove the unused `Request` facade and `PendingRequest` implementation together with the isolated `Request` test.

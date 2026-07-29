@@ -16,6 +16,7 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
+import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
 
 /**
@@ -221,8 +222,21 @@ abstract class Connection {
 
     void removeRequest(final int requestId) {
         final RequestEntry entry = _requests.remove(requestId);
-        if (null != entry && entry.isSynchronizationPointRequest()) {
-            setLastReachedSynchronizationPointRequestId(requestId);
+        if (null != entry) {
+            if (entry.isSynchronizationPointRequest()) {
+                setLastReachedSynchronizationPointRequestId(requestId);
+            }
+            if (Replicant.areSpiesEnabled()
+                    && _connector.getReplicantContext().getSpy().willPropagateSpyEvents()) {
+                _connector
+                        .getReplicantContext()
+                        .getSpy()
+                        .reportSpyEvent(new RequestCompletedEvent(
+                                _connector.getSystemSchema().getId(),
+                                _connector.getSystemSchema().getName(),
+                                entry.getRequestId(),
+                                entry.getName()));
+            }
         }
         if (Replicant.shouldCheckInvariants()) {
             invariant(

@@ -7,6 +7,8 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.spy.RequestCompletedEvent;
+import replicant.spy.RequestStartedEvent;
 
 public class SpyEventProcessorTest extends AbstractReplicantTest {
     private static class TestSpyEventProcessor extends AbstractSpyEventProcessor {
@@ -20,6 +22,15 @@ public class SpyEventProcessorTest extends AbstractReplicantTest {
     }
 
     private static class FakeEvent {}
+
+    private static class TestConsoleSpyEventProcessor extends ConsoleSpyEventProcessor {
+        private String _message = "";
+
+        @Override
+        protected void log(@NonNull final String message, @NonNull final String styling) {
+            _message = message;
+        }
+    }
 
     @Test
     public void handleUnhandledEvent() {
@@ -58,5 +69,16 @@ public class SpyEventProcessorTest extends AbstractReplicantTest {
                 "Replicant-0036: Attempting to call AbstractSpyEventProcessor.on() to register a processor for type"
                         + " class replicant.spy.tools.SpyEventProcessorTest$FakeEvent but an existing processor already"
                         + " exists for type");
+    }
+
+    @Test
+    public void requestLifecycleMessages() {
+        final TestConsoleSpyEventProcessor processor = new TestConsoleSpyEventProcessor();
+
+        processor.onSpyEvent(new RequestStartedEvent(23, "Rose", 42, "Load"));
+        assertEquals(processor._message, "%cRequest started. System Schema: Rose Request: Load Request ID: 42");
+
+        processor.onSpyEvent(new RequestCompletedEvent(23, "Rose", 42, "Load"));
+        assertEquals(processor._message, "%cRequest completed. System Schema: Rose Request: Load Request ID: 42");
     }
 }

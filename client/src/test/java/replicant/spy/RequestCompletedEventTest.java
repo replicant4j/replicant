@@ -12,15 +12,12 @@ public class RequestCompletedEventTest extends AbstractReplicantTest {
     public void basicOperation() {
         final int requestId = ValueUtil.randomInt();
         final String name = ValueUtil.randomString();
-        final boolean expectingResults = ValueUtil.randomBoolean();
-        final boolean resultsArrived = ValueUtil.randomBoolean();
-        final RequestCompletedEvent event =
-                new RequestCompletedEvent(23, "Rose", requestId, name, expectingResults, resultsArrived);
+        final RequestCompletedEvent event = new RequestCompletedEvent(23, "Rose", requestId, name);
 
+        assertEquals(event.getSystemSchemaId(), 23);
+        assertEquals(event.getSystemSchemaName(), "Rose");
         assertEquals(event.getRequestId(), requestId);
         assertEquals(event.getName(), name);
-        assertEquals(event.isExpectingResults(), expectingResults);
-        assertEquals(event.haveResultsArrived(), resultsArrived);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
@@ -30,9 +27,7 @@ public class RequestCompletedEventTest extends AbstractReplicantTest {
         assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.get("requestId"), requestId);
         assertEquals(data.get("name"), name);
-        assertEquals(data.get("expectingResults"), expectingResults);
-        assertEquals(data.get("resultsArrived"), resultsArrived);
 
-        assertEquals(data.size(), 7);
+        assertEquals(data.size(), 5);
     }
 }
