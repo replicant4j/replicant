@@ -13,11 +13,11 @@ import org.jspecify.annotations.NonNull;
  */
 public final class DatasetLink {
     /**
-     * The identifier of the source Dataset.
+     * The Dataset ID of the source Dataset.
      */
     private final int _sourceDatasetId;
     /**
-     * The identifier of the target Dataset.
+     * The Dataset ID of the target Dataset.
      */
     private final int _targetDatasetId;
     /**

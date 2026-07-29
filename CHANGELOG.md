@@ -8,8 +8,8 @@
   remaining orphan-Subscription method and field names without changing behavior.
 * Align Connector configuration documentation with Required Connector terminology, replacing the remaining generic
   required-flag wording.
-* Complete client and server documentation and diagnostic alignment with Dataset ID terminology, replacing the
-  remaining generic identifier, lowercase `id`, and raw `datasetId` wording.
+* Complete client and server documentation and diagnostic alignment with Dataset ID terminology, including Dataset
+  Link fields and replacing the remaining generic identifier, lowercase `id`, and raw `datasetId` wording.
 * Complete client documentation and diagnostic alignment with System Schema ID terminology, replacing the remaining
   generic identifier and lowercase `id` wording.
 * Adopt Message Processing terminology for the incremental client-side application of a server-to-client message.
