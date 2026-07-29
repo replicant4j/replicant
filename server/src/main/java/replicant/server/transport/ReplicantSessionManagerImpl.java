@@ -549,8 +549,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
         routeEntityChangeCandidates(entityChangeCandidates, session, changeSet);
 
-        // Change Sets from a Subscription that queue a use-dataset-cache-entry message still come through here.
-        // shouldDeliver() returns false because there are no changes and Delivery Required is unset.
+        // A Subscription Operation that queues a Dataset Cache Entry reference still reaches this point.
+        // Its Change Set has no changes and Delivery Required is false, so shouldDeliver() returns false.
         if (changeSet.shouldDeliver()) {
             final var start = System.nanoTime();
 
