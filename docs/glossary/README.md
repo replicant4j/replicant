@@ -224,11 +224,19 @@ _Avoid_: Instance graph, rooted dataset
 
 ### Dataset Root
 
-The identified [Entity](#entity) from which an [Instance Dataset](#instance-dataset) traversal begins. The Dataset
-definition specifies its [Entity Type](#entity-type), while the [Dataset Address](#dataset-address) supplies its
-identifier.
+The identified [Entity](#entity) from which an [Instance Dataset](#instance-dataset) traversal begins. The
+[Dataset](#dataset) definition specifies its [Entity Type](#entity-type), while the
+[Dataset Address](#dataset-address) supplies its [Dataset Root ID](#dataset-root-id).
 
 _Avoid_: Instance root
+
+### Dataset Root ID
+
+The [Entity ID](#entity-id) of the [Dataset Root](#dataset-root) used by an
+[Instance Dataset](#instance-dataset) selection. It forms part of its [Dataset Address](#dataset-address) and is absent
+from a [Type Dataset](#type-dataset) address.
+
+_Avoid_: Dataset Root identifier
 
 ### Dataset Traversal
 
@@ -339,7 +347,7 @@ _Avoid_: Filter instance ID, subscription key
 ### Dataset Address
 
 The identity of a subscribable [Dataset](#dataset) selection. It combines the [System Schema](#system-schema) and
-Dataset identities with a [Dataset Root](#dataset-root) identifier and [Dataset Key](#dataset-key) when required.
+Dataset identities with a [Dataset Root ID](#dataset-root-id) and [Dataset Key](#dataset-key) when required.
 
 _Avoid_: Channel address, graph address, subscription address
 

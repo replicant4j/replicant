@@ -216,12 +216,12 @@ public class ReplicantEndpoint {
         } else if (datasetAddress.hasDatasetRootId() && dataset.isTypeDataset()) {
             sendErrorAndClose(
                     replicantSession,
-                    "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
+                    "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root ID");
             return false;
         } else if (!datasetAddress.hasDatasetRootId() && dataset.isInstanceDataset()) {
             sendErrorAndClose(
                     replicantSession,
-                    "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
+                    "Attempted to subscribe using a Dataset Address without a required Dataset Root ID");
             return false;
         } else {
             return validateDatasetKey(replicantSession, dataset, datasetAddress);
@@ -317,12 +317,12 @@ public class ReplicantEndpoint {
         } else if (datasetAddress.hasDatasetRootId() && dataset.isTypeDataset()) {
             sendErrorAndClose(
                     replicantSession,
-                    "Attempted to unsubscribe using a Dataset Address with an unexpected Dataset Root identifier");
+                    "Attempted to unsubscribe using a Dataset Address with an unexpected Dataset Root ID");
             return false;
         } else if (!datasetAddress.hasDatasetRootId() && dataset.isInstanceDataset()) {
             sendErrorAndClose(
                     replicantSession,
-                    "Attempted to unsubscribe using a Dataset Address without a required Dataset Root identifier");
+                    "Attempted to unsubscribe using a Dataset Address without a required Dataset Root ID");
             return false;
         } else {
             return validateDatasetKey(replicantSession, dataset, datasetAddress);

@@ -117,7 +117,7 @@ Changes until it unsubscribes or disconnects.
 
 Within its System Schema, each Dataset definition has a compact Dataset ID used by runtime metadata and Dataset
 Addresses. It may also have a human-readable Dataset name for diagnostics. The Dataset ID identifies the reusable
-definition; it is distinct from the Dataset Root identifier and Dataset Key that complete particular Dataset
+definition; it is distinct from the Dataset Root ID and Dataset Key that complete particular Dataset
 Addresses.
 
 Datasets have several independent dimensions:
@@ -138,11 +138,11 @@ subscriber; authorization is evaluated separately for every direct Subscription 
 commonly use Type Datasets for reference data so that the complete configured populations arrive in one selection.
 
 **Instance Datasets**: An Instance Dataset selects candidates by configured traversal beginning at a Dataset Root. The
-Dataset definition specifies the Dataset Root Entity Type, while each Dataset Address supplies the Dataset Root
-identifier. Traversal is transitive but may be explicitly shaped or pruned and need not form a mathematical graph. For
-example, an Instance Dataset whose Dataset Root Entity Type is `Person` may traverse through `Accreditation` entities
-to `EvaluationResult` entities. A subscription whose Dataset Root is "Bob" then receives the selected entities
-associated with Bob.
+Dataset definition specifies the Dataset Root Entity Type, while each Dataset Address supplies the Dataset Root ID.
+Traversal is transitive but may be explicitly shaped or pruned and need not form a mathematical graph. For example,
+an Instance Dataset whose Dataset Root Entity Type is `Person` may traverse through `Accreditation` entities to
+`EvaluationResult` entities. A subscription whose Dataset Root is "Bob" then receives the selected entities associated
+with Bob.
 
 **Unfiltered Dataset**: An unfiltered Dataset includes every otherwise eligible Entity without further filtering.
 
@@ -198,7 +198,7 @@ at a Dataset Address using the latest desired Filter Parameter. Its satisfaction
 while a changed Filter Parameter is pending. Invalidation is terminal for that Dataset Address within the Replicant
 Context, including across reconnects.
 
-The Dataset Root identifier for an Instance Dataset forms part of the Dataset Address. A Dataset Key is also part of
+The Dataset Root ID for an Instance Dataset forms part of the Dataset Address. A Dataset Key is also part of
 the address and is embedded in its descriptor after a `#` suffix. The Filter Parameter remains outside the Dataset
 Address.
 

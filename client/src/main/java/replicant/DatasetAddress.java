@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * The immutable identity of a subscribable Dataset selection.
  *
- * <p>A Dataset Address combines the System Schema ID and Dataset ID with a Dataset Root identifier and Dataset Key
+ * <p>A Dataset Address combines the System Schema ID and Dataset ID with a Dataset Root ID and Dataset Key
  * when required.
  */
 public final class DatasetAddress implements Comparable<DatasetAddress> {

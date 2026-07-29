@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Adopt Dataset Root ID as the canonical term for the Entity ID that identifies an Instance Dataset's Dataset Root.
+  Replace Dataset Root identifier wording in the glossary, documentation, APIs, diagnostics, and Domgen comments.
 * Complete Entity Type ID wording in Dataset lookup documentation, Domgen-generated constants, and System Schema
   test diagnostics.
 * Align client reconciliation and Message Processing state with Orphaned Subscription terminology, replacing the
@@ -94,9 +96,9 @@
   * Rename the Domgen Dataset model property and DSL option from `code` to `id`, including ID-spaced System Schema
     metadata construction and duplicate-ID validation.
   * Rename `ReplicantContext.getInstanceDatasetSubscriptionIds(...)` to `getSubscribedDatasetRootIds(...)` so the
-    returned Dataset Root identifiers are not mistaken for Subscription or Dataset IDs.
+    returned Dataset Root IDs are not mistaken for Subscription or Dataset IDs.
   * Document the compact runtime Dataset ID separately from the human-readable Dataset name and from the Dataset Root
-    identifier and Dataset Key that complete a Dataset Address.
+    ID and Dataset Key that complete a Dataset Address.
   This is a hard-cut Domgen model and DSL migration with no compatibility alias. Existing numeric IDs, generated
   constants, Dataset Address serialization, transport messages, and database records are unchanged.
 * Adopt Replicant Context terminology for the client-side boundary that owns System Schema registrations, Areas of

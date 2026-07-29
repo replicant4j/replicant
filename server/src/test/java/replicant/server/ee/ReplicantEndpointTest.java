@@ -283,13 +283,13 @@ public final class ReplicantEndpointTest {
     @Test
     public void command_subscribe_typeWithRoot() throws Exception {
         assertInvalidSubscribe(
-                "0.1", "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root identifier");
+                "0.1", "Attempted to subscribe using a Dataset Address with an unexpected Dataset Root ID");
     }
 
     @Test
     public void command_subscribe_instanceWithoutRoot() throws Exception {
         assertInvalidSubscribe(
-                "1", "Attempted to subscribe using a Dataset Address without a required Dataset Root identifier");
+                "1", "Attempted to subscribe using a Dataset Address without a required Dataset Root ID");
     }
 
     @Test

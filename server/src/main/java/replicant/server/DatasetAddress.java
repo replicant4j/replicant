@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
  * The immutable identity of a subscribable Dataset selection.
  *
  * @param datasetId the Dataset ID
- * @param datasetRootId the Dataset Root identifier, when required
+ * @param datasetRootId the Dataset Root ID, when required
  * @param datasetKey the Dataset Key, when required
  */
 public record DatasetAddress(
