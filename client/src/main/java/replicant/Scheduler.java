@@ -9,8 +9,8 @@ import zemeckis.Zemeckis;
 final class Scheduler {
     private static final SchedulerSupport c_support = new SchedulerSupport();
 
-    static void schedule(@NonNull final SafeFunction<Boolean> command) {
-        c_support.schedule(command);
+    static void schedule(@NonNull final SafeFunction<Boolean> task) {
+        c_support.schedule(task);
     }
 
     /**
@@ -19,22 +19,22 @@ final class Scheduler {
     private static final class SchedulerSupport extends AbstractSchedulerSupport {
         @GwtIncompatible
         @Override
-        void schedule(@NonNull final SafeFunction<Boolean> command) {
+        void schedule(@NonNull final SafeFunction<Boolean> task) {
             //noinspection StatementWithEmptyBody
-            while (command.call()) {}
+            while (task.call()) {}
         }
     }
 
     private abstract static class AbstractSchedulerSupport {
-        void schedule(@NonNull final SafeFunction<Boolean> command) {
+        void schedule(@NonNull final SafeFunction<Boolean> task) {
             final long end = System.currentTimeMillis() + 14;
             while (System.currentTimeMillis() < end) {
-                if (!command.call()) {
+                if (!task.call()) {
                     return;
                 }
             }
             Zemeckis.delayedTask(
-                    Zemeckis.areNamesEnabled() ? "ReplicantIncrementalTask" : null, () -> schedule(command), 0);
+                    Zemeckis.areNamesEnabled() ? "ReplicantIncrementalTask" : null, () -> schedule(task), 0);
         }
     }
 

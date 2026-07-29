@@ -19,60 +19,62 @@ public class ConnectionTest extends AbstractReplicantTest {
     public void construct() {
         final Connection connection = createConnection();
 
-        assertNull(connection.getCurrentMessageResponse());
-        assertThrows(connection::ensureCurrentMessageResponse);
+        assertNull(connection.getCurrentMessageProcessing());
+        assertThrows(connection::ensureCurrentMessageProcessing);
 
         final RequestEntry request = connection.newRequest(ValueUtil.randomString(), false, null);
-        final MessageResponse response = new MessageResponse(1, OkMessage.create(request.getRequestId()), request);
-        connection.setCurrentMessageResponse(response);
+        final MessageProcessing processing =
+                new MessageProcessing(1, OkMessage.create(request.getRequestId()), request);
+        connection.setCurrentMessageProcessing(processing);
 
-        assertEquals(connection.getCurrentMessageResponse(), response);
-        assertEquals(connection.ensureCurrentMessageResponse(), response);
+        assertEquals(connection.getCurrentMessageProcessing(), processing);
+        assertEquals(connection.ensureCurrentMessageProcessing(), processing);
     }
 
     @Test
-    public void selectNextMessageResponse_noMessages() {
+    public void selectNextMessageProcessing_noMessages() {
         final Connection connection = createConnection();
 
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
 
-        final boolean selectedMessage = connection.selectNextMessageResponse();
+        final boolean selectedMessage = connection.selectNextMessageProcessing();
 
         assertFalse(selectedMessage);
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
     }
 
     @Test
-    public void selectNextMessageResponse() {
+    public void selectNextMessageProcessing() {
         final Connection connection = createConnection();
 
-        connection.enqueueResponse(UseDatasetCacheEntryMessage.create(null, "0", ValueUtil.randomString()), null);
+        connection.enqueueMessageForProcessing(
+                UseDatasetCacheEntryMessage.create(null, "0", ValueUtil.randomString()), null);
 
-        assertNull(connection.getCurrentMessageResponse());
-        assertEquals(connection.getPendingResponses().size(), 1);
+        assertNull(connection.getCurrentMessageProcessing());
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
 
-        final boolean selectedMessage = connection.selectNextMessageResponse();
+        final boolean selectedMessage = connection.selectNextMessageProcessing();
 
         assertTrue(selectedMessage);
-        final MessageResponse currentMessageResponse = connection.getCurrentMessageResponse();
-        assertNotNull(currentMessageResponse);
-        assertEquals(connection.getPendingResponses().size(), 0);
+        final MessageProcessing currentMessageProcessing = connection.getCurrentMessageProcessing();
+        assertNotNull(currentMessageProcessing);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 0);
     }
 
     @Test
-    public void requestExec() {
+    public void requestCommand() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getPendingExecRequests().size(), 0);
+        assertEquals(connection.getPendingCommands().size(), 0);
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final Object payload = new Object();
-        connection.requestExec(command, payload, null);
+        connection.requestCommand(commandName, payload, null);
 
-        final List<ExecRequest> requests = connection.getPendingExecRequests();
+        final List<Command> requests = connection.getPendingCommands();
         assertEquals(requests.size(), 1);
-        final ExecRequest request = requests.get(0);
-        assertEquals(request.getCommand(), command);
+        final Command request = requests.get(0);
+        assertEquals(request.getName(), commandName);
         assertEquals(request.getPayload(), payload);
     }
 
@@ -174,7 +176,7 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void enqueueResponse() {
+    public void enqueueMessageForProcessing() {
         final Connection connection = createConnection();
 
         assertEquals(connection.getPendingSubscriptionOperations().size(), 0);
@@ -182,21 +184,23 @@ public class ConnectionTest extends AbstractReplicantTest {
         final ServerToClientMessage data1 = OkMessage.create(1);
         final ServerToClientMessage data2 = OkMessage.create(1);
 
-        assertEquals(connection.getPendingResponses().size(), 0);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 0);
 
-        connection.enqueueResponse(data1, null);
+        connection.enqueueMessageForProcessing(data1, null);
 
-        assertEquals(connection.getPendingResponses().size(), 1);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
 
-        connection.enqueueResponse(data2, null);
+        connection.enqueueMessageForProcessing(data2, null);
 
-        assertEquals(connection.getPendingResponses().size(), 2);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 2);
 
-        final MessageResponse response1 = connection.getPendingResponses().get(0);
-        final MessageResponse response2 = connection.getPendingResponses().get(1);
+        final MessageProcessing processing1 =
+                connection.getPendingMessageProcessingQueue().get(0);
+        final MessageProcessing processing2 =
+                connection.getPendingMessageProcessingQueue().get(1);
 
-        assertEquals(response1.getMessage(), data1);
-        assertEquals(response2.getMessage(), data2);
+        assertEquals(processing1.getMessage(), data1);
+        assertEquals(processing2.getMessage(), data2);
     }
 
     @Test
@@ -228,60 +232,60 @@ public class ConnectionTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void execLifecycle() {
+    public void commandLifecycle() {
         final Connection connection = createConnection();
 
-        assertEquals(connection.getActiveExecRequests().size(), 0);
-        assertEquals(connection.getPendingExecRequests().size(), 0);
+        assertEquals(connection.getActiveCommands().size(), 0);
+        assertEquals(connection.getPendingCommands().size(), 0);
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final Object payload = new Object();
 
-        // Request Exec
+        // Request Command
         {
-            connection.requestExec(command, payload, null);
+            connection.requestCommand(commandName, payload, null);
 
-            assertEquals(connection.getActiveExecRequests().size(), 0);
-            final List<ExecRequest> requests = connection.getPendingExecRequests();
+            assertEquals(connection.getActiveCommands().size(), 0);
+            final List<Command> requests = connection.getPendingCommands();
             assertEquals(requests.size(), 1);
-            final ExecRequest request = requests.get(0);
-            assertEquals(request.getCommand(), command);
+            final Command request = requests.get(0);
+            assertEquals(request.getName(), commandName);
             assertEquals(request.getPayload(), payload);
         }
 
         {
-            final ExecRequest request = Objects.requireNonNull(connection.nextExecRequest());
-            assertEquals(request.getCommand(), command);
+            final Command request = Objects.requireNonNull(connection.nextCommand());
+            assertEquals(request.getName(), commandName);
             assertEquals(request.getPayload(), payload);
             assertEquals(request.getRequestId(), -1);
 
-            assertEquals(connection.getPendingExecRequests().size(), 0);
-            assertEquals(connection.getActiveExecRequests().size(), 0);
+            assertEquals(connection.getPendingCommands().size(), 0);
+            assertEquals(connection.getActiveCommands().size(), 0);
 
             final int requestId = ValueUtil.randomInt();
             request.markAsInProgress(requestId);
 
             assertEquals(request.getRequestId(), requestId);
 
-            connection.recordActiveExecRequest(request);
+            connection.recordActiveCommand(request);
 
-            assertEquals(connection.getPendingExecRequests().size(), 0);
-            assertEquals(connection.getActiveExecRequests().size(), 1);
-            assertEquals(connection.getActiveExecRequest(requestId), request);
+            assertEquals(connection.getPendingCommands().size(), 0);
+            assertEquals(connection.getActiveCommands().size(), 1);
+            assertEquals(connection.getActiveCommand(requestId), request);
             assertTrue(request.isInProgress());
             assertEquals(request.getRequestId(), requestId);
 
-            connection.markExecRequestAsComplete(requestId);
+            connection.markCommandAsComplete(requestId);
 
-            assertEquals(connection.getPendingExecRequests().size(), 0);
-            assertEquals(connection.getActiveExecRequests().size(), 0);
-            assertNull(connection.getActiveExecRequest(requestId));
+            assertEquals(connection.getPendingCommands().size(), 0);
+            assertEquals(connection.getActiveCommands().size(), 0);
+            assertNull(connection.getActiveCommand(requestId));
             assertFalse(request.isInProgress());
             assertEquals(request.getRequestId(), -1);
         }
 
         {
-            assertNull(connection.nextExecRequest());
+            assertNull(connection.nextCommand());
         }
     }
 
@@ -293,8 +297,8 @@ public class ConnectionTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> connection.removeRequest(789));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0067: Attempted to remove request with id 789 from connection with id '"
-                        + connection.getConnectionId() + "' but no such request exists.");
+                "Replicant-0067: Attempted to remove request with id 789 from Replicant Session '"
+                        + connection.getReplicantSessionId() + "' but no such request exists.");
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.jspecify.annotations.NonNull;
 import replicant.shared.Messages;
 
 /**
- * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
+ * The server-to-client message that supplies the identifier of a newly created Replicant Session.
  */
 @SuppressWarnings({"NotNullFieldNotInitialized", "NullAway.Init"})
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")

@@ -77,7 +77,7 @@ public final class Dataset {
     }
 
     /**
-     * The compact Dataset identifier used in runtime metadata, Dataset Addresses, and transport messages.
+     * The compact Dataset ID used in runtime metadata, Dataset Addresses, and transport messages.
      */
     private final int _id;
 

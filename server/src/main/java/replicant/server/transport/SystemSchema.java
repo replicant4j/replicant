@@ -22,7 +22,8 @@ public final class SystemSchema {
         for (var i = 0; i < datasets.length; i++) {
             final var dataset = datasets[i];
             if (null != dataset && i != dataset.getId()) {
-                final var message = "Dataset at index " + i + " does not have Dataset id matching index: " + dataset;
+                final var message =
+                        "Dataset at index " + i + " does not have a Dataset ID matching the index: " + dataset;
                 throw new IllegalArgumentException(message);
             }
         }
@@ -54,7 +55,7 @@ public final class SystemSchema {
     @NonNull
     public Dataset getDataset(final int datasetId) {
         if (!hasDataset(datasetId)) {
-            throw new IllegalArgumentException("Dataset with id " + datasetId + " does not exist");
+            throw new IllegalArgumentException("Dataset with Dataset ID " + datasetId + " does not exist");
         }
         return _datasets[datasetId];
     }

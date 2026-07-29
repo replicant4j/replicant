@@ -13,15 +13,15 @@ java_library(
         "AreaOfInterestCreatedEventTest.java",
         "AreaOfInterestDisposedEventTest.java",
         "AreaOfInterestFilterParameterUpdatedEventTest.java",
+        "CommandCompletedEventTest.java",
+        "CommandQueuedEventTest.java",
+        "CommandStartedEventTest.java",
         "ConnectFailureEventTest.java",
         "ConnectedEventTest.java",
         "DisconnectFailureEventTest.java",
         "DisconnectedEventTest.java",
-        "ExecCompletedEventTest.java",
-        "ExecRequestQueuedEventTest.java",
-        "ExecStartedEventTest.java",
-        "MessageProcessFailureEventTest.java",
         "MessageProcessedEventTest.java",
+        "MessageProcessingFailureEventTest.java",
         "MessageProcessingSummaryTest.java",
         "MessageReadFailureEventTest.java",
         "RequestCompletedEventTest.java",
@@ -114,38 +114,38 @@ java_testng(
 )
 
 java_testng(
-    name = "ExecCompletedEventTest",
-    srcs = ["ExecCompletedEventTest.java"],
+    name = "CommandCompletedEventTest",
+    srcs = ["CommandCompletedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.ExecCompletedEventTest",
+    test_class = "replicant.spy.CommandCompletedEventTest",
     deps = ["//client:client_test_support"],
 )
 
 java_testng(
-    name = "ExecRequestQueuedEventTest",
-    srcs = ["ExecRequestQueuedEventTest.java"],
+    name = "CommandQueuedEventTest",
+    srcs = ["CommandQueuedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.ExecRequestQueuedEventTest",
+    test_class = "replicant.spy.CommandQueuedEventTest",
     deps = ["//client:client_test_support"],
 )
 
 java_testng(
-    name = "ExecStartedEventTest",
-    srcs = ["ExecStartedEventTest.java"],
+    name = "CommandStartedEventTest",
+    srcs = ["CommandStartedEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.ExecStartedEventTest",
+    test_class = "replicant.spy.CommandStartedEventTest",
     deps = ["//client:client_test_support"],
 )
 
 java_testng(
-    name = "MessageProcessFailureEventTest",
-    srcs = ["MessageProcessFailureEventTest.java"],
+    name = "MessageProcessingFailureEventTest",
+    srcs = ["MessageProcessingFailureEventTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.spy.MessageProcessFailureEventTest",
+    test_class = "replicant.spy.MessageProcessingFailureEventTest",
     deps = ["//client:client_test_support"],
 )
 

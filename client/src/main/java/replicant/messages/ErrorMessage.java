@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.shared.Messages;
 
 /**
- * The message that represents a set of changes to subscriptions and entities that should be applied atomically.
+ * The server-to-client message that reports a fatal protocol or authorization error.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 public class ErrorMessage extends ServerToClientMessage {

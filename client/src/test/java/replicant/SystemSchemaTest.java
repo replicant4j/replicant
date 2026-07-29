@@ -46,7 +46,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> systemSchema.getDataset(2));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0058: SystemSchema.getDataset(id) passed an id that is out of range.");
+                "Replicant-0058: SystemSchema.getDataset passed a Dataset ID that is out of range.");
     }
 
     @Test
@@ -103,7 +103,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0056: SystemSchema named 'X' passed an array of Datasets where Dataset at index 0 does not "
-                        + "have id matching index.");
+                        + "have a Dataset ID matching the index.");
     }
 
     @Test

@@ -12,7 +12,7 @@ public class RequestTest extends AbstractReplicantTest {
         final RequestEntry entry = connection.newRequest(name, false, null);
         final Request request = new Request(connection, entry);
 
-        assertEquals(request.getConnectionId(), connection.getConnectionId());
+        assertEquals(request.getReplicantSessionId(), connection.getReplicantSessionId());
         assertEquals(request.getRequestId(), entry.getRequestId());
     }
 }

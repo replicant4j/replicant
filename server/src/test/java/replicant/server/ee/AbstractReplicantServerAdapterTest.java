@@ -388,7 +388,7 @@ public class AbstractReplicantServerAdapterTest {
         }
 
         @Override
-        public void execCommand(
+        public void executeCommand(
                 @NonNull final ReplicantSession session,
                 @NonNull final String command,
                 final int requestId,

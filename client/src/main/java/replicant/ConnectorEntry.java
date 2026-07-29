@@ -60,6 +60,7 @@ final class ConnectorEntry implements Disposable {
 
     void setRequired(final boolean required) {
         _required = required;
+        getRateLimiter().setTokensPerSecond(required ? REQUIRED_REGEN_PER_SECOND : OPTIONAL_REGEN_PER_SECOND);
     }
 
     @Override

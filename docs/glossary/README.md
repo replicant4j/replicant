@@ -7,7 +7,15 @@ This glossary defines the core language for describing Replicant's entity replic
 ### System Schema
 
 A catalog containing each [Entity Type](#entity-type) and [Dataset](#dataset) belonging to one isolated replicated
-system. Its identifier distinguishes that system within a [Replicant Context](#replicant-context).
+system. Its [System Schema ID](#system-schema-id) distinguishes that system within a
+[Replicant Context](#replicant-context).
+
+### System Schema ID
+
+A compact integer identifying one [System Schema](#system-schema) within a [Replicant Context](#replicant-context) and
+in the replication protocol.
+
+_Avoid_: System ID, schema ID, System Schema identifier
 
 ### Replicant Context
 
@@ -17,13 +25,34 @@ shared between Replicant Contexts.
 
 _Avoid_: Client context
 
+### Replicant Context State
+
+The aggregate connection lifecycle state of a [Replicant Context](#replicant-context), derived from its desired
+activation and the connection states of its [Required Connector](#required-connector) instances.
+
+_Avoid_: Runtime state, transport state
+
+### Zone
+
+An activation scope that makes one isolated [Replicant Context](#replicant-context) current while code executes.
+
+_Avoid_: Replicant Context when referring to the activation scope
+
 ### Connector
 
 The client runtime component for one [System Schema](#system-schema) that owns its transport connection, sends
-[Subscription Operation](#subscription-operation) instances and commands, applies server messages, and coordinates
-[Synchronization Point](#synchronization-point) processing.
+[Subscription Operation](#subscription-operation) and [Command](#command) instances, applies server messages, and
+coordinates [Synchronization Point](#synchronization-point) processing.
 
 _Avoid_: DataLoader
+
+### Required Connector
+
+A [Connector](#connector) whose connection state contributes to [Replicant Context State](#replicant-context-state).
+A Connector that is not required still follows [Replicant Context](#replicant-context) activation but does not
+determine the aggregate state.
+
+_Avoid_: Required flag
 
 ### Synchronization Point
 
@@ -33,6 +62,13 @@ the checkpoint and its resulting server messages. Reaching a Synchronization Poi
 
 _Avoid_: Sync when referring to the protocol checkpoint
 
+### Message Processing
+
+The client-side incremental application of one server-to-client transport message, including its resulting changes
+and post-processing before observers are notified.
+
+_Avoid_: Message response, message load
+
 ### Replicant Session
 
 The server-side state associated with one active Replicant transport session, including authorization,
@@ -40,6 +76,13 @@ The server-side state associated with one active Replicant transport session, in
 [Dataset Cache Version](#dataset-cache-version) values, and queued changes.
 
 _Avoid_: Client session, WebSocket Session when referring to Replicant-owned state
+
+### Replicant Session ID
+
+A server-issued opaque string identifying one [Replicant Session](#replicant-session). It is delivered to the client
+when the session is created and associates application invocations with that session.
+
+_Avoid_: Connection ID, Client Session ID
 
 ### Principal
 
@@ -104,6 +147,13 @@ successful transaction completion.
 
 _Avoid_: Service call, request, unit of work, transaction when referring specifically to the Replicant capture boundary
 
+### Command
+
+An application operation addressed by name and sent through a [Connector](#connector) with an optional payload and
+optional result. Replicant transports the Command while the application maps its name and payload to behaviour.
+
+_Avoid_: Exec, RPC, service call
+
 ### Initiating Session Change Set
 
 A [Change Set](#change-set) accumulated during a [Replication Invocation](#replication-invocation) and merged only into
@@ -119,14 +169,28 @@ The client-side representation of one [Entity](#entity). A Replica is shared whe
 
 _Avoid_: Imitation, user object, client entity
 
+### Replica Registry
+
+The client-side index owned by one [Replicant Context](#replicant-context) that maps each
+[Entity Type](#entity-type) and [Entity ID](#entity-id) to one shared [Replica](#replica).
+
+_Avoid_: Entity cache, object registry
+
 ### Dataset
 
 A reusable definition of a replicable population of [Entity](#entity) instances, including its selection shape and
-filtering behaviour. Within its [System Schema](#system-schema), the definition has a compact Dataset ID used by
+filtering behaviour. Within its [System Schema](#system-schema), the definition has a compact
+[Dataset ID](#dataset-id) used by
 runtime metadata and [Dataset Address](#dataset-address) values, plus a human-readable Dataset name used for
 diagnostics. A [Subscription](#subscription) materializes that definition for one client at a Dataset Address.
 
 _Avoid_: Graph, channel, replication graph
+
+### Dataset ID
+
+A compact integer identifying one [Dataset](#dataset) within a [System Schema](#system-schema).
+
+_Avoid_: Dataset identifier, graph ID
 
 ### Dataset Visibility
 
@@ -294,6 +358,13 @@ cached [Subscription](#subscription) state.
 
 _Avoid_: Cached Dataset, cached result, generic cache entry
 
+### Dataset Address Candidate
+
+A server-side [Dataset Link](#dataset-link) value that is either a concrete
+[Dataset Address](#dataset-address) or an incomplete [Dataset Address Template](#dataset-address-template).
+
+_Avoid_: Candidate address
+
 ### Dataset Address Template
 
 A partially specified [Dataset](#dataset) selection used while evaluating a [Dataset Link](#dataset-link). It is
@@ -337,6 +408,13 @@ _Avoid_: Data presence, data loaded
 
 The actual replication state at a [Dataset Address](#dataset-address), including its current
 [Filter Parameter](#filter-parameter) and the [Replica](#replica) instances belonging to it.
+
+### Orphaned Subscription
+
+An [Explicit Subscription Mode](#explicit-subscription-mode) [Subscription](#subscription) no longer backed by an
+[Area of Interest](#area-of-interest). [Subscription Reconciliation](#subscription-reconciliation) removes it or
+allows it to transition to [Implicit Subscription Mode](#implicit-subscription-mode) when a
+[Subscription Dependency](#subscription-dependency) retains it.
 
 ### Subscription Collection
 
@@ -397,6 +475,12 @@ _Avoid_: Required type graph
 A runtime relationship recording that one [Subscription](#subscription) currently requires another. The target
 remains in [Implicit Subscription Mode](#implicit-subscription-mode) unless an
 [Area of Interest](#area-of-interest) also places it in [Explicit Subscription Mode](#explicit-subscription-mode).
+
+### Subscription Dependency Owner
+
+The [Dataset](#dataset) or [Entity](#entity) within a source [Subscription](#subscription) whose current presence
+requires a target [Subscription Dependency](#subscription-dependency). Ownership allows dependencies to be updated or
+removed independently as the source membership changes.
 
 ### Subscription Dependency Candidate
 

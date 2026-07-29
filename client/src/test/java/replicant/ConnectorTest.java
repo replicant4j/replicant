@@ -24,15 +24,15 @@ import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscriptionChangeMessage;
 import replicant.messages.UseDatasetCacheEntryMessage;
+import replicant.spy.CommandCompletedEvent;
+import replicant.spy.CommandQueuedEvent;
+import replicant.spy.CommandStartedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
-import replicant.spy.ExecCompletedEvent;
-import replicant.spy.ExecRequestQueuedEvent;
-import replicant.spy.ExecStartedEvent;
-import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
+import replicant.spy.MessageProcessingFailureEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
@@ -125,18 +125,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final DatasetAddress datasetAddress =
                 new DatasetAddress(connector.getSystemSchema().getId(), 0);
         final Subscription subscription = createSubscription(datasetAddress, null, SubscriptionMode.EXPLICIT);
 
-        connector.onConnection(ValueUtil.randomString());
+        connector.onReplicantSessionCreated(ValueUtil.randomString());
 
         // Connection not swapped yet but will do one MessageProcess completes
         assertFalse(Disposable.isDisposed(subscription));
         assertEquals(connector.getConnection(), connection);
-        assertNotNull(connector.getPostMessageResponseAction());
+        assertNotNull(connector.getPostMessageProcessingAction());
     }
 
     @Test
@@ -150,12 +150,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertEquals(connector.getConnection(), connection);
 
-        final String newConnectionId = ValueUtil.randomString();
-        connector.onConnection(newConnectionId);
+        final String newReplicantSessionId = ValueUtil.randomString();
+        connector.onReplicantSessionCreated(newReplicantSessionId);
 
-        assertEquals(connector.ensureConnection().getConnectionId(), newConnectionId);
+        assertEquals(connector.ensureConnection().getReplicantSessionId(), newReplicantSessionId);
 
-        assertTrue(connector.ensureConnection().getPendingResponses().isEmpty());
+        assertTrue(
+                connector.ensureConnection().getPendingMessageProcessingQueue().isEmpty());
     }
 
     @Test
@@ -249,7 +250,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
 
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.CONNECTING);
 
         // Pause scheduler so runtime does not try to update state
         pauseScheduler();
@@ -259,7 +260,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.onDisconnected();
 
         assertEquals(connector.getState(), ConnectorState.DISCONNECTED);
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.DISCONNECTED);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.DISCONNECTED);
 
         verify(connector.getTransport()).unbind();
     }
@@ -290,7 +291,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
 
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.CONNECTING);
 
         // Pause scheduler so runtime does not try to update state
         pauseScheduler();
@@ -298,7 +299,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.onDisconnectFailure();
 
         assertEquals(connector.getState(), ConnectorState.ERROR);
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.ERROR);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.ERROR);
     }
 
     @Test
@@ -328,7 +329,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
 
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.CONNECTING);
 
         // Pause scheduler so runtime does not try to update state
         pauseScheduler();
@@ -340,7 +341,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.onConnected();
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.CONNECTED);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.CONNECTED);
     }
 
     @Test
@@ -367,7 +368,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
 
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.CONNECTING);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.CONNECTING);
 
         // Pause scheduler so runtime does not try to update state
         pauseScheduler();
@@ -375,7 +376,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.onConnectFailure();
 
         assertEquals(connector.getState(), ConnectorState.ERROR);
-        assertEquals(connector.getReplicantRuntime().getState(), RuntimeState.ERROR);
+        assertEquals(connector.getReplicantRuntime().getState(), ReplicantContextState.ERROR);
     }
 
     @Test
@@ -406,14 +407,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         pauseScheduler();
         connector.pauseMessageScheduler();
 
-        assertEquals(connection.getPendingResponses().size(), 0);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 0);
         assertFalse(connector.isSchedulerActive());
 
         final ChangeSetMessage message = ChangeSetMessage.create(null, null, null, null, null, null);
         connector.onMessageReceived(message);
 
-        assertEquals(connection.getPendingResponses().size(), 1);
-        assertEquals(connection.getPendingResponses().get(0).getMessage(), message);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
+        assertEquals(connection.getPendingMessageProcessingQueue().get(0).getMessage(), message);
     }
 
     @Test
@@ -499,7 +500,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void onConnection_cacheEnumerationFailureIsIgnored() {
+    public void onReplicantSessionCreated_cacheEnumerationFailureIsIgnored() {
         final Connector connector = createConnector();
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
         pauseScheduler();
@@ -509,14 +510,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
         when(datasetCacheService.getDatasetAddresses(connector.getSystemSchema().getId()))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
-        connector.onConnection(ValueUtil.randomString());
+        connector.onReplicantSessionCreated(ValueUtil.randomString());
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
         verify(connector.getTransport(), never()).updateDatasetCacheVersionsAndRequestSynchronizationPoint(anyMap());
     }
 
     @Test
-    public void onConnection_unreadableCacheVersionIsInvalidatedAndIgnored() {
+    public void onReplicantSessionCreated_unreadableCacheVersionIsInvalidatedAndIgnored() {
         final Connector connector = createConnector();
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
         pauseScheduler();
@@ -530,7 +531,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         when(datasetCacheService.lookupDatasetCacheVersion(datasetAddress))
                 .thenThrow(new IllegalStateException("Unavailable"));
 
-        connector.onConnection(ValueUtil.randomString());
+        connector.onReplicantSessionCreated(ValueUtil.randomString());
 
         assertEquals(connector.getState(), ConnectorState.CONNECTED);
         verify(datasetCacheService).invalidateDatasetCacheEntry(datasetAddress);
@@ -557,7 +558,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
         reset(connector.getTransport());
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
-        connector.onConnection(ValueUtil.randomString());
+        connector.onReplicantSessionCreated(ValueUtil.randomString());
 
         verify(connector.getTransport(), never()).updateDatasetCacheVersionsAndRequestSynchronizationPoint(anyMap());
     }
@@ -570,9 +571,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final MessageResponse response =
-                new MessageResponse(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
-        connector.onMessageProcessed(response);
+        final MessageProcessing processing =
+                new MessageProcessing(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
+        connector.onMessageProcessed(processing);
 
         handler.assertEventCount(1);
 
@@ -583,7 +584,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void onMessageProcessFailure() {
+    public void onMessageProcessingFailure() {
         final Connector connector = createConnector();
         newConnection(connector);
 
@@ -594,13 +595,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         // Pause scheduler so runtime does not try to update state
         pauseScheduler();
 
-        connector.onMessageProcessFailure(error);
+        connector.onMessageProcessingFailure(error);
 
         assertEquals(connector.getState(), ConnectorState.DISCONNECTING);
     }
 
     @Test
-    public void onMessageProcessFailure_generatesSpyMessage() {
+    public void onMessageProcessingFailure_generatesSpyMessage() {
         final Connector connector = createConnector();
 
         safeAction(() -> connector.setState(ConnectorState.CONNECTING));
@@ -609,10 +610,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final Throwable error = new Throwable();
 
-        connector.onMessageProcessFailure(error);
+        connector.onMessageProcessingFailure(error);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(MessageProcessFailureEvent.class, e -> {
+        handler.assertNextEvent(MessageProcessingFailureEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getError(), error);
         });
@@ -999,16 +1000,16 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final String[] subscriptionChanges = {"+0"};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         assertNull(connector.getSchedulerLock());
 
         connector.resumeMessageScheduler();
 
-        // response needs processing of Subscription Changes
+        // processing needs processing of Subscription Changes
 
         final boolean result0 = connector.progressMessages();
 
@@ -1016,7 +1017,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Disposable schedulerLock0 = connector.getSchedulerLock();
         assertNotNull(schedulerLock0);
 
-        // response needs Replica validation
+        // processing needs Replica validation
 
         final boolean result1 = connector.progressMessages();
 
@@ -1028,7 +1029,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         assertTrue(result2);
         // Current message should be nulled and completed processing now
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
 
         final boolean result3 = connector.progressMessages();
 
@@ -1072,12 +1073,12 @@ public final class ConnectorTest extends AbstractReplicantTest {
         operation.markAsInProgress(request.getRequestId());
 
         final String subscriptionChange = "+" + firstDatasetAddress.datasetId();
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection,
                 ChangeSetMessage.create(
                         request.getRequestId(), null, new String[] {subscriptionChange}, null, null, null),
                 request);
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
         doAnswer(i -> {
                     newRequest(connection);
@@ -1101,13 +1102,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final String[] subscriptionChanges = {"+0"};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final AtomicInteger callCount = new AtomicInteger();
-        connector.setPostMessageResponseAction(callCount::incrementAndGet);
+        connector.setPostMessageProcessingAction(callCount::incrementAndGet);
 
         assertNull(connector.getSchedulerLock());
         assertEquals(callCount.get(), 0);
@@ -1152,7 +1153,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertNull(connector.getSchedulerLock());
 
         handler.assertEventCountAtLeast(1);
-        handler.assertNextEvent(MessageProcessFailureEvent.class, e -> {
+        handler.assertNextEvent(MessageProcessingFailureEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(
                     e.getError().getMessage(),
@@ -1671,13 +1672,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
             // Remove change
             EntityChange.create(0, 3, new String[] {"1"})
         };
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, payload1)).thenReturn(replica1);
 
-        assertEquals(response.getEntityUpdateCount(), 0);
-        assertEquals(response.getEntityRemoveCount(), 0);
+        assertEquals(processing.getEntityUpdateCount(), 0);
+        assertEquals(processing.getEntityRemoveCount(), 0);
 
         connector.setChangesToProcessPerTick(1);
 
@@ -1688,8 +1689,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         verify(creator, never()).createReplica(2, payload2);
         verify(updater, never()).updateReplica(replica2, payload2);
 
-        assertEquals(response.getEntityUpdateCount(), 1);
-        assertEquals(response.getEntityRemoveCount(), 0);
+        assertEquals(processing.getEntityUpdateCount(), 1);
+        assertEquals(processing.getEntityRemoveCount(), 0);
 
         connector.setChangesToProcessPerTick(2);
 
@@ -1700,8 +1701,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         verify(creator, never()).createReplica(2, payload2);
         verify(updater, times(1)).updateReplica(replica2, payload2);
 
-        assertEquals(response.getEntityUpdateCount(), 2);
-        assertEquals(response.getEntityRemoveCount(), 1);
+        assertEquals(processing.getEntityUpdateCount(), 2);
+        assertEquals(processing.getEntityRemoveCount(), 1);
         assertFalse(Disposable.isDisposed(replicaEntry2));
         assertTrue(Disposable.isDisposed(replicaEntry3));
     }
@@ -1744,7 +1745,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final EntityChange[] entityChanges = {
             EntityChange.create(0, 1, new String[] {"0." + datasetRootId + "#fi"}, payload)
         };
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, payload)).thenReturn(mock(Linkable.class));
 
@@ -1786,7 +1787,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final EntityChangePayload payload = mock(EntityChangePayload.class);
         final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[] {"1"}, payload)};
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         when(creator.createReplica(1, payload)).thenReturn(replica1);
 
@@ -1829,14 +1830,14 @@ public final class ConnectorTest extends AbstractReplicantTest {
             // Remove change
             EntityChange.create(0, 3, new String[] {"1"})
         };
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
 
         connector.setChangesToProcessPerTick(1);
 
         connector.processEntityChanges();
 
-        assertEquals(response.getEntityRemoveCount(), 0);
+        assertEquals(processing.getEntityRemoveCount(), 0);
     }
 
     @Test
@@ -1845,7 +1846,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connector.setLinksToProcessPerTick(1);
 
         final Connection connection = newConnection(connector);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, new String[0], null, new EntityChange[0], null));
 
         final Linkable replica1 = mock(Linkable.class);
@@ -1853,23 +1854,23 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Linkable replica3 = mock(Linkable.class);
         final Linkable replica4 = mock(Linkable.class);
 
-        response.replicaProcessed(replica1);
-        response.replicaProcessed(replica2);
-        response.replicaProcessed(replica3);
-        response.replicaProcessed(replica4);
+        processing.replicaProcessed(replica1);
+        processing.replicaProcessed(replica2);
+        processing.replicaProcessed(replica3);
+        processing.replicaProcessed(replica4);
 
         verify(replica1, never()).link();
         verify(replica2, never()).link();
         verify(replica3, never()).link();
         verify(replica4, never()).link();
 
-        assertEquals(response.getEntityLinkCount(), 0);
+        assertEquals(processing.getEntityLinkCount(), 0);
 
         connector.setLinksToProcessPerTick(1);
 
         connector.processReplicaLinks();
 
-        assertEquals(response.getEntityLinkCount(), 1);
+        assertEquals(processing.getEntityLinkCount(), 1);
         verify(replica1, times(1)).link();
         verify(replica2, never()).link();
         verify(replica3, never()).link();
@@ -1879,7 +1880,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.processReplicaLinks();
 
-        assertEquals(response.getEntityLinkCount(), 3);
+        assertEquals(processing.getEntityLinkCount(), 3);
         verify(replica1, times(1)).link();
         verify(replica2, times(1)).link();
         verify(replica3, times(1)).link();
@@ -1911,18 +1912,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String filterParameter = null;
         final String[] subscriptionChanges = {"+0." + datasetRootId};
 
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertTrue(processing.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertFalse(processing.needsSubscriptionChangesProcessed());
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
@@ -1949,18 +1950,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] filterParameterSubscriptionChanges = {
             SubscriptionChangeMessage.create("+0." + datasetRootId, filterParameter)
         };
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, filterParameterSubscriptionChanges, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, filterParameterSubscriptionChanges[0])));
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertTrue(processing.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertFalse(processing.needsSubscriptionChangesProcessed());
 
         final DatasetAddress datasetAddress = new DatasetAddress(1, datasetId, datasetRootId);
         final Subscription subscription =
@@ -2005,11 +2006,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> replicaEntry.linkToSubscription(initialSubscription));
 
         final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", newFilterParameter);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection,
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
 
         connector.processSubscriptionChanges();
@@ -2023,7 +2024,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> assertEquals(replacementSubscription.getMode(), SubscriptionMode.EXPLICIT));
         assertTrue(Disposable.isDisposed(replicaEntry));
         assertTrue(replicaEntry.subscriptions().isEmpty());
-        assertEquals(response.getSubscriptionSubscribeCount(), 1);
+        assertEquals(processing.getSubscriptionSubscribeCount(), 1);
     }
 
     @Test
@@ -2048,11 +2049,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String filterParameter = ValueUtil.randomString();
         createSubscription(datasetAddress, filterParameter, SubscriptionMode.EXPLICIT);
         final SubscriptionChangeMessage subscriptionChange = SubscriptionChangeMessage.create("+0", filterParameter);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection,
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
 
         final IllegalStateException exception =
@@ -2086,11 +2087,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
         final SubscriptionChangeMessage subscriptionChange =
                 SubscriptionChangeMessage.create("+0", ValueUtil.randomString());
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection,
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
 
         final IllegalStateException exception =
@@ -2115,18 +2116,18 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final String[] subscriptionChanges = {"+0." + datasetRootId};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
+        assertTrue(processing.needsSubscriptionChangesProcessed());
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
+        assertFalse(processing.needsSubscriptionChangesProcessed());
 
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
@@ -2153,9 +2154,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final String[] subscriptionChanges = {"+0." + datasetAddress.datasetRootId()};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final SubscriptionOperation operation =
@@ -2163,15 +2164,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
         connection.injectCurrentSubscriptionOperation(operation);
         operation.markAsInProgress(newRequest(connection).getRequestId());
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionSubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionSubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionSubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionSubscribeCount(), 1);
 
         final Subscription subscription =
                 Objects.requireNonNull(Replicant.context().findSubscription(datasetAddress));
@@ -2196,23 +2197,23 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0, ValueUtil.randomInt());
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
@@ -2237,22 +2238,22 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNull(subscription);
@@ -2274,19 +2275,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Connection connection = newConnection(connector);
 
         final String[] subscriptionChanges = {"-0.72"};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 1);
 
         handler.assertEventCount(0);
     }
@@ -2302,19 +2303,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 1);
 
         assertFalse(Disposable.isDisposed(areaOfInterest));
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.PENDING);
@@ -2334,19 +2335,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 safeAction(() -> Replicant.context().createOrUpdateAreaOfInterest(datasetAddress, null));
 
         final String[] subscriptionChanges = {"!0." + datasetAddress.datasetRootId()};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUnsubscribeCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUnsubscribeCount(), 1);
 
         assertFalse(Disposable.isDisposed(areaOfInterest));
         assertEquals(areaOfInterest.getStatus(), AreaOfInterest.Status.INVALIDATED);
@@ -2385,23 +2386,23 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
             SubscriptionChangeMessage.create("=0." + datasetAddress.datasetRootId(), newFilterParameter)
         };
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, oldFilterParameter, SubscriptionMode.EXPLICIT);
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 1);
 
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNotNull(subscription);
@@ -2440,21 +2441,21 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final SubscriptionChangeMessage[] subscriptionChanges = new SubscriptionChangeMessage[] {
             SubscriptionChangeMessage.create("=0." + datasetRootId + "#fi", newFilterParameter)
         };
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
 
         final Subscription subscription =
                 createSubscription(datasetAddress, oldFilterParameter, SubscriptionMode.EXPLICIT);
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 0);
 
         connector.processSubscriptionChanges();
 
-        assertFalse(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 1);
+        assertFalse(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 1);
         safeAction(() -> assertEquals(subscription.getFilterParameter(), newFilterParameter));
     }
 
@@ -2480,9 +2481,9 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges =
                 new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilterParameter)};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
         createSubscription(new DatasetAddress(1, 0, 2223), oldFilterParameter, SubscriptionMode.EXPLICIT);
 
@@ -2503,20 +2504,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges =
                 new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilterParameter)};
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        response.setParsedSubscriptionChanges(
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 0);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
 
-        assertTrue(response.needsSubscriptionChangesProcessed());
-        assertEquals(response.getSubscriptionUpdateCount(), 0);
+        assertTrue(processing.needsSubscriptionChangesProcessed());
+        assertEquals(processing.getSubscriptionUpdateCount(), 0);
 
         assertEquals(
                 exception.getMessage(),
@@ -2743,10 +2744,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
     public void validateReplicas_invalidEntity() {
         final Connector connector = createConnector();
         newConnection(connector);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertFalse(response.hasReplicaValidationStarted());
+        assertFalse(processing.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -2760,7 +2761,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 exception.getMessage(),
                 "Replicant-0065: Replica failed to verify during validation process. Replica Entry = MyEntity/1");
 
-        assertTrue(response.hasReplicaValidationStarted());
+        assertTrue(processing.hasReplicaValidationStarted());
     }
 
     @Test
@@ -2768,10 +2769,10 @@ public final class ConnectorTest extends AbstractReplicantTest {
         ReplicantTestUtil.noValidateReplicasAfterMessageProcessing();
         final Connector connector = createConnector();
         newConnection(connector);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertTrue(response.hasReplicaValidationStarted());
+        assertTrue(processing.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         final ReplicaEntry replicaEntry1 =
@@ -2781,24 +2782,24 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         connector.validateReplicas();
 
-        assertTrue(response.hasReplicaValidationStarted());
+        assertTrue(processing.hasReplicaValidationStarted());
     }
 
     @Test
     public void validateReplicas_validEntity() {
         final Connector connector = createConnector();
         newConnection(connector);
-        final MessageResponse response = setCurrentMessageResponse(
+        final MessageProcessing processing = setCurrentMessageProcessing(
                 connector.ensureConnection(), ChangeSetMessage.create(null, null, null, null, null, null));
 
-        assertFalse(response.hasReplicaValidationStarted());
+        assertFalse(processing.hasReplicaValidationStarted());
 
         final ReplicaRegistry replicaRegistry = Replicant.context().getReplicaRegistry();
         safeAction(() -> replicaRegistry.findOrCreateReplicaEntry("MyEntity/1", MyEntity.class, 1));
 
         connector.validateReplicas();
 
-        assertTrue(response.hasReplicaValidationStarted());
+        assertTrue(processing.hasReplicaValidationStarted());
     }
 
     static class MyEntity implements Verifiable {
@@ -2822,17 +2823,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeMessageResponse() {
+    public void completeMessageProcessing() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
 
         handler.assertEventCount(1);
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
@@ -2842,7 +2843,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeMessageResponse_withSubscriptionChange() {
+    public void completeMessageProcessing_withSubscriptionChange() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
@@ -2851,13 +2852,13 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(request.getRequestId(), null, new String[] {"+1"}, null, null, null);
 
-        setCurrentMessageResponse(connection, changeSet, request);
+        setCurrentMessageProcessing(connection, changeSet, request);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
 
         handler.assertEventCount(2);
         handler.assertNextEvent(MessageProcessedEvent.class, e -> {
@@ -2871,7 +2872,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void completeMessageResponse_datasetCacheEntryStoreFailureDoesNotRemoveSubscription() {
+    public void completeMessageProcessing_datasetCacheEntryStoreFailureDoesNotRemoveSubscription() {
         final Dataset dataset = new Dataset(
                 0,
                 ValueUtil.randomString(),
@@ -2892,8 +2893,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0"};
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
-        final MessageResponse response = setCurrentMessageResponse(connection, changeSet);
-        response.setParsedSubscriptionChanges(
+        final MessageProcessing processing = setCurrentMessageProcessing(connection, changeSet);
+        processing.setParsedSubscriptionChanges(
                 Collections.singletonList(SubscriptionChange.from(systemSchema.getId(), subscriptionChanges[0])));
         final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
         Replicant.context().setDatasetCacheService(datasetCacheService);
@@ -2904,45 +2905,46 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Subscription subscription = Replicant.context().findSubscription(datasetAddress);
         assertNotNull(subscription);
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
         assertSame(Replicant.context().findSubscription(datasetAddress), subscription);
         verify(datasetCacheService).storeDatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet);
     }
 
     @Test
-    public void completeMessageResponse_stillMessagesPending() {
+    public void completeMessageProcessing_stillMessagesPending() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
-        connection.enqueueResponse(ChangeSetMessage.create(null, null, null, null, null, null), null);
+        connection.enqueueMessageForProcessing(ChangeSetMessage.create(null, null, null, null, null, null), null);
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
-        assertFalse(connector.ensureConnection().getPendingResponses().isEmpty());
+        assertFalse(
+                connector.ensureConnection().getPendingMessageProcessingQueue().isEmpty());
     }
 
     @Test
-    public void completeMessageResponse_withPostAction() {
+    public void completeMessageProcessing_withPostAction() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
-        setCurrentMessageResponse(connection, ChangeSetMessage.create(null, null, null, null, null, null));
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, null, null));
 
         final AtomicInteger postActionCallCount = new AtomicInteger();
-        connector.setPostMessageResponseAction(postActionCallCount::incrementAndGet);
+        connector.setPostMessageProcessingAction(postActionCallCount::incrementAndGet);
 
         assertEquals(postActionCallCount.get(), 0);
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
         assertEquals(postActionCallCount.get(), 1);
     }
 
     @Test
-    public void completeMessageResponse_MessageWithRequest_RPCComplete() {
+    public void completeMessageProcessing_MessageWithRequest_RPCComplete() {
         final Connector connector = createConnector();
         final Connection connection = newConnection(connector);
 
@@ -2950,15 +2952,15 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final int requestId = request.getRequestId();
 
-        setCurrentMessageResponse(connection, OkMessage.create(requestId), request);
+        setCurrentMessageProcessing(connection, OkMessage.create(requestId), request);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
         assertEquals(connection.getRequest(requestId), request);
 
-        connector.completeMessageResponse();
+        connector.completeMessageProcessing();
 
-        assertNull(connection.getCurrentMessageResponse());
+        assertNull(connection.getCurrentMessageProcessing());
         assertNull(connection.getRequests().get(requestId));
 
         handler.assertEventCount(1);
@@ -2970,7 +2972,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @SuppressWarnings({"unchecked"})
     @Test
-    public void progressResponseProcessing() {
+    public void progressMessageProcessing() {
         /*
          * This test steps through each stage of a message processing.
          */
@@ -3003,73 +3005,74 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 new EntityChange[] {EntityChange.create(0, 1, new String[] {"0"}, new EntityChangePayloadImpl())},
                 null);
-        connection.enqueueResponse(message, null);
-        assertNull(connection.getCurrentMessageResponse());
-        assertEquals(connection.getPendingResponses().size(), 1);
+        connection.enqueueMessageForProcessing(message, null);
+        assertNull(connection.getCurrentMessageProcessing());
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
 
-        final MessageResponse response = connection.getPendingResponses().get(0);
+        final MessageProcessing processing =
+                connection.getPendingMessageProcessingQueue().get(0);
 
-        // Pickup parsed response and set it as current
-        assertTrue(connector.progressResponseProcessing());
+        // Pickup parsed processing and set it as current
+        assertTrue(connector.progressMessageProcessing());
 
-        assertEquals(connection.getCurrentMessageResponse(), response);
-        assertEquals(connection.getPendingResponses().size(), 0);
+        assertEquals(connection.getCurrentMessageProcessing(), processing);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 0);
 
         {
-            assertTrue(response.needsSubscriptionChangesProcessed());
+            assertTrue(processing.needsSubscriptionChangesProcessed());
 
-            // Process Subscription Changes in response
-            assertTrue(connector.progressResponseProcessing());
+            // Process Subscription Changes in processing
+            assertTrue(connector.progressMessageProcessing());
 
-            assertFalse(response.needsSubscriptionChangesProcessed());
+            assertFalse(processing.needsSubscriptionChangesProcessed());
         }
 
         {
-            assertTrue(response.areEntityChangesPending());
+            assertTrue(processing.areEntityChangesPending());
 
             when(creator.createReplica(anyInt(), any(EntityChangePayload.class)))
                     .thenReturn(mock(Linkable.class));
 
-            // Process ReplicaEntry Changes in response
-            assertTrue(connector.progressResponseProcessing());
+            // Process ReplicaEntry Changes in processing
+            assertTrue(connector.progressMessageProcessing());
 
-            assertFalse(response.areEntityChangesPending());
+            assertFalse(processing.areEntityChangesPending());
         }
 
         {
-            assertTrue(response.areReplicaLinksPending());
+            assertTrue(processing.areReplicaLinksPending());
 
-            // Process ReplicaEntry Links in response
-            assertTrue(connector.progressResponseProcessing());
+            // Process ReplicaEntry Links in processing
+            assertTrue(connector.progressMessageProcessing());
 
-            assertFalse(response.areReplicaLinksPending());
+            assertFalse(processing.areReplicaLinksPending());
         }
 
         {
-            assertTrue(response.areReplicaUpdateActionsPending());
+            assertTrue(processing.areReplicaUpdateActionsPending());
 
             // EntityUpdateActions processed
-            assertTrue(connector.progressResponseProcessing());
+            assertTrue(connector.progressMessageProcessing());
 
-            assertFalse(response.areReplicaUpdateActionsPending());
+            assertFalse(processing.areReplicaUpdateActionsPending());
         }
 
         {
-            assertFalse(response.hasReplicaValidationStarted());
+            assertFalse(processing.hasReplicaValidationStarted());
 
             // Validate Replicas
-            assertTrue(connector.progressResponseProcessing());
+            assertTrue(connector.progressMessageProcessing());
 
-            assertTrue(response.hasReplicaValidationStarted());
+            assertTrue(processing.hasReplicaValidationStarted());
         }
 
         {
-            assertEquals(connection.getCurrentMessageResponse(), response);
+            assertEquals(connection.getCurrentMessageProcessing(), processing);
 
             // Complete message
-            assertTrue(connector.progressResponseProcessing());
+            assertTrue(connector.progressMessageProcessing());
 
-            assertNull(connection.getCurrentMessageResponse());
+            assertNull(connection.getCurrentMessageProcessing());
         }
     }
 
@@ -4029,7 +4032,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
         safeAction(() -> {
             connector.setState(ConnectorState.CONNECTED);
             connection.removeRequest(newRequest(connection).getRequestId());
-            connection.enqueueResponse(ChangeSetMessage.create(null, null, null, null, null, null), null);
+            connection.enqueueMessageForProcessing(ChangeSetMessage.create(null, null, null, null, null, null), null);
             assertFalse(connector.shouldRequestSynchronizationPoint());
         });
     }
@@ -4102,66 +4105,66 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void onExecStarted() {
+    public void onCommandStarted() {
         final Connector connector = createConnector();
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final int requestId = ValueUtil.randomInt();
-        connector.onExecStarted(command, requestId);
+        connector.onCommandStarted(commandName, requestId);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(ExecStartedEvent.class, e -> {
+        handler.assertNextEvent(CommandStartedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
-            assertEquals(e.getCommand(), command);
+            assertEquals(e.getCommandName(), commandName);
             assertEquals(e.getRequestId(), requestId);
         });
     }
 
     @Test
-    public void onExecCompleted() {
+    public void onCommandCompleted() {
         final Connector connector = createConnector();
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final int requestId = ValueUtil.randomInt();
-        connector.onExecCompleted(command, requestId);
+        connector.onCommandCompleted(commandName, requestId);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(ExecCompletedEvent.class, e -> {
+        handler.assertNextEvent(CommandCompletedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
-            assertEquals(e.getCommand(), command);
+            assertEquals(e.getCommandName(), commandName);
             assertEquals(e.getRequestId(), requestId);
         });
     }
 
     @Test
-    public void requestExec() {
+    public void requestCommand() {
         final Connector connector = createConnector();
         connector.pauseMessageScheduler();
         newConnection(connector);
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final Object payload = new Object();
-        connector.requestExec(command, payload, null);
+        connector.requestCommand(commandName, payload, null);
 
         handler.assertEventCount(1);
-        handler.assertNextEvent(ExecRequestQueuedEvent.class, e -> {
+        handler.assertNextEvent(CommandQueuedEvent.class, e -> {
             assertEquals(e.getSystemSchemaId(), connector.getSystemSchema().getId());
             assertEquals(e.getSystemSchemaName(), connector.getSystemSchema().getName());
-            assertEquals(e.getCommand(), command);
+            assertEquals(e.getCommandName(), commandName);
         });
 
-        final List<ExecRequest> requests = connector.ensureConnection().getPendingExecRequests();
+        final List<Command> requests = connector.ensureConnection().getPendingCommands();
         assertEquals(requests.size(), 1);
-        final ExecRequest request = requests.get(0);
-        assertEquals(request.getCommand(), command);
+        final Command request = requests.get(0);
+        assertEquals(request.getName(), commandName);
         assertEquals(request.getPayload(), payload);
     }
 
@@ -4171,19 +4174,19 @@ public final class ConnectorTest extends AbstractReplicantTest {
     }
 
     @NonNull
-    private MessageResponse setCurrentMessageResponse(
+    private MessageProcessing setCurrentMessageProcessing(
             @NonNull final Connection connection, @NonNull final ServerToClientMessage message) {
-        return setCurrentMessageResponse(connection, message, null);
+        return setCurrentMessageProcessing(connection, message, null);
     }
 
     @NonNull
-    private MessageResponse setCurrentMessageResponse(
+    private MessageProcessing setCurrentMessageProcessing(
             @NonNull final Connection connection,
             @NonNull final ServerToClientMessage message,
             @Nullable final RequestEntry request) {
-        connection.enqueueResponse(message, request);
-        connection.selectNextMessageResponse();
-        final MessageResponse response = connection.getCurrentMessageResponse();
-        return Objects.requireNonNull(response);
+        connection.enqueueMessageForProcessing(message, request);
+        connection.selectNextMessageProcessing();
+        final MessageProcessing processing = connection.getCurrentMessageProcessing();
+        return Objects.requireNonNull(processing);
     }
 }

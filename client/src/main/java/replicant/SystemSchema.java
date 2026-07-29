@@ -15,7 +15,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class SystemSchema {
     /**
-     * The identifier that distinguishes the System Schema within a Replicant Context.
+     * The System Schema ID that distinguishes the System Schema within a Replicant Context.
      */
     private final int _id;
     /**
@@ -75,7 +75,7 @@ public final class SystemSchema {
                         () -> null == datasets[index] || index == datasets[index].getId(),
                         () -> "Replicant-0056: SystemSchema named '" + (null == name ? "?" : name)
                                 + "' passed an array of Datasets where Dataset at index "
-                                + index + " does not " + "have id matching index.");
+                                + index + " does not have a Dataset ID matching the index.");
             }
         }
         _id = id;
@@ -86,9 +86,9 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the System Schema identifier.
+     * Return the System Schema ID.
      *
-     * @return the System Schema identifier.
+     * @return the System Schema ID.
      */
     public int getId() {
         return _id;
@@ -152,28 +152,28 @@ public final class SystemSchema {
     }
 
     /**
-     * Return true if the System Schema contains a Dataset with the specified datasetId.
+     * Return true if the System Schema contains a Dataset with the specified Dataset ID.
      */
     public boolean hasDataset(final int datasetId) {
         return datasetId >= 0 && datasetId < _datasets.length && null != _datasets[datasetId];
     }
 
     /**
-     * Return the Dataset with specified datasetId.
-     * The datasetId MUST be 0 or more and less than {@link #getDatasetCount()}.
+     * Return the Dataset with the specified Dataset ID.
+     * The Dataset ID MUST be 0 or more and less than {@link #getDatasetCount()}.
      *
-     * @param datasetId the Dataset id.
-     * @return the Dataset matching datasetId.
+     * @param datasetId the Dataset ID.
+     * @return the Dataset matching the Dataset ID.
      */
     @NonNull
     public Dataset getDataset(final int datasetId) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> datasetId >= 0 && datasetId < _datasets.length,
-                    () -> "Replicant-0058: SystemSchema.getDataset(id) passed an id that is out of range.");
+                    () -> "Replicant-0058: SystemSchema.getDataset passed a Dataset ID that is out of range.");
             apiInvariant(
                     () -> null != _datasets[datasetId],
-                    () -> "Replicant-0008: SystemSchema.getDataset(id) attempted to access null Dataset.");
+                    () -> "Replicant-0008: SystemSchema.getDataset attempted to access a null Dataset.");
         }
         return _datasets[datasetId];
     }

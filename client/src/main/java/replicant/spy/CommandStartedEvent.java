@@ -6,22 +6,28 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector generated an error processing a message from a DataSource.
+ * Notification when a Connector sends a Command.
  */
-public final class MessageProcessFailureEvent implements SerializableEvent {
+public final class CommandStartedEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
     @NonNull
     private final String _systemSchemaName;
 
     @NonNull
-    private final Throwable _error;
+    private final String _commandName;
 
-    public MessageProcessFailureEvent(
-            final int systemSchemaId, @NonNull final String systemSchemaName, @NonNull final Throwable error) {
+    private final int _requestId;
+
+    public CommandStartedEvent(
+            final int systemSchemaId,
+            @NonNull final String systemSchemaName,
+            @NonNull final String commandName,
+            final int requestId) {
         _systemSchemaId = systemSchemaId;
         _systemSchemaName = Objects.requireNonNull(systemSchemaName);
-        _error = Objects.requireNonNull(error);
+        _commandName = Objects.requireNonNull(commandName);
+        _requestId = requestId;
     }
 
     public int getSystemSchemaId() {
@@ -34,16 +40,20 @@ public final class MessageProcessFailureEvent implements SerializableEvent {
     }
 
     @NonNull
-    public Throwable getError() {
-        return _error;
+    public String getCommandName() {
+        return _commandName;
+    }
+
+    public int getRequestId() {
+        return _requestId;
     }
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.MessageProcessFailure");
+        map.put("type", "Connector.CommandStarted");
         map.put("systemSchema.id", getSystemSchemaId());
         map.put("systemSchema.name", getSystemSchemaName());
-        final Throwable throwable = getError();
-        map.put("message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage());
+        map.put("command.name", getCommandName());
+        map.put("requestId", getRequestId());
     }
 }

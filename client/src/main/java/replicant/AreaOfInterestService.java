@@ -224,7 +224,7 @@ abstract class AreaOfInterestService extends ReplicantService {
             Disposable.dispose(areaOfInterest);
         }
         final ReplicantContext context = getReplicantContext();
-        if (RuntimeState.CONNECTED == context.getState()) {
+        if (ReplicantContextState.CONNECTED == context.getState()) {
             final DatasetAddress datasetAddress = areaOfInterest.getDatasetAddress();
             final Subscription subscription = context.findSubscription(datasetAddress);
             if (null != subscription) {

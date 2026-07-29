@@ -35,9 +35,9 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
 
     @NonNull
     final Connection newConnection(@NonNull final Connector connector) {
-        connector.onConnection(ValueUtil.randomString());
+        connector.onReplicantSessionCreated(ValueUtil.randomString());
         final Connection connection = connector.ensureConnection();
-        connection.setConnectionId(ValueUtil.randomString());
+        connection.setReplicantSessionId(ValueUtil.randomString());
         return connection;
     }
 
@@ -130,7 +130,7 @@ public abstract class AbstractReplicantTest implements ArezTestSupport {
     @NonNull
     final Connection createConnection() {
         final Connection connection = Connection.create(createConnector());
-        connection.setConnectionId(ValueUtil.randomString());
+        connection.setReplicantSessionId(ValueUtil.randomString());
         return connection;
     }
 }

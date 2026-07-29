@@ -18,7 +18,7 @@ import replicant.spy.MessageProcessingSummary;
 /**
  * Encapsulates incremental processing state for one server-to-client transport message.
  */
-final class MessageResponse {
+final class MessageProcessing {
     private final int _systemSchemaId;
     /**
      * The message to process.
@@ -47,7 +47,7 @@ final class MessageResponse {
 
     private boolean _replicaValidationStarted;
     private boolean _subscriptionChangesProcessed;
-    private boolean _orphanSubscriptionRemoved;
+    private boolean _orphanedSubscriptionsRemoved;
     private int _subscriptionSubscribeCount;
     private int _subscriptionUpdateCount;
     private int _subscriptionUnsubscribeCount;
@@ -55,15 +55,15 @@ final class MessageResponse {
     private int _entityRemoveCount;
     private int _entityLinkCount;
 
-    MessageResponse(
+    MessageProcessing(
             final int systemSchemaId,
             @NonNull final ServerToClientMessage message,
             @Nullable final RequestEntry request) {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null == request || ((Integer) request.getRequestId()).equals(message.getRequestId()),
-                    () -> "Replicant-0011: Response message specified requestId '" + message.getRequestId()
-                            + "' but request specified requestId '"
+                    () -> "Replicant-0011: Server-to-client message specified Request ID '" + message.getRequestId()
+                            + "' but the matching Request has Request ID '"
                             + Objects.requireNonNull(request).getRequestId() + "'.");
         }
         assert null != message;
@@ -233,7 +233,7 @@ final class MessageResponse {
     }
 
     /**
-     * Record that optional Replica validation has started for this response.
+     * Record that optional Replica validation has started for this message.
      *
      * <p>The connector records this before invoking the Validator so re-entrant processing cannot repeat the
      * validation step.</p>
@@ -245,7 +245,7 @@ final class MessageResponse {
     }
 
     /**
-     * Return true if optional Replica validation is disabled or has started after this response was applied.
+     * Return true if optional Replica validation is disabled or has started after this message was applied.
      */
     boolean hasReplicaValidationStarted() {
         return !Replicant.shouldValidateReplicasAfterMessageProcessing() || _replicaValidationStarted;
@@ -267,7 +267,7 @@ final class MessageResponse {
     @Override
     public String toString() {
         if (Replicant.areNamesEnabled()) {
-            return "MessageResponse[" + "Type="
+            return "MessageProcessing[" + "Type="
                     + _message.getType() + ",RequestId="
                     + _message.getRequestId() + ",ChangeIndex="
                     + _entityChangeIndex + ",ReplicasToLink.size="
@@ -295,11 +295,11 @@ final class MessageResponse {
         return changes;
     }
 
-    boolean areOrphanSubscriptionsRemoved() {
-        return _orphanSubscriptionRemoved;
+    boolean areOrphanedSubscriptionsRemoved() {
+        return _orphanedSubscriptionsRemoved;
     }
 
-    void markOrphanSubscriptionsRemoved() {
-        _orphanSubscriptionRemoved = true;
+    void markOrphanedSubscriptionsRemoved() {
+        _orphanedSubscriptionsRemoved = true;
     }
 }

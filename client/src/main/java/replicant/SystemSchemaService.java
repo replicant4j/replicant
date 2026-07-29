@@ -30,9 +30,9 @@ final class SystemSchemaService {
     }
 
     /**
-     * Return the System Schema with the specified systemSchemaId or null if no such System Schema.
+     * Return the System Schema with the specified System Schema ID or null if no such System Schema.
      *
-     * @param systemSchemaId the id of the System Schema.
+     * @param systemSchemaId the System Schema ID.
      * @return the System Schema or null if no such System Schema.
      */
     @Nullable
@@ -41,10 +41,10 @@ final class SystemSchemaService {
     }
 
     /**
-     * Return the System Schema with the specified systemSchemaId.
-     * This should not be invoked unless the System Schema with specified id exists.
+     * Return the System Schema with the specified System Schema ID.
+     * This should not be invoked unless the System Schema with the specified System Schema ID exists.
      *
-     * @param systemSchemaId the id of the System Schema.
+     * @param systemSchemaId the System Schema ID.
      * @return the System Schema.
      */
     @NonNull
@@ -53,7 +53,7 @@ final class SystemSchemaService {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != systemSchema,
-                    () -> "Replicant-0059: Unable to locate System Schema with id " + systemSchemaId);
+                    () -> "Replicant-0059: Unable to locate System Schema for System Schema ID " + systemSchemaId);
         }
         return Objects.requireNonNull(systemSchema);
     }
@@ -69,8 +69,8 @@ final class SystemSchemaService {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> !_systemSchemas.containsKey(systemSchemaId),
-                    () -> "Replicant-0070: Attempted to register System Schema with id " + systemSchemaId
-                            + " when a System Schema with id already exists: " + _systemSchemas.get(systemSchemaId));
+                    () -> "Replicant-0070: Attempted to register System Schema for System Schema ID " + systemSchemaId
+                            + " when that ID is already registered: " + _systemSchemas.get(systemSchemaId));
         }
         _systemSchemas.put(systemSchemaId, systemSchema);
     }
@@ -80,7 +80,7 @@ final class SystemSchemaService {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> _systemSchemas.containsKey(systemSchemaId),
-                    () -> "Replicant-0085: Attempted to deregister System Schema with id " + systemSchemaId
+                    () -> "Replicant-0085: Attempted to deregister System Schema for System Schema ID " + systemSchemaId
                             + " but no such System Schema exists.");
         }
         _systemSchemas.remove(systemSchemaId);

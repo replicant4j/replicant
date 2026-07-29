@@ -82,7 +82,7 @@ public class ReplicantEndpoint {
 
     @OnMessage
     @Transactional
-    public void command(@NonNull final Session session, @NonNull final String message) throws IOException {
+    public void onMessage(@NonNull final Session session, @NonNull final String message) throws IOException {
         final ReplicantSession replicantSession;
         try {
             replicantSession = getReplicantSession(session);
@@ -96,54 +96,54 @@ public class ReplicantEndpoint {
                     "Message on WebSocket Session " + session.getId() + " for replicant session "
                             + getReplicantSession(session).getId() + ". Message:\n" + message);
         }
-        final JsonObject command;
+        final JsonObject request;
         final String type;
         final int requestId;
         try {
-            command = Json.createReader(new StringReader(message)).readObject();
-            type = command.getString(Messages.Common.TYPE);
-            requestId = command.getInt(Messages.Common.REQUEST_ID);
+            request = Json.createReader(new StringReader(message)).readObject();
+            type = request.getString(Messages.Common.TYPE);
+            requestId = request.getInt(Messages.Common.REQUEST_ID);
         } catch (final Throwable ignored) {
             if (!runIfValid(replicantSession, () -> onMalformedMessage(replicantSession, message))) {
                 sendErrorAndClose(session, "Replicant session not authorized");
             }
             return;
         }
-        if (!runIfValid(replicantSession, () -> processCommand(replicantSession, command, type, requestId))) {
+        if (!runIfValid(replicantSession, () -> processRequest(replicantSession, request, type, requestId))) {
             sendErrorAndClose(session, "Replicant session not authorized");
         }
     }
 
-    private void processCommand(
+    private void processRequest(
             @NonNull final ReplicantSession replicantSession,
-            @NonNull final JsonObject command,
+            @NonNull final JsonObject request,
             @NonNull final String type,
             final int requestId)
             throws IOException {
         try {
             //noinspection IfCanBeSwitch
-            if (Messages.C2S_Type.EXEC.equals(type)) {
-                _sessionManager.execCommand(
+            if (Messages.C2S_Type.COMMAND.equals(type)) {
+                _sessionManager.executeCommand(
                         replicantSession,
-                        command.getString(Messages.Common.COMMAND),
-                        command.getInt(Messages.Common.REQUEST_ID),
-                        command.containsKey(Messages.Exec.PAYLOAD)
-                                ? command.getJsonObject(Messages.Exec.PAYLOAD)
+                        request.getString(Messages.Command.NAME),
+                        request.getInt(Messages.Common.REQUEST_ID),
+                        request.containsKey(Messages.Command.PAYLOAD)
+                                ? request.getJsonObject(Messages.Command.PAYLOAD)
                                 : null);
             } else if (Messages.C2S_Type.DATASET_CACHE_VERSIONS.equals(type)) {
-                onDatasetCacheVersions(replicantSession, command);
+                onDatasetCacheVersions(replicantSession, request);
             } else if (Messages.C2S_Type.PING.equals(type)) {
                 sendOk(replicantSession.getWebSocketSession(), requestId);
             } else if (Messages.C2S_Type.SUB.equals(type)) {
-                onSubscribe(replicantSession, command);
+                onSubscribe(replicantSession, request);
             } else if (Messages.C2S_Type.BULK_SUB.equals(type)) {
-                onBulkSubscribe(replicantSession, command);
+                onBulkSubscribe(replicantSession, request);
             } else if (Messages.C2S_Type.UNSUB.equals(type)) {
-                onUnsubscribe(replicantSession, command);
+                onUnsubscribe(replicantSession, request);
             } else if (Messages.C2S_Type.BULK_UNSUB.equals(type)) {
-                onBulkUnsubscribe(replicantSession, command);
+                onBulkUnsubscribe(replicantSession, request);
             } else {
-                onUnknownType(replicantSession, command);
+                onUnknownType(replicantSession, request);
             }
             _replicantSessionUpdatedEvent.fire(new ReplicantSessionUpdated(replicantSession.getId()));
         } catch (final SecurityException ignored) {
@@ -169,9 +169,9 @@ public class ReplicantEndpoint {
         }
     }
 
-    private void onDatasetCacheVersions(@NonNull final ReplicantSession session, @NonNull final JsonObject command) {
+    private void onDatasetCacheVersions(@NonNull final ReplicantSession session, @NonNull final JsonObject request) {
         final var datasetCacheVersions = new HashMap<DatasetAddress, String>();
-        for (final var entry : command.getJsonObject(Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS)
+        for (final var entry : request.getJsonObject(Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS)
                 .entrySet()) {
             final var datasetAddress = DatasetAddress.parse(entry.getKey());
             final var datasetCacheVersion = ((JsonString) entry.getValue()).getString();
@@ -179,24 +179,24 @@ public class ReplicantEndpoint {
         }
         _sessionManager.setDatasetCacheVersions(session, datasetCacheVersions);
 
-        sendOk(session.getWebSocketSession(), command.getInt(Messages.Common.REQUEST_ID));
+        sendOk(session.getWebSocketSession(), request.getInt(Messages.Common.REQUEST_ID));
     }
 
     private void onMalformedMessage(@NonNull final ReplicantSession replicantSession, @NonNull final String message) {
         closeWithError(replicantSession, "Malformed message", JsonEncoder.encodeMalformedMessageMessage(message));
     }
 
-    private void onUnknownType(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command) {
-        closeWithError(replicantSession, "Unknown request type", JsonEncoder.encodeUnknownRequestType(command));
+    private void onUnknownType(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject request) {
+        closeWithError(replicantSession, "Unknown request type", JsonEncoder.encodeUnknownRequestType(request));
     }
 
-    private void onSubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
+    private void onSubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject request)
             throws IOException {
-        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.DATASET_ADDRESS));
+        final var datasetAddress = DatasetAddress.parse(request.getString(Messages.Common.DATASET_ADDRESS));
         final var dataset = getDataset(datasetAddress.datasetId());
         if (checkSubscribeRequest(replicantSession, dataset, datasetAddress)) {
-            final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filterParameter = extractFilterParameter(dataset, command);
+            final var requestId = request.getInt(Messages.Common.REQUEST_ID);
+            final var filterParameter = extractFilterParameter(dataset, request);
             _sessionManager.subscribe(
                     replicantSession, requestId, Collections.singletonList(datasetAddress), filterParameter);
         }
@@ -228,9 +228,9 @@ public class ReplicantEndpoint {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private void onBulkSubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject command)
+    private void onBulkSubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject request)
             throws IOException {
-        final var datasetAddresses = extractDatasetAddresses(command);
+        final var datasetAddresses = extractDatasetAddresses(request);
         if (0 != datasetAddresses.length) {
             final var datasetId = datasetAddresses[0].datasetId();
 
@@ -245,15 +245,15 @@ public class ReplicantEndpoint {
                 }
             }
 
-            final var requestId = command.getInt(Messages.Common.REQUEST_ID);
-            final var filterParameter = extractFilterParameter(dataset, command);
+            final var requestId = request.getInt(Messages.Common.REQUEST_ID);
+            final var filterParameter = extractFilterParameter(dataset, request);
             _sessionManager.subscribe(session, requestId, Arrays.asList(datasetAddresses), filterParameter);
         }
     }
 
     @NonNull
-    private DatasetAddress[] extractDatasetAddresses(@NonNull final JsonObject command) {
-        final var datasetAddressDescriptors = command.getJsonArray(Messages.Common.DATASET_ADDRESSES);
+    private DatasetAddress[] extractDatasetAddresses(@NonNull final JsonObject request) {
+        final var datasetAddressDescriptors = request.getJsonArray(Messages.Common.DATASET_ADDRESSES);
         final var datasetAddressCount = datasetAddressDescriptors.size();
         final var datasetAddresses = new DatasetAddress[datasetAddressCount];
         for (var i = 0; i < datasetAddressCount; i++) {
@@ -263,28 +263,28 @@ public class ReplicantEndpoint {
     }
 
     @Nullable
-    private JsonObject extractFilterParameter(@NonNull final Dataset dataset, @NonNull final JsonObject command) {
+    private JsonObject extractFilterParameter(@NonNull final Dataset dataset, @NonNull final JsonObject request) {
         return dataset.isParameterFiltered()
-                        && command.containsKey(Messages.Common.FILTER_PARAMETER)
-                        && !command.isNull(Messages.Common.FILTER_PARAMETER)
-                ? command.getJsonObject(Messages.Common.FILTER_PARAMETER)
+                        && request.containsKey(Messages.Common.FILTER_PARAMETER)
+                        && !request.isNull(Messages.Common.FILTER_PARAMETER)
+                ? request.getJsonObject(Messages.Common.FILTER_PARAMETER)
                 : null;
     }
 
-    private void onUnsubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject command)
+    private void onUnsubscribe(@NonNull final ReplicantSession replicantSession, @NonNull final JsonObject request)
             throws IOException {
-        final var datasetAddress = DatasetAddress.parse(command.getString(Messages.Common.DATASET_ADDRESS));
+        final var datasetAddress = DatasetAddress.parse(request.getString(Messages.Common.DATASET_ADDRESS));
         final var dataset = getDataset(datasetAddress.datasetId());
         if (checkUnsubscribeRequest(replicantSession, dataset, datasetAddress)) {
-            final var requestId = command.getInt(Messages.Common.REQUEST_ID);
+            final var requestId = request.getInt(Messages.Common.REQUEST_ID);
             _sessionManager.unsubscribe(replicantSession, requestId, Collections.singletonList(datasetAddress));
         }
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private void onBulkUnsubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject command)
+    private void onBulkUnsubscribe(@NonNull final ReplicantSession session, @NonNull final JsonObject request)
             throws IOException {
-        final var datasetAddresses = extractDatasetAddresses(command);
+        final var datasetAddresses = extractDatasetAddresses(request);
         if (0 != datasetAddresses.length) {
             final var datasetId = datasetAddresses[0].datasetId();
 
@@ -298,7 +298,7 @@ public class ReplicantEndpoint {
                 }
             }
 
-            final var requestId = command.getInt(Messages.Common.REQUEST_ID);
+            final var requestId = request.getInt(Messages.Common.REQUEST_ID);
             _sessionManager.unsubscribe(session, requestId, Arrays.asList(datasetAddresses));
         }
     }

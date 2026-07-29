@@ -101,7 +101,7 @@ public final class ReplicantEndpointTest {
         final var fixture = newFixture();
         when(fixture.sessionManager.getSession(fixture.sessionId)).thenThrow(new IllegalStateException());
 
-        fixture.endpoint.command(fixture.session, "{\"type\":\"ping\",\"requestId\":1}");
+        fixture.endpoint.onMessage(fixture.session, "{\"type\":\"ping\",\"requestId\":1}");
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager, never()).invalidateSession(any());
@@ -114,7 +114,7 @@ public final class ReplicantEndpointTest {
     public void command_malformedMessage() throws Exception {
         final var fixture = newFixture();
 
-        fixture.endpoint.command(fixture.session, "not-json");
+        fixture.endpoint.onMessage(fixture.session, "not-json");
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
@@ -131,7 +131,7 @@ public final class ReplicantEndpointTest {
         final var fixture = newFixture();
         fixture.authorization.valid = false;
 
-        fixture.endpoint.command(fixture.session, createPingCommand(1));
+        fixture.endpoint.onMessage(fixture.session, createPingCommand(1));
 
         verify(fixture.session).close(any(CloseReason.class));
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
@@ -152,7 +152,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Auth.TOKEN, "token")
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         assertNull(fixture.replicantSession.getAuthToken());
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
@@ -163,34 +163,34 @@ public final class ReplicantEndpointTest {
     }
 
     @Test
-    public void command_exec_withPayload() throws Exception {
+    public void command_withPayload() throws Exception {
         final var fixture = newFixture();
         final var payload = Json.createObjectBuilder().add("a", "b").build();
-        final var command = Json.createObjectBuilder()
-                .add(Messages.Common.TYPE, Messages.C2S_Type.EXEC)
+        final var request = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.COMMAND)
                 .add(Messages.Common.REQUEST_ID, 4)
-                .add(Messages.Common.COMMAND, "cmd")
-                .add(Messages.Exec.PAYLOAD, payload)
+                .add(Messages.Command.NAME, "cmd")
+                .add(Messages.Command.PAYLOAD, payload)
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, request.toString());
 
-        verify(fixture.sessionManager).execCommand(fixture.replicantSession, "cmd", 4, payload);
+        verify(fixture.sessionManager).executeCommand(fixture.replicantSession, "cmd", 4, payload);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
     @Test
-    public void command_exec_withoutPayload() throws Exception {
+    public void command_withoutPayload() throws Exception {
         final var fixture = newFixture();
-        final var command = Json.createObjectBuilder()
-                .add(Messages.Common.TYPE, Messages.C2S_Type.EXEC)
+        final var request = Json.createObjectBuilder()
+                .add(Messages.Common.TYPE, Messages.C2S_Type.COMMAND)
                 .add(Messages.Common.REQUEST_ID, 5)
-                .add(Messages.Common.COMMAND, "cmd")
+                .add(Messages.Command.NAME, "cmd")
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, request.toString());
 
-        verify(fixture.sessionManager).execCommand(fixture.replicantSession, "cmd", 5, null);
+        verify(fixture.sessionManager).executeCommand(fixture.replicantSession, "cmd", 5, null);
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
     }
 
@@ -205,7 +205,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS, datasetCacheVersions)
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         @SuppressWarnings("unchecked")
         final var captor = (org.mockito.ArgumentCaptor<Map<DatasetAddress, String>>)
@@ -225,7 +225,7 @@ public final class ReplicantEndpointTest {
     public void command_ping() throws Exception {
         final var fixture = newFixture();
 
-        fixture.endpoint.command(fixture.session, createPingCommand(7));
+        fixture.endpoint.onMessage(fixture.session, createPingCommand(7));
 
         final var response = getLastSentMessage(fixture);
         assertEquals(response.getString(Messages.Common.TYPE), Messages.S2C_Type.OK);
@@ -238,7 +238,7 @@ public final class ReplicantEndpointTest {
         final var fixture = newFixture();
         final var command = createSubscribeCommand("0", 1, null);
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .subscribe(fixture.replicantSession, 1, Collections.singletonList(DatasetAddress.of(0)), null);
@@ -251,7 +251,7 @@ public final class ReplicantEndpointTest {
         final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var command = createSubscribeCommand("1.5", 2, filterParameter);
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .subscribe(
@@ -268,7 +268,7 @@ public final class ReplicantEndpointTest {
         final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var command = createSubscribeCommand("0", 3, filterParameter);
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .subscribe(fixture.replicantSession, 3, Collections.singletonList(DatasetAddress.of(0)), null);
@@ -313,7 +313,7 @@ public final class ReplicantEndpointTest {
         final var filterParameter = Json.createObjectBuilder().add("k", "v").build();
         final var command = createSubscribeCommand("4.7#fi", 5, filterParameter);
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .subscribe(
@@ -336,7 +336,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.FILTER_PARAMETER, filterParameter)
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         final var expected = Arrays.asList(DatasetAddress.of(2, 7, "fi"), DatasetAddress.of(2, 8, "fi2"));
         verify(fixture.sessionManager).subscribe(fixture.replicantSession, 4, expected, filterParameter);
@@ -352,7 +352,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.DATASET_ADDRESSES, Json.createArrayBuilder())
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
         verify(fixture.updatedEvent).fire(new ReplicantSessionUpdated(fixture.sessionId));
@@ -369,7 +369,7 @@ public final class ReplicantEndpointTest {
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
@@ -392,7 +392,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.DATASET_ADDRESS, "1.5")
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager)
                 .unsubscribe(fixture.replicantSession, 7, Collections.singletonList(DatasetAddress.of(1, 5)));
@@ -408,7 +408,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.DATASET_ADDRESS, "1.5#fi")
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
@@ -427,7 +427,7 @@ public final class ReplicantEndpointTest {
                         Json.createArrayBuilder().add("1.1").add("1.2"))
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         final var expected = Arrays.asList(DatasetAddress.of(1, 1), DatasetAddress.of(1, 2));
         verify(fixture.sessionManager).unsubscribe(fixture.replicantSession, 8, expected);
@@ -445,7 +445,7 @@ public final class ReplicantEndpointTest {
                         Json.createArrayBuilder().add("2.7#fi").add("1.5#fi2"))
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).unsubscribe(any(), anyInt(), anyList());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
@@ -467,7 +467,7 @@ public final class ReplicantEndpointTest {
                 .add(Messages.Common.REQUEST_ID, 9)
                 .build();
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);
         verify(fixture.removedEvent).fire(new ReplicantSessionRemoved(fixture.sessionId));
@@ -482,7 +482,7 @@ public final class ReplicantEndpointTest {
         final var fixture = newFixture();
         final var command = createSubscribeCommand(datasetAddress, 2, null);
 
-        fixture.endpoint.command(fixture.session, command.toString());
+        fixture.endpoint.onMessage(fixture.session, command.toString());
 
         verify(fixture.sessionManager, never()).subscribe(any(), anyInt(), anyList(), any());
         verify(fixture.sessionManager).invalidateSession(fixture.replicantSession);

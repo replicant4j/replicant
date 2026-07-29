@@ -81,7 +81,7 @@ public final class ReplicantContext {
      * Register a Connector owned by this Replicant Context for the specified System Schema and Transport.
      *
      * <p>The Transport instance must be unique to this Connector. A Context may own Connectors for multiple System
-     * Schemas, but only one Connector for each System Schema identifier. Disposing the returned handle deregisters the
+     * Schemas, but only one Connector for each System Schema ID. Disposing the returned handle deregisters the
      * Connector and its System Schema from this Context without affecting any other Replicant Context.
      *
      * @param systemSchema    the System Schema defining datasource.
@@ -181,7 +181,7 @@ public final class ReplicantContext {
     /**
      * Return the collection of Instance Dataset subscriptions for the Dataset.
      *
-     * @param systemSchemaId  the System Schema identifier.
+     * @param systemSchemaId  the System Schema ID.
      * @param datasetId the Dataset ID.
      * @return the set of Dataset Root identifiers for all Instance Dataset subscriptions to the specified Dataset.
      */
@@ -228,9 +228,9 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the System Schema with the specified systemSchemaId or null if no such System Schema.
+     * Return the System Schema with the specified System Schema ID or null if no such System Schema.
      *
-     * @param systemSchemaId the id of the System Schema.
+     * @param systemSchemaId the System Schema ID.
      * @return the System Schema or null if no such System Schema.
      */
     @Nullable
@@ -239,10 +239,10 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the System Schema with the specified systemSchemaId.
-     * This should not be invoked unless the System Schema with specified id exists.
+     * Return the System Schema with the specified System Schema ID.
+     * This should not be invoked unless the System Schema with the specified System Schema ID exists.
      *
-     * @param systemSchemaId the id of the System Schema.
+     * @param systemSchemaId the System Schema ID.
      * @return the System Schema.
      */
     @NonNull
@@ -352,55 +352,55 @@ public final class ReplicantContext {
     }
 
     /**
-     * Return the actual state of the context.
+     * Return the aggregate Replicant Context State.
      *
-     * @return the actual state of the context.
+     * @return the Replicant Context State.
      */
     @NonNull
-    public RuntimeState getState() {
+    public ReplicantContextState getState() {
         return getRuntime().getState();
     }
 
     /**
-     * Set the "required" flag for connector for specified type.
+     * Set whether the Connector for the specified System Schema is a Required Connector.
      * NOTE: It is expected that the way this is done will change in the future.
      *
-     * @param systemSchemaId the id of the System Schema handled by connector.
-     * @param required true if connector is required for the context to be active, false otherwise.
+     * @param systemSchemaId the System Schema ID handled by the Connector.
+     * @param required true if the Connector is a Required Connector, false otherwise.
      */
     public void setConnectorRequired(final int systemSchemaId, final boolean required) {
         getRuntime().setConnectorRequired(systemSchemaId, required);
     }
 
     /**
-     * Get the connection id from the connector for specified System Schema if the connector has established a connection else return null.
+     * Return the Replicant Session ID for the specified System Schema when its Connector has established a session.
      *
-     * @param systemSchemaId the id of the System Schema.
+     * @param systemSchemaId the System Schema ID.
+     * @return the Replicant Session ID, or null when no Replicant Session exists.
      */
     @Nullable
-    public String findConnectionId(final int systemSchemaId) {
+    public String findReplicantSessionId(final int systemSchemaId) {
         final Connector connector = getRuntime().getConnector(systemSchemaId);
         final Connection connection = connector.getConnection();
-        return null == connection ? null : connection.getConnectionId();
+        return null == connection ? null : connection.getReplicantSessionId();
     }
 
     /**
-     * Schedule an "Exec" request to the server.
-     * The request is identified by a command and a payload (a.k.a. parameters) and may return a result.
-     * The mapping of the command and payload to behaviour is abstracted away by server and is outside
-     * the scope of this api.
+     * Send a Command to the server.
+     * The Command is identified by name, may include a payload, and may return a result.
+     * The mapping of the Command name and payload to behaviour is defined by the application server.
      *
-     * @param systemSchemaId        the id of the System Schema.
-     * @param command         the command string. It uniquely identifies a call.
-     * @param payload         the payload or parameters of the payload.
-     * @param responseHandler the ResponseHandler invoked when a response is received.
+     * @param systemSchemaId  the System Schema ID.
+     * @param commandName     the Command name.
+     * @param payload         the optional Command payload.
+     * @param responseHandler the ResponseHandler invoked when a result is received.
      */
-    public void exec(
+    public void sendCommand(
             final int systemSchemaId,
-            @NonNull final String command,
+            @NonNull final String commandName,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
-        getRuntime().getConnector(systemSchemaId).requestExec(command, payload, responseHandler);
+        getRuntime().getConnector(systemSchemaId).requestCommand(commandName, payload, responseHandler);
     }
 
     /**

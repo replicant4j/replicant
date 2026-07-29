@@ -115,10 +115,10 @@ abstract class ReplicantRuntime {
     abstract ObservableValue<?> getConnectorsObservableValue();
 
     /**
-     * Set the "required" flag for connector for specified type.
+     * Set whether the Connector for the specified System Schema is a Required Connector.
      *
-     * @param systemSchemaId the if of the System Schema handled by connector.
-     * @param required true if connector is required for the context to be active, false otherwise.
+     * @param systemSchemaId the System Schema ID handled by the Connector.
+     * @param required true if the Connector is a Required Connector, false otherwise.
      */
     void setConnectorRequired(final int systemSchemaId, final boolean required) {
         getConnectorEntryBySystemSchemaId(systemSchemaId).setRequired(required);
@@ -140,13 +140,13 @@ abstract class ReplicantRuntime {
     }
 
     /**
-     * Return the state of the runtime.
+     * Return the aggregate Replicant Context State.
      *
-     * @return the state of the runtime.
+     * @return the Replicant Context State.
      */
     @NonNull
     @Memoize(readOutsideTransaction = Feature.ENABLE)
-    RuntimeState getState() {
+    ReplicantContextState getState() {
         // Are any required connecting?
         boolean connecting = false;
         // Are any required disconnecting?
@@ -163,9 +163,9 @@ abstract class ReplicantRuntime {
             // If there are no connectors then we just mirror the desired state (i.e. isActive flag)
             // to the actual state
             if (isActive()) {
-                return RuntimeState.CONNECTED;
+                return ReplicantContextState.CONNECTED;
             } else {
-                return RuntimeState.DISCONNECTED;
+                return ReplicantContextState.DISCONNECTED;
             }
         } else {
             for (final ConnectorEntry entry : connectors) {
@@ -186,17 +186,17 @@ abstract class ReplicantRuntime {
             }
         }
         if (fatalError) {
-            return RuntimeState.FATAL_ERROR;
+            return ReplicantContextState.FATAL_ERROR;
         } else if (error) {
-            return RuntimeState.ERROR;
+            return ReplicantContextState.ERROR;
         } else if (disconnected) {
-            return RuntimeState.DISCONNECTED;
+            return ReplicantContextState.DISCONNECTED;
         } else if (disconnecting) {
-            return RuntimeState.DISCONNECTING;
+            return ReplicantContextState.DISCONNECTING;
         } else if (connecting) {
-            return RuntimeState.CONNECTING;
+            return ReplicantContextState.CONNECTING;
         } else {
-            return RuntimeState.CONNECTED;
+            return ReplicantContextState.CONNECTED;
         }
     }
 
@@ -230,7 +230,7 @@ abstract class ReplicantRuntime {
         if (Replicant.shouldCheckInvariants()) {
             invariant(
                     () -> null != entry,
-                    () -> "Replicant-0007: Unable to locate Connector by System Schema identifier " + systemSchemaId);
+                    () -> "Replicant-0007: Unable to locate Connector by System Schema ID " + systemSchemaId);
         }
         return Objects.requireNonNull(entry);
     }

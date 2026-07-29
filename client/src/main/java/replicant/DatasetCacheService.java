@@ -19,7 +19,7 @@ public interface DatasetCacheService {
     /**
      * Return the Dataset Addresses with locally stored entries for the System Schema.
      *
-     * @param systemSchemaId the System Schema identifier.
+     * @param systemSchemaId the System Schema ID.
      * @return the Dataset Addresses with stored entries.
      */
     @NonNull

@@ -16,8 +16,8 @@ public final class Request {
     }
 
     @NonNull
-    public String getConnectionId() {
-        return _connection.ensureConnectionId();
+    public String getReplicantSessionId() {
+        return _connection.ensureReplicantSessionId();
     }
 
     public int getRequestId() {

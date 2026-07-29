@@ -66,7 +66,7 @@ public final class Dataset {
     }
 
     /**
-     * The compact Dataset identifier used in runtime metadata, Dataset Addresses, and transport messages.
+     * The compact Dataset ID used in runtime metadata, Dataset Addresses, and transport messages.
      */
     private final int _id;
     /**
@@ -301,10 +301,10 @@ public final class Dataset {
     }
 
     /**
-     * Return the entity type with specified id, if any.
+     * Return the Entity Type with the specified Entity Type ID, if any.
      *
-     * @param entityTypeId the id of the entity type to find.
-     * @return the entity type with specified id, if any.
+     * @param entityTypeId the Entity Type ID to find.
+     * @return the Entity Type with the specified Entity Type ID, if any.
      */
     @Nullable
     public EntityType findEntityTypeByEntityTypeId(final int entityTypeId) {

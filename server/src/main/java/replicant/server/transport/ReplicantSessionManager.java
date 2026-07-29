@@ -32,8 +32,11 @@ public interface ReplicantSessionManager {
 
     boolean isAuthorized(@NonNull ReplicantSession session);
 
-    void execCommand(
-            @NonNull ReplicantSession session, @NonNull String command, int requestId, @Nullable JsonObject payload);
+    void executeCommand(
+            @NonNull ReplicantSession session,
+            @NonNull String commandName,
+            int requestId,
+            @Nullable JsonObject payload);
 
     /**
      * Invalidate specified session.

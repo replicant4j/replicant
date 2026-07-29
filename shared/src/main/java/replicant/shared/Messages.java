@@ -59,7 +59,7 @@ public final class Messages {
         public static final String BULK_UNSUB = "bulk-unsub";
 
         @NonNull
-        public static final String EXEC = "exec";
+        public static final String COMMAND = "command";
 
         private C2S_Type() {}
     }
@@ -81,8 +81,6 @@ public final class Messages {
         public static final String FILTER_PARAMETER = "filterParameter";
 
         @NonNull
-        public static final String COMMAND = "command";
-
         private Common() {}
     }
 
@@ -146,10 +144,20 @@ public final class Messages {
         private Auth() {}
     }
 
-    public static final class Exec {
+    public static final class Command {
+        @NonNull
+        public static final String NAME = "name";
+
         @NonNull
         public static final String PAYLOAD = "payload";
 
-        private Exec() {}
+        private Command() {}
+    }
+
+    public static final class UnknownRequestType {
+        @NonNull
+        public static final String REQUEST = "request";
+
+        private UnknownRequestType() {}
     }
 }

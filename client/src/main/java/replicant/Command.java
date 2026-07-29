@@ -4,9 +4,9 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-final class ExecRequest {
+final class Command {
     @NonNull
-    private final String _command;
+    private final String _name;
 
     @Nullable
     private final Object _payload;
@@ -16,19 +16,19 @@ final class ExecRequest {
 
     private int _requestId;
 
-    ExecRequest(
-            @NonNull final String command,
+    Command(
+            @NonNull final String name,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
-        _command = Objects.requireNonNull(command);
+        _name = Objects.requireNonNull(name);
         _payload = payload;
         _responseHandler = responseHandler;
         _requestId = -1;
     }
 
     @NonNull
-    String getCommand() {
-        return _command;
+    String getName() {
+        return _name;
     }
 
     @Nullable
@@ -60,8 +60,8 @@ final class ExecRequest {
     @Override
     public String toString() {
         if (Replicant.areNamesEnabled()) {
-            return "ExecRequest[" + "Command="
-                    + _command + (null == _payload ? "" : " Payload=" + String.valueOf(_payload))
+            return "Command[" + "Name="
+                    + _name + (null == _payload ? "" : " Payload=" + String.valueOf(_payload))
                     + "]" + (-1 != _requestId ? "(InProgress)" : "");
         } else {
             return super.toString();

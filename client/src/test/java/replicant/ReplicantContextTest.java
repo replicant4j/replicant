@@ -125,7 +125,7 @@ public class ReplicantContextTest extends AbstractReplicantTest {
 
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class, () -> safeAction(() -> context.getSystemSchemaById(systemSchemaId)));
-        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate System Schema with id 22");
+        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate System Schema for System Schema ID 22");
 
         final SystemSchema systemSchema =
                 new SystemSchema(systemSchemaId, ValueUtil.randomString(), new Dataset[0], new EntityType[0]);
@@ -396,13 +396,13 @@ public class ReplicantContextTest extends AbstractReplicantTest {
     @Test
     public void active() {
         final ReplicantContext context = Replicant.context();
-        assertEquals(context.getState(), RuntimeState.CONNECTED);
+        assertEquals(context.getState(), ReplicantContextState.CONNECTED);
         safeAction(() -> assertTrue(context.isActive()));
         context.deactivate();
-        assertEquals(context.getState(), RuntimeState.DISCONNECTED);
+        assertEquals(context.getState(), ReplicantContextState.DISCONNECTED);
         safeAction(() -> assertFalse(context.isActive()));
         context.activate();
-        assertEquals(context.getState(), RuntimeState.CONNECTED);
+        assertEquals(context.getState(), ReplicantContextState.CONNECTED);
         safeAction(() -> assertTrue(context.isActive()));
     }
 
@@ -444,33 +444,33 @@ public class ReplicantContextTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void exec() {
+    public void sendCommand() {
         final Connector connector = createConnector();
         connector.pauseMessageScheduler();
         final Connection connection = newConnection(connector);
 
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final Object payload = new Object();
 
-        Replicant.context().exec(connector.getSystemSchema().getId(), command, payload, null);
+        Replicant.context().sendCommand(connector.getSystemSchema().getId(), commandName, payload, null);
 
-        final List<ExecRequest> requests = connection.getPendingExecRequests();
+        final List<Command> requests = connection.getPendingCommands();
         assertEquals(requests.size(), 1);
-        final ExecRequest request = requests.get(0);
-        assertEquals(request.getCommand(), command);
+        final Command request = requests.get(0);
+        assertEquals(request.getName(), commandName);
         assertEquals(request.getPayload(), payload);
     }
 
     @Test
-    public void findConnectionId() {
+    public void findReplicantSessionId() {
         final Connector connector = createConnector();
         final int systemSchemaId = connector.getSystemSchema().getId();
 
-        assertNull(Replicant.context().findConnectionId(systemSchemaId));
+        assertNull(Replicant.context().findReplicantSessionId(systemSchemaId));
 
         final Connection connection = newConnection(connector);
 
-        assertEquals(Replicant.context().findConnectionId(systemSchemaId), connection.getConnectionId());
+        assertEquals(Replicant.context().findReplicantSessionId(systemSchemaId), connection.getReplicantSessionId());
     }
 
     @Test

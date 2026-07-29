@@ -2,6 +2,32 @@
 
 ### Unreleased
 
+* Complete Entity Type ID wording in Dataset lookup documentation, Domgen-generated constants, and System Schema
+  test diagnostics.
+* Align client reconciliation and Message Processing state with Orphaned Subscription terminology, replacing the
+  remaining orphan-Subscription method and field names without changing behavior.
+* Align Connector configuration documentation with Required Connector terminology, replacing the remaining generic
+  required-flag wording.
+* Complete client and server documentation and diagnostic alignment with Dataset ID terminology, replacing the
+  remaining generic identifier, lowercase `id`, and raw `datasetId` wording.
+* Complete client documentation and diagnostic alignment with System Schema ID terminology, replacing the remaining
+  generic identifier and lowercase `id` wording.
+* Adopt Message Processing terminology for the incremental client-side application of a server-to-client message.
+  Rename the internal `MessageResponse` state, queues, lifecycle methods, post-processing hook, failure spy event,
+  diagnostics, and tests to describe Message Processing rather than a message response or process. This is a hard-cut
+  API migration with no compatibility alias.
+* Rename the public `RuntimeState` enum to `ReplicantContextState` so the API identifies the aggregate Replicant
+  Context State it represents. Align client integrations and documentation with the canonical term. This is a
+  hard-cut client and application API migration with no compatibility alias.
+* Adopt Command terminology for application operations sent through a Connector. Replace Exec classes, APIs,
+  lifecycle events, diagnostics, Domgen templates, and generated Rose integrations with explicit Command names.
+  Rename the client-to-server wire type from `exec` to `command`, represent the Command name as `name`, and describe
+  an unknown client request as a request rather than a command. This is a hard-cut client, server, generator,
+  diagnostic-event, and wire-protocol migration with no compatibility aliases.
+* Adopt Replicant Session ID terminology for the server-issued identifier of one Replicant Session. Replace client
+  Connection ID APIs and Rose Client Session ID names with Replicant Session ID, while preserving Rose's existing
+  `ClientSessionId` database column. This is a hard-cut client and application API migration with no compatibility
+  aliases.
 * Adopt Delivery Required terminology for the Change Set state that forces delivery when no Subscription Changes or
   Entity Changes are present. Rename the server API to `isDeliveryRequired()`, `setDeliveryRequired(...)`, and
   `shouldDeliver()` so the override and the resulting delivery decision are distinct. This is a hard-cut server API

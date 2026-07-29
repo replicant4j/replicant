@@ -204,10 +204,10 @@ public final class JsonEncoder {
     }
 
     @NonNull
-    public static String encodeUnknownRequestType(@NonNull final JsonObject command) {
+    public static String encodeUnknownRequestType(@NonNull final JsonObject request) {
         return asString(Json.createObjectBuilder()
                 .add(Messages.Common.TYPE, Messages.S2C_Type.UNKNOWN_REQUEST_TYPE)
-                .add(Messages.Common.COMMAND, command)
+                .add(Messages.UnknownRequestType.REQUEST, request)
                 .build());
     }
 

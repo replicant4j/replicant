@@ -99,7 +99,7 @@ abstract class SubscriptionReconciler extends ReplicantService {
     void reconcile() {
         preReconciliation();
         final ReplicantRuntime runtime = getReplicantRuntime();
-        if (Disposable.isNotDisposed(runtime) && RuntimeState.CONNECTED == runtime.getState()) {
+        if (Disposable.isNotDisposed(runtime) && ReplicantContextState.CONNECTED == runtime.getState()) {
             reconcileStep();
         }
     }
@@ -279,18 +279,18 @@ abstract class SubscriptionReconciler extends ReplicantService {
     }
 
     @arez.annotations.Action
-    void removeOrphanSubscriptions() {
+    void removeOrphanedSubscriptions() {
         final HashSet<DatasetAddress> expectedDatasetAddresses = new HashSet<>();
         getReplicantContext()
                 .getAreasOfInterest()
                 .forEach(aoi -> expectedDatasetAddresses.add(aoi.getDatasetAddress()));
 
         final SubscriptionService subscriptionService = getReplicantContext().getSubscriptionService();
-        removeOrphanSubscriptions(subscriptionService.getTypeDatasetSubscriptions(), expectedDatasetAddresses);
-        removeOrphanSubscriptions(subscriptionService.getInstanceDatasetSubscriptions(), expectedDatasetAddresses);
+        removeOrphanedSubscriptions(subscriptionService.getTypeDatasetSubscriptions(), expectedDatasetAddresses);
+        removeOrphanedSubscriptions(subscriptionService.getInstanceDatasetSubscriptions(), expectedDatasetAddresses);
     }
 
-    private void removeOrphanSubscriptions(
+    private void removeOrphanedSubscriptions(
             @NonNull final Collection<Subscription> subscriptions,
             @NonNull final Set<DatasetAddress> expectedDatasetAddresses) {
         subscriptions.stream()
@@ -301,10 +301,10 @@ abstract class SubscriptionReconciler extends ReplicantService {
                 .filter(datasetAddress -> !expectedDatasetAddresses.contains(datasetAddress))
                 // Subscription should not have a remove pending
                 .filter(datasetAddress -> !isRemovePending(datasetAddress))
-                .forEachOrdered(this::removeOrphanSubscription);
+                .forEachOrdered(this::removeOrphanedSubscription);
     }
 
-    private void removeOrphanSubscription(@NonNull final DatasetAddress datasetAddress) {
+    private void removeOrphanedSubscription(@NonNull final DatasetAddress datasetAddress) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             final Subscription subscription =
                     Objects.requireNonNull(getReplicantContext().findSubscription(datasetAddress));

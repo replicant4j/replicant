@@ -6,28 +6,22 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector receives a response to an Exec message.
+ * Notification when a Connector generated an error processing a message from a DataSource.
  */
-public final class ExecCompletedEvent implements SerializableEvent {
+public final class MessageProcessingFailureEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
     @NonNull
     private final String _systemSchemaName;
 
     @NonNull
-    private final String _command;
+    private final Throwable _error;
 
-    private final int _requestId;
-
-    public ExecCompletedEvent(
-            final int systemSchemaId,
-            @NonNull final String systemSchemaName,
-            @NonNull final String command,
-            final int requestId) {
+    public MessageProcessingFailureEvent(
+            final int systemSchemaId, @NonNull final String systemSchemaName, @NonNull final Throwable error) {
         _systemSchemaId = systemSchemaId;
         _systemSchemaName = Objects.requireNonNull(systemSchemaName);
-        _command = Objects.requireNonNull(command);
-        _requestId = requestId;
+        _error = Objects.requireNonNull(error);
     }
 
     public int getSystemSchemaId() {
@@ -40,20 +34,16 @@ public final class ExecCompletedEvent implements SerializableEvent {
     }
 
     @NonNull
-    public String getCommand() {
-        return _command;
-    }
-
-    public int getRequestId() {
-        return _requestId;
+    public Throwable getError() {
+        return _error;
     }
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.ExecCompleted");
+        map.put("type", "Connector.MessageProcessingFailure");
         map.put("systemSchema.id", getSystemSchemaId());
         map.put("systemSchema.name", getSystemSchemaName());
-        map.put("command", getCommand());
-        map.put("requestId", getRequestId());
+        final Throwable throwable = getError();
+        map.put("message", null == throwable.getMessage() ? throwable.toString() : throwable.getMessage());
     }
 }

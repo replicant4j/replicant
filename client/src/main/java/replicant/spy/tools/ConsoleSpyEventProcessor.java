@@ -8,15 +8,15 @@ import replicant.Subscription;
 import replicant.spy.AreaOfInterestCreatedEvent;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import replicant.spy.AreaOfInterestFilterParameterUpdatedEvent;
+import replicant.spy.CommandCompletedEvent;
+import replicant.spy.CommandQueuedEvent;
+import replicant.spy.CommandStartedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
-import replicant.spy.ExecCompletedEvent;
-import replicant.spy.ExecRequestQueuedEvent;
-import replicant.spy.ExecStartedEvent;
-import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
+import replicant.spy.MessageProcessingFailureEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RequestCompletedEvent;
 import replicant.spy.RequestStartedEvent;
@@ -53,7 +53,7 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     private static final String AREA_OF_INTEREST_COLOR = "color: #006AEB; font-weight: normal;";
 
     @CssRules
-    private static final String EXEC_COLOR = "color: orangered; font-weight: normal;";
+    private static final String COMMAND_COLOR = "color: orangered; font-weight: normal;";
 
     @CssRules
     private static final String ERROR_COLOR = "color: #A10001; font-weight: normal;";
@@ -70,16 +70,16 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
         on(SubscriptionDisposedEvent.class, this::onSubscriptionDisposed);
         on(SubscriptionOrphanedEvent.class, this::onSubscriptionOrphaned);
 
-        on(ExecStartedEvent.class, this::onExecStarted);
-        on(ExecCompletedEvent.class, this::onExecCompleted);
-        on(ExecRequestQueuedEvent.class, this::onExecRequestQueued);
+        on(CommandStartedEvent.class, this::onCommandStarted);
+        on(CommandCompletedEvent.class, this::onCommandCompleted);
+        on(CommandQueuedEvent.class, this::onCommandQueued);
 
         on(ConnectedEvent.class, this::onConnected);
         on(ConnectFailureEvent.class, this::onConnectFailure);
         on(DisconnectedEvent.class, this::onDisconnected);
         on(DisconnectFailureEvent.class, this::onDisconnectFailure);
         on(MessageProcessedEvent.class, this::onMessageProcessed);
-        on(MessageProcessFailureEvent.class, this::onMessageProcessFailure);
+        on(MessageProcessingFailureEvent.class, this::onMessageProcessingFailure);
         on(MessageReadFailureEvent.class, this::onMessageReadFailure);
         on(RestartEvent.class, this::onRestart);
         on(SubscribeRequestQueuedEvent.class, this::onSubscribeRequestQueued);
@@ -201,11 +201,11 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     }
 
     /**
-     * Handle the MessageProcessFailureEvent.
+     * Handle the MessageProcessingFailureEvent.
      *
      * @param e the event.
      */
-    protected void onMessageProcessFailure(@NonNull final MessageProcessFailureEvent e) {
+    protected void onMessageProcessingFailure(@NonNull final MessageProcessingFailureEvent e) {
         log(
                 "%cConnector Error Processing Message. System Schema: " + e.getSystemSchemaName() + " Error: "
                         + e.getError(),
@@ -411,30 +411,30 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
     }
 
     /**
-     * Handle the ExecStartedEvent.
+     * Handle the CommandStartedEvent.
      *
      * @param e the event.
      */
-    protected void onExecStarted(@NonNull final ExecStartedEvent e) {
-        log("%cExec Started " + e.getCommand(), EXEC_COLOR);
+    protected void onCommandStarted(@NonNull final CommandStartedEvent e) {
+        log("%cCommand Started " + e.getCommandName(), COMMAND_COLOR);
     }
 
     /**
-     * Handle the ExecStartedEvent.
+     * Handle the CommandCompletedEvent.
      *
      * @param e the event.
      */
-    protected void onExecCompleted(@NonNull final ExecCompletedEvent e) {
-        log("%cExec Completed " + e.getCommand(), EXEC_COLOR);
+    protected void onCommandCompleted(@NonNull final CommandCompletedEvent e) {
+        log("%cCommand Completed " + e.getCommandName(), COMMAND_COLOR);
     }
 
     /**
-     * Handle the ExecRequestQueuedEvent.
+     * Handle the CommandQueuedEvent.
      *
      * @param e the event.
      */
-    protected void onExecRequestQueued(@NonNull final ExecRequestQueuedEvent e) {
-        log("%cExec Request Queued  " + e.getCommand(), EXEC_COLOR);
+    protected void onCommandQueued(@NonNull final CommandQueuedEvent e) {
+        log("%cCommand Queued  " + e.getCommandName(), COMMAND_COLOR);
     }
 
     /**

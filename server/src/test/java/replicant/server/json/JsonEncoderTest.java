@@ -357,11 +357,11 @@ public final class JsonEncoderTest {
 
     @Test
     public void encodeUnknownRequestType() {
-        final var command = Json.createObjectBuilder().add("t", "x").build();
-        final var message = toJsonObject(JsonEncoder.encodeUnknownRequestType(command));
+        final var request = Json.createObjectBuilder().add("t", "x").build();
+        final var message = toJsonObject(JsonEncoder.encodeUnknownRequestType(request));
 
         assertEquals(message.getString(Messages.Common.TYPE), Messages.S2C_Type.UNKNOWN_REQUEST_TYPE);
-        assertEquals(message.getJsonObject(Messages.Common.COMMAND).toString(), command.toString());
+        assertEquals(message.getJsonObject(Messages.UnknownRequestType.REQUEST).toString(), request.toString());
     }
 
     @Test

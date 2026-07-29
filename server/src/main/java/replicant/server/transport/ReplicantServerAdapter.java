@@ -78,8 +78,11 @@ public interface ReplicantServerAdapter {
      */
     boolean flushOpenEntityManager();
 
-    void execCommand(
-            @NonNull ReplicantSession session, @NonNull String command, int requestId, @Nullable JsonObject payload);
+    void executeCommand(
+            @NonNull ReplicantSession session,
+            @NonNull String commandName,
+            int requestId,
+            @Nullable JsonObject payload);
 
     /**
      * Collect the current contents of a Dataset selection into the Change Set when establishing one or more

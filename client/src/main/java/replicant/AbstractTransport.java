@@ -11,8 +11,8 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.AuthTokenMessage;
 import replicant.messages.BulkSubscribeMessage;
 import replicant.messages.BulkUnsubscribeMessage;
+import replicant.messages.CommandMessage;
 import replicant.messages.DatasetCacheVersionsMessage;
-import replicant.messages.ExecMessage;
 import replicant.messages.PingMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.SubscribeMessage;
@@ -51,12 +51,12 @@ public abstract class AbstractTransport implements Transport {
     }
 
     @Override
-    public void requestExec(
-            @NonNull final String command,
+    public void requestCommand(
+            @NonNull final String commandName,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
-        final int requestId = newRequestId("Exec-" + command, responseHandler);
-        sendRemoteMessage(ExecMessage.create(requestId, command, payload));
+        final int requestId = newRequestId("Command-" + commandName, responseHandler);
+        sendRemoteMessage(CommandMessage.create(requestId, commandName, payload));
     }
 
     @Override

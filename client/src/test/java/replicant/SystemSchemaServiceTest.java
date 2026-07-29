@@ -47,8 +47,8 @@ public class SystemSchemaServiceTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> service.registerSystemSchema(systemSchema2));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0070: Attempted to register System Schema with id 100 when a System Schema with id already"
-                        + " exists: MySystemSchema1");
+                "Replicant-0070: Attempted to register System Schema for System Schema ID 100 when that ID is already"
+                        + " registered: MySystemSchema1");
     }
 
     @Test
@@ -63,7 +63,8 @@ public class SystemSchemaServiceTest extends AbstractReplicantTest {
                 expectThrows(IllegalStateException.class, () -> service.deregisterSystemSchema(systemSchema));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0085: Attempted to deregister System Schema with id 100 but no such System Schema exists.");
+                "Replicant-0085: Attempted to deregister System Schema for System Schema ID 100 but no such System"
+                        + " Schema exists.");
     }
 
     @Test
@@ -71,6 +72,6 @@ public class SystemSchemaServiceTest extends AbstractReplicantTest {
         final SystemSchemaService service = SystemSchemaService.create();
 
         final IllegalStateException exception = expectThrows(IllegalStateException.class, () -> service.getById(23));
-        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate System Schema with id 23");
+        assertEquals(exception.getMessage(), "Replicant-0059: Unable to locate System Schema for System Schema ID 23");
     }
 }

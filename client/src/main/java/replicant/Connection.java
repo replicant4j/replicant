@@ -40,18 +40,18 @@ abstract class Connection {
      */
     private final LinkedList<SubscriptionOperation> _pendingSubscriptionOperations = new LinkedList<>();
     /**
-     * Pending exec actions.
+     * Pending Commands.
      */
-    private final LinkedList<ExecRequest> _pendingExecRequests = new LinkedList<>();
+    private final LinkedList<Command> _pendingCommands = new LinkedList<>();
     /**
-     * This list contains the messages from the server.
+     * Pending Message Processing state for messages received from the server.
      */
-    private final LinkedList<MessageResponse> _pendingResponses = new LinkedList<>();
+    private final LinkedList<MessageProcessing> _pendingMessageProcessingQueue = new LinkedList<>();
     /**
      * The current message being processed.
      */
     @Nullable
-    private MessageResponse _currentMessageResponse;
+    private MessageProcessing _currentMessageProcessing;
     /**
      * The current requests being processed. This list can contain multiple requests if they
      * are candidates for bulk actions.
@@ -59,10 +59,10 @@ abstract class Connection {
     @NonNull
     private final List<SubscriptionOperation> _currentSubscriptionOperations = new ArrayList<>();
     /**
-     * The exec requests that have been sent to server and we are waiting for a return.
+     * Commands that have been sent to the server and are awaiting a response.
      */
     @NonNull
-    private final Map<Integer, ExecRequest> _activeExecRequests = new HashMap<>();
+    private final Map<Integer, Command> _activeCommands = new HashMap<>();
 
     @NonNull
     static Connection create(@NonNull final Connector connector) {
@@ -74,30 +74,30 @@ abstract class Connection {
     }
 
     @NonNull
-    String ensureConnectionId() {
-        final String connectionId = getConnectionId();
-        return Objects.requireNonNull(connectionId);
+    String ensureReplicantSessionId() {
+        final String replicantSessionId = getReplicantSessionId();
+        return Objects.requireNonNull(replicantSessionId);
     }
 
     /**
-     * Return a unique identifier for the connection, typically supplied by the backend.
+     * Return the server-issued Replicant Session ID.
      */
     @Observable(readOutsideTransaction = Feature.ENABLE, writeOutsideTransaction = Feature.ENABLE)
     @Nullable
-    abstract String getConnectionId();
+    abstract String getReplicantSessionId();
 
-    abstract void setConnectionId(@NonNull String connectionId);
+    abstract void setReplicantSessionId(@NonNull String replicantSessionId);
 
     @NonNull
     Connector getConnector() {
         return _connector;
     }
 
-    void requestExec(
-            @NonNull final String command,
+    void requestCommand(
+            @NonNull final String commandName,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
-        _pendingExecRequests.add(new ExecRequest(command, payload, responseHandler));
+        _pendingCommands.add(new Command(commandName, payload, responseHandler));
     }
 
     void requestSubscribe(@NonNull final DatasetAddress datasetAddress, @Nullable final Object filterParameter) {
@@ -120,8 +120,10 @@ abstract class Connection {
         _pendingSubscriptionOperations.add(new SubscriptionOperation(datasetAddress, type, filterParameter));
     }
 
-    void enqueueResponse(@NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
-        _pendingResponses.add(new MessageResponse(_connector.getSystemSchema().getId(), message, request));
+    void enqueueMessageForProcessing(
+            @NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
+        _pendingMessageProcessingQueue.add(
+                new MessageProcessing(_connector.getSystemSchema().getId(), message, request));
     }
 
     /**
@@ -225,18 +227,19 @@ abstract class Connection {
             invariant(
                     () -> null != entry,
                     () -> "Replicant-0067: Attempted to remove request with id " + requestId
-                            + " from connection with id '" + getConnectionId() + "' but no such request exists.");
+                            + " from Replicant Session '" + getReplicantSessionId()
+                            + "' but no such request exists.");
         }
     }
 
     @Nullable
-    MessageResponse getCurrentMessageResponse() {
-        return _currentMessageResponse;
+    MessageProcessing getCurrentMessageProcessing() {
+        return _currentMessageProcessing;
     }
 
     @NonNull
-    MessageResponse ensureCurrentMessageResponse() {
-        return Objects.requireNonNull(_currentMessageResponse);
+    MessageProcessing ensureCurrentMessageProcessing() {
+        return Objects.requireNonNull(_currentMessageProcessing);
     }
 
     /**
@@ -259,30 +262,27 @@ abstract class Connection {
      * Return true if the latest request has established a Synchronization Point.
      */
     boolean isSynchronizationPointReached() {
-        return null != getConnectionId() && getLastTxRequestId() == getLastReachedSynchronizationPointRequestId();
+        return null != getReplicantSessionId() && getLastTxRequestId() == getLastReachedSynchronizationPointRequestId();
     }
 
     /**
-     * This method is invoked when there is no current MessageResponse to process
-     * and we need to select a candidate message to be processed next step. It will
-     * return true if there is another message to process, false otherwise.
+     * Select the next pending Message Processing state when no message is currently being processed.
      *
      * @return true if a message was selected, false otherwise.
      */
-    boolean selectNextMessageResponse() {
-        assert null == _currentMessageResponse;
+    boolean selectNextMessageProcessing() {
+        assert null == _currentMessageProcessing;
 
-        // Step: Retrieve the action from the parsed queue
-        if (!_pendingResponses.isEmpty()) {
-            _currentMessageResponse = _pendingResponses.remove();
+        if (!_pendingMessageProcessingQueue.isEmpty()) {
+            _currentMessageProcessing = _pendingMessageProcessingQueue.remove();
             return true;
         } else {
             return false;
         }
     }
 
-    void setCurrentMessageResponse(@Nullable final MessageResponse currentMessageResponse) {
-        _currentMessageResponse = currentMessageResponse;
+    void setCurrentMessageProcessing(@Nullable final MessageProcessing currentMessageProcessing) {
+        _currentMessageProcessing = currentMessageProcessing;
     }
 
     @NonNull
@@ -308,32 +308,32 @@ abstract class Connection {
     }
 
     @Nullable
-    ExecRequest nextExecRequest() {
-        return _pendingExecRequests.isEmpty() ? null : _pendingExecRequests.removeFirst();
+    Command nextCommand() {
+        return _pendingCommands.isEmpty() ? null : _pendingCommands.removeFirst();
     }
 
     @NonNull
-    List<ExecRequest> getPendingExecRequests() {
-        return _pendingExecRequests;
+    List<Command> getPendingCommands() {
+        return _pendingCommands;
     }
 
-    void recordActiveExecRequest(@NonNull final ExecRequest execRequest) {
-        assert execRequest.isInProgress();
-        _activeExecRequests.put(execRequest.getRequestId(), execRequest);
+    void recordActiveCommand(@NonNull final Command command) {
+        assert command.isInProgress();
+        _activeCommands.put(command.getRequestId(), command);
     }
 
     @NonNull
-    Map<Integer, ExecRequest> getActiveExecRequests() {
-        return _activeExecRequests;
+    Map<Integer, Command> getActiveCommands() {
+        return _activeCommands;
     }
 
     @Nullable
-    ExecRequest getActiveExecRequest(final int requestId) {
-        return _activeExecRequests.get(requestId);
+    Command getActiveCommand(final int requestId) {
+        return _activeCommands.get(requestId);
     }
 
-    void markExecRequestAsComplete(final int requestId) {
-        final ExecRequest request = _activeExecRequests.remove(requestId);
+    void markCommandAsComplete(final int requestId) {
+        final Command request = _activeCommands.remove(requestId);
         assert null != request;
         request.markAsComplete();
     }
@@ -377,8 +377,8 @@ abstract class Connection {
         _currentSubscriptionOperations.add(operation);
     }
 
-    List<MessageResponse> getPendingResponses() {
-        return CollectionsUtil.wrap(_pendingResponses);
+    List<MessageProcessing> getPendingMessageProcessingQueue() {
+        return CollectionsUtil.wrap(_pendingMessageProcessingQueue);
     }
 
     List<SubscriptionOperation> getPendingSubscriptionOperations() {

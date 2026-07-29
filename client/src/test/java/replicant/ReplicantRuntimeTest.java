@@ -412,80 +412,97 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
     public void updateStatus() {
         // No connectors just active/inactive state
 
-        assertUpdateState(RuntimeState.CONNECTED, true);
-        assertUpdateState(RuntimeState.DISCONNECTED, false);
+        assertUpdateState(ReplicantContextState.CONNECTED, true);
+        assertUpdateState(ReplicantContextState.DISCONNECTED, false);
 
         // Single data source, required
 
-        assertUpdateState(RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED);
-        assertUpdateState(RuntimeState.CONNECTED, ConnectorState.CONNECTED);
-        assertUpdateState(RuntimeState.CONNECTING, ConnectorState.CONNECTING);
-        assertUpdateState(RuntimeState.DISCONNECTING, ConnectorState.DISCONNECTING);
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.DISCONNECTED, ConnectorState.DISCONNECTED);
+        assertUpdateState(ReplicantContextState.CONNECTED, ConnectorState.CONNECTED);
+        assertUpdateState(ReplicantContextState.CONNECTING, ConnectorState.CONNECTING);
+        assertUpdateState(ReplicantContextState.DISCONNECTING, ConnectorState.DISCONNECTING);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.ERROR);
 
         // 2 Data sources, both required
 
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.CONNECTED, ConnectorState.ERROR);
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.CONNECTING, ConnectorState.ERROR);
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.DISCONNECTED, ConnectorState.ERROR);
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.DISCONNECTING, ConnectorState.ERROR);
-        assertUpdateState(RuntimeState.ERROR, ConnectorState.ERROR, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.CONNECTED, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.CONNECTING, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.DISCONNECTED, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.DISCONNECTING, ConnectorState.ERROR);
+        assertUpdateState(ReplicantContextState.ERROR, ConnectorState.ERROR, ConnectorState.ERROR);
 
-        assertUpdateState(RuntimeState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED);
-        assertUpdateState(RuntimeState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTED);
-        assertUpdateState(RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.CONNECTED);
-        assertUpdateState(RuntimeState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.CONNECTED);
+        assertUpdateState(ReplicantContextState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED);
+        assertUpdateState(ReplicantContextState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTED);
+        assertUpdateState(ReplicantContextState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.CONNECTED);
+        assertUpdateState(ReplicantContextState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.CONNECTED);
 
-        assertUpdateState(RuntimeState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTING);
-        assertUpdateState(RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.CONNECTING);
-        assertUpdateState(RuntimeState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.CONNECTING);
+        assertUpdateState(ReplicantContextState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTING);
+        assertUpdateState(ReplicantContextState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.CONNECTING);
+        assertUpdateState(ReplicantContextState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.CONNECTING);
 
-        assertUpdateState(RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.DISCONNECTING);
-        assertUpdateState(RuntimeState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.DISCONNECTING);
+        assertUpdateState(
+                ReplicantContextState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.DISCONNECTING);
+        assertUpdateState(
+                ReplicantContextState.DISCONNECTING, ConnectorState.DISCONNECTING, ConnectorState.DISCONNECTING);
 
-        assertUpdateState(RuntimeState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.DISCONNECTED);
+        assertUpdateState(ReplicantContextState.DISCONNECTED, ConnectorState.DISCONNECTED, ConnectorState.DISCONNECTED);
 
         // 3 Data sources, first two required, third optional
 
         assertUpdateState(
-                RuntimeState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED);
+                ReplicantContextState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTED);
         assertUpdateState(
-                RuntimeState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.ERROR);
+                ReplicantContextState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.ERROR);
         assertUpdateState(
-                RuntimeState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTED, ConnectorState.CONNECTING);
+                ReplicantContextState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTING);
         assertUpdateState(
-                RuntimeState.CONNECTED,
+                ReplicantContextState.CONNECTED,
                 ConnectorState.CONNECTED,
                 ConnectorState.CONNECTED,
                 ConnectorState.DISCONNECTING);
         assertUpdateState(
-                RuntimeState.CONNECTED,
+                ReplicantContextState.CONNECTED,
                 ConnectorState.CONNECTED,
                 ConnectorState.CONNECTED,
                 ConnectorState.DISCONNECTED);
 
         assertUpdateState(
-                RuntimeState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTED, ConnectorState.ERROR);
+                ReplicantContextState.CONNECTING,
+                ConnectorState.CONNECTING,
+                ConnectorState.CONNECTED,
+                ConnectorState.ERROR);
         assertUpdateState(
-                RuntimeState.CONNECTING, ConnectorState.CONNECTING, ConnectorState.CONNECTED, ConnectorState.CONNECTED);
+                ReplicantContextState.CONNECTING,
+                ConnectorState.CONNECTING,
+                ConnectorState.CONNECTED,
+                ConnectorState.CONNECTED);
         assertUpdateState(
-                RuntimeState.CONNECTING,
+                ReplicantContextState.CONNECTING,
                 ConnectorState.CONNECTING,
                 ConnectorState.CONNECTED,
                 ConnectorState.CONNECTING);
         assertUpdateState(
-                RuntimeState.CONNECTING,
+                ReplicantContextState.CONNECTING,
                 ConnectorState.CONNECTING,
                 ConnectorState.CONNECTED,
                 ConnectorState.DISCONNECTED);
         assertUpdateState(
-                RuntimeState.CONNECTING,
+                ReplicantContextState.CONNECTING,
                 ConnectorState.CONNECTING,
                 ConnectorState.CONNECTED,
                 ConnectorState.DISCONNECTING);
     }
 
-    private void assertUpdateState(@NonNull final RuntimeState expectedSystemState, final boolean isActive) {
+    private void assertUpdateState(@NonNull final ReplicantContextState expectedContextState, final boolean isActive) {
         ReplicantTestUtil.resetState();
         final Disposable schedulerLock = pauseScheduler();
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
@@ -494,20 +511,20 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
         } else {
             runtime.deactivate();
         }
-        assertEquals(runtime.getState(), expectedSystemState);
+        assertEquals(runtime.getState(), expectedContextState);
 
         schedulerLock.dispose();
     }
 
     private void assertUpdateState(
-            @NonNull final RuntimeState expectedSystemState, @NonNull final ConnectorState state) {
+            @NonNull final ReplicantContextState expectedContextState, @NonNull final ConnectorState state) {
         ReplicantTestUtil.resetState();
 
         final Disposable schedulerLock = pauseScheduler();
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
         createConnectorInState(state);
 
-        assertEquals(runtime.getState(), expectedSystemState);
+        assertEquals(runtime.getState(), expectedContextState);
 
         schedulerLock.dispose();
     }
@@ -523,39 +540,39 @@ public class ReplicantRuntimeTest extends AbstractReplicantTest {
     }
 
     private void assertUpdateState(
-            @NonNull final RuntimeState expectedSystemState,
-            @NonNull final ConnectorState service1State,
-            @NonNull final ConnectorState service2State) {
+            @NonNull final ReplicantContextState expectedContextState,
+            @NonNull final ConnectorState connector1State,
+            @NonNull final ConnectorState connector2State) {
         ReplicantTestUtil.resetState();
 
         final Disposable schedulerLock = pauseScheduler();
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        createConnectorInState(service1State);
-        createConnectorInState(service2State);
+        createConnectorInState(connector1State);
+        createConnectorInState(connector2State);
 
-        assertEquals(runtime.getState(), expectedSystemState);
+        assertEquals(runtime.getState(), expectedContextState);
 
         schedulerLock.dispose();
     }
 
     private void assertUpdateState(
-            @NonNull final RuntimeState expectedSystemState,
-            @NonNull final ConnectorState service1State,
-            @NonNull final ConnectorState service2State,
-            @NonNull final ConnectorState service3State) {
+            @NonNull final ReplicantContextState expectedContextState,
+            @NonNull final ConnectorState connector1State,
+            @NonNull final ConnectorState connector2State,
+            @NonNull final ConnectorState connector3State) {
         ReplicantTestUtil.resetState();
 
         final Disposable schedulerLock = pauseScheduler();
 
         final ReplicantRuntime runtime = Replicant.context().getRuntime();
-        createConnectorInState(service1State);
-        createConnectorInState(service2State);
+        createConnectorInState(connector1State);
+        createConnectorInState(connector2State);
 
-        final Connector connector3 = createConnectorInState(service3State);
+        final Connector connector3 = createConnectorInState(connector3State);
 
         runtime.setConnectorRequired(connector3.getSystemSchema().getId(), false);
 
-        assertEquals(runtime.getState(), expectedSystemState);
+        assertEquals(runtime.getState(), expectedContextState);
 
         schedulerLock.dispose();
     }

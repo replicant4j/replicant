@@ -6,22 +6,22 @@ import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Notification when a Connector queues an Exec message.
+ * Notification when a Connector queues a Command.
  */
-public final class ExecRequestQueuedEvent implements SerializableEvent {
+public final class CommandQueuedEvent implements SerializableEvent {
     private final int _systemSchemaId;
 
     @NonNull
     private final String _systemSchemaName;
 
     @NonNull
-    private final String _command;
+    private final String _commandName;
 
-    public ExecRequestQueuedEvent(
-            final int systemSchemaId, @NonNull final String systemSchemaName, @NonNull final String command) {
+    public CommandQueuedEvent(
+            final int systemSchemaId, @NonNull final String systemSchemaName, @NonNull final String commandName) {
         _systemSchemaId = systemSchemaId;
         _systemSchemaName = Objects.requireNonNull(systemSchemaName);
-        _command = Objects.requireNonNull(command);
+        _commandName = Objects.requireNonNull(commandName);
     }
 
     public int getSystemSchemaId() {
@@ -34,15 +34,15 @@ public final class ExecRequestQueuedEvent implements SerializableEvent {
     }
 
     @NonNull
-    public String getCommand() {
-        return _command;
+    public String getCommandName() {
+        return _commandName;
     }
 
     @Override
     public void toMap(@NonNull final Map<String, Object> map) {
-        map.put("type", "Connector.ExecRequestQueued");
+        map.put("type", "Connector.CommandQueued");
         map.put("systemSchema.id", getSystemSchemaId());
         map.put("systemSchema.name", getSystemSchemaName());
-        map.put("command", getCommand());
+        map.put("command.name", getCommandName());
     }
 }

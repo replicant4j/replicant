@@ -204,7 +204,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void removeOrphanSubscription() {
+    public void removeOrphanedSubscription() {
         final Connector connector = createConnector();
         newConnection(connector);
 
@@ -220,7 +220,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
 
             final List<SubscriptionOperation> operations =
                     connector.ensureConnection().getPendingSubscriptionOperations();
@@ -239,7 +239,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void removeOrphanSubscription_whenManyPresent() {
+    public void removeOrphanedSubscription_whenManyPresent() {
         final Connector connector = createConnector();
         newConnection(connector);
 
@@ -261,7 +261,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
 
             final List<SubscriptionOperation> operations =
                     connector.ensureConnection().getPendingSubscriptionOperations();
@@ -280,7 +280,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void removeOrphanSubscriptions_whenConnectorDisconnected() {
+    public void removeOrphanedSubscriptions_whenConnectorDisconnected() {
         final Connector connector = createConnector();
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
 
@@ -291,14 +291,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
 
             handler.assertEventCount(0);
         });
     }
 
     @Test
-    public void removeOrphanSubscriptions_whenSubscriptionImplicit() {
+    public void removeOrphanedSubscriptions_whenSubscriptionImplicit() {
         final Connector connector = createConnector();
         newConnection(connector);
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -310,14 +310,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
 
             handler.assertEventCount(0);
         });
     }
 
     @Test
-    public void removeOrphanSubscriptions_whenSubscriptionExpected() {
+    public void removeOrphanedSubscriptions_whenSubscriptionExpected() {
         final Connector connector = createConnector();
         newConnection(connector);
         final DatasetAddress datasetAddress = new DatasetAddress(1, 0);
@@ -333,14 +333,14 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
             final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-            Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+            Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
 
             handler.assertEventCount(0);
         });
     }
 
     @Test
-    public void removeOrphanSubscriptions_whenRemoveIsPending() {
+    public void removeOrphanedSubscriptions_whenRemoveIsPending() {
         final Connector connector = createConnector();
         newConnection(connector);
         connector.pauseMessageScheduler();
@@ -354,7 +354,7 @@ public class SubscriptionReconcilerTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
         safeAction(() -> connector.setState(ConnectorState.CONNECTED));
-        Replicant.context().getSubscriptionReconciler().removeOrphanSubscriptions();
+        Replicant.context().getSubscriptionReconciler().removeOrphanedSubscriptions();
         handler.assertEventCount(0);
     }
 

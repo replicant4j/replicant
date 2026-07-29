@@ -67,7 +67,7 @@ public class ChangeSetMessage extends ServerToClientMessage {
     }
 
     /**
-     * @return the exec response associated with the Change Set, if any.
+     * @return the Command result associated with the Change Set, if any.
      */
     @Nullable
     @JsOverlay

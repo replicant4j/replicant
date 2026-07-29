@@ -42,7 +42,11 @@ public interface Transport {
     void updateDatasetCacheVersionsAndRequestSynchronizationPoint(
             @NonNull Map<String, String> datasetAddressToDatasetCacheVersionMap);
 
-    void requestExec(@NonNull String command, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
+    /**
+     * Send a Command to the server.
+     */
+    void requestCommand(
+            @NonNull String commandName, @Nullable Object payload, @Nullable ResponseHandler responseHandler);
 
     void requestSubscribe(@NonNull DatasetAddress datasetAddress, @Nullable Object filterParameter);
 

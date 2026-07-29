@@ -19,7 +19,7 @@ CLIENT_TEST_CLASSES = [
     "replicant.DatasetAddressTest",
     "replicant.DatasetTest",
     "replicant.EntityTypeTest",
-    "replicant.MessageResponseTest",
+    "replicant.MessageProcessingTest",
     "replicant.RateLimitedValueTest",
     "replicant.ReplicaEntryTest",
     "replicant.ReplicaRegistryTest",
@@ -51,10 +51,10 @@ CLIENT_TEST_CLASSES = [
     "replicant.spy.ConnectedEventTest",
     "replicant.spy.DisconnectFailureEventTest",
     "replicant.spy.DisconnectedEventTest",
-    "replicant.spy.ExecCompletedEventTest",
-    "replicant.spy.ExecRequestQueuedEventTest",
-    "replicant.spy.ExecStartedEventTest",
-    "replicant.spy.MessageProcessFailureEventTest",
+    "replicant.spy.CommandCompletedEventTest",
+    "replicant.spy.CommandQueuedEventTest",
+    "replicant.spy.CommandStartedEventTest",
+    "replicant.spy.MessageProcessingFailureEventTest",
     "replicant.spy.MessageProcessedEventTest",
     "replicant.spy.MessageProcessingSummaryTest",
     "replicant.spy.MessageReadFailureEventTest",
@@ -124,7 +124,7 @@ java_library(
         "DatasetCacheEntryTest.java",
         "DatasetTest.java",
         "EntityTypeTest.java",
-        "MessageResponseTest.java",
+        "MessageProcessingTest.java",
         "RateLimitedValueTest.java",
         "ReplicaEntryTest.java",
         "ReplicaRegistryTest.java",
@@ -280,11 +280,11 @@ java_testng(
 )
 
 java_testng(
-    name = "MessageResponseTest",
-    srcs = ["MessageResponseTest.java"],
+    name = "MessageProcessingTest",
+    srcs = ["MessageProcessingTest.java"],
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.MessageResponseTest",
+    test_class = "replicant.MessageProcessingTest",
     deps = ["//client:client_test_support"],
 )
 

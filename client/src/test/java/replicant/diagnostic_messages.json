@@ -32,12 +32,12 @@
   {
     "code": 7,
     "type": "INVARIANT",
-    "messagePattern": "Unable to locate Connector by System Schema identifier %s"
+    "messagePattern": "Unable to locate Connector by System Schema ID %s"
   },
   {
     "code": 8,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getDataset(id) attempted to access null Dataset."
+    "messagePattern": "SystemSchema.getDataset attempted to access a null Dataset."
   },
   {
     "code": 9,
@@ -47,7 +47,7 @@
   {
     "code": 11,
     "type": "INVARIANT",
-    "messagePattern": "Response message specified requestId '%s' but request specified requestId '%s'."
+    "messagePattern": "Server-to-client message specified Request ID '%s' but the matching Request has Request ID '%s'."
   },
   {
     "code": 12,
@@ -237,7 +237,7 @@
   {
     "code": 56,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of Datasets where Dataset at index %s does not have id matching index."
+    "messagePattern": "SystemSchema named '%s' passed an array of Datasets where Dataset at index %s does not have a Dataset ID matching the index."
   },
   {
     "code": 57,
@@ -247,12 +247,12 @@
   {
     "code": 58,
     "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema.getDataset(id) passed an id that is out of range."
+    "messagePattern": "SystemSchema.getDataset passed a Dataset ID that is out of range."
   },
   {
     "code": 59,
     "type": "INVARIANT",
-    "messagePattern": "Unable to locate System Schema with id %s"
+    "messagePattern": "Unable to locate System Schema for System Schema ID %s"
   },
   {
     "code": 60,
@@ -292,7 +292,7 @@
   {
     "code": 67,
     "type": "INVARIANT",
-    "messagePattern": "Attempted to remove request with id %s from connection with id '%s' but no such request exists."
+    "messagePattern": "Attempted to remove request with id %s from Replicant Session '%s' but no such request exists."
   },
   {
     "code": 69,
@@ -302,7 +302,7 @@
   {
     "code": 70,
     "type": "INVARIANT",
-    "messagePattern": "Attempted to register System Schema with id %s when a System Schema with id already exists: %s"
+    "messagePattern": "Attempted to register System Schema for System Schema ID %s when that ID is already registered: %s"
   },
   {
     "code": 71,
@@ -357,7 +357,7 @@
   {
     "code": 85,
     "type": "INVARIANT",
-    "messagePattern": "Attempted to deregister System Schema with id %s but no such System Schema exists."
+    "messagePattern": "Attempted to deregister System Schema for System Schema ID %s but no such System Schema exists."
   },
   {
     "code": 87,

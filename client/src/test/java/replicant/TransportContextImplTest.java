@@ -19,9 +19,9 @@ public class TransportContextImplTest extends AbstractReplicantTest {
         final TransportContextImpl context = new TransportContextImpl(connector);
 
         final RequestEntry request = connection.newRequest(ValueUtil.randomString(), false, null);
-        assertEquals(connection.getPendingResponses().size(), 0);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 0);
         context.onMessageReceived(OkMessage.create(request.getRequestId()));
-        assertEquals(connection.getPendingResponses().size(), 1);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
 
         assertFalse(context.isDisposed());
 
@@ -29,12 +29,12 @@ public class TransportContextImplTest extends AbstractReplicantTest {
 
         assertTrue(context.isDisposed());
 
-        assertEquals(connection.getPendingResponses().size(), 1);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
 
         // This should be ignored
         context.onMessageReceived(OkMessage.create(1));
 
-        assertEquals(connection.getPendingResponses().size(), 1);
+        assertEquals(connection.getPendingMessageProcessingQueue().size(), 1);
     }
 
     @Test

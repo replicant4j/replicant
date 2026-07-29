@@ -6,10 +6,11 @@ import java.util.HashMap;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 
-public class MessageProcessFailureEventTest extends AbstractReplicantTest {
+public class MessageProcessingFailureEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        final MessageProcessFailureEvent event = new MessageProcessFailureEvent(23, "Rose", new Error("Some ERROR"));
+        final MessageProcessingFailureEvent event =
+                new MessageProcessingFailureEvent(23, "Rose", new Error("Some ERROR"));
 
         assertEquals(event.getSystemSchemaId(), 23);
         assertEquals(event.getSystemSchemaName(), "Rose");
@@ -17,7 +18,7 @@ public class MessageProcessFailureEventTest extends AbstractReplicantTest {
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
-        assertEquals(data.get("type"), "Connector.MessageProcessFailure");
+        assertEquals(data.get("type"), "Connector.MessageProcessingFailure");
         assertEquals(data.get("systemSchema.id"), 23);
         assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.get("message"), "Some ERROR");
@@ -26,7 +27,8 @@ public class MessageProcessFailureEventTest extends AbstractReplicantTest {
 
     @Test
     public void basicOperation_ThrowableNoMessage() {
-        final MessageProcessFailureEvent event = new MessageProcessFailureEvent(23, "Rose", new NullPointerException());
+        final MessageProcessingFailureEvent event =
+                new MessageProcessingFailureEvent(23, "Rose", new NullPointerException());
 
         assertEquals(event.getSystemSchemaId(), 23);
         assertEquals(event.getSystemSchemaName(), "Rose");
@@ -34,7 +36,7 @@ public class MessageProcessFailureEventTest extends AbstractReplicantTest {
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
-        assertEquals(data.get("type"), "Connector.MessageProcessFailure");
+        assertEquals(data.get("type"), "Connector.MessageProcessingFailure");
         assertEquals(data.get("systemSchema.id"), 23);
         assertEquals(data.get("systemSchema.name"), "Rose");
         assertEquals(data.get("message"), "java.lang.NullPointerException");

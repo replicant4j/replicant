@@ -35,15 +35,15 @@ import replicant.messages.ErrorMessage;
 import replicant.messages.OkMessage;
 import replicant.messages.ServerToClientMessage;
 import replicant.messages.UseDatasetCacheEntryMessage;
+import replicant.spy.CommandCompletedEvent;
+import replicant.spy.CommandQueuedEvent;
+import replicant.spy.CommandStartedEvent;
 import replicant.spy.ConnectFailureEvent;
 import replicant.spy.ConnectedEvent;
 import replicant.spy.DisconnectFailureEvent;
 import replicant.spy.DisconnectedEvent;
-import replicant.spy.ExecCompletedEvent;
-import replicant.spy.ExecRequestQueuedEvent;
-import replicant.spy.ExecStartedEvent;
-import replicant.spy.MessageProcessFailureEvent;
 import replicant.spy.MessageProcessedEvent;
+import replicant.spy.MessageProcessingFailureEvent;
 import replicant.spy.MessageReadFailureEvent;
 import replicant.spy.RestartEvent;
 import replicant.spy.SubscribeCompletedEvent;
@@ -86,8 +86,8 @@ abstract class Connector extends ReplicantService {
     @CascadeDispose
     Connection _connection;
     /**
-     * Flag indicating that the Connectors internal scheduler is actively progressing
-     * requests and responses. A scheduler should only be active if there is a connection present.
+     * Flag indicating that the Connector's internal scheduler is actively progressing requests or Message Processing.
+     * A scheduler should only be active if there is a connection present.
      */
     private boolean _schedulerActive;
     /**
@@ -113,11 +113,10 @@ abstract class Connector extends ReplicantService {
      */
     private int _changesToProcessPerTick = DEFAULT_CHANGES_TO_PROCESS_PER_TICK;
     /**
-     * Action invoked after current MessageResponse is processed. This is typically used to update or alter
-     * change Connection on message processing complete.
+     * Action invoked after the current Message Processing completes. This is typically used to replace the Connection.
      */
     @Nullable
-    private SafeProcedure _postMessageResponseAction;
+    private SafeProcedure _postMessageProcessingAction;
 
     @Nullable
     private TransportContextImpl _context;
@@ -204,9 +203,9 @@ abstract class Connector extends ReplicantService {
         return _systemSchema;
     }
 
-    void onConnection(@NonNull final String connectionId) {
+    void onReplicantSessionCreated(@NonNull final String replicantSessionId) {
         final Connection connection = Connection.create(this);
-        connection.setConnectionId(connectionId);
+        connection.setReplicantSessionId(replicantSessionId);
         doSetConnection(connection);
         triggerMessageScheduler();
     }
@@ -221,10 +220,10 @@ abstract class Connector extends ReplicantService {
 
     private void doSetConnection(@Nullable final Connection connection) {
         if (!Objects.equals(connection, _connection)) {
-            if (null == _connection || null == _connection.getCurrentMessageResponse()) {
+            if (null == _connection || null == _connection.getCurrentMessageProcessing()) {
                 setConnection(connection);
             } else {
-                setPostMessageResponseAction(() -> setConnection(connection));
+                setPostMessageProcessingAction(() -> setConnection(connection));
             }
         }
     }
@@ -296,8 +295,8 @@ abstract class Connector extends ReplicantService {
     }
 
     @NonNull
-    private MessageResponse ensureCurrentMessageResponse() {
-        return ensureConnection().ensureCurrentMessageResponse();
+    private MessageProcessing ensureCurrentMessageProcessing() {
+        return ensureConnection().ensureCurrentMessageProcessing();
     }
 
     @Action
@@ -356,17 +355,17 @@ abstract class Connector extends ReplicantService {
         tryTriggerMessageScheduler();
     }
 
-    void requestExec(
-            @NonNull final String command,
+    void requestCommand(
+            @NonNull final String commandName,
             @Nullable final Object payload,
             @Nullable final ResponseHandler responseHandler) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new ExecRequestQueuedEvent(
-                            getSystemSchema().getId(), getSystemSchema().getName(), command));
+                    .reportSpyEvent(new CommandQueuedEvent(
+                            getSystemSchema().getId(), getSystemSchema().getName(), commandName));
         }
-        ensureConnection().requestExec(command, payload, responseHandler);
+        ensureConnection().requestCommand(commandName, payload, responseHandler);
         tryTriggerMessageScheduler();
     }
 
@@ -441,8 +440,8 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Schedule request and response processing.
-     * This method should be invoked when requests are queued or responses are received.
+     * Schedule request handling and Message Processing.
+     * This method should be invoked when requests are queued or messages are received.
      */
     private void triggerMessageScheduler() {
         if (!_schedulerActive) {
@@ -472,7 +471,7 @@ abstract class Connector extends ReplicantService {
     }
 
     /**
-     * Perform a single step progressing requests and responses.
+     * Perform a single step progressing requests and Message Processing.
      * This is invoked from the scheduler and will continue to be
      * invoked until it returns false.
      *
@@ -488,8 +487,8 @@ abstract class Connector extends ReplicantService {
         try {
             if (null != _connection && ConnectorState.DISCONNECTING != _state) {
                 final boolean step1 = progressSubscriptionOperationProcessing();
-                final boolean step2 = progressExecRequestProcessing();
-                final boolean step3 = progressResponseProcessing();
+                final boolean step2 = progressCommandProcessing();
+                final boolean step3 = progressMessageProcessing();
                 _schedulerActive = step1 || step2 || step3;
             } else {
                 /*
@@ -498,10 +497,10 @@ abstract class Connector extends ReplicantService {
                  * them are the result of errors occurring and connection being removed on error
                  */
                 _schedulerActive = false;
-                callPostMessageResponseActionIfPresent();
+                callPostMessageProcessingActionIfPresent();
             }
         } catch (final Throwable e) {
-            onMessageProcessFailure(e);
+            onMessageProcessingFailure(e);
             _schedulerActive = false;
             releaseSchedulerLock();
             return false;
@@ -534,71 +533,73 @@ abstract class Connector extends ReplicantService {
      *
      * @return true if more work is to be done.
      */
-    boolean progressResponseProcessing() {
+    boolean progressMessageProcessing() {
         final Connection connection = ensureConnection();
-        final MessageResponse response = connection.getCurrentMessageResponse();
-        if (null == response) {
-            // Select the MessageResponse if there is none active
-            return connection.selectNextMessageResponse();
-        } else if (response.needsSubscriptionChangesProcessed()) {
+        final MessageProcessing processing = connection.getCurrentMessageProcessing();
+        if (null == processing) {
+            // Select the Message Processing if there is none active.
+            return connection.selectNextMessageProcessing();
+        } else if (processing.needsSubscriptionChangesProcessed()) {
             processSubscriptionChanges();
             return true;
-        } else if (response.areEntityChangesPending()) {
+        } else if (processing.areEntityChangesPending()) {
             // Process a chunk of entity changes
             processEntityChanges();
             return true;
-        } else if (response.areReplicaLinksPending()) {
+        } else if (processing.areReplicaLinksPending()) {
             // Process a chunk of Replica links
             processReplicaLinks();
             return true;
-        } else if (response.areReplicaUpdateActionsPending()) {
+        } else if (processing.areReplicaUpdateActionsPending()) {
             // Process all Replica update actions. The presumption is that they do not do much
             processReplicaUpdateActions();
             return true;
-        } else if (response.areOrphanSubscriptionsRemoved()) {
+        } else if (processing.areOrphanedSubscriptionsRemoved()) {
             // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
             // incoming change and queries the repository and accesses orphaned and potentially invalid Replicas.
             // This MUST be done prior to validating Replicas.
-            getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
-            response.markOrphanSubscriptionsRemoved();
+            getReplicantContext().getSubscriptionReconciler().removeOrphanedSubscriptions();
+            processing.markOrphanedSubscriptionsRemoved();
             return true;
         } else {
-            completeSubscriptionOperations(response);
-            if (!response.hasReplicaValidationStarted()) {
+            completeSubscriptionOperations(processing);
+            if (!processing.hasReplicaValidationStarted()) {
                 releaseSchedulerLock();
-                // Validate all materialized Replicas in this Replicant Context after the response has been applied.
+                // Validate all materialized Replicas in this Replicant Context after the message has been applied.
                 validateReplicas();
             } else {
                 // Also release the scheduler lock when optional Replica validation is disabled.
                 releaseSchedulerLock();
-                completeMessageResponse();
+                completeMessageProcessing();
             }
             return true;
         }
     }
 
     /**
-     * Return true if this Connector has reached a Synchronization Point and has no queued requests or responses.
+     * Return true if this Connector has reached a Synchronization Point and has no queued requests or Message
+     * Processing.
      */
     @Memoize
     boolean isAtSynchronizationPoint() {
-        return areRequestResponseQueuesEmpty() && ensureConnection().isSynchronizationPointReached();
+        return areRequestAndMessageProcessingQueuesEmpty() && ensureConnection().isSynchronizationPointReached();
     }
 
     /**
      * Return true if this Connector can request the next Synchronization Point.
      */
     boolean shouldRequestSynchronizationPoint() {
-        return areRequestResponseQueuesEmpty() && !ensureConnection().isSynchronizationPointReached();
+        return areRequestAndMessageProcessingQueuesEmpty()
+                && !ensureConnection().isSynchronizationPointReached();
     }
 
-    private boolean areRequestResponseQueuesEmpty() {
+    private boolean areRequestAndMessageProcessingQueuesEmpty() {
         if (ConnectorState.CONNECTED != getState()) {
             return false;
         } else {
             final Connection connection = ensureConnection();
             return connection.getRequests().isEmpty()
-                    && connection.getPendingResponses().isEmpty();
+                    && connection.getPendingMessageProcessingQueue().isEmpty();
         }
     }
 
@@ -619,15 +620,15 @@ abstract class Connector extends ReplicantService {
 
     @Action(verifyRequired = false)
     void processSubscriptionChanges() {
-        final MessageResponse response = ensureCurrentMessageResponse();
+        final MessageProcessing processing = ensureCurrentMessageProcessing();
 
-        for (final SubscriptionChange subscriptionChange : response.getSubscriptionChanges()) {
+        for (final SubscriptionChange subscriptionChange : processing.getSubscriptionChanges()) {
             final DatasetAddress datasetAddress = subscriptionChange.getDatasetAddress();
             final Object filterParameter = subscriptionChange.getFilterParameter();
             final SubscriptionChange.Type changeType = subscriptionChange.getType();
 
             if (SubscriptionChange.Type.SUBSCRIBE == changeType) {
-                response.incSubscriptionSubscribeCount();
+                processing.incSubscriptionSubscribeCount();
                 final Subscription existingSubscription = getReplicantContext().findSubscription(datasetAddress);
                 if (null != existingSubscription) {
                     final Dataset dataset = getSystemSchema().getDataset(datasetAddress.datasetId());
@@ -659,7 +660,7 @@ abstract class Connector extends ReplicantService {
                 if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == changeType) {
                     getReplicantContext().getAreaOfInterestService().invalidateDatasetAddress(datasetAddress);
                 }
-                response.incSubscriptionUnsubscribeCount();
+                processing.incSubscriptionUnsubscribeCount();
             } else {
                 assert SubscriptionChange.Type.UPDATE == changeType;
                 final Subscription subscription = getReplicantContext().findSubscription(datasetAddress);
@@ -684,33 +685,33 @@ abstract class Connector extends ReplicantService {
                 final Subscription existingSubscription = Objects.requireNonNull(subscription);
                 existingSubscription.setFilterParameter(filterParameter);
                 reevaluateReplicaMembershipAfterFilterParameterUpdate(existingSubscription);
-                response.incSubscriptionUpdateCount();
+                processing.incSubscriptionUpdateCount();
             }
         }
-        response.markSubscriptionChangesProcessed();
+        processing.markSubscriptionChangesProcessed();
     }
 
     @Action(verifyRequired = false)
     void processReplicaLinks() {
-        final MessageResponse response = ensureCurrentMessageResponse();
+        final MessageProcessing processing = ensureCurrentMessageProcessing();
         Linkable linkable;
-        for (int i = 0; i < _linksToProcessPerTick && null != (linkable = response.nextReplicaToLink()); i++) {
+        for (int i = 0; i < _linksToProcessPerTick && null != (linkable = processing.nextReplicaToLink()); i++) {
             linkable.link();
-            response.incEntityLinkCount();
+            processing.incEntityLinkCount();
         }
     }
 
     @Action(verifyRequired = false)
     void processReplicaUpdateActions() {
-        final MessageResponse response = ensureCurrentMessageResponse();
+        final MessageProcessing processing = ensureCurrentMessageProcessing();
         final OnReplicaUpdateAction action = getSystemSchema().getOnReplicaUpdateAction();
         if (null != action) {
             Object replica;
-            while (null != (replica = response.nextReplicaToPostAction())) {
+            while (null != (replica = processing.nextReplicaToPostAction())) {
                 action.onReplicaUpdate(getReplicantContext(), replica);
             }
         } else {
-            response.completePostActions();
+            processing.completePostActions();
         }
     }
 
@@ -761,12 +762,12 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void setPostMessageResponseAction(@Nullable final SafeProcedure postMessageResponseAction) {
-        _postMessageResponseAction = postMessageResponseAction;
+    void setPostMessageProcessingAction(@Nullable final SafeProcedure postMessageProcessingAction) {
+        _postMessageProcessingAction = postMessageProcessingAction;
     }
 
-    private void completeSubscriptionOperations(@NonNull final MessageResponse response) {
-        final RequestEntry request = response.getRequest();
+    private void completeSubscriptionOperations(@NonNull final MessageProcessing processing) {
+        final RequestEntry request = processing.getRequest();
         if (null != request) {
             final List<SubscriptionOperation> operations = ensureConnection().getActiveSubscriptionOperations();
             if (!operations.isEmpty() && operations.get(0).getRequestId() == request.getRequestId()) {
@@ -775,17 +776,17 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    void completeMessageResponse() {
+    void completeMessageProcessing() {
         final Connection connection = ensureConnection();
-        final MessageResponse response = connection.ensureCurrentMessageResponse();
+        final MessageProcessing processing = connection.ensureCurrentMessageProcessing();
 
         // Step: Run the post actions
-        final RequestEntry request = response.getRequest();
-        final ServerToClientMessage message = response.getMessage();
+        final RequestEntry request = processing.getRequest();
+        final ServerToClientMessage message = processing.getMessage();
         final Integer requestId = message.getRequestId();
 
-        final ExecRequest execRequest = null != requestId ? ensureConnection().getActiveExecRequest(requestId) : null;
-        if (null != execRequest && null != request && message instanceof ChangeSetMessage) {
+        final Command command = null != requestId ? ensureConnection().getActiveCommand(requestId) : null;
+        if (null != command && null != request && message instanceof ChangeSetMessage) {
             @SuppressWarnings("PatternVariableCanBeUsed")
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             final ResponseHandler responseHandler = request.getResponseHandler();
@@ -798,22 +799,22 @@ abstract class Connector extends ReplicantService {
         if (null != requestId) {
             connection.removeRequest(requestId);
         }
-        connection.setCurrentMessageResponse(null);
-        if (null != execRequest) {
+        connection.setCurrentMessageProcessing(null);
+        if (null != command) {
             final int completedRequestId = Objects.requireNonNull(requestId);
-            connection.markExecRequestAsComplete(completedRequestId);
-            onExecCompleted(execRequest.getCommand(), completedRequestId);
+            connection.markCommandAsComplete(completedRequestId);
+            onCommandCompleted(command.getName(), completedRequestId);
         }
-        onMessageProcessed(response);
-        callPostMessageResponseActionIfPresent();
+        onMessageProcessed(processing);
+        callPostMessageProcessingActionIfPresent();
 
-        completeSubscriptionOperations(response);
+        completeSubscriptionOperations(processing);
         //noinspection IfCanBeSwitch
         if (OkMessage.TYPE.equals(message.getType())) {
             if (null != requestId && connection.getLastReachedSynchronizationPointRequestId() == requestId) {
                 if (connection.isSynchronizationPointReached()) {
                     onSynchronizationPointReached();
-                    getReplicantContext().getSubscriptionReconciler().removeOrphanSubscriptions();
+                    getReplicantContext().getSubscriptionReconciler().removeOrphanedSubscriptions();
                 } else {
                     onSynchronizationPointPending();
                 }
@@ -824,7 +825,7 @@ abstract class Connector extends ReplicantService {
             maybeRequestSynchronizationPoint();
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             if (null != changeSet.getDatasetCacheVersion()) {
-                storeDatasetCacheEntryIfPossible(response, changeSet);
+                storeDatasetCacheEntryIfPossible(processing, changeSet);
             }
         } else if (ErrorMessage.TYPE.equals(message.getType())) {
             final ErrorMessage errorMessage = (ErrorMessage) message;
@@ -867,10 +868,10 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    private void callPostMessageResponseActionIfPresent() {
-        if (null != _postMessageResponseAction) {
-            _postMessageResponseAction.call();
-            _postMessageResponseAction = null;
+    private void callPostMessageProcessingActionIfPresent() {
+        if (null != _postMessageProcessingAction) {
+            _postMessageProcessingAction.call();
+            _postMessageProcessingAction = null;
         }
     }
 
@@ -948,7 +949,7 @@ abstract class Connector extends ReplicantService {
     }
 
     private void storeDatasetCacheEntryIfPossible(
-            @NonNull final MessageResponse response, @NonNull final ChangeSetMessage changeSet) {
+            @NonNull final MessageProcessing processing, @NonNull final ChangeSetMessage changeSet) {
         final String datasetCacheVersion = changeSet.getDatasetCacheVersion();
         final DatasetCacheService datasetCacheService = getReplicantContext().getDatasetCacheService();
 
@@ -956,7 +957,7 @@ abstract class Connector extends ReplicantService {
         if (null != datasetCacheService
                 && null != datasetCacheVersion
                 && (changeSet.hasSubscriptionChanges() || changeSet.hasFilterParameterSubscriptionChanges())) {
-            final List<SubscriptionChange> subscriptionChanges = response.getSubscriptionChanges();
+            final List<SubscriptionChange> subscriptionChanges = processing.getSubscriptionChanges();
 
             if (1 == subscriptionChanges.size()
                     && SubscriptionChange.Type.SUBSCRIBE
@@ -990,9 +991,9 @@ abstract class Connector extends ReplicantService {
     @SuppressWarnings("unchecked")
     @Action
     void processEntityChanges() {
-        final MessageResponse response = ensureCurrentMessageResponse();
+        final MessageProcessing processing = ensureCurrentMessageProcessing();
         EntityChange change;
-        for (int i = 0; i < _changesToProcessPerTick && null != (change = response.nextEntityChange()); i++) {
+        for (int i = 0; i < _changesToProcessPerTick && null != (change = processing.nextEntityChange()); i++) {
             final int entityTypeId = change.getEntityTypeId();
             final int entityId = change.getEntityId();
             final EntityType entityType = getSystemSchema().getEntityType(entityTypeId);
@@ -1009,7 +1010,7 @@ abstract class Connector extends ReplicantService {
                  */
                 if (null != replicaEntry) {
                     Disposable.dispose(replicaEntry);
-                    response.incEntityRemoveCount();
+                    processing.incEntityRemoveCount();
                 }
             } else {
                 final EntityChangePayload payload = change.getPayload();
@@ -1051,7 +1052,7 @@ abstract class Connector extends ReplicantService {
                         if (t instanceof IllegalStateException) {
                             throw (IllegalStateException) t;
                         }
-                        onMessageProcessFailure(t);
+                        onMessageProcessingFailure(t);
                         return;
                     }
                 }
@@ -1062,8 +1063,8 @@ abstract class Connector extends ReplicantService {
                 relevant.
                 */
 
-                response.incEntityUpdateCount();
-                response.replicaProcessed(replicaEntry.getReplica());
+                processing.incEntityUpdateCount();
+                processing.replicaProcessed(replicaEntry.getReplica());
             }
         }
     }
@@ -1072,11 +1073,11 @@ abstract class Connector extends ReplicantService {
      * Validate every materialized Replica in this connector's Replicant Context that implements Arez
      * {@code Verifiable}.
      *
-     * <p>This validates client Replica state after the current response has been applied. It does not validate server
+     * <p>This validates client Replica state after the current message has been applied. It does not validate server
      * Entities, Subscription metadata, or Replicant Context configuration.</p>
      */
     void validateReplicas() {
-        ensureCurrentMessageResponse().markReplicaValidationStarted();
+        ensureCurrentMessageProcessing().markReplicaValidationStarted();
         if (Replicant.shouldValidateReplicasAfterMessageProcessing()) {
             getReplicantContext().getValidator().validateReplicas();
         }
@@ -1103,18 +1104,16 @@ abstract class Connector extends ReplicantService {
         }
     }
 
-    boolean progressExecRequestProcessing() {
-        final ExecRequest request = ensureConnection().nextExecRequest();
-        if (null == request) {
+    boolean progressCommandProcessing() {
+        final Command command = ensureConnection().nextCommand();
+        if (null == command) {
             return false;
         } else {
-            final String command = request.getCommand();
+            _transport.requestCommand(command.getName(), command.getPayload(), command.getResponseHandler());
+            command.markAsInProgress(ensureConnection().getLastTxRequestId());
+            ensureConnection().recordActiveCommand(command);
 
-            _transport.requestExec(command, request.getPayload(), request.getResponseHandler());
-            request.markAsInProgress(ensureConnection().getLastTxRequestId());
-            ensureConnection().recordActiveExecRequest(request);
-
-            onExecStarted(command, request.getRequestId());
+            onCommandStarted(command.getName(), command.getRequestId());
             return true;
         }
     }
@@ -1311,7 +1310,7 @@ abstract class Connector extends ReplicantService {
             try {
                 datasetAddress = DatasetAddress.parse(getSystemSchema().getId(), datasetAddressDescriptor);
             } catch (final Throwable t) {
-                onMessageProcessFailure(t);
+                onMessageProcessingFailure(t);
                 return;
             }
             final String datasetCacheVersion = useDatasetCacheEntryMessage.getDatasetCacheVersion();
@@ -1360,7 +1359,7 @@ abstract class Connector extends ReplicantService {
             messageToQueue = message;
         }
 
-        connection.enqueueResponse(messageToQueue, request);
+        connection.enqueueMessageForProcessing(messageToQueue, request);
         triggerMessageScheduler();
     }
 
@@ -1381,44 +1380,44 @@ abstract class Connector extends ReplicantService {
     /**
      * Invoked when a server-to-client transport message has been completely processed.
      *
-     * @param response the message response.
+     * @param processing the Message Processing state.
      */
-    void onMessageProcessed(@NonNull final MessageResponse response) {
+    void onMessageProcessed(@NonNull final MessageProcessing processing) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
                     .reportSpyEvent(new MessageProcessedEvent(
                             getSystemSchema().getId(),
                             getSystemSchema().getName(),
-                            response.toMessageProcessingSummary()));
+                            processing.toMessageProcessingSummary()));
         }
     }
 
     /**
-     * Invoked when an exec has been sent to the server.
+     * Invoked when a Command has been sent to the server.
      *
-     * @param command the exec request command.
+     * @param commandName the Command name.
      */
-    void onExecStarted(@NonNull final String command, final int requestId) {
+    void onCommandStarted(@NonNull final String commandName, final int requestId) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new ExecStartedEvent(
-                            getSystemSchema().getId(), getSystemSchema().getName(), command, requestId));
+                    .reportSpyEvent(new CommandStartedEvent(
+                            getSystemSchema().getId(), getSystemSchema().getName(), commandName, requestId));
         }
     }
 
     /**
-     * Invoked when an exec has been sent to the server.
+     * Invoked when a response to a Command has been processed.
      *
-     * @param command the exec request command.
+     * @param commandName the Command name.
      */
-    void onExecCompleted(@NonNull final String command, final int requestId) {
+    void onCommandCompleted(@NonNull final String commandName, final int requestId) {
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new ExecCompletedEvent(
-                            getSystemSchema().getId(), getSystemSchema().getName(), command, requestId));
+                    .reportSpyEvent(new CommandCompletedEvent(
+                            getSystemSchema().getId(), getSystemSchema().getName(), commandName, requestId));
         }
     }
 
@@ -1426,13 +1425,13 @@ abstract class Connector extends ReplicantService {
      * Called when message processing has resulted in a failure.
      */
     @Action(verifyRequired = false)
-    void onMessageProcessFailure(@NonNull final Throwable error) {
+    void onMessageProcessingFailure(@NonNull final Throwable error) {
         final String message = ReplicantUtil.safeGetString(() -> "Exception processing replicant message.");
         ReplicantLogger.log(message, error);
         if (Replicant.areSpiesEnabled() && getReplicantContext().getSpy().willPropagateSpyEvents()) {
             getReplicantContext()
                     .getSpy()
-                    .reportSpyEvent(new MessageProcessFailureEvent(
+                    .reportSpyEvent(new MessageProcessingFailureEvent(
                             getSystemSchema().getId(), getSystemSchema().getName(), error));
         }
         disconnectIfPossible();
@@ -1561,8 +1560,8 @@ abstract class Connector extends ReplicantService {
     }
 
     @Nullable
-    SafeProcedure getPostMessageResponseAction() {
-        return _postMessageResponseAction;
+    SafeProcedure getPostMessageProcessingAction() {
+        return _postMessageProcessingAction;
     }
 
     @Nullable

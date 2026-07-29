@@ -7,29 +7,26 @@ import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.ValueUtil;
 
-public final class ExecStartedEventTest extends AbstractReplicantTest {
+public final class CommandQueuedEventTest extends AbstractReplicantTest {
     @Test
     public void basicOperation() {
-        final String command = ValueUtil.randomString();
+        final String commandName = ValueUtil.randomString();
         final int systemSchemaId = ValueUtil.randomInt();
         final String systemSchemaName = ValueUtil.randomString();
-        final int requestId = ValueUtil.randomInt();
-        final ExecStartedEvent event = new ExecStartedEvent(systemSchemaId, systemSchemaName, command, requestId);
+        final CommandQueuedEvent event = new CommandQueuedEvent(systemSchemaId, systemSchemaName, commandName);
 
         assertEquals(event.getSystemSchemaId(), systemSchemaId);
         assertEquals(event.getSystemSchemaName(), systemSchemaName);
-        assertEquals(event.getCommand(), command);
-        assertEquals(event.getRequestId(), requestId);
+        assertEquals(event.getCommandName(), commandName);
 
         final HashMap<String, Object> data = new HashMap<>();
         event.toMap(data);
 
-        assertEquals(data.get("type"), "Connector.ExecStarted");
+        assertEquals(data.get("type"), "Connector.CommandQueued");
         assertEquals(data.get("systemSchema.id"), systemSchemaId);
         assertEquals(data.get("systemSchema.name"), systemSchemaName);
-        assertEquals(data.get("command"), command);
-        assertEquals(data.get("requestId"), requestId);
+        assertEquals(data.get("command.name"), commandName);
 
-        assertEquals(data.size(), 5);
+        assertEquals(data.size(), 4);
     }
 }

@@ -83,6 +83,9 @@ Subscriptions, connector lifecycle, cache-service integration, and shared Replic
 multiple System Schemas. A Replica may be shared by overlapping Subscriptions in the same Context, but no Replicant
 state is shared between Contexts.
 
+Its Replicant Context State is the aggregate connection lifecycle state exposed by
+`ReplicantContext.getState()` as `ReplicantContextState`. Only Required Connectors contribute to that aggregate.
+
 A Zone is only an activation scope that selects which Replicant Context is returned by `Replicant.context()`. It is
 not a Replicant Session. A Replicant Session is the distinct server-side state for one active transport session.
 Each Replicant Session may carry an opaque application Principal supplied by its authorization adapter and available
@@ -199,32 +202,32 @@ The Dataset Root identifier for an Instance Dataset forms part of the Dataset Ad
 the address and is embedded in its descriptor after a `#` suffix. The Filter Parameter remains outside the Dataset
 Address.
 
-### Services
+### Commands
 
-Within the replicant system, it is expected that changes to entities occur on the server-side and
-are integrated with the replicant engine. The replicant client then has to make service calls to the
-server-side to initiate changes. At the completion of the service call, the server component collects
-all Entity Change Candidates captured for server-side entities during the service call and passes them to the
-Replicant engine. Each Entity Change Candidate exists before routing and per-Subscription filtering. Replicant derives
-Routing Keys to find Dataset Addresses that may contain the Entity, applies the Dataset Filter for each Subscription,
-and records the resulting Filter Decision. One candidate may therefore produce Entity Changes for zero or more
+Within the Replicant system, changes to entities are expected to occur on the server and be integrated with the
+Replicant engine. A client sends a Command through its Connector to initiate an application operation. The server maps
+the Command name and optional payload to application behaviour. At the completion of the operation, the server
+component collects all Entity Change Candidates captured for server-side entities and passes them to the Replicant
+engine. Each Entity Change Candidate exists before routing and per-Subscription filtering. Replicant derives Routing
+Keys to find Dataset Addresses that may contain the Entity, applies the Dataset Filter for each Subscription, and
+records the resulting Filter Decision. One candidate may therefore produce Entity Changes for zero or more
 Subscriptions, including Entity Changes that remove a Replica. Those client-visible Entity Changes are packaged into
 Change Sets.
 
-The service infrastructure within replicant is such that it is possible to treat services as either;
+The Command infrastructure supports the following result modes:
 
-**fire and forget**: The client does not need to be notified when the service call completes.
+**fire and forget**: The client does not need to be notified when the Command completes.
 
-**immediate return**: The client is notified when the service call returns, potentially receiving a result
- from the server. Any changes made to entities on the service _may not_ be present on the client.
+**immediate return**: The client is notified when the Command returns, potentially receiving a result from the server.
+Any resulting entity changes _may not_ yet be present on the client.
 
-**return when complete**: The client is notified when the service completes, potentially receiving a result
- from the server. Any changes made to entities on the service _must_ be present on the client.
+**return when complete**: The client is notified when the Command completes, potentially receiving a result from the
+server. Any resulting entity changes _must_ be present on the client.
 
 ### Change Notifications
 
 Entity Changes are replicated out to the clients in Change Sets. Each Change Set typically represents a unit
-of work, transaction or a single service call on the server-side. So all changes that occur within
+of work, transaction or a single Command on the server-side. So all changes that occur within
 a single transaction are routed and packaged as a single Change Set when sent to the client. The Change
 Set is then applied atomically to the client-side replication. This is an attempt to provide some consistency
 guarantees around the client-side representation.

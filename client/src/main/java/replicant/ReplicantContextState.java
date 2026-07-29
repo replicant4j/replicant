@@ -1,9 +1,9 @@
 package replicant;
 
 /**
- * An enum describing the state of the runtime.
+ * The aggregate connection lifecycle state of a Replicant Context.
  */
-public enum RuntimeState {
+public enum ReplicantContextState {
     /**
      * The service is not yet connected or has been disconnected
      */

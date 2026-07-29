@@ -160,12 +160,12 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     }
 
     @Override
-    public void execCommand(
+    public void executeCommand(
             @NonNull final ReplicantSession session,
-            @NonNull final String command,
+            @NonNull final String commandName,
             final int requestId,
             @Nullable final JsonObject payload) {
-        _serverAdapter.execCommand(session, command, requestId, payload);
+        _serverAdapter.executeCommand(session, commandName, requestId, payload);
     }
 
     private void sessionUpdateRequest(
