@@ -1018,23 +1018,31 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final Disposable schedulerLock0 = connector.getSchedulerLock();
         assertNotNull(schedulerLock0);
 
-        // processing needs Replica validation
+        // processing needs Orphaned Subscription removal
 
         final boolean result1 = connector.progressMessages();
 
         assertTrue(result1);
-        assertNull(connector.getSchedulerLock());
-        assertTrue(Disposable.isDisposed(schedulerLock0));
+        assertNotNull(connector.getSchedulerLock());
+        assertTrue(processing.areOrphanedSubscriptionsRemoved());
+
+        // processing needs Replica validation
 
         final boolean result2 = connector.progressMessages();
 
         assertTrue(result2);
-        // Current message should be nulled and completed processing now
-        assertNull(connection.getCurrentMessageProcessing());
+        assertNull(connector.getSchedulerLock());
+        assertTrue(Disposable.isDisposed(schedulerLock0));
 
         final boolean result3 = connector.progressMessages();
 
-        assertFalse(result3);
+        assertTrue(result3);
+        // Current message should be nulled and completed processing now
+        assertNull(connection.getCurrentMessageProcessing());
+
+        final boolean result4 = connector.progressMessages();
+
+        assertFalse(result4);
         assertNull(connector.getSchedulerLock());
     }
 
@@ -3068,6 +3076,17 @@ public final class ConnectorTest extends AbstractReplicantTest {
             assertTrue(connector.progressMessageProcessing());
 
             assertFalse(processing.areReplicaUpdateActionsPending());
+        }
+
+        {
+            assertFalse(processing.hasReplicaValidationStarted());
+            assertFalse(processing.areOrphanedSubscriptionsRemoved());
+
+            // Remove Orphaned Subscriptions before validating Replicas
+            assertTrue(connector.progressMessageProcessing());
+
+            assertTrue(processing.areOrphanedSubscriptionsRemoved());
+            assertFalse(processing.hasReplicaValidationStarted());
         }
 
         {

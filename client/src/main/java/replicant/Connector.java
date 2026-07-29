@@ -554,7 +554,7 @@ abstract class Connector extends ReplicantService {
             // Process all Replica update actions. The presumption is that they do not do much
             processReplicaUpdateActions();
             return true;
-        } else if (processing.areOrphanedSubscriptionsRemoved()) {
+        } else if (!processing.areOrphanedSubscriptionsRemoved()) {
             // Remove all subscriptions that have been orphaned ... just in case we have some logic that triggers on
             // incoming change and queries the repository and accesses orphaned and potentially invalid Replicas.
             // This MUST be done prior to validating Replicas.

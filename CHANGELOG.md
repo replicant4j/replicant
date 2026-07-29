@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Fix Message Processing so Orphaned Subscription removal runs once after Replica update actions and before Replica
+  validation. The previous positive test of the initially-false completion flag made the cleanup step unreachable.
 * Emit `RequestCompletedEvent` when a Request leaves active tracking, correct Request console telemetry to report the
   System Schema name, and remove obsolete result-arrival flags that no longer describe the single-message Request
   lifecycle.
