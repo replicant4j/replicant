@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Extend the canonical glossary with Connector State, Request, Request ID, Entity Change Payload, Command Result, and
+  Replica Entry terminology, and clarify that the Replica Registry indexes Replica Entries rather than materialized
+  Replica objects directly.
 * Adopt Dataset Root ID as the canonical term for the Entity ID that identifies an Instance Dataset's Dataset Root.
   Replace Dataset Root identifier wording in the glossary, documentation, APIs, diagnostics, and Domgen comments.
 * Complete Entity Type ID wording in Dataset lookup documentation, Domgen-generated constants, and System Schema

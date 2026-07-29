@@ -28,7 +28,8 @@ _Avoid_: Client context
 ### Replicant Context State
 
 The aggregate connection lifecycle state of a [Replicant Context](#replicant-context), derived from its desired
-activation and the connection states of its [Required Connector](#required-connector) instances.
+activation and the [Connector State](#connector-state) values of its [Required Connector](#required-connector)
+instances.
 
 _Avoid_: Runtime state, transport state
 
@@ -46,6 +47,13 @@ coordinates [Synchronization Point](#synchronization-point) processing.
 
 _Avoid_: DataLoader
 
+### Connector State
+
+The connection lifecycle state of one [Connector](#connector): `DISCONNECTED`, `CONNECTING`, `CONNECTED`,
+`DISCONNECTING`, `ERROR`, or `FATAL_ERROR`.
+
+_Avoid_: Service state
+
 ### Required Connector
 
 A [Connector](#connector) whose connection state contributes to [Replicant Context State](#replicant-context-state).
@@ -56,11 +64,27 @@ _Avoid_: Required flag
 
 ### Synchronization Point
 
-A client-server protocol checkpoint confirming that a [Connector](#connector) has processed every request sent before
-the checkpoint and its resulting server messages. Reaching a Synchronization Point does not mean that
+A client-server protocol checkpoint confirming that a [Connector](#connector) has processed every
+[Request](#request) sent before the checkpoint and its resulting server messages. Reaching a Synchronization Point
+does not mean that
 [Subscription Reconciliation](#subscription-reconciliation) is complete.
 
 _Avoid_: Sync when referring to the protocol checkpoint
+
+### Request
+
+One client-to-server protocol operation sent through a [Connector](#connector). [Command](#command) instances,
+[Subscription Operation](#subscription-operation) instances, authentication, Dataset Cache negotiation, and
+[Synchronization Point](#synchronization-point) checkpoints are all Requests.
+
+_Avoid_: Replication Invocation, application request
+
+### Request ID
+
+An integer assigned by a [Connector](#connector) to identify a [Request](#request) within its current connection and
+correlate the Request with its completing server message.
+
+_Avoid_: Request identifier
 
 ### Message Processing
 
@@ -127,9 +151,18 @@ _Avoid_: ID, entity identifier
 ### Entity Change
 
 A [Change Set](#change-set) member directing the client to update an [Entity](#entity)'s [Replica](#replica) or remove
-it from specified [Subscription](#subscription) instances.
+it from specified [Subscription](#subscription) instances. An update carries an
+[Entity Change Payload](#entity-change-payload).
 
 _Avoid_: Entity message
+
+### Entity Change Payload
+
+The serialized [Entity](#entity) attribute values carried by an update [Entity Change](#entity-change). It excludes
+Entity identity, target [Subscription](#subscription) [Dataset Address](#dataset-address) values, and update or removal
+semantics.
+
+_Avoid_: Entity Change data, Entity Change when referring only to serialized attributes
 
 ### Entity Change Candidate
 
@@ -150,9 +183,16 @@ _Avoid_: Service call, request, unit of work, transaction when referring specifi
 ### Command
 
 An application operation addressed by name and sent through a [Connector](#connector) with an optional payload and
-optional result. Replicant transports the Command while the application maps its name and payload to behaviour.
+optional [Command Result](#command-result). Replicant transports the Command while the application maps its name and
+payload to behaviour.
 
 _Avoid_: Exec, RPC, service call
+
+### Command Result
+
+The optional application value returned to the client after a [Command](#command) completes.
+
+_Avoid_: Response, request response
 
 ### Initiating Session Change Set
 
@@ -169,10 +209,15 @@ The client-side representation of one [Entity](#entity). A Replica is shared whe
 
 _Avoid_: Imitation, user object, client entity
 
+### Replica Entry
+
+The client-side tracking record for one [Entity Type](#entity-type) and [Entity ID](#entity-id), containing its
+materialized [Replica](#replica), when present, and the [Subscription](#subscription) instances that retain it.
+
 ### Replica Registry
 
 The client-side index owned by one [Replicant Context](#replicant-context) that maps each
-[Entity Type](#entity-type) and [Entity ID](#entity-id) to one shared [Replica](#replica).
+[Entity Type](#entity-type) and [Entity ID](#entity-id) to one shared [Replica Entry](#replica-entry).
 
 _Avoid_: Entity cache, object registry
 
