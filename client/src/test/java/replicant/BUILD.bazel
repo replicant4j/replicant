@@ -30,7 +30,6 @@ CLIENT_TEST_CLASSES = [
     "replicant.ReplicantTest",
     "replicant.ReplicantUtilTest",
     "replicant.RequestEntryTest",
-    "replicant.RequestTest",
     "replicant.SystemSchemaServiceTest",
     "replicant.SpyImplTest",
     "replicant.SubscriptionReconcilerTest",
@@ -135,7 +134,6 @@ java_library(
         "ReplicantTest.java",
         "ReplicantUtilTest.java",
         "RequestEntryTest.java",
-        "RequestTest.java",
         "SpyImplTest.java",
         "SubscriptionChangeMessageTest.java",
         "SubscriptionChangeTest.java",
@@ -375,15 +373,6 @@ java_testng(
     data = CLIENT_TEST_DATA,
     jvm_flags = CLIENT_TEST_JVM_FLAGS,
     test_class = "replicant.RequestEntryTest",
-    deps = ["//client:client_test_support"],
-)
-
-java_testng(
-    name = "RequestTest",
-    srcs = ["RequestTest.java"],
-    data = CLIENT_TEST_DATA,
-    jvm_flags = CLIENT_TEST_JVM_FLAGS,
-    test_class = "replicant.RequestTest",
     deps = ["//client:client_test_support"],
 )
 

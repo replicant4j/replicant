@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Remove the unused `Request` facade and `PendingRequest` implementation together with the isolated `Request` test.
+  Active Requests continue to be represented internally by `RequestEntry`. This is a hard-cut client API removal with
+  no compatibility aliases.
 * Align implementation terminology with the canonical glossary: rename the client Command Result handler and Change
   Set wire member, rename the server Subscription representation, and replace remaining service-state wording with
   Connector State or Replicant Context State. This is a hard-cut client, server, generator, application, and wire
