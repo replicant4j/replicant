@@ -273,7 +273,10 @@ exports_files(
 
 filegroup(
     name = "client_j2cl_srcs",
-    srcs = CLIENT_JAVA_SRCS,
+    srcs = CLIENT_JAVA_SRCS + [
+        "ReplicantConfig.native.js",
+        "replicant.js",
+    ],
     visibility = ["//visibility:public"],
 )
 

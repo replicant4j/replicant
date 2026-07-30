@@ -10,6 +10,9 @@
   <source path='messages'/>
   <source path='spy'/>
 
+  <define-property name='replicant.environment' values='production'/>
+  <set-property name='replicant.environment' value='production'/>
+
   <define-property name='replicant.check_invariants' values='true,false'/>
   <set-property name='replicant.check_invariants' value='false'/>
 

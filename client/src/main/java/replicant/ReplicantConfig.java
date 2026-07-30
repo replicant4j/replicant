@@ -167,7 +167,7 @@ final class ReplicantConfig {
     @SuppressWarnings({"unused", "StringEquality"})
     private abstract static class AbstractConfigProvider {
         boolean isProductionMode() {
-            return true;
+            return "production" == System.getProperty("replicant.environment");
         }
 
         boolean areNamesEnabled() {
