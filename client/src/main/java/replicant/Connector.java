@@ -791,7 +791,7 @@ abstract class Connector extends ReplicantService {
             final ChangeSetMessage changeSet = (ChangeSetMessage) message;
             final CommandResultHandler commandResultHandler = request.getCommandResultHandler();
             if (null != commandResultHandler) {
-                commandResultHandler.onCommandResult(Objects.requireNonNull(changeSet.getCommandResult()));
+                commandResultHandler.onCommandResult(changeSet.getCommandResult());
             }
         }
 

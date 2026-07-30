@@ -1,8 +1,10 @@
 package replicant;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Receives the optional application result of a completed Command.
  */
 public interface CommandResultHandler {
-    void onCommandResult(Object commandResult);
+    void onCommandResult(@Nullable Object commandResult);
 }
