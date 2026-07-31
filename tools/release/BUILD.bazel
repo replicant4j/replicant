@@ -54,6 +54,12 @@ java_generated_source_jars(
     java_targets = [CLIENT],
 )
 
+java_generated_source_jars(
+    name = "client_test_generated_sources",
+    testonly = True,
+    java_targets = ["//client/src/main/java/replicant:client_test_generation_lib"],
+)
+
 release_jar(
     name = "replicant_client_jar",
     out = "replicant-client.jar",

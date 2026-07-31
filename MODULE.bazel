@@ -53,6 +53,24 @@ j2cl_maven.install(
 )
 use_repo(j2cl_maven, "maven")
 
+_http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+_http_archive(
+    name = "akasha_ecmascript_sources",
+    build_file = "//third_party/java:akasha_ecmascript.BUILD.bazel",
+    sha256 = "335a4b190d6a654c997ff88fc8f39579c94fc2503943992540c5e1bbacc36046",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-j2cl/0.34/akasha-j2cl-0.34-sources.jar"],
+)
+
+_http_archive(
+    name = "zemeckis_test_scheduler_sources",
+    patch_strip = 1,
+    patches = ["//third_party/bazel/patches:zemeckis_use_root_j2cl_dependencies.patch"],
+    sha256 = "de0d6a7075ae51add54feaf4d5f88d2b103a0cdf64639a06be05cf9bf92186ea",
+    strip_prefix = "zemeckis-5fa4796d3348ec769f0c2d20b0fa10d3587c51ec",
+    urls = ["https://github.com/realityforge/zemeckis/archive/5fa4796d3348ec769f0c2d20b0fa10d3587c51ec.tar.gz"],
+)
+
 # --- depgen-generated repository rules start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.28

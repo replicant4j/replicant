@@ -12,8 +12,25 @@ closure_js_library(
     ],
 )
 
+closure_js_library(
+    name = "test_entry_point",
+    testonly = True,
+    srcs = ["test_entry_point.js"],
+    deps = [
+        "//client/src/main/java/replicant:client_test-j2cl",
+        "//shared/src/main/java/replicant/shared:shared-j2cl",
+    ],
+)
+
 j2cl_application(
     name = "replicant_j2cl_smoke",
     entry_points = ["replicant.j2cl.BuildTest"],
     deps = [":entry_point"],
+)
+
+j2cl_application(
+    name = "replicant_test_j2cl_smoke",
+    testonly = True,
+    entry_points = ["replicant.j2cl.TestBuild"],
+    deps = [":test_entry_point"],
 )

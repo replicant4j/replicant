@@ -15,6 +15,7 @@ import java.util.jar.JarOutputStream;
 public final class SourceJarBuilder {
     private static final String J2CL_ONLY_MARKER = "// J2CL_ONLY ";
     private static final String AKASHA_WINDOW_GLOBAL = "akasha/WindowGlobal.java";
+    private static final String AREZ_LOGGER = "arez/ArezLogger.java";
 
     private SourceJarBuilder() {}
 
@@ -23,6 +24,7 @@ public final class SourceJarBuilder {
         String output = "";
         boolean activateJ2clOnly = false;
         boolean rewriteAkashaWindowGlobal = false;
+        boolean rewriteArezGlobalConsole = false;
         final var excludePrefixes = new ArrayList<String>();
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -30,6 +32,7 @@ public final class SourceJarBuilder {
                 case "--output" -> output = requireValue(args, ++i, "--output");
                 case "--activate-j2cl-only" -> activateJ2clOnly = true;
                 case "--rewrite-akasha-window-global" -> rewriteAkashaWindowGlobal = true;
+                case "--rewrite-arez-global-console" -> rewriteArezGlobalConsole = true;
                 case "--exclude-prefix" -> excludePrefixes.add(requireValue(args, ++i, "--exclude-prefix"));
                 default -> throw new IllegalArgumentException("Unknown argument: " + args[i]);
             }
@@ -37,7 +40,13 @@ public final class SourceJarBuilder {
         if (input.isEmpty() || output.isEmpty()) {
             throw new IllegalArgumentException("--input and --output are required");
         }
-        build(Path.of(input), Path.of(output), activateJ2clOnly, rewriteAkashaWindowGlobal, excludePrefixes);
+        build(
+                Path.of(input),
+                Path.of(output),
+                activateJ2clOnly,
+                rewriteAkashaWindowGlobal,
+                rewriteArezGlobalConsole,
+                excludePrefixes);
     }
 
     static void build(
@@ -45,11 +54,13 @@ public final class SourceJarBuilder {
             final Path output,
             final boolean activateJ2clOnly,
             final boolean rewriteAkashaWindowGlobal,
+            final boolean rewriteArezGlobalConsole,
             final List<String> excludePrefixes)
             throws IOException {
         final var matchedPrefixes = new HashSet<String>();
         boolean activated = false;
         boolean rewroteAkashaWindowGlobal = false;
+        boolean rewroteArezGlobalConsole = false;
         try (JarFile jar = new JarFile(input.toFile());
                 JarOutputStream out = new JarOutputStream(Files.newOutputStream(output))) {
             final List<String> names = jar.stream()
@@ -90,6 +101,15 @@ public final class SourceJarBuilder {
                     rewroteAkashaWindowGlobal = true;
                     content = transformed.getBytes(StandardCharsets.UTF_8);
                 }
+                if (rewriteArezGlobalConsole && AREZ_LOGGER.equals(name)) {
+                    final var source = new String(content, StandardCharsets.UTF_8);
+                    final var transformed = source.replace("name = \"window.console\"", "name = \"console\"");
+                    if (source.equals(transformed)) {
+                        throw new IOException("Unexpected " + AREZ_LOGGER + " source shape in " + input);
+                    }
+                    rewroteArezGlobalConsole = true;
+                    content = transformed.getBytes(StandardCharsets.UTF_8);
+                }
                 final var outputEntry = new JarEntry(name);
                 outputEntry.setTime(0L);
                 out.putNextEntry(outputEntry);
@@ -102,6 +122,9 @@ public final class SourceJarBuilder {
         }
         if (rewriteAkashaWindowGlobal && !rewroteAkashaWindowGlobal) {
             throw new IOException(AKASHA_WINDOW_GLOBAL + " not found in " + input);
+        }
+        if (rewriteArezGlobalConsole && !rewroteArezGlobalConsole) {
+            throw new IOException(AREZ_LOGGER + " not found in " + input);
         }
         final Set<String> unmatchedPrefixes = new HashSet<>(excludePrefixes);
         unmatchedPrefixes.removeAll(matchedPrefixes);

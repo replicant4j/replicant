@@ -1,0 +1,25 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "sources",
+    srcs = [
+        "akasha/core/JSON.java",
+        "akasha/core/JsObject.java",
+        "akasha/core/JsUtil.java",
+        "akasha/core/ObjectPropertyDescriptor.java",
+        "akasha/core/ObjectPropertyEntry.java",
+        "akasha/core/ParseReviverFn.java",
+        "akasha/core/PropertyAccessorFunction.java",
+        "akasha/core/PropertyMutatorFunction.java",
+        "akasha/core/StringOrLongLongUnion.java",
+        "akasha/core/StringifyReplacerFn.java",
+        "akasha/core/StringifySpaceUnionType.java",
+        "akasha/core/Symbol.java",
+        "akasha/core/SymbolType.java",
+        "akasha/lang/JsArray.java",
+        "akasha/lang/JsIIterableResult.java",
+        "akasha/lang/JsIterable.java",
+        "akasha/lang/JsIterator.java",
+        "akasha/lang/JsIteratorIterable.java",
+    ],
+)

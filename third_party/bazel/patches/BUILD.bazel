@@ -5,4 +5,5 @@ exports_files([
     "j2cl_suppress_unsafe_warning.patch",
     "rules_closure_suppress_unsafe_warning.patch",
     "rules_closure_use_protobuf_java_proto_library.patch",
+    "zemeckis_use_root_j2cl_dependencies.patch",
 ])

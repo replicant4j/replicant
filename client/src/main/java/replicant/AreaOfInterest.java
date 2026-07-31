@@ -9,7 +9,6 @@ import arez.annotations.PreDispose;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import replicant.react4j.AreaOfInterestView;
 import replicant.spy.AreaOfInterestDisposedEvent;
 import zemeckis.Zemeckis;
 
@@ -45,9 +44,9 @@ public abstract class AreaOfInterest extends ReplicantService {
 
     private boolean _invalidated;
     /**
-     * The {@link AreaOfInterestView} class uses reference counting to determine whether an AreaOfInterest
-     * is still of interest. The assumption is that after the refCount reaches 0 then it is likely that there
-     * is no longer any interest and it can be disposed.
+     * The React4j adapter uses reference counting to determine whether an AreaOfInterest is still of interest.
+     * The assumption is that after the refCount reaches 0 then it is likely that there is no longer any interest
+     * and it can be disposed.
      */
     private int _refCount;
 

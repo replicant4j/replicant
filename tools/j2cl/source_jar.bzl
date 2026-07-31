@@ -7,6 +7,8 @@ def _j2cl_source_jar_impl(ctx):
         args.add("--activate-j2cl-only")
     if ctx.attr.rewrite_akasha_window_global:
         args.add("--rewrite-akasha-window-global")
+    if ctx.attr.rewrite_arez_global_console:
+        args.add("--rewrite-arez-global-console")
     for prefix in ctx.attr.exclude_prefixes:
         args.add("--exclude-prefix", prefix)
 
@@ -26,6 +28,7 @@ j2cl_source_jar = rule(
         "activate_j2cl_only": attr.bool(),
         "exclude_prefixes": attr.string_list(),
         "rewrite_akasha_window_global": attr.bool(),
+        "rewrite_arez_global_console": attr.bool(),
         "src": attr.label(
             allow_single_file = [".jar"],
             mandatory = True,

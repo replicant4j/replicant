@@ -129,6 +129,28 @@ CLIENT_JAVA_SRCS = [
     "spy/tools/package-info.java",
 ]
 
+CLIENT_BROWSER_JAVA_SRCS = [
+    "TransportContextImpl.java",
+    "WebSocketTransport.java",
+    "WebStorageDatasetCacheService.java",
+    "react4j/AreaOfInterestView.java",
+    "react4j/package-info.java",
+    "spy/tools/ConsoleSpyEventProcessor.java",
+    "spy/tools/ReplicantSpyUtil.java",
+]
+
+CLIENT_TEST_JAVA_SRCS = [
+    src
+    for src in CLIENT_JAVA_SRCS
+    if src not in CLIENT_BROWSER_JAVA_SRCS
+] + ["TestTransportContextImpl.java"]
+
+CLIENT_TEST_GENERATION_JAVA_SRCS = [
+    src
+    for src in CLIENT_TEST_JAVA_SRCS
+    if src != "TestTransportContextImpl.java"
+] + ["TransportContextImpl.java"]
+
 CLIENT_RESOURCES = [
     "AbstractTransport.java",
     "AreaOfInterest.java",
@@ -280,6 +302,16 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+filegroup(
+    name = "client_test_j2cl_srcs",
+    testonly = True,
+    srcs = CLIENT_TEST_JAVA_SRCS + [
+        "ReplicantConfig.native.js",
+        "replicant.js",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 j2cl_library(
     name = "client-j2cl",
     srcs = [
@@ -301,6 +333,30 @@ j2cl_library(
         "//third_party/java:org_jetbrains_annotations-j2cl",
         "//third_party/java:react4j_core-j2cl",
         "//third_party/java:zemeckis_core-j2cl",
+    ],
+)
+
+j2cl_library(
+    name = "client_test-j2cl",
+    testonly = True,
+    srcs = [
+        ":client_test_j2cl_srcs",
+        "//tools/release:client_test_generated_sources",
+    ],
+    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        "//shared/src/main/java/replicant/shared:shared-j2cl",
+        "//third_party/java:akasha_ecmascript-j2cl",
+        "//third_party/java:arez_core_node-j2cl",
+        "//third_party/java:base-j2cl",
+        "//third_party/java:braincheck_core-j2cl",
+        "//third_party/java:grim_annotations-j2cl",
+        "//third_party/java:javax_annotation-j2cl",
+        "//third_party/java:jsinterop_annotations-j2cl",
+        "//third_party/java:jspecify-j2cl",
+        "//third_party/java:org_jetbrains_annotations-j2cl",
+        "@zemeckis_test_scheduler_sources//core/src/main/java/zemeckis:test_scheduler-j2cl",
     ],
 )
 
@@ -331,6 +387,30 @@ java_library(
         "//third_party/java:jsinterop_annotations",
         "//third_party/java:org_jetbrains_annotations",
         "//third_party/java:react4j_core",
+        "//third_party/java:zemeckis_core",
+    ],
+)
+
+java_library(
+    name = "client_test_generation_lib",
+    testonly = True,
+    srcs = CLIENT_TEST_GENERATION_JAVA_SRCS,
+    plugins = [
+        "//third_party/java:arez_processor_plugin",
+        "//third_party/java:grim_processor_plugin",
+    ],
+    visibility = ["//tools/release:__pkg__"],
+    deps = [
+        "//shared:shared_lib",
+        "//third_party/java:akasha_gwt",
+        "//third_party/java:arez_core",
+        "//third_party/java:base",
+        "//third_party/java:braincheck_core",
+        "//third_party/java:grim_annotations",
+        "//third_party/java:gwt_user",
+        "//third_party/java:javax_annotation",
+        "//third_party/java:jsinterop_annotations",
+        "//third_party/java:org_jetbrains_annotations",
         "//third_party/java:zemeckis_core",
     ],
 )
