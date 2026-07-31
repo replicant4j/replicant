@@ -40,6 +40,20 @@ j2cl_source_jar(
     rewrite_arez_global_console = True,
 )
 
+j2cl_library(
+    name = "zemeckis_test_scheduler-j2cl",
+    testonly = True,
+    srcs = ["@zemeckis_test_scheduler_sources//core/src/main/java/zemeckis:test_scheduler_j2cl_srcs"],
+    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
+    deps = [
+        ":braincheck_core-j2cl",
+        ":grim_annotations-j2cl",
+        ":jsinterop_annotations-j2cl",
+        ":jspecify-j2cl",
+        ":org_jetbrains_annotations-j2cl",
+    ],
+)
+
 _java_plugin(
     name = "nullaway_plugin",
     deps = [":nullaway"],

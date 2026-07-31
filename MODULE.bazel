@@ -64,11 +64,9 @@ _http_archive(
 
 _http_archive(
     name = "zemeckis_test_scheduler_sources",
-    patch_strip = 1,
-    patches = ["//third_party/bazel/patches:zemeckis_use_root_j2cl_dependencies.patch"],
-    sha256 = "de0d6a7075ae51add54feaf4d5f88d2b103a0cdf64639a06be05cf9bf92186ea",
-    strip_prefix = "zemeckis-5fa4796d3348ec769f0c2d20b0fa10d3587c51ec",
-    urls = ["https://github.com/realityforge/zemeckis/archive/5fa4796d3348ec769f0c2d20b0fa10d3587c51ec.tar.gz"],
+    sha256 = "41518bcf7ecce536291eb75f45517ae97224f1f7456ada4bf87c831a0690e00f",
+    strip_prefix = "zemeckis-f3d647019b377b439dc1f8a3ffc2f6715e779d11",
+    urls = ["https://github.com/realityforge/zemeckis/archive/f3d647019b377b439dc1f8a3ffc2f6715e779d11.tar.gz"],
 )
 
 # --- depgen-generated repository rules start ---
