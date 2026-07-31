@@ -2,8 +2,9 @@
 
 ### Unreleased
 
-* Add a test-only browser-free J2CL client target backed by explicit ECMAScript, deterministic scheduler, and
-  non-browser transport-context dependencies while keeping browser adapters in the production aggregate.
+* Add browser-free J2CL targets for the Replicant context-state API and test client, with the latter backed by
+  explicit ECMAScript, deterministic scheduler, and non-browser transport-context dependencies while keeping browser
+  adapters in the production aggregate.
 * Fix Message Processing so Orphaned Subscription removal runs once after Replica update actions and before Replica
   validation. The previous positive test of the initially-false completion flag made the cleanup step unreachable.
 * Emit `RequestCompletedEvent` when a Request leaves active tracking, correct Request console telemetry to report the

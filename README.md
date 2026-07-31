@@ -57,8 +57,9 @@ signed Maven Central bundle with `tools/package_maven_central.sh <version>` and 
 The full client and shared graph, including generated Arez sources, is permanently verified with an optimized J2CL
 link and real GWT 2.13.1 compiler builds for Replicant, ReplicantDev, ReplicantDebug, and React4j.
 
-The test-only `//client/src/main/java/replicant:client_test-j2cl` target is the browser-free J2CL client surface. It
-uses the ECMAScript subset of Akasha, the deterministic Zemeckis test scheduler, and a non-browser transport-context
+The `//client/src/main/java/replicant:replicant_context_state-j2cl` target exposes the browser-free context lifecycle
+state API. The test-only `//client/src/main/java/replicant:client_test-j2cl` target extends the browser-free surface
+with the ECMAScript subset of Akasha, the deterministic Zemeckis test scheduler, and a non-browser transport-context
 backend. Browser transports, browser storage, page-lifecycle handling, console spy tools, and the React4j adapter
 remain in `client-j2cl`.
 
