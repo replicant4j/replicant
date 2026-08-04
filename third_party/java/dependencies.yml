@@ -184,9 +184,9 @@ artifacts:
   - coord: org.realityforge.jndikit:jndikit:1.4
   - coord: org.glassfish:javax.json:1.1
 
-  - coord: org.realityforge.arez:arez-core:0.254
-  - coord: org.realityforge.arez:arez-processor:0.254
-  - coord: org.realityforge.arez:arez-extras-testng:0.254
+  - coord: org.realityforge.arez:arez-core:0.255
+  - coord: org.realityforge.arez:arez-processor:0.255
+  - coord: org.realityforge.arez:arez-extras-testng:0.255
 
   - coord: org.realityforge.react4j:react4j-core:0.228
   - coord: org.realityforge.react4j:react4j-processor:0.228
