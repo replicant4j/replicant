@@ -103,7 +103,8 @@ public final class SourceJarBuilder {
                 }
                 if (rewriteArezGlobalConsole && AREZ_LOGGER.equals(name)) {
                     final var source = new String(content, StandardCharsets.UTF_8);
-                    final var transformed = source.replace("name = \"window.console\"", "name = \"console\"");
+                    final var transformed =
+                            source.replace("name = \"window.console\"", "name = \"globalThis.console\"");
                     if (source.equals(transformed)) {
                         throw new IOException("Unexpected " + AREZ_LOGGER + " source shape in " + input);
                     }

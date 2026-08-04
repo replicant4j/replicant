@@ -68,7 +68,7 @@ public final class SourceJarBuilderTest {
                     """, read(jar, "akasha/WindowGlobal.java"), "Akasha window global");
                 assertEquals("""
                     package arez;
-                    @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "console" )
+                    @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "globalThis.console" )
                     final class ArezLogger {}
                     """, read(jar, "arez/ArezLogger.java"), "Arez global console");
                 if (jar.getJarEntry("org/jspecify/annotations/Nullable.java") != null) {
