@@ -37,17 +37,11 @@ public final class SourceJarBuilderTest {
                             )
                             public final class WindowGlobal {}
                             """,
-                            "arez/ArezLogger.java",
-                            """
-                            package arez;
-                            @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "window.console" )
-                            final class ArezLogger {}
-                            """,
                             "org/jspecify/annotations/Nullable.java",
                             "package org.jspecify.annotations;\n"));
 
-            SourceJarBuilder.build(input, first, true, true, true, List.of("org/jspecify/annotations/"));
-            SourceJarBuilder.build(input, second, true, true, true, List.of("org/jspecify/annotations/"));
+            SourceJarBuilder.build(input, first, true, true, List.of("org/jspecify/annotations/"));
+            SourceJarBuilder.build(input, second, true, true, List.of("org/jspecify/annotations/"));
 
             assertEquals(Files.readAllBytes(first), Files.readAllBytes(second), "deterministic output");
             try (JarFile jar = new JarFile(first.toFile())) {
@@ -66,11 +60,6 @@ public final class SourceJarBuilderTest {
                     )
                     public final class WindowGlobal {}
                     """, read(jar, "akasha/WindowGlobal.java"), "Akasha window global");
-                assertEquals("""
-                    package arez;
-                    @JsType( isNative = true, namespace = JsPackage.GLOBAL, name = "globalThis.console" )
-                    final class ArezLogger {}
-                    """, read(jar, "arez/ArezLogger.java"), "Arez global console");
                 if (jar.getJarEntry("org/jspecify/annotations/Nullable.java") != null) {
                     throw new AssertionError("Excluded source remains in output");
                 }

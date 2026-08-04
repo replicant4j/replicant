@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update Arez dependencies to 0.255 and use its released `globalThis.console` logger binding directly.
 * Add browser-free J2CL targets for the Replicant context-state API and test client, with the latter backed by
   explicit ECMAScript, deterministic scheduler, and non-browser transport-context dependencies while keeping browser
   adapters in the production aggregate.
