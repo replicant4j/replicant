@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Upgrade bazel-depgen to version `0.29`.
 * Update the `org.realityforge.zemeckis` artifact to version `0.18`.
 * Fix Message Processing so Orphaned Subscription removal runs once after Replica update actions and before Replica
   validation. The previous positive test of the initially-false completion flag made the cleanup step unreachable.
