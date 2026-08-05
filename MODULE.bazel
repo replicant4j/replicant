@@ -894,16 +894,16 @@ _http_file(
 
 _http_file(
     name = "zemeckis_core",
-    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.17/zemeckis-core-0.17.jar",
-    sha256 = "79545a021a501f2792c98fe5d06d620ed6b9da96bd6bb81b433da32be5820445",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.17/zemeckis-core-0.17.jar"],
+    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18.jar",
+    sha256 = "9fecd374ffd669e2816685d74f7c1d7b1dc746103bd932ea9c9ee6659132d827",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18.jar"],
 )
 
 _http_file(
     name = "zemeckis_core__sources",
-    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.17/zemeckis-core-0.17-sources.jar",
-    sha256 = "a9e277b25d13dc0e101d461f0004174f60ad490f915fe83c946738ae648f2980",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.17/zemeckis-core-0.17-sources.jar"],
+    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18-sources.jar",
+    sha256 = "052da3cd335515041c0ab0c27b7abc760fb7870b7241f35d23e0c4e6f7a02e26",
+    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18-sources.jar"],
 )
 
 _http_file(
