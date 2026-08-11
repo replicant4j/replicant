@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update Arez dependencies to 0.255 and use its released `globalThis.console` logger binding directly.
 * Add the `replicant.use_document_visibility` compile-time setting so non-browser clients can process messages without
   accessing the browser document.
 * Replace Akasha browser bindings with narrow Replicant-owned JsInterop types and remove Akasha from the client build
