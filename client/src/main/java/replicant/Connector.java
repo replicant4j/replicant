@@ -2,7 +2,6 @@ package replicant;
 
 import static org.realityforge.braincheck.Guards.*;
 
-import akasha.core.JSON;
 import arez.Arez;
 import arez.ArezContext;
 import arez.Disposable;
@@ -1347,8 +1346,8 @@ abstract class Connector extends ReplicantService {
                 return;
             }
             try {
-                messageToQueue =
-                        Objects.requireNonNull(JSON.parse(entry.getChangeSet())).cast();
+                messageToQueue = Objects.requireNonNull(BrowserJson.parse(entry.getChangeSet()))
+                        .cast();
             } catch (final Throwable t) {
                 rejectDatasetCacheEntry(datasetCacheService, datasetAddress, "Dataset Cache Entry is corrupt.", t);
                 onMessageReadFailure();

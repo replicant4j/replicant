@@ -1,9 +1,10 @@
 package replicant;
 
-import akasha.MessageEvent;
-import akasha.WebSocket;
-import akasha.core.JSON;
 import java.util.Objects;
+import jsinterop.annotations.JsFunction;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
+import jsinterop.annotations.JsType;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
@@ -13,11 +14,14 @@ import replicant.messages.ServerToClientMessage;
 import replicant.shared.Messages;
 
 public final class WebSocketTransport extends AbstractTransport {
+    private static final int BROWSER_WEBSOCKET_CONNECTING = 0;
+    private static final int BROWSER_WEBSOCKET_OPEN = 1;
+
     @NonNull
     private final WebSocketConfig _config;
 
     @Nullable
-    private WebSocket _webSocket;
+    private BrowserWebSocket _webSocket;
 
     public WebSocketTransport(@NonNull final WebSocketConfig config) {
         _config = Objects.requireNonNull(config);
@@ -25,14 +29,14 @@ public final class WebSocketTransport extends AbstractTransport {
 
     @Override
     protected void doConnect() {
-        _webSocket = new WebSocket(_config.getUrl());
+        _webSocket = new BrowserWebSocket(_config.getUrl());
 
-        _webSocket.onmessage = this::handleMessageEvent;
-        _webSocket.onerror = e -> onError();
-        _webSocket.onclose = e -> onDisconnect();
+        _webSocket.setOnMessage(this::handleMessageEvent);
+        _webSocket.setOnError(e -> onError());
+        _webSocket.setOnClose(e -> onDisconnect());
     }
 
-    private void handleMessageEvent(@NonNull final MessageEvent e) {
+    private void handleMessageEvent(@NonNull final BrowserMessageEvent e) {
         final Any data = e.data();
         if (null == data) {
             ReplicantLogger.log("WebSocket message has null data", null);
@@ -73,7 +77,7 @@ public final class WebSocketTransport extends AbstractTransport {
         final String kind = Js.typeof(data);
         Any parsed;
         if ("string".equals(kind)) {
-            parsed = JSON.parse(data.asString());
+            parsed = BrowserJson.parse(data.asString());
         } else {
             ReplicantLogger.log("WebSocket message incorrect type: " + kind, null);
             return null;
@@ -97,13 +101,13 @@ public final class WebSocketTransport extends AbstractTransport {
     protected void doDisconnect() {
         if (null != _webSocket) {
             final int readyState = _webSocket.readyState();
-            if (WebSocket.OPEN == readyState) {
+            if (BROWSER_WEBSOCKET_OPEN == readyState) {
                 _webSocket.close();
-            } else if (WebSocket.CONNECTING == readyState) {
+            } else if (BROWSER_WEBSOCKET_CONNECTING == readyState) {
                 // It is an error to invoke close() on a socket that is not open, so defer the close until the
                 // socket has opened.
-                final WebSocket webSocket = _webSocket;
-                webSocket.onopen = e -> webSocket.close();
+                final BrowserWebSocket webSocket = _webSocket;
+                webSocket.setOnOpen(e -> webSocket.close());
             }
             _webSocket = null;
         }
@@ -114,9 +118,50 @@ public final class WebSocketTransport extends AbstractTransport {
         _config.remote(() -> {
             // Attempts to perform a send can occur when there is no connection.
             // This typically happens when a previous request fails.
-            if (null != _webSocket && WebSocket.OPEN == _webSocket.readyState()) {
-                _webSocket.send(JSON.stringify(message));
+            if (null != _webSocket && BROWSER_WEBSOCKET_OPEN == _webSocket.readyState()) {
+                _webSocket.send(BrowserJson.stringify(Js.asAny(message)));
             }
         });
+    }
+
+    @JsFunction
+    private interface BrowserEventHandler {
+        void onEvent(Object event);
+    }
+
+    @JsFunction
+    private interface BrowserMessageHandler {
+        void onMessage(@NonNull BrowserMessageEvent event);
+    }
+
+    @JsType(isNative = true, name = "MessageEvent", namespace = JsPackage.GLOBAL)
+    private static final class BrowserMessageEvent {
+        @Nullable
+        @JsProperty(name = "data")
+        native Any data();
+    }
+
+    @JsType(isNative = true, name = "WebSocket", namespace = JsPackage.GLOBAL)
+    private static final class BrowserWebSocket {
+        BrowserWebSocket(String url) {}
+
+        @JsProperty(name = "onmessage")
+        native void setOnMessage(BrowserMessageHandler handler);
+
+        @JsProperty(name = "onerror")
+        native void setOnError(BrowserEventHandler handler);
+
+        @JsProperty(name = "onclose")
+        native void setOnClose(BrowserEventHandler handler);
+
+        @JsProperty(name = "onopen")
+        native void setOnOpen(BrowserEventHandler handler);
+
+        @JsProperty(name = "readyState")
+        native int readyState();
+
+        native void close();
+
+        native void send(String data);
     }
 }

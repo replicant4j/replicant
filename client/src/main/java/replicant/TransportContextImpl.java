@@ -1,9 +1,10 @@
 package replicant;
 
-import akasha.VisibilityState;
-import akasha.WindowGlobal;
 import arez.Disposable;
 import java.util.Objects;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
+import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import replicant.messages.ServerToClientMessage;
@@ -65,8 +66,16 @@ final class TransportContextImpl implements TransportContext, Disposable {
     }
 
     private static boolean shouldProcessImmediatelyOnReceive() {
-        return ReplicantConfig.isJvm()
-                || !VisibilityState.visible.equals(WindowGlobal.document().visibilityState());
+        return ReplicantConfig.isJvm() || !"visible".equals(BrowserDocument.visibilityState());
+    }
+
+    @JsType(isNative = true, name = "globalThis.document", namespace = JsPackage.GLOBAL)
+    private static final class BrowserDocument {
+        @NonNull
+        @JsProperty(name = "visibilityState")
+        static native String visibilityState();
+
+        private BrowserDocument() {}
     }
 
     @Override

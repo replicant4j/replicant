@@ -1,12 +1,11 @@
 package replicant.messages;
 
-import akasha.core.JsObject;
-import akasha.lang.JsArray;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
+import jsinterop.base.JsArrayLike;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -32,8 +31,13 @@ public interface DatasetCacheVersionsData {
      */
     @JsOverlay
     default String[] datasetAddresses() {
-        final JsArray<String> keys = JsObject.keys(this);
-        return keys.asArray(new String[keys.length]);
+        final JsArrayLike<String> keys = BrowserObject.keys(this);
+        final int length = keys.getLength();
+        final String[] datasetAddresses = new String[length];
+        for (int i = 0; i < length; i++) {
+            datasetAddresses[i] = keys.getAt(i);
+        }
+        return datasetAddresses;
     }
 
     @NonNull

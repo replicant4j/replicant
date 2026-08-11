@@ -1,6 +1,8 @@
 package replicant.spy.tools;
 
-import akasha.Console;
+import jsinterop.annotations.JsMethod;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import replicant.AreaOfInterest;
 import replicant.FilterParameterUtil;
@@ -441,11 +443,22 @@ public class ConsoleSpyEventProcessor extends AbstractSpyEventProcessor {
      * @param styling the styling parameter. It is assumed that the message has a %c somewhere in it to identify the start of the styling.
      */
     protected void log(@NonNull final String message, @CssRules @NonNull final String styling) {
-        Console.log(message, styling);
+        BrowserConsole.log(message, styling);
     }
 
     @Override
     protected void handleUnhandledEvent(@NonNull final Object event) {
-        Console.log(event);
+        BrowserConsole.log(event);
+    }
+
+    @JsType(isNative = true, name = "globalThis.console", namespace = JsPackage.GLOBAL)
+    private static final class BrowserConsole {
+        @JsMethod
+        static native void log(Object message);
+
+        @JsMethod
+        static native void log(Object message, Object styling);
+
+        private BrowserConsole() {}
     }
 }

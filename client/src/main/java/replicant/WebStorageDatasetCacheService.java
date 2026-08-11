@@ -1,12 +1,11 @@
 package replicant;
 
-import akasha.Storage;
-import akasha.WindowGlobal;
-import akasha.core.JSON;
-import akasha.core.JsObject;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
+import jsinterop.annotations.JsType;
 import jsinterop.base.Js;
 import jsinterop.base.JsPropertyMap;
 import org.jspecify.annotations.NonNull;
@@ -23,12 +22,12 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     static final String DATASET_CACHE_VERSION_INDEX = "REPLICANT_DATASET_CACHE_VERSION_INDEX";
 
     @NonNull
-    private final Storage _storage;
+    private final BrowserStorage _storage;
 
     /**
      * Install the Dataset Cache Service into the default Replicant Context where persistence occurs in storage
      * attached to the root window.
-     * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+     * The <code>localStorage</code> of window will be used.
      */
     public static void install() {
         install(Replicant.context());
@@ -37,26 +36,16 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     /**
      * Install a distinct Dataset Cache Service into the specified Replicant Context where persistence occurs in
      * storage attached to the root window.
-     * The <code>localStorage</code> of window will be used if present, else the <code>sessionStorage</code> will be used.
+     * The <code>localStorage</code> of window will be used.
      *
      * @param context the Replicant Context that owns the service association.
      */
     public static void install(@NonNull final ReplicantContext context) {
-        install(context, WindowGlobal.localStorage());
+        Objects.requireNonNull(context)
+                .setDatasetCacheService(new WebStorageDatasetCacheService(BrowserGlobal.localStorage()));
     }
 
-    /**
-     * Install a distinct Dataset Cache Service into the specified Replicant Context where persistence occurs in the
-     * specified storage.
-     *
-     * @param context the Replicant Context that owns the service association.
-     * @param storage the storage used for Dataset Cache Entries.
-     */
-    public static void install(@NonNull final ReplicantContext context, @NonNull final Storage storage) {
-        Objects.requireNonNull(context).setDatasetCacheService(new WebStorageDatasetCacheService(storage));
-    }
-
-    WebStorageDatasetCacheService(@NonNull final Storage storage) {
+    WebStorageDatasetCacheService(@NonNull final BrowserStorage storage) {
         _storage = Objects.requireNonNull(storage);
     }
 
@@ -102,7 +91,10 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
             final JsPropertyMap<String> index = getIndex(systemSchemaId);
             index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
             saveIndex(systemSchemaId, index);
-            getStorage().setItem(datasetAddress.getDatasetCacheEntryStorageKey(), JSON.stringify(changeSet));
+            getStorage()
+                    .setItem(
+                            datasetAddress.getDatasetCacheEntryStorageKey(),
+                            BrowserJson.stringify(Js.asAny(changeSet)));
             return true;
         } catch (final Throwable e) {
             // This exception can occur when storage is full
@@ -112,12 +104,12 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     }
 
     private void saveIndex(final int systemSchemaId, @NonNull final JsPropertyMap<String> index) {
-        final Storage storage = getStorage();
+        final BrowserStorage storage = getStorage();
         final String key = indexKey(systemSchemaId);
-        if (0 == JsObject.keys(index).length) {
+        if (0 == BrowserObject.keys(index).getLength()) {
             storage.removeItem(key);
         } else {
-            storage.setItem(key, JSON.stringify(index));
+            storage.setItem(key, BrowserJson.stringify(Js.asAny(index)));
         }
     }
 
@@ -138,7 +130,7 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     }
 
     @NonNull
-    Storage getStorage() {
+    BrowserStorage getStorage() {
         return _storage;
     }
 
@@ -151,11 +143,30 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
     @Nullable
     private JsPropertyMap<String> findIndex(final int systemSchemaId) {
         final String indexData = _storage.getItem(indexKey(systemSchemaId));
-        return null == indexData ? null : Js.uncheckedCast(JSON.parse(indexData));
+        return null == indexData ? null : Js.uncheckedCast(BrowserJson.parse(indexData));
     }
 
     @NonNull
     private String indexKey(final int systemSchemaId) {
         return DATASET_CACHE_VERSION_INDEX + '-' + systemSchemaId;
+    }
+
+    @JsType(isNative = true, name = "globalThis", namespace = JsPackage.GLOBAL)
+    private static final class BrowserGlobal {
+        @NonNull
+        @JsProperty(name = "localStorage")
+        static native BrowserStorage localStorage();
+
+        private BrowserGlobal() {}
+    }
+
+    @JsType(isNative = true, name = "Storage", namespace = JsPackage.GLOBAL)
+    static final class BrowserStorage {
+        @Nullable
+        native String getItem(String key);
+
+        native void setItem(String key, String value);
+
+        native void removeItem(String key);
     }
 }

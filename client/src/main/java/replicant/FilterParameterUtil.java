@@ -1,7 +1,7 @@
 package replicant;
 
-import akasha.core.JSON;
 import java.util.Objects;
+import jsinterop.base.Js;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -37,7 +37,7 @@ public final class FilterParameterUtil {
 
         @NonNull
         String filterParameterToString(@Nullable final Object filterParameter) {
-            return null == filterParameter ? "" : JSON.stringify(filterParameter);
+            return null == filterParameter ? "" : BrowserJson.stringify(Js.asAny(filterParameter));
         }
     }
 
