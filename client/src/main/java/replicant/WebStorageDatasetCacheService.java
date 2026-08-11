@@ -13,8 +13,7 @@ import org.jspecify.annotations.Nullable;
 import replicant.messages.ChangeSetMessage;
 
 /**
- * An implementation of the Dataset Cache Service that uses LocalStorage or SessionStorage.
- * The implementation will preferentially use local storage and then session storage.
+ * An implementation of the Dataset Cache Service that uses local storage.
  */
 @SuppressWarnings({"unused", "ClassCanBeRecord"})
 public final class WebStorageDatasetCacheService implements DatasetCacheService {

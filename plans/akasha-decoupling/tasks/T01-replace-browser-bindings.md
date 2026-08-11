@@ -43,4 +43,6 @@ two supported install methods retain local-storage-only behavior.
 - `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke` — passed after the test-only linker was added.
 - Optimized-output audit found retained `WebSocket`, `localStorage`, `visibilityState`, `globalThis.console`, `JSON`, and
   `Object.keys` references.
+- Implementation review round 1 found and prompted correction of the remaining class-level session-storage fallback
+  claim; all web-storage Javadoc now describes local-storage-only behavior.
 - `tools/java_format.sh check`, `git diff --check`, and task diff inspection — passed; no unrelated changes found.

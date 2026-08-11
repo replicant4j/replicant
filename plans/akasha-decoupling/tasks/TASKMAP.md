@@ -5,13 +5,13 @@
 - Current frontier: `none`
 - Planning reviewer: `/root/planning_reviewer` (`2/3` rounds; passed with `Findings: none`)
 - Human approval: `approved 2026-08-11; user said "proceed" after reviewing the passed plan`
-- Implementation reviewer: `pending` (`0/5` rounds)
+- Implementation reviewer: `/root/implementation_reviewer` (`1/5` rounds; one P2 Javadoc finding corrected and awaiting re-review)
 
 ## Full-scope validation
 
 - Gate: `tools/check.sh`
-- Evidence: `tools/check.sh` passed on 2026-08-11 after the orphaned J2CL import correction; 283 build targets,
-  optimized J2CL, 3 GWT variants, 98 repository tests, and 3 release-version tests passed.
+- Evidence: `tools/check.sh` passed again on 2026-08-11 after the implementation-review Javadoc correction; 283
+  build targets, optimized J2CL, 3 GWT variants, 98 repository tests, and 3 release-version tests passed.
 
 ## Tasks
 

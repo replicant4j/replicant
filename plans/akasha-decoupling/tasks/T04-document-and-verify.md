@@ -36,8 +36,8 @@ contains no active Akasha/React4j coupling or temporary delivery artifacts outsi
   built and contained no Akasha/React4j publication surface.
 - First `tools/check.sh` run exposed the orphaned manual `javaemul_internal_annotations-j2cl` import after dependency
   regeneration. The import was removed and committed with T02 evidence.
-- Final `tools/check.sh` — passed: 283 build targets analyzed/built, optimized J2CL and all GWT assets built, 98 tests
-  passed, and all 3 release-version tests passed.
+- Final `tools/check.sh` — passed again after the implementation-review Javadoc correction: 283 build targets
+  analyzed/built, optimized J2CL and all GWT assets built, 98 tests passed, and all 3 release-version tests passed.
 - Domain-modeling promotion audit — no promotion required: browser bindings and dependency choice are implementation
   concerns; observable caching/reconnection specifications and glossary-owned language are unchanged; no ADR or
   deferred-question directory exists.
