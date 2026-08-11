@@ -823,11 +823,6 @@ _java_import(
 # --- depgen-generated targets end ---
 
 j2cl_import(
-    name = "javaemul_internal_annotations-j2cl",
-    jar = ":javaemul_internal_annotations",
-)
-
-j2cl_import(
     name = "javax_annotation-j2cl",
     jar = ":javax_annotation",
 )

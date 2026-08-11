@@ -42,4 +42,6 @@ J2CL, dependency input/generated output, release, and publication wiring contain
 - Generated client POM and client main/source jar audits found no Akasha or React4j coordinate, module, or class.
 - Active configuration audit found no Akasha/React4j reference in `MODULE.bazel`, dependency input/generated targets,
   client targets, or release configuration. Remaining Akasha references are confined to the rewrite removed by `T03`.
+- Final `//...` analysis exposed and prompted removal of the orphaned manual `javaemul_internal_annotations-j2cl`
+  import after its Akasha/React4j-backed JVM target disappeared.
 - `git diff --check` and task diff inspection — passed; generated and hand-authored removals match the task scope.
