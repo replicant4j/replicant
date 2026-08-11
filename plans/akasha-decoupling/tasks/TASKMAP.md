@@ -5,7 +5,8 @@
 - Current frontier: `none`
 - Planning reviewer: `/root/planning_reviewer` (`2/3` rounds; passed with `Findings: none`)
 - Human approval: `approved 2026-08-11; user said "proceed" after reviewing the passed plan`
-- Implementation reviewer: `/root/implementation_reviewer` (`1/5` rounds; one P2 Javadoc finding corrected and awaiting re-review)
+- Implementation reviewer: `/root/implementation_reviewer` (`2/5` rounds; passed with `Findings: none` after correcting
+  the round-1 P2 Javadoc finding)
 
 ## Full-scope validation
 
