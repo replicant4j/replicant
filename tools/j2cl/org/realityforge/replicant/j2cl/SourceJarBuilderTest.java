@@ -26,22 +26,11 @@ public final class SourceJarBuilderTest {
                     Map.of(
                             "com/example/Example.java",
                             "package com.example;\n// J2CL_ONLY import jsinterop.annotations.JsMethod;\n",
-                            "akasha/WindowGlobal.java",
-                            """
-                            package akasha;
-                            import jsinterop.annotations.JsMethod;
-                            @JsType(
-                                isNative = true,
-                                namespace = "<window>",
-                                name = "$wnd"
-                            )
-                            public final class WindowGlobal {}
-                            """,
                             "org/jspecify/annotations/Nullable.java",
                             "package org.jspecify.annotations;\n"));
 
-            SourceJarBuilder.build(input, first, true, true, List.of("org/jspecify/annotations/"));
-            SourceJarBuilder.build(input, second, true, true, List.of("org/jspecify/annotations/"));
+            SourceJarBuilder.build(input, first, true, List.of("org/jspecify/annotations/"));
+            SourceJarBuilder.build(input, second, true, List.of("org/jspecify/annotations/"));
 
             assertEquals(Files.readAllBytes(first), Files.readAllBytes(second), "deterministic output");
             try (JarFile jar = new JarFile(first.toFile())) {
@@ -49,17 +38,6 @@ public final class SourceJarBuilderTest {
                         "package com.example;\nimport jsinterop.annotations.JsMethod;\n",
                         read(jar, "com/example/Example.java"),
                         "activated source");
-                assertEquals("""
-                    package akasha;
-                    import jsinterop.annotations.JsMethod;
-                    import jsinterop.annotations.JsPackage;
-                    @JsType(
-                        isNative = true,
-                        namespace = JsPackage.GLOBAL,
-                        name = "window"
-                    )
-                    public final class WindowGlobal {}
-                    """, read(jar, "akasha/WindowGlobal.java"), "Akasha window global");
                 if (jar.getJarEntry("org/jspecify/annotations/Nullable.java") != null) {
                     throw new AssertionError("Excluded source remains in output");
                 }

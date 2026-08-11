@@ -5,8 +5,6 @@ def _j2cl_source_jar_impl(ctx):
     args.add("--output", output)
     if ctx.attr.activate_j2cl_only:
         args.add("--activate-j2cl-only")
-    if ctx.attr.rewrite_akasha_window_global:
-        args.add("--rewrite-akasha-window-global")
     for prefix in ctx.attr.exclude_prefixes:
         args.add("--exclude-prefix", prefix)
 
@@ -25,7 +23,6 @@ j2cl_source_jar = rule(
     attrs = {
         "activate_j2cl_only": attr.bool(),
         "exclude_prefixes": attr.string_list(),
-        "rewrite_akasha_window_global": attr.bool(),
         "src": attr.label(
             allow_single_file = [".jar"],
             mandatory = True,

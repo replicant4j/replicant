@@ -2,7 +2,7 @@
 
 - Spec: [`SPEC.md`](../SPEC.md)
 - Status: `implementing`
-- Current frontier: `T03`
+- Current frontier: `T04`
 - Planning reviewer: `/root/planning_reviewer` (`2/3` rounds; passed with `Findings: none`)
 - Human approval: `approved 2026-08-11; user said "proceed" after reviewing the passed plan`
 - Implementation reviewer: `pending` (`0/5` rounds)
@@ -18,7 +18,7 @@
 | --- | --- | --- | --- |
 | `T01` | [`Replace Akasha browser bindings`](T01-replace-browser-bindings.md) | `complete` | None |
 | `T02` | [`Remove React4j and dependency wiring`](T02-remove-react4j-and-dependencies.md) | `complete` | `T01` |
-| `T03` | [`Remove Akasha source rewrite`](T03-remove-akasha-rewrite.md) | `pending` | `T02` |
+| `T03` | [`Remove Akasha source rewrite`](T03-remove-akasha-rewrite.md) | `complete` | `T02` |
 | `T04` | [`Document and verify the hard cut`](T04-document-and-verify.md) | `pending` | `T03` |
 
 ## Sequencing notes
