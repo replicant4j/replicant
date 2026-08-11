@@ -50,6 +50,12 @@ addSystemPropertyFromGoogDefine(
 const logger = goog.define('replicant.logger', 'console');
 addSystemPropertyFromGoogDefine('replicant.logger', logger);
 
+/** @define {string} */
+const useDocumentVisibility =
+    goog.define('replicant.use_document_visibility', 'true');
+addSystemPropertyFromGoogDefine(
+    'replicant.use_document_visibility', useDocumentVisibility);
+
 exports = {
   check_api_invariants: checkApiInvariants,
   check_invariants: checkInvariants,
@@ -58,6 +64,7 @@ exports = {
   enable_zones: enableZones,
   environment,
   logger,
+  use_document_visibility: useDocumentVisibility,
   validate_change_set_on_read: validateChangeSetOnRead,
   validate_replicas_after_message_processing:
       validateReplicasAfterMessageProcessing,

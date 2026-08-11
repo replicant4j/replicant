@@ -34,4 +34,7 @@
 
   <define-property name='replicant.logger' values='console,proxy,none'/>
   <set-property name='replicant.logger' value='console'/>
+
+  <define-property name='replicant.use_document_visibility' values='true,false'/>
+  <set-property name='replicant.use_document_visibility' value='true'/>
 </module>

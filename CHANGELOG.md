@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Add the `replicant.use_document_visibility` compile-time setting so non-browser clients can process messages without
+  accessing the browser document.
 * Replace Akasha browser bindings with narrow Replicant-owned JsInterop types and remove Akasha from the client build
   and publication graph. Remove `WebStorageDatasetCacheService.install(ReplicantContext, Storage)` as a hard-cut client
   API change with no compatibility alias.

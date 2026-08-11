@@ -66,7 +66,7 @@ final class TransportContextImpl implements TransportContext, Disposable {
     }
 
     private static boolean shouldProcessImmediatelyOnReceive() {
-        return ReplicantConfig.isJvm() || !"visible".equals(BrowserDocument.visibilityState());
+        return !ReplicantConfig.shouldUseDocumentVisibility() || !"visible".equals(BrowserDocument.visibilityState());
     }
 
     @JsType(isNative = true, name = "globalThis.document", namespace = JsPackage.GLOBAL)

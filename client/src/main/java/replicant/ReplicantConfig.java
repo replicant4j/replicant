@@ -12,7 +12,6 @@ final class ReplicantConfig {
     @NonNull
     private static final ConfigProvider PROVIDER = new ConfigProvider();
 
-    private static final boolean JVM = PROVIDER.isJvm();
     private static boolean PRODUCTION_MODE = PROVIDER.isProductionMode();
     private static boolean CHECK_INVARIANTS = PROVIDER.checkInvariants();
     private static boolean CHECK_API_INVARIANTS = PROVIDER.checkApiInvariants();
@@ -22,6 +21,7 @@ final class ReplicantConfig {
     private static boolean VALIDATE_REPLICAS_AFTER_MESSAGE_PROCESSING =
             PROVIDER.validateReplicasAfterMessageProcessing();
     private static boolean ENABLE_SPIES = PROVIDER.enableSpies();
+    private static final boolean USE_DOCUMENT_VISIBILITY = PROVIDER.useDocumentVisibility();
 
     @NonNull
     private static final String LOGGER_TYPE = PROVIDER.loggerType();
@@ -92,8 +92,8 @@ final class ReplicantConfig {
         return LOGGER_TYPE;
     }
 
-    static boolean isJvm() {
-        return JVM;
+    static boolean shouldUseDocumentVisibility() {
+        return USE_DOCUMENT_VISIBILITY;
     }
 
     private static final class ConfigProvider extends AbstractConfigProvider {
@@ -159,8 +159,8 @@ final class ReplicantConfig {
 
         @GwtIncompatible
         @Override
-        boolean isJvm() {
-            return true;
+        boolean useDocumentVisibility() {
+            return "true".equals(System.getProperty("replicant.use_document_visibility", "false"));
         }
     }
 
@@ -206,8 +206,8 @@ final class ReplicantConfig {
             return System.getProperty("replicant.logger");
         }
 
-        boolean isJvm() {
-            return false;
+        boolean useDocumentVisibility() {
+            return "true" == System.getProperty("replicant.use_document_visibility");
         }
     }
 }
