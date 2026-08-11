@@ -1,8 +1,8 @@
 # Task Map
 
 - Spec: [`SPEC.md`](../SPEC.md)
-- Status: `implementing`
-- Current frontier: `T04`
+- Status: `implementation-review`
+- Current frontier: `none`
 - Planning reviewer: `/root/planning_reviewer` (`2/3` rounds; passed with `Findings: none`)
 - Human approval: `approved 2026-08-11; user said "proceed" after reviewing the passed plan`
 - Implementation reviewer: `pending` (`0/5` rounds)
@@ -10,7 +10,8 @@
 ## Full-scope validation
 
 - Gate: `tools/check.sh`
-- Evidence: `pending`
+- Evidence: `tools/check.sh` passed on 2026-08-11 after the orphaned J2CL import correction; 283 build targets,
+  optimized J2CL, 3 GWT variants, 98 repository tests, and 3 release-version tests passed.
 
 ## Tasks
 
@@ -19,7 +20,7 @@
 | `T01` | [`Replace Akasha browser bindings`](T01-replace-browser-bindings.md) | `complete` | None |
 | `T02` | [`Remove React4j and dependency wiring`](T02-remove-react4j-and-dependencies.md) | `complete` | `T01` |
 | `T03` | [`Remove Akasha source rewrite`](T03-remove-akasha-rewrite.md) | `complete` | `T02` |
-| `T04` | [`Document and verify the hard cut`](T04-document-and-verify.md) | `pending` | `T03` |
+| `T04` | [`Document and verify the hard cut`](T04-document-and-verify.md) | `complete` | `T03` |
 
 ## Sequencing notes
 
@@ -30,4 +31,5 @@
 
 ## Promoted knowledge
 
-- `not-required`
+- `not-required` — domain-modeling classification found only implementation/build choices and migration history;
+  existing glossary and observable caching/reconnection specifications remain unchanged.

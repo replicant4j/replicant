@@ -2,6 +2,11 @@
 
 ### Unreleased
 
+* Replace Akasha browser bindings with narrow Replicant-owned JsInterop types and remove Akasha from the client build
+  and publication graph. Remove `WebStorageDatasetCacheService.install(ReplicantContext, Storage)` as a hard-cut client
+  API change with no compatibility alias.
+* Remove the legacy `AreaOfInterestView` React4j adapter, its GWT module, and the React4j client dependency. This is a
+  hard-cut client API removal with no compatibility alias.
 * Upgrade bazel-depgen to version `0.29`.
 * Update the `org.realityforge.zemeckis` artifact to version `0.18`.
 * Fix Message Processing so Orphaned Subscription removal runs once after Replica update actions and before Replica

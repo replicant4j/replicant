@@ -1,6 +1,6 @@
 # T04 — Document and verify the hard cut
 
-- Status: `pending`
+- Status: `complete`
 - Blocked by: `T03`
 - Spec coverage: `R1`, `R2`, `R3`, `R4`, `R5`, `R6`, `R7`; `AC1`, `AC2`, `AC3`, `AC4`, `AC5`, `AC6`, `AC7`
 
@@ -11,12 +11,12 @@ contains no active Akasha/React4j coupling or temporary delivery artifacts outsi
 
 ## Acceptance criteria
 
-- [ ] The current changelog records removal of the Akasha storage overload and React4j adapter without altering
+- [x] The current changelog records removal of the Akasha storage overload and React4j adapter without altering
       historical entries.
-- [ ] Active-reference audits find no maintained Akasha coupling, React4j integration, or Akasha rewrite.
-- [ ] Focused JVM, J2CL, GWT, source-builder, dependency, release, and formatting gates pass.
-- [ ] `tools/check.sh` passes.
-- [ ] The final implementation diff is intentional and contains no scratch/debugging output.
+- [x] Active-reference audits find no maintained Akasha coupling, React4j integration, or Akasha rewrite.
+- [x] Focused JVM, J2CL, GWT, source-builder, dependency, release, and formatting gates pass.
+- [x] `tools/check.sh` passes.
+- [x] The final implementation diff is intentional and contains no scratch/debugging output.
 
 ## Validation
 
@@ -28,4 +28,18 @@ contains no active Akasha/React4j coupling or temporary delivery artifacts outsi
 
 ## Evidence
 
-- `pending`
+- Current `CHANGELOG.md` contains distinct hard-cut entries for the Akasha storage overload and React4j adapter; prior
+  historical entries remain unchanged.
+- Repository-wide active-reference audit excluding `CHANGELOG.md` and the exact temporary plan tree — no matches.
+- Focused task evidence: client compile and 3 affected JVM tests passed; optimized J2CL output retained all six browser
+  surfaces; three GWT modules compiled; source-jar builder and dependency checksum tests passed; eight Maven artifacts
+  built and contained no Akasha/React4j publication surface.
+- First `tools/check.sh` run exposed the orphaned manual `javaemul_internal_annotations-j2cl` import after dependency
+  regeneration. The import was removed and committed with T02 evidence.
+- Final `tools/check.sh` — passed: 283 build targets analyzed/built, optimized J2CL and all GWT assets built, 98 tests
+  passed, and all 3 release-version tests passed.
+- Domain-modeling promotion audit — no promotion required: browser bindings and dependency choice are implementation
+  concerns; observable caching/reconnection specifications and glossary-owned language are unchanged; no ADR or
+  deferred-question directory exists.
+- `git diff --check`, final task diff/stat, and worktree status inspection — passed; only changelog and active plan-state
+  files remained before the task commit.
