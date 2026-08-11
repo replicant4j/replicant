@@ -114,7 +114,6 @@ _JAVA_JAVACOPTS = [
     "-Aarez.warnings_as_errors=true",
     "-Aarez.persist.warnings_as_errors=true",
     "-Asting.warnings_as_errors=true",
-    "-Areact4j.warnings_as_errors=true",
     "-Xlint:all,-processing,-serial,-path,-options,-classfile,-this-escape",
 ] + _ERROR_PRONE_JAVACOPTS
 

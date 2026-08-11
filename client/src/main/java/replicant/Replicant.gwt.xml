@@ -3,8 +3,6 @@
   <inherits name='org.realityforge.braincheck.BrainCheck'/>
   <inherits name='zemeckis.Zemeckis'/>
 
-  <inherits name='akasha.Akasha'/>
-
   <source path='' includes='*.java'/>
   <source path='events'/>
   <source path='messages'/>

@@ -44,7 +44,7 @@ public abstract class AreaOfInterest extends ReplicantService {
 
     private boolean _invalidated;
     /**
-     * The React4j adapter uses reference counting to determine whether an AreaOfInterest is still of interest.
+     * Reference counting determines whether an AreaOfInterest is still of interest.
      * The assumption is that after the refCount reaches 0 then it is likely that there is no longer any interest
      * and it can be disposed.
      */

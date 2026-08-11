@@ -74,18 +74,9 @@ gwt_compile(
     deps = ["//client/src/test/java/replicant/gwt:smoke"],
 )
 
-gwt_compile(
-    name = "react4j_gwt_assets",
-    compiler_args = GWT_COMPILER_ARGS,
-    modules = ["replicant.gwt.React4jSmoke"],
-    tool_deps = GWT_TOOL_DEPS,
-    deps = ["//client/src/test/java/replicant/gwt:smoke"],
-)
-
 filegroup(
     name = "all_gwt_assets",
     srcs = [
-        ":react4j_gwt_assets",
         ":replicant_debug_gwt_assets",
         ":replicant_dev_gwt_assets",
         ":replicant_gwt_assets",

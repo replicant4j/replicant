@@ -1,6 +1,0 @@
-<module>
-  <inherits name='replicant.Replicant'/>
-  <inherits name='react4j.React'/>
-
-  <source path=''/>
-</module>

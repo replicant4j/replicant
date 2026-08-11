@@ -78,13 +78,11 @@ release_source_jar(
         "replicant/Replicant.gwt.xml",
         "replicant/ReplicantDebug.gwt.xml",
         "replicant/ReplicantDev.gwt.xml",
-        "replicant/react4j/React4j.gwt.xml",
     ],
     resource_files = [
         "//client/src/main/java/replicant:Replicant.gwt.xml",
         "//client/src/main/java/replicant:ReplicantDebug.gwt.xml",
         "//client/src/main/java/replicant:ReplicantDev.gwt.xml",
-        "//client/src/main/java/replicant:react4j/React4j.gwt.xml",
     ],
 )
 
@@ -92,7 +90,6 @@ release_javadoc_jar(
     name = "replicant_client_javadoc_jar",
     out = "replicant-client-javadoc.jar",
     classpath = [
-        "//third_party/java:akasha_gwt",
         "//third_party/java:arez_core",
         "//third_party/java:base",
         "//third_party/java:braincheck_core",
@@ -102,7 +99,6 @@ release_javadoc_jar(
         "//third_party/java:jsinterop_annotations",
         "//third_party/java:jspecify",
         "//third_party/java:org_jetbrains_annotations",
-        "//third_party/java:react4j_core",
         "//third_party/java:zemeckis_core",
     ],
     java_targets = [
@@ -117,8 +113,6 @@ release_pom(
     artifact_id = "replicant-client",
     dependencies = [
         "org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0",
-        "org.realityforge.akasha:akasha-gwt:0.34",
-        "org.realityforge.react4j:react4j-core:0.228",
         "org.realityforge.arez:arez-core:0.255",
         "org.realityforge.grim:grim-annotations:0.09",
         "org.realityforge.zemeckis:zemeckis-core:0.18",

@@ -29,24 +29,12 @@ alias(
     actual = ":grim_processor__grim_processor_grimprocessor__plugin",
 )
 
-java_library(
-    name = "react4j",
-    exports = [
-        ":react4j_core",
-    ],
-)
-
-alias(
-    name = "react4j_processor_plugin",
-    actual = ":react4j_processor__react4j_processor_react4jprocessor__plugin",
-)
-
 # --- depgen-generated targets start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.29
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "48E893FC09343A980F966CC7724F936AAFC77F939B36FAF3DDDFFA8915DA3ECC"
+_CONFIG_SHA256 = "55A127390590077D2AB7D4449D8386B186382405E281E87D700657760B845403"
 
 exports_files(["dependencies.yml"])
 
@@ -129,27 +117,9 @@ exports_files(["dependencies.yml"])
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
 # |  \- org.realityforge.arez:arez-core:jar:0.255 [compile]
-# +- org.realityforge.react4j:react4j-core:jar:0.228 [compile]
-# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
-# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
-# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.33.0 [compile] (conflicts with 1.35.0)
-# |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# |  +- org.realityforge.zemeckis:zemeckis-core:jar:0.14 [compile] (conflicts with 0.18)
-# |  +- org.realityforge.arez:arez-core:jar:0.251 [compile] (conflicts with 0.255)
-# |  +- org.realityforge.akasha:akasha-gwt:jar:0.33 [compile] (conflicts with 0.34)
-# |  \- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
-# +- org.realityforge.react4j:react4j-processor:jar:0.228 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.akasha:akasha-gwt:jar:0.34 [compile]
-# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
-# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# |  +- org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:jar:0.01 [compile]
-# |  \- com.google.jsinterop:base:jar:1.0.0 [compile]
 # +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
 # |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
@@ -656,20 +626,6 @@ _java_import(
 )
 
 _java_import(
-    name = "akasha_gwt",
-    jars = ["@akasha_gwt//file"],
-    srcjar = "@akasha_gwt__sources//file",
-    tags = ["maven_coordinates=org.realityforge.akasha:akasha-gwt:0.34"],
-    deps = [
-        ":base",
-        ":javaemul_internal_annotations",
-        ":javax_annotation",
-        ":jsinterop_annotations",
-        ":org_jetbrains_annotations",
-    ],
-)
-
-_java_import(
     name = "arez_core",
     jars = ["@arez_core//file"],
     srcjar = "@arez_core__sources//file",
@@ -781,14 +737,6 @@ _java_library(
 )
 
 _java_import(
-    name = "javaemul_internal_annotations",
-    jars = ["@javaemul_internal_annotations//file"],
-    srcjar = "@javaemul_internal_annotations__sources//file",
-    tags = ["maven_coordinates=org.realityforge.javaemul.internal.annotations:javaemul.internal.annotations:0.01"],
-    visibility = ["//visibility:private"],
-)
-
-_java_import(
     name = "javax_annotation",
     jars = ["@javax_annotation//file"],
     srcjar = "@javax_annotation__sources//file",
@@ -807,45 +755,6 @@ _java_import(
     jars = ["@org_jetbrains_annotations//file"],
     srcjar = "@org_jetbrains_annotations__sources//file",
     tags = ["maven_coordinates=org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0"],
-)
-
-_java_import(
-    name = "react4j_core",
-    jars = ["@react4j_core//file"],
-    srcjar = "@react4j_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-core:0.228"],
-    deps = [
-        ":akasha_gwt",
-        ":arez_core",
-        ":base",
-        ":braincheck_core",
-        ":grim_annotations",
-        ":javaemul_internal_annotations",
-        ":javax_annotation",
-        ":jsinterop_annotations",
-        ":org_jetbrains_annotations",
-        ":zemeckis_core",
-    ],
-)
-
-_java_import(
-    name = "react4j_processor__plugin_library",
-    jars = ["@react4j_processor//file"],
-    srcjar = "@react4j_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.react4j:react4j-processor:0.228"],
-)
-
-_java_plugin(
-    name = "react4j_processor__react4j_processor_react4jprocessor__plugin",
-    generates_api = True,
-    processor_class = "react4j.processor.React4jProcessor",
-    visibility = ["//visibility:private"],
-    deps = [":react4j_processor__plugin_library"],
-)
-
-_java_library(
-    name = "react4j_processor",
-    exported_plugins = ["react4j_processor__react4j_processor_react4jprocessor__plugin"],
 )
 
 _java_import(
@@ -966,24 +875,6 @@ j2cl_library(
     ],
 )
 
-j2cl_source_jar(
-    name = "akasha_gwt_j2cl_sources",
-    src = "@akasha_gwt__sources//file",
-    rewrite_akasha_window_global = True,
-)
-
-j2cl_library(
-    name = "akasha_gwt-j2cl",
-    srcs = [":akasha_gwt_j2cl_sources"],
-    deps = [
-        ":base-j2cl",
-        ":javaemul_internal_annotations-j2cl",
-        ":javax_annotation-j2cl",
-        ":jsinterop_annotations-j2cl",
-        ":org_jetbrains_annotations-j2cl",
-    ],
-)
-
 j2cl_library(
     name = "arez_core-j2cl",
     srcs = [":arez_core_j2cl_sources"],
@@ -1015,22 +906,5 @@ j2cl_library(
         ":jsinterop_annotations-j2cl",
         ":jspecify-j2cl",
         ":org_jetbrains_annotations-j2cl",
-    ],
-)
-
-j2cl_library(
-    name = "react4j_core-j2cl",
-    srcs = ["@react4j_core__sources//file"],
-    deps = [
-        ":akasha_gwt-j2cl",
-        ":arez_core-j2cl",
-        ":base-j2cl",
-        ":braincheck_core-j2cl",
-        ":grim_annotations-j2cl",
-        ":javaemul_internal_annotations-j2cl",
-        ":javax_annotation-j2cl",
-        ":jsinterop_annotations-j2cl",
-        ":org_jetbrains_annotations-j2cl",
-        ":zemeckis_core-j2cl",
     ],
 )

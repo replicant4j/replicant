@@ -188,12 +188,8 @@ artifacts:
   - coord: org.realityforge.arez:arez-processor:0.255
   - coord: org.realityforge.arez:arez-extras-testng:0.255
 
-  - coord: org.realityforge.react4j:react4j-core:0.228
-  - coord: org.realityforge.react4j:react4j-processor:0.228
-
   - coord: com.google.jsinterop:jsinterop-annotations:2.1.0
   - coord: com.google.jsinterop:base:1.0.0
-  - coord: org.realityforge.akasha:akasha-gwt:0.34
 
   - coord: org.realityforge.braincheck:braincheck-core:1.35.0
   - coord: org.realityforge.braincheck:braincheck-testng:1.35.0

@@ -55,7 +55,7 @@ signed Maven Central bundle with `tools/package_maven_central.sh <version>` and 
 [`tools/release/README.md`](tools/release/README.md) for the complete release and recovery workflow.
 
 The full client and shared graph, including generated Arez sources, is permanently verified with an optimized J2CL
-link and real GWT 2.13.1 compiler builds for Replicant, ReplicantDev, ReplicantDebug, and React4j.
+link and real GWT 2.13.1 compiler builds for Replicant, ReplicantDev, and ReplicantDebug.
 
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly

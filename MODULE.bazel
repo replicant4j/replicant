@@ -690,20 +690,6 @@ _http_file(
 )
 
 _http_file(
-    name = "akasha_gwt",
-    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34.jar",
-    sha256 = "94b8d1b5a9f6098be93a36d5d28221c8df1c74582a59e267824f7c053b3cb66b",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34.jar"],
-)
-
-_http_file(
-    name = "akasha_gwt__sources",
-    downloaded_file_path = "org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34-sources.jar",
-    sha256 = "5332850b4daaf4f4fff239fd70dc281c57c31df242cc055738f223e9070c222c",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/akasha/akasha-gwt/0.34/akasha-gwt-0.34-sources.jar"],
-)
-
-_http_file(
     name = "arez_core",
     downloaded_file_path = "org/realityforge/arez/arez-core/0.255/arez-core-0.255.jar",
     sha256 = "d403dbc8012f85d0f7e01132f495573e916857d6af88fda4ce2625985522752a",
@@ -809,20 +795,6 @@ _http_file(
 )
 
 _http_file(
-    name = "javaemul_internal_annotations",
-    downloaded_file_path = "org/realityforge/javaemul/internal/annotations/javaemul.internal.annotations/0.01/javaemul.internal.annotations-0.01.jar",
-    sha256 = "220413df4d2e0e606d8d89d4c0694649cad68267815e0ed18c475cc9a4d628e5",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/javaemul/internal/annotations/javaemul.internal.annotations/0.01/javaemul.internal.annotations-0.01.jar"],
-)
-
-_http_file(
-    name = "javaemul_internal_annotations__sources",
-    downloaded_file_path = "org/realityforge/javaemul/internal/annotations/javaemul.internal.annotations/0.01/javaemul.internal.annotations-0.01-sources.jar",
-    sha256 = "0969e9b9a3fe398868826fab43754fed7817f98c168281c0f783465f798ec319",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/javaemul/internal/annotations/javaemul.internal.annotations/0.01/javaemul.internal.annotations-0.01-sources.jar"],
-)
-
-_http_file(
     name = "javax_annotation",
     downloaded_file_path = "org/realityforge/javax/annotation/javax.annotation/1.1.1/javax.annotation-1.1.1.jar",
     sha256 = "147d086711cd48670097ac626bfe1ed137786144c2a2c46b2aa1bb7292adc77b",
@@ -862,34 +834,6 @@ _http_file(
     downloaded_file_path = "org/realityforge/org/jetbrains/annotations/org.jetbrains.annotations/1.7.0/org.jetbrains.annotations-1.7.0-sources.jar",
     sha256 = "51b7fe38ce0c21d53eb236f911d109923459c5625c6e62a4d02b95c71bfaec22",
     urls = ["https://repo.maven.apache.org/maven2/org/realityforge/org/jetbrains/annotations/org.jetbrains.annotations/1.7.0/org.jetbrains.annotations-1.7.0-sources.jar"],
-)
-
-_http_file(
-    name = "react4j_core",
-    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.228/react4j-core-0.228.jar",
-    sha256 = "cbbbd869e9568363b7a44b38daf2f2d5bcd372616f17706137bf97263c037664",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.228/react4j-core-0.228.jar"],
-)
-
-_http_file(
-    name = "react4j_core__sources",
-    downloaded_file_path = "org/realityforge/react4j/react4j-core/0.228/react4j-core-0.228-sources.jar",
-    sha256 = "f33387593f0cb94125861a4778ba2e9953474ff6f14b1f0c9deea9069701d9b7",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-core/0.228/react4j-core-0.228-sources.jar"],
-)
-
-_http_file(
-    name = "react4j_processor",
-    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.228/react4j-processor-0.228.jar",
-    sha256 = "165774053b999c2fcf5fac40820cad58ccf357af3d20edf766f524def86fe60c",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.228/react4j-processor-0.228.jar"],
-)
-
-_http_file(
-    name = "react4j_processor__sources",
-    downloaded_file_path = "org/realityforge/react4j/react4j-processor/0.228/react4j-processor-0.228-sources.jar",
-    sha256 = "2faa2c837b20eaadfcf3b180cc183cae6eb2536046a4933c5d42eeb65a1c7dde",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/react4j/react4j-processor/0.228/react4j-processor-0.228-sources.jar"],
 )
 
 _http_file(

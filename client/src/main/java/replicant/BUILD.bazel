@@ -89,8 +89,6 @@ CLIENT_JAVA_SRCS = [
     "messages/UnsubscribeMessage.java",
     "messages/UseDatasetCacheEntryMessage.java",
     "messages/package-info.java",
-    "react4j/AreaOfInterestView.java",
-    "react4j/package-info.java",
     "spy/AreaOfInterestCreatedEvent.java",
     "spy/AreaOfInterestDisposedEvent.java",
     "spy/AreaOfInterestFilterParameterUpdatedEvent.java",
@@ -223,9 +221,6 @@ CLIENT_RESOURCES = [
     "messages/UnsubscribeMessage.java",
     "messages/UseDatasetCacheEntryMessage.java",
     "messages/package-info.java",
-    "react4j/React4j.gwt.xml",
-    "react4j/AreaOfInterestView.java",
-    "react4j/package-info.java",
     "spy/AreaOfInterestCreatedEvent.java",
     "spy/AreaOfInterestDisposedEvent.java",
     "spy/AreaOfInterestFilterParameterUpdatedEvent.java",
@@ -272,7 +267,6 @@ exports_files(
         "Replicant.gwt.xml",
         "ReplicantDebug.gwt.xml",
         "ReplicantDev.gwt.xml",
-        "react4j/React4j.gwt.xml",
     ],
     visibility = ["//tools/release:__pkg__"],
 )
@@ -296,7 +290,6 @@ j2cl_library(
     visibility = ["//visibility:public"],
     deps = [
         "//shared/src/main/java/replicant/shared:shared-j2cl",
-        "//third_party/java:akasha_gwt-j2cl",
         "//third_party/java:arez_core-j2cl",
         "//third_party/java:base-j2cl",
         "//third_party/java:braincheck_core-j2cl",
@@ -305,7 +298,6 @@ j2cl_library(
         "//third_party/java:jsinterop_annotations-j2cl",
         "//third_party/java:jspecify-j2cl",
         "//third_party/java:org_jetbrains_annotations-j2cl",
-        "//third_party/java:react4j_core-j2cl",
         "//third_party/java:zemeckis_core-j2cl",
     ],
 )
@@ -316,7 +308,6 @@ java_library(
     plugins = [
         "//third_party/java:arez_processor_plugin",
         "//third_party/java:grim_processor_plugin",
-        "//third_party/java:react4j_processor_plugin",
     ],
     resource_strip_prefix = "client/src/main/java",
     resources = CLIENT_RESOURCES,
@@ -326,7 +317,6 @@ java_library(
     ],
     deps = [
         "//shared:shared_lib",
-        "//third_party/java:akasha_gwt",
         "//third_party/java:arez_core",
         "//third_party/java:base",
         "//third_party/java:braincheck_core",
@@ -336,7 +326,6 @@ java_library(
         "//third_party/java:javax_annotation",
         "//third_party/java:jsinterop_annotations",
         "//third_party/java:org_jetbrains_annotations",
-        "//third_party/java:react4j_core",
         "//third_party/java:zemeckis_core",
     ],
 )

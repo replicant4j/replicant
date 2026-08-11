@@ -9,7 +9,6 @@ java_library(
         "package-info.java",
     ],
     resources = [
-        "React4jSmoke.gwt.xml",
         "ReplicantDebugSmoke.gwt.xml",
         "ReplicantDevSmoke.gwt.xml",
         "ReplicantSmoke.gwt.xml",

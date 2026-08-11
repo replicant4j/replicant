@@ -1,6 +1,6 @@
 # T02 — Remove React4j and dependency wiring
 
-- Status: `pending`
+- Status: `complete`
 - Blocked by: `T01`
 - Spec coverage: `R2`, `R4`, `R6`; `AC1`, `AC2`, `AC5`
 
@@ -11,12 +11,12 @@ J2CL, dependency input/generated output, release, and publication wiring contain
 
 ## Acceptance criteria
 
-- [ ] `AreaOfInterestView`, the React4j GWT module, and their GWT/J2CL smoke inputs are removed without removing the
+- [x] `AreaOfInterestView`, the React4j GWT module, and their GWT/J2CL smoke inputs are removed without removing the
       binding-owner linker roots added by `T01`.
-- [ ] Client targets no longer use the React4j annotation processor or depend on React4j/Akasha.
-- [ ] Java dependency inputs are regenerated so active generated Bazel/module declarations contain neither library.
-- [ ] Client source/Javadoc jars and POM contain no React4j module, Akasha classpath entry, or Akasha/React4j coordinate.
-- [ ] README build coverage describes the three remaining real GWT variants.
+- [x] Client targets no longer use the React4j annotation processor or depend on React4j/Akasha.
+- [x] Java dependency inputs are regenerated so active generated Bazel/module declarations contain neither library.
+- [x] Client source/Javadoc jars and POM contain no React4j module, Akasha classpath entry, or Akasha/React4j coordinate.
+- [x] README build coverage describes the three remaining real GWT variants.
 
 ## Validation
 
@@ -30,4 +30,16 @@ J2CL, dependency input/generated output, release, and publication wiring contain
 
 ## Evidence
 
-- `pending`
+- `tools/update_java_deps.sh` — passed; regenerated `MODULE.bazel` and the depgen section of
+  `third_party/java/BUILD.bazel` without Akasha, React4j, or their exclusive javaemul dependency.
+- `./bazelw test //third_party/java:verify_config_sha256` — passed.
+- `./bazelw run //:buildifier` and `tools/java_format.sh check` — passed.
+- `./bazelw build //client/src/test/gwt:all_gwt_assets` — passed for Replicant, ReplicantDev, and ReplicantDebug.
+- `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke` — passed with no Akasha sanitizer/transpile or
+  React4j action in the build.
+- `./bazelw build //tools/release:maven_artifacts` — all eight artifacts built successfully; pre-existing Javadoc
+  warnings remained non-fatal.
+- Generated client POM and client main/source jar audits found no Akasha or React4j coordinate, module, or class.
+- Active configuration audit found no Akasha/React4j reference in `MODULE.bazel`, dependency input/generated targets,
+  client targets, or release configuration. Remaining Akasha references are confined to the rewrite removed by `T03`.
+- `git diff --check` and task diff inspection — passed; generated and hand-authored removals match the task scope.
