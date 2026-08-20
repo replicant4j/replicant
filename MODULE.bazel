@@ -6,7 +6,7 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True
 
 bazel_dep(name = "j2cl", version = "20260724")
 bazel_dep(name = "rules_closure", version = "0.16.0")
-bazel_dep(name = "rules_java", version = "9.7.0")
+bazel_dep(name = "rules_java", version = "9.8.0")
 bazel_dep(name = "rules_jvm_external", version = "6.7")
 
 # google/j2cl master observed at this commit on 2026-07-24.

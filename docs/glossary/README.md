@@ -6,9 +6,10 @@ This glossary defines the core language for describing Replicant's entity replic
 
 ### System Schema
 
-A catalog containing each [Entity Type](#entity-type) and [Dataset](#dataset) belonging to one isolated replicated
-system. Its [System Schema ID](#system-schema-id) distinguishes that system within a
-[Replicant Context](#replicant-context).
+A catalog containing the [Entity Type](#entity-type) and [Dataset](#dataset) definitions available to one isolated
+replicated system. A client projection may reserve omitted Entity Type IDs so it preserves the system's protocol
+numbering without including every Entity Type. Its [System Schema ID](#system-schema-id) distinguishes that system
+within a [Replicant Context](#replicant-context).
 
 ### System Schema ID
 

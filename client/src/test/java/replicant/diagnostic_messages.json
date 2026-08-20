@@ -225,11 +225,6 @@
     "messagePattern": "SystemSchema.getName() invoked when Replicant.areNamesEnabled() is false"
   },
   {
-    "code": 53,
-    "type": "API_INVARIANT",
-    "messagePattern": "SystemSchema named '%s' passed an array of entity types that has a null element"
-  },
-  {
     "code": 54,
     "type": "API_INVARIANT",
     "messagePattern": "SystemSchema named '%s' passed an array of Entity Types where Entity Type at index %s does not have an Entity Type ID matching the index."
@@ -403,5 +398,10 @@
     "code": 102,
     "type": "API_INVARIANT",
     "messagePattern": "Dataset %s is keyed but is not parameter-filtered."
+  },
+  {
+    "code": 103,
+    "type": "API_INVARIANT",
+    "messagePattern": "SystemSchema.getEntityType attempted to access Entity Type ID %s but it is not present in the System Schema."
   }
 ]

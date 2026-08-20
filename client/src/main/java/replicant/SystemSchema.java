@@ -2,7 +2,6 @@ package replicant;
 
 import static org.realityforge.braincheck.Guards.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -11,7 +10,8 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The catalog of Dataset and Entity Type definitions belonging to one isolated replicated system.
+ * The catalog of Dataset and Entity Type definitions available to one isolated replicated system.
+ * Entity Type ID slots may be reserved when a client projection omits the corresponding Entity Type.
  */
 public final class SystemSchema {
     /**
@@ -33,16 +33,15 @@ public final class SystemSchema {
     @NonNull
     private final Dataset[] _datasets;
     /**
-     * The Entity Types in the System Schema.
+     * The Entity Types in the System Schema, indexed by Entity Type ID with null entries for reserved IDs.
      */
-    @NonNull
-    private final EntityType[] _entityTypes;
+    private final @Nullable EntityType[] _entityTypes;
 
     public SystemSchema(
             final int id,
             @Nullable final String name,
             @NonNull final Dataset[] datasets,
-            @NonNull final EntityType[] entityTypes) {
+            final @Nullable EntityType[] entityTypes) {
         this(id, name, null, datasets, entityTypes);
     }
 
@@ -51,20 +50,16 @@ public final class SystemSchema {
             @Nullable final String name,
             @Nullable final OnReplicaUpdateAction onReplicaUpdateAction,
             @NonNull final Dataset[] datasets,
-            @NonNull final EntityType[] entityTypes) {
+            final @Nullable EntityType[] entityTypes) {
         if (Replicant.shouldCheckApiInvariants()) {
             apiInvariant(
                     () -> Replicant.areNamesEnabled() || null == name,
                     () -> "Replicant-0051: SystemSchema passed a name '" + name
                             + "' but Replicant.areNamesEnabled() is false");
-            apiInvariant(
-                    () -> Arrays.stream(entityTypes).allMatch(Objects::nonNull),
-                    () -> "Replicant-0053: SystemSchema named '" + (null == name ? "?" : name)
-                            + "' passed an array of entity types that has a null element");
             for (int i = 0; i < entityTypes.length; i++) {
                 final int index = i;
                 apiInvariant(
-                        () -> index == entityTypes[index].getEntityTypeId(),
+                        () -> null == entityTypes[index] || index == entityTypes[index].getEntityTypeId(),
                         () -> "Replicant-0054: SystemSchema named '" + (null == name ? "?" : name)
                                 + "' passed an array of Entity Types where Entity Type at index "
                                 + index + " does not have an Entity Type ID matching the index.");
@@ -117,17 +112,28 @@ public final class SystemSchema {
     }
 
     /**
-     * Return the number of Entity Types in the System Schema.
+     * Return the length of the Entity Type ID address space in the System Schema.
+     * This includes reserved IDs for which {@link #hasEntityType(int)} returns false.
      *
-     * @return the number of Entity Types in the System Schema.
+     * @return the Entity Type ID address-space length.
      */
     public int getEntityTypeCount() {
         return _entityTypes.length;
     }
 
     /**
+     * Return true if the System Schema contains an Entity Type with the specified Entity Type ID.
+     *
+     * @param entityTypeId the Entity Type ID.
+     * @return true if the Entity Type ID is in range and is present in the System Schema.
+     */
+    public boolean hasEntityType(final int entityTypeId) {
+        return entityTypeId >= 0 && entityTypeId < _entityTypes.length && null != _entityTypes[entityTypeId];
+    }
+
+    /**
      * Return the Entity Type with the specified Entity Type ID.
-     * The Entity Type ID MUST be 0 or more and less than {@link #getEntityTypeCount()}.
+     * The Entity Type ID MUST be 0 or more, less than {@link #getEntityTypeCount()}, and present in the System Schema.
      *
      * @param entityTypeId the Entity Type ID.
      * @return the Entity Type matching the Entity Type ID.
@@ -138,8 +144,12 @@ public final class SystemSchema {
             apiInvariant(
                     () -> entityTypeId >= 0 && entityTypeId < _entityTypes.length,
                     () -> "Replicant-0057: SystemSchema.getEntityType passed an Entity Type ID that is out of range.");
+            apiInvariant(
+                    () -> null != _entityTypes[entityTypeId],
+                    () -> "Replicant-0103: SystemSchema.getEntityType attempted to access Entity Type ID "
+                            + entityTypeId + " but it is not present in the System Schema.");
         }
-        return _entityTypes[entityTypeId];
+        return Objects.requireNonNull(_entityTypes[entityTypeId]);
     }
 
     /**

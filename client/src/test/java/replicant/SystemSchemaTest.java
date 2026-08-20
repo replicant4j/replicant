@@ -31,6 +31,10 @@ public class SystemSchemaTest extends AbstractReplicantTest {
         assertEquals(systemSchema.getId(), id);
         assertEquals(systemSchema.getName(), name);
         assertEquals(systemSchema.getEntityTypeCount(), 2);
+        assertTrue(systemSchema.hasEntityType(0));
+        assertTrue(systemSchema.hasEntityType(1));
+        assertFalse(systemSchema.hasEntityType(-1));
+        assertFalse(systemSchema.hasEntityType(2));
         assertEquals(systemSchema.getEntityType(0), entityType1);
         assertEquals(systemSchema.getEntityType(1), entityType2);
         assertEquals(systemSchema.getDatasetCount(), 2);
@@ -61,14 +65,26 @@ public class SystemSchemaTest extends AbstractReplicantTest {
     }
 
     @Test
-    public void construct_nullEntityType() {
+    public void sparseEntityTypes() {
+        final EntityType entityType =
+                new EntityType(2, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new DatasetLink[0]);
+        final SystemSchema systemSchema = new SystemSchema(
+                ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {null, null, entityType});
 
-        final IllegalStateException exception = expectThrows(
-                IllegalStateException.class,
-                () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {null}));
+        assertEquals(systemSchema.getEntityTypeCount(), 3);
+        assertFalse(systemSchema.hasEntityType(-1));
+        assertFalse(systemSchema.hasEntityType(0));
+        assertFalse(systemSchema.hasEntityType(1));
+        assertTrue(systemSchema.hasEntityType(2));
+        assertFalse(systemSchema.hasEntityType(3));
+        assertEquals(systemSchema.getEntityType(2), entityType);
+
+        final IllegalStateException exception =
+                expectThrows(IllegalStateException.class, () -> systemSchema.getEntityType(1));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0053: SystemSchema named 'X' passed an array of entity types that has a null element");
+                "Replicant-0103: SystemSchema.getEntityType attempted to access Entity Type ID 1 but it is not present"
+                        + " in the System Schema.");
     }
 
     @Test
@@ -77,10 +93,11 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 new EntityType(23, ValueUtil.randomString(), Integer.class, (i, d) -> 1, null, new DatasetLink[0]);
         final IllegalStateException exception = expectThrows(
                 IllegalStateException.class,
-                () -> new SystemSchema(ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {entityType}));
+                () -> new SystemSchema(
+                        ValueUtil.randomInt(), "X", new Dataset[] {}, new EntityType[] {null, entityType}));
         assertEquals(
                 exception.getMessage(),
-                "Replicant-0054: SystemSchema named 'X' passed an array of Entity Types where Entity Type at index 0"
+                "Replicant-0054: SystemSchema named 'X' passed an array of Entity Types where Entity Type at index 1"
                         + " does not have an Entity Type ID matching the index.");
     }
 

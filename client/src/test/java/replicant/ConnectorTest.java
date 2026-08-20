@@ -1716,6 +1716,24 @@ public final class ConnectorTest extends AbstractReplicantTest {
         assertTrue(Disposable.isDisposed(replicaEntry3));
     }
 
+    @Test
+    public void processEntityChanges_rejectsOmittedEntityType() {
+        final SystemSchema systemSchema =
+                new SystemSchema(1, ValueUtil.randomString(), new Dataset[0], new EntityType[] {null});
+        final Connector connector = createConnector(systemSchema);
+        final Connection connection = newConnection(connector);
+        final EntityChangePayload payload = mock(EntityChangePayload.class);
+        final EntityChange[] entityChanges = {EntityChange.create(0, 1, new String[0], payload)};
+        setCurrentMessageProcessing(connection, ChangeSetMessage.create(null, null, null, null, entityChanges, null));
+
+        final IllegalStateException exception =
+                expectThrows(IllegalStateException.class, connector::processEntityChanges);
+        assertEquals(
+                exception.getMessage(),
+                "Replicant-0103: SystemSchema.getEntityType attempted to access Entity Type ID 0 but it is not present"
+                        + " in the System Schema.");
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void processEntityChanges_withDatasetKey() {

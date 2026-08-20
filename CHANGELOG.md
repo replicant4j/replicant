@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Allow client System Schemas to reserve omitted Entity Type IDs, add `SystemSchema.hasEntityType(int)`, and report a
+  specific invariant when a Connector receives an Entity Change for an omitted type. Dense schemas retain their existing
+  behavior, while projected schemas preserve global protocol IDs.
 * Update Arez dependencies to 0.255 and use its released `globalThis.console` logger binding directly.
 * Add the `replicant.use_document_visibility` compile-time setting so non-browser clients can process messages without
   accessing the browser document.

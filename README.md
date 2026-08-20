@@ -72,9 +72,10 @@ client does not need. Replicant manages the Replica's state and lifecycle.
 
 ### System Schemas
 
-A System Schema catalogs every Entity Type and Dataset belonging to one isolated replicated system. Its identifier
-distinguishes that system within a Replicant Context. Connectors and Dataset Addresses use the identifier to keep
-multiple systems in the same context isolated.
+A System Schema catalogs the Entity Type and Dataset definitions available to one isolated replicated system. A client
+projection may reserve omitted Entity Type IDs so it preserves the system's protocol numbering without including every
+Entity Type. Its identifier distinguishes that system within a Replicant Context. Connectors and Dataset Addresses use
+the identifier to keep multiple systems in the same context isolated.
 
 ### Replicant Contexts
 
