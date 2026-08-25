@@ -34,7 +34,7 @@ alias(
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.29
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "55A127390590077D2AB7D4449D8386B186382405E281E87D700657760B845403"
+_CONFIG_SHA256 = "7F66AED6CF5379B8DE06F415EA2AE50446C7EF9F88FFEBB738DA740227F35F0A"
 
 exports_files(["dependencies.yml"])
 
@@ -103,20 +103,20 @@ exports_files(["dependencies.yml"])
 # +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
 # +- org.glassfish:javax.json:jar:1.1 [compile]
 # |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
-# +- org.realityforge.arez:arez-core:jar:0.255 [compile]
+# +- org.realityforge.arez:arez-core:jar:0.256 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
 # |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
 # |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# +- org.realityforge.arez:arez-processor:jar:0.255 [compile]
-# +- org.realityforge.arez:arez-extras-testng:jar:0.255 [compile]
+# +- org.realityforge.arez:arez-processor:jar:0.256 [compile]
+# +- org.realityforge.arez:arez-extras-testng:jar:0.256 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
 # |  +- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
 # |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
-# |  \- org.realityforge.arez:arez-core:jar:0.255 [compile]
+# |  \- org.realityforge.arez:arez-core:jar:0.256 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
@@ -629,7 +629,7 @@ _java_import(
     name = "arez_core",
     jars = ["@arez_core//file"],
     srcjar = "@arez_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.255"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.256"],
     deps = [
         ":braincheck_core",
         ":grim_annotations",
@@ -644,7 +644,7 @@ _java_import(
     name = "arez_extras_testng",
     jars = ["@arez_extras_testng//file"],
     srcjar = "@arez_extras_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.255"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.256"],
     deps = [
         ":arez_core",
         ":braincheck_core",
@@ -658,7 +658,7 @@ _java_import(
     name = "arez_processor__plugin_library",
     jars = ["@arez_processor//file"],
     srcjar = "@arez_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.255"],
+    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.256"],
 )
 
 _java_plugin(

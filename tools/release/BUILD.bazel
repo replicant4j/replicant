@@ -113,7 +113,7 @@ release_pom(
     artifact_id = "replicant-client",
     dependencies = [
         "org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0",
-        "org.realityforge.arez:arez-core:0.255",
+        "org.realityforge.arez:arez-core:0.256",
         "org.realityforge.grim:grim-annotations:0.09",
         "org.realityforge.zemeckis:zemeckis-core:0.18",
         "org.jspecify:jspecify:1.0.0",
