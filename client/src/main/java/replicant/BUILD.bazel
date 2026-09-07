@@ -271,19 +271,11 @@ exports_files(
     visibility = ["//tools/release:__pkg__"],
 )
 
-filegroup(
-    name = "client_j2cl_srcs",
+j2cl_library(
+    name = "client-j2cl",
     srcs = CLIENT_JAVA_SRCS + [
         "ReplicantConfig.native.js",
         "replicant.js",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-j2cl_library(
-    name = "client-j2cl",
-    srcs = [
-        ":client_j2cl_srcs",
         "//tools/release:client_generated_sources",
     ],
     experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,

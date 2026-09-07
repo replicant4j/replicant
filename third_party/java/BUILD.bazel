@@ -847,17 +847,9 @@ alias(
     actual = "@j2cl//:jsinterop-annotations-j2cl",
 )
 
-j2cl_source_jar(
-    name = "base_j2cl_sources",
-    src = "@base__sources//file",
-    activate_j2cl_only = True,
-)
-
-j2cl_library(
+alias(
     name = "base-j2cl",
-    srcs = [":base_j2cl_sources"],
-    js_suppress = ["missingSourcesWarnings"],
-    deps = [":jsinterop_annotations-j2cl"],
+    actual = "@jsinterop_base//:jsinterop-base-j2cl",
 )
 
 j2cl_library(
