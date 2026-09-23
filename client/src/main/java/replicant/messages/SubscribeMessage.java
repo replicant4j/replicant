@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -13,9 +14,11 @@ public final class SubscribeMessage extends ClientToServerMessage {
     @JsOverlay
     public static final String TYPE = Messages.C2S_Type.SUB;
 
+    @JsProperty(name = Messages.Common.DATASET_ADDRESS)
     @NonNull
     private String datasetAddress;
 
+    @JsProperty(name = Messages.Common.FILTER_PARAMETER)
     @Nullable
     private Object filterParameter;
 

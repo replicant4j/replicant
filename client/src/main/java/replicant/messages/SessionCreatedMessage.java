@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import replicant.shared.Messages;
@@ -15,6 +16,7 @@ public class SessionCreatedMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.SESSION_CREATED;
 
+    @JsProperty(name = Messages.S2C_Common.REPLICANT_SESSION_ID)
     @NonNull
     private String replicantSessionId;
 

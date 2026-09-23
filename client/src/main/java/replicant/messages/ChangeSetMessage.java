@@ -5,6 +5,7 @@ import static org.realityforge.braincheck.Guards.*;
 import java.util.HashSet;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullUnmarked;
@@ -21,18 +22,23 @@ public class ChangeSetMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.CHANGE_SET;
 
+    @JsProperty(name = Messages.S2C_Common.DATASET_CACHE_VERSION)
     @Nullable
     private String datasetCacheVersion;
 
+    @JsProperty(name = Messages.ChangeSet.SUBSCRIPTION_CHANGES)
     @Nullable
     private String[] subscriptionChanges;
 
+    @JsProperty(name = Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
     @Nullable
     private SubscriptionChangeMessage[] filterParameterSubscriptionChanges;
 
+    @JsProperty(name = Messages.ChangeSet.ENTITY_CHANGES)
     @Nullable
     private EntityChange[] entityChanges;
 
+    @JsProperty(name = Messages.ChangeSet.COMMAND_RESULT)
     @Nullable
     private Object commandResult;
 

@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import replicant.shared.Messages;
@@ -12,6 +13,7 @@ public final class DatasetCacheVersionsMessage extends ClientToServerMessage {
     @JsOverlay
     public static final String TYPE = Messages.C2S_Type.DATASET_CACHE_VERSIONS;
 
+    @JsProperty(name = Messages.DatasetCacheVersions.DATASET_CACHE_VERSIONS)
     @NonNull
     private DatasetCacheVersionsData datasetCacheVersions;
 

@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Preserve every fixed Replicant JSON message property name under optimized J2CL compilation so clients and servers
+  continue to exchange the shared wire format.
 * Publish the client JVM API as a source-attached import so downstream IDEs retain real source navigation.
 * Allow client System Schemas to reserve omitted Entity Type IDs, add `SystemSchema.hasEntityType(int)`, and report a
   specific invariant when a Connector receives an Entity Change for an omitted type. Dense schemas retain their existing

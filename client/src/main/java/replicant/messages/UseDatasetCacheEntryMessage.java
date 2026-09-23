@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -16,9 +17,11 @@ public class UseDatasetCacheEntryMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.USE_DATASET_CACHE_ENTRY;
 
+    @JsProperty(name = Messages.Common.DATASET_ADDRESS)
     @NonNull
     private String datasetAddress;
 
+    @JsProperty(name = Messages.S2C_Common.DATASET_CACHE_VERSION)
     @NonNull
     private String datasetCacheVersion;
 

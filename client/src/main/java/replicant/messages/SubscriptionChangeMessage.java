@@ -2,9 +2,11 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.shared.Messages;
 
 /**
  * A message fragment defining a reported Subscription Change.
@@ -12,8 +14,10 @@ import org.jspecify.annotations.Nullable;
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 @SuppressWarnings("NullAway.Init")
 public class SubscriptionChangeMessage {
+    @JsProperty(name = Messages.ChangeSet.SUBSCRIPTION_CHANGE)
     private String subscriptionChange;
 
+    @JsProperty(name = Messages.Common.FILTER_PARAMETER)
     @Nullable
     private Object filterParameter;
 

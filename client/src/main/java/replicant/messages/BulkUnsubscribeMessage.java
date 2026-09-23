@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import replicant.shared.Messages;
@@ -12,6 +13,7 @@ public final class BulkUnsubscribeMessage extends ClientToServerMessage {
     @JsOverlay
     public static final String TYPE = Messages.C2S_Type.BULK_UNSUB;
 
+    @JsProperty(name = Messages.Common.DATASET_ADDRESSES)
     @NonNull
     private String[] datasetAddresses;
 

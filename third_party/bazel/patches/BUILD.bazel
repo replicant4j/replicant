@@ -1,8 +1,11 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
+    "j2cl_configurable_test_compilation.patch",
     "j2cl_suppress_unsafe_warning.patch",
     "rules_cc_allowlist_macos_sdk_root.patch",
     "rules_closure_suppress_unsafe_warning.patch",
     "rules_closure_use_protobuf_java_proto_library.patch",
+    "rules_webtesting_collect_runfiles_library.patch",
+    "rules_webtesting_suppress_environment_dump.patch",
 ])

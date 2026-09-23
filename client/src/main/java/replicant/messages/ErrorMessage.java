@@ -2,6 +2,7 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.Nullable;
 import replicant.shared.Messages;
@@ -14,6 +15,7 @@ public class ErrorMessage extends ServerToClientMessage {
     @JsOverlay
     public static final String TYPE = Messages.S2C_Type.ERROR;
 
+    @JsProperty(name = Messages.S2C_Common.MESSAGE)
     @Nullable
     private String message;
 

@@ -2,14 +2,17 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.Nullable;
+import replicant.shared.Messages;
 
 /**
  * The abstract message type that all messages that are sent from server conform to.
  */
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 public abstract class ServerToClientMessage extends AbstractMessage {
+    @JsProperty(name = Messages.Common.REQUEST_ID)
     @Nullable
     Double requestId;
 

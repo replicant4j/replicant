@@ -293,6 +293,7 @@ j2cl_library(
     name = "client-j2cl",
     srcs = CLIENT_JAVA_SRCS + [
         _CLIENT_SOURCE_ROOT + "ReplicantConfig.native.js",
+        _CLIENT_SOURCE_ROOT + "messages/Message.externs.js",
         _CLIENT_SOURCE_ROOT + "replicant.js",
         "//tools/release:client_generated_sources",
     ],

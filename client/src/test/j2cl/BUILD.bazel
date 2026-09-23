@@ -1,4 +1,4 @@
-load("@j2cl//build_defs:rules.bzl", "j2cl_application", "j2cl_library")
+load("@j2cl//build_defs:rules.bzl", "j2cl_application", "j2cl_library", "j2cl_test")
 load("@rules_closure//closure:defs.bzl", "closure_js_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -29,4 +29,18 @@ j2cl_application(
     name = "replicant_j2cl_smoke",
     entry_points = ["replicant.j2cl.BuildTest"],
     deps = [":entry_point"],
+)
+
+j2cl_test(
+    name = "MessageWireFormatTest",
+    size = "small",
+    srcs = ["MessageWireFormatTest.java"],
+    browsers = ["@rules_webtesting//browsers:chromium-local"],
+    compilation_level = "ADVANCED",
+    test_class = "replicant.MessageWireFormatTest",
+    deps = [
+        "//client:client-j2cl",
+        "//third_party/java:base-j2cl",
+        "@j2cl//:junit",
+    ],
 )

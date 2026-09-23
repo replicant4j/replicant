@@ -2,9 +2,11 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import replicant.shared.Messages;
 
 /**
  * A Change Set member directing the client to update an Entity's Replica or remove it from specified Subscriptions.
@@ -15,10 +17,16 @@ import org.jspecify.annotations.Nullable;
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 @SuppressWarnings({"NullAway.Init", "NotNullFieldNotInitialized"})
 public class EntityChange {
+    @JsProperty(name = Messages.ChangeSet.ENTITY_TYPE_ID)
     private int entityTypeId;
+
+    @JsProperty(name = Messages.ChangeSet.ENTITY_ID)
     private int entityId;
+
+    @JsProperty(name = Messages.Common.DATASET_ADDRESSES)
     private String[] datasetAddresses;
 
+    @JsProperty(name = Messages.ChangeSet.ENTITY_CHANGE_PAYLOAD)
     @Nullable
     private EntityChangePayload payload;
 

@@ -2,8 +2,10 @@ package replicant.messages;
 
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
+import jsinterop.annotations.JsProperty;
 import jsinterop.annotations.JsType;
 import org.jspecify.annotations.NonNull;
+import replicant.shared.Messages;
 
 /**
  * The abstract message that messages conform to.
@@ -11,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 @SuppressWarnings({"NotNullFieldNotInitialized", "NullAway.Init"})
 @JsType(isNative = true, namespace = JsPackage.GLOBAL, name = "Object")
 public abstract class AbstractMessage {
+    @JsProperty(name = Messages.Common.TYPE)
     @NonNull
     String type;
 
