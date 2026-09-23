@@ -8,7 +8,7 @@ j2cl_library(
     srcs = ["BrowserInteropLinker.java"],
     experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
     deps = [
-        "//client/src/main/java/replicant:client-j2cl",
+        "//client:client-j2cl",
         "//third_party/java:base-j2cl",
         "//third_party/java:jsinterop_annotations-j2cl",
         "//third_party/java:jspecify-j2cl",
@@ -20,7 +20,7 @@ closure_js_library(
     srcs = ["entry_point.js"],
     deps = [
         ":browser_interop_linker",
-        "//client/src/main/java/replicant:client-j2cl",
+        "//client:client-j2cl",
         "//shared/src/main/java/replicant/shared:shared-j2cl",
     ],
 )

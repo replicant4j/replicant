@@ -11,7 +11,7 @@ load(
 
 package(default_visibility = ["//visibility:public"])
 
-CLIENT = "//client/src/main/java/replicant:client_lib"
+CLIENT = "//client:client_lib_impl"
 
 SHARED = "//shared/src/main/java/replicant/shared:shared_lib"
 
@@ -80,9 +80,9 @@ release_source_jar(
         "replicant/ReplicantDev.gwt.xml",
     ],
     resource_files = [
-        "//client/src/main/java/replicant:Replicant.gwt.xml",
-        "//client/src/main/java/replicant:ReplicantDebug.gwt.xml",
-        "//client/src/main/java/replicant:ReplicantDev.gwt.xml",
+        "//client:src/main/java/replicant/Replicant.gwt.xml",
+        "//client:src/main/java/replicant/ReplicantDebug.gwt.xml",
+        "//client:src/main/java/replicant/ReplicantDev.gwt.xml",
     ],
 )
 

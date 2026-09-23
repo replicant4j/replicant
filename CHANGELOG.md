@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Publish the client JVM API as a source-attached import so downstream IDEs retain real source navigation.
 * Allow client System Schemas to reserve omitted Entity Type IDs, add `SystemSchema.hasEntityType(int)`, and report a
   specific invariant when a Connector receives an Entity Change for an omitted type. Dense schemas retain their existing
   behavior, while projected schemas preserve global protocol IDs.
