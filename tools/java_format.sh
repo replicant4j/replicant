@@ -4,37 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MODE="${1:-write}"
 
+cd "${ROOT}"
+
 case "${MODE}" in
-  write | check)
+  check)
+    exec "${ROOT}/bazelw" build //:java_format_check
+    ;;
+  write | watch)
+    target=java_format
+    if [[ "${MODE}" == "watch" ]]; then
+      target=java_format_watch
+    fi
+    exec "${ROOT}/bazelw" run "@rules_palantir_java_format//:${target}" -- \
+      --root=client --root=shared --root=server --root=tools
     ;;
   *)
-    echo "usage: tools/java_format.sh [write|check]" >&2
+    echo "usage: tools/java_format.sh [write|check|watch]" >&2
     exit 2
     ;;
 esac
-
-cd "${ROOT}"
-
-args_file="$(mktemp)"
-trap 'rm -f "${args_file}"' EXIT
-
-while IFS= read -r source_file; do
-  printf '%s/%s\n' "${ROOT}" "${source_file}" >> "${args_file}"
-done < <(rg --files -g '*.java' client shared server tools | sort)
-
-if [[ ! -s "${args_file}" ]]; then
-  exit 0
-fi
-
-if [[ "${MODE}" == "check" ]]; then
-  "${ROOT}/bazelw" run //tools/java-format:palantir_java_format -- \
-    --palantir \
-    --dry-run \
-    --set-exit-if-changed \
-    "@${args_file}"
-else
-  "${ROOT}/bazelw" run //tools/java-format:palantir_java_format -- \
-    --palantir \
-    --replace \
-    "@${args_file}"
-fi

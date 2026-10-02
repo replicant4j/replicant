@@ -22,7 +22,7 @@ Replicant uses GitHub Actions for CI. The workflow runs `tools/check.sh` on Ubun
 rejects any generated or formatting drift.
 
 The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`, which pins Bazel through
-`.bazelversion`:
+`.bazelversion`. The repository gate also requires ripgrep (`rg`) on `PATH`:
 
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
@@ -34,6 +34,12 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 * Update Bazel file formatting: `./bazelw run //:buildifier`
 * Check Java formatting: `tools/java_format.sh check`
 * Update Java formatting: `tools/java_format.sh write`
+* Watch Java formatting: `tools/java_format_watch.sh`
+
+Java formatting checks use `@rules_palantir_java_format` worker actions over workspace-owned source files reachable
+from `//:java_format_check`. Generated and external Java sources are excluded. When adding an independent Java graph,
+include a root target in that check. Write and watch commands use the existing `client`, `shared`, `server`, and `tools`
+source roots. The J2CL override exposes its existing compiled `JavaInfo` so J2CL-only sources participate in the check.
 
 For IntelliJ IDEA, import `tools/intellij/.managed.bazelproject` with the Bazel plugin. Legacy `.ipr`, `.iml`,
 and `.iws` project metadata is not part of the project model.
@@ -42,9 +48,8 @@ The public Bazel output libraries are `//client:client` and `//server:server`. B
 internal shared classes from `//shared:shared_lib` and keep third-party jars separate from the merged outputs.
 
 Java dependencies for the Bazel build are managed by
-[bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml` and
-`tools/java-format/dependencies.yml`. After changing either file, regenerate the checked-in Bazel dependency
-outputs and lockfile with:
+[bazel-depgen](https://github.com/realityforge/bazel-depgen) from `third_party/java/dependencies.yml`.
+After changing that file, regenerate the checked-in Bazel dependency outputs and lockfile with:
 
 * `tools/update_java_deps.sh`
 * `./bazelw test //third_party/java:verify_config_sha256`

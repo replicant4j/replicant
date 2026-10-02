@@ -322,7 +322,10 @@ java_library(
     ],
     resource_strip_prefix = "client/src/main/java",
     resources = CLIENT_RESOURCES,
-    visibility = ["//tools/release:__pkg__"],
+    visibility = [
+        "//:__pkg__",
+        "//tools/release:__pkg__",
+    ],
     deps = CLIENT_DEPS,
 )
 

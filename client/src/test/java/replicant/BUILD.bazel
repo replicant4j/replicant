@@ -166,6 +166,7 @@ java_testng(
         "-Dreplicant.diagnostic_messages_file=$(rootpath //client/src/test/java/replicant:diagnostic_messages.json)",
     ],
     test_class = ",".join(CLIENT_TEST_CLASSES),
+    visibility = ["//:__pkg__"],
     deps = [
         ":client_tests_lib",
         "//client:client_test_support",

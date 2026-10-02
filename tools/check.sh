@@ -11,7 +11,6 @@ GENERATED_OUTPUTS=(
   MODULE.bazel
   MODULE.bazel.lock
   third_party/java/BUILD.bazel
-  tools/java-format/BUILD.bazel
 )
 if ! git diff --quiet -- "${GENERATED_OUTPUTS[@]}"; then
   echo "Generated dependency outputs are stale:" >&2

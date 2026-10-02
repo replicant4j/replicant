@@ -1,4 +1,5 @@
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+load("@rules_palantir_java_format//:defs.bzl", "java_format_check")
 
 exports_files(["LICENSE"])
 
@@ -28,4 +29,43 @@ buildifier(
     lint_mode = "warn",
     lint_warnings = WARNINGS,
     mode = "diff",
+)
+
+java_format_check(
+    name = "java_format_check",
+    testonly = True,
+    remediation = "tools/java_format.sh write",
+    targets = [
+        "//client/src/test/j2cl:MessageWireFormatTest_testlib",
+        "//client/src/test/j2cl:browser_interop_linker",
+        "//client/src/test/java/replicant/gwt:smoke",
+        "//client/src/test/java/replicant:client_diagnostic_messages_test",
+        "//client:client_lib_impl",
+        "//server/src/test/java/replicant/server/ee:AbstractReplicantServerAdapterTest",
+        "//server/src/test/java/replicant/server/ee:EntityChangeCandidateCacheUtilTest",
+        "//server/src/test/java/replicant/server/ee:ReplicantEndpointTest",
+        "//server/src/test/java/replicant/server/ee:ReplicantEntityChangeListenerTest",
+        "//server/src/test/java/replicant/server/ee:ReplicantRequestContextHolderTest",
+        "//server/src/test/java/replicant/server/json:JsonEncoderTest",
+        "//server/src/test/java/replicant/server/transport:DatasetCacheEntryTest",
+        "//server/src/test/java/replicant/server/transport:DatasetTest",
+        "//server/src/test/java/replicant/server/transport:InvariantUtilTest",
+        "//server/src/test/java/replicant/server/transport:PacketTest",
+        "//server/src/test/java/replicant/server/transport:ReplicantMessageBrokerImplTest",
+        "//server/src/test/java/replicant/server/transport:ReplicantSessionManagerImplTest",
+        "//server/src/test/java/replicant/server/transport:ReplicantSessionTest",
+        "//server/src/test/java/replicant/server/transport:SubscriptionTest",
+        "//server/src/test/java/replicant/server/transport:SystemSchemaTest",
+        "//server/src/test/java/replicant/server:ChangeSetTest",
+        "//server/src/test/java/replicant/server:DatasetAddressTest",
+        "//server/src/test/java/replicant/server:EntityChangeCandidateSetTest",
+        "//server/src/test/java/replicant/server:EntityChangeCandidateSorterTest",
+        "//server/src/test/java/replicant/server:EntityChangeCandidateTest",
+        "//server/src/test/java/replicant/server:EntityChangeTest",
+        "//server/src/test/java/replicant/server:FilterParameterUtilTest",
+        "//server/src/test/java/replicant/server:SubscriptionDependencyCandidateTest",
+        "//tools/j2cl/org/realityforge/replicant/j2cl:source_jar_builder_test",
+        "//tools/release/org/realityforge/replicant/release:javadoc_jar_builder",
+        "//tools/release:all_tests",
+    ],
 )

@@ -1,5 +1,7 @@
 load("//third_party/java:rules.bzl", "java_testng")
 
+package(default_visibility = ["//:__pkg__"])
+
 java_testng(
     name = "JsonEncoderTest",
     srcs = ["JsonEncoderTest.java"],
