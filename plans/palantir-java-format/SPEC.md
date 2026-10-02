@@ -4,7 +4,7 @@
 
 The user's authorized migration request and references settle the design. The user explicitly waived grill confirmation and the delivery entry gate when repository/reference evidence answers every question. The later clarification limits enforcement to Java reachable through the target graph. No material question remains.
 
-Evidence: existing `tools/java_format.sh`, `tools/check.sh`, CI workflow, root module/configuration, client JVM import/source library boundary, client diagnostic test aggregate, server tests, GWT smoke library, and J2CL rule implementation. The jdbt reference demonstrates the public rule and worker strategy; the rose reference demonstrates public write/watch tools. Downloaded v0.1.1 release integrity matches `sha256-4h/h0cVmPQ/7jkXnvW69rmABbfXOOzoXuBh3gMJDMk8=`; BCR metadata returns 404. Latest release is v0.1.1 and its formatter is 2.93.0, matching the local formatter. The source ownership query finds 310 maintained Java sources, all graph-owned. GitHub reports auto-merge and merge commits allowed, with master unprotected and no required checks.
+Evidence: existing `tools/java_format.sh`, `tools/check.sh`, CI workflow, root module/configuration, client JVM import/source library boundary, client diagnostic test aggregate, server tests, GWT smoke library, and J2CL rule implementation. The jdbt reference demonstrates the public rule and worker strategy; the rose reference demonstrates public write/watch tools. Downloaded v0.1.1 release integrity matches `sha256-4h/h0cVmPQ/7jkXnvW69rmABbfXOOzoXuBh3gMJDMk8=`; BCR metadata returns 404. Latest release is v0.1.1 and its formatter is 2.93.0, matching the local formatter. The source-file-filtered ownership query finds 309 maintained Java sources, all graph-owned; the earlier unfiltered count also included one generated J2CL Java file. GitHub reports auto-merge and merge commits allowed, with master unprotected and no required checks.
 
 ## Problem and required outcome
 
@@ -23,7 +23,7 @@ Formatting uses a separately maintained local binary/dependency graph and starts
 - R1 / AC1: The root check rejects malformed formatting in graph-owned production, tests, build tools, GWT, and J2CL sources, names the affected file and write remediation, and leaves source bytes unchanged. An action-input audit proves all graph-owned maintained sources are covered and generated/external Java is excluded.
 - R2 / AC2: Formatting checks actually execute with PalantirJavaFormat worker strategy, bounded to one instance. Execution logs prove worker execution, not just configured flags.
 - R3 / AC3: Existing CI invokes the migrated gate. Check/write/watch remain usable; write repairs deliberately dirty graph sources, repeated write causes no diff, and watch repairs a change in an admitted root.
-- R4 / AC4: Remove local formatter dependency plumbing and regenerate strict locks without unrelated upgrades. Buildifier and `tools/check.sh` pass and the final diff is inspected. Report environmental blockers without claiming passes.
+- R4 / AC4: Remove local formatter dependency plumbing and regenerate strict locks without unrelated upgrades. Buildifier and `tools/check.sh` pass and the final diff is inspected. The full gate may run in existing Ubuntu CI when a personally observed local environmental blocker prevents completion; report that local blocker without claiming a local pass.
 - R5 / AC5: Read-only planning and implementation reviews pass; commit plan, implementation/evidence, and removal. Publish PR assigned to realityforge, enable auto-merge if settings permit, and report exact state/blockers.
 
 ## Completed design tree
@@ -48,7 +48,7 @@ Formatting uses a separately maintained local binary/dependency graph and starts
 
 Add root visibility to client_lib_impl only as needed by the check. J2CL exposes its already compiled JavaInfo alongside current providers via the existing archive patch mechanism; compilation semantics stay unchanged. Pin module integrity, use testonly on the root check, and remediation `tools/java_format.sh write`. Preserve source-root arguments in write/watch.
 
-Audit action inputs against source files owned in the target graph, probe representative production/test/tool/GWT/J2CL sources, and validate worker logs. Temporary probes are restored before commit. Run the narrow root check, buildifier, dependency stability checks, then the full repository gate. Use a private Bazel output base during local checks because the user's global rc shares an output base with other tasks.
+Audit action inputs against source files owned in the target graph, probe representative production/test/tool/GWT/J2CL sources, and validate worker logs. Temporary probes are restored before commit. Run the narrow root check, buildifier, dependency stability checks, then the full repository gate. Local `./bazelw build //...` passed, but optimized J2CL compilation ran out of disk. Publish an authorized draft PR with implementation/progress evidence to execute the unchanged `tools/check.sh` in existing Ubuntu CI before implementation review; promote it after passed review and closeout. The final exact PR head must pass every actual CI check before auto-merge. Use a private Bazel output base during local checks because the user's global rc shares an output base with other tasks.
 
 ## Knowledge classification
 
