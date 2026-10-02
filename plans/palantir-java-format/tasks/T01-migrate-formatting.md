@@ -37,3 +37,5 @@ Release hash/BCR check; dependency regeneration stability; shell syntax; root Ba
 - Draft PR [#28](https://github.com/replicant4j/replicant/pull/28) assigned to realityforge; existing Ubuntu CI is running. Trimmed blank patch context so final diff has no whitespace errors; root check passed again with the same applied J2CL content.
 
 - Ubuntu CI run 37006542481 passed the new worker check then failed with `tools/check.sh: line 29: rg: command not found` (127). Default-branch run 35935021520 fails with the same missing rg dependency. Workflow only sets up JDK17; install ripgrep in the existing job before executing the gate. No new job, fallback, skipped check or protection change.
+
+- Added ripgrep installation to the existing CI job and documented the gate prerequisite; YAML parsed successfully. Existing gate/job boundaries are unchanged; rerun CI remains required.

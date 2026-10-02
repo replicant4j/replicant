@@ -25,6 +25,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Install repository gate dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ripgrep
+
       - name: Run repository gate
         run: tools/check.sh
 

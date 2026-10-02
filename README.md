@@ -22,7 +22,7 @@ Replicant uses GitHub Actions for CI. The workflow runs `tools/check.sh` on Ubun
 rejects any generated or formatting drift.
 
 The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`, which pins Bazel through
-`.bazelversion`:
+`.bazelversion`. The repository gate also requires ripgrep (`rg`) on `PATH`:
 
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
