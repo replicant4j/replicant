@@ -33,3 +33,5 @@ Release hash/BCR check; dependency regeneration stability; shell syntax; root Ba
 - `validate_doc_links.py` passed. Existing README owns workflow/scope; no qualifying new domain artifacts or ADR.
 - Full `tools/check.sh`: initial dependency/buildifier/format checks and `./bazelw build //...` passed (2400 actions). Optimized J2CL build stopped with No space left on device. Existing Ubuntu CI will complete the unchanged full gate; this is not a local full-gate pass.
 - Pause/resume: prior checkout was removed externally; recreated it from plan commit, reused task-owned dependency cache and reconstructed scoped changes. Earlier disk-full failure did not pass verification; resumed dependency/check gates now pass. Latest user instruction requests archiving the chat after confirmed PR merge.
+
+- Draft PR [#28](https://github.com/replicant4j/replicant/pull/28) assigned to realityforge; existing Ubuntu CI is running. Trimmed blank patch context so final diff has no whitespace errors; root check passed again with the same applied J2CL content.
