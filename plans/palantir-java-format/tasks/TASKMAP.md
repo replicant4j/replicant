@@ -1,11 +1,11 @@
 # Task Map
 
 - Spec: [SPEC.md](../SPEC.md)
-- Status: `implementation-review`
-- Current frontier: none (technical task complete; implementation review pending)
+- Status: `closeout`
+- Current frontier: none (technical task and implementation review complete)
 - Planning reviewer: `/root/planning_review` (`3/3` rounds), Findings: none (design, CI validation sequence, existing CI prerequisite)
 - Plan checkpoint: automatic — completed evidence-based grill design tree, explicit user gate exception, passing planning review
-- Implementation reviewer: `pending` (`0/5` rounds)
+- Implementation reviewer: `/root/implementation_review` (`1/5` rounds), Findings: none
 
 ## Full-scope validation
 
@@ -24,8 +24,12 @@ One end-to-end slice replaces dependency plumbing and enforcement together. Comm
 
 ## Promoted knowledge
 
-README is the existing owner for formatting workflow/scope. No qualifying new ADR, specification, glossary or deferred artifact.
+README is the existing owner for formatting workflow/scope. Final domain-modeling sweep confirms no qualifying new ADR, specification, glossary or deferred artifact; the reversible tooling selection fails the ADR threshold, mutable setup belongs in code, and delivery evidence belongs in this plan. Doc-link validation passes. Review introduced no changes.
+
+## Implementation review evidence
+
+Round 1 passed with Findings: none. The fresh read-only reviewer inspected the complete diff and plan history, independently queried the isolated Bazel graph (309 sources, matching formatter inputs), checked source hashes, all 51 worker actions, negative/write/watch probes, module integrity, shell syntax, clean diff/worktree, and full Ubuntu CI run 37007051995. Current HEAD differs from the tested code only in plan evidence. Local full-gate disk exhaustion is documented; CI completed the same gate successfully.
 
 ## Delivery gate ownership (R5 / AC5)
 
-Planning review passed 3 rounds. Fresh implementation review, recorded result, closeout removal, final exact-head CI, verified auto-merge and post-merge chat archive remain phase gates after the completed technical task. PR #28 is assigned to realityforge and remains draft until review/closeout.
+Planning review passed 3 rounds and implementation review passed 1 round. Results are recorded. Closeout removal, final exact-head CI, verified auto-merge and post-merge chat archive remain phase gates after the completed technical task. PR #28 is assigned to realityforge and remains draft until closeout.
