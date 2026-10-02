@@ -12,7 +12,7 @@ Formatting uses a separately maintained local binary/dependency graph and starts
 
 ## Scope and constraints
 
-- Migrate formatter module, check target, wrappers, dependency regeneration, locks, and build documentation.
+- Migrate formatter module, check target, wrappers, dependency regeneration, locks, and build documentation. Install ripgrep in the existing CI job because the existing repository gate requires rg and the Ubuntu runner lacks it.
 - Preserve `./bazelw`, check/write conventions, and existing source roots: client, shared, server, tools. Add watch through the public tool.
 - No extra enumeration or scratch checks for sources absent from the target graph. No application changes, formatter-version upgrade, unrelated dependency upgrades, or formatting churn.
 - Preserve non-mutating checks and specialized consumers if any exist. Exploration found no staged-file wrapper, formatter fixture consumer, or ahab configuration to migrate.
@@ -48,7 +48,7 @@ Formatting uses a separately maintained local binary/dependency graph and starts
 
 Add root visibility to client_lib_impl only as needed by the check. J2CL exposes its already compiled JavaInfo alongside current providers via the existing archive patch mechanism; compilation semantics stay unchanged. Pin module integrity, use testonly on the root check, and remediation `tools/java_format.sh write`. Preserve source-root arguments in write/watch.
 
-Audit action inputs against source files owned in the target graph, probe representative production/test/tool/GWT/J2CL sources, and validate worker logs. Temporary probes are restored before commit. Run the narrow root check, buildifier, dependency stability checks, then the full repository gate. Local `./bazelw build //...` passed, but optimized J2CL compilation ran out of disk. Publish an authorized draft PR with implementation/progress evidence to execute the unchanged `tools/check.sh` in existing Ubuntu CI before implementation review; promote it after passed review and closeout. The final exact PR head must pass every actual CI check before auto-merge. Use a private Bazel output base during local checks because the user's global rc shares an output base with other tasks.
+Audit action inputs against source files owned in the target graph, probe representative production/test/tool/GWT/J2CL sources, and validate worker logs. Temporary probes are restored before commit. Run the narrow root check, buildifier, dependency stability checks, then the full repository gate. The first draft CI run passed the worker check but failed at the existing rg call; default-branch CI run 35935021520 also fails with rg not found. Add ripgrep installation to the existing job and re-run the same full gate. Local `./bazelw build //...` passed, but optimized J2CL compilation ran out of disk. Publish an authorized draft PR with implementation/progress evidence to execute the unchanged `tools/check.sh` in existing Ubuntu CI before implementation review; promote it after passed review and closeout. The final exact PR head must pass every actual CI check before auto-merge. Use a private Bazel output base during local checks because the user's global rc shares an output base with other tasks.
 
 ## Knowledge classification
 

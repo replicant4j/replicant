@@ -1,9 +1,9 @@
 # Task Map
 
 - Spec: [SPEC.md](../SPEC.md)
-- Status: `implementing`
+- Status: `planned`
 - Current frontier: `T01`
-- Planning reviewer: `/root/planning_review` (`2/3` rounds), Findings: none (initial design and CI validation sequence)
+- Planning reviewer: `/root/planning_review` (`3/3` rounds), Findings: none (design, CI validation sequence, existing CI prerequisite)
 - Plan checkpoint: automatic — completed evidence-based grill design tree, explicit user gate exception, passing planning review
 - Implementation reviewer: `pending` (`0/5` rounds)
 
