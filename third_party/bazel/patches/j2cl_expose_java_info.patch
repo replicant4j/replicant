@@ -1,0 +1,15 @@
+diff --git a/build_defs/internal_do_not_use/j2cl_java_library.bzl b/build_defs/internal_do_not_use/j2cl_java_library.bzl
+--- a/build_defs/internal_do_not_use/j2cl_java_library.bzl
++++ b/build_defs/internal_do_not_use/j2cl_java_library.bzl
+@@ -116,7 +116,10 @@
+     if output_js:
+         outputs.append(output_js)
+ 
+-    extra_providers = [DefaultInfo(files = depset(outputs))]
++    extra_providers = [
++        DefaultInfo(files = depset(outputs)),
++        j2cl_provider._private_.java_info,
++    ]
+     if j2kt_provider:
+         extra_providers.append(j2kt_provider)
+ 

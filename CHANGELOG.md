@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Use Palantir Java Format worker actions for graph-owned Java formatting checks and add `tools/java_format_watch.sh`.
 * Preserve every fixed Replicant JSON message property name under optimized J2CL compilation so clients and servers
   continue to exchange the shared wire format.
 * Publish the client JVM API as a source-attached import so downstream IDEs retain real source navigation.

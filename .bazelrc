@@ -9,6 +9,8 @@ test --java_language_version=17
 
 build --spawn_strategy=local
 build --strategy=Javac=worker
+build --strategy=PalantirJavaFormat=worker,local
+build --worker_max_instances=PalantirJavaFormat=1
 build --strategy=JavaIjar=local
 build --strategy=JavaDeployJar=local
 build --strategy=JavaSourceJar=local

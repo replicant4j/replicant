@@ -2,6 +2,7 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files([
     "j2cl_configurable_test_compilation.patch",
+    "j2cl_expose_java_info.patch",
     "j2cl_suppress_unsafe_warning.patch",
     "rules_cc_allowlist_macos_sdk_root.patch",
     "rules_closure_suppress_unsafe_warning.patch",
