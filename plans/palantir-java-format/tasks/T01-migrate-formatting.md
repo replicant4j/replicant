@@ -1,6 +1,6 @@
 # T01 — Migrate and verify formatting
 
-- Status: in_progress
+- Status: complete
 - Blocked by: None
 - Spec coverage: R1–R5, AC1–AC5
 
@@ -13,9 +13,12 @@ Public formatter module and worker-based graph checks enforced by existing CI, s
 - [x] Verified immutable module pin and regenerated stable locks; obsolete local binary/config/references removed.
 - [x] Root check and minimal roots cover graph-owned production/tests/tools/GWT/J2CL; action-input audit confirms coverage and generated/external exclusions.
 - [x] Negative cases reject dirty source without mutation, with file/remediation; public write repairs and is idempotent; watch repairs an event.
-- [ ] Execution evidence shows worker actions; buildifier and full repository gate pass, or environmental failure evidence explicitly remains unresolved.
-- [ ] README/changelog updated, final diff inspected, implementation evidence committed.
-- [ ] Planning and implementation reviews pass; plan removed in closeout; PR assigned and auto-merge state verified (workflow closeout/publication).
+- [x] Execution evidence shows worker actions; buildifier and full repository gate pass in existing Ubuntu CI.
+- [x] README/changelog updated, final diff inspected, implementation evidence committed.
+
+## Delivery gates (R5 / AC5)
+
+Planning passed. Implementation review, closeout removal, final exact-head CI, auto-merge verification and post-merge archive are owned by the TASKMAP phase gates and remain pending. PR assignment is verified.
 
 ## Validation
 
@@ -39,3 +42,5 @@ Release hash/BCR check; dependency regeneration stability; shell syntax; root Ba
 - Ubuntu CI run 37006542481 passed the new worker check then failed with `tools/check.sh: line 29: rg: command not found` (127). Default-branch run 35935021520 fails with the same missing rg dependency. Workflow only sets up JDK17; install ripgrep in the existing job before executing the gate. No new job, fallback, skipped check or protection change.
 
 - Added ripgrep installation to the existing CI job and documented the gate prerequisite; YAML parsed successfully. Existing gate/job boundaries are unchanged; rerun CI remains required.
+
+- Full gate passed in [Ubuntu CI run 37007051995](https://github.com/replicant4j/replicant/actions/runs/37007051995), head `dde24e30e8befa96c270c1071b7a7904594211b3`: tools/check.sh, optimized J2CL smoke, all GWT assets, 99/99 Bazel tests, 3/3 release tests at version 6.999, and git diff --exit-code. Personally fetched and inspected job logs; all steps conclude success. This resolves full-gate verification using the reviewed CI sequence; local full-gate disk limitation remains recorded.
