@@ -1,6 +1,9 @@
 # Location where bazel builds dist for uploading to Maven Central
 /dist
 
+# Bazel output symlinks
+/bazel-*
+
 # Ignore IDEA project files
 /.bazelbsp
 /.idea

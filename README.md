@@ -36,6 +36,8 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 * Update Java formatting: `tools/java_format.sh write`
 * Watch Java formatting: `tools/java_format_watch.sh`
 
+Bazel creates its default `bazel-*` output symlinks in the workspace root; Git ignores them.
+
 Java formatting checks use `@rules_palantir_java_format` worker actions over workspace-owned source files reachable
 from `//:java_format_check`. Generated and external Java sources are excluded. When adding an independent Java graph,
 include a root target in that check. Write and watch commands use the existing `client`, `shared`, `server`, and `tools`
