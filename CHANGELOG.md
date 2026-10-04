@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Use Bazel's default workspace output symlinks and ignore them in Git.
 * Use Palantir Java Format worker actions for graph-owned Java formatting checks and add `tools/java_format_watch.sh`.
 * Preserve every fixed Replicant JSON message property name under optimized J2CL compilation so clients and servers
   continue to exchange the shared wire format.
