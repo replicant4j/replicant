@@ -1,0 +1,11 @@
+version = 1
+name = "replicant"
+
+[setup]
+script = ""
+
+[cleanup]
+script = '''
+bazel clean --expunge_async
+bazel shutdown
+'''
