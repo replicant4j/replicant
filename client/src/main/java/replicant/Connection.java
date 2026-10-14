@@ -348,8 +348,7 @@ abstract class Connection {
     }
 
     void markCommandAsComplete(final int requestId) {
-        final Command request = _activeCommands.remove(requestId);
-        assert null != request;
+        final Command request = Objects.requireNonNull(_activeCommands.remove(requestId));
         request.markAsComplete();
     }
 

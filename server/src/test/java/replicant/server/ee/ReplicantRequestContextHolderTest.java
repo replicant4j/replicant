@@ -2,6 +2,7 @@ package replicant.server.ee;
 
 import static org.testng.Assert.*;
 
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.server.runtime.ReplicantRequestContextHolder;
 
@@ -17,7 +18,7 @@ public class ReplicantRequestContextHolderTest {
         final var v2 = ReplicantRequestContextHolder.get(key);
         assertEquals(v2, value);
 
-        final var result = new Object[1];
+        final var result = new @Nullable Object[1];
 
         final var thread = new Thread(() -> result[0] = ReplicantRequestContextHolder.get(key));
         thread.start();

@@ -80,7 +80,6 @@ public final class Messages {
         @NonNull
         public static final String FILTER_PARAMETER = "filterParameter";
 
-        @NonNull
         private Common() {}
     }
 

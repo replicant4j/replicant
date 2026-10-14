@@ -27,16 +27,13 @@ public class ChangeSetMessage extends ServerToClientMessage {
     private String datasetCacheVersion;
 
     @JsProperty(name = Messages.ChangeSet.SUBSCRIPTION_CHANGES)
-    @Nullable
-    private String[] subscriptionChanges;
+    private String @Nullable [] subscriptionChanges;
 
     @JsProperty(name = Messages.ChangeSet.FILTER_PARAMETER_SUBSCRIPTION_CHANGES)
-    @Nullable
-    private SubscriptionChangeMessage[] filterParameterSubscriptionChanges;
+    private SubscriptionChangeMessage @Nullable [] filterParameterSubscriptionChanges;
 
     @JsProperty(name = Messages.ChangeSet.ENTITY_CHANGES)
-    @Nullable
-    private EntityChange[] entityChanges;
+    private EntityChange @Nullable [] entityChanges;
 
     @JsProperty(name = Messages.ChangeSet.COMMAND_RESULT)
     @Nullable
@@ -48,9 +45,9 @@ public class ChangeSetMessage extends ServerToClientMessage {
     public static ChangeSetMessage create(
             @Nullable final Integer requestId,
             @Nullable final String datasetCacheVersion,
-            @Nullable final String[] subscriptionChanges,
-            @Nullable final SubscriptionChangeMessage[] filterParameterSubscriptionChanges,
-            @Nullable final EntityChange[] entityChanges,
+            final String @Nullable [] subscriptionChanges,
+            final SubscriptionChangeMessage @Nullable [] filterParameterSubscriptionChanges,
+            final EntityChange @Nullable [] entityChanges,
             @Nullable final Object commandResult) {
         final ChangeSetMessage changeSet = new ChangeSetMessage();
         changeSet.type = TYPE;
@@ -96,7 +93,9 @@ public class ChangeSetMessage extends ServerToClientMessage {
                     () -> "Replicant-0013: ChangeSetMessage.getSubscriptionChanges() invoked when no changes are"
                             + " present. Should guard call with ChangeSetMessage.hasSubscriptionChanges().");
         }
-        assert null != subscriptionChanges;
+        if (null == subscriptionChanges) {
+            throw new AssertionError("Change Set has no Subscription Changes");
+        }
         return subscriptionChanges;
     }
 
@@ -126,7 +125,9 @@ public class ChangeSetMessage extends ServerToClientMessage {
                             + " changes are present. Should guard call with"
                             + " ChangeSetMessage.hasFilterParameterSubscriptionChanges().");
         }
-        assert null != filterParameterSubscriptionChanges;
+        if (null == filterParameterSubscriptionChanges) {
+            throw new AssertionError("Change Set has no Filter Parameter Subscription Changes");
+        }
         return filterParameterSubscriptionChanges;
     }
 
@@ -155,7 +156,9 @@ public class ChangeSetMessage extends ServerToClientMessage {
                     () -> "Replicant-0012: ChangeSetMessage.getEntityChanges() invoked when no changes are present."
                             + " Should guard call with ChangeSetMessage.hasEntityChanges().");
         }
-        assert null != entityChanges;
+        if (null == entityChanges) {
+            throw new AssertionError("Change Set has no Entity Changes");
+        }
         return entityChanges;
     }
 

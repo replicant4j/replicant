@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Enable JSpecify nullness checking and reject absent Change Set arrays even when API invariants are disabled.
 * Update Bazel to version `9.3.0`.
 * Use Bazel's default workspace output symlinks and ignore them in Git.
 * Use Palantir Java Format worker actions for graph-owned Java formatting checks and add `tools/java_format_watch.sh`.
