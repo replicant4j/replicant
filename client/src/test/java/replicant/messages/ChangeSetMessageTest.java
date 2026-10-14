@@ -4,6 +4,7 @@ import static org.testng.Assert.*;
 
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
+import replicant.ReplicantTestUtil;
 import replicant.ValueUtil;
 
 public class ChangeSetMessageTest extends AbstractReplicantTest {
@@ -151,5 +152,23 @@ public class ChangeSetMessageTest extends AbstractReplicantTest {
                 exception.getMessage(),
                 "Replicant-0012: ChangeSetMessage.getEntityChanges() invoked when no changes are present. Should guard"
                         + " call with ChangeSetMessage.hasEntityChanges().");
+    }
+
+    @Test
+    public void getChanges_WhenNoneAndApiInvariantsDisabled() {
+        ReplicantTestUtil.noCheckApiInvariants();
+        final ChangeSetMessage changeSet = ChangeSetMessage.create(null, null, null, null, null, null);
+
+        assertEquals(
+                expectThrows(AssertionError.class, changeSet::getSubscriptionChanges)
+                        .getMessage(),
+                "Change Set has no Subscription Changes");
+        assertEquals(
+                expectThrows(AssertionError.class, changeSet::getFilterParameterSubscriptionChanges)
+                        .getMessage(),
+                "Change Set has no Filter Parameter Subscription Changes");
+        assertEquals(
+                expectThrows(AssertionError.class, changeSet::getEntityChanges).getMessage(),
+                "Change Set has no Entity Changes");
     }
 }

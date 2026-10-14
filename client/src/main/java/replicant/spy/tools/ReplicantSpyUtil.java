@@ -2,6 +2,7 @@ package replicant.spy.tools;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import replicant.Replicant;
 import replicant.ReplicantContext;
 
@@ -40,8 +41,7 @@ public final class ReplicantSpyUtil {
     public static void disableSpyEventLogging() {
         if (Replicant.areSpiesEnabled() && isSpyEventLoggingEnabled()) {
             final ReplicantContext context = Replicant.context();
-            final ConsoleSpyEventProcessor handler = c_processors.remove(context);
-            assert null != handler;
+            final ConsoleSpyEventProcessor handler = Objects.requireNonNull(c_processors.remove(context));
             context.getSpy().removeSpyEventHandler(handler);
         }
     }

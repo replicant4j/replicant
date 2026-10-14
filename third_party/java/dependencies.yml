@@ -140,7 +140,7 @@ artifacts:
     includeSource: false
     excludes:
       - '*:*'
-  - coord: com.uber.nullaway:nullaway:0.13.7
+  - coord: com.uber.nullaway:nullaway:0.14.2
     includeSource: false
   - coord: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
     includeSource: false

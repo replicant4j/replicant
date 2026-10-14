@@ -115,7 +115,7 @@ public class ReplicantMessageBrokerImplTest {
         final var threadCount = 8;
         final var ready = new CountDownLatch(threadCount);
         final var start = new CountDownLatch(1);
-        final var failure = new AtomicReference<Throwable>();
+        final var failure = new AtomicReference<@Nullable Throwable>();
         final var threads = new ArrayList<Thread>();
 
         for (var i = 0; i < threadCount; i++) {
@@ -532,7 +532,7 @@ public class ReplicantMessageBrokerImplTest {
 
         @NonNull
         DrainTaskThread startNextDrainTaskInNewThread() {
-            final var failure = new AtomicReference<Throwable>();
+            final var failure = new AtomicReference<@Nullable Throwable>();
             final var thread = new Thread(() -> {
                 try {
                     runNextDrainTask();
@@ -549,9 +549,9 @@ public class ReplicantMessageBrokerImplTest {
             private final Thread _thread;
 
             @NonNull
-            private final AtomicReference<Throwable> _failure;
+            private final AtomicReference<@Nullable Throwable> _failure;
 
-            DrainTaskThread(@NonNull final Thread thread, @NonNull final AtomicReference<Throwable> failure) {
+            DrainTaskThread(@NonNull final Thread thread, @NonNull final AtomicReference<@Nullable Throwable> failure) {
                 _thread = thread;
                 _failure = failure;
             }
