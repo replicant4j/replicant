@@ -16,9 +16,6 @@ build --strategy=JavaDeployJar=local
 build --strategy=JavaSourceJar=local
 build --strategy=Turbine=local
 
-# Remove unused java header compilation
-build --nojava_header_compilation
-
 # Checks that a Java target explicitly declares all directly used targets as dependencies.
 test --experimental_strict_java_deps error
 build --experimental_strict_java_deps error
