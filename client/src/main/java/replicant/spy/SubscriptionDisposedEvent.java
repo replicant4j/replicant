@@ -4,6 +4,7 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.DatasetAddress;
 import replicant.Subscription;
 
@@ -24,7 +25,7 @@ public final class SubscriptionDisposedEvent implements SerializableEvent {
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Subscription.Disposed");
         final DatasetAddress datasetAddress = getSubscription().datasetAddress();
         map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());

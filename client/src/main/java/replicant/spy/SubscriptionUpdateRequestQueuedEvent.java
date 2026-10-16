@@ -34,7 +34,7 @@ public final class SubscriptionUpdateRequestQueuedEvent implements SerializableE
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Connector.SubscriptionUpdateRequestQueued");
         final DatasetAddress datasetAddress = getDatasetAddress();
         map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());

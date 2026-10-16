@@ -4,6 +4,7 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Notification when a Connector has connected to the DataSource.
@@ -29,7 +30,7 @@ public final class ConnectedEvent implements SerializableEvent {
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Connector.Connect");
         map.put("systemSchema.id", getSystemSchemaId());
         map.put("systemSchema.name", getSystemSchemaName());

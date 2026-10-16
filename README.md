@@ -27,7 +27,6 @@ The Bazel workflow requires JDK 17+ on `JAVA_HOME` or `PATH` and uses `./bazelw`
 * Build public output jars: `./bazelw build //client:client //server:server`
 * Build the eight Maven publication artifacts: `./bazelw build //tools/release:maven_artifacts`
 * Optimized-link the full J2CL client graph: `./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke`
-* Compile all four real GWT module variants: `./bazelw build //client/src/test/gwt:all_gwt_assets`
 * Run all Bazel tests: `./bazelw test //...`
 * Run the current repository gate: `tools/check.sh`
 * Check Bazel file formatting: `./bazelw run //:buildifier_check`
@@ -61,12 +60,12 @@ remain untracked and are included in the client main and source jars; published 
 signed Maven Central bundle with `tools/package_maven_central.sh <version>` and see
 [`tools/release/README.md`](tools/release/README.md) for the complete release and recovery workflow.
 
-The full client and shared graph, including generated Arez sources, is permanently verified with an optimized J2CL
-link and real GWT 2.13.1 compiler builds for Replicant, ReplicantDev, and ReplicantDebug.
+The full client and shared graph, including generated Arez sources, is verified with an optimized J2CL link.
+GWT is no longer supported; client applications must use J2CL.
 
 It should be noted that replicant is designed to be integrated with other technologies, most notably
 [Domgen](https://github.com/realityforge/domgen), to provide a complete solution. It is most commonly
-used with an Java EE server component and a GWT front-end but it was originally derived from a client-server
+used with a Java EE server component and a J2CL front-end but it was originally derived from a client-server
 Swing application that used a custom application server.
 
 ## Core Concepts
@@ -287,6 +286,6 @@ state is typically managed by the server, but client code can query both the reg
 
 Replicant is derived from several existing implementations of this strategy. It was initially based on code
 extracted from a client-server Swing application and a client-server game server. However it is predominantly
-used in GWT/HTML applications in it's current incarnation. Replicant also incorporates some ideas from
+used in Java browser applications in its current incarnation. Replicant also incorporates some ideas from
 [HLA](http://en.wikipedia.org/wiki/High-level_architecture_\(simulation\)) extracted from a research project
 conducted during the completion of a PhD.

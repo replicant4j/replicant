@@ -4,11 +4,58 @@ module(
 
 bazel_dep(name = "buildifier_prebuilt", version = "10.0.1", dev_dependency = True)
 
+bazel_dep(name = "zemeckis")
+git_override(
+    module_name = "zemeckis",
+    commit = "25ef6cd3499ff21405da75d4d074e7ed5bad06ae",
+    remote = "https://github.com/realityforge/zemeckis.git",
+)
+
+bazel_dep(name = "arez")
+git_override(
+    module_name = "arez",
+    commit = "c4e99b9c1dc61593a3a7adf12fd932f66d621271",
+    remote = "https://github.com/arez/arez.git",
+)
+
+bazel_dep(name = "braincheck")
+git_override(
+    module_name = "braincheck",
+    commit = "cf4f382f75a8660425d7637a88451c3a5596d887",
+    remote = "https://github.com/realityforge/braincheck.git",
+)
+
+bazel_dep(name = "proton_project", repo_name = "proton")
+git_override(
+    module_name = "proton_project",
+    commit = "d156a9d2eee74f1577cf8b7a03cd9a5a67a637ee",
+    remote = "https://github.com/realityforge/proton.git",
+)
+
+bazel_dep(name = "sting")
+git_override(
+    module_name = "sting",
+    commit = "b313be65dc351090e31fb53862f345c260f01e68",
+    remote = "https://github.com/sting-ioc/sting.git",
+)
+
 bazel_dep(name = "j2cl", version = "20260918")
 bazel_dep(name = "jsinterop_base", version = "1.2.0")
+single_version_override(
+    module_name = "jsinterop_base",
+    version = "1.2.0",
+)
+
 bazel_dep(name = "rules_closure", version = "0.17.0")
 bazel_dep(name = "rules_go", version = "0.63.0")
 bazel_dep(name = "rules_java", version = "9.9.0")
+single_version_override(
+    module_name = "rules_java",
+    patch_strip = 1,
+    patches = ["//third_party/bazel/patches:rules_java_exclude_build_data.patch"],
+    version = "9.9.0",
+)
+
 bazel_dep(name = "rules_jvm_external", version = "7.1")
 bazel_dep(name = "rules_palantir_java_format", version = "0.1.1")
 bazel_dep(name = "rules_webtesting", version = "0.4.1")
@@ -78,6 +125,7 @@ j2cl_maven.install(
         "com.google.j2objc:j2objc-annotations:2.8",
     ],
     known_contributing_modules = [
+        "zemeckis",
         "j2cl",
         "jsinterop_base",
         "protobuf",
@@ -92,13 +140,6 @@ use_repo(j2cl_maven, "maven")
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.29
 
 _http_file = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
-
-_http_file(
-    name = "colt",
-    downloaded_file_path = "colt/colt/1.2.0/colt-1.2.0.jar",
-    sha256 = "e1fcbfbdd0d0caedadfb59febace5a62812db3b9425f3a03ef4c4cbba3ed0ee3",
-    urls = ["https://repo.maven.apache.org/maven2/colt/colt/1.2.0/colt-1.2.0.jar"],
-)
 
 _http_file(
     name = "jcommander",
@@ -234,31 +275,10 @@ _http_file(
 )
 
 _http_file(
-    name = "icu4j",
-    downloaded_file_path = "com/ibm/icu/icu4j/71.1/icu4j-71.1.jar",
-    sha256 = "91c4f8ebf0ceb489547098fe9d5c09a65eb419caea6ed714867f5280800bcf1a",
-    urls = ["https://repo.maven.apache.org/maven2/com/ibm/icu/icu4j/71.1/icu4j-71.1.jar"],
-)
-
-_http_file(
     name = "nullaway",
     downloaded_file_path = "com/uber/nullaway/nullaway/0.14.2/nullaway-0.14.2.jar",
     sha256 = "eb02eb2da5ee30bcac4621a259a84153b20690078dc47ef920589b8371f456ed",
     urls = ["https://repo.maven.apache.org/maven2/com/uber/nullaway/nullaway/0.14.2/nullaway-0.14.2.jar"],
-)
-
-_http_file(
-    name = "commons_collections",
-    downloaded_file_path = "commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar",
-    sha256 = "eeeae917917144a68a741d4c0dff66aa5c5c5fd85593ff217bced3fc8ca783b8",
-    urls = ["https://repo.maven.apache.org/maven2/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar"],
-)
-
-_http_file(
-    name = "commons_io",
-    downloaded_file_path = "commons-io/commons-io/2.4/commons-io-2.4.jar",
-    sha256 = "cc6a41dc3eaacc9e440a6bd0d2890b20d36b4ee408fe2d67122f328bb6e01581",
-    urls = ["https://repo.maven.apache.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar"],
 )
 
 _http_file(
@@ -346,13 +366,6 @@ _http_file(
 )
 
 _http_file(
-    name = "javax_annotation_api",
-    downloaded_file_path = "javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar",
-    sha256 = "5909b396ca3a2be10d0eea32c74ef78d816e1b4ead21de1d78de1f890d033e04",
-    urls = ["https://repo.maven.apache.org/maven2/javax/annotation/javax.annotation-api/1.2/javax.annotation-api-1.2.jar"],
-)
-
-_http_file(
     name = "javax_enterprise_concurrent_api",
     downloaded_file_path = "javax/enterprise/concurrent/javax.enterprise.concurrent-api/1.1/javax.enterprise.concurrent-api-1.1.jar",
     sha256 = "53a3bf519994f2e0380f81b840f4f7fd256ac63607bc29a1c9c7395df8fb55b4",
@@ -409,20 +422,6 @@ _http_file(
 )
 
 _http_file(
-    name = "javax_servlet_api",
-    downloaded_file_path = "javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar",
-    sha256 = "af456b2dd41c4e82cf54f3e743bc678973d9fe35bd4d3071fa05c7e5333b8482",
-    urls = ["https://repo.maven.apache.org/maven2/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar"],
-)
-
-_http_file(
-    name = "validation_api",
-    downloaded_file_path = "javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar",
-    sha256 = "e459f313ebc6db2483f8ceaad39af07086361b474fa92e40f442e8de5d9895dc",
-    urls = ["https://repo.maven.apache.org/maven2/javax/validation/validation-api/1.0.0.GA/validation-api-1.0.0.GA.jar"],
-)
-
-_http_file(
     name = "byte_buddy",
     downloaded_file_path = "net/bytebuddy/byte-buddy/1.12.9/byte-buddy-1.12.9.jar",
     sha256 = "e305b6b5bdf8602bc5012efaa50c96b0fb922a3c60308ee1af85605b74d82710",
@@ -448,13 +447,6 @@ _http_file(
     downloaded_file_path = "net/bytebuddy/byte-buddy-agent/1.12.9/byte-buddy-agent-1.12.9-sources.jar",
     sha256 = "22a5d08ae9c72feb70ffa36383ff4a6f46856e1582edec0be6fc1ed10afba16e",
     urls = ["https://repo.maven.apache.org/maven2/net/bytebuddy/byte-buddy-agent/1.12.9/byte-buddy-agent-1.12.9-sources.jar"],
-)
-
-_http_file(
-    name = "ant",
-    downloaded_file_path = "org/apache/ant/ant/1.9.7/ant-1.9.7.jar",
-    sha256 = "9a5dbe3f5f2cb91854c8682cab80178afa412ab35a5ab718bf39ce01b3435d93",
-    urls = ["https://repo.maven.apache.org/maven2/org/apache/ant/ant/1.9.7/ant-1.9.7.jar"],
 )
 
 _http_file(
@@ -486,111 +478,6 @@ _http_file(
 )
 
 _http_file(
-    name = "ecj",
-    downloaded_file_path = "org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar",
-    sha256 = "f7686c4960cf70c2ebc5c500a73a8cfc04541b730c18f1c5c21329889b137f45",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar"],
-)
-
-_http_file(
-    name = "org_eclipse_jdt_core",
-    downloaded_file_path = "org/eclipse/jdt/org.eclipse.jdt.core/3.33.0/org.eclipse.jdt.core-3.33.0.jar",
-    sha256 = "c03cbbf5ab447d954efb8268a58dd9f2fe70f9e5d9be0a8371f79d785357eba3",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jdt/org.eclipse.jdt.core/3.33.0/org.eclipse.jdt.core-3.33.0.jar"],
-)
-
-_http_file(
-    name = "jetty_annotations",
-    downloaded_file_path = "org/eclipse/jetty/jetty-annotations/9.4.58.v20250814/jetty-annotations-9.4.58.v20250814.jar",
-    sha256 = "3fb094784c6ac6305ada43977f11c547c47fa5c4d8e321908d60ca645c0d6943",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-annotations/9.4.58.v20250814/jetty-annotations-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_continuation",
-    downloaded_file_path = "org/eclipse/jetty/jetty-continuation/9.4.58.v20250814/jetty-continuation-9.4.58.v20250814.jar",
-    sha256 = "9583e70d6a8ea8773589da6bed1a069ca16a4834289afcbb8a4199358262a083",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-continuation/9.4.58.v20250814/jetty-continuation-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_http",
-    downloaded_file_path = "org/eclipse/jetty/jetty-http/9.4.58.v20250814/jetty-http-9.4.58.v20250814.jar",
-    sha256 = "8f49b8583fc8dbbfe3a0ba80a04c97df64ebabca2981b56ee403c989aba9d4da",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-http/9.4.58.v20250814/jetty-http-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_io",
-    downloaded_file_path = "org/eclipse/jetty/jetty-io/9.4.58.v20250814/jetty-io-9.4.58.v20250814.jar",
-    sha256 = "f55b2cc7c05244fd7b1773e99979b740002b0186e45b8a688243d89c7006fe21",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-io/9.4.58.v20250814/jetty-io-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_jndi",
-    downloaded_file_path = "org/eclipse/jetty/jetty-jndi/9.4.58.v20250814/jetty-jndi-9.4.58.v20250814.jar",
-    sha256 = "78b9ad4290841ade1d9f98ca46ce72ea1a0f4062f6bb8825989021c4bc56f91c",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-jndi/9.4.58.v20250814/jetty-jndi-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_plus",
-    downloaded_file_path = "org/eclipse/jetty/jetty-plus/9.4.58.v20250814/jetty-plus-9.4.58.v20250814.jar",
-    sha256 = "726fcc1d0591545f55390df270537f87a7e0445beec094c207385b7edbd0a46d",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-plus/9.4.58.v20250814/jetty-plus-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_security",
-    downloaded_file_path = "org/eclipse/jetty/jetty-security/9.4.58.v20250814/jetty-security-9.4.58.v20250814.jar",
-    sha256 = "301548ebf008551a3a4312b04df0ea0468acc2780f863b83cc9cf0d668e62252",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-security/9.4.58.v20250814/jetty-security-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_server",
-    downloaded_file_path = "org/eclipse/jetty/jetty-server/9.4.58.v20250814/jetty-server-9.4.58.v20250814.jar",
-    sha256 = "608dbd3e1c4184374f02c70704e5d1c9daaded45e6a31d07824f40dac6083ba9",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-server/9.4.58.v20250814/jetty-server-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_servlet",
-    downloaded_file_path = "org/eclipse/jetty/jetty-servlet/9.4.58.v20250814/jetty-servlet-9.4.58.v20250814.jar",
-    sha256 = "1c6bb17326147e642c8a41e4657b32bca5057c8958db4da770d09c0904aefcff",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-servlet/9.4.58.v20250814/jetty-servlet-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_servlets",
-    downloaded_file_path = "org/eclipse/jetty/jetty-servlets/9.4.58.v20250814/jetty-servlets-9.4.58.v20250814.jar",
-    sha256 = "263a678be14b56765bcf6722d63cf2eb93eb6a8b10a7e44b00e669f2ce9dedcb",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-servlets/9.4.58.v20250814/jetty-servlets-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_util",
-    downloaded_file_path = "org/eclipse/jetty/jetty-util/9.4.58.v20250814/jetty-util-9.4.58.v20250814.jar",
-    sha256 = "8d591679d318d20c8fb2b1e83900562b3c4571ff7a189696be700293e0204146",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-util/9.4.58.v20250814/jetty-util-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_webapp",
-    downloaded_file_path = "org/eclipse/jetty/jetty-webapp/9.4.58.v20250814/jetty-webapp-9.4.58.v20250814.jar",
-    sha256 = "3f58ac238deb2218140ffa446661c1d1323752bc4b4ae01653d9500c3fca38aa",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-webapp/9.4.58.v20250814/jetty-webapp-9.4.58.v20250814.jar"],
-)
-
-_http_file(
-    name = "jetty_xml",
-    downloaded_file_path = "org/eclipse/jetty/jetty-xml/9.4.58.v20250814/jetty-xml-9.4.58.v20250814.jar",
-    sha256 = "2fc7f7364ec009fe2bbae574554994cef16c4230de170bd6be51ecd6f6bb95d3",
-    urls = ["https://repo.maven.apache.org/maven2/org/eclipse/jetty/jetty-xml/9.4.58.v20250814/jetty-xml-9.4.58.v20250814.jar"],
-)
-
-_http_file(
     name = "jakarta_inject",
     downloaded_file_path = "org/glassfish/hk2/external/jakarta.inject/2.6.1/jakarta.inject-2.6.1.jar",
     sha256 = "5e88c123b3e41bca788b2683118867d9b6dec714247ea91c588aed46a36ee24f",
@@ -616,34 +503,6 @@ _http_file(
     downloaded_file_path = "org/glassfish/javax.json/1.1/javax.json-1.1-sources.jar",
     sha256 = "2766ebfa95ca7499149d480d2c475874e2c573109a145d6f93b4495187d7469c",
     urls = ["https://repo.maven.apache.org/maven2/org/glassfish/javax.json/1.1/javax.json-1.1-sources.jar"],
-)
-
-_http_file(
-    name = "gwt_dev",
-    downloaded_file_path = "org/gwtproject/gwt-dev/2.13.1/gwt-dev-2.13.1.jar",
-    sha256 = "dff73e57bdaa9b43fa7306cb967c903754db8920c2fcc3a7cae4c9987ab495e0",
-    urls = ["https://repo.maven.apache.org/maven2/org/gwtproject/gwt-dev/2.13.1/gwt-dev-2.13.1.jar"],
-)
-
-_http_file(
-    name = "gwt_dev__sources",
-    downloaded_file_path = "org/gwtproject/gwt-dev/2.13.1/gwt-dev-2.13.1-sources.jar",
-    sha256 = "32bc664c88363383844bf17dab8edd7f12ef51d6b51c64590d86dde07c8936a0",
-    urls = ["https://repo.maven.apache.org/maven2/org/gwtproject/gwt-dev/2.13.1/gwt-dev-2.13.1-sources.jar"],
-)
-
-_http_file(
-    name = "gwt_user",
-    downloaded_file_path = "org/gwtproject/gwt-user/2.13.1/gwt-user-2.13.1.jar",
-    sha256 = "35109b8c4eb2a72809b45c496e6b508c5d0e7229e8737ae7211b2097470cead4",
-    urls = ["https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.13.1/gwt-user-2.13.1.jar"],
-)
-
-_http_file(
-    name = "gwt_user__sources",
-    downloaded_file_path = "org/gwtproject/gwt-user/2.13.1/gwt-user-2.13.1-sources.jar",
-    sha256 = "17ef447fcd2fa4a7659246a2474e47e5584c77524c8ee8f13698c83fb0c7e453",
-    urls = ["https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.13.1/gwt-user-2.13.1-sources.jar"],
 )
 
 _http_file(
@@ -689,115 +548,10 @@ _http_file(
 )
 
 _http_file(
-    name = "asm",
-    downloaded_file_path = "org/ow2/asm/asm/9.7.1/asm-9.7.1.jar",
-    sha256 = "8cadd43ac5eb6d09de05faecca38b917a040bb9139c7edeb4cc81c740b713281",
-    urls = ["https://repo.maven.apache.org/maven2/org/ow2/asm/asm/9.7.1/asm-9.7.1.jar"],
-)
-
-_http_file(
-    name = "asm_analysis",
-    downloaded_file_path = "org/ow2/asm/asm-analysis/9.7.1/asm-analysis-9.7.1.jar",
-    sha256 = "85b29371884ba31bb76edf22323c2c24e172c3267a67152eba3d1ccc2e041ef2",
-    urls = ["https://repo.maven.apache.org/maven2/org/ow2/asm/asm-analysis/9.7.1/asm-analysis-9.7.1.jar"],
-)
-
-_http_file(
-    name = "asm_commons",
-    downloaded_file_path = "org/ow2/asm/asm-commons/9.7.1/asm-commons-9.7.1.jar",
-    sha256 = "9a579b54d292ad9be171d4313fd4739c635592c2b5ac3a459bbd1049cddec6a0",
-    urls = ["https://repo.maven.apache.org/maven2/org/ow2/asm/asm-commons/9.7.1/asm-commons-9.7.1.jar"],
-)
-
-_http_file(
-    name = "asm_tree",
-    downloaded_file_path = "org/ow2/asm/asm-tree/9.7.1/asm-tree-9.7.1.jar",
-    sha256 = "9929881f59eb6b840e86d54570c77b59ce721d104e6dfd7a40978991c2d3b41f",
-    urls = ["https://repo.maven.apache.org/maven2/org/ow2/asm/asm-tree/9.7.1/asm-tree-9.7.1.jar"],
-)
-
-_http_file(
-    name = "asm_util",
-    downloaded_file_path = "org/ow2/asm/asm-util/9.7.1/asm-util-9.7.1.jar",
-    sha256 = "f885be71b5c90556f5f1ad1c4f9276b29b96057c497d46666fe4ddbec3cb43c6",
-    urls = ["https://repo.maven.apache.org/maven2/org/ow2/asm/asm-util/9.7.1/asm-util-9.7.1.jar"],
-)
-
-_http_file(
-    name = "arez_core",
-    downloaded_file_path = "org/realityforge/arez/arez-core/0.256/arez-core-0.256.jar",
-    sha256 = "e660a1564ff4f394e28661c264263de341acb3bf396be8abbc4bce866c4a5321",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.256/arez-core-0.256.jar"],
-)
-
-_http_file(
-    name = "arez_core__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-core/0.256/arez-core-0.256-sources.jar",
-    sha256 = "db8f2565a97c4911f7ed6bd98f78e59b96a81e650d477c8d902eb66336b97426",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-core/0.256/arez-core-0.256-sources.jar"],
-)
-
-_http_file(
-    name = "arez_extras_testng",
-    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.256/arez-extras-testng-0.256.jar",
-    sha256 = "cfd2d1ce4077f0b2f13b072152abc44a266ddc48b74d07400a758ef305f60a88",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.256/arez-extras-testng-0.256.jar"],
-)
-
-_http_file(
-    name = "arez_extras_testng__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-extras-testng/0.256/arez-extras-testng-0.256-sources.jar",
-    sha256 = "025d0c370d2111e6cd8f1b5c41bbe50e8ae25c170eb352a7dd937e82c8a0207b",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-extras-testng/0.256/arez-extras-testng-0.256-sources.jar"],
-)
-
-_http_file(
-    name = "arez_processor",
-    downloaded_file_path = "org/realityforge/arez/arez-processor/0.256/arez-processor-0.256.jar",
-    sha256 = "2a0a2e9f7b23aeb68197261fe6c33d5609b6d05e8f180062c4153fd0a94f5fc8",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.256/arez-processor-0.256.jar"],
-)
-
-_http_file(
-    name = "arez_processor__sources",
-    downloaded_file_path = "org/realityforge/arez/arez-processor/0.256/arez-processor-0.256-sources.jar",
-    sha256 = "32f08b1b57219b3bce7d68cd8cc17e348bd9db4dee76190ba0ef4770761c83ac",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/arez/arez-processor/0.256/arez-processor-0.256-sources.jar"],
-)
-
-_http_file(
     name = "bazel_depgen",
     downloaded_file_path = "org/realityforge/bazel/depgen/bazel-depgen/0.29/bazel-depgen-0.29-all.jar",
     sha256 = "d0daed0637d526dab0c1699524f63296fe0e50d9aef928ac6733c1b4ce95763e",
     urls = ["https://repo.maven.apache.org/maven2/org/realityforge/bazel/depgen/bazel-depgen/0.29/bazel-depgen-0.29-all.jar"],
-)
-
-_http_file(
-    name = "braincheck_core",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0.jar",
-    sha256 = "6d37351d8be23c2dd5b0c06a75cf6d1eaf70a8cad9300ce4bcf2d2d92de74b94",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0.jar"],
-)
-
-_http_file(
-    name = "braincheck_core__sources",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0-sources.jar",
-    sha256 = "2111c57c8b83e4e0e75dfe6f00b13dedd7c8484a91f8331fbd00c657cc9ed9d2",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-core/1.35.0/braincheck-core-1.35.0-sources.jar"],
-)
-
-_http_file(
-    name = "braincheck_testng",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0.jar",
-    sha256 = "927179a7588ab3c5f9411e4dd6f6cd98efba5177cd0c0e1489cb633f9145bbb2",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0.jar"],
-)
-
-_http_file(
-    name = "braincheck_testng__sources",
-    downloaded_file_path = "org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0-sources.jar",
-    sha256 = "ec75ee71c935a231ac6c20a23eb28485b2e864e45cd9582facab62aa89d32172",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/braincheck/braincheck-testng/1.35.0/braincheck-testng-1.35.0-sources.jar"],
 )
 
 _http_file(
@@ -871,20 +625,6 @@ _http_file(
 )
 
 _http_file(
-    name = "zemeckis_core",
-    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18.jar",
-    sha256 = "9fecd374ffd669e2816685d74f7c1d7b1dc746103bd932ea9c9ee6659132d827",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18.jar"],
-)
-
-_http_file(
-    name = "zemeckis_core__sources",
-    downloaded_file_path = "org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18-sources.jar",
-    sha256 = "052da3cd335515041c0ab0c27b7abc760fb7870b7241f35d23e0c4e6f7a02e26",
-    urls = ["https://repo.maven.apache.org/maven2/org/realityforge/zemeckis/zemeckis-core/0.18/zemeckis-core-0.18-sources.jar"],
-)
-
-_http_file(
     name = "slf4j_api",
     downloaded_file_path = "org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar",
     sha256 = "d3ef575e3e4979678dc01bf1dcce51021493b4d11fb7f1be8ad982877c16a1c0",
@@ -913,13 +653,6 @@ _http_file(
 )
 
 _http_file(
-    name = "sac",
-    downloaded_file_path = "org/w3c/css/sac/1.3/sac-1.3.jar",
-    sha256 = "003785669f921aafe4f137468dd20a01a36111e94fd7449f26c16e7924d82d23",
-    urls = ["https://repo.maven.apache.org/maven2/org/w3c/css/sac/1.3/sac-1.3.jar"],
-)
-
-_http_file(
     name = "jquery",
     downloaded_file_path = "org/webjars/jquery/3.7.1/jquery-3.7.1.jar",
     sha256 = "262016dd3a559df87aefbe392804e9bf620787c9204c0ab8522d4c231ea65097",
@@ -945,13 +678,6 @@ _http_file(
     downloaded_file_path = "org/yaml/snakeyaml/2.2/snakeyaml-2.2-sources.jar",
     sha256 = "8f7cf911cf63db55fd980a926d155bd846317737351a2f48ef1c1088c414538a",
     urls = ["https://repo.maven.apache.org/maven2/org/yaml/snakeyaml/2.2/snakeyaml-2.2-sources.jar"],
-)
-
-_http_file(
-    name = "tapestry",
-    downloaded_file_path = "tapestry/tapestry/4.0.2/tapestry-4.0.2.jar",
-    sha256 = "16dfc5b6b322bb0734b80e89d77fbeb987c809002fe59d52d9707a035949b107",
-    urls = ["https://repo.maven.apache.org/maven2/tapestry/tapestry/4.0.2/tapestry-4.0.2.jar"],
 )
 
 # --- depgen-generated repository rules end ---

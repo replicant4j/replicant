@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Consume pinned Zemeckis publication archives and preserve Braincheck native configuration in J2CL builds.
+* Retire GWT support, module resources and compiler gates. The client is supported through J2CL.
+* Build Arez and Braincheck from immutable upstream commits, including corrected Turbine constructor origins.
 * Enable JSpecify nullness checking and reject absent Change Set arrays even when API invariants are disabled.
 * Update Bazel to version `9.3.0`.
 * Use Bazel's default workspace output symlinks and ignore them in Git.

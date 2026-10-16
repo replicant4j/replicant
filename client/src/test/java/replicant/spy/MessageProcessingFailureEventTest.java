@@ -3,6 +3,7 @@ package replicant.spy;
 import static org.testng.Assert.*;
 
 import java.util.HashMap;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 
@@ -15,7 +16,7 @@ public class MessageProcessingFailureEventTest extends AbstractReplicantTest {
         assertEquals(event.getSystemSchemaId(), 23);
         assertEquals(event.getSystemSchemaName(), "Rose");
 
-        final HashMap<String, Object> data = new HashMap<>();
+        final HashMap<String, @Nullable Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.MessageProcessingFailure");
@@ -33,7 +34,7 @@ public class MessageProcessingFailureEventTest extends AbstractReplicantTest {
         assertEquals(event.getSystemSchemaId(), 23);
         assertEquals(event.getSystemSchemaName(), "Rose");
 
-        final HashMap<String, Object> data = new HashMap<>();
+        final HashMap<String, @Nullable Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.MessageProcessingFailure");

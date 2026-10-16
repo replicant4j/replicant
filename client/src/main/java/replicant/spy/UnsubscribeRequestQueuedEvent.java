@@ -4,6 +4,7 @@ import arez.spy.SerializableEvent;
 import java.util.Map;
 import java.util.Objects;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.DatasetAddress;
 
 /**
@@ -23,7 +24,7 @@ public final class UnsubscribeRequestQueuedEvent implements SerializableEvent {
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Connector.UnsubscribeRequestQueued");
         final DatasetAddress datasetAddress = getDatasetAddress();
         map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());

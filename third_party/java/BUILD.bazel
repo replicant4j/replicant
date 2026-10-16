@@ -1,7 +1,6 @@
 load("@j2cl//build_defs:rules.bzl", "j2cl_import", "j2cl_library")
 load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_library = "java_library", _java_plugin = "java_plugin", _java_test = "java_test")
 load("//third_party/java:rules.bzl", "java_library")
-load("//tools/j2cl:source_jar.bzl", "j2cl_source_jar")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -21,7 +20,7 @@ java_library(
 
 alias(
     name = "arez_processor_plugin",
-    actual = ":arez_processor__arez_processor_arezprocessor__plugin",
+    actual = "@arez//:arez_processor_plugin",
 )
 
 alias(
@@ -29,48 +28,81 @@ alias(
     actual = ":grim_processor__grim_processor_grimprocessor__plugin",
 )
 
+_java_import(
+    name = "arez_core",
+    jars = ["@arez//tools/release:core_jar"],
+    srcjar = "@arez//tools/release:core_sources",
+    deps = [
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javax_annotation",
+        ":jsinterop_annotations",
+        ":jspecify",
+        ":org_jetbrains_annotations",
+    ],
+)
+
+_java_import(
+    name = "arez_extras_testng",
+    jars = ["@arez//tools/release:testng_jar"],
+    srcjar = "@arez//tools/release:testng_sources",
+    deps = [
+        ":arez_core",
+        ":braincheck_core",
+        ":grim_annotations",
+        ":javax_annotation",
+        ":testng",
+    ],
+)
+
+_java_import(
+    name = "braincheck_core",
+    jars = ["@braincheck//tools/release:braincheck_core_jar"],
+    srcjar = "@braincheck//tools/release:braincheck_core_sources_jar",
+    deps = [
+        ":jsinterop_annotations",
+        ":jspecify",
+    ],
+)
+
+_java_import(
+    name = "braincheck_testng",
+    jars = ["@braincheck//tools/release:braincheck_testng_jar"],
+    srcjar = "@braincheck//tools/release:braincheck_testng_sources_jar",
+    deps = [
+        ":javax_json",
+        ":jsinterop_annotations",
+        ":jspecify",
+        ":testng",
+    ],
+)
+
+_java_import(
+    name = "zemeckis_core",
+    jars = ["@zemeckis//tools/release:zemeckis_core_jar"],
+    srcjar = "@zemeckis//tools/release:zemeckis_core_sources_jar",
+    deps = [
+        ":base",
+        ":braincheck_core",
+        ":grim_annotations",
+        ":jsinterop_annotations",
+        ":jspecify",
+        ":org_jetbrains_annotations",
+    ],
+)
+
 # --- depgen-generated targets start ---
 
 # DO NOT EDIT: Content is auto-generated from //third_party/java:dependencies.yml by https://github.com/realityforge/bazel-depgen version 0.29
 
 # SHA256 of the configuration content that generated this content
-_CONFIG_SHA256 = "E20635C6BE3189B075269672B4ED94850A52D10FD7FA7DEE5BE981F21133D94F"
+_CONFIG_SHA256 = "77707D7A15A547C6EA642824058875C2CC76487693587CAD758EF02A8C66B669"
 
 exports_files(["dependencies.yml"])
 
 # Dependency Graph Generated from the input data
-# +- colt:colt:jar:1.2.0 [compile]
 # +- com.google.code.gson:gson:jar:2.11.0 [compile]
 # +- com.google.code.findbugs:jsr305:jar:3.0.2 [compile]
-# +- com.ibm.icu:icu4j:jar:71.1 [compile]
-# +- commons-collections:commons-collections:jar:3.2.2 [compile]
-# +- commons-io:commons-io:jar:2.4 [compile]
-# +- javax.annotation:javax.annotation-api:jar:1.2 [compile]
-# +- javax.servlet:javax.servlet-api:jar:3.1.0 [compile]
-# +- javax.validation:validation-api:jar:1.0.0.GA [compile]
-# +- org.apache.ant:ant:jar:1.9.7 [compile]
-# +- org.eclipse.jdt:ecj:jar:3.33.0 [compile]
-# +- org.eclipse.jdt:org.eclipse.jdt.core:jar:3.33.0 [compile]
-# +- org.eclipse.jetty:jetty-annotations:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-continuation:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-http:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-io:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-jndi:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-plus:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-security:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-server:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-servlet:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-servlets:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-util:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-webapp:jar:9.4.58.v20250814 [compile]
-# +- org.eclipse.jetty:jetty-xml:jar:9.4.58.v20250814 [compile]
-# +- org.ow2.asm:asm:jar:9.7.1 [compile]
-# +- org.ow2.asm:asm-analysis:jar:9.7.1 [compile]
-# +- org.ow2.asm:asm-commons:jar:9.7.1 [compile]
-# +- org.ow2.asm:asm-tree:jar:9.7.1 [compile]
-# +- org.ow2.asm:asm-util:jar:9.7.1 [compile]
-# +- org.w3c.css:sac:jar:1.3 [compile]
-# +- tapestry:tapestry:jar:4.0.2 [compile]
 # +- com.uber.nullaway:nullaway:jar:0.14.2 [compile]
 # |  +- org.jspecify:jspecify:jar:1.0.1 [compile] (conflicts with 1.0.0)
 # |  +- org.checkerframework:dataflow-nullaway:jar:4.2.3 [runtime]
@@ -98,48 +130,17 @@ exports_files(["dependencies.yml"])
 # +- javax.persistence:javax.persistence-api:jar:2.2 [compile]
 # +- jakarta.transaction:jakarta.transaction-api:jar:1.3.3 [compile]
 # +- jakarta.websocket:jakarta.websocket-api:jar:1.1.2 [compile]
-# +- org.gwtproject:gwt-user:jar:2.13.1 [compile]
-# +- org.gwtproject:gwt-dev:jar:2.13.1 [compile]
 # +- org.realityforge.jndikit:jndikit:jar:1.4 [compile]
 # +- org.glassfish:javax.json:jar:1.1 [compile]
 # |  \- javax.json:javax.json-api:jar:1.1 [compile, optional]
-# +- org.realityforge.arez:arez-core:jar:0.256 [compile]
-# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
-# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
-# |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# +- org.realityforge.arez:arez-processor:jar:0.256 [compile]
-# +- org.realityforge.arez:arez-extras-testng:jar:0.256 [compile]
-# |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.1.1 [compile]
-# |  +- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
-# |  +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
-# |  \- org.realityforge.arez:arez-core:jar:0.256 [compile]
 # +- com.google.jsinterop:jsinterop-annotations:jar:2.1.0 [compile]
 # +- com.google.jsinterop:base:jar:1.0.0 [compile]
 # |  \- com.google.jsinterop:jsinterop-annotations:jar:1.0.2 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
-# |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
-# |  \- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# +- org.realityforge.braincheck:braincheck-testng:jar:1.35.0 [compile]
-# |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
-# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# |  +- org.glassfish:javax.json:jar:1.1 [compile]
-# |  \- org.testng:testng:jar:6.11 [compile] (conflicts with 7.10.2)
 # +- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # |  \- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
 # +- org.realityforge.grim:grim-processor:jar:0.09 [compile]
 # |  +- org.realityforge.javax.annotation:javax.annotation:jar:1.0.1 [compile] (conflicts with 1.1.1)
 # |  \- org.glassfish:javax.json:jar:1.1 [compile]
-# +- org.realityforge.zemeckis:zemeckis-core:jar:0.18 [compile]
-# |  +- org.jspecify:jspecify:jar:1.0.0 [compile]
-# |  +- com.google.jsinterop:jsinterop-annotations:jar:2.0.0 [compile] (conflicts with 2.1.0)
-# |  +- com.google.jsinterop:base:jar:1.0.0 [compile]
-# |  +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
-# |  +- org.realityforge.braincheck:braincheck-core:jar:1.35.0 [compile]
-# |  \- org.realityforge.grim:grim-annotations:jar:0.09 [compile]
 # +- org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:jar:1.7.0 [compile]
 # +- org.mockito:mockito-core:jar:4.5.1 [compile]
 # |  +- net.bytebuddy:byte-buddy:jar:1.12.9 [compile]
@@ -191,12 +192,6 @@ _java_binary(
     ],
     visibility = ["//visibility:private"],
     runtime_deps = [":bazel_depgen"],
-)
-
-_java_import(
-    name = "colt",
-    jars = ["@colt//file"],
-    tags = ["maven_coordinates=colt:colt:1.2.0"],
 )
 
 _java_import(
@@ -289,12 +284,6 @@ _java_import(
 )
 
 _java_import(
-    name = "icu4j",
-    jars = ["@icu4j//file"],
-    tags = ["maven_coordinates=com.ibm.icu:icu4j:71.1"],
-)
-
-_java_import(
     name = "nullaway",
     jars = ["@nullaway//file"],
     tags = ["maven_coordinates=com.uber.nullaway:nullaway:0.14.2"],
@@ -303,18 +292,6 @@ _java_import(
         ":guava",
     ],
     deps = [":jspecify"],
-)
-
-_java_import(
-    name = "commons_collections",
-    jars = ["@commons_collections//file"],
-    tags = ["maven_coordinates=commons-collections:commons-collections:3.2.2"],
-)
-
-_java_import(
-    name = "commons_io",
-    jars = ["@commons_io//file"],
-    tags = ["maven_coordinates=commons-io:commons-io:2.4"],
 )
 
 _java_import(
@@ -366,12 +343,6 @@ _java_import(
 )
 
 _java_import(
-    name = "javax_annotation_api",
-    jars = ["@javax_annotation_api//file"],
-    tags = ["maven_coordinates=javax.annotation:javax.annotation-api:1.2"],
-)
-
-_java_import(
     name = "enterprise_concurrent_api",
     jars = ["@javax_enterprise_concurrent_api//file"],
     srcjar = "@javax_enterprise_concurrent_api__sources//file",
@@ -402,18 +373,6 @@ _java_import(
 )
 
 _java_import(
-    name = "javax_servlet_api",
-    jars = ["@javax_servlet_api//file"],
-    tags = ["maven_coordinates=javax.servlet:javax.servlet-api:3.1.0"],
-)
-
-_java_import(
-    name = "validation_api",
-    jars = ["@validation_api//file"],
-    tags = ["maven_coordinates=javax.validation:validation-api:1.0.0.GA"],
-)
-
-_java_import(
     name = "byte_buddy",
     jars = ["@byte_buddy//file"],
     srcjar = "@byte_buddy__sources//file",
@@ -426,12 +385,6 @@ _java_import(
     srcjar = "@byte_buddy_agent__sources//file",
     tags = ["maven_coordinates=net.bytebuddy:byte-buddy-agent:1.12.9"],
     visibility = ["//visibility:private"],
-)
-
-_java_import(
-    name = "ant",
-    jars = ["@ant//file"],
-    tags = ["maven_coordinates=org.apache.ant:ant:1.9.7"],
 )
 
 _java_import(
@@ -452,96 +405,6 @@ _java_import(
 )
 
 _java_import(
-    name = "ecj",
-    jars = ["@ecj//file"],
-    tags = ["maven_coordinates=org.eclipse.jdt:ecj:3.33.0"],
-)
-
-_java_import(
-    name = "org_eclipse_jdt_core",
-    jars = ["@org_eclipse_jdt_core//file"],
-    tags = ["maven_coordinates=org.eclipse.jdt:org.eclipse.jdt.core:3.33.0"],
-)
-
-_java_import(
-    name = "jetty_annotations",
-    jars = ["@jetty_annotations//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-annotations:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_continuation",
-    jars = ["@jetty_continuation//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-continuation:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_http",
-    jars = ["@jetty_http//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-http:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_io",
-    jars = ["@jetty_io//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-io:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_jndi",
-    jars = ["@jetty_jndi//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-jndi:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_plus",
-    jars = ["@jetty_plus//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-plus:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_security",
-    jars = ["@jetty_security//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-security:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_server",
-    jars = ["@jetty_server//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-server:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_servlet",
-    jars = ["@jetty_servlet//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-servlet:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_servlets",
-    jars = ["@jetty_servlets//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-servlets:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_util",
-    jars = ["@jetty_util//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-util:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_webapp",
-    jars = ["@jetty_webapp//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-webapp:9.4.58.v20250814"],
-)
-
-_java_import(
-    name = "jetty_xml",
-    jars = ["@jetty_xml//file"],
-    tags = ["maven_coordinates=org.eclipse.jetty:jetty-xml:9.4.58.v20250814"],
-)
-
-_java_import(
     name = "jakarta_inject",
     jars = ["@jakarta_inject//file"],
     srcjar = "@jakarta_inject__sources//file",
@@ -553,20 +416,6 @@ _java_import(
     jars = ["@javax_json//file"],
     srcjar = "@javax_json__sources//file",
     tags = ["maven_coordinates=org.glassfish:javax.json:1.1"],
-)
-
-_java_import(
-    name = "gwt_dev",
-    jars = ["@gwt_dev//file"],
-    srcjar = "@gwt_dev__sources//file",
-    tags = ["maven_coordinates=org.gwtproject:gwt-dev:2.13.1"],
-)
-
-_java_import(
-    name = "gwt_user",
-    jars = ["@gwt_user//file"],
-    srcjar = "@gwt_user__sources//file",
-    tags = ["maven_coordinates=org.gwtproject:gwt-user:2.13.1"],
 )
 
 _java_import(
@@ -596,112 +445,9 @@ _java_import(
 )
 
 _java_import(
-    name = "asm",
-    jars = ["@asm//file"],
-    tags = ["maven_coordinates=org.ow2.asm:asm:9.7.1"],
-)
-
-_java_import(
-    name = "asm_analysis",
-    jars = ["@asm_analysis//file"],
-    tags = ["maven_coordinates=org.ow2.asm:asm-analysis:9.7.1"],
-)
-
-_java_import(
-    name = "asm_commons",
-    jars = ["@asm_commons//file"],
-    tags = ["maven_coordinates=org.ow2.asm:asm-commons:9.7.1"],
-)
-
-_java_import(
-    name = "asm_tree",
-    jars = ["@asm_tree//file"],
-    tags = ["maven_coordinates=org.ow2.asm:asm-tree:9.7.1"],
-)
-
-_java_import(
-    name = "asm_util",
-    jars = ["@asm_util//file"],
-    tags = ["maven_coordinates=org.ow2.asm:asm-util:9.7.1"],
-)
-
-_java_import(
-    name = "arez_core",
-    jars = ["@arez_core//file"],
-    srcjar = "@arez_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-core:0.256"],
-    deps = [
-        ":braincheck_core",
-        ":grim_annotations",
-        ":javax_annotation",
-        ":jsinterop_annotations",
-        ":jspecify",
-        ":org_jetbrains_annotations",
-    ],
-)
-
-_java_import(
-    name = "arez_extras_testng",
-    jars = ["@arez_extras_testng//file"],
-    srcjar = "@arez_extras_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-extras-testng:0.256"],
-    deps = [
-        ":arez_core",
-        ":braincheck_core",
-        ":grim_annotations",
-        ":javax_annotation",
-        ":testng",
-    ],
-)
-
-_java_import(
-    name = "arez_processor__plugin_library",
-    jars = ["@arez_processor//file"],
-    srcjar = "@arez_processor__sources//file",
-    tags = ["maven_coordinates=org.realityforge.arez:arez-processor:0.256"],
-)
-
-_java_plugin(
-    name = "arez_processor__arez_processor_arezprocessor__plugin",
-    generates_api = True,
-    processor_class = "arez.processor.ArezProcessor",
-    visibility = ["//visibility:private"],
-    deps = [":arez_processor__plugin_library"],
-)
-
-_java_library(
-    name = "arez_processor",
-    exported_plugins = ["arez_processor__arez_processor_arezprocessor__plugin"],
-)
-
-_java_import(
     name = "bazel_depgen",
     jars = ["@bazel_depgen//file"],
     tags = ["maven_coordinates=org.realityforge.bazel.depgen:bazel-depgen:0.29"],
-)
-
-_java_import(
-    name = "braincheck_core",
-    jars = ["@braincheck_core//file"],
-    srcjar = "@braincheck_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-core:1.35.0"],
-    deps = [
-        ":jsinterop_annotations",
-        ":jspecify",
-    ],
-)
-
-_java_import(
-    name = "braincheck_testng",
-    jars = ["@braincheck_testng//file"],
-    srcjar = "@braincheck_testng__sources//file",
-    tags = ["maven_coordinates=org.realityforge.braincheck:braincheck-testng:1.35.0"],
-    deps = [
-        ":javax_json",
-        ":jsinterop_annotations",
-        ":jspecify",
-        ":testng",
-    ],
 )
 
 _java_import(
@@ -758,21 +504,6 @@ _java_import(
 )
 
 _java_import(
-    name = "zemeckis_core",
-    jars = ["@zemeckis_core//file"],
-    srcjar = "@zemeckis_core__sources//file",
-    tags = ["maven_coordinates=org.realityforge.zemeckis:zemeckis-core:0.18"],
-    deps = [
-        ":base",
-        ":braincheck_core",
-        ":grim_annotations",
-        ":jsinterop_annotations",
-        ":jspecify",
-        ":org_jetbrains_annotations",
-    ],
-)
-
-_java_import(
     name = "slf4j_api",
     jars = ["@slf4j_api//file"],
     srcjar = "@slf4j_api__sources//file",
@@ -793,12 +524,6 @@ _java_import(
 )
 
 _java_import(
-    name = "sac",
-    jars = ["@sac//file"],
-    tags = ["maven_coordinates=org.w3c.css:sac:1.3"],
-)
-
-_java_import(
     name = "jquery",
     jars = ["@jquery//file"],
     srcjar = "@jquery__sources//file",
@@ -812,12 +537,6 @@ _java_import(
     srcjar = "@snakeyaml__sources//file",
     tags = ["maven_coordinates=org.yaml:snakeyaml:2.2"],
     visibility = ["//visibility:private"],
-)
-
-_java_import(
-    name = "tapestry",
-    jars = ["@tapestry//file"],
-    tags = ["maven_coordinates=tapestry:tapestry:4.0.2"],
 )
 
 # --- depgen-generated targets end ---
@@ -854,7 +573,8 @@ alias(
 
 j2cl_library(
     name = "braincheck_core-j2cl",
-    srcs = ["@braincheck_core__sources//file"],
+    # The combined binary archive includes Java sources and native configuration.
+    srcs = ["@braincheck//tools/release:braincheck_core_jar"],
     experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
     deps = [
         ":jsinterop_annotations-j2cl",
@@ -864,7 +584,7 @@ j2cl_library(
 
 j2cl_library(
     name = "arez_core-j2cl",
-    srcs = [":arez_core_j2cl_sources"],
+    srcs = ["@arez//tools/release:core_sources"],
     experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
     deps = [
         ":braincheck_core-j2cl",
@@ -876,15 +596,9 @@ j2cl_library(
     ],
 )
 
-j2cl_source_jar(
-    name = "arez_core_j2cl_sources",
-    src = "@arez_core__sources//file",
-    exclude_prefixes = ["org/jspecify/annotations/"],
-)
-
 j2cl_library(
     name = "zemeckis_core-j2cl",
-    srcs = ["@zemeckis_core__sources//file"],
+    srcs = ["@zemeckis//tools/release:zemeckis_core_jar"],
     experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
     deps = [
         ":base-j2cl",
