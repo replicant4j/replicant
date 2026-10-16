@@ -14,9 +14,7 @@ git_override(
 bazel_dep(name = "braincheck")
 git_override(
     module_name = "braincheck",
-    commit = "e34ad2685d8f691c7bac82bfc829fe64a4266bfb",
-    patch_strip = 1,
-    patches = ["//third_party/bazel/patches:braincheck_export_buildifier.patch"],
+    commit = "de60935b8456776e2edfa599a2064723f280f629",
     remote = "https://github.com/realityforge/braincheck.git",
 )
 

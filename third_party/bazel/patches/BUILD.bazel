@@ -1,7 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files([
-    "braincheck_export_buildifier.patch",
     "rules_java_exclude_build_data.patch",
     "j2cl_configurable_test_compilation.patch",
     "j2cl_expose_java_info.patch",
