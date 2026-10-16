@@ -6,6 +6,7 @@ import jsinterop.annotations.JsType;
 import jsinterop.base.Any;
 import jsinterop.base.Js;
 import jsinterop.base.JsArrayLike;
+import jsinterop.base.JsPropertyMap;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -21,7 +22,8 @@ public interface DatasetCacheVersionsData {
      */
     @JsOverlay
     default boolean containsDatasetAddress(@NonNull final String datasetAddress) {
-        return Js.asPropertyMap(this).has(datasetAddress);
+        final JsPropertyMap<?> properties = Js.cast(this);
+        return properties.has(datasetAddress);
     }
 
     /**
@@ -35,7 +37,9 @@ public interface DatasetCacheVersionsData {
         final int length = keys.getLength();
         final String[] datasetAddresses = new String[length];
         for (int i = 0; i < length; i++) {
-            datasetAddresses[i] = keys.getAt(i);
+            final String datasetAddress = keys.getAt(i);
+            assert null != datasetAddress;
+            datasetAddresses[i] = datasetAddress;
         }
         return datasetAddresses;
     }
@@ -43,7 +47,8 @@ public interface DatasetCacheVersionsData {
     @NonNull
     @JsOverlay
     default String getDatasetCacheVersion(@NonNull final String datasetAddress) {
-        final Any any = Js.asPropertyMap(this).getAsAny(datasetAddress);
+        final JsPropertyMap<?> properties = Js.cast(this);
+        final Any any = properties.getAsAny(datasetAddress);
         assert null != any;
         return any.asString();
     }

@@ -119,7 +119,7 @@ public final class WebSocketTransport extends AbstractTransport {
             // Attempts to perform a send can occur when there is no connection.
             // This typically happens when a previous request fails.
             if (null != _webSocket && BROWSER_WEBSOCKET_OPEN == _webSocket.readyState()) {
-                _webSocket.send(BrowserJson.stringify(Js.asAny(message)));
+                _webSocket.send(BrowserJson.stringify(message));
             }
         });
     }

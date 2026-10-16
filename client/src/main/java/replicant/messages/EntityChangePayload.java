@@ -3,7 +3,9 @@ package replicant.messages;
 import jsinterop.annotations.JsOverlay;
 import jsinterop.annotations.JsPackage;
 import jsinterop.annotations.JsType;
+import jsinterop.base.Any;
 import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -22,7 +24,8 @@ public interface EntityChangePayload {
      */
     @JsOverlay
     default boolean containsKey(@NonNull final String key) {
-        return Js.asPropertyMap(this).has(key);
+        final JsPropertyMap<?> properties = Js.cast(this);
+        return properties.has(key);
     }
 
     /**
@@ -33,7 +36,8 @@ public interface EntityChangePayload {
      */
     @JsOverlay
     default boolean isNull(@NonNull final String key) {
-        return null == Js.asPropertyMap(this).getAsAny(key);
+        final JsPropertyMap<?> properties = Js.cast(this);
+        return null == properties.getAsAny(key);
     }
 
     /**
@@ -44,7 +48,10 @@ public interface EntityChangePayload {
      */
     @JsOverlay
     default int getIntegerValue(@NonNull final String key) {
-        return Js.asPropertyMap(this).getAsAny(key).asInt();
+        final JsPropertyMap<?> properties = Js.cast(this);
+        final Any value = properties.getAsAny(key);
+        assert null != value;
+        return value.asInt();
     }
 
     /**
@@ -56,7 +63,10 @@ public interface EntityChangePayload {
     @NonNull
     @JsOverlay
     default String getStringValue(@NonNull final String key) {
-        return Js.asPropertyMap(this).getAsAny(key).asString();
+        final JsPropertyMap<?> properties = Js.cast(this);
+        final Any value = properties.getAsAny(key);
+        assert null != value;
+        return value.asString();
     }
 
     /**
@@ -67,6 +77,9 @@ public interface EntityChangePayload {
      */
     @JsOverlay
     default boolean getBooleanValue(@NonNull final String key) {
-        return Js.asPropertyMap(this).getAsAny(key).asBoolean();
+        final JsPropertyMap<?> properties = Js.cast(this);
+        final Any value = properties.getAsAny(key);
+        assert null != value;
+        return value.asBoolean();
     }
 }

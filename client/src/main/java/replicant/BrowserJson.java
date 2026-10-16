@@ -12,7 +12,7 @@ final class BrowserJson {
     static native Any parse(@NonNull String text);
 
     @NonNull
-    static native String stringify(@NonNull Any value);
+    static native String stringify(@NonNull Object value);
 
     private BrowserJson() {}
 }

@@ -111,6 +111,7 @@ _JAVA_JAVACOPTS = [
     "-Xep:JSpecifyUnrecognizedAnnotationLocation:ERROR",
     "-Xep:RequireExplicitNullMarking:ERROR",
     "-XepOpt:NullAway:JSpecifyMode=true",
+    "-XepOpt:NullAway:AssertsEnabled=true",
     "-XepOpt:NullAway:OnlyNullMarked=true",
     "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true",
     "-Aarez.warnings_as_errors=true",

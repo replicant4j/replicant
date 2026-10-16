@@ -90,10 +90,7 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
             final JsPropertyMap<String> index = getIndex(systemSchemaId);
             index.set(datasetAddress.asDatasetAddressDescriptor(), datasetCacheVersion);
             saveIndex(systemSchemaId, index);
-            getStorage()
-                    .setItem(
-                            datasetAddress.getDatasetCacheEntryStorageKey(),
-                            BrowserJson.stringify(Js.asAny(changeSet)));
+            getStorage().setItem(datasetAddress.getDatasetCacheEntryStorageKey(), BrowserJson.stringify(changeSet));
             return true;
         } catch (final Throwable e) {
             // This exception can occur when storage is full
@@ -108,7 +105,7 @@ public final class WebStorageDatasetCacheService implements DatasetCacheService 
         if (0 == BrowserObject.keys(index).getLength()) {
             storage.removeItem(key);
         } else {
-            storage.setItem(key, BrowserJson.stringify(Js.asAny(index)));
+            storage.setItem(key, BrowserJson.stringify(index));
         }
     }
 

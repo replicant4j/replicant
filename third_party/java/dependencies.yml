@@ -24,7 +24,7 @@ artifacts:
     includeSource: false
   - coord: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
     includeSource: false
-  - coord: org.jspecify:jspecify:1.0.0
+  - coord: org.jspecify:jspecify:1.0.1
     excludes:
       - '*:*'
   - coord: org.realityforge.javax.annotation:javax.annotation:1.1.1
@@ -58,7 +58,7 @@ artifacts:
   - coord: org.glassfish:javax.json:1.1
 
   - coord: com.google.jsinterop:jsinterop-annotations:2.1.0
-  - coord: com.google.jsinterop:base:1.0.0
+  - coord: com.google.jsinterop:base:1.2.0
 
   - coord: org.realityforge.grim:grim-annotations:0.09
   - coord: org.realityforge.grim:grim-processor:0.09
