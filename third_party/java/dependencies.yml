@@ -63,7 +63,6 @@ artifacts:
   - coord: org.realityforge.grim:grim-annotations:0.09
   - coord: org.realityforge.grim:grim-processor:0.09
 
-  - coord: org.realityforge.zemeckis:zemeckis-core:0.18
   - coord: org.realityforge.org.jetbrains.annotations:org.jetbrains.annotations:1.7.0
 
   - coord: org.mockito:mockito-core:4.5.1
@@ -89,3 +88,9 @@ replacements:
     targets:
       - target: ":braincheck_testng"
         nature: Java
+  - coord: org.realityforge.zemeckis:zemeckis-core
+    targets:
+      - target: ":zemeckis_core"
+        nature: Java
+      - target: ":zemeckis_core-j2cl"
+        nature: J2cl
