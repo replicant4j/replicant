@@ -1,0 +1,6 @@
+diff --git a/MODULE.bazel b/MODULE.bazel
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -5 +5 @@
+-bazel_dep(name = "buildifier_prebuilt", version = "8.5.1", dev_dependency = True)
++bazel_dep(name = "buildifier_prebuilt", version = "8.5.1")

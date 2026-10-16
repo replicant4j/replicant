@@ -34,7 +34,7 @@ public final class SubscribeRequestQueuedEvent implements SerializableEvent {
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Connector.SubscribeRequestQueued");
         final DatasetAddress datasetAddress = getDatasetAddress();
         map.put("datasetAddress.systemSchemaId", datasetAddress.systemSchemaId());

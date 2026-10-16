@@ -1,5 +1,0 @@
-<module>
-  <inherits name='replicant.Replicant'/>
-  <source path='' includes='SmokeEntryPoint.java'/>
-  <entry-point class='replicant.gwt.SmokeEntryPoint'/>
-</module>

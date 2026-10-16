@@ -3,6 +3,7 @@ package replicant.spy;
 import static org.testng.Assert.*;
 
 import java.util.HashMap;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.AreaOfInterest;
@@ -25,7 +26,7 @@ public class AreaOfInterestDisposedEventTest extends AbstractReplicantTest {
 
         assertEquals(event.getAreaOfInterest(), areaOfInterest);
 
-        final HashMap<String, Object> data = new HashMap<>();
+        final HashMap<String, @Nullable Object> data = new HashMap<>();
         safeAction(() -> event.toMap(data));
 
         assertEquals(data.get("type"), "AreaOfInterest.Disposed");

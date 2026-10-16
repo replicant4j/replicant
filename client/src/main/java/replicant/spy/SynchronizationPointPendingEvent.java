@@ -3,6 +3,7 @@ package replicant.spy;
 import arez.spy.SerializableEvent;
 import java.util.Map;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Notification when a Connector is not at a Synchronization Point.
@@ -19,7 +20,7 @@ public final class SynchronizationPointPendingEvent implements SerializableEvent
     }
 
     @Override
-    public void toMap(@NonNull final Map<String, Object> map) {
+    public void toMap(@NonNull final Map<String, @Nullable Object> map) {
         map.put("type", "Connector.SynchronizationPointPending");
         map.put("systemSchema.id", getSystemSchemaId());
     }

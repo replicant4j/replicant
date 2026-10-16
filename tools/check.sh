@@ -64,6 +64,5 @@ fi
 
 ./bazelw build //...
 ./bazelw build -c opt //client/src/test/j2cl:replicant_j2cl_smoke
-./bazelw build //client/src/test/gwt:all_gwt_assets
 ./bazelw test //...
 ./bazelw test //tools/release:all_tests --release_version=6.999

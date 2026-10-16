@@ -3,6 +3,7 @@ package replicant.spy;
 import static org.testng.Assert.*;
 
 import java.util.HashMap;
+import org.jspecify.annotations.Nullable;
 import org.testng.annotations.Test;
 import replicant.AbstractReplicantTest;
 import replicant.DatasetAddress;
@@ -19,7 +20,7 @@ public class SubscribeRequestQueuedEventTest extends AbstractReplicantTest {
         assertEquals(event.getDatasetAddress(), datasetAddress);
         assertEquals(event.getFilterParameter(), filterParameter);
 
-        final HashMap<String, Object> data = new HashMap<>();
+        final HashMap<String, @Nullable Object> data = new HashMap<>();
         event.toMap(data);
 
         assertEquals(data.get("type"), "Connector.SubscribeRequestQueued");

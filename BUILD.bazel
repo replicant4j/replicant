@@ -38,7 +38,6 @@ java_format_check(
     targets = [
         "//client/src/test/j2cl:MessageWireFormatTest_testlib",
         "//client/src/test/j2cl:browser_interop_linker",
-        "//client/src/test/java/replicant/gwt:smoke",
         "//client/src/test/java/replicant:client_diagnostic_messages_test",
         "//client:client_lib_impl",
         "//server/src/test/java/replicant/server/ee:AbstractReplicantServerAdapterTest",
@@ -64,7 +63,6 @@ java_format_check(
         "//server/src/test/java/replicant/server:EntityChangeTest",
         "//server/src/test/java/replicant/server:FilterParameterUtilTest",
         "//server/src/test/java/replicant/server:SubscriptionDependencyCandidateTest",
-        "//tools/j2cl/org/realityforge/replicant/j2cl:source_jar_builder_test",
         "//tools/release/org/realityforge/replicant/release:javadoc_jar_builder",
         "//tools/release:all_tests",
     ],
