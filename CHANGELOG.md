@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Update the Bazel Braincheck, Arez, and Zemeckis source pins for Java/J2CL-only Braincheck and consume the public library targets.
 * Upgrade JSpecify to version `1.0.1` and JsInterop Base to version `1.2.0`. Model required native message values with assertions and pass JavaScript values directly to JSON serialization.
 * Consume pinned Zemeckis publication archives and preserve Braincheck native configuration in J2CL builds.
 * Retire GWT support, module resources and compiler gates. The client is supported through J2CL.
