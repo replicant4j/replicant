@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Consume the public Braincheck and Arez Bazel labels and share their native J2CL compilations.
+
 * Upgrade JSpecify to version `1.0.1` and JsInterop Base to version `1.2.0`. Model required native message values with assertions and pass JavaScript values directly to JSON serialization.
 * Consume pinned Zemeckis publication archives and preserve Braincheck native configuration in J2CL builds.
 * Retire GWT support, module resources and compiler gates. The client is supported through J2CL.

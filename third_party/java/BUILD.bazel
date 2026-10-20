@@ -1,4 +1,4 @@
-load("@j2cl//build_defs:rules.bzl", "j2cl_import", "j2cl_library")
+load("@j2cl//build_defs:rules.bzl", "j2cl_import")
 load("@rules_java//java:defs.bzl", _java_binary = "java_binary", _java_import = "java_import", _java_library = "java_library", _java_plugin = "java_plugin", _java_test = "java_test")
 load("//third_party/java:rules.bzl", "java_library")
 
@@ -20,7 +20,7 @@ java_library(
 
 alias(
     name = "arez_processor_plugin",
-    actual = "@arez//:arez_processor_plugin",
+    actual = "@arez//:processor",
 )
 
 alias(
@@ -28,53 +28,24 @@ alias(
     actual = ":grim_processor__grim_processor_grimprocessor__plugin",
 )
 
-_java_import(
+alias(
     name = "arez_core",
-    jars = ["@arez//tools/release:core_jar"],
-    srcjar = "@arez//tools/release:core_sources",
-    deps = [
-        ":braincheck_core",
-        ":grim_annotations",
-        ":javax_annotation",
-        ":jsinterop_annotations",
-        ":jspecify",
-        ":org_jetbrains_annotations",
-    ],
+    actual = "@arez//:core",
 )
 
-_java_import(
+alias(
     name = "arez_extras_testng",
-    jars = ["@arez//tools/release:testng_jar"],
-    srcjar = "@arez//tools/release:testng_sources",
-    deps = [
-        ":arez_core",
-        ":braincheck_core",
-        ":grim_annotations",
-        ":javax_annotation",
-        ":testng",
-    ],
+    actual = "@arez//:testng",
 )
 
-_java_import(
+alias(
     name = "braincheck_core",
-    jars = ["@braincheck//tools/release:braincheck_core_jar"],
-    srcjar = "@braincheck//tools/release:braincheck_core_sources_jar",
-    deps = [
-        ":jsinterop_annotations",
-        ":jspecify",
-    ],
+    actual = "@braincheck//:core",
 )
 
-_java_import(
+alias(
     name = "braincheck_testng",
-    jars = ["@braincheck//tools/release:braincheck_testng_jar"],
-    srcjar = "@braincheck//tools/release:braincheck_testng_sources_jar",
-    deps = [
-        ":javax_json",
-        ":jsinterop_annotations",
-        ":jspecify",
-        ":testng",
-    ],
+    actual = "@braincheck//:testng",
 )
 
 _java_import(
@@ -575,41 +546,17 @@ alias(
     actual = "@jsinterop_base//:jsinterop-base-j2cl",
 )
 
-j2cl_library(
+alias(
     name = "braincheck_core-j2cl",
-    # The combined binary archive includes Java sources and native configuration.
-    srcs = ["@braincheck//tools/release:braincheck_core_jar"],
-    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
-    deps = [
-        ":jsinterop_annotations-j2cl",
-        ":jspecify-j2cl",
-    ],
+    actual = "@braincheck//:core-j2cl",
 )
 
-j2cl_library(
+alias(
     name = "arez_core-j2cl",
-    srcs = ["@arez//tools/release:core_sources"],
-    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
-    deps = [
-        ":braincheck_core-j2cl",
-        ":grim_annotations-j2cl",
-        ":javax_annotation-j2cl",
-        ":jsinterop_annotations-j2cl",
-        ":jspecify-j2cl",
-        ":org_jetbrains_annotations-j2cl",
-    ],
+    actual = "@arez//:core-j2cl",
 )
 
-j2cl_library(
+alias(
     name = "zemeckis_core-j2cl",
-    srcs = ["@zemeckis//tools/release:zemeckis_core_jar"],
-    experimental_enable_jspecify_support_do_not_enable_without_jspecify_static_checking_or_you_might_cause_an_outage = True,
-    deps = [
-        ":base-j2cl",
-        ":braincheck_core-j2cl",
-        ":grim_annotations-j2cl",
-        ":jsinterop_annotations-j2cl",
-        ":jspecify-j2cl",
-        ":org_jetbrains_annotations-j2cl",
-    ],
+    actual = "@zemeckis//core/src/main/java/zemeckis:core-j2cl",
 )
