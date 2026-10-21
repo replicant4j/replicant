@@ -3,8 +3,9 @@
 ### Unreleased
 
 * Update the Bazel Braincheck, Arez, and Zemeckis source pins for Java/J2CL-only Braincheck and consume the public library targets.
+* Export the handshake authentication API from the Bazel server library so consumers do not need the merged server JAR.
 * Upgrade JSpecify to version `1.0.1` and JsInterop Base to version `1.2.0`. Model required native message values with assertions and pass JavaScript values directly to JSON serialization.
-* Consume pinned Zemeckis publication archives and preserve Braincheck native configuration in J2CL builds.
+* Share source-owned Arez, Braincheck and Zemeckis J2CL libraries when linking with other applications, preserving their native configuration.
 * Retire GWT support, module resources and compiler gates. The client is supported through J2CL.
 * Build Arez and Braincheck from immutable upstream commits, including corrected Turbine constructor origins.
 * Enable JSpecify nullness checking and reject absent Change Set arrays even when API invariants are disabled.

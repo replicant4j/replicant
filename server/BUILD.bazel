@@ -30,6 +30,7 @@ java_server_library(
     exports = [
         "//server/src/main/java/replicant/server:server_core_lib",
         "//server/src/main/java/replicant/server/ee:ee_lib",
+        "//server/src/main/java/replicant/server/ee:handshake_auth_lib",
         "//server/src/main/java/replicant/server/json:json_lib",
         "//server/src/main/java/replicant/server/runtime:runtime_lib",
         "//server/src/main/java/replicant/server/transport:transport_lib",
