@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Declare reserved Dataset ID slots as nullable in the server System Schema constructor.
 * Update the Bazel Braincheck, Arez, and Zemeckis source pins for Java/J2CL-only Braincheck and consume the public library targets.
 * Export the handshake authentication API from the Bazel server library so consumers do not need the merged server JAR.
 * Upgrade JSpecify to version `1.0.1` and JsInterop Base to version `1.2.0`. Model required native message values with assertions and pass JavaScript values directly to JSON serialization.

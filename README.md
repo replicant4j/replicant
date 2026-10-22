@@ -122,6 +122,9 @@ filtering behavior. A Subscription materializes that Dataset at a Dataset Addres
 an initial Change Set that materializes the matching Entities as Replicas, followed by subsequent matching Entity
 Changes until it unsubscribes or disconnects.
 
+The server `SystemSchema` constructor takes Dataset arguments at their numeric IDs. Pass `null` for a reserved ID;
+`hasDataset` returns false for that slot, and `getDataset` rejects it.
+
 Within its System Schema, each Dataset definition has a compact Dataset ID used by runtime metadata and Dataset
 Addresses. It may also have a human-readable Dataset name for diagnostics. The Dataset ID identifies the reusable
 definition; it is distinct from the Dataset Root ID and Dataset Key that complete particular Dataset

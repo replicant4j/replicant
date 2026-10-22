@@ -3,6 +3,7 @@ package replicant.server.transport;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import replicant.server.DatasetAddress;
 
 /**
@@ -12,13 +13,13 @@ public final class SystemSchema {
     @NonNull
     private final String _name;
 
-    @NonNull
-    private final Dataset[] _datasets;
+    private final @Nullable Dataset[] _datasets;
 
     @NonNull
     private final Dataset[] _instanceDatasets;
 
-    public SystemSchema(@NonNull final String name, @NonNull final Dataset... datasets) {
+    /** Dataset arguments occupy their numeric IDs; null reserves an unused ID. */
+    public SystemSchema(@NonNull final String name, @Nullable final Dataset... datasets) {
         for (var i = 0; i < datasets.length; i++) {
             final var dataset = datasets[i];
             if (null != dataset && i != dataset.getId()) {
@@ -54,10 +55,11 @@ public final class SystemSchema {
      */
     @NonNull
     public Dataset getDataset(final int datasetId) {
-        if (!hasDataset(datasetId)) {
+        final var dataset = _datasets[datasetId];
+        if (null == dataset) {
             throw new IllegalArgumentException("Dataset with Dataset ID " + datasetId + " does not exist");
         }
-        return _datasets[datasetId];
+        return dataset;
     }
 
     public boolean hasDataset(final int datasetId) {
