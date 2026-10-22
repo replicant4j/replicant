@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+* Use the upstream rules_closure protobuf-rule migration and remove the redundant local patch.
 * Declare reserved Dataset ID slots as nullable in the server System Schema constructor.
 * Update the Bazel Braincheck, Arez, and Zemeckis source pins for Java/J2CL-only Braincheck and consume the public library targets.
 * Export the handshake authentication API from the Bazel server library so consumers do not need the merged server JAR.

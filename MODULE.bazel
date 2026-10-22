@@ -96,14 +96,15 @@ single_version_override(
     version = "0.2.25",
 )
 
-single_version_override(
+archive_override(
     module_name = "rules_closure",
+    integrity = "sha256-a+8E2hTyPhwYAPs2SM7Gc2T/iVtDXFiowXrU9JpS+Ew=",
     patch_strip = 1,
     patches = [
-        "//third_party/bazel/patches:rules_closure_use_protobuf_java_proto_library.patch",
         "//third_party/bazel/patches:rules_closure_suppress_unsafe_warning.patch",
     ],
-    version = "0.17.0",
+    strip_prefix = "rules_closure-5324b6eb9b37dc08bbe5996d67e042a9e4fd57eb",
+    urls = ["https://github.com/bazelbuild/rules_closure/archive/5324b6eb9b37dc08bbe5996d67e042a9e4fd57eb.tar.gz"],
 )
 
 single_version_override(
