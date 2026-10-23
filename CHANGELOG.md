@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+* Pin the consolidated J2CL compiler and matching Braincheck, Zemeckis, Arez and Sting revisions. Remove the local compilation-level and JavaInfo patches; retain the Java 25 Unsafe-warning policy.
+
 * Use the upstream rules_closure protobuf-rule migration and remove the redundant local patch.
 * Declare reserved Dataset ID slots as nullable in the server System Schema constructor.
 * Update the Bazel Braincheck, Arez, and Zemeckis source pins for Java/J2CL-only Braincheck and consume the public library targets.
