@@ -4,6 +4,11 @@ common --lockfile_mode=error
 common --tool_java_language_version=25
 common --tool_java_runtime_version=remotejdk_25
 
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+common --repo_env=BAZEL_NO_APPLE_CPP_TOOLCHAIN=1
+
+build --@protobuf//bazel/toolchains:prefer_prebuilt_protoc=true
+
 build --java_language_version=17
 test --java_language_version=17
 
@@ -23,10 +28,6 @@ build --experimental_strict_java_deps error
 # Explicitly specify a dependency to JUnit or Hamcrest in a java_test instead of accidentally obtaining from the TestRunner's deps
 test --explicit_java_test_deps
 build --explicit_java_test_deps
-
-build --host_copt=-Wno-deprecated-declarations
-build --host_cxxopt=-Wno-deprecated-declarations
-
 
 build --sandbox_default_allow_network=false
 
