@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import javax.enterprise.event.Event;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -16,12 +17,14 @@ import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import replicant.server.DatasetAddress;
 import replicant.server.transport.Dataset;
 import replicant.server.transport.ReplicantSession;
 import replicant.server.transport.ReplicantSessionAuthorization;
 import replicant.server.transport.ReplicantSessionManager;
+import replicant.server.transport.ReplicantSessionManagerImpl;
 import replicant.server.transport.SystemSchema;
 import replicant.shared.Messages;
 
@@ -78,6 +81,71 @@ public final class ReplicantEndpointTest {
         fixture.endpoint.onClose(fixture.session);
 
         verify(fixture.sessionManager, never()).invalidateSession(fixture.replicantSession);
+    }
+
+    @DataProvider
+    public Object[][] delayedCallbackModes() {
+        return new Object[][] {{"close"}, {"error"}, {"message"}};
+    }
+
+    @Test(dataProvider = "delayedCallbackModes")
+    public void delayedCallbackCannotUseSameIdReplacement(final String mode) throws IOException {
+        final var fixture = newFixture();
+        final var manager = new ReplicantSessionManagerImpl();
+        setField(fixture.endpoint, "_sessionManager", manager);
+        final var original = manager.createSession(fixture.session, fixture.authorization);
+        final var replacementSocket = mock(Session.class);
+        when(replacementSocket.getId()).thenReturn(fixture.replicantSessionId);
+        when(replacementSocket.isOpen()).thenReturn(true);
+        final var replacementAuthorization = mock(ReplicantSessionAuthorization.class);
+        doAnswer(invocation -> {
+                    assertSame(manager.getSession(fixture.replicantSessionId), original);
+                    when(fixture.session.isOpen()).thenReturn(false);
+                    manager.createSession(replacementSocket, replacementAuthorization);
+                    return null;
+                })
+                .when(fixture.session)
+                .close();
+        manager.removeAllSessions();
+        final var replacement = manager.getSession(fixture.replicantSessionId);
+        assertNotNull(replacement);
+
+        switch (mode) {
+            case "close" -> fixture.endpoint.onClose(fixture.session);
+            case "error" -> fixture.endpoint.onError(fixture.session, new IOException("Late error"));
+            case "message" -> fixture.endpoint.onMessage(fixture.session, createPingCommand(1));
+            default -> throw new AssertionError(mode);
+        }
+
+        assertSame(manager.getSession(fixture.replicantSessionId), replacement);
+        verify(replacementSocket, never()).close();
+        verify(replacementSocket, never()).close(any());
+        verify(replacementAuthorization, never()).close();
+        verifyNoInteractions(fixture.removedEvent, fixture.updatedEvent);
+    }
+
+    @Test
+    public void closeLookupCannotInvalidateAReplacementRegisteredDuringNotification() {
+        final var fixture = newFixture();
+        final var manager = new ReplicantSessionManagerImpl();
+        setField(fixture.endpoint, "_sessionManager", manager);
+        manager.createSession(fixture.session, fixture.authorization);
+        final var replacementSocket = mock(Session.class);
+        when(replacementSocket.getId()).thenReturn(fixture.replicantSessionId);
+        final var replacementAuthorization = mock(ReplicantSessionAuthorization.class);
+        doAnswer(invocation -> {
+                    manager.removeAllSessions();
+                    manager.createSession(replacementSocket, replacementAuthorization);
+                    return null;
+                })
+                .when(fixture.removedEvent)
+                .fire(any());
+
+        fixture.endpoint.onClose(fixture.session);
+
+        final var replacement = Objects.requireNonNull(manager.getSession(fixture.replicantSessionId));
+        assertSame(replacement.getWebSocketSession(), replacementSocket);
+        verify(replacementAuthorization, never()).close();
     }
 
     @Test

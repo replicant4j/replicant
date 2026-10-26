@@ -3,6 +3,13 @@ load("//third_party/java:rules.bzl", "java_testng")
 package(default_visibility = ["//:__pkg__"])
 
 java_testng(
+    name = "DatasetCacheConcurrencyTest",
+    srcs = ["DatasetCacheConcurrencyTest.java"],
+    test_class = "replicant.server.transport.DatasetCacheConcurrencyTest",
+    deps = ["//server:server_test_support"],
+)
+
+java_testng(
     name = "DatasetCacheEntryTest",
     srcs = ["DatasetCacheEntryTest.java"],
     test_class = "replicant.server.transport.DatasetCacheEntryTest",

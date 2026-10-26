@@ -3,6 +3,7 @@ package replicant.server.transport;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.*;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -11,14 +12,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.websocket.CloseReason;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import replicant.server.ChangeSet;
 import replicant.server.DatasetAddress;
@@ -34,6 +44,130 @@ import replicant.server.runtime.EntityChangeCandidateCacheUtil;
 import replicant.server.runtime.TransactionSynchronizationRegistryUtil;
 
 public class ReplicantSessionManagerImplTest {
+    @Test
+    public void blockedPingAllowsRegistryReadsCreationAndRemoval()
+            throws ExecutionException, IOException, InterruptedException, TimeoutException {
+        final var manager = new ReplicantSessionManagerImpl();
+        final var webSocket = mock(Session.class);
+        final var remote = mock(RemoteEndpoint.Basic.class);
+        when(webSocket.getId()).thenReturn("ping-session");
+        when(webSocket.isOpen()).thenReturn(true);
+        when(webSocket.getBasicRemote()).thenReturn(remote);
+        final var session = manager.createSession(webSocket, mock(ReplicantSessionAuthorization.class));
+        final var pingStarted = new CountDownLatch(1);
+        final var releasePing = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    pingStarted.countDown();
+                    assertTrue(releasePing.await(10, TimeUnit.SECONDS));
+                    return null;
+                })
+                .when(remote)
+                .sendPing(any());
+        final var newRemote = mock(RemoteEndpoint.Basic.class);
+        final var pool = Executors.newFixedThreadPool(2);
+        try {
+            final var ping = pool.submit(() -> {
+                manager.pingSessions();
+            });
+            assertTrue(pingStarted.await(5, TimeUnit.SECONDS));
+            final var registryWork = pool.submit(() -> {
+                assertSame(manager.getSession("ping-session"), session);
+                final var newWebSocket = mock(Session.class);
+                when(newWebSocket.getId()).thenReturn("new-session");
+                when(newWebSocket.isOpen()).thenReturn(true);
+                when(newWebSocket.getBasicRemote()).thenReturn(newRemote);
+                final var created = manager.createSession(newWebSocket, mock(ReplicantSessionAuthorization.class));
+                manager.invalidateSession(session);
+                assertNull(manager.getSession("ping-session"));
+                return created;
+            });
+            final var newSession = registryWork.get(5, TimeUnit.SECONDS);
+            assertSame(manager.getSession("new-session"), newSession);
+            releasePing.countDown();
+            ping.get(5, TimeUnit.SECONDS);
+            verify(remote).sendPing(any());
+            verify(newRemote, never()).sendPing(any());
+        } finally {
+            releasePing.countDown();
+            pool.shutdownNow();
+            assertTrue(pool.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    @DataProvider
+    public Object[][] interruptedLockHoldCounts() {
+        return new Object[][] {{0}, {1}};
+    }
+
+    @Test(dataProvider = "interruptedLockHoldCounts")
+    public void interruptedRequestPreservesExistingLockHolds(final int initialHolds)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+        final var webSocket = mock(Session.class);
+        when(webSocket.isOpen()).thenReturn(true);
+        final var session = new ReplicantSession(webSocket);
+        final var lock = session.getLock();
+        for (var i = 0; i < initialHolds; i++) {
+            lock.lock();
+        }
+        Thread.currentThread().interrupt();
+        try {
+            invokeInterruptedRequest(session);
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertEquals(lock.getHoldCount(), initialHolds);
+            verify(webSocket).close(any(CloseReason.class));
+        } finally {
+            Thread.interrupted();
+            while (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
+    @Test
+    public void interruptedWaitingRequestDoesNotUnlockAnotherThreadsHold()
+            throws ExecutionException, IOException, InterruptedException, TimeoutException {
+        final var webSocket = mock(Session.class);
+        when(webSocket.isOpen()).thenReturn(true);
+        final var session = new ReplicantSession(webSocket);
+        final var lock = session.getLock();
+        final var worker = new AtomicReference<Thread>();
+        final var started = new CountDownLatch(1);
+        final var pool = Executors.newSingleThreadExecutor();
+        lock.lock();
+        try {
+            final var request = pool.submit(() -> {
+                worker.set(Thread.currentThread());
+                started.countDown();
+                invokeInterruptedRequest(session);
+                assertTrue(Thread.currentThread().isInterrupted());
+                return null;
+            });
+            assertTrue(started.await(5, TimeUnit.SECONDS));
+            final var deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+            while (!lock.hasQueuedThread(worker.get())) {
+                assertTrue(System.nanoTime() < deadline, "Request did not wait for the connection lock");
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
+            }
+            worker.get().interrupt();
+            request.get(5, TimeUnit.SECONDS);
+            assertEquals(lock.getHoldCount(), 1);
+            verify(webSocket).close(any(CloseReason.class));
+        } finally {
+            lock.unlock();
+            pool.shutdownNow();
+            assertTrue(pool.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    private static void invokeInterruptedRequest(final ReplicantSession session)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        final var method = ReplicantSessionManagerImpl.class.getDeclaredMethod(
+                "sessionLockingRequest", String.class, ReplicantSession.class, Integer.class, Runnable.class);
+        method.setAccessible(true);
+        method.invoke(new ReplicantSessionManagerImpl(), "InterruptedTest", session, null, (Runnable)
+                () -> fail("Interrupted request executed its body"));
+    }
+
     @BeforeMethod
     public void setup() {
         RegistryUtil.bind();
@@ -1127,6 +1261,94 @@ public class ReplicantSessionManagerImplTest {
         manager.invalidateSession(session);
 
         verify(webSocketSession, never()).close();
+    }
+
+    @DataProvider
+    public Object[][] sessionRemovalModes() {
+        return new Object[][] {{false}, {true}};
+    }
+
+    @Test
+    public void removeAllSessions_preservesCloseCallbackLookupAndReplacementSession() throws IOException {
+        final var manager = new ReplicantSessionManagerImpl();
+        final var webSocketSession = mock(Session.class);
+        when(webSocketSession.getId()).thenReturn("session-1");
+        when(webSocketSession.isOpen()).thenReturn(true);
+        final var session = manager.createSession(webSocketSession, mock(ReplicantSessionAuthorization.class));
+        final var replacementWebSocketSession = mock(Session.class);
+        when(replacementWebSocketSession.getId()).thenReturn("session-1");
+        final var replacementAuthorization = mock(ReplicantSessionAuthorization.class);
+        doAnswer(invocation -> {
+                    // The endpoint looks up the closing session before publishing its removal event.
+                    assertSame(manager.getSession("session-1"), session);
+                    manager.createSession(replacementWebSocketSession, replacementAuthorization);
+                    return null;
+                })
+                .when(webSocketSession)
+                .close();
+
+        manager.removeAllSessions();
+
+        final var replacement = Objects.requireNonNull(manager.getSession("session-1"));
+        assertSame(replacement.getWebSocketSession(), replacementWebSocketSession);
+        verify(replacementAuthorization, never()).close();
+    }
+
+    @Test(dataProvider = "sessionRemovalModes")
+    public void sessionRemoval_allowsRegistryAccessDuringAuthorizationClose(final boolean removeAll)
+            throws ExecutionException, IOException, InterruptedException, TimeoutException {
+        final var manager = new ReplicantSessionManagerImpl();
+        final var webSocketSession = mock(Session.class);
+        when(webSocketSession.getId()).thenReturn("session-1");
+        when(webSocketSession.isOpen()).thenReturn(true);
+        final var authorization = mock(ReplicantSessionAuthorization.class);
+        final var closeStarted = new CountDownLatch(1);
+        final var releaseClose = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    closeStarted.countDown();
+                    assertTrue(releaseClose.await(10, TimeUnit.SECONDS));
+                    return null;
+                })
+                .when(authorization)
+                .close();
+        final var session = manager.createSession(webSocketSession, authorization);
+        final var executor = Executors.newFixedThreadPool(2);
+        try {
+            final var removal = executor.submit(() -> {
+                if (removeAll) {
+                    manager.removeAllSessions();
+                } else {
+                    manager.invalidateSession(session);
+                }
+            });
+            assertTrue(closeStarted.await(5, TimeUnit.SECONDS));
+            final var replacement = executor.submit(() -> {
+                if (removeAll) {
+                    assertSame(manager.getSession("session-1"), session);
+                    assertEquals(manager.getSessions(), Set.of(session));
+                } else {
+                    assertNull(manager.getSession("session-1"));
+                    assertTrue(manager.getSessions().isEmpty());
+                }
+                final var newWebSocketSession = mock(Session.class);
+                when(newWebSocketSession.getId()).thenReturn("session-2");
+                return manager.createSession(newWebSocketSession, mock(ReplicantSessionAuthorization.class));
+            });
+            // A request holding the authentication gate must be able to read the registry before close returns.
+            final var newSession = replacement.get(5, TimeUnit.SECONDS);
+            releaseClose.countDown();
+            removal.get(5, TimeUnit.SECONDS);
+
+            assertNull(manager.getSession("session-1"));
+            assertSame(manager.getSession("session-2"), newSession);
+            manager.invalidateSession(session);
+            verify(authorization).close();
+            verify(webSocketSession).close();
+        } finally {
+            releaseClose.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        }
     }
 
     @Test

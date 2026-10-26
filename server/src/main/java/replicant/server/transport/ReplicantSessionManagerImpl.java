@@ -141,14 +141,21 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         final var lock = session.getLock();
         try {
             lock.lockInterruptibly();
+        } catch (final InterruptedException ie) {
+            try {
+                session.closeDueToInterrupt();
+            } finally {
+                Thread.currentThread().interrupt();
+            }
+            return;
+        }
+        try {
             startReplicationInvocation(invocationKey, session, requestId);
             try {
                 action.run();
             } finally {
                 completeReplicationInvocation(invocationKey);
             }
-        } catch (final InterruptedException ie) {
-            session.closeDueToInterrupt();
         } finally {
             lock.unlock();
         }
@@ -273,15 +280,16 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
     @SuppressWarnings("resource")
     @Override
     public void invalidateSession(@NonNull final ReplicantSession session) {
-        var removed = false;
+        final boolean removed;
         _lock.writeLock().lock();
         try {
-            if (null != _sessions.remove(session.getReplicantSessionId())) {
-                removed = true;
-                session.close();
-            }
+            removed = _sessions.remove(session.getReplicantSessionId(), session);
         } finally {
             _lock.writeLock().unlock();
+        }
+        // Close callbacks can acquire application locks held by callers reading this registry.
+        if (removed) {
+            session.close();
         }
         if (LOG.isLoggable(removed ? Level.INFO : Level.FINE)) {
             LOG.log(
@@ -339,17 +347,20 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
 
     @SuppressWarnings({"WeakerAccess", "unused"})
     public void pingSessions() {
-        if (_lock.readLock().tryLock()) {
-            try {
-                for (final var session : _sessions.values()) {
-                    if (LOG.isLoggable(Level.FINEST)) {
-                        LOG.finest("Pinging websocket for Replicant Session ID " + session.getReplicantSessionId());
-                    }
-                    session.pingTransport();
-                }
-            } finally {
-                _lock.readLock().unlock();
+        if (!_lock.readLock().tryLock()) {
+            return;
+        }
+        final List<ReplicantSession> sessions;
+        try {
+            sessions = new ArrayList<>(_sessions.values());
+        } finally {
+            _lock.readLock().unlock();
+        }
+        for (final var session : sessions) {
+            if (LOG.isLoggable(Level.FINEST)) {
+                LOG.finest("Pinging websocket for Replicant Session ID " + session.getReplicantSessionId());
             }
+            session.pingTransport();
         }
     }
 
@@ -358,18 +369,30 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
      */
     @SuppressWarnings("WeakerAccess")
     public void removeAllSessions() {
-        var removedCount = 0;
-        if (_lock.writeLock().tryLock()) {
+        if (!_lock.writeLock().tryLock()) {
+            return;
+        }
+        final List<ReplicantSession> sessionsToRemove;
+        try {
+            sessionsToRemove = new ArrayList<>(_sessions.values());
+        } finally {
+            _lock.writeLock().unlock();
+        }
+        for (final var session : sessionsToRemove) {
+            // Keep the session discoverable until transport close callbacks have run.
+            session.close();
+            _lock.writeLock().lock();
             try {
-                removedCount = _sessions.size();
-                new ArrayList<>(_sessions.values()).forEach(ReplicantSession::close);
-                _sessions.clear();
+                _sessions.remove(session.getReplicantSessionId(), session);
             } finally {
                 _lock.writeLock().unlock();
             }
         }
-        if (LOG.isLoggable(Level.INFO) && removedCount > 0) {
-            LOG.log(Level.INFO, "event=session.removeAll removedCount=" + removedCount + " sessionCount=0");
+        if (LOG.isLoggable(Level.INFO) && !sessionsToRemove.isEmpty()) {
+            LOG.log(
+                    Level.INFO,
+                    "event=session.removeAll removedCount=" + sessionsToRemove.size() + " sessionCount="
+                            + getSessions().size());
         }
     }
 
@@ -1096,39 +1119,8 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                 assert dataset.isTypeDataset();
                 // Only Unfiltered Datasets can currently be Cacheable Datasets.
                 assert dataset.isUnfiltered();
-                for (var newDatasetAddress : newDatasetAddresses) {
-                    _datasetCacheEntriesLock.writeLock().lock();
-                    try {
-                        final var datasetCacheEntry = tryGetDatasetCacheEntry(newDatasetAddress);
-                        if (null != datasetCacheEntry) {
-                            final var datasetCacheVersion = datasetCacheEntry.getDatasetCacheVersion();
-                            if (datasetCacheVersion.equals(session.getDatasetCacheVersion(newDatasetAddress))) {
-                                final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
-                                _broker.queueDatasetCacheEntryReference(
-                                        session, requestId, newDatasetAddress, datasetCacheVersion);
-                                changeSet.setDeliveryRequired(false);
-                                _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, "1");
-                            } else {
-                                session.setDatasetCacheVersion(newDatasetAddress, null);
-                                final var datasetCacheEntryChangeSet = new ChangeSet();
-                                datasetCacheEntryChangeSet.merge(datasetCacheEntry.getChangeSet());
-                                queueCacheableDatasetChangeSet(
-                                        session, datasetCacheVersion, datasetCacheEntryChangeSet);
-                                changeSet.setDeliveryRequired(false);
-                            }
-
-                            final var subscription = session.createSubscription(newDatasetAddress, mode);
-                            subscription.setFilterParameter(filterParameter);
-                        } else {
-                            final var datasetCacheEntryChangeSet = new ChangeSet();
-                            datasetCacheEntryChangeSet.mergeSubscriptionChange(
-                                    newDatasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
-                            queueCacheableDatasetChangeSet(session, null, datasetCacheEntryChangeSet);
-                            changeSet.setDeliveryRequired(false);
-                        }
-                    } finally {
-                        _datasetCacheEntriesLock.writeLock().unlock();
-                    }
+                for (final var newDatasetAddress : newDatasetAddresses) {
+                    subscribeToCachedDataset(session, newDatasetAddress, filterParameter, changeSet, mode);
                 }
             } else {
                 _serverAdapter.collectSubscriptionData(session, newDatasetAddresses, filterParameter, changeSet, mode);
@@ -1242,6 +1234,49 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
         }
     }
 
+    private void subscribeToCachedDataset(
+            @NonNull final ReplicantSession session,
+            @NonNull final DatasetAddress datasetAddress,
+            @Nullable final JsonObject filterParameter,
+            @NonNull final ChangeSet changeSet,
+            @NonNull final SubscriptionMode mode) {
+        while (true) {
+            final var lookup = tryGetDatasetCacheEntry(datasetAddress);
+            _datasetCacheEntriesLock.readLock().lock();
+            try {
+                // Invalidation may replace an entry while its data is being collected outside the registry lock.
+                if (_datasetCacheEntries.get(datasetAddress) != lookup.entry()) {
+                    continue;
+                }
+                if (lookup.available()) {
+                    final var entry = lookup.entry();
+                    final var version = entry.getDatasetCacheVersion();
+                    if (version.equals(session.getDatasetCacheVersion(datasetAddress))) {
+                        final var requestId = (Integer) _registry.getResource(ServerConstants.REQUEST_ID_KEY);
+                        _broker.queueDatasetCacheEntryReference(session, requestId, datasetAddress, version);
+                        _registry.putResource(ServerConstants.DATASET_CACHE_ENTRY_HANDLED_KEY, "1");
+                    } else {
+                        session.setDatasetCacheVersion(datasetAddress, null);
+                        final var cachedChanges = new ChangeSet();
+                        cachedChanges.merge(entry.getChangeSet());
+                        queueCacheableDatasetChangeSet(session, version, cachedChanges);
+                    }
+                    final var subscription = session.createSubscription(datasetAddress, mode);
+                    subscription.setFilterParameter(filterParameter);
+                } else {
+                    final var invalidation = new ChangeSet();
+                    invalidation.mergeSubscriptionChange(
+                            datasetAddress, SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
+                    queueCacheableDatasetChangeSet(session, null, invalidation);
+                }
+                changeSet.setDeliveryRequired(false);
+                return;
+            } finally {
+                _datasetCacheEntriesLock.readLock().unlock();
+            }
+        }
+    }
+
     private void invalidateDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSystemSchema(), datasetAddress);
         _datasetCacheEntriesLock.writeLock().lock();
@@ -1268,59 +1303,44 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
      * Return the Dataset Cache Entry for a Dataset Address. The entry's Change Set has been collected before this
      * method returns. Each Dataset Cache Entry uses a separate lock while its Change Set is collected.
      */
-    @Nullable
-    private DatasetCacheEntry tryGetDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
+    @NonNull
+    private DatasetCacheLookup tryGetDatasetCacheEntry(@NonNull final DatasetAddress datasetAddress) {
         InvariantUtil.assertConcreteDatasetAddress(getSystemSchema(), datasetAddress);
         final var dataset = getSystemSchema().getDataset(datasetAddress);
         assert dataset.isCacheable();
-        // Filtered Datasets cannot currently be Cacheable Datasets.
+        // Filtered Datasets and Instance Datasets cannot currently be Cacheable Datasets.
         assert dataset.isUnfiltered();
-        // Instance Datasets cannot currently be Cacheable Datasets.
         assert dataset.isTypeDataset();
-        while (true) {
-            _datasetCacheEntriesLock.readLock().lock();
-            try {
-                final var datasetCacheEntry = _datasetCacheEntries.get(datasetAddress);
-                if (null != datasetCacheEntry) {
-                    datasetCacheEntry.getLock().writeLock().lock();
-                    try {
-                        if (!datasetCacheEntry.isInitialized()) {
-                            final var changeSet = new ChangeSet();
-                            _serverAdapter.collectSubscriptionData(
-                                    null,
-                                    Collections.singletonList(datasetAddress),
-                                    null,
-                                    changeSet,
-                                    SubscriptionMode.IMPLICIT);
-                            final var subscriptionChange = changeSet.getSubscriptionChanges().stream()
-                                    .filter(a -> a.datasetAddress().equals(datasetAddress))
-                                    .findFirst()
-                                    .orElse(null);
-                            final var action =
-                                    Objects.requireNonNull(subscriptionChange).type();
-                            if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == action) {
-                                return null;
-                            }
-                            assert SubscriptionChange.Type.SUBSCRIBE == action;
-                            datasetCacheEntry.init(changeSet);
-                        }
-                        return datasetCacheEntry;
-                    } finally {
-                        datasetCacheEntry.getLock().writeLock().unlock();
-                    }
+        final DatasetCacheEntry entry;
+        _datasetCacheEntriesLock.writeLock().lock();
+        try {
+            entry = _datasetCacheEntries.computeIfAbsent(datasetAddress, DatasetCacheEntry::new);
+        } finally {
+            _datasetCacheEntriesLock.writeLock().unlock();
+        }
+        entry.getLock().writeLock().lock();
+        try {
+            if (!entry.isInitialized()) {
+                final var changes = new ChangeSet();
+                _serverAdapter.collectSubscriptionData(
+                        null, Collections.singletonList(datasetAddress), null, changes, SubscriptionMode.IMPLICIT);
+                final var subscriptionChange = changes.getSubscriptionChanges().stream()
+                        .filter(change -> change.datasetAddress().equals(datasetAddress))
+                        .findFirst()
+                        .orElseThrow();
+                if (SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS == subscriptionChange.type()) {
+                    return new DatasetCacheLookup(entry, false);
                 }
-            } finally {
-                _datasetCacheEntriesLock.readLock().unlock();
+                assert SubscriptionChange.Type.SUBSCRIBE == subscriptionChange.type();
+                entry.init(changes);
             }
-
-            _datasetCacheEntriesLock.writeLock().lock();
-            try {
-                _datasetCacheEntries.computeIfAbsent(datasetAddress, DatasetCacheEntry::new);
-            } finally {
-                _datasetCacheEntriesLock.writeLock().unlock();
-            }
+            return new DatasetCacheLookup(entry, true);
+        } finally {
+            entry.getLock().writeLock().unlock();
         }
     }
+
+    private record DatasetCacheLookup(@NonNull DatasetCacheEntry entry, boolean available) {}
 
     /**
      * Clear every Dataset Cache Entry.

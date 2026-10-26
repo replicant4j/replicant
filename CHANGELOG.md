@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Prevent session-close deadlocks by releasing registry and session monitors before calling application authorization cleanup.
+* Keep delayed WebSocket callbacks and invalidation of an old session from closing or removing a same-ID replacement connection.
+* Preserve request-lock ownership and interruption during cancellation, release the session registry before transport pings, and collect cached datasets under per-entry locks with invalidation checked before subscription delivery.
 * Pin the consolidated J2CL compiler and matching Braincheck, Zemeckis, Arez and Sting revisions. Remove the local compilation-level and JavaInfo patches; retain the Java 25 Unsafe-warning policy.
 
 * Use the upstream rules_closure protobuf-rule migration and remove the redundant local patch.

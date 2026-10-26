@@ -354,7 +354,11 @@ public class ReplicantEndpoint {
     private ReplicantSession findReplicantSession(@NonNull final Session session) {
         try {
             final var replicantSessionId = session.getId();
-            return _sessionManager.getSession(replicantSessionId);
+            final var replicantSession = _sessionManager.getSession(replicantSessionId);
+            // A delayed callback must not target a new connection that reused the transport ID.
+            return null != replicantSession && replicantSession.getWebSocketSession() == session
+                    ? replicantSession
+                    : null;
         } catch (final Throwable ignored) {
             // This is sometimes called from onClose after the application has already been
             // un-deployed but the websockets have not completed closing. In this scenario

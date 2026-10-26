@@ -11,6 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.CloseReason;
@@ -28,6 +33,43 @@ import replicant.server.ValueUtil;
 import replicant.shared.Messages;
 
 public class ReplicantSessionTest {
+    @Test
+    public void close_allowsConcurrentCloseDuringAuthorizationCleanup()
+            throws ExecutionException, InterruptedException, TimeoutException {
+        final var authorization = mock(ReplicantSessionAuthorization.class);
+        final var session = new ReplicantSession(mock(Session.class), authorization);
+        final var closeStarted = new CountDownLatch(1);
+        final var releaseClose = new CountDownLatch(1);
+        doAnswer(invocation -> {
+                    closeStarted.countDown();
+                    assertFalse(Thread.holdsLock(session));
+                    assertTrue(releaseClose.await(10, TimeUnit.SECONDS));
+                    return null;
+                })
+                .when(authorization)
+                .close();
+        final var executor = Executors.newFixedThreadPool(2);
+        try {
+            final var firstClose = executor.submit(() -> {
+                session.close();
+            });
+            assertTrue(closeStarted.await(5, TimeUnit.SECONDS));
+            final var secondClose = executor.submit(() ->
+                    session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Request failed")));
+            secondClose.get(5, TimeUnit.SECONDS);
+            verify(authorization).close();
+
+            releaseClose.countDown();
+            firstClose.get(5, TimeUnit.SECONDS);
+            session.close();
+            verify(authorization).close();
+        } finally {
+            releaseClose.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        }
+    }
+
     @Test
     public void principal() {
         final var authorization = mock(ReplicantSessionAuthorization.class);

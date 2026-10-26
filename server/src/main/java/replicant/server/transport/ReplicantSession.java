@@ -217,9 +217,15 @@ public final class ReplicantSession implements Serializable, Closeable {
         }
     }
 
-    private synchronized void releaseAuthorization() {
-        if (!_authorizationClosed && null != _authorization) {
-            _authorizationClosed = true;
+    private void releaseAuthorization() {
+        if (null != _authorization) {
+            synchronized (this) {
+                if (_authorizationClosed) {
+                    return;
+                }
+                _authorizationClosed = true;
+            }
+            // Application cleanup can wait for a request that is concurrently closing this session.
             _authorization.close();
         }
     }
