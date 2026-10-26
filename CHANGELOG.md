@@ -16,7 +16,7 @@
 * Retire GWT support, module resources and compiler gates. The client is supported through J2CL.
 * Build Arez and Braincheck from immutable upstream commits, including corrected Turbine constructor origins.
 * Enable JSpecify nullness checking and reject absent Change Set arrays even when API invariants are disabled.
-* Update Bazel to version `9.3.0`.
+* Update Bazel to version `9.3.1`.
 * Use Bazel's default workspace output symlinks and ignore them in Git.
 * Use Palantir Java Format worker actions for graph-owned Java formatting checks and add `tools/java_format_watch.sh`.
 * Preserve every fixed Replicant JSON message property name under optimized J2CL compilation so clients and servers
