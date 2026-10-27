@@ -572,8 +572,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final TestSpyEventHandler handler = registerTestSpyEventHandler();
 
-        final MessageProcessing processing =
-                new MessageProcessing(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
+        final MessageProcessing processing = new MessageProcessing(
+                newSystemSchema(1), ChangeSetMessage.create(null, null, null, null, null, null), null);
         connector.onMessageProcessed(processing);
 
         handler.assertEventCount(1);
@@ -1003,8 +1003,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0"};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         assertNull(connector.getSchedulerLock());
 
@@ -1088,7 +1088,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                         request.getRequestId(), null, new String[] {subscriptionChange}, null, null, null),
                 request);
         processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+                Collections.singletonList(SubscriptionChange.from(connector.getSystemSchema(), subscriptionChange)));
         doAnswer(i -> {
                     newRequest(connection);
                     return null;
@@ -1113,8 +1113,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0"};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         final AtomicInteger callCount = new AtomicInteger();
         connector.setPostMessageProcessingAction(callCount::incrementAndGet);
@@ -1202,6 +1202,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1230,6 +1231,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1258,6 +1260,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1286,6 +1289,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1316,6 +1320,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1346,6 +1351,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1380,6 +1386,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1409,6 +1416,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1441,6 +1449,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1469,6 +1478,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1527,6 +1537,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 filterParameter,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -1603,6 +1614,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -1639,6 +1651,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1745,6 +1758,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (f, e) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1793,6 +1807,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -1837,6 +1852,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -1941,8 +1957,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         assertTrue(processing.needsSubscriptionChangesProcessed());
 
@@ -1968,7 +1984,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processSubscriptionChanges_subscribe_withFilter() {
-        final Connector connector = createConnector();
+        final Dataset dataset = new Dataset(
+                0,
+                "Filtered",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
+                false,
+                new FilterParameterCodec<>(value -> value, value -> value),
+                (filter, replica) -> true,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                java.util.List.of());
+        final Connector connector =
+                createConnector(new SystemSchema(1, "Test", new Dataset[] {dataset}, new EntityType[0]));
         final Connection connection = newConnection(connector);
 
         final int datasetId = 0;
@@ -1979,8 +2008,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         };
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, filterParameterSubscriptionChanges, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, filterParameterSubscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), filterParameterSubscriptionChanges[0])));
 
         assertTrue(processing.needsSubscriptionChangesProcessed());
 
@@ -2013,6 +2042,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -2038,7 +2068,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+                Collections.singletonList(SubscriptionChange.from(connector.getSystemSchema(), subscriptionChange)));
 
         connector.processSubscriptionChanges();
 
@@ -2063,6 +2093,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -2081,7 +2112,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+                Collections.singletonList(SubscriptionChange.from(connector.getSystemSchema(), subscriptionChange)));
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
@@ -2101,6 +2132,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 (filterParameter, replicaEntry) -> true,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -2119,7 +2151,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ChangeSetMessage.create(
                         null, null, null, new SubscriptionChangeMessage[] {subscriptionChange}, null, null));
         processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChange)));
+                Collections.singletonList(SubscriptionChange.from(connector.getSystemSchema(), subscriptionChange)));
 
         final IllegalStateException exception =
                 expectThrows(IllegalStateException.class, connector::processSubscriptionChanges);
@@ -2145,8 +2177,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0." + datasetRootId};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         assertTrue(processing.needsSubscriptionChangesProcessed());
 
@@ -2183,8 +2215,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"+0." + datasetAddress.datasetRootId()};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         final SubscriptionOperation operation =
                 new SubscriptionOperation(datasetAddress, SubscriptionOperation.Type.SUBSCRIBE, null);
@@ -2226,8 +2258,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
@@ -2267,8 +2299,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, ValueUtil.randomString(), SubscriptionMode.EXPLICIT);
 
@@ -2304,8 +2336,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"-0.72"};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         assertTrue(processing.needsSubscriptionChangesProcessed());
         assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
@@ -2332,8 +2364,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"-0." + datasetAddress.datasetRootId()};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         assertTrue(processing.needsSubscriptionChangesProcessed());
         assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
@@ -2364,8 +2396,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String[] subscriptionChanges = {"!0." + datasetAddress.datasetRootId()};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, subscriptionChanges, null, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         assertTrue(processing.needsSubscriptionChangesProcessed());
         assertEquals(processing.getSubscriptionUnsubscribeCount(), 0);
 
@@ -2392,6 +2424,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 filterParameter,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -2415,8 +2448,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         };
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         final Subscription initialSubscription =
                 createSubscription(datasetAddress, oldFilterParameter, SubscriptionMode.EXPLICIT);
@@ -2448,6 +2481,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 filterParameter,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -2470,8 +2504,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
         };
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
 
         final Subscription subscription =
                 createSubscription(datasetAddress, oldFilterParameter, SubscriptionMode.EXPLICIT);
@@ -2496,6 +2530,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 true,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -2507,11 +2542,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         final String oldFilterParameter = ValueUtil.randomString();
         final String newFilterParameter = ValueUtil.randomString();
         final SubscriptionChangeMessage[] subscriptionChanges =
-                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", newFilterParameter)};
+                new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.2223", null)};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         createSubscription(new DatasetAddress(1, 0, 2223), oldFilterParameter, SubscriptionMode.EXPLICIT);
 
         final IllegalStateException exception =
@@ -2525,7 +2560,20 @@ public final class ConnectorTest extends AbstractReplicantTest {
 
     @Test
     public void processSubscriptionChanges_update_missingSubscription() {
-        final Connector connector = createConnector();
+        final Dataset dataset = new Dataset(
+                0,
+                "Filtered",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.UPDATABLE,
+                false,
+                new FilterParameterCodec<>(value -> value, value -> value),
+                (filter, replica) -> true,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                java.util.List.of());
+        final Connector connector =
+                createConnector(new SystemSchema(1, "Test", new Dataset[] {dataset}, new EntityType[0]));
         final Connection connection = newConnection(connector);
 
         final String newFilterParameter = ValueUtil.randomString();
@@ -2533,8 +2581,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 new SubscriptionChangeMessage[] {SubscriptionChangeMessage.create("=0.42", newFilterParameter)};
         final MessageProcessing processing = setCurrentMessageProcessing(
                 connection, ChangeSetMessage.create(null, null, null, subscriptionChanges, null, null));
-        processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(1, subscriptionChanges[0])));
+        processing.setParsedSubscriptionChanges(Collections.singletonList(
+                SubscriptionChange.from(connector.getSystemSchema(), subscriptionChanges[0])));
         assertTrue(processing.needsSubscriptionChangesProcessed());
         assertEquals(processing.getSubscriptionUpdateCount(), 0);
 
@@ -2914,6 +2962,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 true,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -2928,7 +2977,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 ChangeSetMessage.create(null, datasetCacheVersion, subscriptionChanges, null, null, null);
         final MessageProcessing processing = setCurrentMessageProcessing(connection, changeSet);
         processing.setParsedSubscriptionChanges(
-                Collections.singletonList(SubscriptionChange.from(systemSchema.getId(), subscriptionChanges[0])));
+                Collections.singletonList(SubscriptionChange.from(systemSchema, subscriptionChanges[0])));
         final DatasetCacheService datasetCacheService = mock(DatasetCacheService.class);
         Replicant.context().setDatasetCacheService(datasetCacheService);
         when(datasetCacheService.storeDatasetCacheEntry(datasetAddress, datasetCacheVersion, changeSet))
@@ -3023,6 +3072,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3135,6 +3185,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3160,11 +3212,11 @@ public final class ConnectorTest extends AbstractReplicantTest {
         doAnswer(i -> {
                     callCount.incrementAndGet();
                     assertEquals(i.getArguments()[0], datasetAddress);
-                    assertEquals(i.getArguments()[1], filterParameter);
+                    assertEquals(i.getArguments()[1], java.util.Map.of("value", filterParameter));
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
+                .requestSubscribe(eq(datasetAddress), eq(java.util.Map.of("value", filterParameter)));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3191,6 +3243,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -3247,6 +3300,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 true,
                 Dataset.Visibility.UNIVERSAL,
@@ -3311,6 +3365,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3354,7 +3410,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestBulkSubscribe(any(), eq(filterParameter));
+                .requestBulkSubscribe(any(), eq(java.util.Map.of("value", filterParameter)));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3391,6 +3447,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3432,6 +3489,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3461,7 +3520,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestSubscribe(eq(datasetAddress), eq(filterParameter));
+                .requestSubscribe(eq(datasetAddress), eq(java.util.Map.of("value", filterParameter)));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3489,6 +3548,8 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3532,7 +3593,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                     return null;
                 })
                 .when(connector.getTransport())
-                .requestBulkSubscribe(any(), eq(filterParameter));
+                .requestBulkSubscribe(any(), eq(java.util.Map.of("value", filterParameter)));
 
         assertEquals(callCount.get(), 0);
         assertFalse(connection.getCurrentSubscriptionOperations().isEmpty());
@@ -3569,6 +3630,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3610,6 +3672,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3666,6 +3729,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3746,6 +3810,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -3785,6 +3850,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3817,6 +3883,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3858,6 +3925,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3898,6 +3966,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 mock(FilterParameterUpdateReplicaMatcher.class),
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -3940,6 +4009,7 @@ public final class ConnectorTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,

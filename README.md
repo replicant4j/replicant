@@ -139,6 +139,18 @@ Datasets have several independent dimensions:
 
 A Parameter-Filtered Dataset also has a `FilterParameterMode`: `FIXED` or `UPDATABLE`.
 
+Client Dataset constructors require a `FilterParameterCodec<T>` argument immediately after `keyed`.
+Supply `new FilterParameterCodec<>(Filter::toJson, Filter::fromJson)` for a parameter-filtered Dataset,
+and `null` for other Datasets. Both conversions are required; there is no implicit identity conversion.
+The encoder returns a JSON-compatible transport value and the decoder returns the application Filter Parameter.
+Replicant encodes single and bulk subscribe/update requests and decodes received Subscription Changes before
+storing their parameters. Null parameters pass through without invoking the codec. Applications, membership
+matchers and Subscription state continue to use the application representation.
+
+Use immutable Filter Parameter values with value-based `equals` and `hashCode`, such as Java records.
+Replicant uses `Objects.equals` for reconciliation, updates and batching in both Java and JavaScript.
+Wire-property order has no effect on Filter Parameter equality.
+
 Dataset Visibility controls how a Subscription may originate. External visibility permits an Area of Interest to
 request the Dataset directly. Internal visibility permits the Dataset to be reached through a Dataset Link or Required
 Type Dataset. Universal visibility permits both origins. Dataset Visibility does not authorize a particular

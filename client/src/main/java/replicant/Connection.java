@@ -123,8 +123,7 @@ abstract class Connection {
 
     void enqueueMessageForProcessing(
             @NonNull final ServerToClientMessage message, @Nullable final RequestEntry request) {
-        _pendingMessageProcessingQueue.add(
-                new MessageProcessing(_connector.getSystemSchema().getId(), message, request));
+        _pendingMessageProcessingQueue.add(new MessageProcessing(_connector.getSystemSchema(), message, request));
     }
 
     /**

@@ -247,6 +247,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.INTERNAL,
                 Collections.emptyList());
@@ -273,6 +274,7 @@ public class ReplicaEntryTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.INTERNAL,

@@ -207,6 +207,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -227,6 +228,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -257,6 +259,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -283,6 +286,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -308,6 +312,7 @@ public class SubscriptionTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,

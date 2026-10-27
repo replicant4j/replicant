@@ -94,6 +94,9 @@ public final class Dataset {
      * True when independently addressable selections of this Dataset require a Dataset Key.
      */
     private final boolean _keyed;
+
+    @Nullable
+    private final FilterParameterCodec<?> _filterParameterCodec;
     /**
      * The hook to re-evaluate Replica membership after an updatable Filter Parameter changes.
      */
@@ -113,6 +116,10 @@ public final class Dataset {
      */
     private final List<EntityType> _entityTypes;
 
+    /**
+     * Create a Dataset definition. Parameter-filtered Datasets require a Filter Parameter codec;
+     * all other Datasets must supply null for the codec.
+     */
     public Dataset(
             final int id,
             @Nullable final String name,
@@ -120,6 +127,7 @@ public final class Dataset {
             @NonNull final FilterMode filterMode,
             @Nullable final FilterParameterMode filterParameterMode,
             final boolean keyed,
+            @Nullable final FilterParameterCodec<?> filterParameterCodec,
             @Nullable final FilterParameterUpdateReplicaMatcher<?> filterParameterUpdateReplicaMatcher,
             final boolean cacheable,
             @NonNull final Visibility visibility,
@@ -157,6 +165,15 @@ public final class Dataset {
         _filterMode = Objects.requireNonNull(filterMode);
         _filterParameterMode = filterParameterMode;
         _keyed = keyed;
+        if (FilterMode.PARAMETER_FILTERED == filterMode) {
+            _filterParameterCodec = Objects.requireNonNull(filterParameterCodec, "filterParameterCodec");
+        } else {
+            if (null != filterParameterCodec) {
+                throw new IllegalArgumentException(
+                        "Only parameter-filtered Datasets may supply a Filter Parameter codec");
+            }
+            _filterParameterCodec = null;
+        }
         _filterParameterUpdateReplicaMatcher = filterParameterUpdateReplicaMatcher;
         _cacheable = cacheable;
         _visibility = Objects.requireNonNull(visibility);
@@ -259,6 +276,21 @@ public final class Dataset {
      */
     public boolean isKeyed() {
         return _keyed;
+    }
+
+    @Nullable
+    @SuppressWarnings("unchecked")
+    Object encodeFilterParameter(@Nullable final Object value) {
+        return null == value
+                ? null
+                : ((FilterParameterCodec<Object>) Objects.requireNonNull(_filterParameterCodec)).encode(value);
+    }
+
+    @Nullable
+    Object decodeFilterParameter(@Nullable final Object value) {
+        return null == value
+                ? null
+                : Objects.requireNonNull(_filterParameterCodec).decode(value);
     }
 
     /**

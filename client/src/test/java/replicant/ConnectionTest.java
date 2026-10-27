@@ -25,7 +25,7 @@ public class ConnectionTest extends AbstractReplicantTest {
 
         final RequestEntry request = connection.newRequest(ValueUtil.randomString(), false, null);
         final MessageProcessing processing =
-                new MessageProcessing(1, OkMessage.create(request.getRequestId()), request);
+                new MessageProcessing(newSystemSchema(1), OkMessage.create(request.getRequestId()), request);
         connection.setCurrentMessageProcessing(processing);
 
         assertEquals(connection.getCurrentMessageProcessing(), processing);

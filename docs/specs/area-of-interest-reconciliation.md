@@ -63,3 +63,5 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
     [Dataset Visibility](../glossary/README.md#dataset-visibility) permits a direct Area of Interest origin.
 27. Dataset Visibility must not replace authorization of a particular subscriber; authorization must still be
     evaluated separately for each Subscription request.
+28. Filter Parameter equality must be based on application values, independently of transport object identity and
+    property order.

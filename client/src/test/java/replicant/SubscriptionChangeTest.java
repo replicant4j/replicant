@@ -6,10 +6,28 @@ import org.testng.annotations.Test;
 import replicant.messages.SubscriptionChangeMessage;
 
 public final class SubscriptionChangeTest extends AbstractReplicantTest {
+    private SystemSchema filterSchema(final int id) {
+        final Dataset[] datasets = new Dataset[24];
+        datasets[23] = new Dataset(
+                23,
+                "Filtered",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
+                false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
+                null,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                java.util.List.of());
+        return new SystemSchema(id, "Test", datasets, new EntityType[0]);
+    }
+
     @Test
     void subscribeTypeDataset() {
         final int systemSchemaId = 0;
-        final SubscriptionChange change = SubscriptionChange.from(systemSchemaId, "+23");
+        final SubscriptionChange change = SubscriptionChange.from(filterSchema(systemSchemaId), "+23");
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23");
         assertEquals(change.getType(), SubscriptionChange.Type.SUBSCRIBE);
@@ -19,7 +37,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
     void subscribeInstanceDataset() {
         final int systemSchemaId = 0;
-        final SubscriptionChange change = SubscriptionChange.from(systemSchemaId, "+23.2");
+        final SubscriptionChange change = SubscriptionChange.from(filterSchema(systemSchemaId), "+23.2");
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.SUBSCRIBE);
@@ -29,7 +47,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
     void unsubscribeTypeDataset() {
         final int systemSchemaId = 0;
-        final SubscriptionChange change = SubscriptionChange.from(systemSchemaId, "-23");
+        final SubscriptionChange change = SubscriptionChange.from(filterSchema(systemSchemaId), "-23");
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23");
         assertEquals(change.getType(), SubscriptionChange.Type.UNSUBSCRIBE);
@@ -39,7 +57,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
     void unsubscribeInstanceDataset() {
         final int systemSchemaId = 0;
-        final SubscriptionChange change = SubscriptionChange.from(systemSchemaId, "-23.2");
+        final SubscriptionChange change = SubscriptionChange.from(filterSchema(systemSchemaId), "-23.2");
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.UNSUBSCRIBE);
@@ -50,8 +68,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void subscribeParameterFilteredTypeDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("+23", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("+23", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23");
         assertEquals(change.getType(), SubscriptionChange.Type.SUBSCRIBE);
@@ -62,8 +81,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void subscribeParameterFilteredInstanceDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("+23.2", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("+23.2", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.SUBSCRIBE);
@@ -74,8 +94,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void unsubscribeParameterFilteredTypeDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("-23", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("-23", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23");
         assertEquals(change.getType(), SubscriptionChange.Type.UNSUBSCRIBE);
@@ -86,8 +107,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void unsubscribeParameterFilteredInstanceDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("-23.2", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("-23.2", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.UNSUBSCRIBE);
@@ -98,8 +120,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void updateParameterFilteredTypeDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("=23", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("=23", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23");
         assertEquals(change.getType(), SubscriptionChange.Type.UPDATE);
@@ -110,8 +133,9 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     void updateParameterFilteredInstanceDataset() {
         final int systemSchemaId = 0;
         final String filterParameter = ValueUtil.randomString();
-        final SubscriptionChange change =
-                SubscriptionChange.from(systemSchemaId, SubscriptionChangeMessage.create("=23.2", filterParameter));
+        final SubscriptionChange change = SubscriptionChange.from(
+                filterSchema(systemSchemaId),
+                SubscriptionChangeMessage.create("=23.2", java.util.Map.of("value", filterParameter)));
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.UPDATE);
@@ -121,7 +145,7 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
     void invalidateDatasetAddress() {
         final int systemSchemaId = 0;
-        final SubscriptionChange change = SubscriptionChange.from(systemSchemaId, "!23.2");
+        final SubscriptionChange change = SubscriptionChange.from(filterSchema(systemSchemaId), "!23.2");
         assertEquals(change.getDatasetAddress().systemSchemaId(), systemSchemaId);
         assertEquals(change.getDatasetAddress().getName(), "0.23.2");
         assertEquals(change.getType(), SubscriptionChange.Type.INVALIDATE_DATASET_ADDRESS);
@@ -131,14 +155,14 @@ public final class SubscriptionChangeTest extends AbstractReplicantTest {
     @Test
     void badChange() {
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(0, "*1"));
+                expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(filterSchema(0), "*1"));
         assertEquals(exception.getMessage(), "Failed to parse Subscription Change '*1'");
     }
 
     @Test
     void invalidDatasetAddress() {
         final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(0, "+X"));
+                expectThrows(IllegalStateException.class, () -> SubscriptionChange.from(filterSchema(0), "+X"));
         assertEquals(exception.getMessage(), "Failed to parse Subscription Change '+X'");
     }
 }

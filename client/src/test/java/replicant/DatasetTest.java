@@ -8,6 +8,67 @@ import org.testng.annotations.Test;
 
 public class DatasetTest extends AbstractReplicantTest {
     @Test
+    public void codecRoundTripAndNullParameters() {
+        final FilterParameterCodec<String> codec =
+                new FilterParameterCodec<>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value")));
+        final Dataset dataset = new Dataset(
+                0,
+                "Filtered",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
+                false,
+                codec,
+                null,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                java.util.List.of());
+        final Object wire = dataset.encodeFilterParameter("example");
+        assertEquals(wire, java.util.Map.of("value", "example"));
+        assertEquals(dataset.decodeFilterParameter(wire), "example");
+        assertNull(dataset.encodeFilterParameter(null));
+        assertNull(dataset.decodeFilterParameter(null));
+    }
+
+    @Test
+    public void parameterFilteredDatasetRequiresCodecEvenWithoutApiChecks() {
+        ReplicantTestUtil.noCheckApiInvariants();
+        expectThrows(
+                NullPointerException.class,
+                () -> new Dataset(
+                        0,
+                        "Filtered",
+                        null,
+                        Dataset.FilterMode.PARAMETER_FILTERED,
+                        Dataset.FilterParameterMode.FIXED,
+                        false,
+                        null,
+                        null,
+                        false,
+                        Dataset.Visibility.UNIVERSAL,
+                        java.util.List.of()));
+    }
+
+    @Test
+    public void nonParameterFilteredDatasetRejectsCodec() {
+        expectThrows(
+                IllegalArgumentException.class,
+                () -> new Dataset(
+                        0,
+                        "Unfiltered",
+                        null,
+                        Dataset.FilterMode.UNFILTERED,
+                        null,
+                        false,
+                        new FilterParameterCodec<>(value -> value, value -> value),
+                        null,
+                        false,
+                        Dataset.Visibility.UNIVERSAL,
+                        java.util.List.of()));
+    }
+
+    @Test
     public void visibilityOrigins() {
         assertTrue(Dataset.Visibility.EXTERNAL.permitsAreaOfInterestOrigin());
         assertFalse(Dataset.Visibility.EXTERNAL.permitsDatasetLinkOrRequiredTypeDatasetOrigin());
@@ -29,6 +90,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.INTERNAL,
                 Collections.singletonList(entityType));
@@ -49,6 +111,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.INTERNAL,
@@ -83,6 +146,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -120,6 +184,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 cacheable,
                 visibility,
@@ -156,6 +221,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.FIXED,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 null,
                 cacheable,
                 visibility,
@@ -191,6 +257,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 false,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 matcher,
                 cacheable,
                 visibility,
@@ -225,6 +292,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 ValueUtil.randomBoolean(),
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -248,6 +316,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         null,
                         false,
                         null,
+                        null,
                         ValueUtil.randomBoolean(),
                         Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
@@ -267,6 +336,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.PARAMETER_FILTERED,
                         Dataset.FilterParameterMode.UPDATABLE,
                         false,
+                        new FilterParameterCodec<>(value -> value, value -> value),
                         null,
                         ValueUtil.randomBoolean(),
                         Dataset.Visibility.UNIVERSAL,
@@ -288,6 +358,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.PARAMETER_FILTERED,
                         Dataset.FilterParameterMode.FIXED,
                         false,
+                        new FilterParameterCodec<>(value -> value, value -> value),
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
                         Dataset.Visibility.UNIVERSAL,
@@ -309,6 +380,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.PARAMETER_FILTERED,
                         Dataset.FilterParameterMode.FIXED,
                         true,
+                        new FilterParameterCodec<>(value -> value, value -> value),
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         ValueUtil.randomBoolean(),
                         Dataset.Visibility.UNIVERSAL,
@@ -328,6 +400,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.IMPLICIT,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -353,6 +426,7 @@ public class DatasetTest extends AbstractReplicantTest {
                 Dataset.FilterMode.PARAMETER_FILTERED,
                 Dataset.FilterParameterMode.UPDATABLE,
                 true,
+                new FilterParameterCodec<>(value -> value, value -> value),
                 matcher,
                 false,
                 Dataset.Visibility.UNIVERSAL,
@@ -375,6 +449,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterParameterMode.FIXED,
                         false,
                         null,
+                        null,
                         false,
                         Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
@@ -394,6 +469,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.IMPLICIT,
                         Dataset.FilterParameterMode.UPDATABLE,
                         false,
+                        null,
                         mock(FilterParameterUpdateReplicaMatcher.class),
                         false,
                         Dataset.Visibility.UNIVERSAL,
@@ -414,6 +490,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.PARAMETER_FILTERED,
                         null,
                         false,
+                        new FilterParameterCodec<>(value -> value, value -> value),
                         null,
                         false,
                         Dataset.Visibility.UNIVERSAL,
@@ -435,6 +512,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         null,
                         true,
                         null,
+                        null,
                         false,
                         Dataset.Visibility.UNIVERSAL,
                         Collections.emptyList()));
@@ -452,6 +530,7 @@ public class DatasetTest extends AbstractReplicantTest {
                         Dataset.FilterMode.IMPLICIT,
                         null,
                         true,
+                        null,
                         null,
                         false,
                         Dataset.Visibility.UNIVERSAL,

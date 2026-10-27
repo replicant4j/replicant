@@ -13,9 +13,34 @@ import replicant.spy.MessageProcessingSummary;
 
 public class MessageProcessingTest extends AbstractReplicantTest {
     @Test
+    public void decodesReceivedFilterBeforeStoringSubscriptionChange() {
+        final Dataset dataset = new Dataset(
+                0,
+                "Filtered",
+                null,
+                Dataset.FilterMode.PARAMETER_FILTERED,
+                Dataset.FilterParameterMode.FIXED,
+                false,
+                new FilterParameterCodec<String>(value -> java.util.Map.of("value", value), value ->
+                        (String) java.util.Objects.requireNonNull(((java.util.Map<?, ?>) value).get("value"))),
+                null,
+                false,
+                Dataset.Visibility.UNIVERSAL,
+                java.util.List.of());
+        final SystemSchema schema = new SystemSchema(1, "Test", new Dataset[] {dataset}, new EntityType[0]);
+        final SubscriptionChangeMessage change =
+                SubscriptionChangeMessage.create("+0", java.util.Map.of("value", "example"));
+        final MessageProcessing processing = new MessageProcessing(
+                schema,
+                ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[] {change}, null, null),
+                null);
+        assertEquals(processing.getSubscriptionChanges().get(0).getFilterParameter(), "example");
+    }
+
+    @Test
     public void construct() {
-        final MessageProcessing processing =
-                new MessageProcessing(1, ChangeSetMessage.create(null, null, null, null, null, null), null);
+        final MessageProcessing processing = new MessageProcessing(
+                newSystemSchema(1), ChangeSetMessage.create(null, null, null, null, null, null), null);
 
         assertFalse(processing.areReplicaLinksPending());
         assertFalse(processing.areEntityChangesPending());
@@ -34,7 +59,7 @@ public class MessageProcessingTest extends AbstractReplicantTest {
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
 
-        final MessageProcessing processing = new MessageProcessing(1, changeSet, null);
+        final MessageProcessing processing = new MessageProcessing(newSystemSchema(1), changeSet, null);
 
         processing.incSubscriptionSubscribeCount();
         processing.incSubscriptionSubscribeCount();
@@ -62,7 +87,7 @@ public class MessageProcessingTest extends AbstractReplicantTest {
     public void incIgnoredUnlessSpyEnabled() {
         ReplicantTestUtil.disableSpies();
 
-        final MessageProcessing processing = new MessageProcessing(1, new ChangeSetMessage(), null);
+        final MessageProcessing processing = new MessageProcessing(newSystemSchema(1), new ChangeSetMessage(), null);
 
         assertEquals(processing.getSubscriptionSubscribeCount(), 0);
         assertEquals(processing.getSubscriptionUpdateCount(), 0);
@@ -91,7 +116,7 @@ public class MessageProcessingTest extends AbstractReplicantTest {
     public void testToString() {
         final ChangeSetMessage changeSet =
                 ChangeSetMessage.create(null, null, null, new SubscriptionChangeMessage[0], new EntityChange[0], null);
-        final MessageProcessing processing = new MessageProcessing(1, changeSet, null);
+        final MessageProcessing processing = new MessageProcessing(newSystemSchema(1), changeSet, null);
         assertEquals(
                 processing.toString(),
                 "MessageProcessing[Type=change-set,RequestId=null,ChangeIndex=0,ReplicasToLink.size=0]");
@@ -139,7 +164,7 @@ public class MessageProcessingTest extends AbstractReplicantTest {
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
 
-        final MessageProcessing processing = new MessageProcessing(1, changeSet, request);
+        final MessageProcessing processing = new MessageProcessing(newSystemSchema(1), changeSet, request);
 
         assertEquals(processing.getMessage(), changeSet);
         assertEquals(processing.getRequest(), request);
@@ -223,7 +248,7 @@ public class MessageProcessingTest extends AbstractReplicantTest {
         final String requestKey = ValueUtil.randomString();
         final RequestEntry request = new RequestEntry(requestId, requestKey, false, null);
 
-        final MessageProcessing processing = new MessageProcessing(1, changeSet, request);
+        final MessageProcessing processing = new MessageProcessing(newSystemSchema(1), changeSet, request);
 
         assertEquals(processing.getMessage(), changeSet);
         assertEquals(processing.getRequest(), request);
@@ -254,8 +279,8 @@ public class MessageProcessingTest extends AbstractReplicantTest {
         final ChangeSetMessage changeSet = ChangeSetMessage.create(1234, null, null, null, null, null);
         final RequestEntry request = new RequestEntry(5678, ValueUtil.randomString(), false, null);
 
-        final IllegalStateException exception =
-                expectThrows(IllegalStateException.class, () -> new MessageProcessing(1, changeSet, request));
+        final IllegalStateException exception = expectThrows(
+                IllegalStateException.class, () -> new MessageProcessing(newSystemSchema(1), changeSet, request));
         assertEquals(
                 exception.getMessage(),
                 "Replicant-0011: Server-to-client message specified Request ID '1234' but the matching Request has"

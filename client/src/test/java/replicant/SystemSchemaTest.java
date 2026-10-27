@@ -23,6 +23,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 null,
                 false,
                 null,
+                null,
                 false,
                 Dataset.Visibility.UNIVERSAL,
                 Collections.emptyList());
@@ -110,6 +111,7 @@ public class SystemSchemaTest extends AbstractReplicantTest {
                 Dataset.FilterMode.UNFILTERED,
                 null,
                 false,
+                null,
                 null,
                 false,
                 Dataset.Visibility.UNIVERSAL,

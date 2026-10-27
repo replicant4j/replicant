@@ -36,6 +36,7 @@ CLIENT_JAVA_SRCS = [_CLIENT_SOURCE_ROOT + src for src in [
     "EntityType.java",
     "Command.java",
     "FilterParameterUtil.java",
+    "FilterParameterCodec.java",
     "Function.java",
     "GwtIncompatible.java",
     "MessageProcessing.java",

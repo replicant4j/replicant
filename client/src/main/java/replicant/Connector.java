@@ -1130,11 +1130,19 @@ abstract class Connector extends ReplicantService {
         }
     }
 
+    @Nullable
+    private Object encodeFilterParameter(final DatasetAddress address, @Nullable final Object filterParameter) {
+        return null == filterParameter
+                ? null
+                : _systemSchema.getDataset(address.datasetId()).encodeFilterParameter(filterParameter);
+    }
+
     void progressSubscribeOperation(@NonNull final SubscriptionOperation operation) {
         final DatasetAddress datasetAddress = operation.getDatasetAddress();
         onSubscribeStarted(datasetAddress);
 
-        _transport.requestSubscribe(operation.getDatasetAddress(), operation.getFilterParameter());
+        _transport.requestSubscribe(
+                datasetAddress, encodeFilterParameter(datasetAddress, operation.getFilterParameter()));
         operation.markAsInProgress(ensureConnection().getLastTxRequestId());
     }
 
@@ -1144,7 +1152,9 @@ abstract class Connector extends ReplicantService {
                 .collect(Collectors.toList());
         datasetAddresses.forEach(this::onSubscribeStarted);
 
-        _transport.requestBulkSubscribe(datasetAddresses, operations.get(0).getFilterParameter());
+        _transport.requestBulkSubscribe(
+                datasetAddresses,
+                encodeFilterParameter(datasetAddresses.get(0), operations.get(0).getFilterParameter()));
         final int requestId = ensureConnection().getLastTxRequestId();
         operations.forEach(operation -> operation.markAsInProgress(requestId));
     }
@@ -1167,7 +1177,7 @@ abstract class Connector extends ReplicantService {
 
         final Object filterParameter = operation.getFilterParameter();
         assert null != filterParameter;
-        _transport.requestSubscribe(datasetAddress, filterParameter);
+        _transport.requestSubscribe(datasetAddress, encodeFilterParameter(datasetAddress, filterParameter));
         final int requestId = ensureConnection().getLastTxRequestId();
         operation.markAsInProgress(requestId);
     }
@@ -1181,7 +1191,8 @@ abstract class Connector extends ReplicantService {
         // All Filter Parameters will be the same if they are grouped
         final Object filterParameter = operations.get(0).getFilterParameter();
         assert null != filterParameter;
-        _transport.requestBulkSubscribe(datasetAddresses, filterParameter);
+        _transport.requestBulkSubscribe(
+                datasetAddresses, encodeFilterParameter(datasetAddresses.get(0), filterParameter));
         final int requestId = ensureConnection().getLastTxRequestId();
         operations.forEach(operation -> operation.markAsInProgress(requestId));
     }

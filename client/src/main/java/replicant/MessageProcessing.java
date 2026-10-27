@@ -19,7 +19,7 @@ import replicant.spy.MessageProcessingSummary;
  * Encapsulates incremental processing state for one server-to-client transport message.
  */
 final class MessageProcessing {
-    private final int _systemSchemaId;
+    private final SystemSchema _systemSchema;
     /**
      * The message to process.
      */
@@ -56,7 +56,7 @@ final class MessageProcessing {
     private int _entityLinkCount;
 
     MessageProcessing(
-            final int systemSchemaId,
+            final SystemSchema systemSchema,
             @NonNull final ServerToClientMessage message,
             @Nullable final RequestEntry request) {
         if (Replicant.shouldCheckInvariants()) {
@@ -67,7 +67,7 @@ final class MessageProcessing {
                             + Objects.requireNonNull(request).getRequestId() + "'.");
         }
         assert null != message;
-        _systemSchemaId = systemSchemaId;
+        _systemSchema = Objects.requireNonNull(systemSchema);
         _message = message;
         _request = request;
         _entityChangeIndex = 0;
@@ -283,13 +283,13 @@ final class MessageProcessing {
 
         if (changeSet.hasSubscriptionChanges()) {
             for (final String subscriptionChange : changeSet.getSubscriptionChanges()) {
-                changes.add(SubscriptionChange.from(_systemSchemaId, subscriptionChange));
+                changes.add(SubscriptionChange.from(_systemSchema, subscriptionChange));
             }
         }
         if (changeSet.hasFilterParameterSubscriptionChanges()) {
             for (final SubscriptionChangeMessage subscriptionChange :
                     changeSet.getFilterParameterSubscriptionChanges()) {
-                changes.add(SubscriptionChange.from(_systemSchemaId, subscriptionChange));
+                changes.add(SubscriptionChange.from(_systemSchema, subscriptionChange));
             }
         }
         return changes;

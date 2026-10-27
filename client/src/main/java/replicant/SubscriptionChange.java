@@ -24,26 +24,32 @@ final class SubscriptionChange {
     private final Object _filterParameter;
 
     @NonNull
-    static SubscriptionChange from(final int systemSchemaId, @NonNull final String subscriptionChange) {
-        return from(systemSchemaId, subscriptionChange, null);
+    static SubscriptionChange from(final SystemSchema systemSchema, @NonNull final String subscriptionChange) {
+        return from(systemSchema, subscriptionChange, null);
     }
 
     @NonNull
     static SubscriptionChange from(
-            final int systemSchemaId, @NonNull final SubscriptionChangeMessage subscriptionChange) {
-        return from(
-                systemSchemaId, subscriptionChange.getSubscriptionChange(), subscriptionChange.getFilterParameter());
+            final SystemSchema systemSchema, @NonNull final SubscriptionChangeMessage subscriptionChange) {
+        return from(systemSchema, subscriptionChange.getSubscriptionChange(), subscriptionChange.getFilterParameter());
     }
 
     @NonNull
     private static SubscriptionChange from(
-            final int systemSchemaId,
+            final SystemSchema systemSchema,
             @NonNull final String subscriptionChange,
             @Nullable final Object filterParameter) {
         try {
             final String descriptor = subscriptionChange.substring(1);
-            final DatasetAddress datasetAddress = DatasetAddress.parse(systemSchemaId, descriptor);
-            return new SubscriptionChange(changeToType(subscriptionChange), datasetAddress, filterParameter);
+            final DatasetAddress datasetAddress = DatasetAddress.parse(systemSchema.getId(), descriptor);
+            return new SubscriptionChange(
+                    changeToType(subscriptionChange),
+                    datasetAddress,
+                    null == filterParameter
+                            ? null
+                            : systemSchema
+                                    .getDataset(datasetAddress.datasetId())
+                                    .decodeFilterParameter(filterParameter));
         } catch (final Throwable t) {
             throw new IllegalStateException("Failed to parse Subscription Change '" + subscriptionChange + "'", t);
         }
