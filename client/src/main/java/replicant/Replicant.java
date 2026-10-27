@@ -3,7 +3,7 @@ package replicant;
 import static org.realityforge.braincheck.Guards.*;
 
 import arez.Arez;
-import arez.SchedulerLock;
+import arez.Disposable;
 import org.jspecify.annotations.NonNull;
 import org.realityforge.braincheck.BrainCheckConfig;
 
@@ -116,7 +116,7 @@ public final class Replicant {
                     Replicant::areZonesEnabled,
                     () -> "Replicant-0001: Invoked Replicant.createZone() but zones are not enabled.");
         }
-        final SchedulerLock lock = Arez.context().pauseScheduler();
+        final Disposable lock = Arez.context().pauseScheduler();
         final Zone zone = new Zone();
         lock.dispose();
         return zone;

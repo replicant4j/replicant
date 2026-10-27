@@ -4,7 +4,6 @@ import static org.realityforge.braincheck.Guards.*;
 
 import arez.Arez;
 import arez.Disposable;
-import arez.SchedulerLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +34,7 @@ final class ReplicantZoneHolder {
     private static List<Zone> c_zoneStack;
 
     static {
-        final SchedulerLock lock = Arez.context().pauseScheduler();
+        final Disposable lock = Arez.context().pauseScheduler();
         c_defaultZone = Replicant.areZonesEnabled() ? new Zone() : null;
         c_zone = Replicant.areZonesEnabled() ? c_defaultZone : null;
         c_zoneStack = Replicant.areZonesEnabled() ? new ArrayList<>() : null;
@@ -107,7 +106,7 @@ final class ReplicantZoneHolder {
      * This is dangerous as it may leave dangling references and should only be done in tests.
      */
     static void reset() {
-        final SchedulerLock lock = Arez.context().pauseScheduler();
+        final Disposable lock = Arez.context().pauseScheduler();
         if (null != c_defaultZone) {
             Disposable.dispose(c_defaultZone);
         }
