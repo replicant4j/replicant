@@ -6,10 +6,10 @@ This glossary defines the core language for describing Replicant's entity replic
 
 ### System Schema
 
-A catalog containing the [Entity Type](#entity-type) and [Dataset](#dataset) definitions available to one isolated
-replicated system. A client projection may reserve omitted Entity Type IDs so it preserves the system's protocol
-numbering without including every Entity Type. Its [System Schema ID](#system-schema-id) distinguishes that system
-within a [Replicant Context](#replicant-context).
+A catalog of the [Entity Type](#entity-type) and [Dataset](#dataset) definitions available to one isolated replicated
+system, identified by a [System Schema ID](#system-schema-id) within a [Replicant Context](#replicant-context). A client
+projection may omit Entity Types while reserving their [Entity Type ID](#entity-type-id)s to preserve protocol
+numbering.
 
 ### System Schema ID
 
@@ -75,7 +75,7 @@ _Avoid_: Sync when referring to the protocol checkpoint
 ### Request
 
 One client-to-server protocol operation sent through a [Connector](#connector). [Command](#command) instances,
-[Subscription Operation](#subscription-operation) instances, authentication, Dataset Cache negotiation, and
+[Subscription Operation](#subscription-operation) instances, authentication, [Dataset](#dataset) Cache negotiation, and
 [Synchronization Point](#synchronization-point) checkpoints are all Requests.
 
 _Avoid_: Replication Invocation, application request
@@ -224,12 +224,9 @@ _Avoid_: Entity cache, object registry
 
 ### Dataset
 
-A reusable definition of a replicable population of [Entity](#entity) instances, including its selection shape and
-filtering behaviour. Within its [System Schema](#system-schema), the definition has a compact
-[Dataset ID](#dataset-id) used by
-runtime metadata and [Dataset Address](#dataset-address) values, plus a human-readable Dataset name used for
-diagnostics. A [Subscription](#subscription) materializes that definition for one client at a Dataset Address.
-
+A reusable definition of a replicable population of [Entity](#entity) instances and its selection and filtering
+behaviour, with a diagnostic name and compact [Dataset ID](#dataset-id) in its [System Schema](#system-schema). A
+[Subscription](#subscription) materializes that definition for one client at a [Dataset Address](#dataset-address).
 _Avoid_: Graph, channel, replication graph
 
 ### Dataset ID
@@ -294,14 +291,14 @@ _Avoid_: Replication path, replication edge
 ### Unfiltered Type Dataset
 
 A [Type Dataset](#type-dataset) with no [Filter](#filter); every otherwise eligible [Entity](#entity) belongs to the
-Dataset selection.
+[Dataset](#dataset) selection.
 
 _Avoid_: Unfiltered type graph
 
 ### Unfiltered Instance Dataset
 
 An [Instance Dataset](#instance-dataset) with no [Filter](#filter); every [Entity](#entity) reached by its configured
-traversal belongs to the Dataset selection.
+traversal belongs to the [Dataset](#dataset) selection.
 
 _Avoid_: Unfiltered instance graph
 
@@ -444,7 +441,7 @@ toward that state.
 ### Area of Interest Status
 
 The reconciliation state of an [Area of Interest](#area-of-interest): `PENDING` until its desired
-[Explicit Subscription Mode](#explicit-subscription-mode) Subscription exists, `SATISFIED` while it exists, or
+[Explicit Subscription Mode](#explicit-subscription-mode) [Subscription](#subscription) exists, `SATISFIED` while it exists, or
 terminal `INVALIDATED` after [Dataset Address Invalidation](#dataset-address-invalidation). Area of Interest Status is
 independent of [Data Availability](#data-availability).
 

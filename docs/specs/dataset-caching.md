@@ -9,8 +9,8 @@ This specification defines the observable guarantees for storing and reusing the
 
 ## Requirements
 
-1. Dataset caching must be optional, and Replicant must remain correct when no cache service is available.
-2. Only a [Dataset](../glossary/README.md#dataset) explicitly designated as a Cacheable Dataset may participate in
+1. [Dataset](../glossary/README.md#dataset) caching must be optional, and Replicant must remain correct when no cache service is available.
+2. Only a Dataset explicitly designated as a Cacheable Dataset may participate in
    caching.
 3. Designating a Dataset as cacheable must permit caching without requiring a Dataset Cache Entry to be created or
    reused.

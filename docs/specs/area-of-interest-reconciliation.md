@@ -15,7 +15,7 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
 3. Applying a different [Filter Parameter](../glossary/README.md#filter-parameter) at an existing Dataset Address must
    update the shared desired value, with the most recently applied update becoming authoritative for every consumer of
    that Area of Interest.
-4. Area of Interest status must describe satisfaction using exactly `PENDING`, `SATISFIED`, and `INVALIDATED`.
+4. [Area of Interest Status](../glossary/README.md#area-of-interest-status) must describe satisfaction using exactly `PENDING`, `SATISFIED`, and `INVALIDATED`.
 5. A newly declared Area of Interest must be `PENDING`.
 6. An Area of Interest must be `SATISFIED` exactly when an
    [Explicit Subscription Mode](../glossary/README.md#explicit-subscription-mode) Subscription exists at its Dataset
@@ -43,7 +43,7 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
     it.
 17. Transitioning a Subscription from Explicit Subscription Mode to Implicit Subscription Mode must not by itself
     replace the Subscription or change its [Data Availability](../glossary/README.md#data-availability).
-18. Data Availability must be reported independently of Area of Interest status and must indicate whether a complete,
+18. Data Availability must be reported independently of Area of Interest Status and must indicate whether a complete,
     locally usable [Dataset](../glossary/README.md#dataset) representation currently exists.
 19. A `SATISFIED` Area of Interest must have Data Availability, an `INVALIDATED` Area of Interest must not have Data
     Availability, and a `PENDING` Area of Interest may be in either condition.
@@ -59,7 +59,7 @@ compares an [Area of Interest](../glossary/README.md#area-of-interest) with the 
     reconnection.
 25. Disconnection and reconnection must not change an `INVALIDATED` Area of Interest or cause its Dataset Address to be
     retried.
-26. An Area of Interest may request only a [Dataset](../glossary/README.md#dataset) whose
+26. An Area of Interest may request only a Dataset whose
     [Dataset Visibility](../glossary/README.md#dataset-visibility) permits a direct Area of Interest origin.
 27. Dataset Visibility must not replace authorization of a particular subscriber; authorization must still be
     evaluated separately for each Subscription request.
