@@ -1,8 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-exports_files([
-    "j2cl_suppress_unsafe_warning.patch",
-    "rules_closure_suppress_unsafe_warning.patch",
-    "rules_webtesting_collect_runfiles_library.patch",
-    "rules_webtesting_suppress_environment_dump.patch",
-])

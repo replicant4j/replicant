@@ -35,7 +35,7 @@ j2cl_test(
     name = "MessageWireFormatTest",
     size = "small",
     srcs = ["MessageWireFormatTest.java"],
-    browsers = ["@rules_webtesting//browsers:chromium-local"],
+    browsers = ["@rules_browsers//browsers/chromium:chromium"],
     compilation_level = "ADVANCED",
     test_class = "replicant.MessageWireFormatTest",
     deps = [
