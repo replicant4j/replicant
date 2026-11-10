@@ -1263,6 +1263,11 @@ public class ReplicantSessionManagerImpl implements ReplicantSessionManager {
                     }
                     final var subscription = session.createSubscription(datasetAddress, mode);
                     subscription.setFilterParameter(filterParameter);
+                    for (final var requiredTypeDataset :
+                            getSystemSchema().getDataset(datasetAddress).getRequiredTypeDatasets()) {
+                        session.recordDatasetScopedSubscriptionDependency(
+                                datasetAddress, DatasetAddress.of(requiredTypeDataset.getId()));
+                    }
                 } else {
                     final var invalidation = new ChangeSet();
                     invalidation.mergeSubscriptionChange(

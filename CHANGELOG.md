@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+* Retain Required Type Datasets while cacheable dependent Subscriptions are active and release them when those
+  Subscriptions are removed. This prevents cached Subscriptions from leaving retained Replicas with missing metadata
+  references.
 * Compare application Filter Parameters with Java value equality consistently in JVM and J2CL clients. Use
   immutable value types such as records; JSON serialization no longer defines Filter Parameter equality.
 * Require explicit `FilterParameterCodec` registration in parameter-filtered client Dataset constructors. Encode

@@ -1076,6 +1076,45 @@ public class ReplicantSessionManagerImplTest {
     }
 
     @Test
+    public void subscribe_cacheableRequiredTypeDatasetRetainsRequiredDataset() {
+        final var requiredTypeDataset = cacheableDataset(0, "ReferenceData");
+        final var requiringDataset = cacheableDataset(1, "CommonMetaData", requiredTypeDataset);
+        final var systemSchema = new SystemSchema("Test", requiredTypeDataset, requiringDataset);
+        final var serverAdapter = new TestReplicantServerAdapter(systemSchema);
+        final var manager = createManager(serverAdapter, mock(ReplicantMessageBroker.class));
+        final var session = createOpenSession();
+        final var requiredTypeDatasetAddress = DatasetAddress.of(0);
+        final var requiringDatasetAddress = DatasetAddress.of(1);
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+
+        manager.subscribe(session, 7, List.of(requiringDatasetAddress), null);
+
+        final var lock = session.getLock();
+        lock.lock();
+        try {
+            assertEquals(
+                    session.getSubscription(requiringDatasetAddress).getOutwardSubscriptionDependencies(),
+                    Set.of(requiredTypeDatasetAddress));
+            assertEquals(
+                    session.getSubscription(requiredTypeDatasetAddress).getInwardSubscriptionDependencies(),
+                    Set.of(requiringDatasetAddress));
+        } finally {
+            lock.unlock();
+        }
+
+        TransactionSynchronizationRegistryUtil.lookup().putResource(ServerConstants.REPLICATION_INVOCATION_KEY, null);
+        manager.unsubscribe(session, 8, List.of(requiringDatasetAddress));
+
+        lock.lock();
+        try {
+            assertFalse(session.isSubscriptionPresent(requiringDatasetAddress));
+            assertFalse(session.isSubscriptionPresent(requiredTypeDatasetAddress));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Test
     public void subscribe_updatableFilterParameterChangeTransitionsImplicitToExplicitWithoutReplacingSubscription() {
         final var dataset = new Dataset(
                 0,
@@ -1730,6 +1769,9 @@ public class ReplicantSessionManagerImplTest {
                             null == existing ? SubscriptionChange.Type.SUBSCRIBE : SubscriptionChange.Type.UPDATE,
                             filterParameter);
                 }
+            } else {
+                datasetAddresses.forEach(datasetAddress ->
+                        changeSet.mergeSubscriptionChange(datasetAddress, SubscriptionChange.Type.SUBSCRIBE));
             }
         }
 
